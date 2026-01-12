@@ -10,6 +10,7 @@ import SearchCustomerForOwnership from "./pages/SearchCustomerForOwnership";
 import SearchCustomerForCredit from "./pages/SearchCustomerForCredit";
 import SimTermination from "./pages/SimTermination";
 import CustomerTermination from "./pages/CustomerTermination";
+import NewOwnerDetails from "./pages/NewOwnerDetails";
 import ChangeOfOwnership from "./pages/ChangeOfOwnership";
 import CreditLimitAdjustment from "./pages/CreditLimitAdjustment";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/search-customer-credit" element={<SearchCustomerForCredit />} />
           <Route path="/sim-termination" element={<SimTermination />} />
           <Route path="/customer-termination" element={<CustomerTermination />} />
+          <Route path="/new-owner-details" element={<NewOwnerDetails />} />
           <Route path="/change-of-ownership" element={<ChangeOfOwnership />} />
           <Route path="/credit-limit-adjustment" element={<CreditLimitAdjustment />} />
           <Route path="*" element={<NotFound />} />

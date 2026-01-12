@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Check, User, Smartphone, Wifi, CheckCircle } from "lucide-react";
+import { Plus, Check, User, Smartphone, Wifi, CheckCircle, ArrowRight } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -34,13 +33,7 @@ const ChangeOfOwnership = () => {
   const [signatureAdded, setSignatureAdded] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
-  // New owner form fields
-  const [newOwnerIdType, setNewOwnerIdType] = useState("");
-  const [newOwnerIdNumber, setNewOwnerIdNumber] = useState("");
-  const [newOwnerFirstName, setNewOwnerFirstName] = useState("");
-  const [newOwnerLastName, setNewOwnerLastName] = useState("");
-
-  const isFormComplete = reason && termsAccepted && newOwnerIdType && newOwnerIdNumber && newOwnerFirstName && newOwnerLastName;
+  const isFormComplete = reason && termsAccepted;
 
   const handleSubmit = () => {
     setShowSuccessDialog(true);
@@ -56,16 +49,45 @@ const ChangeOfOwnership = () => {
       <AppHeader title="Change of Ownership" showBack />
       
       <div className="flex-1 px-4 pb-24 space-y-5">
-        {/* Current Owner Summary Card */}
-        <div className="app-card flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <User className="w-6 h-6 text-primary" />
+        {/* Ownership Transfer Summary */}
+        <div>
+          <h2 className="section-title">Ownership Transfer</h2>
+          <div className="app-card">
+            {/* Current Owner */}
+            <div className="flex items-center gap-3 pb-3 border-b border-border">
+              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                <User className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground mb-0.5">Current Owner</p>
+                <p className="font-semibold text-foreground">Ahmed Mohammed</p>
+                <p className="text-sm text-muted-foreground">ID: 987654321</p>
+              </div>
+              <span className="status-active">Active</span>
+            </div>
+
+            {/* Arrow Indicator */}
+            <div className="flex justify-center py-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <ArrowRight className="w-4 h-4 text-primary rotate-90" />
+              </div>
+            </div>
+
+            {/* New Owner */}
+            <div className="flex items-center gap-3 pt-0">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <User className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground mb-0.5">New Owner</p>
+                <p className="font-semibold text-foreground">Sara Ali Hassan</p>
+                <p className="text-sm text-muted-foreground">ID: 123456789</p>
+              </div>
+              <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary">
+                Pending
+              </span>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Ahmed Mohammed</p>
-            <p className="text-sm text-muted-foreground">Customer ID: 987654321</p>
-          </div>
-          <span className="status-active">Active</span>
         </div>
 
         {/* Services to Transfer */}
@@ -91,44 +113,6 @@ const ChangeOfOwnership = () => {
           <p className="text-xs text-muted-foreground mt-2 px-1">
             These services will be transferred to the new owner.
           </p>
-        </div>
-
-        {/* New Owner Information */}
-        <div>
-          <h2 className="section-title">New Owner Details</h2>
-          <div className="space-y-4">
-            <Select value={newOwnerIdType} onValueChange={setNewOwnerIdType}>
-              <SelectTrigger className="w-full bg-card border-border h-12">
-                <SelectValue placeholder="Select ID type" />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                <SelectItem value="national-id">National ID</SelectItem>
-                <SelectItem value="passport">Passport</SelectItem>
-                <SelectItem value="resident-card">Resident Card</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Input
-              value={newOwnerIdNumber}
-              onChange={(e) => setNewOwnerIdNumber(e.target.value)}
-              placeholder="Enter ID number"
-              className="h-12 bg-card border-border"
-            />
-
-            <Input
-              value={newOwnerFirstName}
-              onChange={(e) => setNewOwnerFirstName(e.target.value)}
-              placeholder="First name"
-              className="h-12 bg-card border-border"
-            />
-
-            <Input
-              value={newOwnerLastName}
-              onChange={(e) => setNewOwnerLastName(e.target.value)}
-              placeholder="Last name"
-              className="h-12 bg-card border-border"
-            />
-          </div>
         </div>
 
         {/* Transfer Reason */}
