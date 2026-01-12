@@ -13,7 +13,7 @@ const AppHeader = ({ title, showBack = false }: AppHeaderProps) => {
     <header className="sticky top-0 z-10 bg-background px-4 py-4 flex items-center">
       {showBack && (
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="w-10 h-10 flex items-center justify-center -ml-2"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
