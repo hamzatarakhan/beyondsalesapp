@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Check, User, Smartphone, Wifi, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Check, User, Smartphone, Wifi, Clock, CheckCircle } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const services = [
   { id: 1, icon: Smartphone, name: "078 888 4698", type: "Postpaid", status: "Active" },
@@ -19,10 +26,12 @@ const services = [
 ];
 
 const CustomerTermination = () => {
+  const navigate = useNavigate();
   const [reason, setReason] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [signatureAdded, setSignatureAdded] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   // Billing data (in real app, this would come from API)
   const totalOutstandingAmount = 270;
@@ -31,15 +40,12 @@ const CustomerTermination = () => {
   const isFormComplete = reason && termsAccepted;
 
   const handleSubmit = () => {
-    if (hasOutstandingBalance) {
-      toast.info("Request moved to Awaiting Payment", {
-        description: `Your termination request has been submitted. The customer account will be terminated once the outstanding balance of ${totalOutstandingAmount} OMR is paid.`,
-      });
-    } else {
-      toast.success("Customer Termination submitted successfully!", {
-        description: "Your request has been processed.",
-      });
-    }
+    setShowSuccessDialog(true);
+  };
+
+  const handleGoHome = () => {
+    setShowSuccessDialog(false);
+    navigate("/");
   };
 
   return (
@@ -214,6 +220,34 @@ const CustomerTermination = () => {
           </Button>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="max-w-[340px] rounded-2xl">
+          <DialogHeader className="text-center items-center pt-4">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${hasOutstandingBalance ? 'bg-warning/10' : 'bg-success/10'}`}>
+              {hasOutstandingBalance ? (
+                <Clock className="w-8 h-8 text-warning" />
+              ) : (
+                <CheckCircle className="w-8 h-8 text-success" />
+              )}
+            </div>
+            <DialogTitle className="text-xl">
+              {hasOutstandingBalance ? "Request Submitted" : "Account Terminated Successfully"}
+            </DialogTitle>
+            <DialogDescription className="text-center mt-2">
+              {hasOutstandingBalance
+                ? `Your termination request has been submitted. The customer account will be terminated once the outstanding balance of ${totalOutstandingAmount} OMR is paid.`
+                : "Your customer termination request has been processed successfully."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <Button onClick={handleGoHome} className="w-full h-12">
+              Go to Home
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
