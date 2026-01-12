@@ -13,12 +13,14 @@ import {
   Inbox,
   ArrowRightLeft,
   MoreHorizontal,
-  XCircle
+  XCircle,
+  UserX,
+  Users,
+  Wallet
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import heroBanner from "@/assets/hero-banner.jpg";
-import { UserX } from "lucide-react";
 
 const activities = [
   { icon: Smartphone, label: "Prepaid", path: "/prepaid" },
@@ -33,6 +35,8 @@ const activities = [
   { icon: ArrowRightLeft, label: "Pre2Post", path: "/pre2post" },
   { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
   { icon: UserX, label: "Customer Termination", path: "/search-customer" },
+  { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
+  { icon: Wallet, label: "Credit Limit", path: "/search-customer-credit" },
 ];
 
 const Home = () => {
