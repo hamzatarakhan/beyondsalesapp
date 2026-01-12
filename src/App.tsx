@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SearchSubscription from "./pages/SearchSubscription";
 import SimTermination from "./pages/SimTermination";
+import CustomerTermination from "./pages/CustomerTermination";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/search-subscription" element={<SearchSubscription />} />
           <Route path="/sim-termination" element={<SimTermination />} />
+          <Route path="/customer-termination" element={<CustomerTermination />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

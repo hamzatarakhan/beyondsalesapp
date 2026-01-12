@@ -18,6 +18,7 @@ import {
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { UserX } from "lucide-react";
 
 const activities = [
   { icon: Smartphone, label: "Prepaid", path: "/prepaid" },
@@ -31,6 +32,7 @@ const activities = [
   { icon: Inbox, label: "General Request", path: "/general-request" },
   { icon: ArrowRightLeft, label: "Pre2Post", path: "/pre2post" },
   { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
+  { icon: UserX, label: "Customer Termination", path: "/customer-termination" },
 ];
 
 const Home = () => {
