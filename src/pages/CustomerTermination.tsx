@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Check, User, Smartphone, Wifi } from "lucide-react";
+import { Plus, Check, User, Smartphone, Wifi, AlertTriangle } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,9 +24,19 @@ const CustomerTermination = () => {
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [signatureAdded, setSignatureAdded] = useState(false);
 
-  const isFormComplete = reason && termsAccepted;
+  // Billing data (in real app, this would come from API)
+  const totalOutstandingAmount = 270;
+  const hasOutstandingBalance = totalOutstandingAmount > 0;
+
+  const isFormComplete = reason && termsAccepted && !hasOutstandingBalance;
 
   const handleSubmit = () => {
+    if (hasOutstandingBalance) {
+      toast.error("Cannot proceed with termination", {
+        description: "Please clear your outstanding balance first.",
+      });
+      return;
+    }
     toast.success("Customer Termination submitted successfully!", {
       description: "Your request has been processed.",
     });
@@ -74,7 +84,44 @@ const CustomerTermination = () => {
           </p>
         </div>
 
-        {/* Termination Reason */}
+        {/* Billing Information */}
+        <div>
+          <h2 className="section-title">Billing Information</h2>
+          <div className="app-card">
+            <div className="billing-row">
+              <span className="text-muted-foreground">Current Balance</span>
+              <span className="value-positive">80 OMR</span>
+            </div>
+            <div className="billing-row">
+              <span className="text-muted-foreground">Unbilled Amount</span>
+              <span className="value-warning">150 OMR</span>
+            </div>
+            <div className="billing-row">
+              <span className="text-muted-foreground">Billed Amount</span>
+              <span className="value-negative">120 OMR</span>
+            </div>
+            <div className="billing-row">
+              <span className="text-foreground font-medium">Total Outstanding Amount</span>
+              <span className="font-semibold text-foreground">{totalOutstandingAmount} OMR</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Outstanding Balance Warning */}
+        {hasOutstandingBalance && (
+          <div className="app-card bg-destructive/5 border border-destructive/20 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+            </div>
+            <div>
+              <p className="font-medium text-destructive text-sm">Cannot Terminate Customer</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                You have an outstanding balance of {totalOutstandingAmount} OMR. Please settle your dues before proceeding with the termination.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div>
           <h2 className="section-title">Termination Reason</h2>
           <Select value={reason} onValueChange={setReason}>
