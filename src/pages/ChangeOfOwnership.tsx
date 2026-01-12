@@ -49,21 +49,6 @@ const ChangeOfOwnership = () => {
       <AppHeader title="Change of Ownership" showBack />
       
       <div className="flex-1 px-4 pb-24 space-y-5">
-        {/* Step Indicator */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-xs font-bold text-primary">✓</span>
-          </div>
-          <div className="flex-1 h-1 bg-primary rounded-full" />
-          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-xs font-bold text-primary">✓</span>
-          </div>
-          <div className="flex-1 h-1 bg-primary rounded-full" />
-          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-xs font-bold text-primary-foreground">3</span>
-          </div>
-        </div>
-
         {/* Section Header */}
         <div>
           <h2 className="text-lg font-semibold text-foreground">Review & Submit</h2>
