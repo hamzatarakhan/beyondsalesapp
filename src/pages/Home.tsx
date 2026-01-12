@@ -32,7 +32,7 @@ const activities = [
   { icon: Inbox, label: "General Request", path: "/general-request" },
   { icon: ArrowRightLeft, label: "Pre2Post", path: "/pre2post" },
   { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
-  { icon: UserX, label: "Customer Termination", path: "/customer-termination" },
+  { icon: UserX, label: "Customer Termination", path: "/search-customer" },
 ];
 
 const Home = () => {
