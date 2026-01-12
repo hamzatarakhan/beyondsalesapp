@@ -95,27 +95,6 @@ const ChangeOfOwnership = () => {
           </div>
         </div>
 
-        {/* Services to Transfer */}
-        <div>
-          <h2 className="section-title">Services to Be Transferred</h2>
-          <div className="app-card space-y-0">
-            {services.map((service, index) => (
-              <div 
-                key={service.id}
-                className={`flex items-center gap-3 py-3 ${index !== services.length - 1 ? 'border-b border-border' : ''}`}
-              >
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                  <service.icon className="w-5 h-5 text-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-foreground text-sm">{service.name}</p>
-                  <p className="text-xs text-muted-foreground">{service.type}</p>
-                </div>
-                <span className="status-active text-xs">{service.status}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Billing Information */}
         <div>
