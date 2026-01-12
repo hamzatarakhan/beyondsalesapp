@@ -167,21 +167,6 @@ const ChangeOfOwnership = () => {
           </div>
         </div>
 
-        {/* Transfer Reason */}
-        <div>
-          <h2 className="section-title">Transfer Reason</h2>
-          <Select value={reason} onValueChange={setReason}>
-            <SelectTrigger className="w-full bg-card border-border h-12">
-              <SelectValue placeholder="Select the reason" />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-border">
-              <SelectItem value="customer-request">Customer request</SelectItem>
-              <SelectItem value="legal-transfer">Legal transfer</SelectItem>
-              <SelectItem value="business-transfer">Business transfer</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Documents */}
         <div>
