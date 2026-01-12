@@ -69,14 +69,6 @@ const SearchCustomerForOwnership = () => {
           />
         </div>
 
-        {/* MSISDN */}
-        <div className="mb-6">
-          <label className="section-title block">MSISDN</label>
-          <Input
-            placeholder="Enter the MSISDN"
-            className="h-12 bg-card border-border"
-          />
-        </div>
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-6">
