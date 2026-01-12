@@ -201,8 +201,7 @@ const ChangeOfOwnership = () => {
         <div className="max-w-[390px] mx-auto">
           <Button
             onClick={handleSubmit}
-            disabled={!isFormComplete}
-            className="w-full h-12 text-base font-semibold disabled:opacity-50"
+            className="w-full h-12 text-base font-semibold"
           >
             Submit
           </Button>
