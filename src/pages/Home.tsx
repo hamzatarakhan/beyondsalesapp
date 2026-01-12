@@ -23,16 +23,6 @@ import ActivityIcon from "@/components/ActivityIcon";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const activities = [
-  { icon: Smartphone, label: "Prepaid", path: "/prepaid" },
-  { icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement" },
-  { icon: Package, label: "Fulfilment", path: "/fulfilment" },
-  { icon: CreditCard, label: "Postpaid", path: "/postpaid" },
-  { icon: Wifi, label: "HBB", path: "/hbb" },
-  { icon: Download, label: "Port IN", path: "/port-in" },
-  { icon: RotateCcw, label: "Resubmit", path: "/resubmit" },
-  { icon: FileText, label: "Reports", path: "/reports" },
-  { icon: Inbox, label: "General Request", path: "/general-request" },
-  { icon: ArrowRightLeft, label: "Pre2Post", path: "/pre2post" },
   { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
   { icon: UserX, label: "Customer Termination", path: "/search-customer" },
   { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
