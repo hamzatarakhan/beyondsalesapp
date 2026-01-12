@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Check, User, CheckCircle } from "lucide-react";
+import { Plus, Check, User, CheckCircle, Info } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -20,21 +19,51 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// Range lookups based on category
+const rangeLookups: Record<string, { value: string; label: string; creditLimit: number }[]> = {
+  "bank-statement": [
+    { value: "balance-1000-5000", label: "Balance 1,000 - 5,000 OMR", creditLimit: 100 },
+    { value: "balance-5000-10000", label: "Balance 5,000 - 10,000 OMR", creditLimit: 200 },
+    { value: "balance-10000-plus", label: "Balance 10,000+ OMR", creditLimit: 300 },
+  ],
+  "salary-slip": [
+    { value: "salary-100-500", label: "Salary 100 - 500 OMR", creditLimit: 50 },
+    { value: "salary-500-1000", label: "Salary 500 - 1,000 OMR", creditLimit: 100 },
+    { value: "salary-1000-2000", label: "Salary 1,000 - 2,000 OMR", creditLimit: 150 },
+    { value: "salary-2000-plus", label: "Salary 2,000+ OMR", creditLimit: 250 },
+  ],
+  "credit-card": [
+    { value: "limit-500-2000", label: "Credit Limit 500 - 2,000 OMR", creditLimit: 75 },
+    { value: "limit-2000-5000", label: "Credit Limit 2,000 - 5,000 OMR", creditLimit: 150 },
+    { value: "limit-5000-plus", label: "Credit Limit 5,000+ OMR", creditLimit: 250 },
+  ],
+};
+
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
-  const [reason, setReason] = useState("");
+  const [category, setCategory] = useState("");
+  const [selectedRange, setSelectedRange] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [signatureAdded, setSignatureAdded] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [newCreditLimit, setNewCreditLimit] = useState("");
 
   // Current credit data (mock)
   const currentCreditLimit = 500;
-  const currentOutstandingAmount = 270;
-  const availableCredit = currentCreditLimit - currentOutstandingAmount;
 
-  const isFormComplete = reason && termsAccepted && newCreditLimit;
+  // Get available ranges based on selected category
+  const availableRanges = category ? rangeLookups[category] || [] : [];
+
+  // Get credit limit based on selected range
+  const selectedRangeData = availableRanges.find(r => r.value === selectedRange);
+  const newCreditLimit = selectedRangeData?.creditLimit || 0;
+
+  const isFormComplete = category && selectedRange && termsAccepted;
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setSelectedRange(""); // Reset range when category changes
+  };
 
   const handleSubmit = () => {
     setShowSuccessDialog(true);
@@ -62,40 +91,57 @@ const CreditLimitAdjustment = () => {
           <span className="type-badge">Postpaid</span>
         </div>
 
-        {/* Current Credit Information */}
-        <div>
-          <h2 className="section-title">Current Credit Details</h2>
-          <div className="app-card">
-            <div className="billing-row">
-              <span className="text-muted-foreground">Current Credit Limit</span>
-              <span className="font-semibold text-foreground">{currentCreditLimit} OMR</span>
-            </div>
-            <div className="billing-row">
-              <span className="text-muted-foreground">Outstanding Amount</span>
-              <span className="value-warning">{currentOutstandingAmount} OMR</span>
-            </div>
-            <div className="billing-row">
-              <span className="text-muted-foreground">Available Credit</span>
-              <span className="value-positive">{availableCredit} OMR</span>
-            </div>
+        {/* Current Credit Limit - Simple Display */}
+        <div className="app-card">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Current Credit Limit</span>
+            <span className="font-semibold text-foreground text-lg">{currentCreditLimit} OMR</span>
           </div>
         </div>
 
-        {/* New Credit Limit */}
+        {/* Category Dropdown */}
         <div>
-          <h2 className="section-title">New Credit Limit</h2>
-          <Input
-            type="number"
-            value={newCreditLimit}
-            onChange={(e) => setNewCreditLimit(e.target.value)}
-            placeholder="Enter new credit limit"
-            className="h-12 bg-card border-border"
-          />
-          <p className="text-xs text-muted-foreground mt-2 px-1">
-            This will replace the current credit limit.
-          </p>
+          <h2 className="section-title">Category</h2>
+          <Select value={category} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="w-full bg-card border-border h-12">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              <SelectItem value="bank-statement">Bank Statement</SelectItem>
+              <SelectItem value="salary-slip">Salary Slip</SelectItem>
+              <SelectItem value="credit-card">Credit Card</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
+        {/* Range Dropdown - Shows based on category selection */}
+        {category && (
+          <div>
+            <h2 className="section-title">Select Range</h2>
+            <Select value={selectedRange} onValueChange={setSelectedRange}>
+              <SelectTrigger className="w-full bg-card border-border h-12">
+                <SelectValue placeholder="Select range" />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border">
+                {availableRanges.map((range) => (
+                  <SelectItem key={range.value} value={range.value}>
+                    {range.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Hint Message - Shows when range is selected */}
+        {selectedRange && newCreditLimit > 0 && (
+          <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+            <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-foreground">
+              This range will give you a credit limit of <span className="font-semibold text-primary">{newCreditLimit} OMR</span> for usage.
+            </p>
+          </div>
+        )}
 
         {/* Documents */}
         <div>
