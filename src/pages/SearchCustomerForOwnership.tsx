@@ -38,12 +38,21 @@ const SearchCustomerForOwnership = () => {
         </div>
 
         {/* ID Number */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="section-title block">ID number</label>
           <Input
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
             placeholder="Enter the ID number"
+            className="h-12 bg-card border-border"
+          />
+        </div>
+
+        {/* MSISDN */}
+        <div className="mb-6">
+          <label className="section-title block">MSISDN</label>
+          <Input
+            placeholder="Enter the MSISDN"
             className="h-12 bg-card border-border"
           />
         </div>
