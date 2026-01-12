@@ -96,22 +96,6 @@ const CreditLimitAdjustment = () => {
           </p>
         </div>
 
-        {/* Adjustment Reason */}
-        <div>
-          <h2 className="section-title">Adjustment Reason</h2>
-          <Select value={reason} onValueChange={setReason}>
-            <SelectTrigger className="w-full bg-card border-border h-12">
-              <SelectValue placeholder="Select the reason" />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-border">
-              <SelectItem value="customer-request">Customer request</SelectItem>
-              <SelectItem value="payment-history">Payment history</SelectItem>
-              <SelectItem value="risk-review">Risk review</SelectItem>
-              <SelectItem value="temporary-adjustment">Temporary adjustment</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Documents */}
         <div>
