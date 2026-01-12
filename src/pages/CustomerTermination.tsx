@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Check, User, Smartphone, Wifi, AlertTriangle } from "lucide-react";
+import { Plus, Check, User, Smartphone, Wifi, Clock } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,18 +28,18 @@ const CustomerTermination = () => {
   const totalOutstandingAmount = 270;
   const hasOutstandingBalance = totalOutstandingAmount > 0;
 
-  const isFormComplete = reason && termsAccepted && !hasOutstandingBalance;
+  const isFormComplete = reason && termsAccepted;
 
   const handleSubmit = () => {
     if (hasOutstandingBalance) {
-      toast.error("Cannot proceed with termination", {
-        description: "Please clear your outstanding balance first.",
+      toast.info("Request moved to Awaiting Payment", {
+        description: `Your termination request has been submitted. The customer account will be terminated once the outstanding balance of ${totalOutstandingAmount} OMR is paid.`,
       });
-      return;
+    } else {
+      toast.success("Customer Termination submitted successfully!", {
+        description: "Your request has been processed.",
+      });
     }
-    toast.success("Customer Termination submitted successfully!", {
-      description: "Your request has been processed.",
-    });
   };
 
   return (
@@ -107,16 +107,16 @@ const CustomerTermination = () => {
           </div>
         </div>
 
-        {/* Outstanding Balance Warning */}
+        {/* Outstanding Balance Notice */}
         {hasOutstandingBalance && (
-          <div className="app-card bg-destructive/5 border border-destructive/20 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
-              <AlertTriangle className="w-5 h-5 text-destructive" />
+          <div className="app-card bg-warning/5 border border-warning/20 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
+              <Clock className="w-5 h-5 text-warning" />
             </div>
             <div>
-              <p className="font-medium text-destructive text-sm">Cannot Terminate Customer</p>
+              <p className="font-medium text-warning text-sm">Awaiting Payment Notice</p>
               <p className="text-sm text-muted-foreground mt-1">
-                You have an outstanding balance of {totalOutstandingAmount} OMR. Please settle your dues before proceeding with the termination.
+                You have an outstanding balance of {totalOutstandingAmount} OMR. This request will be placed in "Awaiting Payment" status and the customer account will not be terminated until all dues are cleared.
               </p>
             </div>
           </div>
