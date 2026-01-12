@@ -130,9 +130,41 @@ const ChangeOfOwnership = () => {
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-2 px-1">
-            These services will be transferred to the new owner.
-          </p>
+        </div>
+
+        {/* Billing Information */}
+        <div>
+          <h2 className="section-title">Billing Information</h2>
+          <div className="app-card space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Current Balance</span>
+              <span className="text-sm font-medium text-foreground">80 OMR</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Unbilled Amount</span>
+              <span className="text-sm font-medium text-foreground">150 OMR</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Billed Amount</span>
+              <span className="text-sm font-medium text-foreground">120 OMR</span>
+            </div>
+            <div className="border-t border-border pt-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-foreground">Total Outstanding</span>
+                <span className="text-sm font-bold text-primary">350 OMR</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Billing Transfer Notice */}
+          <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-amber-600 text-xs">!</span>
+            </div>
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              All outstanding billing amounts will be transferred to the new owner upon approval of the ownership transfer.
+            </p>
+          </div>
         </div>
 
         {/* Transfer Reason */}
