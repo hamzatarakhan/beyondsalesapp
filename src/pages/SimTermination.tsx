@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, AlertTriangle } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import SimIcon from "@/components/SimIcon";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,19 @@ const SimTermination = () => {
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [signatureAdded, setSignatureAdded] = useState(false);
 
-  const isFormComplete = reason && termsAccepted;
+  // Billing data (in real app, this would come from API)
+  const totalOutstandingAmount = 170;
+  const hasOutstandingBalance = totalOutstandingAmount > 0;
+
+  const isFormComplete = reason && termsAccepted && !hasOutstandingBalance;
 
   const handleSubmit = () => {
+    if (hasOutstandingBalance) {
+      toast.error("Cannot proceed with termination", {
+        description: "Please clear your outstanding balance first.",
+      });
+      return;
+    }
     toast.success("SIM Termination submitted successfully!", {
       description: "Your request has been processed.",
     });
@@ -63,10 +73,25 @@ const SimTermination = () => {
             </div>
             <div className="billing-row">
               <span className="text-foreground font-medium">Total Outstanding Amount</span>
-              <span className="font-semibold text-foreground">170 OMR</span>
+              <span className="font-semibold text-foreground">{totalOutstandingAmount} OMR</span>
             </div>
           </div>
         </div>
+
+        {/* Outstanding Balance Warning */}
+        {hasOutstandingBalance && (
+          <div className="app-card bg-destructive/5 border border-destructive/20 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+            </div>
+            <div>
+              <p className="font-medium text-destructive text-sm">Cannot Terminate SIM</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                You have an outstanding balance of {totalOutstandingAmount} OMR. Please settle your dues before proceeding with the termination.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Termination Reason */}
         <div>
