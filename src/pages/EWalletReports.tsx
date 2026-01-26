@@ -54,7 +54,7 @@ const EWalletReports = () => {
   const [isParent, setIsParent] = useState(true);
   
   // Filters
-  const [selectedWallet, setSelectedWallet] = useState<WalletType>("my-wallet");
+  const [selectedWallet, setSelectedWallet] = useState<WalletType>("e-topup");
   const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>("last-7-days");
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
@@ -90,6 +90,11 @@ const EWalletReports = () => {
     const dateRange = getDateRange();
     
     return mockTransactions.filter((txn) => {
+      // Wallet filter - only show transactions for selected wallet
+      if (txn.walletType !== selectedWallet) {
+        return false;
+      }
+      
       // Date filter
       if (!isWithinInterval(txn.date, { start: dateRange.from, end: dateRange.to })) {
         return false;
@@ -122,7 +127,7 @@ const EWalletReports = () => {
       
       return true;
     });
-  }, [dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, memberFilter, searchQuery, isParent]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, memberFilter, searchQuery, isParent]);
 
   const resetFilters = () => {
     setDateRangeOption("today");
