@@ -43,11 +43,45 @@ export const childWallets: Wallet[] = [
   { id: "e-voucher", name: "E-Voucher", balance: 80.0, currency: "KD" },
 ];
 
+// Member wallet balances (for aggregation when filtering)
+export interface MemberWalletBalance {
+  memberId: string;
+  memberName: string;
+  wallets: {
+    "e-topup": number;
+    "e-voucher": number;
+  };
+}
+
 // Child members (for parent to filter)
 export const childMembers: Member[] = [
   { id: "child-1", name: "Ahmed Hassan" },
   { id: "child-2", name: "Sara Ali" },
   { id: "child-3", name: "Mohammed Khalid" },
+];
+
+// Member-specific wallet balances
+export const memberWalletBalances: MemberWalletBalance[] = [
+  { 
+    memberId: "parent", 
+    memberName: "Hamza", 
+    wallets: { "e-topup": 300.0, "e-voucher": 120.0 } 
+  },
+  { 
+    memberId: "child-1", 
+    memberName: "Ahmed Hassan", 
+    wallets: { "e-topup": 120.0, "e-voucher": 65.0 } 
+  },
+  { 
+    memberId: "child-2", 
+    memberName: "Sara Ali", 
+    wallets: { "e-topup": 85.0, "e-voucher": 35.5 } 
+  },
+  { 
+    memberId: "child-3", 
+    memberName: "Mohammed Khalid", 
+    wallets: { "e-topup": 51.0, "e-voucher": 14.0 } 
+  },
 ];
 
 // Helper to generate recent dates
