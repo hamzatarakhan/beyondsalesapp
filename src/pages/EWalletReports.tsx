@@ -38,7 +38,9 @@ import {
   ArrowDownLeft,
   RotateCcw,
   Search,
+  X,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfMonth, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -164,6 +166,28 @@ const EWalletReports = () => {
     if (selectedMembers.length > 0) count++;
     return count;
   }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, selectedMembers]);
+
+  const getDateRangeLabel = () => {
+    switch (dateRangeOption) {
+      case "today":
+        return "Today";
+      case "last-7-days":
+        return "Last 7 Days";
+      case "last-month":
+        return "Last Month";
+      case "custom":
+        if (customDateRange?.from && customDateRange?.to) {
+          return `${format(customDateRange.from, "MMM d")} - ${format(customDateRange.to, "MMM d")}`;
+        }
+        return "Custom";
+      default:
+        return "";
+    }
+  };
+
+  const removeMember = (memberName: string) => {
+    setSelectedMembers((prev) => prev.filter((m) => m !== memberName));
+  };
 
   const getStatusColor = (status: Transaction["status"]) => {
     switch (status) {
@@ -385,6 +409,93 @@ const EWalletReports = () => {
         </div>
       </div>
 
+      {/* Active Filters Display */}
+      {activeFiltersCount > 0 && (
+        <div className="px-4 mb-4">
+          <div className="bg-card rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-foreground">Active Filters</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetFilters}
+                className="text-primary h-auto py-1 px-2"
+              >
+                Clear All
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {/* Member Filters (Parent only) */}
+              {isParent && selectedMembers.map((member) => (
+                <Badge
+                  key={member}
+                  variant="secondary"
+                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+                >
+                  <span className="text-xs">Member: {member}</span>
+                  <button
+                    onClick={() => removeMember(member)}
+                    className="ml-1 rounded-full hover:bg-muted p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+              
+              {/* Date Range Filter */}
+              {dateRangeOption !== "last-7-days" && (
+                <Badge
+                  variant="secondary"
+                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+                >
+                  <span className="text-xs">Date: {getDateRangeLabel()}</span>
+                  <button
+                    onClick={() => {
+                      setDateRangeOption("last-7-days");
+                      setCustomDateRange(undefined);
+                    }}
+                    className="ml-1 rounded-full hover:bg-muted p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              
+              {/* Transaction Type Filter */}
+              {transactionTypeFilter !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+                >
+                  <span className="text-xs">Type: {transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
+                  <button
+                    onClick={() => setTransactionTypeFilter("all")}
+                    className="ml-1 rounded-full hover:bg-muted p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              
+              {/* Activity Type Filter */}
+              {activityTypeFilter !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+                >
+                  <span className="text-xs">Activity: {activityTypeLabels[activityTypeFilter]}</span>
+                  <button
+                    onClick={() => setActivityTypeFilter("all")}
+                    className="ml-1 rounded-full hover:bg-muted p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Transaction History */}
       <div className="px-4 flex-1">
