@@ -50,6 +50,7 @@ import {
   mockTransactions,
   activityTypeLabels,
   statusLabels,
+  memberWalletBalances,
   type WalletType,
   type TransactionType,
   type ActivityType,
@@ -75,7 +76,33 @@ const EWalletReports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const wallets = isParent ? parentWallets : childWallets;
+  const baseWallets = isParent ? parentWallets : childWallets;
+  
+  // Calculate dynamic wallet balances based on selected members
+  const wallets = useMemo(() => {
+    if (!isParent || selectedMembers.length === 0) {
+      return baseWallets;
+    }
+    
+    // Aggregate balances for selected members
+    const aggregatedBalances = selectedMembers.reduce(
+      (acc, memberName) => {
+        const memberBalance = memberWalletBalances.find((m) => m.memberName === memberName);
+        if (memberBalance) {
+          acc["e-topup"] += memberBalance.wallets["e-topup"];
+          acc["e-voucher"] += memberBalance.wallets["e-voucher"];
+        }
+        return acc;
+      },
+      { "e-topup": 0, "e-voucher": 0 }
+    );
+    
+    return baseWallets.map((wallet) => ({
+      ...wallet,
+      balance: aggregatedBalances[wallet.id],
+    }));
+  }, [isParent, selectedMembers, baseWallets]);
+  
   const currentWallet = wallets.find((w) => w.id === selectedWallet) || wallets[0];
 
   // Calculate date range based on option
