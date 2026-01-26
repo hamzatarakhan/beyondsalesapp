@@ -2,21 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { 
   Bell, 
   QrCode, 
-  Smartphone, 
-  RefreshCw, 
-  Package, 
-  CreditCard,
-  Wifi,
-  Download,
-  RotateCcw,
-  FileText,
-  Inbox,
-  ArrowRightLeft,
   MoreHorizontal,
   XCircle,
   UserX,
   Users,
-  Wallet
+  Wallet,
+  Package
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -27,6 +18,7 @@ const activities = [
   { icon: UserX, label: "Customer Termination", path: "/search-customer" },
   { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
   { icon: Wallet, label: "Credit Limit", path: "/search-customer-credit" },
+  { icon: Package, label: "Bundle Activation", path: "/search-bundle" },
 ];
 
 const Home = () => {
