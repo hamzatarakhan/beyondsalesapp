@@ -7,7 +7,8 @@ import {
   UserX,
   Users,
   Wallet,
-  Package
+  Package,
+  FileText,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -19,6 +20,10 @@ const activities = [
   { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
   { icon: Wallet, label: "Credit Limit", path: "/search-customer-credit" },
   { icon: Package, label: "Bundle Activation", path: "/search-bundle" },
+];
+
+const eWalletActivities = [
+  { icon: FileText, label: "Reports", path: "/ewallet-reports" },
 ];
 
 const Home = () => {
@@ -86,6 +91,32 @@ const Home = () => {
 
         <div className="grid grid-cols-4 gap-y-5 gap-x-2">
           {activities.map((activity) => (
+            <ActivityIcon
+              key={activity.path}
+              icon={activity.icon}
+              label={activity.label}
+              onClick={() => navigate(activity.path)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* E-Wallet Section */}
+      <div className="px-4 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="font-semibold text-foreground text-lg">E-Wallet</h3>
+          </div>
+          <button className="w-8 h-8 flex items-center justify-center">
+            <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+          {eWalletActivities.map((activity) => (
             <ActivityIcon
               key={activity.path}
               icon={activity.icon}
