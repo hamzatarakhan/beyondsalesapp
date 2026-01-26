@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 import {
   Popover,
   PopoverContent,
@@ -28,6 +38,7 @@ import {
   ArrowDownLeft,
   RotateCcw,
   Search,
+  X,
 } from "lucide-react";
 import { format, subDays, startOfMonth, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -59,9 +70,9 @@ const EWalletReports = () => {
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
   const [activityTypeFilter, setActivityTypeFilter] = useState<ActivityType | "all">("all");
-  const [memberFilter, setMemberFilter] = useState<string>("all");
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const wallets = isParent ? parentWallets : childWallets;
   const currentWallet = wallets.find((w) => w.id === selectedWallet) || wallets[0];
@@ -83,6 +94,15 @@ const EWalletReports = () => {
       default:
         return { from: startOfDay(today), to: endOfDay(today) };
     }
+  };
+
+  // Handle member selection toggle
+  const toggleMember = (memberName: string) => {
+    setSelectedMembers((prev) =>
+      prev.includes(memberName)
+        ? prev.filter((m) => m !== memberName)
+        : [...prev, memberName]
+    );
   };
 
   // Filter transactions
@@ -110,8 +130,8 @@ const EWalletReports = () => {
         return false;
       }
       
-      // Member filter (only for parent)
-      if (isParent && memberFilter !== "all" && !txn.memberName.includes(memberFilter)) {
+      // Member filter (only for parent, multi-select)
+      if (isParent && selectedMembers.length > 0 && !selectedMembers.includes(txn.memberName)) {
         return false;
       }
       
@@ -127,16 +147,23 @@ const EWalletReports = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, memberFilter, searchQuery, isParent]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMembers, searchQuery, isParent]);
 
   const resetFilters = () => {
     setDateRangeOption("today");
     setCustomDateRange(undefined);
     setTransactionTypeFilter("all");
     setActivityTypeFilter("all");
-    setMemberFilter("all");
+    setSelectedMembers([]);
     setSearchQuery("");
   };
+
+  const activeFiltersCount = [
+    dateRangeOption !== "last-7-days",
+    transactionTypeFilter !== "all",
+    activityTypeFilter !== "all",
+    selectedMembers.length > 0,
+  ].filter(Boolean).length;
 
   const getStatusColor = (status: Transaction["status"]) => {
     switch (status) {
@@ -187,154 +214,157 @@ const EWalletReports = () => {
             />
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           </div>
-          <Button
-            variant={showFilters ? "default" : "outline"}
-            size="icon"
-            className="h-11 w-11 rounded-xl"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Wallet Selection */}
-      <div className="px-4 mb-4">
-        <h3 className="text-sm font-semibold text-foreground mb-2">Select Wallet</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {wallets.map((wallet) => (
-            <button
-              key={wallet.id}
-              onClick={() => setSelectedWallet(wallet.id)}
-              className={cn(
-                "px-4 py-3 rounded-xl border-2 transition-all text-center",
-                selectedWallet === wallet.id
-                  ? "bg-primary/10 border-primary"
-                  : "bg-card border-transparent"
-              )}
-            >
-              <p className="text-sm font-medium text-foreground">{wallet.name}</p>
-              <p className="text-lg font-bold text-primary">{wallet.balance} {wallet.currency}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="px-4 mb-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="bg-card rounded-xl p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-foreground">Filters</h4>
-              <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Reset
+          <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+            <DrawerTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 rounded-xl relative"
+              >
+                <Filter className="w-5 h-5" />
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </Button>
-            </div>
+            </DrawerTrigger>
+            <DrawerContent className="bg-background">
+              <DrawerHeader className="flex flex-row items-center justify-between">
+                <DrawerTitle>Filters</DrawerTitle>
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
+                  <RotateCcw className="w-4 h-4 mr-1" />
+                  Reset
+                </Button>
+              </DrawerHeader>
+              <div className="px-4 pb-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                {/* Date Range */}
+                <div>
+                  <Label className="text-sm text-muted-foreground mb-2 block">Date Range</Label>
+                  <Select value={dateRangeOption} onValueChange={(v) => setDateRangeOption(v as DateRangeOption)}>
+                    <SelectTrigger className="h-11 rounded-xl bg-card">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border z-50">
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                      <SelectItem value="last-month">Last Month</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {dateRangeOption === "custom" && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full mt-2 h-11 rounded-xl justify-start">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {customDateRange?.from ? (
+                            customDateRange.to ? (
+                              <>
+                                {format(customDateRange.from, "MMM d")} - {format(customDateRange.to, "MMM d, yyyy")}
+                              </>
+                            ) : (
+                              format(customDateRange.from, "MMM d, yyyy")
+                            )
+                          ) : (
+                            <span>Pick a date range</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={customDateRange?.from}
+                          selected={customDateRange}
+                          onSelect={setCustomDateRange}
+                          numberOfMonths={1}
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
 
-            {/* Date Range */}
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Date Range</Label>
-              <Select value={dateRangeOption} onValueChange={(v) => setDateRangeOption(v as DateRangeOption)}>
-                <SelectTrigger className="h-11 rounded-xl bg-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border z-50">
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                  <SelectItem value="last-month">Last Month</SelectItem>
-                  <SelectItem value="custom">Custom Range</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {dateRangeOption === "custom" && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full mt-2 h-11 rounded-xl justify-start">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {customDateRange?.from ? (
-                        customDateRange.to ? (
-                          <>
-                            {format(customDateRange.from, "MMM d")} - {format(customDateRange.to, "MMM d, yyyy")}
-                          </>
-                        ) : (
-                          format(customDateRange.from, "MMM d, yyyy")
-                        )
-                      ) : (
-                        <span>Pick a date range</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={customDateRange?.from}
-                      selected={customDateRange}
-                      onSelect={setCustomDateRange}
-                      numberOfMonths={1}
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
-            </div>
+                {/* Transaction Type */}
+                <div>
+                  <Label className="text-sm text-muted-foreground mb-2 block">Transaction Type</Label>
+                  <Select value={transactionTypeFilter} onValueChange={(v) => setTransactionTypeFilter(v as TransactionType | "all")}>
+                    <SelectTrigger className="h-11 rounded-xl bg-card">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border z-50">
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="credit">Credit</SelectItem>
+                      <SelectItem value="debit">Debit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Transaction Type */}
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Transaction Type</Label>
-              <Select value={transactionTypeFilter} onValueChange={(v) => setTransactionTypeFilter(v as TransactionType | "all")}>
-                <SelectTrigger className="h-11 rounded-xl bg-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border z-50">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="credit">Credit</SelectItem>
-                  <SelectItem value="debit">Debit</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                {/* Activity Type */}
+                <div>
+                  <Label className="text-sm text-muted-foreground mb-2 block">Activity Type</Label>
+                  <Select value={activityTypeFilter} onValueChange={(v) => setActivityTypeFilter(v as ActivityType | "all")}>
+                    <SelectTrigger className="h-11 rounded-xl bg-card">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border z-50">
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="recharge">Recharge</SelectItem>
+                      <SelectItem value="transfer">Transfer</SelectItem>
+                      <SelectItem value="rollback">Rollback</SelectItem>
+                      <SelectItem value="voucher">Voucher</SelectItem>
+                      <SelectItem value="bill-payment">Bill Payment</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Activity Type */}
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Activity Type</Label>
-              <Select value={activityTypeFilter} onValueChange={(v) => setActivityTypeFilter(v as ActivityType | "all")}>
-                <SelectTrigger className="h-11 rounded-xl bg-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border z-50">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="recharge">Recharge</SelectItem>
-                  <SelectItem value="transfer">Transfer</SelectItem>
-                  <SelectItem value="rollback">Rollback</SelectItem>
-                  <SelectItem value="voucher">Voucher</SelectItem>
-                  <SelectItem value="bill-payment">Bill Payment</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Member Filter (Parent only) */}
-            {isParent && (
-              <div>
-                <Label className="text-sm text-muted-foreground mb-2 block">Member</Label>
-                <Select value={memberFilter} onValueChange={setMemberFilter}>
-                  <SelectTrigger className="h-11 rounded-xl bg-background">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border z-50">
-                    <SelectItem value="all">All Members</SelectItem>
-                    {childMembers.map((member) => (
-                      <SelectItem key={member.id} value={member.name}>
-                        {member.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Member Filter (Parent only - Multi-select) */}
+                {isParent && (
+                  <div>
+                    <Label className="text-sm text-muted-foreground mb-2 block">
+                      Select Members ({selectedMembers.length === 0 ? "All" : selectedMembers.length + " selected"})
+                    </Label>
+                    <div className="bg-card rounded-xl p-3 space-y-3">
+                      {childMembers.map((member) => (
+                        <div key={member.id} className="flex items-center space-x-3">
+                          <Checkbox
+                            id={member.id}
+                            checked={selectedMembers.includes(member.name)}
+                            onCheckedChange={() => toggleMember(member.name)}
+                          />
+                          <label
+                            htmlFor={member.id}
+                            className="text-sm font-medium text-foreground cursor-pointer flex-1"
+                          >
+                            {member.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedMembers.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedMembers([])}
+                        className="mt-2 text-muted-foreground"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Clear selection
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button className="w-full rounded-xl">Apply Filters</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
         </div>
-      )}
+      </div>
 
       {/* Transaction History */}
       <div className="px-4 flex-1">
