@@ -412,6 +412,87 @@ const EWalletReports = () => {
             </DrawerContent>
           </Drawer>
         </div>
+
+        {/* Active Filter Chips */}
+        {activeFiltersCount > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3 items-center">
+            {/* Member Filters (Parent only) */}
+            {isParent && selectedMembers.map((member) => (
+              <Badge
+                key={member}
+                variant="secondary"
+                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+              >
+                <span className="text-xs">{member}</span>
+                <button
+                  onClick={() => removeMember(member)}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            ))}
+            
+            {/* Date Range Filter */}
+            {dateRangeOption !== "last-7-days" && (
+              <Badge
+                variant="secondary"
+                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+              >
+                <span className="text-xs">{getDateRangeLabel()}</span>
+                <button
+                  onClick={() => {
+                    setDateRangeOption("last-7-days");
+                    setCustomDateRange(undefined);
+                  }}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            
+            {/* Transaction Type Filter */}
+            {transactionTypeFilter !== "all" && (
+              <Badge
+                variant="secondary"
+                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+              >
+                <span className="text-xs">{transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
+                <button
+                  onClick={() => setTransactionTypeFilter("all")}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            
+            {/* Activity Type Filter */}
+            {activityTypeFilter !== "all" && (
+              <Badge
+                variant="secondary"
+                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
+              >
+                <span className="text-xs">{activityTypeLabels[activityTypeFilter]}</span>
+                <button
+                  onClick={() => setActivityTypeFilter("all")}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+
+            {/* Clear All */}
+            <button
+              onClick={resetFilters}
+              className="text-xs text-primary hover:underline ml-1"
+            >
+              Clear All
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Wallet Selection */}
@@ -436,93 +517,6 @@ const EWalletReports = () => {
         </div>
       </div>
 
-      {/* Active Filters Display */}
-      {activeFiltersCount > 0 && (
-        <div className="px-4 mb-4">
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Active Filters</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetFilters}
-                className="text-primary h-auto py-1 px-2"
-              >
-                Clear All
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {/* Member Filters (Parent only) */}
-              {isParent && selectedMembers.map((member) => (
-                <Badge
-                  key={member}
-                  variant="secondary"
-                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-                >
-                  <span className="text-xs">Member: {member}</span>
-                  <button
-                    onClick={() => removeMember(member)}
-                    className="ml-1 rounded-full hover:bg-muted p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-              
-              {/* Date Range Filter */}
-              {dateRangeOption !== "last-7-days" && (
-                <Badge
-                  variant="secondary"
-                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-                >
-                  <span className="text-xs">Date: {getDateRangeLabel()}</span>
-                  <button
-                    onClick={() => {
-                      setDateRangeOption("last-7-days");
-                      setCustomDateRange(undefined);
-                    }}
-                    className="ml-1 rounded-full hover:bg-muted p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
-              
-              {/* Transaction Type Filter */}
-              {transactionTypeFilter !== "all" && (
-                <Badge
-                  variant="secondary"
-                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-                >
-                  <span className="text-xs">Type: {transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
-                  <button
-                    onClick={() => setTransactionTypeFilter("all")}
-                    className="ml-1 rounded-full hover:bg-muted p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
-              
-              {/* Activity Type Filter */}
-              {activityTypeFilter !== "all" && (
-                <Badge
-                  variant="secondary"
-                  className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-                >
-                  <span className="text-xs">Activity: {activityTypeLabels[activityTypeFilter]}</span>
-                  <button
-                    onClick={() => setActivityTypeFilter("all")}
-                    className="ml-1 rounded-full hover:bg-muted p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Transaction History */}
       <div className="px-4 flex-1">
