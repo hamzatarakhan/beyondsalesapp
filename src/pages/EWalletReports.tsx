@@ -201,19 +201,19 @@ const EWalletReports = () => {
       {/* Wallet Selection */}
       <div className="px-4 mb-4">
         <h3 className="text-sm font-semibold text-foreground mb-2">Select Wallet</h3>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="grid grid-cols-2 gap-3">
           {wallets.map((wallet) => (
             <button
               key={wallet.id}
               onClick={() => setSelectedWallet(wallet.id)}
               className={cn(
-                "flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all",
+                "px-4 py-3 rounded-xl border-2 transition-all text-center",
                 selectedWallet === wallet.id
                   ? "bg-primary/10 border-primary"
                   : "bg-card border-transparent"
               )}
             >
-              <p className="text-sm font-medium text-foreground whitespace-nowrap">{wallet.name}</p>
+              <p className="text-sm font-medium text-foreground">{wallet.name}</p>
               <p className="text-lg font-bold text-primary">{wallet.balance} {wallet.currency}</p>
             </button>
           ))}
