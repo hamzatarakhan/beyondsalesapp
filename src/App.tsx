@@ -13,6 +13,8 @@ import CustomerTermination from "./pages/CustomerTermination";
 import NewOwnerDetails from "./pages/NewOwnerDetails";
 import ChangeOfOwnership from "./pages/ChangeOfOwnership";
 import CreditLimitAdjustment from "./pages/CreditLimitAdjustment";
+import SearchBundleActivation from "./pages/SearchBundleActivation";
+import BundlePlans from "./pages/BundlePlans";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/new-owner-details" element={<NewOwnerDetails />} />
           <Route path="/change-of-ownership" element={<ChangeOfOwnership />} />
           <Route path="/credit-limit-adjustment" element={<CreditLimitAdjustment />} />
+          <Route path="/search-bundle" element={<SearchBundleActivation />} />
+          <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
