@@ -40,17 +40,10 @@ import {
   Search,
   X,
   Share2,
-  Copy,
   Check,
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfMonth, isWithinInterval, startOfDay, endOfDay } from "date-fns";
@@ -793,10 +786,11 @@ const EWalletReports = () => {
               </div>
 
               <DrawerFooter className="pt-0">
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex gap-2 w-full">
                   <Button
                     variant="outline"
-                    className="w-full h-11 rounded-xl"
+                    size="icon"
+                    className="h-11 w-11 rounded-xl shrink-0"
                     onClick={() => {
                       const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
                       navigator.clipboard.writeText(shareLink);
@@ -808,41 +802,33 @@ const EWalletReports = () => {
                       setTimeout(() => setCopied(false), 2000);
                     }}
                   >
-                    {copied ? <Check className="w-4 h-4 mr-2 text-success" /> : <Share2 className="w-4 h-4 mr-2" />}
-                    {copied ? "Copied" : "Share"}
+                    {copied ? <Check className="w-5 h-5 text-success" /> : <Share2 className="w-5 h-5" />}
                   </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button className="w-full h-11 rounded-xl">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          toast({
-                            title: "Exporting as PDF",
-                            description: "Your transaction details will be downloaded shortly.",
-                          });
-                        }}
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        Export as PDF
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          toast({
-                            title: "Exporting as Excel",
-                            description: "Your transaction details will be downloaded shortly.",
-                          });
-                        }}
-                      >
-                        <FileSpreadsheet className="w-4 h-4 mr-2" />
-                        Export as Excel
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    className="flex-1 h-11 rounded-xl"
+                    onClick={() => {
+                      toast({
+                        title: "Exporting as PDF",
+                        description: "Your transaction details will be downloaded shortly.",
+                      });
+                    }}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    PDF
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="flex-1 h-11 rounded-xl"
+                    onClick={() => {
+                      toast({
+                        title: "Exporting as Excel",
+                        description: "Your transaction details will be downloaded shortly.",
+                      });
+                    }}
+                  >
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Excel
+                  </Button>
                 </div>
               </DrawerFooter>
             </div>
