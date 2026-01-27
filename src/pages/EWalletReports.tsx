@@ -60,12 +60,16 @@ import {
 import { DateRange } from "react-day-picker";
 
 type DateRangeOption = "today" | "last-7-days" | "last-month" | "custom";
+type WalletViewMode = "my-wallets" | "team-wallets";
 
 const EWalletReports = () => {
   const navigate = useNavigate();
   
   // Mock role toggle (Parent/Child)
   const [isParent, setIsParent] = useState(true);
+  
+  // Wallet view mode (Parent only: my-wallets vs team-wallets)
+  const [walletViewMode, setWalletViewMode] = useState<WalletViewMode>("my-wallets");
   
   // Filters
   const [selectedWallet, setSelectedWallet] = useState<WalletType>("e-topup");
@@ -77,15 +81,44 @@ const EWalletReports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const baseWallets = isParent ? parentWallets : childWallets;
+  // Parent's own wallets (My Wallets)
+  const myWallets = parentWallets;
   
-  // Calculate dynamic wallet balances based on selected members
-  const wallets = useMemo(() => {
-    if (!isParent || selectedMembers.length === 0) {
-      return baseWallets;
+  // Team wallets - aggregate balances from all child members
+  const teamWallets = useMemo(() => {
+    const aggregatedBalances = childMembers.reduce(
+      (acc, member) => {
+        const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
+        if (memberBalance) {
+          acc["e-topup"] += memberBalance.wallets["e-topup"];
+          acc["e-voucher"] += memberBalance.wallets["e-voucher"];
+        }
+        return acc;
+      },
+      { "e-topup": 0, "e-voucher": 0 }
+    );
+    
+    return [
+      { id: "e-topup" as WalletType, name: "E-Topup", balance: aggregatedBalances["e-topup"], currency: "KD" },
+      { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
+    ];
+  }, []);
+  
+  // Get current wallets based on role and view mode
+  const currentWallets = useMemo(() => {
+    if (!isParent) {
+      return childWallets;
+    }
+    return walletViewMode === "my-wallets" ? myWallets : teamWallets;
+  }, [isParent, walletViewMode, myWallets, teamWallets]);
+  
+  // Dynamic wallet balances based on selected members (for team wallets)
+  const displayWallets = useMemo(() => {
+    if (!isParent || walletViewMode === "my-wallets" || selectedMembers.length === 0) {
+      return currentWallets;
     }
     
-    // Aggregate balances for selected members
+    // Aggregate balances for selected members only
     const aggregatedBalances = selectedMembers.reduce(
       (acc, memberName) => {
         const memberBalance = memberWalletBalances.find((m) => m.memberName === memberName);
@@ -98,13 +131,13 @@ const EWalletReports = () => {
       { "e-topup": 0, "e-voucher": 0 }
     );
     
-    return baseWallets.map((wallet) => ({
+    return currentWallets.map((wallet) => ({
       ...wallet,
       balance: aggregatedBalances[wallet.id],
     }));
-  }, [isParent, selectedMembers, baseWallets]);
+  }, [isParent, walletViewMode, selectedMembers, currentWallets]);
   
-  const currentWallet = wallets.find((w) => w.id === selectedWallet) || wallets[0];
+  const currentWallet = displayWallets.find((w) => w.id === selectedWallet) || displayWallets[0];
 
   // Calculate date range based on option
   const getDateRange = () => {
@@ -125,7 +158,10 @@ const EWalletReports = () => {
     }
   };
 
-  // Filter transactions
+  // Get parent member name for filtering
+  const parentMemberName = "Hamza";
+  
+  // Filter transactions based on wallet view mode
   const filteredTransactions = useMemo(() => {
     const dateRange = getDateRange();
     
@@ -133,6 +169,25 @@ const EWalletReports = () => {
       // Wallet filter - only show transactions for selected wallet
       if (txn.walletType !== selectedWallet) {
         return false;
+      }
+      
+      // For parent users, filter by view mode
+      if (isParent) {
+        if (walletViewMode === "my-wallets") {
+          // Only show parent's own transactions
+          if (txn.memberName !== parentMemberName) {
+            return false;
+          }
+        } else {
+          // Team wallets - show child member transactions only
+          if (txn.memberName === parentMemberName) {
+            return false;
+          }
+          // If specific members are selected, filter by them
+          if (selectedMembers.length > 0 && !selectedMembers.includes(txn.memberName)) {
+            return false;
+          }
+        }
       }
       
       // Date filter
@@ -150,11 +205,6 @@ const EWalletReports = () => {
         return false;
       }
       
-      // Member filter (only for parent, multi-select)
-      if (isParent && selectedMembers.length > 0 && !selectedMembers.includes(txn.memberName)) {
-        return false;
-      }
-      
       // Search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -167,7 +217,7 @@ const EWalletReports = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMembers, searchQuery, isParent]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMembers, searchQuery, isParent, walletViewMode]);
 
   const resetFilters = () => {
     setDateRangeOption("last-7-days");
@@ -292,8 +342,8 @@ const EWalletReports = () => {
                 </div>
               </DrawerHeader>
               <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                {/* Member Filter (Parent only) */}
-                {isParent && (
+                {/* Member Filter (Parent only, Team Wallets view) */}
+                {isParent && walletViewMode === "team-wallets" && (
                   <div>
                     <Label className="text-sm font-medium text-foreground mb-3 block">Select Members</Label>
                     <div className="space-y-2">
@@ -418,7 +468,7 @@ const EWalletReports = () => {
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap gap-2 mt-3 items-center">
             {/* Member Filters (Parent only) */}
-            {isParent && selectedMembers.map((member) => (
+            {isParent && walletViewMode === "team-wallets" && selectedMembers.map((member) => (
               <Badge
                 key={member}
                 variant="secondary"
@@ -496,11 +546,43 @@ const EWalletReports = () => {
         )}
       </div>
 
+      {/* Wallet View Mode Toggle (Parent only) */}
+      {isParent && (
+        <div className="px-4 mb-4">
+          <div className="bg-muted rounded-xl p-1 flex">
+            <button
+              onClick={() => setWalletViewMode("my-wallets")}
+              className={cn(
+                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                walletViewMode === "my-wallets"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              My Wallets
+            </button>
+            <button
+              onClick={() => setWalletViewMode("team-wallets")}
+              className={cn(
+                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                walletViewMode === "team-wallets"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              Team Wallets
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Wallet Selection */}
       <div className="px-4 mb-4">
-        <h3 className="text-sm font-semibold text-foreground mb-2">Select Wallet</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-2">
+          {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
+        </h3>
         <div className="grid grid-cols-2 gap-3">
-          {wallets.map((wallet) => (
+          {displayWallets.map((wallet) => (
             <button
               key={wallet.id}
               onClick={() => setSelectedWallet(wallet.id)}
@@ -512,7 +594,7 @@ const EWalletReports = () => {
               )}
             >
               <p className="text-sm font-medium text-foreground">{wallet.name}</p>
-              <p className="text-lg font-bold text-primary">{wallet.balance} {wallet.currency}</p>
+              <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
             </button>
           ))}
         </div>
@@ -524,10 +606,18 @@ const EWalletReports = () => {
           transactions={mockTransactions.filter((t) => {
             const dateRange = getDateRange();
             const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
-            const matchesMember = isParent && selectedMembers.length > 0 
-              ? selectedMembers.includes(t.memberName) 
-              : true;
-            return t.walletType === selectedWallet && matchesDate && matchesMember;
+            
+            // Filter by view mode for parent
+            if (isParent) {
+              if (walletViewMode === "my-wallets") {
+                if (t.memberName !== parentMemberName) return false;
+              } else {
+                if (t.memberName === parentMemberName) return false;
+                if (selectedMembers.length > 0 && !selectedMembers.includes(t.memberName)) return false;
+              }
+            }
+            
+            return t.walletType === selectedWallet && matchesDate;
           })}
           walletType={selectedWallet}
         />
