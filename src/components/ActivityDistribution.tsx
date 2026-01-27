@@ -30,7 +30,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
 };
 
 const ActivityDistribution = ({ transactions, walletType }: ActivityDistributionProps) => {
-  const chartData = useMemo(() => {
+  const { chartData, total } = useMemo(() => {
     // Count activities by type
     const activityCounts: Record<string, number> = {};
     
@@ -40,21 +40,21 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
     });
 
     // Convert to array format for pie chart
-    const total = transactions.length;
-    if (total === 0) return [];
+    const totalCount = transactions.length;
+    if (totalCount === 0) return { chartData: [], total: 0 };
 
-    return Object.entries(activityCounts)
+    const data = Object.entries(activityCounts)
       .map(([name, value]) => ({
         name: ACTIVITY_LABELS[name] || name,
         value,
-        percentage: Math.round((value / total) * 100),
+        percentage: Math.round((value / totalCount) * 100),
         activityKey: name,
         color: COLORS[name] || "#94A3B8",
       }))
       .sort((a, b) => b.percentage - a.percentage);
-  }, [transactions]);
 
-  const walletLabel = walletType === "e-topup" ? "E-Topup" : "E-Voucher";
+    return { chartData: data, total: totalCount };
+  }, [transactions]);
 
   if (chartData.length === 0) {
     return (
@@ -81,17 +81,17 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
         </h4>
       </div>
       
-      <div className="flex items-center gap-4">
-        {/* Donut Chart */}
-        <div className="relative w-32 h-32 flex-shrink-0">
+      <div className="flex flex-col items-center">
+        {/* Donut Chart with Total in Center */}
+        <div className="relative w-36 h-36">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                innerRadius={35}
-                outerRadius={55}
+                innerRadius={40}
+                outerRadius={60}
                 paddingAngle={2}
                 dataKey="value"
                 nameKey="name"
@@ -103,36 +103,22 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          {/* Center text */}
+          {/* Center text - Total count */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[10px] text-muted-foreground uppercase">Usage</span>
-            <span className="text-lg font-bold text-foreground">100%</span>
+            <span className="text-2xl font-bold text-foreground">{total}</span>
+            <span className="text-xs text-muted-foreground">Total</span>
           </div>
         </div>
 
-        {/* Legend with progress bars */}
-        <div className="flex-1 space-y-3">
+        {/* Horizontal Legend */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
           {chartData.map((item) => (
-            <div key={item.activityKey} className="space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-sm font-medium text-foreground">{item.name}</span>
-                </div>
-                <span className="text-sm font-semibold text-foreground">{item.percentage}%</span>
-              </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${item.percentage}%`,
-                    backgroundColor: item.color,
-                  }}
-                />
-              </div>
+            <div key={item.activityKey} className="flex items-center gap-1.5">
+              <div
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-xs text-muted-foreground">{item.name}</span>
             </div>
           ))}
         </div>
