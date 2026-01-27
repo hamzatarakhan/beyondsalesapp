@@ -306,7 +306,7 @@ const EWalletReports = () => {
 
       {/* Wallet View Mode Toggle (Parent only) */}
       {isParent && (
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-3">
           <div className="bg-muted rounded-xl p-1 flex">
             <button
               onClick={() => setWalletViewMode("my-wallets")}
@@ -330,11 +330,13 @@ const EWalletReports = () => {
             >
               Team Wallets
             </button>
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Search & Filter Toggle */}
       <div className="px-4 mb-4">
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2">
           <div className="relative flex-1">
             <Input
               placeholder="Search by Ref ID, Member..."
@@ -565,8 +567,6 @@ const EWalletReports = () => {
           </div>
         )}
       </div>
-        </div>
-      )}
 
       {/* Wallet Selection */}
       <div className="px-4 mb-4">
