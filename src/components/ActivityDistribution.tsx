@@ -118,7 +118,7 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-xs text-muted-foreground">{item.name}</span>
+              <span className="text-xs text-muted-foreground">{item.name} ({item.value})</span>
             </div>
           ))}
         </div>
