@@ -786,10 +786,10 @@ const EWalletReports = () => {
               </div>
 
               <DrawerFooter className="pt-0">
-                <div className="flex gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full">
                   <Button
                     variant="outline"
-                    className="flex-1 h-11 rounded-xl"
+                    className="w-full h-11 rounded-xl"
                     onClick={() => {
                       const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
                       navigator.clipboard.writeText(shareLink);
@@ -804,18 +804,33 @@ const EWalletReports = () => {
                     {copied ? <Check className="w-4 h-4 mr-2 text-success" /> : <Share2 className="w-4 h-4 mr-2" />}
                     {copied ? "Copied" : "Share"}
                   </Button>
-                  <Button
-                    className="flex-1 h-11 rounded-xl"
-                    onClick={() => {
-                      toast({
-                        title: "Exporting as PDF",
-                        description: "Your transaction details will be downloaded shortly.",
-                      });
-                    }}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export PDF
-                  </Button>
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      className="flex-1 h-11 rounded-xl"
+                      onClick={() => {
+                        toast({
+                          title: "Exporting as PDF",
+                          description: "Your transaction details will be downloaded shortly.",
+                        });
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 h-11 rounded-xl border-primary text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        toast({
+                          title: "Exporting as Excel",
+                          description: "Your transaction details will be downloaded shortly.",
+                        });
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Excel
+                    </Button>
+                  </div>
                 </div>
               </DrawerFooter>
             </div>
