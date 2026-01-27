@@ -786,11 +786,9 @@ const EWalletReports = () => {
               </div>
 
               <DrawerFooter className="pt-0">
-                <div className="flex gap-2 w-full">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-11 w-11 rounded-xl shrink-0"
+                <div className="flex items-center justify-center gap-6">
+                  <button
+                    className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => {
                       const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
                       navigator.clipboard.writeText(shareLink);
@@ -802,10 +800,13 @@ const EWalletReports = () => {
                       setTimeout(() => setCopied(false), 2000);
                     }}
                   >
-                    {copied ? <Check className="w-5 h-5 text-success" /> : <Share2 className="w-5 h-5" />}
-                  </Button>
-                  <Button
-                    className="flex-1 h-11 rounded-xl"
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                      {copied ? <Check className="w-5 h-5 text-success" /> : <Share2 className="w-5 h-5" />}
+                    </div>
+                    <span className="text-xs">{copied ? "Copied" : "Share"}</span>
+                  </button>
+                  <button
+                    className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => {
                       toast({
                         title: "Exporting as PDF",
@@ -813,12 +814,13 @@ const EWalletReports = () => {
                       });
                     }}
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    PDF
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    className="flex-1 h-11 rounded-xl"
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-xs">PDF</span>
+                  </button>
+                  <button
+                    className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => {
                       toast({
                         title: "Exporting as Excel",
@@ -826,9 +828,11 @@ const EWalletReports = () => {
                       });
                     }}
                   >
-                    <FileSpreadsheet className="w-4 h-4 mr-2" />
-                    Excel
-                  </Button>
+                    <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
+                      <FileSpreadsheet className="w-5 h-5 text-success" />
+                    </div>
+                    <span className="text-xs">Excel</span>
+                  </button>
                 </div>
               </DrawerFooter>
             </div>
