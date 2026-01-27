@@ -518,35 +518,19 @@ const EWalletReports = () => {
         </div>
       </div>
 
-      {/* Activity Distribution Charts */}
+      {/* Activity Distribution for Selected Wallet */}
       <div className="px-4 mb-4">
-        <h3 className="text-sm font-semibold text-foreground mb-2">Activity Distribution</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <ActivityDistribution
-            transactions={mockTransactions.filter((t) => {
-              // Apply same filters but for e-topup
-              const dateRange = getDateRange();
-              const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
-              const matchesMember = isParent && selectedMembers.length > 0 
-                ? selectedMembers.includes(t.memberName) 
-                : true;
-              return t.walletType === "e-topup" && matchesDate && matchesMember;
-            })}
-            walletType="e-topup"
-          />
-          <ActivityDistribution
-            transactions={mockTransactions.filter((t) => {
-              // Apply same filters but for e-voucher
-              const dateRange = getDateRange();
-              const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
-              const matchesMember = isParent && selectedMembers.length > 0 
-                ? selectedMembers.includes(t.memberName) 
-                : true;
-              return t.walletType === "e-voucher" && matchesDate && matchesMember;
-            })}
-            walletType="e-voucher"
-          />
-        </div>
+        <ActivityDistribution
+          transactions={mockTransactions.filter((t) => {
+            const dateRange = getDateRange();
+            const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+            const matchesMember = isParent && selectedMembers.length > 0 
+              ? selectedMembers.includes(t.memberName) 
+              : true;
+            return t.walletType === selectedWallet && matchesDate && matchesMember;
+          })}
+          walletType={selectedWallet}
+        />
       </div>
 
 
