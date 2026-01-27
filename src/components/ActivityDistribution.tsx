@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 import type { Transaction, WalletType } from "@/data/mockWalletData";
 
 interface ActivityDistributionProps {
@@ -9,19 +10,13 @@ interface ActivityDistributionProps {
 }
 
 // Colors for pie chart slices
-const COLORS = {
-  "e-topup": {
-    transfer: "hsl(var(--primary))",
-    "bill-payment": "hsl(var(--warning))",
-    rollback: "hsl(var(--destructive))",
-    recharge: "hsl(var(--success))",
-  },
-  "e-voucher": {
-    voucher: "hsl(var(--primary))",
-    recharge: "hsl(var(--success))",
-    "erp-transfer": "hsl(var(--warning))",
-    rollback: "hsl(var(--destructive))",
-  },
+const COLORS: Record<string, string> = {
+  "bill-payment": "#F59E0B", // Orange/Amber
+  recharge: "#3B82F6", // Blue
+  transfer: "#22C55E", // Green
+  rollback: "#EC4899", // Pink
+  voucher: "#8B5CF6", // Purple
+  "erp-transfer": "#14B8A6", // Teal
 };
 
 // Activity labels for display
@@ -54,19 +49,22 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
         value,
         percentage: Math.round((value / total) * 100),
         activityKey: name,
+        color: COLORS[name] || "#94A3B8",
       }))
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.percentage - a.percentage);
   }, [transactions]);
 
   const walletLabel = walletType === "e-topup" ? "E-Topup" : "E-Voucher";
-  const colorMap = COLORS[walletType];
 
   if (chartData.length === 0) {
     return (
       <Card className="p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-3">
-          {walletLabel} Activity Distribution
-        </h4>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-4 h-4 text-primary" />
+          <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+            Activity Distribution
+          </h4>
+        </div>
         <div className="h-32 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">No transactions to display</p>
         </div>
@@ -76,57 +74,68 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
 
   return (
     <Card className="p-4">
-      <h4 className="text-sm font-semibold text-foreground mb-2">
-        {walletLabel} Activity Distribution
-      </h4>
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={35}
-              outerRadius={60}
-              paddingAngle={2}
-              dataKey="value"
-              nameKey="name"
-              label={({ percentage }) => `${percentage}%`}
-              labelLine={false}
-            >
-              {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={colorMap[entry.activityKey as keyof typeof colorMap] || `hsl(${index * 90}, 70%, 50%)`}
+      <div className="flex items-center gap-2 mb-4">
+        <Clock className="w-4 h-4 text-primary" />
+        <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+          Activity Distribution
+        </h4>
+      </div>
+      
+      <div className="flex items-center gap-4">
+        {/* Donut Chart */}
+        <div className="relative w-32 h-32 flex-shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={35}
+                outerRadius={55}
+                paddingAngle={2}
+                dataKey="value"
+                nameKey="name"
+                stroke="none"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[10px] text-muted-foreground uppercase">Usage</span>
+            <span className="text-lg font-bold text-foreground">100%</span>
+          </div>
+        </div>
+
+        {/* Legend with progress bars */}
+        <div className="flex-1 space-y-3">
+          {chartData.map((item) => (
+            <div key={item.activityKey} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm font-medium text-foreground">{item.name}</span>
+                </div>
+                <span className="text-sm font-semibold text-foreground">{item.percentage}%</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${item.percentage}%`,
+                    backgroundColor: item.color,
+                  }}
                 />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value: number, name: string) => [
-                `${value} transaction${value > 1 ? "s" : ""}`,
-                name,
-              ]}
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
-                fontSize: "12px",
-              }}
-            />
-            <Legend
-              layout="horizontal"
-              align="center"
-              verticalAlign="bottom"
-              iconType="circle"
-              iconSize={8}
-              formatter={(value, entry: any) => (
-                <span className="text-xs text-foreground">
-                  {value} ({entry.payload?.percentage}%)
-                </span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </Card>
   );
