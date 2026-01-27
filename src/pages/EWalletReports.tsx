@@ -304,6 +304,34 @@ const EWalletReports = () => {
         </div>
       </div>
 
+      {/* Wallet View Mode Toggle (Parent only) */}
+      {isParent && (
+        <div className="px-4 mb-4">
+          <div className="bg-muted rounded-xl p-1 flex">
+            <button
+              onClick={() => setWalletViewMode("my-wallets")}
+              className={cn(
+                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                walletViewMode === "my-wallets"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              My Wallets
+            </button>
+            <button
+              onClick={() => setWalletViewMode("team-wallets")}
+              className={cn(
+                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                walletViewMode === "team-wallets"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              Team Wallets
+            </button>
+      </div>
+
       {/* Search & Filter Toggle */}
       <div className="px-4 mb-4">
         <div className="flex gap-2">
@@ -537,34 +565,6 @@ const EWalletReports = () => {
           </div>
         )}
       </div>
-
-      {/* Wallet View Mode Toggle (Parent only) */}
-      {isParent && (
-        <div className="px-4 mb-4">
-          <div className="bg-muted rounded-xl p-1 flex">
-            <button
-              onClick={() => setWalletViewMode("my-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "my-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              My Wallets
-            </button>
-            <button
-              onClick={() => setWalletViewMode("team-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "team-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              Team Wallets
-            </button>
-          </div>
         </div>
       )}
 
