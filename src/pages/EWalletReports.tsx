@@ -534,14 +534,6 @@ const EWalletReports = () => {
                 </button>
               </Badge>
             )}
-
-            {/* Clear All */}
-            <button
-              onClick={resetFilters}
-              className="text-xs text-primary hover:underline ml-1"
-            >
-              Clear All
-            </button>
           </div>
         )}
       </div>
