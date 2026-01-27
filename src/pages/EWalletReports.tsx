@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import ActivityDistribution from "@/components/ActivityDistribution";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,12 @@ import {
   RotateCcw,
   Search,
   X,
+  Share2,
+  Copy,
+  Check,
+  Link2,
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfMonth, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -63,8 +67,6 @@ type DateRangeOption = "today" | "last-7-days" | "last-month" | "custom";
 type WalletViewMode = "my-wallets" | "team-wallets";
 
 const EWalletReports = () => {
-  const navigate = useNavigate();
-  
   // Mock role toggle (Parent/Child)
   const [isParent, setIsParent] = useState(true);
   
@@ -80,6 +82,11 @@ const EWalletReports = () => {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Transaction details drawer
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Parent's own wallets (My Wallets)
   const myWallets = parentWallets;
@@ -636,7 +643,10 @@ const EWalletReports = () => {
             {filteredTransactions.map((txn) => (
               <div
                 key={txn.id}
-                onClick={() => navigate(`/ewallet-transaction/${txn.id}`)}
+                onClick={() => {
+                  setSelectedTransaction(txn);
+                  setIsDetailsOpen(true);
+                }}
                 className="bg-card rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between">
@@ -687,8 +697,134 @@ const EWalletReports = () => {
           </div>
         )}
       </div>
+
+      {/* Transaction Details Bottom Sheet */}
+      <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          {selectedTransaction && (
+            <div className="overflow-y-auto">
+              <DrawerHeader className="text-center pb-0">
+                <div
+                  className={cn(
+                    "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4",
+                    selectedTransaction.transactionType === "credit" ? "bg-success/10" : "bg-destructive/10"
+                  )}
+                >
+                  {selectedTransaction.transactionType === "credit" ? (
+                    <ArrowDownLeft className="w-8 h-8 text-success" />
+                  ) : (
+                    <ArrowUpRight className="w-8 h-8 text-destructive" />
+                  )}
+                </div>
+                <p
+                  className={cn(
+                    "text-3xl font-bold",
+                    selectedTransaction.transactionType === "credit" ? "text-success" : "text-destructive"
+                  )}
+                >
+                  {selectedTransaction.transactionType === "credit" ? "+" : "-"}{selectedTransaction.amount} {selectedTransaction.currency}
+                </p>
+                <span className={cn("text-sm px-3 py-1 rounded-full mt-2 inline-block", getStatusColor(selectedTransaction.status))}>
+                  {statusLabels[selectedTransaction.status]}
+                </span>
+              </DrawerHeader>
+
+              {/* Transaction Details */}
+              <div className="px-4 py-4">
+                <div className="bg-muted rounded-xl divide-y divide-border">
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Transaction Type</span>
+                    <span className="font-medium text-foreground capitalize">{selectedTransaction.transactionType}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Activity</span>
+                    <span className="font-medium text-foreground">{activityTypeLabels[selectedTransaction.activityType]}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Description</span>
+                    <span className="font-medium text-foreground">{selectedTransaction.description}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Date & Time</span>
+                    <span className="font-medium text-foreground">{format(selectedTransaction.date, "MMM d, yyyy • h:mm a")}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Member</span>
+                    <span className="font-medium text-foreground">{selectedTransaction.memberName}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Reference ID</span>
+                    <span className="font-medium text-foreground text-xs">{selectedTransaction.referenceId}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Balance Impact */}
+              <div className="px-4 pb-4">
+                <h3 className="font-semibold text-foreground mb-2 text-sm">Balance Impact</h3>
+                <div className="bg-muted rounded-xl divide-y divide-border">
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Amount</span>
+                    <span
+                      className={cn(
+                        "font-bold",
+                        selectedTransaction.transactionType === "credit" ? "text-success" : "text-destructive"
+                      )}
+                    >
+                      {selectedTransaction.transactionType === "credit" ? "+" : "-"}{selectedTransaction.amount} {selectedTransaction.currency}
+                    </span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Balance Before</span>
+                    <span className="font-medium text-foreground">{selectedTransaction.balanceBefore} {selectedTransaction.currency}</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Balance After</span>
+                    <span className="font-medium text-foreground">{selectedTransaction.balanceAfter} {selectedTransaction.currency}</span>
+                  </div>
+                </div>
+              </div>
+
+              <DrawerFooter className="pt-0">
+                <div className="flex gap-2 w-full">
+                  <Button
+                    variant="outline"
+                    className="flex-1 h-11 rounded-xl"
+                    onClick={() => {
+                      const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
+                      navigator.clipboard.writeText(shareLink);
+                      setCopied(true);
+                      toast({
+                        title: "Link copied!",
+                        description: "The shareable link has been copied to your clipboard.",
+                      });
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                  >
+                    {copied ? <Check className="w-4 h-4 mr-2 text-success" /> : <Share2 className="w-4 h-4 mr-2" />}
+                    {copied ? "Copied" : "Share"}
+                  </Button>
+                  <Button
+                    className="flex-1 h-11 rounded-xl"
+                    onClick={() => {
+                      toast({
+                        title: "Exporting as PDF",
+                        description: "Your transaction details will be downloaded shortly.",
+                      });
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export PDF
+                  </Button>
+                </div>
+              </DrawerFooter>
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
+
 
 export default EWalletReports;
