@@ -573,7 +573,7 @@ const EWalletReports = () => {
                     </div>
                     <div>
                       <p className="font-medium text-foreground">{txn.description}</p>
-                      <p className="text-sm text-muted-foreground">{txn.memberName}</p>
+                      {isParent && <p className="text-sm text-muted-foreground">{txn.memberName}</p>}
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(txn.date, "MMM d, yyyy • h:mm a")}
                       </p>
