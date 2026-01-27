@@ -42,8 +42,15 @@ import {
   Share2,
   Copy,
   Check,
-  Link2,
+  FileText,
+  FileSpreadsheet,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfMonth, isWithinInterval, startOfDay, endOfDay } from "date-fns";
@@ -804,33 +811,38 @@ const EWalletReports = () => {
                     {copied ? <Check className="w-4 h-4 mr-2 text-success" /> : <Share2 className="w-4 h-4 mr-2" />}
                     {copied ? "Copied" : "Share"}
                   </Button>
-                  <div className="flex gap-2 w-full">
-                    <Button
-                      className="flex-1 h-11 rounded-xl"
-                      onClick={() => {
-                        toast({
-                          title: "Exporting as PDF",
-                          description: "Your transaction details will be downloaded shortly.",
-                        });
-                      }}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Export PDF
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 h-11 rounded-xl border-primary text-primary hover:bg-primary/10"
-                      onClick={() => {
-                        toast({
-                          title: "Exporting as Excel",
-                          description: "Your transaction details will be downloaded shortly.",
-                        });
-                      }}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Export Excel
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="w-full h-11 rounded-xl">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-48">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          toast({
+                            title: "Exporting as PDF",
+                            description: "Your transaction details will be downloaded shortly.",
+                          });
+                        }}
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Export as PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          toast({
+                            title: "Exporting as Excel",
+                            description: "Your transaction details will be downloaded shortly.",
+                          });
+                        }}
+                      >
+                        <FileSpreadsheet className="w-4 h-4 mr-2" />
+                        Export as Excel
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </DrawerFooter>
             </div>
