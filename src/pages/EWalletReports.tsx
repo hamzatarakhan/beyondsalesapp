@@ -42,6 +42,8 @@ import {
   Share2,
   Check,
   FileText,
+  TrendingUp,
+  TrendingDown,
   FileSpreadsheet,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -110,6 +112,24 @@ const EWalletReports = () => {
       { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
     ];
   }, []);
+
+  // Top and lowest children wallets for selected wallet type
+  const childrenWalletRanking = useMemo(() => {
+    if (!isParent || walletViewMode !== "team-wallets") return null;
+    
+    const childBalances = childMembers.map((member) => {
+      const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
+      return {
+        name: member.name,
+        balance: memberBalance?.wallets[selectedWallet] || 0,
+      };
+    }).sort((a, b) => b.balance - a.balance);
+    
+    return {
+      top: childBalances[0],
+      lowest: childBalances[childBalances.length - 1],
+    };
+  }, [isParent, walletViewMode, selectedWallet]);
   
   // Get current wallets based on role and view mode
   const currentWallets = useMemo(() => {
@@ -341,28 +361,19 @@ const EWalletReports = () => {
         </div>
       )}
 
-      {/* Search & Filter Toggle */}
+      {/* Filters Section */}
       <div className="px-4 mb-4">
-        <div className="flex w-full gap-2">
-          <div className="relative flex-1">
-            <Input
-              placeholder="Search by Ref ID, Member..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-11 rounded-xl bg-card border-border pr-10"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          </div>
+        <div className="flex items-center gap-2">
           <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <DrawerTrigger asChild>
               <Button
                 variant={activeFiltersCount > 0 ? "default" : "outline"}
-                size="icon"
-                className="h-11 w-11 rounded-xl relative"
+                className="h-10 rounded-xl relative flex-1"
               >
-                <Filter className="w-5 h-5" />
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
                 {activeFiltersCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
+                  <span className="ml-2 w-5 h-5 bg-background text-foreground text-xs rounded-full flex items-center justify-center">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -599,6 +610,38 @@ const EWalletReports = () => {
         </div>
       </div>
 
+      {/* Top & Lowest Children Wallets (Parent Team View only, hidden when member filtered) */}
+      {isParent && walletViewMode === "team-wallets" && selectedMembers.length === 0 && childrenWalletRanking && (
+        <div className="px-4 mb-4">
+          <h3 className="text-sm font-semibold text-foreground mb-2">Member Wallet Ranking</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Top Wallet */}
+            <div className="bg-card rounded-xl p-3 border border-success/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-success" />
+                </div>
+                <span className="text-xs font-medium text-success">Highest</span>
+              </div>
+              <p className="text-sm font-medium text-foreground truncate">{childrenWalletRanking.top.name}</p>
+              <p className="text-lg font-bold text-success">{childrenWalletRanking.top.balance.toFixed(2)} KD</p>
+            </div>
+            
+            {/* Lowest Wallet */}
+            <div className="bg-card rounded-xl p-3 border border-destructive/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <TrendingDown className="w-4 h-4 text-destructive" />
+                </div>
+                <span className="text-xs font-medium text-destructive">Lowest</span>
+              </div>
+              <p className="text-sm font-medium text-foreground truncate">{childrenWalletRanking.lowest.name}</p>
+              <p className="text-lg font-bold text-destructive">{childrenWalletRanking.lowest.balance.toFixed(2)} KD</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Activity Distribution for Selected Wallet */}
       <div className="px-4 mb-4">
         <ActivityDistribution
@@ -631,6 +674,17 @@ const EWalletReports = () => {
             <Download className="w-4 h-4 mr-1" />
             Export
           </Button>
+        </div>
+        
+        {/* Search Bar in Transaction History */}
+        <div className="relative mb-3">
+          <Input
+            placeholder="Search by Ref ID, Member..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-10 rounded-xl bg-card border-border pr-10"
+          />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         </div>
 
         {filteredTransactions.length === 0 ? (
