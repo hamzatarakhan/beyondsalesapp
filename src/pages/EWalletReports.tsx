@@ -414,28 +414,35 @@ const EWalletReports = () => {
           {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
           {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
             <div className="bg-card rounded-xl border">
-              <div className="p-4 pb-3 flex items-center justify-between">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Ranking</p>
-                {/* Dropdown Select */}
-                <Select value={rankingTab} onValueChange={(value: "top" | "lowest") => setRankingTab(value)}>
-                  <SelectTrigger className="w-[120px] h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="top">
-                      <span className="flex items-center gap-2">
-                        <TrendingUp className="w-3 h-3 text-primary" />
-                        Top 5
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="lowest">
-                      <span className="flex items-center gap-2">
-                        <TrendingDown className="w-3 h-3 text-destructive" />
-                        Lowest 5
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="p-4 pb-0">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
+              </div>
+              {/* Tabs */}
+              <div className="px-4 pt-2">
+                <div className="flex border-b border-border">
+                  <button
+                    onClick={() => setRankingTab("top")}
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      rankingTab === "top"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Top 5
+                  </button>
+                  <button
+                    onClick={() => setRankingTab("lowest")}
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      rankingTab === "lowest"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Lowest 5
+                  </button>
+                </div>
               </div>
               
               {/* Members List */}
