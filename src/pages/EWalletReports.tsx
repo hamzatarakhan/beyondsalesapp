@@ -113,7 +113,7 @@ const EWalletReports = () => {
     ];
   }, []);
 
-  // Top and lowest children wallets for selected wallet type
+  // Top 5 and lowest 5 children wallets for selected wallet type
   const childrenWalletRanking = useMemo(() => {
     if (!isParent || walletViewMode !== "team-wallets") return null;
     
@@ -126,8 +126,8 @@ const EWalletReports = () => {
     }).sort((a, b) => b.balance - a.balance);
     
     return {
-      top: childBalances[0],
-      lowest: childBalances[childBalances.length - 1],
+      top5: childBalances.slice(0, 5),
+      lowest5: childBalances.slice(-5).reverse(),
     };
   }, [isParent, walletViewMode, selectedWallet]);
   
@@ -594,33 +594,51 @@ const EWalletReports = () => {
         </div>
       </div>
 
-      {/* Top & Lowest Children Wallets (Parent Team View only, hidden when member filtered) */}
+      {/* Top 5 & Lowest 5 Children Wallets (Parent Team View only, hidden when member filtered) */}
       {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
         <div className="px-4 mb-4">
-          <h3 className="text-sm font-semibold text-foreground mb-2">Member Wallet Ranking</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">Member Wallet Ranking</h3>
           <div className="grid grid-cols-2 gap-3">
-            {/* Top Wallet */}
+            {/* Top 5 Wallets */}
             <div className="bg-card rounded-xl p-3 border border-success/20">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center">
                   <TrendingUp className="w-4 h-4 text-success" />
                 </div>
-                <span className="text-xs font-medium text-success">Highest</span>
+                <span className="text-xs font-medium text-success">Top 5</span>
               </div>
-              <p className="text-sm font-medium text-foreground truncate">{childrenWalletRanking.top.name}</p>
-              <p className="text-lg font-bold text-success">{childrenWalletRanking.top.balance.toFixed(2)} KD</p>
+              <div className="space-y-2">
+                {childrenWalletRanking.top5.map((member, index) => (
+                  <div key={member.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground w-4">{index + 1}.</span>
+                      <span className="text-sm text-foreground truncate max-w-[80px]">{member.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-success">{member.balance.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             
-            {/* Lowest Wallet */}
+            {/* Lowest 5 Wallets */}
             <div className="bg-card rounded-xl p-3 border border-destructive/20">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center">
                   <TrendingDown className="w-4 h-4 text-destructive" />
                 </div>
-                <span className="text-xs font-medium text-destructive">Lowest</span>
+                <span className="text-xs font-medium text-destructive">Lowest 5</span>
               </div>
-              <p className="text-sm font-medium text-foreground truncate">{childrenWalletRanking.lowest.name}</p>
-              <p className="text-lg font-bold text-destructive">{childrenWalletRanking.lowest.balance.toFixed(2)} KD</p>
+              <div className="space-y-2">
+                {childrenWalletRanking.lowest5.map((member, index) => (
+                  <div key={member.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground w-4">{index + 1}.</span>
+                      <span className="text-sm text-foreground truncate max-w-[80px]">{member.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-destructive">{member.balance.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
