@@ -415,29 +415,27 @@ const EWalletReports = () => {
           {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
             <div className="bg-card rounded-xl border">
               <div className="p-4 pb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className={cn("w-4 h-4 transition-colors", rankingTab === "top" ? "text-primary" : "text-muted-foreground")} />
-                  <p className="text-sm font-medium text-foreground">
-                    {rankingTab === "top" ? "Top 5" : "Lowest 5"} Members
-                  </p>
-                </div>
-                {/* Toggle Switch */}
-                <div 
-                  onClick={() => setRankingTab(rankingTab === "top" ? "lowest" : "top")}
-                  className="flex items-center gap-2 cursor-pointer select-none"
-                >
-                  <span className={cn("text-xs font-medium transition-colors", rankingTab === "top" ? "text-primary" : "text-muted-foreground")}>Top</span>
-                  <div className={cn(
-                    "relative w-10 h-5 rounded-full transition-colors",
-                    rankingTab === "top" ? "bg-primary" : "bg-destructive"
-                  )}>
-                    <div className={cn(
-                      "absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-all",
-                      rankingTab === "top" ? "left-0.5" : "left-[22px]"
-                    )} />
-                  </div>
-                  <span className={cn("text-xs font-medium transition-colors", rankingTab === "lowest" ? "text-destructive" : "text-muted-foreground")}>Low</span>
-                </div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Ranking</p>
+                {/* Dropdown Select */}
+                <Select value={rankingTab} onValueChange={(value: "top" | "lowest") => setRankingTab(value)}>
+                  <SelectTrigger className="w-[120px] h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">
+                      <span className="flex items-center gap-2">
+                        <TrendingUp className="w-3 h-3 text-primary" />
+                        Top 5
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="lowest">
+                      <span className="flex items-center gap-2">
+                        <TrendingDown className="w-3 h-3 text-destructive" />
+                        Lowest 5
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               {/* Members List */}
