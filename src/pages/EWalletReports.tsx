@@ -414,33 +414,33 @@ const EWalletReports = () => {
           {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
           {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
             <div className="bg-card rounded-xl border">
-              <div className="p-4 pb-0">
+              <div className="p-4 pb-3 flex items-center justify-between">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
-              </div>
-              {/* Tabs */}
-              <div className="px-4 pt-2">
-                <div className="flex border-b border-border">
+                {/* Segmented Control */}
+                <div className="flex bg-muted rounded-lg p-0.5">
                   <button
                     onClick={() => setRankingTab("top")}
                     className={cn(
-                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      "px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1",
                       rankingTab === "top"
-                        ? "border-primary text-primary"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
+                    <TrendingUp className="w-3 h-3" />
                     Top 5
                   </button>
                   <button
                     onClick={() => setRankingTab("lowest")}
                     className={cn(
-                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      "px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1",
                       rankingTab === "lowest"
-                        ? "border-primary text-primary"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    Lowest 5
+                    <TrendingDown className="w-3 h-3" />
+                    Low 5
                   </button>
                 </div>
               </div>
