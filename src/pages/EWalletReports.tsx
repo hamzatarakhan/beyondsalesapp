@@ -45,9 +45,6 @@ import {
   FileText,
   TrendingDown,
   FileSpreadsheet,
-  TrendingUp,
-  PieChart,
-  ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -88,7 +85,7 @@ const EWalletReports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isAnalyticsExpanded, setIsAnalyticsExpanded] = useState(true);
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -356,57 +353,36 @@ const EWalletReports = () => {
         </div>
       )}
 
-      {/* Analytics Summary Bar */}
+      {/* Collapsible Analytics Section */}
       <div className="px-4 mb-4">
         <button
-          onClick={() => setIsAnalyticsOpen(true)}
-          className="w-full bg-card rounded-xl p-4 flex items-center justify-between border hover:shadow-md transition-shadow"
+          onClick={() => setIsAnalyticsExpanded(!isAnalyticsExpanded)}
+          className="w-full bg-card rounded-xl p-4 flex items-center justify-between border"
         >
-          <div className="flex items-center gap-4 flex-1">
-            {/* Wallet Balance Quick View */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="text-xs text-muted-foreground">{currentWallet.name}</p>
-                <p className="text-lg font-bold text-primary">{currentWallet.balance.toFixed(2)} <span className="text-sm font-medium">{currentWallet.currency}</span></p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-primary" />
             </div>
-            
-            {/* Divider */}
-            <div className="h-10 w-px bg-border" />
-            
-            {/* Transaction Count Quick View */}
             <div className="text-left">
-              <p className="text-xs text-muted-foreground">Transactions</p>
-              <p className="text-lg font-bold text-foreground">{filteredTransactions.length}</p>
+              <p className="text-sm font-medium text-foreground">Analytics Overview</p>
+              <p className="text-xs text-muted-foreground">
+                {currentWallet.name}: {currentWallet.balance.toFixed(2)} {currentWallet.currency}
+              </p>
             </div>
           </div>
-          
-          {/* View Analytics Button */}
-          <div className="flex items-center gap-1 text-primary">
-            <PieChart className="w-4 h-4" />
-            <ChevronRightIcon className="w-4 h-4" />
-          </div>
+          <ChevronDown 
+            className={cn(
+              "w-5 h-5 text-muted-foreground transition-transform duration-200",
+              isAnalyticsExpanded && "rotate-180"
+            )} 
+          />
         </button>
-      </div>
 
-      {/* Analytics Full-Screen Overlay */}
-      <Drawer open={isAnalyticsOpen} onOpenChange={setIsAnalyticsOpen}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader className="border-b border-border">
-            <div className="flex items-center justify-between">
-              <DrawerTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Analytics Overview
-              </DrawerTitle>
-            </div>
-          </DrawerHeader>
-          
-          <div className="p-4 space-y-4 overflow-y-auto max-h-[70vh]">
+        {/* Expanded Analytics Content */}
+        {isAnalyticsExpanded && (
+          <div className="mt-3 space-y-4">
             {/* Wallet Balance Cards */}
-            <div className="bg-muted/50 rounded-xl p-4">
+            <div className="bg-card rounded-xl border p-4">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
                 {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
               </p>
@@ -414,12 +390,15 @@ const EWalletReports = () => {
                 {displayWallets.map((wallet) => (
                   <button
                     key={wallet.id}
-                    onClick={() => setSelectedWallet(wallet.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedWallet(wallet.id);
+                    }}
                     className={cn(
-                      "px-4 py-3 rounded-xl border-2 transition-all text-center bg-card",
+                      "px-4 py-3 rounded-xl border-2 transition-all text-center",
                       selectedWallet === wallet.id
-                        ? "border-primary shadow-sm"
-                        : "border-transparent"
+                        ? "bg-primary/10 border-primary"
+                        : "bg-muted/50 border-transparent"
                     )}
                   >
                     <p className="text-sm font-medium text-foreground">{wallet.name}</p>
@@ -429,12 +408,13 @@ const EWalletReports = () => {
               </div>
             </div>
 
-            {/* Members Ranking (Parent Team View only) */}
+            {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
             {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-              <div className="bg-muted/50 rounded-xl">
+              <div className="bg-card rounded-xl border">
                 <div className="p-4 pb-0">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
                 </div>
+                {/* Tabs */}
                 <div className="px-4 pt-2">
                   <div className="flex border-b border-border">
                     <button
@@ -462,6 +442,7 @@ const EWalletReports = () => {
                   </div>
                 </div>
                 
+                {/* Members List */}
                 <div className="p-4 space-y-0">
                   {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
                     <div 
@@ -499,7 +480,7 @@ const EWalletReports = () => {
             )}
 
             {/* Activity Distribution */}
-            <div className="bg-muted/50 rounded-xl p-4">
+            <div className="bg-card rounded-xl border p-4">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
               <ActivityDistribution
                 transactions={mockTransactions.filter((t) => {
@@ -521,14 +502,8 @@ const EWalletReports = () => {
               />
             </div>
           </div>
-          
-          <DrawerFooter className="border-t border-border">
-            <DrawerClose asChild>
-              <Button className="w-full h-12 rounded-xl">Done</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+        )}
+      </div>
 
       {/* Transactions Section Header */}
       <div className="px-4 mb-3">
