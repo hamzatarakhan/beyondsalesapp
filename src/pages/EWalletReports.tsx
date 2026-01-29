@@ -323,37 +323,6 @@ const EWalletReports = () => {
         </div>
       </div>
 
-      {/* Wallet View Mode Toggle (Parent only) */}
-      {isParent && (
-        <div className="px-4 mb-3">
-          <div className="bg-muted rounded-xl p-1 flex">
-            <button
-              onClick={() => setWalletViewMode("my-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "my-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              My Wallets
-            </button>
-            <button
-              onClick={() => setWalletViewMode("team-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "team-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              Team Wallets
-            </button>
-          </div>
-        </div>
-      )}
-
-
       {/* Main Content Tabs */}
       <div className="px-4 mb-4">
         <div className="bg-muted rounded-xl p-1 flex">
@@ -387,6 +356,34 @@ const EWalletReports = () => {
       {/* Analytics Tab Content */}
       {activeTab === "analytics" && (
         <div className="px-4 flex-1 space-y-4">
+          {/* Wallet View Mode Toggle (Parent only - nested inside Analytics) */}
+          {isParent && (
+            <div className="bg-muted rounded-xl p-1 flex">
+              <button
+                onClick={() => setWalletViewMode("my-wallets")}
+                className={cn(
+                  "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  walletViewMode === "my-wallets"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground"
+                )}
+              >
+                My Wallets
+              </button>
+              <button
+                onClick={() => setWalletViewMode("team-wallets")}
+                className={cn(
+                  "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  walletViewMode === "team-wallets"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground"
+                )}
+              >
+                Team Wallets
+              </button>
+            </div>
+          )}
+
           {/* Wallet Balance Cards */}
           <div className="bg-card rounded-xl border p-4">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
