@@ -1,7 +1,5 @@
 import { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { Card } from "@/components/ui/card";
-import { Clock } from "lucide-react";
 import type { Transaction, WalletType } from "@/data/mockWalletData";
 
 interface ActivityDistributionProps {
@@ -58,29 +56,16 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
 
   if (chartData.length === 0) {
     return (
-      <Card className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
-            Activity Distribution
-          </h4>
-        </div>
+      <div>
         <div className="h-32 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">No transactions to display</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Clock className="w-4 h-4 text-primary" />
-        <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
-          Activity Distribution
-        </h4>
-      </div>
-      
+    <div>
       <div className="flex flex-col items-center">
         {/* Donut Chart with Total in Center */}
         <div className="relative w-36 h-36">
@@ -123,7 +108,7 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
           ))}
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 
