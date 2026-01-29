@@ -85,6 +85,7 @@ const EWalletReports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
+  const [activeTab, setActiveTab] = useState<"analytics" | "transactions">("analytics");
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -576,22 +577,42 @@ const EWalletReports = () => {
         )}
       </div>
 
-      {/* Analytics Section */}
-      <div className="px-4 mb-6">
-        <div className="bg-card rounded-2xl border p-4 space-y-5">
-          {/* Section Header */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-primary" />
-            </div>
-            <h2 className="text-base font-semibold text-foreground">
-              {isParent && walletViewMode === "team-wallets" ? "Team Analytics" : "Wallet Analytics"}
-            </h2>
-          </div>
+      {/* Main Content Tabs */}
+      <div className="px-4 mb-4">
+        <div className="bg-muted rounded-xl p-1 flex">
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={cn(
+              "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2",
+              activeTab === "analytics"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground"
+            )}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab("transactions")}
+            className={cn(
+              "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2",
+              activeTab === "transactions"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground"
+            )}
+          >
+            <FileText className="w-4 h-4" />
+            Transactions
+          </button>
+        </div>
+      </div>
 
+      {/* Analytics Tab Content */}
+      {activeTab === "analytics" && (
+        <div className="px-4 flex-1 space-y-4">
           {/* Wallet Balance Cards */}
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+          <div className="bg-card rounded-xl border p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
               {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -615,198 +636,187 @@ const EWalletReports = () => {
 
           {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
           {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Member Wallet Ranking</p>
-              <div className="bg-muted/50 rounded-xl">
-                {/* Tabs */}
-                <div className="px-3 pt-2">
-                  <div className="flex border-b border-border">
-                    <button
-                      onClick={() => setRankingTab("top")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "top"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Top 5
-                    </button>
-                    <button
-                      onClick={() => setRankingTab("lowest")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "lowest"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Lowest 5
-                    </button>
-                  </div>
+            <div className="bg-card rounded-xl border">
+              <div className="p-4 pb-0">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
+              </div>
+              {/* Tabs */}
+              <div className="px-4 pt-2">
+                <div className="flex border-b border-border">
+                  <button
+                    onClick={() => setRankingTab("top")}
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      rankingTab === "top"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Top 5
+                  </button>
+                  <button
+                    onClick={() => setRankingTab("lowest")}
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                      rankingTab === "lowest"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Lowest 5
+                  </button>
                 </div>
-                
-                {/* Members List */}
-                <div className="p-3 space-y-0">
-                  {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
-                    <div 
-                      key={member.name} 
-                      className={cn(
-                        "flex items-center justify-between py-2.5",
-                        index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        {/* Medal or Number */}
-                        <div className="w-7 h-7 flex items-center justify-center">
-                          {index < 3 ? (
-                            <span className="text-lg">🏅</span>
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                              {index + 1}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
-                        </div>
+              </div>
+              
+              {/* Members List */}
+              <div className="p-4 space-y-0">
+                {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
+                  <div 
+                    key={member.name} 
+                    className={cn(
+                      "flex items-center justify-between py-2.5",
+                      index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 flex items-center justify-center">
+                        {index < 3 ? (
+                          <span className="text-lg">🏅</span>
+                        ) : (
+                          <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                            {index + 1}
+                          </span>
+                        )}
                       </div>
-                      <span className={cn(
-                        "text-sm font-semibold",
-                        rankingTab === "top" ? "text-success" : "text-destructive"
-                      )}>
-                        {member.balance.toFixed(2)} KD
-                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                    <span className={cn(
+                      "text-sm font-semibold",
+                      rankingTab === "top" ? "text-success" : "text-destructive"
+                    )}>
+                      {member.balance.toFixed(2)} KD
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {/* Activity Distribution */}
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Activity Distribution</p>
-            <div className="bg-muted/50 rounded-xl p-3">
-              <ActivityDistribution
-                transactions={mockTransactions.filter((t) => {
-                  const dateRange = getDateRange();
-                  const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
-                  
-                  // Filter by view mode for parent
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
-                    }
+          <div className="bg-card rounded-xl border p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
+            <ActivityDistribution
+              transactions={mockTransactions.filter((t) => {
+                const dateRange = getDateRange();
+                const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+                
+                if (isParent) {
+                  if (walletViewMode === "my-wallets") {
+                    if (t.memberName !== parentMemberName) return false;
+                  } else {
+                    if (t.memberName === parentMemberName) return false;
+                    if (selectedMember && t.memberName !== selectedMember) return false;
                   }
-                  
-                  return t.walletType === selectedWallet && matchesDate;
-                })}
-                walletType={selectedWallet}
-              />
-            </div>
+                }
+                
+                return t.walletType === selectedWallet && matchesDate;
+              })}
+              walletType={selectedWallet}
+            />
           </div>
         </div>
-      </div>
+      )}
 
+      {/* Transactions Tab Content */}
+      {activeTab === "transactions" && (
+        <div className="px-4 flex-1">
+          {/* Search Bar */}
+          <div className="relative mb-3">
+            <Input
+              placeholder="Search by Ref ID, Member..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 rounded-xl bg-card border-border pr-10"
+            />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          </div>
 
-      {/* Transaction History Section */}
-      <div className="px-4 flex-1">
-        <div className="bg-card rounded-2xl border p-4">
-          {/* Section Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileText className="w-4 h-4 text-primary" />
-              </div>
-              <h2 className="text-base font-semibold text-foreground">Transaction History</h2>
-            </div>
+          {/* Export Button */}
+          <div className="flex justify-end mb-3">
             <Button variant="ghost" size="sm" className="text-primary h-8">
               <Download className="w-4 h-4 mr-1" />
               Export
             </Button>
           </div>
-        
-        {/* Search Bar in Transaction History */}
-        <div className="relative mb-3">
-          <Input
-            placeholder="Search by Ref ID, Member..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 rounded-xl bg-card border-border pr-10"
-          />
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        </div>
 
-        {filteredTransactions.length === 0 ? (
-          <div className="bg-card rounded-xl p-8 text-center">
-            <p className="text-muted-foreground">No transactions found</p>
-            <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredTransactions.map((txn) => (
-              <div
-                key={txn.id}
-                onClick={() => {
-                  setSelectedTransaction(txn);
-                  setIsDetailsOpen(true);
-                }}
-                className="bg-card rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center",
-                        txn.transactionType === "credit" ? "bg-success/10" : "bg-destructive/10"
-                      )}
-                    >
-                      {txn.transactionType === "credit" ? (
-                        <ArrowDownLeft className="w-5 h-5 text-success" />
-                      ) : (
-                        <ArrowUpRight className="w-5 h-5 text-destructive" />
-                      )}
+          {filteredTransactions.length === 0 ? (
+            <div className="bg-card rounded-xl p-8 text-center">
+              <p className="text-muted-foreground">No transactions found</p>
+              <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredTransactions.map((txn) => (
+                <div
+                  key={txn.id}
+                  onClick={() => {
+                    setSelectedTransaction(txn);
+                    setIsDetailsOpen(true);
+                  }}
+                  className="bg-card rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow border"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center",
+                          txn.transactionType === "credit" ? "bg-success/10" : "bg-destructive/10"
+                        )}
+                      >
+                        {txn.transactionType === "credit" ? (
+                          <ArrowDownLeft className="w-5 h-5 text-success" />
+                        ) : (
+                          <ArrowUpRight className="w-5 h-5 text-destructive" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{txn.description}</p>
+                        {isParent && <p className="text-sm text-muted-foreground">{txn.memberName}</p>}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(txn.date, "MMM d, yyyy • h:mm a")}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{txn.description}</p>
-                      {isParent && <p className="text-sm text-muted-foreground">{txn.memberName}</p>}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(txn.date, "MMM d, yyyy • h:mm a")}
+                    <div className="text-right">
+                      <p
+                        className={cn(
+                          "font-bold",
+                          txn.transactionType === "credit" ? "text-success" : "text-destructive"
+                        )}
+                      >
+                        {txn.transactionType === "credit" ? "+" : "-"}{txn.amount} {txn.currency}
                       </p>
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full mt-1 inline-block", getStatusColor(txn.status))}>
+                        {statusLabels[txn.status]}
+                      </span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p
-                      className={cn(
-                        "font-bold",
-                        txn.transactionType === "credit" ? "text-success" : "text-destructive"
-                      )}
-                    >
-                      {txn.transactionType === "credit" ? "+" : "-"}{txn.amount} {txn.currency}
-                    </p>
-                    <span className={cn("text-xs px-2 py-0.5 rounded-full mt-1 inline-block", getStatusColor(txn.status))}>
-                      {statusLabels[txn.status]}
-                    </span>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+                    <p className="text-xs text-muted-foreground">Ref: {txn.referenceId}</p>
+                    <div className="flex items-center gap-1 text-xs text-primary">
+                      <span>View Details</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground">Ref: {txn.referenceId}</p>
-                  <div className="flex items-center gap-1 text-xs text-primary">
-                    <span>View Details</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Transaction Details Bottom Sheet */}
       <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
