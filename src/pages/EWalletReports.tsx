@@ -353,229 +353,6 @@ const EWalletReports = () => {
         </div>
       )}
 
-      {/* Filters Section */}
-      <div className="px-4 mb-4">
-        <div className="flex items-center gap-2">
-          <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-            <DrawerTrigger asChild>
-              <Button
-                variant={activeFiltersCount > 0 ? "default" : "outline"}
-                className="h-10 rounded-xl relative flex-1"
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-                {activeFiltersCount > 0 && (
-                  <span className="ml-2 w-5 h-5 bg-background text-foreground text-xs rounded-full flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader className="border-b border-border">
-                <div className="flex items-center justify-between">
-                  <DrawerTitle>Filters</DrawerTitle>
-                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
-                    <RotateCcw className="w-4 h-4 mr-1" />
-                    Reset
-                  </Button>
-                </div>
-              </DrawerHeader>
-              <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                {/* Member Filter (Parent only, Team Wallets view) */}
-                {isParent && walletViewMode === "team-wallets" && (
-                  <div>
-                    <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                    <RadioGroup
-                      value={selectedMember || ""}
-                      onValueChange={(value) => setSelectedMember(value || null)}
-                      className="space-y-2"
-                    >
-                      {childMembers.map((member) => (
-                        <div
-                          key={member.id}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-muted/50"
-                        >
-                          <RadioGroupItem value={member.name} id={member.id} />
-                          <Label
-                            htmlFor={member.id}
-                            className="text-sm font-medium cursor-pointer flex-1"
-                          >
-                            {member.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                    {selectedMember && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        1 member selected
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Date Range */}
-                <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Date Range</Label>
-                  <Select value={dateRangeOption} onValueChange={(v) => setDateRangeOption(v as DateRangeOption)}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                      <SelectItem value="last-month">Last Month</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  {dateRangeOption === "custom" && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full mt-2 h-11 rounded-xl justify-start">
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {customDateRange?.from ? (
-                            customDateRange.to ? (
-                              <>
-                                {format(customDateRange.from, "MMM d")} - {format(customDateRange.to, "MMM d, yyyy")}
-                              </>
-                            ) : (
-                              format(customDateRange.from, "MMM d, yyyy")
-                            )
-                          ) : (
-                            <span>Pick a date range</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-card border-border z-[100]" align="start">
-                        <Calendar
-                          initialFocus
-                          mode="range"
-                          defaultMonth={customDateRange?.from}
-                          selected={customDateRange}
-                          onSelect={setCustomDateRange}
-                          numberOfMonths={1}
-                          className="p-3 pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
-
-                {/* Transaction Type */}
-                <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Transaction Type</Label>
-                  <Select value={transactionTypeFilter} onValueChange={(v) => setTransactionTypeFilter(v as TransactionType | "all")}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="credit">Credit</SelectItem>
-                      <SelectItem value="debit">Debit</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Activity Type */}
-                <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Activity Type</Label>
-                  <Select value={activityTypeFilter} onValueChange={(v) => setActivityTypeFilter(v as ActivityType | "all")}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="recharge">Recharge</SelectItem>
-                      <SelectItem value="transfer">Transfer</SelectItem>
-                      <SelectItem value="rollback">Rollback</SelectItem>
-                      <SelectItem value="voucher">Voucher</SelectItem>
-                      <SelectItem value="bill-payment">Bill Payment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DrawerFooter className="border-t border-border">
-                <DrawerClose asChild>
-                  <Button className="w-full h-12 rounded-xl">Apply Filters</Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
-        </div>
-
-        {/* Active Filter Chips */}
-        {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3 items-center">
-            {/* Member Filter (Parent only) */}
-            {isParent && walletViewMode === "team-wallets" && selectedMember && (
-              <Badge
-                variant="secondary"
-                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-              >
-                <span className="text-xs">{selectedMember}</span>
-                <button
-                  onClick={clearMember}
-                  className="ml-1 rounded-full hover:bg-muted p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            )}
-            
-            {/* Date Range Filter */}
-            {dateRangeOption !== "last-7-days" && (
-              <Badge
-                variant="secondary"
-                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-              >
-                <span className="text-xs">{getDateRangeLabel()}</span>
-                <button
-                  onClick={() => {
-                    setDateRangeOption("last-7-days");
-                    setCustomDateRange(undefined);
-                  }}
-                  className="ml-1 rounded-full hover:bg-muted p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            )}
-            
-            {/* Transaction Type Filter */}
-            {transactionTypeFilter !== "all" && (
-              <Badge
-                variant="secondary"
-                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-              >
-                <span className="text-xs">{transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
-                <button
-                  onClick={() => setTransactionTypeFilter("all")}
-                  className="ml-1 rounded-full hover:bg-muted p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            )}
-            
-            {/* Activity Type Filter */}
-            {activityTypeFilter !== "all" && (
-              <Badge
-                variant="secondary"
-                className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
-              >
-                <span className="text-xs">{activityTypeLabels[activityTypeFilter]}</span>
-                <button
-                  onClick={() => setActivityTypeFilter("all")}
-                  className="ml-1 rounded-full hover:bg-muted p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* Main Content Tabs */}
       <div className="px-4 mb-4">
@@ -733,24 +510,212 @@ const EWalletReports = () => {
       {/* Transactions Tab Content */}
       {activeTab === "transactions" && (
         <div className="px-4 flex-1">
-          {/* Search Bar */}
-          <div className="relative mb-3">
-            <Input
-              placeholder="Search by Ref ID, Member..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 rounded-xl bg-card border-border pr-10"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          </div>
+          {/* Search Bar with Filter Icon */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="relative flex-1">
+              <Input
+                placeholder="Search by Ref ID, Member..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 rounded-xl bg-card border-border pr-10"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            </div>
+            
+            {/* Filter Icon Button */}
+            <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={cn(
+                    "h-10 w-10 rounded-xl relative shrink-0",
+                    activeFiltersCount > 0 && "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                  )}
+                >
+                  <Filter className="w-4 h-4" />
+                  {activeFiltersCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] rounded-full flex items-center justify-center">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader className="border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <DrawerTitle>Filters</DrawerTitle>
+                    <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
+                      <RotateCcw className="w-4 h-4 mr-1" />
+                      Reset
+                    </Button>
+                  </div>
+                </DrawerHeader>
+                <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                  {/* Member Filter (Parent only, Team Wallets view) */}
+                  {isParent && walletViewMode === "team-wallets" && (
+                    <div>
+                      <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
+                      <RadioGroup
+                        value={selectedMember || ""}
+                        onValueChange={(value) => setSelectedMember(value || null)}
+                        className="space-y-2"
+                      >
+                        {childMembers.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-muted/50"
+                          >
+                            <RadioGroupItem value={member.name} id={member.id} />
+                            <Label
+                              htmlFor={member.id}
+                              className="text-sm font-medium cursor-pointer flex-1"
+                            >
+                              {member.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                      {selectedMember && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          1 member selected
+                        </p>
+                      )}
+                    </div>
+                  )}
 
-          {/* Export Button */}
-          <div className="flex justify-end mb-3">
-            <Button variant="ghost" size="sm" className="text-primary h-8">
-              <Download className="w-4 h-4 mr-1" />
-              Export
+                  {/* Date Range */}
+                  <div>
+                    <Label className="text-sm font-medium text-foreground mb-2 block">Date Range</Label>
+                    <Select value={dateRangeOption} onValueChange={(v) => setDateRangeOption(v as DateRangeOption)}>
+                      <SelectTrigger className="h-11 rounded-xl bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border z-50">
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                        <SelectItem value="last-month">Last Month</SelectItem>
+                        <SelectItem value="custom">Custom Range</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {dateRangeOption === "custom" && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full mt-2 h-11 rounded-xl justify-start">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {customDateRange?.from ? (
+                              customDateRange.to ? (
+                                <>
+                                  {format(customDateRange.from, "MMM d")} - {format(customDateRange.to, "MMM d, yyyy")}
+                                </>
+                              ) : (
+                                format(customDateRange.from, "MMM d, yyyy")
+                              )
+                            ) : (
+                              <span>Pick a date range</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-card border-border z-[100]" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={customDateRange?.from}
+                            selected={customDateRange}
+                            onSelect={setCustomDateRange}
+                            numberOfMonths={1}
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+
+                  {/* Transaction Type */}
+                  <div>
+                    <Label className="text-sm font-medium text-foreground mb-2 block">Transaction Type</Label>
+                    <Select value={transactionTypeFilter} onValueChange={(v) => setTransactionTypeFilter(v as TransactionType | "all")}>
+                      <SelectTrigger className="h-11 rounded-xl bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border z-50">
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="credit">Credit</SelectItem>
+                        <SelectItem value="debit">Debit</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Activity Type */}
+                  <div>
+                    <Label className="text-sm font-medium text-foreground mb-2 block">Activity Type</Label>
+                    <Select value={activityTypeFilter} onValueChange={(v) => setActivityTypeFilter(v as ActivityType | "all")}>
+                      <SelectTrigger className="h-11 rounded-xl bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border z-50">
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="recharge">Recharge</SelectItem>
+                        <SelectItem value="transfer">Transfer</SelectItem>
+                        <SelectItem value="rollback">Rollback</SelectItem>
+                        <SelectItem value="voucher">Voucher</SelectItem>
+                        <SelectItem value="bill-payment">Bill Payment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DrawerFooter className="border-t border-border">
+                  <DrawerClose asChild>
+                    <Button className="w-full h-12 rounded-xl">Apply Filters</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
+            
+            {/* Export Button */}
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-primary shrink-0">
+              <Download className="w-4 h-4" />
             </Button>
           </div>
+
+          {/* Active Filter Chips */}
+          {activeFiltersCount > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3 items-center">
+              {isParent && walletViewMode === "team-wallets" && selectedMember && (
+                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                  <span className="text-xs">{selectedMember}</span>
+                  <button onClick={clearMember} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {dateRangeOption !== "last-7-days" && (
+                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                  <span className="text-xs">{getDateRangeLabel()}</span>
+                  <button onClick={() => { setDateRangeOption("last-7-days"); setCustomDateRange(undefined); }} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {transactionTypeFilter !== "all" && (
+                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                  <span className="text-xs">{transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
+                  <button onClick={() => setTransactionTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {activityTypeFilter !== "all" && (
+                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                  <span className="text-xs">{activityTypeLabels[activityTypeFilter]}</span>
+                  <button onClick={() => setActivityTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          )}
 
           {filteredTransactions.length === 0 ? (
             <div className="bg-card rounded-xl p-8 text-center">
