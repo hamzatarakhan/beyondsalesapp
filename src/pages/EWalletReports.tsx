@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -81,7 +81,7 @@ const EWalletReports = () => {
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
   const [activityTypeFilter, setActivityTypeFilter] = useState<ActivityType | "all">("all");
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
@@ -139,30 +139,23 @@ const EWalletReports = () => {
     return walletViewMode === "my-wallets" ? myWallets : teamWallets;
   }, [isParent, walletViewMode, myWallets, teamWallets]);
   
-  // Dynamic wallet balances based on selected members (for team wallets)
+  // Dynamic wallet balances based on selected member (for team wallets)
   const displayWallets = useMemo(() => {
-    if (!isParent || walletViewMode === "my-wallets" || selectedMembers.length === 0) {
+    if (!isParent || walletViewMode === "my-wallets" || !selectedMember) {
       return currentWallets;
     }
     
-    // Aggregate balances for selected members only
-    const aggregatedBalances = selectedMembers.reduce(
-      (acc, memberName) => {
-        const memberBalance = memberWalletBalances.find((m) => m.memberName === memberName);
-        if (memberBalance) {
-          acc["e-topup"] += memberBalance.wallets["e-topup"];
-          acc["e-voucher"] += memberBalance.wallets["e-voucher"];
-        }
-        return acc;
-      },
-      { "e-topup": 0, "e-voucher": 0 }
-    );
+    // Get balance for selected member only
+    const memberBalance = memberWalletBalances.find((m) => m.memberName === selectedMember);
+    if (!memberBalance) {
+      return currentWallets;
+    }
     
     return currentWallets.map((wallet) => ({
       ...wallet,
-      balance: aggregatedBalances[wallet.id],
+      balance: memberBalance.wallets[wallet.id],
     }));
-  }, [isParent, walletViewMode, selectedMembers, currentWallets]);
+  }, [isParent, walletViewMode, selectedMember, currentWallets]);
   
   const currentWallet = displayWallets.find((w) => w.id === selectedWallet) || displayWallets[0];
 
@@ -210,8 +203,8 @@ const EWalletReports = () => {
           if (txn.memberName === parentMemberName) {
             return false;
           }
-          // If specific members are selected, filter by them
-          if (selectedMembers.length > 0 && !selectedMembers.includes(txn.memberName)) {
+          // If a specific member is selected, filter by them
+          if (selectedMember && txn.memberName !== selectedMember) {
             return false;
           }
         }
@@ -244,23 +237,19 @@ const EWalletReports = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMembers, searchQuery, isParent, walletViewMode]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMember, searchQuery, isParent, walletViewMode]);
 
   const resetFilters = () => {
     setDateRangeOption("last-7-days");
     setCustomDateRange(undefined);
     setTransactionTypeFilter("all");
     setActivityTypeFilter("all");
-    setSelectedMembers([]);
+    setSelectedMember(null);
     setSearchQuery("");
   };
 
-  const toggleMember = (memberName: string) => {
-    setSelectedMembers((prev) =>
-      prev.includes(memberName)
-        ? prev.filter((m) => m !== memberName)
-        : [...prev, memberName]
-    );
+  const clearMember = () => {
+    setSelectedMember(null);
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -268,9 +257,9 @@ const EWalletReports = () => {
     if (dateRangeOption !== "last-7-days") count++;
     if (transactionTypeFilter !== "all") count++;
     if (activityTypeFilter !== "all") count++;
-    if (selectedMembers.length > 0) count++;
+    if (selectedMember) count++;
     return count;
-  }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, selectedMembers]);
+  }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, selectedMember]);
 
   const getDateRangeLabel = () => {
     switch (dateRangeOption) {
@@ -288,10 +277,6 @@ const EWalletReports = () => {
       default:
         return "";
     }
-  };
-
-  const removeMember = (memberName: string) => {
-    setSelectedMembers((prev) => prev.filter((m) => m !== memberName));
   };
 
   const getStatusColor = (status: Transaction["status"]) => {
@@ -393,18 +378,18 @@ const EWalletReports = () => {
                 {/* Member Filter (Parent only, Team Wallets view) */}
                 {isParent && walletViewMode === "team-wallets" && (
                   <div>
-                    <Label className="text-sm font-medium text-foreground mb-3 block">Select Members</Label>
-                    <div className="space-y-2">
+                    <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
+                    <RadioGroup
+                      value={selectedMember || ""}
+                      onValueChange={(value) => setSelectedMember(value || null)}
+                      className="space-y-2"
+                    >
                       {childMembers.map((member) => (
                         <div
                           key={member.id}
                           className="flex items-center gap-3 p-3 rounded-xl bg-muted/50"
                         >
-                          <Checkbox
-                            id={member.id}
-                            checked={selectedMembers.includes(member.name)}
-                            onCheckedChange={() => toggleMember(member.name)}
-                          />
+                          <RadioGroupItem value={member.name} id={member.id} />
                           <Label
                             htmlFor={member.id}
                             className="text-sm font-medium cursor-pointer flex-1"
@@ -413,10 +398,10 @@ const EWalletReports = () => {
                           </Label>
                         </div>
                       ))}
-                    </div>
-                    {selectedMembers.length > 0 && (
+                    </RadioGroup>
+                    {selectedMember && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        {selectedMembers.length} member(s) selected
+                        1 member selected
                       </p>
                     )}
                   </div>
@@ -515,22 +500,21 @@ const EWalletReports = () => {
         {/* Active Filter Chips */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap gap-2 mt-3 items-center">
-            {/* Member Filters (Parent only) */}
-            {isParent && walletViewMode === "team-wallets" && selectedMembers.map((member) => (
+            {/* Member Filter (Parent only) */}
+            {isParent && walletViewMode === "team-wallets" && selectedMember && (
               <Badge
-                key={member}
                 variant="secondary"
                 className="pl-2 pr-1 py-1 gap-1 cursor-pointer hover:bg-secondary/80"
               >
-                <span className="text-xs">{member}</span>
+                <span className="text-xs">{selectedMember}</span>
                 <button
-                  onClick={() => removeMember(member)}
+                  onClick={clearMember}
                   className="ml-1 rounded-full hover:bg-muted p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </Badge>
-            ))}
+            )}
             
             {/* Date Range Filter */}
             {dateRangeOption !== "last-7-days" && (
@@ -611,7 +595,7 @@ const EWalletReports = () => {
       </div>
 
       {/* Top & Lowest Children Wallets (Parent Team View only, hidden when member filtered) */}
-      {isParent && walletViewMode === "team-wallets" && selectedMembers.length === 0 && childrenWalletRanking && (
+      {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
         <div className="px-4 mb-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Member Wallet Ranking</h3>
           <div className="grid grid-cols-2 gap-3">
@@ -655,7 +639,7 @@ const EWalletReports = () => {
                 if (t.memberName !== parentMemberName) return false;
               } else {
                 if (t.memberName === parentMemberName) return false;
-                if (selectedMembers.length > 0 && !selectedMembers.includes(t.memberName)) return false;
+                if (selectedMember && t.memberName !== selectedMember) return false;
               }
             }
             
