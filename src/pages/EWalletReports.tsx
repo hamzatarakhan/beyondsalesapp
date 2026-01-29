@@ -84,6 +84,7 @@ const EWalletReports = () => {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -119,9 +120,14 @@ const EWalletReports = () => {
     
     const childBalances = childMembers.map((member) => {
       const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
+      // Count transactions for this member
+      const transactionCount = mockTransactions.filter(
+        (t) => t.memberName === member.name && t.walletType === selectedWallet
+      ).length;
       return {
         name: member.name,
         balance: memberBalance?.wallets[selectedWallet] || 0,
+        transactionCount,
       };
     }).sort((a, b) => b.balance - a.balance);
     
@@ -594,51 +600,76 @@ const EWalletReports = () => {
         </div>
       </div>
 
-      {/* Top 5 & Lowest 5 Children Wallets (Parent Team View only, hidden when member filtered) */}
+      {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
       {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
         <div className="px-4 mb-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Member Wallet Ranking</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {/* Top 5 Wallets */}
-            <div className="bg-card rounded-xl p-3 border border-success/20">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-success" />
-                </div>
-                <span className="text-xs font-medium text-success">Top 5</span>
-              </div>
-              <div className="space-y-2">
-                {childrenWalletRanking.top5.map((member, index) => (
-                  <div key={member.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground w-4">{index + 1}.</span>
-                      <span className="text-sm text-foreground truncate max-w-[80px]">{member.name}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-success">{member.balance.toFixed(2)}</span>
-                  </div>
-                ))}
+          <div className="bg-card rounded-xl border">
+            <div className="p-4 pb-0">
+              <h3 className="text-base font-semibold text-foreground">Members</h3>
+            </div>
+            
+            {/* Tabs */}
+            <div className="px-4 pt-3">
+              <div className="flex border-b border-border">
+                <button
+                  onClick={() => setRankingTab("top")}
+                  className={cn(
+                    "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                    rankingTab === "top"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Top 5
+                </button>
+                <button
+                  onClick={() => setRankingTab("lowest")}
+                  className={cn(
+                    "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                    rankingTab === "lowest"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Lowest 5
+                </button>
               </div>
             </div>
             
-            {/* Lowest 5 Wallets */}
-            <div className="bg-card rounded-xl p-3 border border-destructive/20">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center">
-                  <TrendingDown className="w-4 h-4 text-destructive" />
-                </div>
-                <span className="text-xs font-medium text-destructive">Lowest 5</span>
-              </div>
-              <div className="space-y-2">
-                {childrenWalletRanking.lowest5.map((member, index) => (
-                  <div key={member.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground w-4">{index + 1}.</span>
-                      <span className="text-sm text-foreground truncate max-w-[80px]">{member.name}</span>
+            {/* Members List */}
+            <div className="p-4 space-y-0">
+              {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
+                <div 
+                  key={member.name} 
+                  className={cn(
+                    "flex items-center justify-between py-3",
+                    index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Medal or Number */}
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      {index < 3 ? (
+                        <span className="text-xl">🏅</span>
+                      ) : (
+                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                          {index + 1}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-sm font-semibold text-destructive">{member.balance.toFixed(2)}</span>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{member.name}</p>
+                      <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
+                    </div>
                   </div>
-                ))}
-              </div>
+                  <span className={cn(
+                    "text-sm font-semibold",
+                    rankingTab === "top" ? "text-success" : "text-destructive"
+                  )}>
+                    {member.balance.toFixed(2)} KD
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
