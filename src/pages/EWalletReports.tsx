@@ -605,7 +605,7 @@ const EWalletReports = () => {
         <div className="px-4 mb-4">
           <div className="bg-card rounded-xl border">
             <div className="p-4 pb-0">
-              <h3 className="text-base font-semibold text-foreground">Members</h3>
+              <h3 className="text-base font-semibold text-foreground">Member Wallet Ranking</h3>
             </div>
             
             {/* Tabs */}
