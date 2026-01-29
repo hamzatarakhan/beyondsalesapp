@@ -576,138 +576,160 @@ const EWalletReports = () => {
         )}
       </div>
 
-      {/* Wallet Selection */}
-      <div className="px-4 mb-4">
-        <h3 className="text-sm font-semibold text-foreground mb-2">
-          {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
-        </h3>
-        <div className="grid grid-cols-2 gap-3">
-          {displayWallets.map((wallet) => (
-            <button
-              key={wallet.id}
-              onClick={() => setSelectedWallet(wallet.id)}
-              className={cn(
-                "px-4 py-3 rounded-xl border-2 transition-all text-center",
-                selectedWallet === wallet.id
-                  ? "bg-primary/10 border-primary"
-                  : "bg-card border-transparent"
-              )}
-            >
-              <p className="text-sm font-medium text-foreground">{wallet.name}</p>
-              <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Analytics Section */}
+      <div className="px-4 mb-6">
+        <div className="bg-card rounded-2xl border p-4 space-y-5">
+          {/* Section Header */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold text-foreground">
+              {isParent && walletViewMode === "team-wallets" ? "Team Analytics" : "Wallet Analytics"}
+            </h2>
+          </div>
 
-      {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
-      {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-        <div className="px-4 mb-4">
-          <div className="bg-card rounded-xl border">
-            <div className="p-4 pb-0">
-              <h3 className="text-base font-semibold text-foreground">Member Wallet Ranking</h3>
-            </div>
-            
-            {/* Tabs */}
-            <div className="px-4 pt-3">
-              <div className="flex border-b border-border">
+          {/* Wallet Balance Cards */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {displayWallets.map((wallet) => (
                 <button
-                  onClick={() => setRankingTab("top")}
+                  key={wallet.id}
+                  onClick={() => setSelectedWallet(wallet.id)}
                   className={cn(
-                    "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                    rankingTab === "top"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                    "px-4 py-3 rounded-xl border-2 transition-all text-center",
+                    selectedWallet === wallet.id
+                      ? "bg-primary/10 border-primary"
+                      : "bg-muted/50 border-transparent"
                   )}
                 >
-                  Top 5
+                  <p className="text-sm font-medium text-foreground">{wallet.name}</p>
+                  <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
                 </button>
-                <button
-                  onClick={() => setRankingTab("lowest")}
-                  className={cn(
-                    "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                    rankingTab === "lowest"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Lowest 5
-                </button>
-              </div>
-            </div>
-            
-            {/* Members List */}
-            <div className="p-4 space-y-0">
-              {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
-                <div 
-                  key={member.name} 
-                  className={cn(
-                    "flex items-center justify-between py-3",
-                    index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Medal or Number */}
-                    <div className="w-8 h-8 flex items-center justify-center">
-                      {index < 3 ? (
-                        <span className="text-xl">🏅</span>
-                      ) : (
-                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                          {index + 1}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{member.name}</p>
-                      <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
-                    </div>
-                  </div>
-                  <span className={cn(
-                    "text-sm font-semibold",
-                    rankingTab === "top" ? "text-success" : "text-destructive"
-                  )}>
-                    {member.balance.toFixed(2)} KD
-                  </span>
-                </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Activity Distribution for Selected Wallet */}
-      <div className="px-4 mb-4">
-        <ActivityDistribution
-          transactions={mockTransactions.filter((t) => {
-            const dateRange = getDateRange();
-            const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
-            
-            // Filter by view mode for parent
-            if (isParent) {
-              if (walletViewMode === "my-wallets") {
-                if (t.memberName !== parentMemberName) return false;
-              } else {
-                if (t.memberName === parentMemberName) return false;
-                if (selectedMember && t.memberName !== selectedMember) return false;
-              }
-            }
-            
-            return t.walletType === selectedWallet && matchesDate;
-          })}
-          walletType={selectedWallet}
-        />
+          {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
+          {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Member Wallet Ranking</p>
+              <div className="bg-muted/50 rounded-xl">
+                {/* Tabs */}
+                <div className="px-3 pt-2">
+                  <div className="flex border-b border-border">
+                    <button
+                      onClick={() => setRankingTab("top")}
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                        rankingTab === "top"
+                          ? "border-primary text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Top 5
+                    </button>
+                    <button
+                      onClick={() => setRankingTab("lowest")}
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                        rankingTab === "lowest"
+                          ? "border-primary text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Lowest 5
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Members List */}
+                <div className="p-3 space-y-0">
+                  {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
+                    <div 
+                      key={member.name} 
+                      className={cn(
+                        "flex items-center justify-between py-2.5",
+                        index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Medal or Number */}
+                        <div className="w-7 h-7 flex items-center justify-center">
+                          {index < 3 ? (
+                            <span className="text-lg">🏅</span>
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                              {index + 1}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{member.name}</p>
+                          <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
+                        </div>
+                      </div>
+                      <span className={cn(
+                        "text-sm font-semibold",
+                        rankingTab === "top" ? "text-success" : "text-destructive"
+                      )}>
+                        {member.balance.toFixed(2)} KD
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Activity Distribution */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Activity Distribution</p>
+            <div className="bg-muted/50 rounded-xl p-3">
+              <ActivityDistribution
+                transactions={mockTransactions.filter((t) => {
+                  const dateRange = getDateRange();
+                  const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+                  
+                  // Filter by view mode for parent
+                  if (isParent) {
+                    if (walletViewMode === "my-wallets") {
+                      if (t.memberName !== parentMemberName) return false;
+                    } else {
+                      if (t.memberName === parentMemberName) return false;
+                      if (selectedMember && t.memberName !== selectedMember) return false;
+                    }
+                  }
+                  
+                  return t.walletType === selectedWallet && matchesDate;
+                })}
+                walletType={selectedWallet}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
 
-      {/* Transaction History */}
+      {/* Transaction History Section */}
       <div className="px-4 flex-1">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-foreground">Transaction History</h3>
-          <Button variant="ghost" size="sm" className="text-primary">
-            <Download className="w-4 h-4 mr-1" />
-            Export
-          </Button>
-        </div>
+        <div className="bg-card rounded-2xl border p-4">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileText className="w-4 h-4 text-primary" />
+              </div>
+              <h2 className="text-base font-semibold text-foreground">Transaction History</h2>
+            </div>
+            <Button variant="ghost" size="sm" className="text-primary h-8">
+              <Download className="w-4 h-4 mr-1" />
+              Export
+            </Button>
+          </div>
         
         {/* Search Bar in Transaction History */}
         <div className="relative mb-3">
@@ -783,6 +805,7 @@ const EWalletReports = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Transaction Details Bottom Sheet */}
