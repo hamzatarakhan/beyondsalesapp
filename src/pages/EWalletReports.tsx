@@ -81,8 +81,8 @@ const EWalletReports = () => {
   const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>("last-7-days");
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
-  const [activityTypeFilter, setActivityTypeFilter] = useState<ActivityType | "all">("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [activityTypeFilters, setActivityTypeFilters] = useState<ActivityType[]>([]);
+  const [statusFilters, setStatusFilters] = useState<Array<"completed" | "pending" | "failed">>([]);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -229,8 +229,13 @@ const EWalletReports = () => {
         return false;
       }
       
-      // Activity type filter
-      if (activityTypeFilter !== "all" && txn.activityType !== activityTypeFilter) {
+      // Activity type filter (multi-select)
+      if (activityTypeFilters.length > 0 && !activityTypeFilters.includes(txn.activityType)) {
+        return false;
+      }
+      
+      // Status filter (multi-select)
+      if (statusFilters.length > 0 && !statusFilters.includes(txn.status)) {
         return false;
       }
       
@@ -246,14 +251,14 @@ const EWalletReports = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilter, selectedMember, searchQuery, isParent, walletViewMode]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember, searchQuery, isParent, walletViewMode]);
 
   const resetFilters = () => {
     setDateRangeOption("last-7-days");
     setCustomDateRange(undefined);
     setTransactionTypeFilter("all");
-    setActivityTypeFilter("all");
-    setStatusFilter("all");
+    setActivityTypeFilters([]);
+    setStatusFilters([]);
     setSelectedMember(null);
     setSearchQuery("");
   };
@@ -266,11 +271,11 @@ const EWalletReports = () => {
     let count = 0;
     if (dateRangeOption !== "last-7-days") count++;
     if (transactionTypeFilter !== "all") count++;
-    if (activityTypeFilter !== "all") count++;
-    if (statusFilter !== "all") count++;
+    if (activityTypeFilters.length > 0) count += activityTypeFilters.length;
+    if (statusFilters.length > 0) count += statusFilters.length;
     if (selectedMember) count++;
     return count;
-  }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, statusFilter, selectedMember]);
+  }, [dateRangeOption, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember]);
 
   const getDateRangeLabel = () => {
     switch (dateRangeOption) {
@@ -498,57 +503,95 @@ const EWalletReports = () => {
                   </div>
                 </div>
 
-                {/* Activity Type */}
+                {/* Activity Type (Multi-select) */}
                 <div>
                   <Label className="text-sm font-medium text-foreground mb-3 block">Activity Type</Label>
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setActivityTypeFilters([])}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                        activityTypeFilters.length === 0
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary/50"
+                      )}
+                    >
+                      All
+                    </button>
                     {[
-                      { value: "all" as const, label: "All" },
-                      { value: "transfer" as const, label: "Transfer" },
-                      { value: "voucher" as const, label: "Voucher" },
-                      { value: "bill-payment" as const, label: "Bill pay" },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setActivityTypeFilter(option.value as ActivityType | "all")}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                          activityTypeFilter === option.value
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-foreground border-border hover:border-primary/50"
-                        )}
-                      >
-                        {activityTypeFilter !== option.value && option.value !== "all" && <span className="mr-1">+</span>}
-                        {option.label}
-                      </button>
-                    ))}
+                      { value: "transfer" as ActivityType, label: "Transfer" },
+                      { value: "voucher" as ActivityType, label: "Voucher" },
+                      { value: "bill-payment" as ActivityType, label: "Bill pay" },
+                    ].map((option) => {
+                      const isSelected = activityTypeFilters.includes(option.value);
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            if (isSelected) {
+                              setActivityTypeFilters(activityTypeFilters.filter(v => v !== option.value));
+                            } else {
+                              setActivityTypeFilters([...activityTypeFilters, option.value]);
+                            }
+                          }}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            isSelected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/50"
+                          )}
+                        >
+                          {!isSelected && <span className="mr-1">+</span>}
+                          {option.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Activity Status */}
+                {/* Activity Status (Multi-select) */}
                 <div>
                   <Label className="text-sm font-medium text-foreground mb-3 block">Activity Status</Label>
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setStatusFilters([])}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                        statusFilters.length === 0
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary/50"
+                      )}
+                    >
+                      All
+                    </button>
                     {[
-                      { value: "all" as StatusFilter, label: "All" },
-                      { value: "completed" as StatusFilter, label: "Completed" },
-                      { value: "pending" as StatusFilter, label: "Pending" },
-                      { value: "failed" as StatusFilter, label: "Failed" },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setStatusFilter(option.value)}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                          statusFilter === option.value
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-foreground border-border hover:border-primary/50"
-                        )}
-                      >
-                        {statusFilter !== option.value && option.value !== "all" && <span className="mr-1">+</span>}
-                        {option.label}
-                      </button>
-                    ))}
+                      { value: "completed" as const, label: "Completed" },
+                      { value: "pending" as const, label: "Pending" },
+                      { value: "failed" as const, label: "Failed" },
+                    ].map((option) => {
+                      const isSelected = statusFilters.includes(option.value);
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            if (isSelected) {
+                              setStatusFilters(statusFilters.filter(v => v !== option.value));
+                            } else {
+                              setStatusFilters([...statusFilters, option.value]);
+                            }
+                          }}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            isSelected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/50"
+                          )}
+                        >
+                          {!isSelected && <span className="mr-1">+</span>}
+                          {option.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -596,22 +639,22 @@ const EWalletReports = () => {
                 </button>
               </Badge>
             )}
-            {activityTypeFilter !== "all" && (
-              <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                <span className="text-xs">{activityTypeLabels[activityTypeFilter]}</span>
-                <button onClick={() => setActivityTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+            {activityTypeFilters.map((filter) => (
+              <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <span className="text-xs">{activityTypeLabels[filter]}</span>
+                <button onClick={() => setActivityTypeFilters(activityTypeFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
                   <X className="w-3 h-3" />
                 </button>
               </Badge>
-            )}
-            {statusFilter !== "all" && (
-              <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                <span className="text-xs capitalize">{statusFilter}</span>
-                <button onClick={() => setStatusFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+            ))}
+            {statusFilters.map((filter) => (
+              <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <span className="text-xs capitalize">{filter}</span>
+                <button onClick={() => setStatusFilters(statusFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
                   <X className="w-3 h-3" />
                 </button>
               </Badge>
-            )}
+            ))}
           </div>
         )}
       </div>
