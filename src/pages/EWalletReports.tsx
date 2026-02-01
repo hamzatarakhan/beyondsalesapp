@@ -87,7 +87,7 @@ const EWalletReports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
-  const [isAnalyticsExpanded, setIsAnalyticsExpanded] = useState(true);
+  const [isAnalyticsExpanded, setIsAnalyticsExpanded] = useState(false);
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
