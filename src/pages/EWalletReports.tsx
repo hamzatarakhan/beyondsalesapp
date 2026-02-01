@@ -674,7 +674,7 @@ const EWalletReports = () => {
               <div className="text-left">
                 <p className="text-sm font-medium text-foreground">Analytics Overview</p>
                 <p className="text-xs text-muted-foreground">
-                  {currentWallet.name}: {currentWallet.balance.toFixed(2)} {currentWallet.currency}
+                  E-Topup | E-Voucher
                 </p>
               </div>
             </div>
