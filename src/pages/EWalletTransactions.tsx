@@ -316,61 +316,6 @@ const EWalletTransactions = () => {
         </div>
       )}
 
-      {/* Wallet Selection with Balances */}
-      <div className="px-4 mb-4">
-        <div className="grid grid-cols-2 gap-3">
-          {displayWallets.map((wallet) => (
-            <button
-              key={wallet.id}
-              onClick={() => setSelectedWallet(wallet.id)}
-              className={cn(
-                "relative rounded-2xl p-4 transition-all text-left",
-                selectedWallet === wallet.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-card border border-border"
-              )}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center",
-                  selectedWallet === wallet.id
-                    ? "bg-primary-foreground/20"
-                    : "bg-primary/10"
-                )}>
-                  <Wallet className={cn(
-                    "w-4 h-4",
-                    selectedWallet === wallet.id
-                      ? "text-primary-foreground"
-                      : "text-primary"
-                  )} />
-                </div>
-                <span className={cn(
-                  "text-sm font-medium",
-                  selectedWallet === wallet.id
-                    ? "text-primary-foreground"
-                    : "text-foreground"
-                )}>{wallet.name}</span>
-              </div>
-              <p className={cn(
-                "text-xl font-bold",
-                selectedWallet === wallet.id
-                  ? "text-primary-foreground"
-                  : "text-foreground"
-              )}>
-                {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
-              </p>
-              {selectedWallet === wallet.id && (
-                <div className="absolute top-3 right-3">
-                  <div className="w-5 h-5 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-primary-foreground" />
-                  </div>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Search and Filter */}
       <div className="px-4 mb-3">
         <div className="flex items-center gap-2">
@@ -479,17 +424,18 @@ const EWalletTransactions = () => {
                           {customDateRange?.from ? (
                             customDateRange.to ? (
                               <>
-                                {format(customDateRange.from, "MMM d")} - {format(customDateRange.to, "MMM d, yyyy")}
+                                {format(customDateRange.from, "LLL dd, y")} -{" "}
+                                {format(customDateRange.to, "LLL dd, y")}
                               </>
                             ) : (
-                              format(customDateRange.from, "MMM d, yyyy")
+                              format(customDateRange.from, "LLL dd, y")
                             )
                           ) : (
                             <span>Pick a date range</span>
                           )}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-card border-border z-[100]" align="start">
+                      <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           initialFocus
                           mode="range"
@@ -497,7 +443,6 @@ const EWalletTransactions = () => {
                           selected={customDateRange}
                           onSelect={setCustomDateRange}
                           numberOfMonths={1}
-                          className="p-3 pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
@@ -510,8 +455,8 @@ const EWalletTransactions = () => {
                   <div className="flex flex-wrap gap-2">
                     {[
                       { value: "all" as const, label: "All" },
-                      { value: "credit" as const, label: "Credit" },
-                      { value: "debit" as const, label: "Debit" },
+                      { value: "credit" as TransactionType, label: "Credit" },
+                      { value: "debit" as TransactionType, label: "Debit" },
                     ].map((option) => (
                       <button
                         key={option.value}
@@ -544,20 +489,16 @@ const EWalletTransactions = () => {
                     >
                       All
                     </button>
-                    {[
-                      { value: "transfer" as ActivityType, label: "Transfer" },
-                      { value: "voucher" as ActivityType, label: "Voucher" },
-                      { value: "bill-payment" as ActivityType, label: "Bill pay" },
-                    ].map((option) => {
-                      const isSelected = activityTypeFilters.includes(option.value);
+                    {(Object.keys(activityTypeLabels) as ActivityType[]).map((activity) => {
+                      const isSelected = activityTypeFilters.includes(activity);
                       return (
                         <button
-                          key={option.value}
+                          key={activity}
                           onClick={() => {
                             if (isSelected) {
-                              setActivityTypeFilters(activityTypeFilters.filter(v => v !== option.value));
+                              setActivityTypeFilters(activityTypeFilters.filter(v => v !== activity));
                             } else {
-                              setActivityTypeFilters([...activityTypeFilters, option.value]);
+                              setActivityTypeFilters([...activityTypeFilters, activity]);
                             }
                           }}
                           className={cn(
@@ -568,16 +509,16 @@ const EWalletTransactions = () => {
                           )}
                         >
                           {!isSelected && <span className="mr-1">+</span>}
-                          {option.label}
+                          {activityTypeLabels[activity]}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Activity Status (Multi-select) */}
+                {/* Status (Multi-select) */}
                 <div>
-                  <Label className="text-sm font-medium text-foreground mb-3 block">Activity Status</Label>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Status</Label>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setStatusFilters([])}
@@ -683,6 +624,61 @@ const EWalletTransactions = () => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Wallet Selection with Balances */}
+      <div className="px-4 mb-4">
+        <div className="grid grid-cols-2 gap-3">
+          {displayWallets.map((wallet) => (
+            <button
+              key={wallet.id}
+              onClick={() => setSelectedWallet(wallet.id)}
+              className={cn(
+                "relative rounded-2xl p-4 transition-all text-left",
+                selectedWallet === wallet.id
+                  ? "bg-primary text-primary-foreground shadow-lg"
+                  : "bg-card border border-border"
+              )}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center",
+                  selectedWallet === wallet.id
+                    ? "bg-primary-foreground/20"
+                    : "bg-primary/10"
+                )}>
+                  <Wallet className={cn(
+                    "w-4 h-4",
+                    selectedWallet === wallet.id
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )} />
+                </div>
+                <span className={cn(
+                  "text-sm font-medium",
+                  selectedWallet === wallet.id
+                    ? "text-primary-foreground"
+                    : "text-foreground"
+                )}>{wallet.name}</span>
+              </div>
+              <p className={cn(
+                "text-xl font-bold",
+                selectedWallet === wallet.id
+                  ? "text-primary-foreground"
+                  : "text-foreground"
+              )}>
+                {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
+              </p>
+              {selectedWallet === wallet.id && (
+                <div className="absolute top-3 right-3">
+                  <div className="w-5 h-5 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Transactions Content */}
