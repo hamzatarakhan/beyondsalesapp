@@ -6,29 +6,32 @@ const EWalletBalancePreview = () => {
   const totalBalance = parentWallets.reduce((sum, wallet) => sum + wallet.balance, 0);
 
   return (
-    <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-4 text-primary-foreground">
-      <div className="flex items-center justify-between mb-3">
+    <div className="space-y-3">
+      {/* Total Balance Header */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
-            <Wallet className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Wallet className="w-4 h-4 text-primary" />
           </div>
-          <span className="text-sm font-medium opacity-90">E-Wallet Balance</span>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Balance</p>
+            <p className="text-xl font-bold text-foreground">{totalBalance.toFixed(2)} KD</p>
+          </div>
         </div>
       </div>
-      
-      <div className="mb-4">
-        <p className="text-2xl font-bold">{totalBalance.toFixed(2)} KD</p>
-        <p className="text-xs opacity-75">Total across all wallets</p>
-      </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      {/* Horizontally Scrolling Wallet Cards */}
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
         {parentWallets.map((wallet) => (
           <div
             key={wallet.id}
-            className="bg-primary-foreground/10 rounded-xl px-3 py-2"
+            className="flex-shrink-0 w-40 bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-4 text-primary-foreground"
           >
-            <p className="text-xs opacity-75">{wallet.name}</p>
-            <p className="text-sm font-semibold">{wallet.balance.toFixed(2)} {wallet.currency}</p>
+            <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center mb-3">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <p className="text-xs opacity-75 mb-1">{wallet.name}</p>
+            <p className="text-lg font-bold">{wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span></p>
           </div>
         ))}
       </div>
