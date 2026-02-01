@@ -65,7 +65,8 @@ import {
 } from "@/data/mockWalletData";
 import { DateRange } from "react-day-picker";
 
-type DateRangeOption = "today" | "last-7-days" | "last-month" | "custom";
+type DateRangeOption = "today" | "last-7-days" | "last-30-days" | "custom";
+type StatusFilter = "all" | "completed" | "pending" | "failed";
 type WalletViewMode = "my-wallets" | "team-wallets";
 
 const EWalletReports = () => {
@@ -81,6 +82,7 @@ const EWalletReports = () => {
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
   const [activityTypeFilter, setActivityTypeFilter] = useState<ActivityType | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -174,8 +176,8 @@ const EWalletReports = () => {
         return { from: startOfDay(today), to: endOfDay(today) };
       case "last-7-days":
         return { from: startOfDay(subDays(today, 7)), to: endOfDay(today) };
-      case "last-month":
-        return { from: startOfMonth(today), to: endOfDay(today) };
+      case "last-30-days":
+        return { from: startOfDay(subDays(today, 30)), to: endOfDay(today) };
       case "custom":
         return customDateRange?.from && customDateRange?.to
           ? { from: startOfDay(customDateRange.from), to: endOfDay(customDateRange.to) }
@@ -251,6 +253,7 @@ const EWalletReports = () => {
     setCustomDateRange(undefined);
     setTransactionTypeFilter("all");
     setActivityTypeFilter("all");
+    setStatusFilter("all");
     setSelectedMember(null);
     setSearchQuery("");
   };
@@ -264,23 +267,24 @@ const EWalletReports = () => {
     if (dateRangeOption !== "last-7-days") count++;
     if (transactionTypeFilter !== "all") count++;
     if (activityTypeFilter !== "all") count++;
+    if (statusFilter !== "all") count++;
     if (selectedMember) count++;
     return count;
-  }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, selectedMember]);
+  }, [dateRangeOption, transactionTypeFilter, activityTypeFilter, statusFilter, selectedMember]);
 
   const getDateRangeLabel = () => {
     switch (dateRangeOption) {
       case "today":
         return "Today";
       case "last-7-days":
-        return "Last 7 Days";
-      case "last-month":
-        return "Last Month";
+        return "Last 7 days";
+      case "last-30-days":
+        return "Last 30 days";
       case "custom":
         if (customDateRange?.from && customDateRange?.to) {
           return `${format(customDateRange.from, "MMM d")} - ${format(customDateRange.to, "MMM d")}`;
         }
-        return "Custom";
+        return "Custom Date";
       default:
         return "";
     }
@@ -374,68 +378,72 @@ const EWalletReports = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader className="border-b border-border">
-                <div className="flex items-center justify-between">
-                  <DrawerTitle>Filters</DrawerTitle>
-                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
-                    <RotateCcw className="w-4 h-4 mr-1" />
-                    Reset
-                  </Button>
-                </div>
-              </DrawerHeader>
-              <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+            <DrawerContent className="max-h-[85vh]">
+              {/* Header with close button */}
+              <div className="relative pt-2 pb-4 px-4 text-center">
+                <h3 className="text-lg font-semibold text-foreground">Filter</h3>
+                <p className="text-sm text-muted-foreground mt-1">Please choose your filter options</p>
+                <DrawerClose asChild>
+                  <button className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </DrawerClose>
+              </div>
+
+              <div className="px-4 pb-4 space-y-5 overflow-y-auto">
                 {/* Member Filter (Parent only, Team Wallets view) */}
                 {isParent && walletViewMode === "team-wallets" && (
                   <div>
                     <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                    <RadioGroup
-                      value={selectedMember || ""}
-                      onValueChange={(value) => setSelectedMember(value || null)}
-                      className="space-y-2"
-                    >
+                    <div className="flex flex-wrap gap-2">
                       {childMembers.map((member) => (
-                        <div
+                        <button
                           key={member.id}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-muted/50"
+                          onClick={() => setSelectedMember(selectedMember === member.name ? null : member.name)}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            selectedMember === member.name
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/50"
+                          )}
                         >
-                          <RadioGroupItem value={member.name} id={`global-${member.id}`} />
-                          <Label
-                            htmlFor={`global-${member.id}`}
-                            className="text-sm font-medium cursor-pointer flex-1"
-                          >
-                            {member.name}
-                          </Label>
-                        </div>
+                          {selectedMember !== member.name && <span className="mr-1">+</span>}
+                          {member.name}
+                        </button>
                       ))}
-                    </RadioGroup>
-                    {selectedMember && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        1 member selected
-                      </p>
-                    )}
+                    </div>
                   </div>
                 )}
 
                 {/* Date Range */}
                 <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Date Range</Label>
-                  <Select value={dateRangeOption} onValueChange={(v) => setDateRangeOption(v as DateRangeOption)}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                      <SelectItem value="last-month">Last Month</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Date Range</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: "today" as DateRangeOption, label: "Today" },
+                      { value: "last-7-days" as DateRangeOption, label: "Last 7 days" },
+                      { value: "last-30-days" as DateRangeOption, label: "Last 30 days" },
+                      { value: "custom" as DateRangeOption, label: "Custom Date" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setDateRangeOption(option.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          dateRangeOption === option.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary/50"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                   
                   {dateRangeOption === "custom" && (
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full mt-2 h-11 rounded-xl justify-start">
+                        <Button variant="outline" className="w-full mt-3 h-11 rounded-xl justify-start">
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {customDateRange?.from ? (
                             customDateRange.to ? (
@@ -467,42 +475,96 @@ const EWalletReports = () => {
 
                 {/* Transaction Type */}
                 <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Transaction Type</Label>
-                  <Select value={transactionTypeFilter} onValueChange={(v) => setTransactionTypeFilter(v as TransactionType | "all")}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="credit">Credit</SelectItem>
-                      <SelectItem value="debit">Debit</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Transaction Type</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: "all" as const, label: "All" },
+                      { value: "credit" as const, label: "Credit" },
+                      { value: "debit" as const, label: "Debit" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setTransactionTypeFilter(option.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          transactionTypeFilter === option.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary/50"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Activity Type */}
                 <div>
-                  <Label className="text-sm font-medium text-foreground mb-2 block">Activity Type</Label>
-                  <Select value={activityTypeFilter} onValueChange={(v) => setActivityTypeFilter(v as ActivityType | "all")}>
-                    <SelectTrigger className="h-11 rounded-xl bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border z-50">
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="recharge">Recharge</SelectItem>
-                      <SelectItem value="transfer">Transfer</SelectItem>
-                      <SelectItem value="rollback">Rollback</SelectItem>
-                      <SelectItem value="voucher">Voucher</SelectItem>
-                      <SelectItem value="bill-payment">Bill Payment</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Activity Type</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: "all" as const, label: "All" },
+                      { value: "transfer" as const, label: "Transfer" },
+                      { value: "voucher" as const, label: "Voucher" },
+                      { value: "bill-payment" as const, label: "Bill pay" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setActivityTypeFilter(option.value as ActivityType | "all")}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          activityTypeFilter === option.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary/50"
+                        )}
+                      >
+                        {activityTypeFilter !== option.value && option.value !== "all" && <span className="mr-1">+</span>}
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Activity Status */}
+                <div>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Activity Status</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: "all" as StatusFilter, label: "All" },
+                      { value: "completed" as StatusFilter, label: "Completed" },
+                      { value: "pending" as StatusFilter, label: "Pending" },
+                      { value: "failed" as StatusFilter, label: "Failed" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setStatusFilter(option.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          statusFilter === option.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary/50"
+                        )}
+                      >
+                        {statusFilter !== option.value && option.value !== "all" && <span className="mr-1">+</span>}
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <DrawerFooter className="border-t border-border">
+
+              {/* Footer */}
+              <div className="px-4 pb-6 pt-2 space-y-3">
                 <DrawerClose asChild>
-                  <Button className="w-full h-12 rounded-xl">Apply Filters</Button>
+                  <Button className="w-full h-12 rounded-full text-base font-medium">Apply</Button>
                 </DrawerClose>
-              </DrawerFooter>
+                <button
+                  onClick={resetFilters}
+                  className="w-full text-center text-primary font-medium text-sm"
+                >
+                  Clear Filter
+                </button>
+              </div>
             </DrawerContent>
           </Drawer>
         </div>
@@ -538,6 +600,14 @@ const EWalletReports = () => {
               <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
                 <span className="text-xs">{activityTypeLabels[activityTypeFilter]}</span>
                 <button onClick={() => setActivityTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            {statusFilter !== "all" && (
+              <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <span className="text-xs capitalize">{statusFilter}</span>
+                <button onClick={() => setStatusFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
                   <X className="w-3 h-3" />
                 </button>
               </Badge>
