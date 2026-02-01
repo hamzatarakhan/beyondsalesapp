@@ -371,24 +371,41 @@ const EWalletTransactions = () => {
         </div>
       </div>
 
-      {/* Global Filters */}
+      {/* Search and Filter */}
       <div className="px-4 mb-3">
         <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search transactions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-11 rounded-xl bg-card border-border"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
+          </div>
           <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <DrawerTrigger asChild>
               <Button
                 variant="outline"
+                size="icon"
                 className={cn(
-                  "h-10 rounded-xl gap-2 flex-1",
+                  "h-11 w-11 rounded-xl shrink-0 relative",
                   activeFiltersCount > 0 && "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
                 )}
               >
-                <Filter className="w-4 h-4" />
-                <span>Filters</span>
+                <Filter className="w-5 h-5" />
                 {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] bg-destructive text-destructive-foreground">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
                     {activeFiltersCount}
-                  </Badge>
+                  </span>
                 )}
               </Button>
             </DrawerTrigger>
@@ -670,23 +687,6 @@ const EWalletTransactions = () => {
 
       {/* Transactions Content */}
       <div className="px-4 flex-1">
-        {/* Search Bar */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="relative flex-1">
-            <Input
-              placeholder="Search by Ref ID, Member..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 rounded-xl bg-card border-border pr-10"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          </div>
-          
-          {/* Export Button */}
-          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-primary shrink-0">
-            <Download className="w-4 h-4" />
-          </Button>
-        </div>
 
         {filteredTransactions.length === 0 ? (
           <div className="bg-card rounded-xl p-8 text-center">
