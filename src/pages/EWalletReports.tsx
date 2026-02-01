@@ -548,154 +548,157 @@ const EWalletReports = () => {
 
       {/* Collapsible Analytics Section */}
       <div className="px-4 mb-4">
-        <button
-          onClick={() => setIsAnalyticsExpanded(!isAnalyticsExpanded)}
-          className="w-full bg-card rounded-xl p-4 flex items-center justify-between border"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-foreground">Analytics Overview</p>
-              <p className="text-xs text-muted-foreground">
-                {currentWallet.name}: {currentWallet.balance.toFixed(2)} {currentWallet.currency}
-              </p>
-            </div>
-          </div>
-          <ChevronDown 
-            className={cn(
-              "w-5 h-5 text-muted-foreground transition-transform duration-200",
-              isAnalyticsExpanded && "rotate-180"
-            )} 
-          />
-        </button>
-
-        {/* Expanded Analytics Content */}
-        {isAnalyticsExpanded && (
-          <div className="mt-3 space-y-4">
-            {/* Wallet Balance Cards */}
-            <div className="bg-card rounded-xl border p-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {displayWallets.map((wallet) => (
-                  <button
-                    key={wallet.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedWallet(wallet.id);
-                    }}
-                    className={cn(
-                      "px-4 py-3 rounded-xl border-2 transition-all text-center",
-                      selectedWallet === wallet.id
-                        ? "bg-primary/10 border-primary"
-                        : "bg-muted/50 border-transparent"
-                    )}
-                  >
-                    <p className="text-sm font-medium text-foreground">{wallet.name}</p>
-                    <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
-                  </button>
-                ))}
+        <div className="bg-card rounded-xl border overflow-hidden">
+          {/* Collapsible Header */}
+          <button
+            onClick={() => setIsAnalyticsExpanded(!isAnalyticsExpanded)}
+            className="w-full p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium text-foreground">Analytics Overview</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentWallet.name}: {currentWallet.balance.toFixed(2)} {currentWallet.currency}
+                </p>
               </div>
             </div>
+            <ChevronDown 
+              className={cn(
+                "w-5 h-5 text-muted-foreground transition-transform duration-200",
+                isAnalyticsExpanded && "rotate-180"
+              )} 
+            />
+          </button>
 
-            {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
-            {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-              <div className="bg-card rounded-xl border">
-                <div className="p-4 pb-0">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
-                </div>
-                {/* Tabs */}
-                <div className="px-4 pt-2">
-                  <div className="flex border-b border-border">
+          {/* Expanded Analytics Content */}
+          {isAnalyticsExpanded && (
+            <div className="border-t border-border">
+              {/* Wallet Balance Cards */}
+              <div className="p-4 border-b border-border">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                  {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {displayWallets.map((wallet) => (
                     <button
-                      onClick={() => setRankingTab("top")}
+                      key={wallet.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedWallet(wallet.id);
+                      }}
                       className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "top"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
+                        "px-4 py-3 rounded-xl border-2 transition-all text-center",
+                        selectedWallet === wallet.id
+                          ? "bg-primary/10 border-primary"
+                          : "bg-muted/50 border-transparent"
                       )}
                     >
-                      Top 5
+                      <p className="text-sm font-medium text-foreground">{wallet.name}</p>
+                      <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
                     </button>
-                    <button
-                      onClick={() => setRankingTab("lowest")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "lowest"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Lowest 5
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Members List */}
-                <div className="p-4 space-y-0">
-                  {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
-                    <div 
-                      key={member.name} 
-                      className={cn(
-                        "flex items-center justify-between py-2.5",
-                        index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 flex items-center justify-center">
-                          {index < 3 ? (
-                            <span className="text-lg">🏅</span>
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                              {index + 1}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
-                        </div>
-                      </div>
-                      <span className={cn(
-                        "text-sm font-semibold",
-                        rankingTab === "top" ? "text-success" : "text-destructive"
-                      )}>
-                        {member.balance.toFixed(2)} KD
-                      </span>
-                    </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Activity Distribution */}
-            <div className="bg-card rounded-xl border p-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
-              <ActivityDistribution
-                transactions={mockTransactions.filter((t) => {
-                  const dateRange = getDateRange();
-                  const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+              {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
+              {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
+                <div className="border-b border-border">
+                  <div className="p-4 pb-0">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
+                  </div>
+                  {/* Tabs */}
+                  <div className="px-4 pt-2">
+                    <div className="flex border-b border-border">
+                      <button
+                        onClick={() => setRankingTab("top")}
+                        className={cn(
+                          "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                          rankingTab === "top"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Top 5
+                      </button>
+                      <button
+                        onClick={() => setRankingTab("lowest")}
+                        className={cn(
+                          "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
+                          rankingTab === "lowest"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Lowest 5
+                      </button>
+                    </div>
+                  </div>
                   
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
+                  {/* Members List */}
+                  <div className="p-4 space-y-0">
+                    {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
+                      <div 
+                        key={member.name} 
+                        className={cn(
+                          "flex items-center justify-between py-2.5",
+                          index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 flex items-center justify-center">
+                            {index < 3 ? (
+                              <span className="text-lg">🏅</span>
+                            ) : (
+                              <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                                {index + 1}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{member.name}</p>
+                            <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
+                          </div>
+                        </div>
+                        <span className={cn(
+                          "text-sm font-semibold",
+                          rankingTab === "top" ? "text-success" : "text-destructive"
+                        )}>
+                          {member.balance.toFixed(2)} KD
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Activity Distribution */}
+              <div className="p-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
+                <ActivityDistribution
+                  transactions={mockTransactions.filter((t) => {
+                    const dateRange = getDateRange();
+                    const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+                    
+                    if (isParent) {
+                      if (walletViewMode === "my-wallets") {
+                        if (t.memberName !== parentMemberName) return false;
+                      } else {
+                        if (t.memberName === parentMemberName) return false;
+                        if (selectedMember && t.memberName !== selectedMember) return false;
+                      }
                     }
-                  }
-                  
-                  return t.walletType === selectedWallet && matchesDate;
-                })}
-                walletType={selectedWallet}
-              />
+                    
+                    return t.walletType === selectedWallet && matchesDate;
+                  })}
+                  walletType={selectedWallet}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Transactions Section Header */}
