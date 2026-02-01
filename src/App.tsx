@@ -16,6 +16,8 @@ import CreditLimitAdjustment from "./pages/CreditLimitAdjustment";
 import SearchBundleActivation from "./pages/SearchBundleActivation";
 import BundlePlans from "./pages/BundlePlans";
 import EWalletReports from "./pages/EWalletReports";
+import EWalletAnalytics from "./pages/EWalletAnalytics";
+import EWalletTransactions from "./pages/EWalletTransactions";
 import EWalletTransactionDetails from "./pages/EWalletTransactionDetails";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +43,8 @@ const App = () => (
           <Route path="/search-bundle" element={<SearchBundleActivation />} />
           <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="/ewallet-reports" element={<EWalletReports />} />
+          <Route path="/ewallet-analytics" element={<EWalletAnalytics />} />
+          <Route path="/ewallet-transactions" element={<EWalletTransactions />} />
           <Route path="/ewallet-transaction/:transactionId" element={<EWalletTransactionDetails />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
