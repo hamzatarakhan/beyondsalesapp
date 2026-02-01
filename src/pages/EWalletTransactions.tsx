@@ -78,6 +78,9 @@ const EWalletTransactions = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Parent's own wallets (My Wallets)
+  const myWallets = parentWallets;
+
   // Team wallets - aggregate balances from all child members
   const teamWallets = useMemo(() => {
     const aggregatedBalances = childMembers.reduce(
@@ -97,6 +100,31 @@ const EWalletTransactions = () => {
       { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
     ];
   }, []);
+
+  // Get current wallets based on role and view mode
+  const currentWallets = useMemo(() => {
+    if (!isParent) {
+      return childWallets;
+    }
+    return walletViewMode === "my-wallets" ? myWallets : teamWallets;
+  }, [isParent, walletViewMode, myWallets, teamWallets]);
+
+  // Dynamic wallet balances based on selected member (for team wallets)
+  const displayWallets = useMemo(() => {
+    if (!isParent || walletViewMode === "my-wallets" || !selectedMember) {
+      return currentWallets;
+    }
+    
+    const memberBalance = memberWalletBalances.find((m) => m.memberName === selectedMember);
+    if (!memberBalance) {
+      return currentWallets;
+    }
+    
+    return currentWallets.map((wallet) => ({
+      ...wallet,
+      balance: memberBalance.wallets[wallet.id],
+    }));
+  }, [isParent, walletViewMode, selectedMember, currentWallets]);
 
   // Calculate date range based on option
   const getDateRange = () => {
@@ -288,24 +316,56 @@ const EWalletTransactions = () => {
         </div>
       )}
 
-      {/* Wallet Selector */}
-      <div className="px-4 mb-3">
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { id: "e-topup" as WalletType, name: "E-Topup" },
-            { id: "e-voucher" as WalletType, name: "E-Voucher" },
-          ].map((wallet) => (
+      {/* Wallet Selection with Balances */}
+      <div className="px-4 mb-4">
+        <div className="grid grid-cols-2 gap-3">
+          {displayWallets.map((wallet) => (
             <button
               key={wallet.id}
               onClick={() => setSelectedWallet(wallet.id)}
               className={cn(
-                "px-4 py-2.5 rounded-xl border-2 transition-all text-center text-sm font-medium",
+                "relative rounded-2xl p-4 transition-all text-left",
                 selectedWallet === wallet.id
-                  ? "bg-primary/10 border-primary text-primary"
-                  : "bg-card border-transparent text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-lg"
+                  : "bg-card border border-border"
               )}
             >
-              {wallet.name}
+              <div className="flex items-center gap-2 mb-2">
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center",
+                  selectedWallet === wallet.id
+                    ? "bg-primary-foreground/20"
+                    : "bg-primary/10"
+                )}>
+                  <Wallet className={cn(
+                    "w-4 h-4",
+                    selectedWallet === wallet.id
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )} />
+                </div>
+                <span className={cn(
+                  "text-sm font-medium",
+                  selectedWallet === wallet.id
+                    ? "text-primary-foreground"
+                    : "text-foreground"
+                )}>{wallet.name}</span>
+              </div>
+              <p className={cn(
+                "text-xl font-bold",
+                selectedWallet === wallet.id
+                  ? "text-primary-foreground"
+                  : "text-foreground"
+              )}>
+                {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
+              </p>
+              {selectedWallet === wallet.id && (
+                <div className="absolute top-3 right-3">
+                  <div className="w-5 h-5 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                </div>
+              )}
             </button>
           ))}
         </div>
