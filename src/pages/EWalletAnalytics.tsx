@@ -548,29 +548,37 @@ const EWalletAnalytics = () => {
         )}
       </div>
 
-      {/* Wallet Balance Cards */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-xl p-4 border">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            {isParent && walletViewMode === "team-wallets" ? "Team Wallet Balance" : "Select Wallet"}
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {displayWallets.map((wallet) => (
-              <button
-                key={wallet.id}
-                onClick={() => setSelectedWallet(wallet.id)}
-                className={cn(
-                  "px-4 py-3 rounded-xl border-2 transition-all text-center",
-                  selectedWallet === wallet.id
-                    ? "bg-primary/10 border-primary"
-                    : "bg-muted/50 border-transparent"
-                )}
-              >
-                <p className="text-sm font-medium text-foreground">{wallet.name}</p>
-                <p className="text-lg font-bold text-primary">{wallet.balance.toFixed(2)} {wallet.currency}</p>
-              </button>
-            ))}
-          </div>
+      {/* Wallet Balance Cards - Horizontal Scroll */}
+      <div className="mb-4">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-1">
+          {displayWallets.map((wallet) => (
+            <button
+              key={wallet.id}
+              onClick={() => setSelectedWallet(wallet.id)}
+              className={cn(
+                "flex-shrink-0 w-40 rounded-2xl p-4 text-left transition-all",
+                selectedWallet === wallet.id
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : "bg-gradient-to-br from-muted to-muted/80 text-foreground"
+              )}
+            >
+              <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center mb-3",
+                selectedWallet === wallet.id
+                  ? "bg-primary-foreground/20"
+                  : "bg-background/50"
+              )}>
+                <Wallet className="w-4 h-4" />
+              </div>
+              <p className={cn(
+                "text-xs mb-1",
+                selectedWallet === wallet.id ? "opacity-75" : "text-muted-foreground"
+              )}>{wallet.name}</p>
+              <p className="text-lg font-bold">
+                {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
+              </p>
+            </button>
+          ))}
         </div>
       </div>
 
