@@ -89,15 +89,21 @@ const EWalletTransactions = () => {
         if (memberBalance) {
           acc["e-topup"] += memberBalance.wallets["e-topup"];
           acc["e-voucher"] += memberBalance.wallets["e-voucher"];
+          acc["e-cash"] += memberBalance.wallets["e-cash"];
+          acc["rewards"] += memberBalance.wallets["rewards"];
+          acc["credit-line"] += memberBalance.wallets["credit-line"];
         }
         return acc;
       },
-      { "e-topup": 0, "e-voucher": 0 }
+      { "e-topup": 0, "e-voucher": 0, "e-cash": 0, "rewards": 0, "credit-line": 0 }
     );
     
     return [
       { id: "e-topup" as WalletType, name: "E-Topup", balance: aggregatedBalances["e-topup"], currency: "KD" },
       { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
+      { id: "e-cash" as WalletType, name: "E-Cash", balance: aggregatedBalances["e-cash"], currency: "KD" },
+      { id: "rewards" as WalletType, name: "Rewards", balance: aggregatedBalances["rewards"], currency: "KD" },
+      { id: "credit-line" as WalletType, name: "Credit Line", balance: aggregatedBalances["credit-line"], currency: "KD" },
     ];
   }, []);
 
@@ -626,56 +632,35 @@ const EWalletTransactions = () => {
         )}
       </div>
 
-      {/* Wallet Selection with Balances */}
-      <div className="px-4 mb-4">
-        <div className="grid grid-cols-2 gap-3">
+      {/* Wallet Selection with Balances - Horizontal Scroll */}
+      <div className="mb-4">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-1">
           {displayWallets.map((wallet) => (
             <button
               key={wallet.id}
               onClick={() => setSelectedWallet(wallet.id)}
               className={cn(
-                "relative rounded-2xl p-4 transition-all text-left",
+                "flex-shrink-0 w-40 rounded-2xl p-4 text-left transition-all",
                 selectedWallet === wallet.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-card border border-border"
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : "bg-gradient-to-br from-muted to-muted/80 text-foreground"
               )}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center",
-                  selectedWallet === wallet.id
-                    ? "bg-primary-foreground/20"
-                    : "bg-primary/10"
-                )}>
-                  <Wallet className={cn(
-                    "w-4 h-4",
-                    selectedWallet === wallet.id
-                      ? "text-primary-foreground"
-                      : "text-primary"
-                  )} />
-                </div>
-                <span className={cn(
-                  "text-sm font-medium",
-                  selectedWallet === wallet.id
-                    ? "text-primary-foreground"
-                    : "text-foreground"
-                )}>{wallet.name}</span>
+              <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center mb-3",
+                selectedWallet === wallet.id
+                  ? "bg-primary-foreground/20"
+                  : "bg-background/50"
+              )}>
+                <Wallet className="w-4 h-4" />
               </div>
               <p className={cn(
-                "text-xl font-bold",
-                selectedWallet === wallet.id
-                  ? "text-primary-foreground"
-                  : "text-foreground"
-              )}>
+                "text-xs mb-1",
+                selectedWallet === wallet.id ? "opacity-75" : "text-muted-foreground"
+              )}>{wallet.name}</p>
+              <p className="text-lg font-bold">
                 {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
               </p>
-              {selectedWallet === wallet.id && (
-                <div className="absolute top-3 right-3">
-                  <div className="w-5 h-5 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-primary-foreground" />
-                  </div>
-                </div>
-              )}
             </button>
           ))}
         </div>

@@ -74,15 +74,21 @@ const EWalletAnalytics = () => {
         if (memberBalance) {
           acc["e-topup"] += memberBalance.wallets["e-topup"];
           acc["e-voucher"] += memberBalance.wallets["e-voucher"];
+          acc["e-cash"] += memberBalance.wallets["e-cash"];
+          acc["rewards"] += memberBalance.wallets["rewards"];
+          acc["credit-line"] += memberBalance.wallets["credit-line"];
         }
         return acc;
       },
-      { "e-topup": 0, "e-voucher": 0 }
+      { "e-topup": 0, "e-voucher": 0, "e-cash": 0, "rewards": 0, "credit-line": 0 }
     );
     
     return [
       { id: "e-topup" as WalletType, name: "E-Topup", balance: aggregatedBalances["e-topup"], currency: "KD" },
       { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
+      { id: "e-cash" as WalletType, name: "E-Cash", balance: aggregatedBalances["e-cash"], currency: "KD" },
+      { id: "rewards" as WalletType, name: "Rewards", balance: aggregatedBalances["rewards"], currency: "KD" },
+      { id: "credit-line" as WalletType, name: "Credit Line", balance: aggregatedBalances["credit-line"], currency: "KD" },
     ];
   }, []);
 
