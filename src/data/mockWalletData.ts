@@ -1,4 +1,4 @@
-export type WalletType = "e-topup" | "e-voucher";
+export type WalletType = "e-topup" | "e-voucher" | "e-cash" | "rewards" | "credit-line";
 export type TransactionType = "credit" | "debit";
 export type ActivityType = "recharge" | "transfer" | "rollback" | "voucher" | "bill-payment";
 export type TransactionStatus = "completed" | "pending" | "failed";
@@ -35,12 +35,18 @@ export interface Member {
 export const parentWallets: Wallet[] = [
   { id: "e-topup", name: "E-Topup", balance: 556.0, currency: "KD" },
   { id: "e-voucher", name: "E-Voucher", balance: 234.5, currency: "KD" },
+  { id: "e-cash", name: "E-Cash", balance: 120.0, currency: "KD" },
+  { id: "rewards", name: "Rewards", balance: 85.0, currency: "KD" },
+  { id: "credit-line", name: "Credit Line", balance: 500.0, currency: "KD" },
 ];
 
 // Child user wallets
 export const childWallets: Wallet[] = [
   { id: "e-topup", name: "E-Topup", balance: 150.0, currency: "KD" },
   { id: "e-voucher", name: "E-Voucher", balance: 80.0, currency: "KD" },
+  { id: "e-cash", name: "E-Cash", balance: 45.0, currency: "KD" },
+  { id: "rewards", name: "Rewards", balance: 30.0, currency: "KD" },
+  { id: "credit-line", name: "Credit Line", balance: 200.0, currency: "KD" },
 ];
 
 // Member wallet balances (for aggregation when filtering)
@@ -50,6 +56,9 @@ export interface MemberWalletBalance {
   wallets: {
     "e-topup": number;
     "e-voucher": number;
+    "e-cash": number;
+    "rewards": number;
+    "credit-line": number;
   };
 }
 
@@ -65,22 +74,22 @@ export const memberWalletBalances: MemberWalletBalance[] = [
   { 
     memberId: "parent", 
     memberName: "Hamza", 
-    wallets: { "e-topup": 300.0, "e-voucher": 120.0 } 
+    wallets: { "e-topup": 300.0, "e-voucher": 120.0, "e-cash": 75.0, "rewards": 50.0, "credit-line": 300.0 } 
   },
   { 
     memberId: "child-1", 
     memberName: "Ahmed Hassan", 
-    wallets: { "e-topup": 120.0, "e-voucher": 65.0 } 
+    wallets: { "e-topup": 120.0, "e-voucher": 65.0, "e-cash": 25.0, "rewards": 20.0, "credit-line": 100.0 } 
   },
   { 
     memberId: "child-2", 
     memberName: "Sara Ali", 
-    wallets: { "e-topup": 85.0, "e-voucher": 35.5 } 
+    wallets: { "e-topup": 85.0, "e-voucher": 35.5, "e-cash": 15.0, "rewards": 10.0, "credit-line": 75.0 } 
   },
   { 
     memberId: "child-3", 
     memberName: "Mohammed Khalid", 
-    wallets: { "e-topup": 51.0, "e-voucher": 14.0 } 
+    wallets: { "e-topup": 51.0, "e-voucher": 14.0, "e-cash": 5.0, "rewards": 5.0, "credit-line": 25.0 } 
   },
 ];
 
