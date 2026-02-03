@@ -8,8 +8,6 @@ import {
   Users,
   Wallet,
   Package,
-  BarChart3,
-  History,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -25,8 +23,7 @@ const activities = [
 ];
 
 const eWalletActivities = [
-  { icon: BarChart3, label: "Analytics", path: "/ewallet-analytics" },
-  { icon: History, label: "Transactions", path: "/ewallet-transactions" },
+  { icon: Wallet, label: "E-Wallet", path: "/ewallet" },
 ];
 
 const Home = () => {
