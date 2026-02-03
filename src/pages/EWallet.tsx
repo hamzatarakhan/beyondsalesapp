@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import ActivityDistribution from "@/components/ActivityDistribution";
 import { Button } from "@/components/ui/button";
@@ -60,8 +61,16 @@ type WalletViewMode = "my-wallets" | "team-wallets";
 type ViewTab = "analytics" | "transactions";
 
 const EWallet = () => {
-  // View tab state
-  const [activeTab, setActiveTab] = useState<ViewTab>("analytics");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // View tab state - initialize from URL param
+  const initialView = (searchParams.get("view") as ViewTab) || "analytics";
+  const [activeTab, setActiveTab] = useState<ViewTab>(initialView);
+  
+  // Sync URL when tab changes
+  useEffect(() => {
+    setSearchParams({ view: activeTab }, { replace: true });
+  }, [activeTab, setSearchParams]);
   
   // Mock role toggle (Parent/Child)
   const [isParent, setIsParent] = useState(true);
