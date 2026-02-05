@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import ActivityDistribution from "@/components/ActivityDistribution";
  import CreditDebitChart from "@/components/CreditDebitChart";
- import ActivityStatusChart from "@/components/ActivityStatusChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -1100,30 +1099,49 @@ const EWallet = () => {
             </div>
           )}
 
-          {/* Activity by Type */}
+          {/* Activity Distribution */}
           <div className="px-4 mb-4">
             <div className="bg-card rounded-xl p-4 border">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity by Type</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
               <ActivityDistribution
-               transactions={filteredTransactions}
+                transactions={mockTransactions.filter((t) => {
+                  const dateRange = getDateRange();
+                  const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
+                  
+                  if (isParent) {
+                    if (walletViewMode === "my-wallets") {
+                      if (t.memberName !== parentMemberName) return false;
+                    } else {
+                      if (t.memberName === parentMemberName) return false;
+                      if (selectedMember && t.memberName !== selectedMember) return false;
+                    }
+                  }
+                  
+                  return t.walletType === selectedWallet && matchesDate;
+                })}
                 walletType={selectedWallet}
               />
             </div>
           </div>
 
-          {/* Activity by Status */}
+          {/* Credit vs Debit Comparison */}
           <div className="px-4 mb-4">
             <div className="bg-card rounded-xl p-4 border">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity by Status</p>
-              <ActivityStatusChart transactions={filteredTransactions} />
-            </div>
-          </div>
-
-          {/* Credit vs Debit */}
-          <div className="px-4 mb-4">
-            <div className="bg-card rounded-xl p-4 border">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit</p>
-              <CreditDebitChart transactions={filteredTransactions} />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit (Last 7 Days)</p>
+              <CreditDebitChart
+                transactions={mockTransactions.filter((t) => {
+                  if (isParent) {
+                    if (walletViewMode === "my-wallets") {
+                      if (t.memberName !== parentMemberName) return false;
+                    } else {
+                      if (t.memberName === parentMemberName) return false;
+                      if (selectedMember && t.memberName !== selectedMember) return false;
+                    }
+                  }
+                  
+                  return t.walletType === selectedWallet;
+                })}
+              />
             </div>
           </div>
         </>

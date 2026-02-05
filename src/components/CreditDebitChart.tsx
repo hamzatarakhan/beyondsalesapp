@@ -1,37 +1,55 @@
  import { useMemo } from "react";
+ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
  import type { Transaction } from "@/data/mockWalletData";
- import { ArrowUpRight, ArrowDownLeft, TrendingUp, TrendingDown, Activity, Hash } from "lucide-react";
- import { cn } from "@/lib/utils";
+ import { format, subDays, startOfDay, isSameDay } from "date-fns";
  
  interface CreditDebitChartProps {
    transactions: Transaction[];
  }
  
  const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
-   const stats = useMemo(() => {
-     let credit = 0;
-     let debit = 0;
-     let creditCount = 0;
-     let debitCount = 0;
- 
+   const chartData = useMemo(() => {
+     // Get last 7 days
+     const today = new Date();
+     const days: { date: Date; label: string; credit: number; debit: number }[] = [];
+     
+     for (let i = 6; i >= 0; i--) {
+       const date = startOfDay(subDays(today, i));
+       days.push({
+         date,
+         label: format(date, "EEE"),
+         credit: 0,
+         debit: 0,
+       });
+     }
+     
+     // Aggregate transactions by day
      transactions.forEach((txn) => {
-       if (txn.transactionType === "credit") {
-         credit += txn.amount;
-         creditCount++;
-       } else {
-         debit += txn.amount;
-         debitCount++;
+       const txnDate = startOfDay(txn.date);
+       const dayEntry = days.find((d) => isSameDay(d.date, txnDate));
+       if (dayEntry) {
+         if (txn.transactionType === "credit") {
+           dayEntry.credit += txn.amount;
+         } else {
+           dayEntry.debit += txn.amount;
+         }
        }
      });
- 
-     const netFlow = credit - debit;
-     const totalCount = creditCount + debitCount;
-     const avgTransaction = totalCount > 0 ? (credit + debit) / totalCount : 0;
- 
-     return { credit, debit, netFlow, totalCount, avgTransaction, creditCount, debitCount };
+     
+     return days;
    }, [transactions]);
  
-   const hasData = stats.credit > 0 || stats.debit > 0;
+   const totals = useMemo(() => {
+     return chartData.reduce(
+       (acc, day) => ({
+         credit: acc.credit + day.credit,
+         debit: acc.debit + day.debit,
+       }),
+       { credit: 0, debit: 0 }
+     );
+   }, [chartData]);
+ 
+   const hasData = totals.credit > 0 || totals.debit > 0;
  
    if (!hasData) {
      return (
@@ -42,76 +60,79 @@
    }
  
    return (
-     <div className="grid grid-cols-2 gap-3">
-       {/* Total Credits */}
-       <div className="bg-success/5 rounded-xl p-3 border border-success/20">
-         <div className="flex items-center justify-between mb-2">
-           <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-             <ArrowDownLeft className="w-4 h-4 text-success" />
-           </div>
-           <span className="text-[10px] font-medium text-success bg-success/10 px-1.5 py-0.5 rounded">
-             {stats.creditCount} txn
-           </span>
+     <div className="space-y-4">
+       {/* Summary Cards */}
+       <div className="grid grid-cols-2 gap-3">
+         <div className="bg-success/10 rounded-xl p-3">
+           <p className="text-xs text-muted-foreground mb-1">Total Credit</p>
+           <p className="text-lg font-bold text-success">{totals.credit.toFixed(2)} KD</p>
          </div>
-       <p className="text-xs text-muted-foreground">Credits</p>
-         <p className="text-lg font-bold text-foreground">{stats.credit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
+         <div className="bg-destructive/10 rounded-xl p-3">
+           <p className="text-xs text-muted-foreground mb-1">Total Debit</p>
+           <p className="text-lg font-bold text-destructive">{totals.debit.toFixed(2)} KD</p>
+         </div>
        </div>
  
-       {/* Total Debits */}
-       <div className="bg-destructive/5 rounded-xl p-3 border border-destructive/20">
-         <div className="flex items-center justify-between mb-2">
-           <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
-             <ArrowUpRight className="w-4 h-4 text-destructive" />
-           </div>
-           <span className="text-[10px] font-medium text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
-             {stats.debitCount} txn
-           </span>
-         </div>
-       <p className="text-xs text-muted-foreground">Debits</p>
-         <p className="text-lg font-bold text-foreground">{stats.debit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
+       {/* Bar Chart */}
+       <div className="h-48">
+         <ResponsiveContainer width="100%" height="100%">
+           <BarChart data={chartData} barGap={2}>
+             <XAxis 
+               dataKey="label" 
+               axisLine={false} 
+               tickLine={false}
+               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+             />
+             <YAxis 
+               hide 
+               domain={[0, "auto"]}
+             />
+             <Tooltip
+               cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+               contentStyle={{
+                 backgroundColor: "hsl(var(--card))",
+                 border: "1px solid hsl(var(--border))",
+                 borderRadius: "8px",
+                 fontSize: "12px",
+               }}
+               formatter={(value: number, name: string) => [
+                 `${value.toFixed(2)} KD`,
+                 name === "credit" ? "Credit" : "Debit"
+               ]}
+               labelFormatter={(label) => `Day: ${label}`}
+             />
+             <Bar 
+               dataKey="credit" 
+               radius={[4, 4, 0, 0]} 
+               maxBarSize={24}
+             >
+               {chartData.map((_, index) => (
+                 <Cell key={`credit-${index}`} fill="hsl(var(--success))" />
+               ))}
+             </Bar>
+             <Bar 
+               dataKey="debit" 
+               radius={[4, 4, 0, 0]} 
+               maxBarSize={24}
+             >
+               {chartData.map((_, index) => (
+                 <Cell key={`debit-${index}`} fill="hsl(var(--destructive))" />
+               ))}
+             </Bar>
+           </BarChart>
+         </ResponsiveContainer>
        </div>
  
-       {/* Net Flow */}
-       <div className="bg-muted/50 rounded-xl p-3 border border-border">
-         <div className="flex items-center justify-between mb-2">
-           <div className={cn(
-             "w-8 h-8 rounded-lg flex items-center justify-center",
-             stats.netFlow >= 0 ? "bg-success/10" : "bg-destructive/10"
-           )}>
-             {stats.netFlow >= 0 ? (
-               <TrendingUp className="w-4 h-4 text-success" />
-             ) : (
-               <TrendingDown className="w-4 h-4 text-destructive" />
-             )}
-           </div>
-           <span className={cn(
-             "text-[10px] font-medium px-1.5 py-0.5 rounded",
-             stats.netFlow >= 0 ? "text-success bg-success/10" : "text-destructive bg-destructive/10"
-           )}>
-             {stats.netFlow >= 0 ? "Positive" : "Negative"}
-           </span>
+       {/* Legend */}
+       <div className="flex items-center justify-center gap-6">
+         <div className="flex items-center gap-2">
+           <div className="w-3 h-3 rounded-sm bg-success" />
+           <span className="text-xs text-muted-foreground">Credit (Money In)</span>
          </div>
-         <p className="text-xs text-muted-foreground">Net Flow</p>
-         <p className={cn(
-           "text-lg font-bold",
-           stats.netFlow >= 0 ? "text-success" : "text-destructive"
-         )}>
-           {stats.netFlow >= 0 ? "+" : ""}{stats.netFlow.toFixed(2)} <span className="text-xs font-normal">KD</span>
-         </p>
-       </div>
- 
-       {/* Transaction Count & Avg */}
-       <div className="bg-muted/50 rounded-xl p-3 border border-border">
-         <div className="flex items-center justify-between mb-2">
-           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-             <Activity className="w-4 h-4 text-primary" />
-           </div>
-           <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-             {stats.totalCount} total
-           </span>
+         <div className="flex items-center gap-2">
+           <div className="w-3 h-3 rounded-sm bg-destructive" />
+           <span className="text-xs text-muted-foreground">Debit (Money Out)</span>
          </div>
-         <p className="text-xs text-muted-foreground">Avg Transaction</p>
-         <p className="text-lg font-bold text-foreground">{stats.avgTransaction.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
        </div>
      </div>
    );
