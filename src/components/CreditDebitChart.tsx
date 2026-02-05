@@ -1,34 +1,37 @@
  import { useMemo } from "react";
  import type { Transaction } from "@/data/mockWalletData";
- import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
+ import { ArrowUpRight, ArrowDownLeft, TrendingUp, TrendingDown, Activity, Hash } from "lucide-react";
+ import { cn } from "@/lib/utils";
  
  interface CreditDebitChartProps {
    transactions: Transaction[];
  }
  
  const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
-   const { totals, netFlow, creditPercent } = useMemo(() => {
-     const sums = transactions.reduce(
-       (acc, txn) => {
-         if (txn.transactionType === "credit") {
-           acc.credit += txn.amount;
-         } else {
-           acc.debit += txn.amount;
-         }
-         return acc;
-       },
-       { credit: 0, debit: 0 }
-     );
-     const total = sums.credit + sums.debit;
-     const percent = total > 0 ? Math.round((sums.credit / total) * 100) : 50;
-     return {
-       totals: sums,
-       netFlow: sums.credit - sums.debit,
-       creditPercent: percent,
-     };
+   const stats = useMemo(() => {
+     let credit = 0;
+     let debit = 0;
+     let creditCount = 0;
+     let debitCount = 0;
+ 
+     transactions.forEach((txn) => {
+       if (txn.transactionType === "credit") {
+         credit += txn.amount;
+         creditCount++;
+       } else {
+         debit += txn.amount;
+         debitCount++;
+       }
+     });
+ 
+     const netFlow = credit - debit;
+     const totalCount = creditCount + debitCount;
+     const avgTransaction = totalCount > 0 ? (credit + debit) / totalCount : 0;
+ 
+     return { credit, debit, netFlow, totalCount, avgTransaction, creditCount, debitCount };
    }, [transactions]);
  
-   const hasData = totals.credit > 0 || totals.debit > 0;
+   const hasData = stats.credit > 0 || stats.debit > 0;
  
    if (!hasData) {
      return (
@@ -39,49 +42,76 @@
    }
  
    return (
-     <div className="space-y-3">
-       {/* Visual ratio bar */}
-       <div className="h-3 rounded-full overflow-hidden flex bg-muted">
-         <div 
-           className="bg-success transition-all duration-300" 
-           style={{ width: `${creditPercent}%` }} 
-         />
-         <div 
-           className="bg-destructive transition-all duration-300" 
-           style={{ width: `${100 - creditPercent}%` }} 
-         />
-       </div>
- 
-       {/* Credit / Debit Row */}
-       <div className="flex items-center justify-between">
-         <div className="flex items-center gap-2">
+     <div className="grid grid-cols-2 gap-3">
+       {/* Total Credits */}
+       <div className="bg-success/5 rounded-xl p-3 border border-success/20">
+         <div className="flex items-center justify-between mb-2">
            <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
              <ArrowDownLeft className="w-4 h-4 text-success" />
            </div>
-           <div>
-             <p className="text-xs text-muted-foreground">Credit</p>
-             <p className="text-sm font-semibold text-foreground">{totals.credit.toFixed(2)} KD</p>
-           </div>
+           <span className="text-[10px] font-medium text-success bg-success/10 px-1.5 py-0.5 rounded">
+             {stats.creditCount} txn
+           </span>
          </div>
-         <div className="flex items-center gap-2 text-right">
-           <div>
-             <p className="text-xs text-muted-foreground">Debit</p>
-             <p className="text-sm font-semibold text-foreground">{totals.debit.toFixed(2)} KD</p>
-           </div>
+         <p className="text-xs text-muted-foreground">Money In</p>
+         <p className="text-lg font-bold text-foreground">{stats.credit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
+       </div>
+ 
+       {/* Total Debits */}
+       <div className="bg-destructive/5 rounded-xl p-3 border border-destructive/20">
+         <div className="flex items-center justify-between mb-2">
            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
              <ArrowUpRight className="w-4 h-4 text-destructive" />
            </div>
+           <span className="text-[10px] font-medium text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
+             {stats.debitCount} txn
+           </span>
          </div>
+         <p className="text-xs text-muted-foreground">Money Out</p>
+         <p className="text-lg font-bold text-foreground">{stats.debit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
        </div>
  
        {/* Net Flow */}
-       <div className="pt-2 border-t border-border">
-         <div className="flex items-center justify-between">
-           <span className="text-xs text-muted-foreground">Net Flow</span>
-           <span className={`text-sm font-bold ${netFlow >= 0 ? "text-success" : "text-destructive"}`}>
-             {netFlow >= 0 ? "+" : ""}{netFlow.toFixed(2)} KD
+       <div className="bg-muted/50 rounded-xl p-3 border border-border">
+         <div className="flex items-center justify-between mb-2">
+           <div className={cn(
+             "w-8 h-8 rounded-lg flex items-center justify-center",
+             stats.netFlow >= 0 ? "bg-success/10" : "bg-destructive/10"
+           )}>
+             {stats.netFlow >= 0 ? (
+               <TrendingUp className="w-4 h-4 text-success" />
+             ) : (
+               <TrendingDown className="w-4 h-4 text-destructive" />
+             )}
+           </div>
+           <span className={cn(
+             "text-[10px] font-medium px-1.5 py-0.5 rounded",
+             stats.netFlow >= 0 ? "text-success bg-success/10" : "text-destructive bg-destructive/10"
+           )}>
+             {stats.netFlow >= 0 ? "Positive" : "Negative"}
            </span>
          </div>
+         <p className="text-xs text-muted-foreground">Net Flow</p>
+         <p className={cn(
+           "text-lg font-bold",
+           stats.netFlow >= 0 ? "text-success" : "text-destructive"
+         )}>
+           {stats.netFlow >= 0 ? "+" : ""}{stats.netFlow.toFixed(2)} <span className="text-xs font-normal">KD</span>
+         </p>
+       </div>
+ 
+       {/* Transaction Count & Avg */}
+       <div className="bg-muted/50 rounded-xl p-3 border border-border">
+         <div className="flex items-center justify-between mb-2">
+           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+             <Activity className="w-4 h-4 text-primary" />
+           </div>
+           <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+             {stats.totalCount} total
+           </span>
+         </div>
+         <p className="text-xs text-muted-foreground">Avg Transaction</p>
+         <p className="text-lg font-bold text-foreground">{stats.avgTransaction.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
        </div>
      </div>
    );
