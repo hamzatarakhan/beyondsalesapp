@@ -53,7 +53,7 @@
              {stats.creditCount} txn
            </span>
          </div>
-         <p className="text-xs text-muted-foreground">Money In</p>
+       <p className="text-xs text-muted-foreground">Credits</p>
          <p className="text-lg font-bold text-foreground">{stats.credit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
        </div>
  
@@ -67,7 +67,7 @@
              {stats.debitCount} txn
            </span>
          </div>
-         <p className="text-xs text-muted-foreground">Money Out</p>
+       <p className="text-xs text-muted-foreground">Debits</p>
          <p className="text-lg font-bold text-foreground">{stats.debit.toFixed(2)} <span className="text-xs font-normal">KD</span></p>
        </div>
  
