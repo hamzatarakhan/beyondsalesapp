@@ -1100,10 +1100,10 @@ const EWallet = () => {
             </div>
           )}
 
-          {/* Activity Distribution */}
+          {/* Activity by Type */}
           <div className="px-4 mb-4">
             <div className="bg-card rounded-xl p-4 border">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Distribution</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity by Type</p>
               <ActivityDistribution
                transactions={filteredTransactions}
                 walletType={selectedWallet}
@@ -1111,21 +1111,19 @@ const EWallet = () => {
             </div>
           </div>
 
-          {/* Credit vs Debit Comparison */}
+          {/* Activity by Status */}
           <div className="px-4 mb-4">
             <div className="bg-card rounded-xl p-4 border">
-             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit</p>
-              <CreditDebitChart
-               transactions={filteredTransactions}
-              />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity by Status</p>
+              <ActivityStatusChart transactions={filteredTransactions} />
             </div>
           </div>
 
-          {/* Activity Status */}
+          {/* Credit vs Debit */}
           <div className="px-4 mb-4">
             <div className="bg-card rounded-xl p-4 border">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Activity Status</p>
-              <ActivityStatusChart transactions={filteredTransactions} />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit</p>
+              <CreditDebitChart transactions={filteredTransactions} />
             </div>
           </div>
         </>
