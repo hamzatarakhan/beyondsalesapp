@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import ActivityDistribution from "@/components/ActivityDistribution";
+ import CreditDebitChart from "@/components/CreditDebitChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -1119,6 +1120,27 @@ const EWallet = () => {
                   return t.walletType === selectedWallet && matchesDate;
                 })}
                 walletType={selectedWallet}
+              />
+            </div>
+          </div>
+
+          {/* Credit vs Debit Comparison */}
+          <div className="px-4 mb-4">
+            <div className="bg-card rounded-xl p-4 border">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit (Last 7 Days)</p>
+              <CreditDebitChart
+                transactions={mockTransactions.filter((t) => {
+                  if (isParent) {
+                    if (walletViewMode === "my-wallets") {
+                      if (t.memberName !== parentMemberName) return false;
+                    } else {
+                      if (t.memberName === parentMemberName) return false;
+                      if (selectedMember && t.memberName !== selectedMember) return false;
+                    }
+                  }
+                  
+                  return t.walletType === selectedWallet;
+                })}
               />
             </div>
           </div>
