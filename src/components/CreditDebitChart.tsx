@@ -1,11 +1,54 @@
 import { useMemo } from "react";
 import type { Transaction } from "@/data/mockWalletData";
-import { ArrowDownLeft, ArrowUpRight, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreditDebitChartProps {
   transactions: Transaction[];
 }
+
+// Circular progress component
+const CircularProgress = ({ 
+  percentage, 
+  color, 
+  size = 80, 
+  strokeWidth = 8 
+}: { 
+  percentage: number; 
+  color: string; 
+  size?: number; 
+  strokeWidth?: number;
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        className="text-muted/30"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        className="transition-all duration-700 ease-out"
+      />
+    </svg>
+  );
+};
 
 const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
   const stats = useMemo(() => {
@@ -27,6 +70,7 @@ const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
     const netFlow = credit - debit;
     const totalVolume = credit + debit;
     const creditPercentage = totalVolume > 0 ? (credit / totalVolume) * 100 : 0;
+    const debitPercentage = totalVolume > 0 ? (debit / totalVolume) * 100 : 0;
 
     return { 
       credit, 
@@ -35,6 +79,7 @@ const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
       creditCount, 
       debitCount,
       creditPercentage,
+      debitPercentage,
       totalVolume
     };
   }, [transactions]);
@@ -50,71 +95,64 @@ const CreditDebitChart = ({ transactions }: CreditDebitChartProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Main Credits & Debits */}
-      <div className="flex items-center justify-between">
-        {/* Credits */}
-        <div className="flex-1 text-center">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-success/10 mb-2">
-            <ArrowDownLeft className="w-5 h-5 text-success" />
+    <div className="space-y-4">
+      {/* Progress Rings */}
+      <div className="flex items-center justify-around">
+        {/* Credits Ring */}
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <CircularProgress 
+              percentage={stats.creditPercentage} 
+              color="hsl(var(--success))"
+              size={90}
+              strokeWidth={10}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <ArrowDownLeft className="w-4 h-4 text-success mb-0.5" />
+              <span className="text-sm font-bold text-foreground">
+                {stats.creditPercentage.toFixed(0)}%
+              </span>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-foreground">{stats.credit.toFixed(0)}</p>
-          <p className="text-xs text-muted-foreground">KD</p>
-          <p className="text-xs text-success font-medium mt-1">
-            {stats.creditCount} credits
-          </p>
+          <div className="mt-2 text-center">
+            <p className="text-lg font-bold text-foreground">{stats.credit.toFixed(0)} <span className="text-xs font-normal text-muted-foreground">KD</span></p>
+            <p className="text-[10px] text-success font-medium">{stats.creditCount} credits</p>
+          </div>
         </div>
 
-        {/* Divider with Net */}
-        <div className="flex flex-col items-center px-4">
+        {/* Net Flow Center */}
+        <div className="flex flex-col items-center px-2">
           <div className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center mb-1",
-            stats.netFlow >= 0 ? "bg-success/10" : "bg-destructive/10"
-          )}>
-            {stats.netFlow >= 0 ? (
-              <TrendingUp className="w-5 h-5 text-success" />
-            ) : (
-              <TrendingDown className="w-5 h-5 text-destructive" />
-            )}
-          </div>
-          <p className={cn(
-            "text-sm font-bold",
+            "text-2xl font-bold",
             stats.netFlow >= 0 ? "text-success" : "text-destructive"
           )}>
             {stats.netFlow >= 0 ? "+" : ""}{stats.netFlow.toFixed(0)}
-          </p>
-          <p className="text-[10px] text-muted-foreground">Net</p>
-        </div>
-
-        {/* Debits */}
-        <div className="flex-1 text-center">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-destructive/10 mb-2">
-            <ArrowUpRight className="w-5 h-5 text-destructive" />
           </div>
-          <p className="text-3xl font-bold text-foreground">{stats.debit.toFixed(0)}</p>
-          <p className="text-xs text-muted-foreground">KD</p>
-          <p className="text-xs text-destructive font-medium mt-1">
-            {stats.debitCount} debits
-          </p>
+          <p className="text-[10px] text-muted-foreground">Net Flow</p>
+          <p className="text-xs text-muted-foreground mt-1">{stats.totalVolume.toFixed(0)} KD</p>
+          <p className="text-[10px] text-muted-foreground">total volume</p>
         </div>
-      </div>
 
-      {/* Simple Ratio Bar */}
-      <div className="space-y-1.5">
-        <div className="h-2 rounded-full bg-muted overflow-hidden flex">
-          <div 
-            className="h-full bg-success rounded-l-full transition-all duration-500"
-            style={{ width: `${stats.creditPercentage}%` }}
-          />
-          <div 
-            className="h-full bg-destructive rounded-r-full transition-all duration-500"
-            style={{ width: `${100 - stats.creditPercentage}%` }}
-          />
-        </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>{stats.creditPercentage.toFixed(0)}% in</span>
-          <span className="text-foreground font-medium">{stats.totalVolume.toFixed(0)} KD total</span>
-          <span>{(100 - stats.creditPercentage).toFixed(0)}% out</span>
+        {/* Debits Ring */}
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <CircularProgress 
+              percentage={stats.debitPercentage} 
+              color="hsl(var(--destructive))"
+              size={90}
+              strokeWidth={10}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-destructive mb-0.5" />
+              <span className="text-sm font-bold text-foreground">
+                {stats.debitPercentage.toFixed(0)}%
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 text-center">
+            <p className="text-lg font-bold text-foreground">{stats.debit.toFixed(0)} <span className="text-xs font-normal text-muted-foreground">KD</span></p>
+            <p className="text-[10px] text-destructive font-medium">{stats.debitCount} debits</p>
+          </div>
         </div>
       </div>
     </div>
