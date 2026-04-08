@@ -1,6 +1,6 @@
 export type WalletType = "e-topup" | "e-voucher" | "e-cash" | "rewards" | "credit-line";
 export type TransactionType = "credit" | "debit";
-export type ActivityType = "recharge" | "transfer" | "rollback" | "voucher" | "bill-payment";
+export type ActivityType = "recharge" | "transfer" | "rollback" | "voucher" | "bill-payment" | "erp-transfer" | "refund" | "cashback" | "commission" | "adjustment";
 export type TransactionStatus = "completed" | "pending" | "failed";
 
 export interface Transaction {
@@ -262,6 +262,11 @@ export const activityTypeLabels: Record<ActivityType, string> = {
   rollback: "Rollback",
   voucher: "Voucher",
   "bill-payment": "Bill Payment",
+  "erp-transfer": "ERP Transfer",
+  refund: "Refund",
+  cashback: "Cashback",
+  commission: "Commission",
+  adjustment: "Adjustment",
 };
 
 export const transactionTypeLabels: Record<TransactionType, string> = {
