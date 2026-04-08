@@ -9,12 +9,16 @@ interface ActivityDistributionProps {
 
 // Colors for pie chart slices
 const COLORS: Record<string, string> = {
-  "bill-payment": "#F59E0B", // Orange/Amber
-  recharge: "#3B82F6", // Blue
-  transfer: "#22C55E", // Green
-  rollback: "#EC4899", // Pink
-  voucher: "#8B5CF6", // Purple
-  "erp-transfer": "#14B8A6", // Teal
+  "bill-payment": "#F59E0B",
+  recharge: "#3B82F6",
+  transfer: "#22C55E",
+  rollback: "#EC4899",
+  voucher: "#8B5CF6",
+  "erp-transfer": "#14B8A6",
+  refund: "#F97316",
+  cashback: "#06B6D4",
+  commission: "#84CC16",
+  adjustment: "#EF4444",
 };
 
 // Activity labels for display
@@ -25,6 +29,10 @@ const ACTIVITY_LABELS: Record<string, string> = {
   recharge: "Recharge",
   voucher: "Voucher",
   "erp-transfer": "ERP Transfer",
+  refund: "Refund",
+  cashback: "Cashback",
+  commission: "Commission",
+  adjustment: "Adjustment",
 };
 
 const ActivityDistribution = ({ transactions, walletType }: ActivityDistributionProps) => {
@@ -95,15 +103,17 @@ const ActivityDistribution = ({ transactions, walletType }: ActivityDistribution
           </div>
         </div>
 
-        {/* Horizontal Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
+        {/* Two-column Legend */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 mt-4 w-full px-2">
           {chartData.map((item) => (
-            <div key={item.activityKey} className="flex items-center gap-1.5">
+            <div key={item.activityKey} className="flex items-center gap-1.5 min-w-0">
               <div
-                className="w-2.5 h-2.5 rounded-full"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-xs text-muted-foreground">{item.name} ({item.value})</span>
+              <span className="text-xs text-muted-foreground truncate">
+                {item.name} ({item.value})
+              </span>
             </div>
           ))}
         </div>
