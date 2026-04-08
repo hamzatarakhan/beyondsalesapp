@@ -19,6 +19,12 @@ const COLORS: Record<string, string> = {
   cashback: "#06B6D4",
   commission: "#84CC16",
   adjustment: "#EF4444",
+  penalty: "#DC2626",
+  bonus: "#A855F7",
+  subscription: "#0EA5E9",
+  "top-up-reversal": "#D946EF",
+  "loyalty-redeem": "#10B981",
+  "service-charge": "#6366F1",
 };
 
 // Activity labels for display
@@ -33,6 +39,12 @@ const ACTIVITY_LABELS: Record<string, string> = {
   cashback: "Cashback",
   commission: "Commission",
   adjustment: "Adjustment",
+  penalty: "Penalty",
+  bonus: "Bonus",
+  subscription: "Subscription",
+  "top-up-reversal": "Top-up Reversal",
+  "loyalty-redeem": "Loyalty Redeem",
+  "service-charge": "Service Charge",
 };
 
 const ActivityDistribution = ({ transactions, walletType }: ActivityDistributionProps) => {
