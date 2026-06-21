@@ -227,7 +227,7 @@ const PrepaidActivation = () => {
   const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
 
   // Plans
-  const [planType, setPlanType] = useState<string>(d("planType", ""));
+  const [planType, setPlanType] = useState<string>(d("planType", "all"));
   const [planFilters, setPlanFilters] = useState<PlanFilters>(
     d("planFilters", DEFAULT_FILTERS),
   );
@@ -242,8 +242,6 @@ const PrepaidActivation = () => {
 
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
-  const [dealerVerifyOpen, setDealerVerifyOpen] = useState(false);
-  const [dealerVerified, setDealerVerified] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [backConfirmOpen, setBackConfirmOpen] = useState(false);
 
@@ -255,12 +253,6 @@ const PrepaidActivation = () => {
   // Order details
   const [orderId, setOrderId] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("Nafath");
-
-  // Dealer verification runs once at the start of the activation flow.
-  useEffect(() => {
-    if (!dealerVerified) setDealerVerifyOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Count of non-default filter sections (used for the badge on the filter button).
   const activeFilterCount = useMemo(() => {
@@ -287,7 +279,7 @@ const PrepaidActivation = () => {
   // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = !planType || p.categories.includes(planType as any);
+      const matchesType = planType === "all" || p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
         planFilters.validity.some((v) => p.validity.includes(v));
@@ -558,7 +550,8 @@ const PrepaidActivation = () => {
                 <SelectValue placeholder="Select plan type" />
               </SelectTrigger>
               <SelectContent className="bg-card">
-              <SelectItem value="base-plan">Base Plan</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="base-plan">Base Plan</SelectItem>
                 <SelectItem value="minutes">Minutes</SelectItem>
                 <SelectItem value="data">Data</SelectItem>
               </SelectContent>
@@ -580,9 +573,9 @@ const PrepaidActivation = () => {
             </button>
           </div>
 
-          {planType && (
+          {planType !== "all" && (
             <button
-              onClick={() => setPlanType("")}
+              onClick={() => setPlanType("all")}
               className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary"
             >
               Clear plan-type filter <X className="w-3 h-3" />
@@ -768,16 +761,6 @@ const PrepaidActivation = () => {
         }}
       />
 
-      {/* Dealer verification — required at the start of activation */}
-      <SematiVerification
-        open={dealerVerifyOpen}
-        audience="dealer"
-        onClose={() => setDealerVerifyOpen(false)}
-        onVerified={() => {
-          setDealerVerified(true);
-          setDealerVerifyOpen(false);
-        }}
-      />
 
       {/* Success */}
       <SuccessBottomSheet
