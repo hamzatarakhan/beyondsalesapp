@@ -34,6 +34,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/search-subscription" element={<SearchSubscription />} />
           <Route path="/search-customer" element={<SearchCustomer />} />
           <Route path="/search-customer-ownership" element={<SearchCustomerForOwnership />} />
