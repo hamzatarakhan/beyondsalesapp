@@ -1224,22 +1224,33 @@ const SourceTab = ({
   icon: Icon,
   label,
   onClick,
+  variant = "underline",
 }: {
   active: boolean;
   icon: typeof Phone;
   label: string;
   onClick: () => void;
+  variant?: "filled" | "underline";
 }) => (
   <button
     onClick={onClick}
     className={cn(
-      "relative flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
-      active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+      "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
+      variant === "filled" && (
+        active
+          ? "bg-primary text-primary-foreground rounded-xl"
+          : "bg-muted text-foreground rounded-xl"
+      ),
+      variant === "underline" && (
+        active
+          ? "relative text-primary"
+          : "relative text-muted-foreground hover:text-foreground"
+      )
     )}
   >
     <Icon className="w-4 h-4" />
     {label}
-    {active && (
+    {variant === "underline" && active && (
       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
     )}
   </button>
