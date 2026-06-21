@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, ScanLine, Play } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,27 +57,6 @@ const SearchSubscription = () => {
             placeholder="Enter the MSISDN number"
             className="h-12 bg-card border-border"
           />
-        </div>
-
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-sm text-muted-foreground">Or</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-
-        {/* Scan Card */}
-        <div className="dashed-upload">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-            <ScanLine className="w-6 h-6 text-primary" />
-          </div>
-          <p className="text-sm text-muted-foreground mb-2">
-            Tap to open camera scan
-          </p>
-          <button className="flex items-center gap-1 text-primary font-medium text-sm">
-            Scan
-            <Play className="w-4 h-4 fill-primary" />
-          </button>
         </div>
       </div>
 
