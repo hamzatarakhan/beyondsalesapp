@@ -479,6 +479,7 @@ const PrepaidActivation = () => {
               />
               <button
                 type="button"
+                onClick={() => setKit(Math.floor(1000000000 + Math.random() * 9000000000).toString())}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
                 aria-label="Scan KIT"
               >
