@@ -1049,6 +1049,11 @@ const ReviewSummary = ({
   planPrice?: number;
   onEdit: () => void;
 }) => {
+  const basePrice = numberMode === "topup"
+    ? parseFloat(topupValue || "0")
+    : (planPrice ?? 0);
+  const vatAmount = basePrice - basePrice / 1.15;
+
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
       <span className="text-[11px] text-muted-foreground">{label}</span>
@@ -1086,6 +1091,12 @@ const ReviewSummary = ({
             : `${planTitle ?? "—"}${planPrice != null ? ` · ${planPrice} SAR` : ""}`
         }
       />
+      {basePrice > 0 && (
+        <Row
+          label="VAT amount (+15% included)"
+          value={`${vatAmount.toFixed(2)} SAR`}
+        />
+      )}
     </section>
   );
 };
