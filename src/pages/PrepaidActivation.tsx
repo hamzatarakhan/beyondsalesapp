@@ -1462,9 +1462,9 @@ const PlanDetailsSheet = ({
   ];
   return (
     <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[85vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
-        <div className="flex items-start justify-between mb-4">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 max-h-[85vh] flex flex-col">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4 shrink-0" />
+        <div className="flex items-start justify-between mb-4 px-5 shrink-0">
           <div>
             <h3 className="font-semibold text-foreground text-lg">{plan.title}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -1480,7 +1480,7 @@ const PlanDetailsSheet = ({
           </button>
         </div>
 
-        <div className="bg-primary/5 rounded-2xl p-4 mb-4 flex items-end justify-between">
+        <div className="bg-primary/5 rounded-2xl p-4 mb-4 mx-5 flex items-end justify-between shrink-0">
           <div>
             <p className="text-3xl font-bold text-primary leading-none">
               {plan.price}
@@ -1497,7 +1497,7 @@ const PlanDetailsSheet = ({
           )}
         </div>
 
-        <div className="space-y-2 mb-5 overflow-y-auto">
+        <div className="space-y-2 overflow-y-auto flex-1 min-h-0 px-5 pb-4">
           {rows.map((r) => (
             <div
               key={r.label}
@@ -1531,12 +1531,14 @@ const PlanDetailsSheet = ({
           )}
         </div>
 
-        <Button
-          onClick={onSelect}
-          className="w-full h-12 rounded-full text-base font-semibold"
-        >
-          {isSelected ? "Selected" : "Select this plan"}
-        </Button>
+        <div className="px-5 pt-3 pb-6 border-t border-border bg-card shrink-0">
+          <Button
+            onClick={onSelect}
+            className="w-full h-12 rounded-full text-base font-semibold"
+          >
+            {isSelected ? "Selected" : "Select this plan"}
+          </Button>
+        </div>
       </DrawerContent>
     </Drawer>
   );
