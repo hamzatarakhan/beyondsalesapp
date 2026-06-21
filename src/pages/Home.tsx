@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
-import EWalletBalancePreview from "@/components/EWalletBalancePreview";
+
 import SematiVerification from "@/components/SematiVerification";
 import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -253,10 +253,12 @@ const Home = () => {
             </button>
           </div>
 
-          {/* Balance Preview Widget */}
+          {/* Balance Preview Widget (hidden for now) */}
+          {/*
           <div className="mb-4">
             <EWalletBalancePreview />
           </div>
+          */}
 
           {/* E-Wallet Activity Icons */}
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
