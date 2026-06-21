@@ -760,16 +760,6 @@ const PrepaidActivation = () => {
         }}
       />
 
-      {/* Dealer verification — required at the start of activation */}
-      <SematiVerification
-        open={dealerVerifyOpen}
-        audience="dealer"
-        onClose={() => setDealerVerifyOpen(false)}
-        onVerified={() => {
-          setDealerVerified(true);
-          setDealerVerifyOpen(false);
-        }}
-      />
 
       {/* Success */}
       <SuccessBottomSheet
