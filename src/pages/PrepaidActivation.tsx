@@ -195,6 +195,14 @@ const PrepaidActivation = () => {
     if (!resumeDraft) return null;
     return getActivationDraft(draftIdNumber)?.data ?? null;
   }, [resumeDraft, draftIdNumber]);
+
+  // Whether there is already saved progress for this customer (used for the
+  // resume banner so the user knows they are continuing from saved data).
+  const savedDraft = useMemo(() => {
+    if (!draftIdNumber) return null;
+    return getActivationDraft(draftIdNumber);
+  }, [draftIdNumber]);
+
   const d = (k: string, fallback: any) =>
     initialDraft && initialDraft[k] !== undefined
       ? (initialDraft as any)[k]
