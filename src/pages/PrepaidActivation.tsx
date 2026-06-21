@@ -865,6 +865,102 @@ const PrepaidActivation = () => {
             </button>
           </div>
 
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {planFilters.validity.map((v) => (
+                <span
+                  key={`val-${v}`}
+                  className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full bg-primary/10 text-primary text-xs font-medium"
+                >
+                  {v}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPlanFilters({
+                        ...planFilters,
+                        validity: planFilters.validity.filter((x) => x !== v),
+                      })
+                    }
+                    aria-label={`Remove ${v} filter`}
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {(planFilters.price[0] !== PRICE_MIN ||
+                planFilters.price[1] !== PRICE_MAX) && (
+                <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  Price: {planFilters.price[0]}–{planFilters.price[1]} SAR
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPlanFilters({
+                        ...planFilters,
+                        price: [PRICE_MIN, PRICE_MAX],
+                      })
+                    }
+                    aria-label="Remove price filter"
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {(planFilters.data[0] !== DATA_MIN ||
+                planFilters.data[1] !== DATA_MAX) && (
+                <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  Data: {planFilters.data[0]}–
+                  {planFilters.data[1] >= DATA_MAX
+                    ? "Unlimited"
+                    : `${planFilters.data[1]} GB`}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPlanFilters({
+                        ...planFilters,
+                        data: [DATA_MIN, DATA_MAX],
+                      })
+                    }
+                    aria-label="Remove data filter"
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {(planFilters.mins[0] !== MINS_MIN ||
+                planFilters.mins[1] !== MINS_MAX) && (
+                <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  Minutes: {planFilters.mins[0]}–
+                  {planFilters.mins[1] >= MINS_MAX
+                    ? "Unlimited"
+                    : planFilters.mins[1]}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPlanFilters({
+                        ...planFilters,
+                        mins: [MINS_MIN, MINS_MAX],
+                      })
+                    }
+                    aria-label="Remove minutes filter"
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setPlanFilters(DEFAULT_FILTERS)}
+                className="inline-flex items-center h-8 px-3 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
           {/* Plans carousel — embla swipe */}
           {filteredPlans.length === 0 ? (
             <div className="mt-3 bg-card rounded-2xl p-6 text-center text-sm text-muted-foreground shadow-sm">
