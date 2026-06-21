@@ -117,7 +117,11 @@ const PrepaidActivation = () => {
 
   useEffect(() => {
     if (!emblaApi) return;
-    const onSelect = () => setActiveSnap(emblaApi.selectedScrollSnap());
+    const onSelect = () => {
+      const idx = emblaApi.selectedScrollSnap();
+      setActiveSnap(idx);
+      setSelectedPlan(idx);
+    };
     emblaApi.on("select", onSelect);
     onSelect();
     return () => {
