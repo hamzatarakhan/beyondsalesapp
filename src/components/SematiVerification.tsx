@@ -348,4 +348,16 @@ const MethodCard = ({
   </button>
 );
 
+const HandsDiagram = ({ active }: { active: boolean }) => (
+  <div className="w-full rounded-xl border border-border py-3 flex items-center justify-center gap-3">
+    <svg viewBox="0 0 80 90" className="w-16 h-20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M20 80 V45 C20 40 24 38 26 42 V25 C26 21 32 21 32 25 V40 M32 40 V18 C32 14 38 14 38 18 V40 M38 40 V22 C38 18 44 18 44 22 V44 M44 44 V28 C44 25 50 25 50 28 V60 C50 72 42 80 32 80 Z" />
+      {active && <circle cx="26" cy="40" r="3.5" fill="hsl(var(--primary))" stroke="none" />}
+    </svg>
+    <svg viewBox="0 0 80 90" className="w-16 h-20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M60 80 V45 C60 40 56 38 54 42 V25 C54 21 48 21 48 25 V40 M48 40 V18 C48 14 42 14 42 18 V40 M42 40 V22 C42 18 36 18 36 22 V44 M36 44 V28 C36 25 30 25 30 28 V60 C30 72 38 80 48 80 Z" />
+    </svg>
+  </div>
+);
+
 export default SematiVerification;
