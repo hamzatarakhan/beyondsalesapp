@@ -13,6 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
@@ -21,6 +29,7 @@ import {
   saveActivationDraft,
   clearActivationDraft,
   getActivationDraft,
+  formatDraftAge,
 } from "@/lib/activationDrafts";
 import {
   ScanLine,
@@ -45,6 +54,7 @@ import {
   Eraser,
   Tag,
   Database,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -186,6 +196,14 @@ const PrepaidActivation = () => {
     if (!resumeDraft) return null;
     return getActivationDraft(draftIdNumber)?.data ?? null;
   }, [resumeDraft, draftIdNumber]);
+
+  // Whether there is already saved progress for this customer (used for the
+  // resume banner so the user knows they are continuing from saved data).
+  const savedDraft = useMemo(() => {
+    if (!draftIdNumber) return null;
+    return getActivationDraft(draftIdNumber);
+  }, [draftIdNumber]);
+
   const d = (k: string, fallback: any) =>
     initialDraft && initialDraft[k] !== undefined
       ? (initialDraft as any)[k]
@@ -221,6 +239,7 @@ const PrepaidActivation = () => {
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [backConfirmOpen, setBackConfirmOpen] = useState(false);
 
   // Signatures
   const [customerSig, setCustomerSig] = useState<string | null>(d("customerSig", null));
@@ -363,9 +382,25 @@ const PrepaidActivation = () => {
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
-      <AppHeader title="Prepaid Activation" showBack />
+      <AppHeader
+        title="Prepaid Activation"
+        showBack
+        onBackClick={() => setBackConfirmOpen(true)}
+      />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
+        {savedDraft && (
+          <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5 flex items-start gap-2">
+            <History className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] font-semibold text-amber-800">Continuing from saved data</p>
+              <p className="text-[10px] text-amber-700/80 leading-snug">
+                Last saved {formatDraftAge(savedDraft.savedAt)}. Your progress is kept if you leave.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* SIM Type */}
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type</h3>
@@ -754,6 +789,36 @@ const PrepaidActivation = () => {
           setSigEditor(null);
         }}
       />
+      {/* Cancel / back confirmation — tells the user their progress is saved */}
+      <Dialog open={backConfirmOpen} onOpenChange={(o) => !o && setBackConfirmOpen(false)}>
+        <DialogContent className="max-w-[340px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Progress saved</DialogTitle>
+            <DialogDescription>
+              Your filled details have been saved for this customer. You can
+              resume later by searching the same ID number.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => {
+                setBackConfirmOpen(false);
+                navigate("/");
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Go to Home
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setBackConfirmOpen(false)}
+              className="w-full h-11 rounded-full border-primary text-primary"
+            >
+              Keep editing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
