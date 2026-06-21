@@ -816,24 +816,32 @@ const PlanFilterSheet = ({
   onApply,
 }: {
   open: boolean;
-  active: PlanTag[];
+  active: PlanFilters;
   onClose: () => void;
-  onApply: (tags: PlanTag[]) => void;
+  onApply: (filters: PlanFilters) => void;
 }) => {
-  const [draft, setDraft] = useState<PlanTag[]>(active);
+  const [draft, setDraft] = useState<PlanFilters>(active);
   useEffect(() => {
     if (open) setDraft(active);
   }, [open, active]);
 
-  const toggle = (t: PlanTag) =>
-    setDraft((d) => (d.includes(t) ? d.filter((x) => x !== t) : [...d, t]));
+  const toggleValidity = (v: string) =>
+    setDraft((d) => ({
+      ...d,
+      validity: d.validity.includes(v)
+        ? d.validity.filter((x) => x !== v)
+        : [...d.validity, v],
+    }));
+
+  const fmtData = (n: number) => (n >= DATA_MAX ? "Unlimited" : `${n} GB`);
+  const fmtMins = (n: number) => (n >= MINS_MAX ? "Unlimited" : `${n} min`);
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
         <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-foreground">Filter plans</h3>
+          <h3 className="font-semibold text-foreground">Filters</h3>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
@@ -842,39 +850,106 @@ const PlanFilterSheet = ({
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
-          Narrow the plans by feature attributes.
-        </p>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {ALL_TAGS.map((t) => {
-            const on = draft.includes(t);
-            return (
-              <button
-                key={t}
-                onClick={() => toggle(t)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-                  on
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-foreground border-border"
-                )}
-              >
-                {t}
-              </button>
-            );
-          })}
+
+        <div className="overflow-y-auto -mx-5 px-5 space-y-6 pb-2">
+          {/* Validity */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Validity</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VALIDITY_OPTIONS.map((opt) => {
+                const on = draft.validity.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => toggleValidity(opt.value)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-semibold transition-colors",
+                      on
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground/80",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Price */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <Tag className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Price</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {draft.price[0]} — {draft.price[1]} SAR
+            </p>
+            <RangeSlider
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={1}
+              value={draft.price}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, price: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
+
+          {/* Data */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <Database className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Data</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {fmtData(draft.data[0])} — {fmtData(draft.data[1])}
+            </p>
+            <RangeSlider
+              min={DATA_MIN}
+              max={DATA_MAX}
+              step={10}
+              value={draft.data}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, data: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
+
+          {/* Call minutes */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <PhoneCall className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Call minutes</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {fmtMins(draft.mins[0])} — {fmtMins(draft.mins[1])}
+            </p>
+            <RangeSlider
+              min={MINS_MIN}
+              max={MINS_MAX}
+              step={10}
+              value={draft.mins}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, mins: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setDraft([])}
-            className="flex-1 h-11 rounded-full"
+
+        <div className="flex items-center justify-between gap-3 mt-5 pt-3 border-t border-border/60">
+          <button
+            onClick={() => setDraft(DEFAULT_FILTERS)}
+            className="text-sm font-semibold text-primary"
           >
-            Clear
-          </Button>
+            Clear all
+          </button>
           <Button
             onClick={() => onApply(draft)}
-            className="flex-1 h-11 rounded-full"
+            className="h-11 px-8 rounded-full text-sm font-semibold"
           >
             Apply
           </Button>
@@ -883,6 +958,44 @@ const PlanFilterSheet = ({
     </Drawer>
   );
 };
+
+// Dual-handle range slider built on Radix primitive (shadcn's wrapper
+// renders a single thumb, so we use the primitive directly here).
+const RangeSlider = ({
+  value,
+  onValueChange,
+  min,
+  max,
+  step,
+}: {
+  value: [number, number];
+  onValueChange: (v: number[]) => void;
+  min: number;
+  max: number;
+  step: number;
+}) => (
+  <SliderPrimitive.Root
+    value={value}
+    onValueChange={onValueChange}
+    min={min}
+    max={max}
+    step={step}
+    minStepsBetweenThumbs={1}
+    className="relative flex w-full touch-none select-none items-center"
+  >
+    <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
+      <SliderPrimitive.Range className="absolute h-full bg-primary" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb
+      aria-label="Minimum"
+      className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    />
+    <SliderPrimitive.Thumb
+      aria-label="Maximum"
+      className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    />
+  </SliderPrimitive.Root>
+);
 
 
 const PlanDetailsSheet = ({
