@@ -40,6 +40,8 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
   const [method, setMethod] = useState<Method | null>(null);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [nafathDigits, setNafathDigits] = useState<[string, string]>(["", ""]);
+  const [nafathNumber, setNafathNumber] = useState<number>(22);
+  const [nafathSecondsLeft, setNafathSecondsLeft] = useState<number>(60);
 
   useEffect(() => {
     if (open) {
@@ -49,6 +51,31 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
       setNafathDigits(["", ""]);
     }
   }, [open]);
+
+  // Nafath countdown + auto-verify when on nafath_code step
+  useEffect(() => {
+    if (step !== "nafath_code") return;
+    setNafathNumber(Math.floor(Math.random() * 89) + 10); // 2-digit number
+    setNafathSecondsLeft(60);
+    const interval = setInterval(() => {
+      setNafathSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    // Simulate the customer approving via Nafath app after a short delay
+    const approveTimer = setTimeout(() => {
+      runConnecting();
+    }, 3500);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(approveTimer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const pickMethod = (m: Method) => {
     setMethod(m);
@@ -174,46 +201,35 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
       <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
         {step === "nafath_code" && (
           <div className="flex flex-col items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center">
-              <span className="text-teal-600 text-xs font-bold" dir="rtl">نفاذ</span>
+            <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center">
+              <span className="text-white text-sm font-bold" dir="rtl">نفاذ</span>
             </div>
-            <h4 className="font-semibold text-foreground -mt-1">Nafath Verification</h4>
+            <h4 className="font-semibold text-teal-600 -mt-1">Nafath Verification</h4>
             <div className="w-full rounded-xl bg-sky-50 border border-sky-100 px-3 py-2 text-left flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
               <div>
-                <p className="text-[11px] font-semibold text-sky-700">Action Required</p>
-                <p className="text-[10px] text-sky-700/80 leading-snug">
-                  Enter the 2-digit verification number from the Nafath app, then submit to continue.
+                <p className="text-[12px] font-semibold text-sky-700">Action Required</p>
+                <p className="text-[11px] text-sky-700/80 leading-snug">
+                  Ask the <span className="font-semibold">Member Name</span> to open Nafath App and approve the request using the number below.
                 </p>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground self-start">Verification Number</p>
-            <div className="flex gap-3 w-full justify-center">
-              <input
-                id="nafath-digit-0"
-                inputMode="numeric"
-                maxLength={1}
-                value={nafathDigits[0]}
-                onChange={(e) => setNafathDigit(0, e.target.value)}
-                className="w-14 h-16 rounded-2xl border border-border text-center text-2xl font-bold focus:outline-none focus:border-primary"
-              />
-              <input
-                id="nafath-digit-1"
-                inputMode="numeric"
-                maxLength={1}
-                value={nafathDigits[1]}
-                onChange={(e) => setNafathDigit(1, e.target.value)}
-                className="w-14 h-16 rounded-2xl border border-border text-center text-2xl font-bold focus:outline-none focus:border-primary"
-              />
+            <div className="w-full rounded-xl bg-muted/40 border border-border px-3 py-3 flex flex-col items-center gap-2">
+              <p className="text-[12px] text-muted-foreground">Verification Number</p>
+              <div className="w-full rounded-lg bg-card border border-border py-3 flex items-center justify-center">
+                <span className="text-4xl font-extrabold text-primary tracking-wide">{nafathNumber}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Time remaining:{" "}
+                <span className="text-sky-600 font-semibold">
+                  {Math.floor(nafathSecondsLeft / 60)}:{String(nafathSecondsLeft % 60).padStart(2, "0")}
+                </span>
+              </p>
             </div>
             <button
-              disabled={!nafathFilled}
-              onClick={runConnecting}
-              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm disabled:bg-muted disabled:text-muted-foreground"
+              onClick={onClose}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
             >
-              Submit
-            </button>
-            <button onClick={onClose} className="text-primary text-sm font-medium">
               Cancel
             </button>
           </div>
