@@ -1233,14 +1233,15 @@ const SourceTab = ({
   <button
     onClick={onClick}
     className={cn(
-      "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-colors",
-      active
-        ? "bg-primary text-primary-foreground"
-        : "bg-muted text-foreground"
+      "relative flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
+      active ? "text-primary" : "text-muted-foreground hover:text-foreground"
     )}
   >
     <Icon className="w-4 h-4" />
     {label}
+    {active && (
+      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+    )}
   </button>
 );
 
