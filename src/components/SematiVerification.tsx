@@ -40,9 +40,6 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [nafathDigits, setNafathDigits] = useState<[string, string]>(["", ""]);
 
-  const [nafathSecs, setNafathSecs] = useState(60);
-  const nafathCode = useMemo(() => Math.floor(10 + Math.random() * 89), [step === "nafath_code"]);
-
   useEffect(() => {
     if (open) {
       setStep("select");
