@@ -550,7 +550,8 @@ const PrepaidActivation = () => {
                 <SelectValue placeholder="Select plan type" />
               </SelectTrigger>
               <SelectContent className="bg-card">
-              <SelectItem value="base-plan">Base Plan</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="base-plan">Base Plan</SelectItem>
                 <SelectItem value="minutes">Minutes</SelectItem>
                 <SelectItem value="data">Data</SelectItem>
               </SelectContent>
@@ -572,9 +573,9 @@ const PrepaidActivation = () => {
             </button>
           </div>
 
-          {planType && (
+          {planType !== "all" && (
             <button
-              onClick={() => setPlanType("")}
+              onClick={() => setPlanType("all")}
               className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary"
             >
               Clear plan-type filter <X className="w-3 h-3" />
