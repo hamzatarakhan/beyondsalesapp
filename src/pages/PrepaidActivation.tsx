@@ -13,9 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
+import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import {
   ScanLine,
   Phone,
@@ -160,6 +160,10 @@ const PrepaidActivation = () => {
   const [customerSig, setCustomerSig] = useState<string | null>(null);
   const [dealerSig, setDealerSig] = useState<string | null>(null);
   const [sigEditor, setSigEditor] = useState<null | "customer" | "dealer">(null);
+
+  // Order details
+  const [orderId, setOrderId] = useState("");
+  const [verificationMethod, setVerificationMethod] = useState("Nafath");
 
   // Filter plans
   const filteredPlans = useMemo(() => {
@@ -558,21 +562,31 @@ const PrepaidActivation = () => {
       <SematiVerification
         open={verifyOpen}
         onClose={() => setVerifyOpen(false)}
+        onMethodSelected={(m) =>
+          setVerificationMethod(
+            m === "nafath" ? "Nafath" : m === "absher" ? "Absher" : "Fingerprint"
+          )
+        }
         onVerified={() => {
+          setOrderId(`ORD-${Math.floor(100000 + Math.random() * 900000)}`);
           setVerifyOpen(false);
           setSuccessOpen(true);
         }}
       />
 
       {/* Success */}
-      <SuccessDialog
+      <SuccessBottomSheet
         open={successOpen}
-        ported={numberSource === "mnp"}
-        number={numberSource === "mnp" ? portNumber : phone}
         onClose={() => {
           setSuccessOpen(false);
           navigate("/");
         }}
+        planName={currentPlan?.title ?? "—"}
+        orderId={orderId || "ORD-000000"}
+        mobileNumber={numberSource === "mnp" ? portNumber : phone}
+        verificationMethod={verificationMethod}
+        contactPhone={phone}
+        email={email}
       />
 
       {/* Signature capture */}
