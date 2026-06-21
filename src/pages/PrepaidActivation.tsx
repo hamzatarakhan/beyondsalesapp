@@ -586,7 +586,7 @@ const PrepaidActivation = () => {
         {/* Number type: with plan or with top-up */}
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">Number type <span className="text-destructive">*</span></h3>
-          <div className="flex items-center gap-6 border-b border-border">
+          <div className="grid grid-cols-2 border-b border-border">
             <SourceTab
               active={numberMode === "plan"}
               icon={Tag}
