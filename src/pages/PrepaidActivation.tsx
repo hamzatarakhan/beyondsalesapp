@@ -66,6 +66,7 @@ type NumberMode = "plan" | "topup";
 // Feature flags (pending product decisions)
 const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
 const SHOW_SAVED_DRAFT_BANNER = false; // hide saved-draft resume banner
+const SHOW_SET_AS_PRIMARY = false; // hide "Set as primary" toggle
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
 type Tier = typeof tiers[number];
@@ -704,15 +705,17 @@ const PrepaidActivation = () => {
               </p>
             )}
           </div>
-          <div className="pt-2 border-t border-border/60 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">Set as primary</p>
-              <p className="text-[11px] text-muted-foreground">
-                Use this number as the customer's primary line.
-              </p>
+          {SHOW_SET_AS_PRIMARY && (
+            <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Set as primary</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Use this number as the customer's primary line.
+                </p>
+              </div>
+              <Switch checked={isPrimary} onCheckedChange={setIsPrimary} />
             </div>
-            <Switch checked={isPrimary} onCheckedChange={setIsPrimary} />
-          </div>
+          )}
         </section>
 
         {/* Signatures */}
