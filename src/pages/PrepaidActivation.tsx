@@ -1403,15 +1403,20 @@ const SignatureBox = ({
   value,
   onEdit,
   onClear,
+  required = false,
 }: {
   title: string;
   value: string | null;
   onEdit: () => void;
   onClear: () => void;
+  required?: boolean;
 }) => (
   <section>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h3 className="text-sm font-semibold text-foreground">
+        {title}
+        {required && <span className="text-destructive"> *</span>}
+      </h3>
       {value && (
         <button
           onClick={onClear}
