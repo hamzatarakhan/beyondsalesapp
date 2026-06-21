@@ -16,6 +16,8 @@ import CreditLimitAdjustment from "./pages/CreditLimitAdjustment";
 import SearchBundleActivation from "./pages/SearchBundleActivation";
 import BundlePlans from "./pages/BundlePlans";
 import EWallet from "./pages/EWallet";
+import PrepaidSearchCustomer from "./pages/PrepaidSearchCustomer";
+import PrepaidActivation from "./pages/PrepaidActivation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/search-bundle" element={<SearchBundleActivation />} />
           <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="/ewallet" element={<EWallet />} />
+          <Route path="/prepaid-search" element={<PrepaidSearchCustomer />} />
+          <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
