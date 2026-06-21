@@ -32,9 +32,10 @@ interface Props {
   onClose: () => void;
   onMethodSelected?: (method: Method) => void;
   onVerified: () => void;
+  audience?: "dealer" | "customer";
 }
 
-const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Props) => {
+const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audience = "customer" }: Props) => {
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
@@ -118,7 +119,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 text-center">
               <h3 className="font-semibold text-foreground text-base">
-                Verification
+                {audience === "dealer" ? "Dealer Verification" : "Customer Verification"}
               </h3>
             </div>
             <button
@@ -130,7 +131,9 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
             </button>
           </div>
           <p className="text-xs text-muted-foreground text-center mb-5 px-6">
-            Please select the verification type
+            {audience === "dealer"
+              ? "Verify your identity as the dealer to start the activation"
+              : "Please select the verification type for the customer"}
           </p>
 
           <div className="space-y-3">
