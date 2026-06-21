@@ -229,6 +229,7 @@ const PrepaidActivation = () => {
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [backConfirmOpen, setBackConfirmOpen] = useState(false);
 
   // Signatures
   const [customerSig, setCustomerSig] = useState<string | null>(d("customerSig", null));
