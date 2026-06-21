@@ -296,7 +296,7 @@ const PrepaidSearchCustomer = () => {
       <Dialog open={!!draftPrompt} onOpenChange={(o) => !o && setDraftPrompt(null)}>
         <DialogContent className="max-w-[340px] rounded-2xl">
           <DialogHeader>
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-2">
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center mb-2">
               <History className="w-5 h-5 text-amber-600" />
             </div>
             <DialogTitle>Resume previous activation?</DialogTitle>

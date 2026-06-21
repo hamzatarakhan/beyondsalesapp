@@ -439,7 +439,7 @@ const PrepaidActivation = () => {
 
       <div className="flex-1 px-4 pb-28 space-y-5">
         {SHOW_SAVED_DRAFT_BANNER && savedDraft && (
-          <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5 flex items-start gap-2">
+          <div className="rounded-xl bg-amber-50 border border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 px-3 py-2.5 flex items-start gap-2">
             <History className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
             <div>
               <p className="text-[11px] font-semibold text-amber-800">Continuing from saved data</p>

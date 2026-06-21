@@ -140,29 +140,29 @@ const Home = () => {
               <p className="text-sm font-semibold text-foreground">10:00 AM - 6:00 PM</p>
               <p className="text-xs text-muted-foreground">Today's Schedule</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-medium">
               Not Started
             </span>
           </div>
           <div className="bg-muted/50 rounded-xl p-3 mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-sky-600" />
+              <div className="w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Store Name</p>
                 <p className="text-xs text-muted-foreground">City Centre, Muscat</p>
               </div>
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white text-xs font-medium">
+            <button className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium">
               View map
             </button>
           </div>
           <div className="flex gap-2 mb-3">
-            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-xs font-medium">
               ✓ Check-in: HH:MM
             </span>
-            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-medium">
+            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300 text-xs font-medium">
               ✓ Check-out: HH:MM
             </span>
           </div>
@@ -183,9 +183,9 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">
             {[
-              { count: 100, label: "Progress", color: "bg-amber-100 text-amber-700" },
-              { count: 50, label: "Closed", color: "bg-rose-100 text-rose-700" },
-              { count: 20, label: "Resolved", color: "bg-emerald-100 text-emerald-700" },
+              { count: 100, label: "Progress", color: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" },
+              { count: 50, label: "Closed", color: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300" },
+              { count: 20, label: "Resolved", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" },
             ].map((s) => (
               <div key={s.label} className="bg-muted/40 rounded-xl py-3 flex flex-col items-center gap-1.5">
                 <p className="text-xl font-bold text-foreground">{s.count}</p>

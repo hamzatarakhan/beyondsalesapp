@@ -82,7 +82,7 @@ const PlanCard = ({
         <span className="text-xs text-muted-foreground ml-1">kSA</span>
       </p>
       {plan.validityLabel && (
-        <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+        <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-medium">
           {plan.validityLabel}
         </span>
       )}
