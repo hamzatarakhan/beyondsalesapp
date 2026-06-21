@@ -1,20 +1,17 @@
 import { LayoutGrid } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
+import EmptyState from "@/components/EmptyState";
 
 const Menu = () => {
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
       <AppHeader title="Menu" showBack />
-      <div className="flex flex-col items-center justify-center px-6 pt-24 text-center">
-        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-5">
-          <LayoutGrid className="w-9 h-9 text-muted-foreground" strokeWidth={1.75} />
-        </div>
-        <h2 className="text-lg font-semibold text-foreground mb-2">No menu items yet</h2>
-        <p className="text-sm text-muted-foreground max-w-[240px]">
-          This section is currently empty. Check back later for updates.
-        </p>
-      </div>
+      <EmptyState
+        icon={LayoutGrid}
+        title="No menu items yet"
+        description="This section is currently empty. Check back later for updates."
+      />
       <BottomNav />
     </div>
   );
