@@ -586,7 +586,7 @@ const PrepaidActivation = () => {
         {/* Number type: with plan or with top-up */}
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">Number type <span className="text-destructive">*</span></h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-6 border-b border-border">
             <SourceTab
               active={numberMode === "plan"}
               icon={Tag}
@@ -1233,14 +1233,15 @@ const SourceTab = ({
   <button
     onClick={onClick}
     className={cn(
-      "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-colors",
-      active
-        ? "bg-primary text-primary-foreground"
-        : "bg-muted text-foreground"
+      "relative flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
+      active ? "text-primary" : "text-muted-foreground hover:text-foreground"
     )}
   >
     <Icon className="w-4 h-4" />
     {label}
+    {active && (
+      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+    )}
   </button>
 );
 
