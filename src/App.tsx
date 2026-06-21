@@ -23,7 +23,9 @@ import EWallet from "./pages/EWallet";
 import PrepaidSearchCustomer from "./pages/PrepaidSearchCustomer";
 import PrepaidActivation from "./pages/PrepaidActivation";
 import ExistingCustomerFound from "./pages/ExistingCustomerFound";
+import PhaseTwo from "./pages/PhaseTwo";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -54,7 +56,9 @@ const App = () => (
           <Route path="/prepaid-search" element={<PrepaidSearchCustomer />} />
           <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="/prepaid-existing-customer" element={<ExistingCustomerFound />} />
+          <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="*" element={<NotFound />} />
+
         </Routes>
         </BrowserRouter>
       </TooltipProvider>

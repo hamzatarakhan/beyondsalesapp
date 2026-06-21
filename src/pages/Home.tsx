@@ -27,10 +27,11 @@ import heroBanner from "@/assets/hero-banner.jpg";
 
 const activities = [
   { icon: Smartphone, label: "Prepaid", path: "/prepaid-search" },
-  { icon: CreditCard, label: "Postpaid", path: "/search-subscription" },
-  { icon: RefreshCw, label: "SIM Replacement", path: "/search-subscription" },
-  { icon: PackageCheck, label: "Fulfilment", path: "/search-subscription" },
+  { icon: CreditCard, label: "Postpaid", path: "/phase-2" },
+  { icon: RefreshCw, label: "SIM Replacement", path: "/phase-2" },
+  { icon: PackageCheck, label: "Fulfilment", path: "/phase-2" },
 ];
+
 
 
 const memberOnboarding = [
