@@ -282,7 +282,7 @@ const PrepaidActivation = () => {
       const matchesType = !planType || p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
-        planFilters.validity.some((v) => p.categories.includes(v as any));
+        planFilters.validity.some((v) => p.validity.includes(v));
       const matchesPrice =
         p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
       const pData = parsePlanData(p.internet);
