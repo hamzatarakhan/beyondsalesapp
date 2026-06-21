@@ -166,6 +166,7 @@ const PrepaidSearchCustomer = () => {
             value={idType}
             onValueChange={(v) => {
               setIdType(v);
+              if (v === "national-id") setNationality("sa");
               if (errors.idType) setErrors((p) => ({ ...p, idType: undefined }));
               if (errors.idNumber) setErrors((p) => ({ ...p, idNumber: undefined }));
               setLookupError(null);
