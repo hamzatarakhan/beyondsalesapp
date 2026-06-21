@@ -13,24 +13,23 @@ const AppHeader = ({ title, showBack = false, rightElement, onBackClick }: AppHe
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-10 bg-background px-4 py-4 flex items-center">
-      {showBack && (
-        <button
-          onClick={onBackClick ? onBackClick : () => navigate("/")}
-          className="w-10 h-10 flex items-center justify-center -ml-2"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-      )}
-      <h1 className={`flex-1 text-center text-lg font-semibold text-foreground ${!rightElement ? 'pr-10' : ''}`}>
+    <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
+      <div className="flex items-center justify-center">
+        {showBack && (
+          <button
+            onClick={onBackClick ? onBackClick : () => navigate("/")}
+            className="w-10 h-10 flex items-center justify-center"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+        )}
+      </div>
+      <h1 className="text-center text-lg font-semibold text-foreground truncate">
         {title}
       </h1>
-      {rightElement && (
-        <div className="flex items-center">
-          {rightElement}
-        </div>
-      )}
-      {!rightElement && showBack && <div className="w-10" />}
+      <div className="flex items-center justify-center">
+        {rightElement}
+      </div>
     </header>
   );
 };
