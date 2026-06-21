@@ -8,9 +8,21 @@ interface ActivityIconProps {
 }
 
 const colorMap = {
-  teal: { bg: "bg-[#F8FAFC]", icon: "text-teal-600", hover: "group-hover:bg-slate-100" },
-  amber: { bg: "bg-[#F8FAFC]", icon: "text-amber-600", hover: "group-hover:bg-slate-100" },
-  primary: { bg: "bg-[#F8FAFC]", icon: "text-primary", hover: "group-hover:bg-slate-100" },
+  teal: {
+    bg: "bg-[#F8FAFC] dark:bg-muted",
+    icon: "text-teal-600 dark:text-teal-300",
+    hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70",
+  },
+  amber: {
+    bg: "bg-[#F8FAFC] dark:bg-muted",
+    icon: "text-amber-600 dark:text-amber-300",
+    hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70",
+  },
+  primary: {
+    bg: "bg-[#F8FAFC] dark:bg-muted",
+    icon: "text-primary",
+    hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70",
+  },
 };
 
 const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal" }: ActivityIconProps) => {

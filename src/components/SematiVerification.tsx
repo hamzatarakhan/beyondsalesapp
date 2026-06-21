@@ -174,14 +174,14 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             />
             <MethodCard
               onClick={() => pickMethod("fingerprint")}
-              iconBg="bg-rose-100"
+              iconBg="bg-rose-100 dark:bg-rose-500/15"
               iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
               title="Fingerprint"
               desc="Verify your identity using your device fingerprint."
             />
             <MethodCard
               onClick={() => pickMethod("absher")}
-              iconBg="bg-emerald-100"
+              iconBg="bg-emerald-100 dark:bg-emerald-500/15"
               iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
               title="Absher IAM OTP"
               desc="Enter the one-time password received through Absher."
@@ -202,11 +202,11 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               <span className="text-white text-sm font-bold" dir="rtl">نفاذ</span>
             </div>
             <h4 className="font-semibold text-teal-600 -mt-1">Nafath Verification</h4>
-            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 px-3 py-2 text-left flex gap-2">
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-left flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
               <div>
-                <p className="text-[12px] font-semibold text-sky-700">Action Required</p>
-                <p className="text-[11px] text-sky-700/80 leading-snug">
+                <p className="text-[12px] font-semibold text-sky-700 dark:text-sky-300">Action Required</p>
+                <p className="text-[11px] text-sky-700/80 dark:text-sky-200/80 leading-snug">
                   Ask the <span className="font-semibold">Member Name</span> to open Nafath App and approve the request using the number below.
                 </p>
               </div>
@@ -234,7 +234,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
 
         {(step === "fingerprint_select" || step === "fingerprint_ready") && (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-500/15 flex items-center justify-center">
               <Fingerprint className="w-6 h-6 text-rose-500" />
             </div>
             <h4 className="font-semibold text-foreground">Fingerprint Verification</h4>
@@ -259,15 +259,15 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
 
         {step === "absher_otp" && (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
               <Scan className="w-6 h-6 text-emerald-600" />
             </div>
             <h4 className="font-semibold text-foreground">Absher IAM OTP Verification</h4>
-            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 px-3 py-2 text-left flex gap-2">
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-left flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
               <div>
-                <p className="text-[11px] font-semibold text-sky-700">Action Required</p>
-                <p className="text-[10px] text-sky-700/80 leading-snug">
+                <p className="text-[11px] font-semibold text-sky-700 dark:text-sky-300">Action Required</p>
+                <p className="text-[10px] text-sky-700/80 dark:text-sky-200/80 leading-snug">
                   Enter the IAM code received through Absher account.
                 </p>
               </div>

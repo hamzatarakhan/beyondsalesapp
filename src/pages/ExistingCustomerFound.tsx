@@ -82,7 +82,7 @@ const ExistingCustomerFound = () => {
       <AppHeader title="Existing Customer" showBack />
 
       <div className="flex-1 px-4 pb-32">
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center gap-2 mb-4">
+        <div className="bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 rounded-2xl p-3 flex items-center gap-2 mb-4">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <div>
             <p className="text-sm font-semibold text-emerald-800">
