@@ -11,7 +11,7 @@ const planTabs = ["Featured", "Visits", "1 Month", "2 Month", "3 Months"];
 const plans = [
   {
     id: 1,
-    title: "Plan Title",
+    title: "Basic Monthly",
     isCurrent: true,
     discount: "50%",
     internet: "60 GB",
@@ -21,10 +21,11 @@ const plans = [
     price: 30,
     vatIncluded: true,
     earnAmount: 2,
+    category: "Featured",
   },
   {
     id: 2,
-    title: "Plan Premium",
+    title: "Smart Monthly",
     isCurrent: false,
     discount: "30%",
     internet: "100 GB",
@@ -34,6 +35,105 @@ const plans = [
     price: 45,
     vatIncluded: true,
     earnAmount: 3,
+    category: "1 Month",
+  },
+  {
+    id: 3,
+    title: "Ultra Monthly",
+    isCurrent: false,
+    discount: "20%",
+    internet: "150 GB",
+    localMins: "Unlimited",
+    sms: "2000",
+    socialMedia: "Unlimited",
+    price: 60,
+    vatIncluded: true,
+    earnAmount: 5,
+    category: "1 Month",
+  },
+  {
+    id: 4,
+    title: "Visitor Lite",
+    isCurrent: false,
+    discount: "15%",
+    internet: "30 GB",
+    localMins: "50",
+    sms: "100",
+    socialMedia: "Unlimited",
+    price: 20,
+    vatIncluded: true,
+    earnAmount: 1,
+    category: "Visits",
+  },
+  {
+    id: 5,
+    title: "Visitor Plus",
+    isCurrent: false,
+    discount: "25%",
+    internet: "80 GB",
+    localMins: "150",
+    sms: "500",
+    socialMedia: "Unlimited",
+    price: 35,
+    vatIncluded: true,
+    earnAmount: 2,
+    category: "Visits",
+  },
+  {
+    id: 6,
+    title: "2 Month Value",
+    isCurrent: false,
+    discount: "10%",
+    internet: "120 GB",
+    localMins: "300",
+    sms: "1500",
+    socialMedia: "Unlimited",
+    price: 55,
+    vatIncluded: true,
+    earnAmount: 4,
+    category: "2 Month",
+  },
+  {
+    id: 7,
+    title: "2 Month Pro",
+    isCurrent: false,
+    discount: "35%",
+    internet: "200 GB",
+    localMins: "Unlimited",
+    sms: "Unlimited",
+    socialMedia: "Unlimited",
+    price: 80,
+    vatIncluded: true,
+    earnAmount: 6,
+    category: "2 Month",
+  },
+  {
+    id: 8,
+    title: "Quarterly Basic",
+    isCurrent: false,
+    discount: "40%",
+    internet: "250 GB",
+    localMins: "500",
+    sms: "3000",
+    socialMedia: "Unlimited",
+    price: 90,
+    vatIncluded: true,
+    earnAmount: 7,
+    category: "3 Months",
+  },
+  {
+    id: 9,
+    title: "Quarterly Max",
+    isCurrent: false,
+    discount: "45%",
+    internet: "Unlimited",
+    localMins: "Unlimited",
+    sms: "Unlimited",
+    socialMedia: "Unlimited",
+    price: 120,
+    vatIncluded: true,
+    earnAmount: 10,
+    category: "3 Months",
   },
 ];
 
@@ -68,7 +168,17 @@ const BundlePlans = () => {
   const [selectedPayment, setSelectedPayment] = useState("sms-pay");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const selectedPlanData = plans.find((p) => p.id === selectedPlan);
+  const filteredPlans = plans.filter(
+    (p) => activeTab === "Featured" || p.category === activeTab
+  );
+
+  const selectedPlanData = filteredPlans.find((p) => p.id === selectedPlan);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    const firstPlan = plans.find((p) => tab === "Featured" || p.category === tab);
+    setSelectedPlan(firstPlan?.id ?? null);
+  };
 
   return (
     <div className="mobile-container min-h-screen flex flex-col pb-20">
@@ -96,7 +206,7 @@ const BundlePlans = () => {
           {planTabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabChange(tab)}
               className={cn(
                 "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors relative",
                 activeTab === tab
@@ -131,7 +241,7 @@ const BundlePlans = () => {
       {/* Plans Carousel */}
       <div className="px-4 mb-6">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {plans.map((plan) => (
+          {filteredPlans.map((plan) => (
             <div
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
@@ -204,8 +314,18 @@ const BundlePlans = () => {
 
         {/* Carousel Dots */}
         <div className="flex justify-center gap-1.5 mt-3">
-          <span className="w-5 h-1.5 rounded-full bg-primary" />
-          <span className="w-1.5 h-1.5 rounded-full bg-muted" />
+          {filteredPlans.map((plan, index) => {
+            const isActive = plan.id === selectedPlan;
+            return (
+              <span
+                key={plan.id}
+                className={cn(
+                  "h-1.5 rounded-full transition-all",
+                  isActive ? "w-5 bg-primary" : "w-1.5 bg-muted"
+                )}
+              />
+            );
+          })}
         </div>
       </div>
 
