@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Fingerprint, CheckCircle2, XCircle, Scan } from "lucide-react";
@@ -39,9 +39,6 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
   const [method, setMethod] = useState<Method | null>(null);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [nafathDigits, setNafathDigits] = useState<[string, string]>(["", ""]);
-
-  const [nafathSecs, setNafathSecs] = useState(60);
-  const nafathCode = useMemo(() => Math.floor(10 + Math.random() * 89), [step === "nafath_code"]);
 
   useEffect(() => {
     if (open) {
@@ -97,6 +94,20 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
     }
   };
   const otpFilled = otp.every((d) => d !== "");
+
+  const setNafathDigit = (i: 0 | 1, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setNafathDigits((prev) => {
+      const next: [string, string] = [...prev] as [string, string];
+      next[i] = d;
+      return next;
+    });
+    if (d && i === 0) {
+      const el = document.getElementById("nafath-digit-1") as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+  const nafathFilled = nafathDigits.every((d) => d !== "");
 
   // Step 1: bottom sheet to pick method
   if (step === "select") {
@@ -169,21 +180,37 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
               <div>
                 <p className="text-[11px] font-semibold text-sky-700">Action Required</p>
                 <p className="text-[10px] text-sky-700/80 leading-snug">
-                  Ask the Member Name to open Nafath App and approve the request using the number below.
+                  Enter the 2-digit verification number from the Nafath app, then submit to continue.
                 </p>
               </div>
             </div>
-            <div className="w-full rounded-xl border border-border py-3">
-              <p className="text-[10px] text-muted-foreground">Verification Number</p>
-              <p className="text-primary text-3xl font-bold mt-1">{nafathCode}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                Time remaining: {Math.floor(nafathSecs / 60)}:{String(nafathSecs % 60).padStart(2, "0")}
-              </p>
+            <p className="text-[11px] text-muted-foreground self-start">Verification Number</p>
+            <div className="flex gap-3 w-full justify-center">
+              <input
+                id="nafath-digit-0"
+                inputMode="numeric"
+                maxLength={1}
+                value={nafathDigits[0]}
+                onChange={(e) => setNafathDigit(0, e.target.value)}
+                className="w-14 h-16 rounded-2xl border border-border text-center text-2xl font-bold focus:outline-none focus:border-primary"
+              />
+              <input
+                id="nafath-digit-1"
+                inputMode="numeric"
+                maxLength={1}
+                value={nafathDigits[1]}
+                onChange={(e) => setNafathDigit(1, e.target.value)}
+                className="w-14 h-16 rounded-2xl border border-border text-center text-2xl font-bold focus:outline-none focus:border-primary"
+              />
             </div>
             <button
-              onClick={onClose}
-              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
+              disabled={!nafathFilled}
+              onClick={runConnecting}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm disabled:bg-muted disabled:text-muted-foreground"
             >
+              Submit
+            </button>
+            <button onClick={onClose} className="text-primary text-sm font-medium">
               Cancel
             </button>
           </div>
