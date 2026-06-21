@@ -56,7 +56,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
     setMethod(m);
     onMethodSelected?.(m);
     if (m === "nafath") {
-      setNafathSecs(60);
+      setNafathDigits(["", ""]);
       setStep("nafath_code");
     } else if (m === "fingerprint") {
       setStep("fingerprint_select");
@@ -83,17 +83,6 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
     if (method) pickMethod(method);
     else setStep("select");
   };
-
-  // Nafath countdown
-  useEffect(() => {
-    if (step !== "nafath_code") return;
-    if (nafathSecs <= 0) {
-      runConnecting();
-      return;
-    }
-    const t = setTimeout(() => setNafathSecs((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [step, nafathSecs]);
 
   const setOtpDigit = (i: number, v: string) => {
     const d = v.replace(/\D/g, "").slice(-1);
