@@ -4,7 +4,7 @@ import BottomNav from "@/components/BottomNav";
 
 const Menu = () => {
   return (
-    <div className="mobile-container pb-24 min-h-screen bg-[hsl(210,20%,96%)]">
+    <div className="mobile-container pb-24 min-h-screen bg-background">
       <AppHeader title="Menu" showBack />
       <div className="flex flex-col items-center justify-center px-6 pt-24 text-center">
         <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-5">

@@ -154,7 +154,7 @@ const PrepaidSearchCustomer = () => {
   };
 
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
+    <div className="mobile-container flex flex-col min-h-screen bg-background">
       <AppHeader title="Search Customer" showBack />
 
       <div className="flex-1 px-4 pb-28">
@@ -282,7 +282,7 @@ const PrepaidSearchCustomer = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
           <Button
             onClick={handleContinue}

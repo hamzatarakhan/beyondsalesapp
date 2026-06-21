@@ -23,7 +23,7 @@ const ExistingCustomerFound = () => {
 
   if (!customer) {
     return (
-      <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
+      <div className="mobile-container flex flex-col min-h-screen bg-background">
         <AppHeader title="Existing Customer" showBack />
         <div className="flex-1 flex items-center justify-center px-4">
           <p className="text-sm text-muted-foreground text-center">
@@ -78,7 +78,7 @@ const ExistingCustomerFound = () => {
     : [];
 
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
+    <div className="mobile-container flex flex-col min-h-screen bg-background">
       <AppHeader title="Existing Customer" showBack />
 
       <div className="flex-1 px-4 pb-32">
@@ -140,7 +140,7 @@ const ExistingCustomerFound = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)] space-y-2">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background space-y-2">
         <div className="max-w-[390px] mx-auto space-y-2">
           <Button
             onClick={() =>

@@ -49,7 +49,7 @@ const Home = () => {
   };
 
   return (
-    <div className="mobile-container pb-24 bg-[hsl(210,20%,96%)]">
+    <div className="mobile-container pb-24 bg-background">
       {/* Header */}
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
