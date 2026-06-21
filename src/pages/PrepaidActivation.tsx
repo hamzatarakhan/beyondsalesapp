@@ -332,7 +332,7 @@ const PrepaidActivation = () => {
       portOperator,
       isPrimary,
       planType,
-      activeTags,
+      planFilters,
       selectedPlan,
       promoOn,
       promoCode,
@@ -352,7 +352,7 @@ const PrepaidActivation = () => {
     portOperator,
     isPrimary,
     planType,
-    activeTags,
+    planFilters,
     selectedPlan,
     promoOn,
     promoCode,
@@ -521,14 +521,14 @@ const PrepaidActivation = () => {
               onClick={() => setFilterOpen(true)}
               className={cn(
                 "relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center text-primary",
-                activeTags.length > 0 && "ring-2 ring-primary"
+                activeFilterCount > 0 && "ring-2 ring-primary"
               )}
               aria-label="Filter plans"
             >
               <SlidersHorizontal className="w-5 h-5" />
-              {activeTags.length > 0 && (
+              {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                  {activeTags.length}
+                  {activeFilterCount}
                 </span>
               )}
             </button>
@@ -695,10 +695,10 @@ const PrepaidActivation = () => {
       {/* Plan filter sheet */}
       <PlanFilterSheet
         open={filterOpen}
-        active={activeTags}
+        active={planFilters}
         onClose={() => setFilterOpen(false)}
-        onApply={(tags) => {
-          setActiveTags(tags);
+        onApply={(next) => {
+          setPlanFilters(next);
           setFilterOpen(false);
         }}
       />
