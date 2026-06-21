@@ -451,10 +451,25 @@ const PrepaidActivation = () => {
         )}
 
         {/* Step indicator */}
-        <div className="flex items-center gap-2">
-          <StepPill index={1} label="Activation details" active={step === 1} done={step > 1} />
-          <div className="flex-1 h-[2px] bg-border" />
-          <StepPill index={2} label="Review & pay" active={step === 2} done={false} />
+        <div className="flex items-center justify-center gap-4 py-2">
+          <StepPill
+            icon={step > 1 ? <Check className="w-5 h-5" strokeWidth={3} /> : <ClipboardList className="w-5 h-5" />}
+            label="Details"
+            active={step === 1}
+            done={step > 1}
+          />
+          <ArrowRight
+            className={cn(
+              "w-4 h-4 -mt-5 shrink-0",
+              step > 1 ? "text-primary" : "text-muted-foreground/50",
+            )}
+          />
+          <StepPill
+            icon={<CreditCard className="w-5 h-5" />}
+            label="Payment"
+            active={step === 2}
+            done={false}
+          />
         </div>
 
         {step === 1 && (
@@ -1089,31 +1104,31 @@ const SimCard = ({ active, label, onClick }: { active: boolean; label: string; o
 );
 
 const StepPill = ({
-  index,
+  icon,
   label,
   active,
   done,
 }: {
-  index: number;
+  icon: React.ReactNode;
   label: string;
   active: boolean;
   done: boolean;
 }) => (
-  <div className="flex items-center gap-1.5">
+  <div className="flex flex-col items-center gap-1.5">
     <span
       className={cn(
-        "w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center",
-        active || done
-          ? "bg-primary text-primary-foreground"
-          : "bg-muted text-muted-foreground",
+        "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors",
+        done && "bg-primary border-primary text-primary-foreground",
+        active && !done && "border-primary text-primary bg-background",
+        !active && !done && "border-muted-foreground/30 text-muted-foreground/60 bg-background",
       )}
     >
-      {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : index}
+      {icon}
     </span>
     <span
       className={cn(
         "text-[11px] font-semibold",
-        active ? "text-foreground" : "text-muted-foreground",
+        active || done ? "text-primary" : "text-muted-foreground/70",
       )}
     >
       {label}
