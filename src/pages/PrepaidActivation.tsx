@@ -17,6 +17,11 @@ import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import {
+  saveActivationDraft,
+  clearActivationDraft,
+  getActivationDraft,
+} from "@/lib/activationDrafts";
+import {
   ScanLine,
   Phone,
   ArrowRight,
@@ -128,27 +133,38 @@ const PrepaidActivation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefill = (location.state as any)?.prefill;
+  const resumeDraft = (location.state as any)?.resumeDraft === true;
+  const draftIdNumber = prefill?.idNumber as string | undefined;
 
-  const [simType, setSimType] = useState<SimType>("psim");
-  const [kit, setKit] = useState("");
-  const [email, setEmail] = useState(prefill?.email ?? "");
+  // Pull the saved draft (if the caller asked us to resume it). Computed
+  // synchronously so the initial state below is hydrated correctly.
+  const initialDraft = useMemo(() => {
+    if (!resumeDraft) return null;
+    return getActivationDraft(draftIdNumber)?.data ?? null;
+  }, [resumeDraft, draftIdNumber]);
+  const d = (k: string, fallback: any) =>
+    initialDraft && initialDraft[k] !== undefined ? (initialDraft as any)[k] : fallback;
+
+  const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
+  const [kit, setKit] = useState<string>(d("kit", ""));
+  const [email, setEmail] = useState<string>(d("email", prefill?.email ?? ""));
 
   // Number source
-  const [numberSource, setNumberSource] = useState<NumberSource>("new");
-  const [phone, setPhone] = useState("0785599574");
-  const [portNumber, setPortNumber] = useState("");
-  const [portOperator, setPortOperator] = useState("");
-  const [isPrimary, setIsPrimary] = useState(true);
+  const [numberSource, setNumberSource] = useState<NumberSource>(d("numberSource", "new"));
+  const [phone, setPhone] = useState<string>(d("phone", "0785599574"));
+  const [portNumber, setPortNumber] = useState<string>(d("portNumber", ""));
+  const [portOperator, setPortOperator] = useState<string>(d("portOperator", ""));
+  const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
 
   // Plans
-  const [planType, setPlanType] = useState("");
-  const [activeTags, setActiveTags] = useState<PlanTag[]>([]);
+  const [planType, setPlanType] = useState<string>(d("planType", ""));
+  const [activeTags, setActiveTags] = useState<PlanTag[]>(d("activeTags", []));
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState<number>(d("selectedPlan", 0));
 
-  const [promoOn, setPromoOn] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
-  const [pay, setPay] = useState<PayMethod | "">("");
+  const [promoOn, setPromoOn] = useState<boolean>(d("promoOn", false));
+  const [promoCode, setPromoCode] = useState<string>(d("promoCode", ""));
+  const [pay, setPay] = useState<PayMethod | "">(d("pay", ""));
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
 
@@ -157,8 +173,8 @@ const PrepaidActivation = () => {
   const [successOpen, setSuccessOpen] = useState(false);
 
   // Signatures
-  const [customerSig, setCustomerSig] = useState<string | null>(null);
-  const [dealerSig, setDealerSig] = useState<string | null>(null);
+  const [customerSig, setCustomerSig] = useState<string | null>(d("customerSig", null));
+  const [dealerSig, setDealerSig] = useState<string | null>(d("dealerSig", null));
   const [sigEditor, setSigEditor] = useState<null | "customer" | "dealer">(null);
 
   // Order details
@@ -215,6 +231,52 @@ const PrepaidActivation = () => {
   };
 
   const currentPlan = filteredPlans[selectedPlan] ?? filteredPlans[0];
+
+  // Auto-persist the in-progress activation to the customer's draft slot.
+  // This covers the cancel/exit triggers (back button, app close, route
+  // change) — anything the user already entered survives so a later Search
+  // Customer match can offer to resume it.
+  useEffect(() => {
+    if (!draftIdNumber) return;
+    if (successOpen) return; // don't re-save after submission
+    saveActivationDraft(draftIdNumber, {
+      simType,
+      kit,
+      email,
+      numberSource,
+      phone,
+      portNumber,
+      portOperator,
+      isPrimary,
+      planType,
+      activeTags,
+      selectedPlan,
+      promoOn,
+      promoCode,
+      pay,
+      customerSig,
+      dealerSig,
+    });
+  }, [
+    draftIdNumber,
+    successOpen,
+    simType,
+    kit,
+    email,
+    numberSource,
+    phone,
+    portNumber,
+    portOperator,
+    isPrimary,
+    planType,
+    activeTags,
+    selectedPlan,
+    promoOn,
+    promoCode,
+    pay,
+    customerSig,
+    dealerSig,
+  ]);
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
@@ -570,6 +632,8 @@ const PrepaidActivation = () => {
         onVerified={() => {
           setOrderId(`ORD-${Math.floor(100000 + Math.random() * 900000)}`);
           setVerifyOpen(false);
+          // Activation completed — discard the saved draft for this customer.
+          clearActivationDraft(draftIdNumber);
           setSuccessOpen(true);
         }}
       />
