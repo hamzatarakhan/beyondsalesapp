@@ -49,6 +49,7 @@ const PrepaidActivation = () => {
   const navigate = useNavigate();
   const [simType, setSimType] = useState<SimType>("psim");
   const [kit, setKit] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("0785599574");
   const [planType, setPlanType] = useState("");
   const [selectedPlan, setSelectedPlan] = useState(0);
@@ -71,25 +72,43 @@ const PrepaidActivation = () => {
           </div>
         </section>
 
-        {/* KIT */}
-        <section>
-          <h3 className="text-sm font-semibold text-foreground mb-2">KIT</h3>
-          <div className="relative">
+        {/* KIT (P-SIM) / Email (E-SIM) */}
+        {simType === "psim" ? (
+          <section>
+            <h3 className="text-sm font-semibold text-foreground mb-2">KIT</h3>
+            <div className="relative">
+              <Input
+                value={kit}
+                onChange={(e) => setKit(e.target.value)}
+                placeholder="KIT Code (10 Digits)"
+                className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
+                aria-label="Scan KIT"
+              >
+                <ScanLine className="w-5 h-5" />
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section>
+            <h3 className="text-sm font-semibold text-foreground mb-2">
+              Customer Email
+            </h3>
             <Input
-              value={kit}
-              onChange={(e) => setKit(e.target.value)}
-              placeholder="KIT Code (10 Digits)"
-              className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email to send the eSIM QR code"
+              className="h-12 bg-card border-0 rounded-xl shadow-sm"
             />
-            <button
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
-              aria-label="Scan KIT"
-            >
-              <ScanLine className="w-5 h-5" />
-            </button>
-          </div>
-        </section>
+            <p className="text-[11px] text-muted-foreground mt-1.5">
+              The eSIM activation QR will be emailed to the customer.
+            </p>
+          </section>
+        )}
 
         {/* Phone number card */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">

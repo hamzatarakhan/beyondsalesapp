@@ -23,9 +23,7 @@ import {
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import EWalletBalancePreview from "@/components/EWalletBalancePreview";
-import SematiVerification, {
-  shouldShowSematiVerification,
-} from "@/components/SematiVerification";
+import SematiVerification from "@/components/SematiVerification";
 import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
 
@@ -57,12 +55,8 @@ const Home = () => {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   const handleActivityClick = (path: string) => {
-    if (shouldShowSematiVerification()) {
-      setPendingPath(path);
-      setVerifyOpen(true);
-    } else {
-      navigate(path);
-    }
+    setPendingPath(path);
+    setVerifyOpen(true);
   };
 
   return (
