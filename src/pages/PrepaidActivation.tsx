@@ -1453,91 +1453,47 @@ const PlanDetailsSheet = ({
   onSelect: () => void;
 }) => {
   if (!plan) return null;
+  const priceNum = parseFloat(String(plan.price).replace(/[^\d.]/g, "")) || 0;
+  const tax = +(priceNum * 0.15).toFixed(2);
+  const total = +(priceNum + tax).toFixed(2);
   const rows = [
-    { icon: Wifi, label: "Internet", value: plan.internet },
-    { icon: PhoneCall, label: "Local Minutes", value: plan.mins },
-    { icon: MessageSquare, label: "SMS", value: plan.sms },
-    { icon: Share2, label: "Social Media", value: plan.social },
-    { icon: Calendar, label: "Validity", value: "30 days" },
+    { label: "Internet", value: plan.internet },
+    { label: "Tax", value: `${tax} KSA` },
+    { label: "Local Mints", value: plan.mins },
+    { label: "SMS", value: plan.sms },
+    { label: "Validity", value: "30 DAYS" },
+    { label: "Renewal Price", value: String(priceNum) },
   ];
   return (
     <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 max-h-[85vh] flex flex-col">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4 shrink-0" />
-        <div className="flex items-start justify-between mb-4 px-5 shrink-0">
-          <div>
-            <h3 className="font-semibold text-foreground text-lg">{plan.title}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Plan details and features
-            </p>
-          </div>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 pb-6 max-h-[85vh] flex flex-col">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-2 shrink-0" />
+        <div className="relative flex items-center justify-center px-5 py-3 shrink-0">
+          <h3 className="font-semibold text-foreground text-lg">Plan Details</h3>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+            className="absolute right-5 w-8 h-8 rounded-full border border-border flex items-center justify-center"
             aria-label="Close"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
 
-        <div className="bg-primary/5 rounded-2xl p-4 mb-4 mx-5 flex items-end justify-between shrink-0">
-          <div>
-            <p className="text-3xl font-bold text-primary leading-none">
-              {plan.price}
-              <span className="text-base ml-1">/mo</span>
-            </p>
-            <p className="text-[11px] text-muted-foreground mt-1">
-              KSA · +15% VAT included
-            </p>
-          </div>
-          {plan.discount && (
-            <span className="px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-[11px] font-semibold">
-              {plan.discount}
-            </span>
-          )}
-        </div>
-
-        <div className="space-y-2 overflow-y-auto flex-1 min-h-0 px-5 pb-4">
+        <div className="overflow-y-auto flex-1 min-h-0 px-5">
           {rows.map((r) => (
             <div
               key={r.label}
-              className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-muted/40"
+              className="flex items-center justify-between py-4 border-b border-border"
             >
-              <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center">
-                <r.icon className="w-4 h-4 text-primary" />
-              </div>
-              <p className="flex-1 text-sm text-muted-foreground">{r.label}</p>
-              <p className="text-sm font-semibold text-foreground">{r.value}</p>
+              <p className="text-sm text-muted-foreground">{r.label}</p>
+              <p className="text-sm font-semibold text-foreground uppercase">{r.value}</p>
             </div>
           ))}
 
-          {plan.features.length > 0 && (
-            <div className="pt-2">
-              <p className="text-xs font-semibold text-foreground mb-2 px-1">
-                What's included
-              </p>
-              <ul className="space-y-1.5">
-                {plan.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-2 text-sm text-foreground"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <div className="px-5 pt-3 pb-6 border-t border-border bg-card shrink-0">
-          <Button
-            onClick={onSelect}
-            className="w-full h-12 rounded-full text-base font-semibold"
-          >
-            {isSelected ? "Selected" : "Select this plan"}
-          </Button>
+          <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
+            <p className="text-base font-bold text-primary">Total</p>
+            <p className="text-base font-bold text-primary">{total} KSA</p>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>
