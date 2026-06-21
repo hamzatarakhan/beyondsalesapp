@@ -551,47 +551,6 @@ const PrepaidActivation = () => {
           )}
         </section>
 
-        {/* Contact */}
-        <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-foreground">Contact</p>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">City</label>
-            <Select value={city} onValueChange={setCity}>
-              <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent className="bg-card">
-                {cities.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={simType === "esim" ? "Email for eSIM QR code" : "customer@example.com"}
-              className="h-11 bg-muted/40 border-0 rounded-xl"
-            />
-            {simType === "esim" && (
-              <p className="text-[11px] text-muted-foreground mt-1.5">
-                The eSIM activation QR will be emailed to the customer.
-              </p>
-            )}
-          </div>
-          <div className="pt-2 border-t border-border/60 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">Set as primary</p>
-              <p className="text-[11px] text-muted-foreground">
-                Use this number as the customer's primary line.
-              </p>
-            </div>
-            <Switch checked={isPrimary} onCheckedChange={setIsPrimary} />
-          </div>
-        </section>
 
         {/* Number type: with plan or with top-up */}
         <section>
