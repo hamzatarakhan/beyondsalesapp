@@ -95,6 +95,20 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
   };
   const otpFilled = otp.every((d) => d !== "");
 
+  const setNafathDigit = (i: 0 | 1, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setNafathDigits((prev) => {
+      const next: [string, string] = [...prev] as [string, string];
+      next[i] = d;
+      return next;
+    });
+    if (d && i === 0) {
+      const el = document.getElementById("nafath-digit-1") as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+  const nafathFilled = nafathDigits.every((d) => d !== "");
+
   // Step 1: bottom sheet to pick method
   if (step === "select") {
     return (
