@@ -540,7 +540,7 @@ const PrepaidActivation = () => {
                   onClick={() => setNumberSheetOpen(true)}
                   className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
                 >
-                  Get Different Number <ArrowRight className="w-4 h-4" />
+                  Pick Different Number <ArrowRight className="w-4 h-4" />
                 </button>
               )}
             </>
