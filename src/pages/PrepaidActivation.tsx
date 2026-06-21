@@ -13,9 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
+import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import {
   ScanLine,
   Phone,
@@ -160,6 +160,10 @@ const PrepaidActivation = () => {
   const [customerSig, setCustomerSig] = useState<string | null>(null);
   const [dealerSig, setDealerSig] = useState<string | null>(null);
   const [sigEditor, setSigEditor] = useState<null | "customer" | "dealer">(null);
+
+  // Order details
+  const [orderId, setOrderId] = useState("");
+  const [verificationMethod, setVerificationMethod] = useState("Nafath");
 
   // Filter plans
   const filteredPlans = useMemo(() => {
@@ -558,21 +562,31 @@ const PrepaidActivation = () => {
       <SematiVerification
         open={verifyOpen}
         onClose={() => setVerifyOpen(false)}
+        onMethodSelected={(m) =>
+          setVerificationMethod(
+            m === "nafath" ? "Nafath" : m === "absher" ? "Absher" : "Fingerprint"
+          )
+        }
         onVerified={() => {
+          setOrderId(`ORD-${Math.floor(100000 + Math.random() * 900000)}`);
           setVerifyOpen(false);
           setSuccessOpen(true);
         }}
       />
 
       {/* Success */}
-      <SuccessDialog
+      <SuccessBottomSheet
         open={successOpen}
-        ported={numberSource === "mnp"}
-        number={numberSource === "mnp" ? portNumber : phone}
         onClose={() => {
           setSuccessOpen(false);
           navigate("/");
         }}
+        planName={currentPlan?.title ?? "—"}
+        orderId={orderId || "ORD-000000"}
+        mobileNumber={numberSource === "mnp" ? portNumber : phone}
+        verificationMethod={verificationMethod}
+        contactPhone={phone}
+        email={email}
       />
 
       {/* Signature capture */}
@@ -723,56 +737,6 @@ const PlanFilterSheet = ({
   );
 };
 
-const SuccessDialog = ({
-  open,
-  ported,
-  number,
-  onClose,
-}: {
-  open: boolean;
-  ported: boolean;
-  number: string;
-  onClose: () => void;
-}) => (
-  <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-    <DialogContent className="max-w-[320px] rounded-3xl border-0 p-7 text-center [&>button]:hidden">
-      <div className="flex flex-col items-center gap-3">
-        <CheckCircle2 className="w-16 h-16 text-emerald-500" strokeWidth={2} />
-        <div>
-          <h4 className="font-semibold text-foreground mb-1">
-            {ported ? "Number ported successfully!" : "Activation successful!"}
-          </h4>
-          <p className="text-xs text-muted-foreground">
-            {ported
-              ? "The customer's existing number has been transferred (MNP) and is now active."
-              : "A new number has been assigned and activated for the customer."}
-          </p>
-        </div>
-        <div className="bg-primary/5 rounded-xl py-2.5 px-4 mt-1 w-full">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-            {ported ? "Ported number" : "New number"}
-          </p>
-          <p className="text-base font-semibold text-foreground tracking-wide">
-            {number}
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2"
-        >
-          Go to Home
-        </button>
-      </div>
-    </DialogContent>
-  </Dialog>
-);
-
-const Stat = ({ label, value }: { label: string; value: string }) => (
-  <div>
-    <p className="text-muted-foreground">{label}</p>
-    <p className="font-semibold text-foreground">{value}</p>
-  </div>
-);
 
 const PlanDetailsSheet = ({
   plan,

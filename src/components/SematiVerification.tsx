@@ -17,15 +17,16 @@ export const markSematiVerified = () => {
 };
 
 type Step = "select" | "connecting" | "success" | "failed";
-type Method = "nafath" | "fingerprint" | "absher";
+export type Method = "nafath" | "fingerprint" | "absher";
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  onMethodSelected?: (method: Method) => void;
   onVerified: () => void;
 }
 
-const SematiVerification = ({ open, onClose, onVerified }: Props) => {
+const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Props) => {
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
 
@@ -38,6 +39,7 @@ const SematiVerification = ({ open, onClose, onVerified }: Props) => {
 
   const startVerification = (m: Method) => {
     setMethod(m);
+    onMethodSelected?.(m);
     setStep("connecting");
     // Simulate a connection / verification call. ~85% success rate.
     setTimeout(() => {
