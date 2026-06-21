@@ -93,15 +93,12 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
   };
 
   const runConnecting = () => {
-    setStep("connecting");
-    setTimeout(() => {
-      const ok = Math.random() < 0.85;
-      setStep(ok ? "success" : "failed");
-      if (ok) {
-        markSematiVerified();
-        setTimeout(() => onVerified(), 1200);
-      }
-    }, 1800);
+    const ok = Math.random() < 0.85;
+    setStep(ok ? "success" : "failed");
+    if (ok) {
+      markSematiVerified();
+      setTimeout(() => onVerified(), 1200);
+    }
   };
 
   const retry = () => {
