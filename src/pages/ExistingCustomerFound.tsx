@@ -17,6 +17,7 @@ const ExistingCustomerFound = () => {
   const location = useLocation();
   const customer = (location.state as any)?.customer;
 
+  if (!customer) {
     return (
       <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
         <AppHeader title="Existing Customer" showBack />
