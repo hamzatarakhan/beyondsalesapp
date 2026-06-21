@@ -13,6 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
