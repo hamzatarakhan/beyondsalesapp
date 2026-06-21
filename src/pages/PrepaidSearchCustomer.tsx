@@ -80,9 +80,9 @@ type FieldErrors = {
 
 const PrepaidSearchCustomer = () => {
   const navigate = useNavigate();
-  const [idType, setIdType] = useState("");
-  const [nationality, setNationality] = useState("");
-  const [idNumber, setIdNumber] = useState("");
+  const [idType, setIdType] = useState("national-id");
+  const [nationality, setNationality] = useState("sa");
+  const [idNumber, setIdNumber] = useState("1234567890");
   const [errors, setErrors] = useState<FieldErrors>({});
   // Distinct from the empty-field error: result of a backend lookup
   const [lookupError, setLookupError] = useState<null | "not-found" | "invalid">(null);
