@@ -122,7 +122,8 @@ const parsePlanMins = (s: string) => {
 };
 
 type Plan = PlanCardData & {
-  categories: ("featured" | "1m" | "3m" | "12m")[];
+  categories: ("base-plan" | "minutes" | "data")[];
+  validity: string[];
   tags: PlanTag[];
 };
 
@@ -136,7 +137,8 @@ const plans: Plan[] = [
     price: 30,
     discount: "Discount 50%",
     validityLabel: "Valid 30 days",
-    categories: ["featured", "1m"],
+    categories: ["base-plan", "minutes"],
+    validity: ["1m"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC countries",
@@ -154,7 +156,8 @@ const plans: Plan[] = [
     price: 45,
     discount: "Discount 30%",
     validityLabel: "Valid 30 days",
-    categories: ["3m"],
+    categories: ["base-plan", "data"],
+    validity: ["3m"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC + Egypt",
@@ -172,7 +175,8 @@ const plans: Plan[] = [
     price: 60,
     discount: null,
     validityLabel: "Valid 30 days",
-    categories: ["12m"],
+    categories: ["data", "minutes"],
+    validity: ["12m"],
     tags: ["5G", "Roaming", "Social", "Unlimited"],
     features: [
       "Truly unlimited local calls & SMS",
@@ -278,7 +282,7 @@ const PrepaidActivation = () => {
       const matchesType = !planType || p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
-        planFilters.validity.some((v) => p.categories.includes(v as any));
+        planFilters.validity.some((v) => p.validity.includes(v));
       const matchesPrice =
         p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
       const pData = parsePlanData(p.internet);
@@ -546,10 +550,9 @@ const PrepaidActivation = () => {
                 <SelectValue placeholder="Select plan type" />
               </SelectTrigger>
               <SelectContent className="bg-card">
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="1m">1 Month</SelectItem>
-                <SelectItem value="3m">3 Months</SelectItem>
-                <SelectItem value="12m">12 Months</SelectItem>
+              <SelectItem value="base-plan">Base Plan</SelectItem>
+                <SelectItem value="minutes">Minutes</SelectItem>
+                <SelectItem value="data">Data</SelectItem>
               </SelectContent>
             </Select>
             <button
