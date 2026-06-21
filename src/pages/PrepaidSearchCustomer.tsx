@@ -11,23 +11,96 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { AlertCircle, RotateCcw, UserPlus } from "lucide-react";
+
+// Mock data: which IDs resolve to which state
+const EXISTING_CUSTOMERS: Record<string, any> = {
+  "1234567890": {
+    fullName: "Mohammed Al-Saud",
+    idType: "national-id",
+    idNumber: "1234567890",
+    nationality: "sa",
+    dob: "1990-05-12",
+    phone: "0501234567",
+    email: "mohammed@example.com",
+    address: "Riyadh, Saudi Arabia",
+  },
+};
+const NOT_FOUND_IDS = new Set(["0000000000"]);
+
+const formatValidators: Record<string, { test: (v: string) => boolean; hint: string }> = {
+  "national-id": {
+    test: (v) => /^\d{10}$/.test(v),
+    hint: "National ID must be exactly 10 digits.",
+  },
+  passport: {
+    test: (v) => /^[A-Z0-9]{6,12}$/i.test(v),
+    hint: "Passport must be 6–12 letters or digits.",
+  },
+  "resident-card": {
+    test: (v) => /^\d{10}$/.test(v),
+    hint: "Resident Card must be exactly 10 digits.",
+  },
+};
+
+type FieldErrors = {
+  idType?: string;
+  nationality?: string;
+  idNumber?: string; // "required" | "format" message
+};
 
 const PrepaidSearchCustomer = () => {
   const navigate = useNavigate();
   const [idType, setIdType] = useState("");
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
-  const [error, setError] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  // Distinct from the empty-field error: result of a backend lookup
+  const [lookupError, setLookupError] = useState<null | "not-found" | "invalid">(null);
 
-  const canContinue = idType && nationality;
+  const validate = (): FieldErrors => {
+    const e: FieldErrors = {};
+    if (!idType) e.idType = "Please select an ID type.";
+    if (!nationality) e.nationality = "Please select a nationality.";
+    if (!idNumber.trim()) {
+      e.idNumber = "Please fill the ID number.";
+    } else {
+      const v = formatValidators[idType];
+      if (v && !v.test(idNumber.trim())) e.idNumber = v.hint;
+    }
+    return e;
+  };
 
   const handleContinue = () => {
-    if (!idNumber.trim()) {
-      setError(true);
+    const e = validate();
+    setErrors(e);
+    setLookupError(null);
+    if (Object.keys(e).length) return;
+
+    const value = idNumber.trim();
+    if (NOT_FOUND_IDS.has(value)) {
+      setLookupError("not-found");
       return;
     }
-    setError(false);
-    navigate("/prepaid-activation");
+    const existing = EXISTING_CUSTOMERS[value];
+    if (existing) {
+      navigate("/prepaid-existing-customer", {
+        state: { customer: { ...existing, idType, nationality } },
+      });
+      return;
+    }
+    // New customer flow
+    navigate("/prepaid-activation", {
+      state: { prefill: { idType, nationality, idNumber: value } },
+    });
+  };
+
+  const resetAll = () => {
+    setIdType("");
+    setNationality("");
+    setIdNumber("");
+    setErrors({});
+    setLookupError(null);
   };
 
   return (
@@ -35,12 +108,26 @@ const PrepaidSearchCustomer = () => {
       <AppHeader title="Search Customer" showBack />
 
       <div className="flex-1 px-4 pb-28">
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-foreground mb-2">
-            ID Type <span className="text-primary">*</span>
-          </label>
-          <Select value={idType} onValueChange={setIdType}>
-            <SelectTrigger className="w-full bg-card border-0 rounded-xl h-12 shadow-sm">
+        <Field
+          label="ID Type"
+          required
+          error={errors.idType}
+        >
+          <Select
+            value={idType}
+            onValueChange={(v) => {
+              setIdType(v);
+              if (errors.idType) setErrors((p) => ({ ...p, idType: undefined }));
+              if (errors.idNumber) setErrors((p) => ({ ...p, idNumber: undefined }));
+              setLookupError(null);
+            }}
+          >
+            <SelectTrigger
+              className={cn(
+                "w-full bg-card rounded-xl h-12 shadow-sm",
+                errors.idType ? "border border-destructive" : "border-0"
+              )}
+            >
               <SelectValue placeholder="Select ID type" />
             </SelectTrigger>
             <SelectContent className="bg-card">
@@ -49,14 +136,28 @@ const PrepaidSearchCustomer = () => {
               <SelectItem value="resident-card">Resident Card</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Nationality <span className="text-primary">*</span>
-          </label>
-          <Select value={nationality} onValueChange={setNationality}>
-            <SelectTrigger className="w-full bg-card border-0 rounded-xl h-12 shadow-sm">
+        <Field
+          label="Nationality"
+          required
+          error={errors.nationality}
+        >
+          <Select
+            value={nationality}
+            onValueChange={(v) => {
+              setNationality(v);
+              if (errors.nationality)
+                setErrors((p) => ({ ...p, nationality: undefined }));
+              setLookupError(null);
+            }}
+          >
+            <SelectTrigger
+              className={cn(
+                "w-full bg-card rounded-xl h-12 shadow-sm",
+                errors.nationality ? "border border-destructive" : "border-0"
+              )}
+            >
               <SelectValue placeholder="Select nationality" />
             </SelectTrigger>
             <SelectContent className="bg-card">
@@ -68,36 +169,73 @@ const PrepaidSearchCustomer = () => {
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="mb-2">
-          <label className="block text-sm font-medium text-foreground mb-2">
-            ID Number <span className="text-primary">*</span>
-          </label>
+        <Field
+          label="ID Number"
+          required
+          error={errors.idNumber}
+        >
           <Input
             value={idNumber}
             onChange={(e) => {
               setIdNumber(e.target.value);
-              if (error && e.target.value.trim()) setError(false);
+              if (errors.idNumber)
+                setErrors((p) => ({ ...p, idNumber: undefined }));
+              setLookupError(null);
             }}
             placeholder="Enter the ID Number"
             className={cn(
               "h-12 bg-card rounded-xl shadow-sm",
-              error ? "border-primary" : "border-0"
+              errors.idNumber ? "border border-destructive" : "border-0"
             )}
           />
-          {error && (
-            <p className="text-xs text-primary mt-1.5">Please fill the ID number .</p>
-          )}
-        </div>
+        </Field>
+
+        {/* Lookup error — distinct from empty-field error */}
+        {lookupError && (
+          <div className="mt-3 rounded-xl bg-destructive/10 border border-destructive/30 p-3">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-destructive">
+                  {lookupError === "not-found"
+                    ? "No record found"
+                    : "Invalid ID"}
+                </p>
+                <p className="text-xs text-destructive/80 mt-0.5">
+                  {lookupError === "not-found"
+                    ? "We couldn't find any customer with that ID. Re-enter the number or start a fresh search."
+                    : "The ID you entered is not valid. Please check and try again."}
+                </p>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      setIdNumber("");
+                      setLookupError(null);
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-destructive px-3 py-1.5 rounded-full bg-card border border-destructive/40"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> Re-enter
+                  </button>
+                  <button
+                    onClick={resetAll}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary px-3 py-1.5 rounded-full bg-card border border-primary/40"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" /> Start fresh
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)]">
         <div className="max-w-[390px] mx-auto">
           <Button
             onClick={handleContinue}
-            disabled={!canContinue}
-            className="w-full h-12 rounded-full text-base font-semibold disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
+            className="w-full h-12 rounded-full text-base font-semibold"
           >
             Continue
           </Button>
@@ -106,5 +244,25 @@ const PrepaidSearchCustomer = () => {
     </div>
   );
 };
+
+const Field = ({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-foreground mb-2">
+      {label} {required && <span className="text-primary">*</span>}
+    </label>
+    {children}
+    {error && <p className="text-xs text-destructive mt-1.5">{error}</p>}
+  </div>
+);
 
 export default PrepaidSearchCustomer;
