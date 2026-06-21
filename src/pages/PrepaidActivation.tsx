@@ -752,6 +752,7 @@ const PrepaidActivation = () => {
       {/* Customer verification step */}
       <SematiVerification
         open={verifyOpen}
+        audience="customer"
         onClose={() => setVerifyOpen(false)}
         onMethodSelected={(m) =>
           setVerificationMethod(
@@ -764,6 +765,17 @@ const PrepaidActivation = () => {
           // Activation completed — discard the saved draft for this customer.
           clearActivationDraft(draftIdNumber);
           setSuccessOpen(true);
+        }}
+      />
+
+      {/* Dealer verification — required at the start of activation */}
+      <SematiVerification
+        open={dealerVerifyOpen}
+        audience="dealer"
+        onClose={() => setDealerVerifyOpen(false)}
+        onVerified={() => {
+          setDealerVerified(true);
+          setDealerVerifyOpen(false);
         }}
       />
 
