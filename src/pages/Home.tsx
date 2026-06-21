@@ -6,7 +6,6 @@ import {
   XCircle,
   UserX,
   Users,
-  Wallet,
   Package,
   BarChart3,
   History,
