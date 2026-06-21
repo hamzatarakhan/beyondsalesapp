@@ -445,7 +445,7 @@ const PrepaidActivation = () => {
           <>
         {/* SIM Type */}
         <section>
-          <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type <span className="text-destructive">*</span></h3>
           <div className="grid grid-cols-2 gap-3">
             <SimCard active={simType === "psim"} label="P-SIM" onClick={() => setSimType("psim")} />
             <SimCard active={simType === "esim"} label="E-SIM" onClick={() => setSimType("esim")} />
@@ -455,7 +455,7 @@ const PrepaidActivation = () => {
         {/* KIT (P-SIM only) */}
         {simType === "psim" && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">KIT</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
               <Input
                 value={kit}
@@ -480,7 +480,7 @@ const PrepaidActivation = () => {
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <Phone className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground">Phone number</p>
+            <p className="text-sm font-semibold text-foreground">Phone number <span className="text-destructive">*</span></p>
           </div>
 
           <div className="grid grid-cols-2 gap-2 mb-3">
@@ -516,7 +516,7 @@ const PrepaidActivation = () => {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                  Existing number
+                  Existing number <span className="text-destructive">*</span>
                 </label>
                 <Input
                   value={portNumber}
@@ -528,7 +528,7 @@ const PrepaidActivation = () => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                  Current operator
+                  Current operator <span className="text-destructive">*</span>
                 </label>
                 <Select value={portOperator} onValueChange={setPortOperator}>
                   <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
@@ -553,7 +553,7 @@ const PrepaidActivation = () => {
 
         {/* Number type: with plan or with top-up */}
         <section>
-          <h3 className="text-sm font-semibold text-foreground mb-2">Number type</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Number type <span className="text-destructive">*</span></h3>
           <div className="grid grid-cols-2 gap-2">
             <SourceTab
               active={numberMode === "plan"}
@@ -572,7 +572,7 @@ const PrepaidActivation = () => {
 
         {numberMode === "topup" ? (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Top-up value</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Top-up value <span className="text-destructive">*</span></h3>
             <Select value={topupValue} onValueChange={setTopupValue}>
               <SelectTrigger className="h-12 bg-card border-0 rounded-xl shadow-sm">
                 <SelectValue placeholder="Select top-up amount" />
@@ -586,7 +586,7 @@ const PrepaidActivation = () => {
           </section>
         ) : (
         <section>
-          <h3 className="text-sm font-semibold text-foreground mb-2">Plan Type</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Plan Type <span className="text-destructive">*</span></h3>
           <div className="flex gap-2">
             <Select value={planType} onValueChange={setPlanType}>
               <SelectTrigger className="flex-1 bg-card border-0 rounded-xl h-12 shadow-sm">
@@ -662,9 +662,9 @@ const PrepaidActivation = () => {
 
         {/* Contact */}
         <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-foreground">Contact</p>
+          <p className="text-sm font-semibold text-foreground">Contact <span className="text-destructive">*</span></p>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">City</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">City <span className="text-destructive">*</span></label>
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
                 <SelectValue placeholder="Select city" />
@@ -677,7 +677,7 @@ const PrepaidActivation = () => {
             </Select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email <span className="text-destructive">*</span></label>
             <Input
               type="email"
               value={email}
@@ -763,7 +763,7 @@ const PrepaidActivation = () => {
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <CreditCard className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground">Select Payment Method</p>
+            <p className="text-sm font-semibold text-foreground">Select Payment Method <span className="text-destructive">*</span></p>
           </div>
           <div className="space-y-2">
             <PayOption icon={CreditCard} label="Credit / Debit Card" value="card" selected={pay === "card"} onClick={() => setPay("card")} />
