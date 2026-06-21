@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
@@ -42,6 +43,8 @@ import {
   Sparkles,
   Pencil,
   Eraser,
+  Tag,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +69,47 @@ const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 
 const ALL_TAGS = ["5G", "Roaming", "Social", "Unlimited"] as const;
 type PlanTag = typeof ALL_TAGS[number];
+
+// Validity options shown as chips inside the filter sheet.
+const VALIDITY_OPTIONS: { value: string; label: string }[] = [
+  { value: "7d", label: "7 days" },
+  { value: "1m", label: "1 month" },
+  { value: "3m", label: "3 months" },
+  { value: "6m", label: "6 months" },
+  { value: "12m", label: "12 months" },
+];
+
+type PlanFilters = {
+  validity: string[];
+  price: [number, number]; // SAR
+  data: [number, number]; // GB, DATA_MAX = Unlimited
+  mins: [number, number]; // minutes, MINS_MAX = Unlimited
+};
+
+const PRICE_MIN = 10;
+const PRICE_MAX = 60;
+const DATA_MIN = 10;
+const DATA_MAX = 200; // upper bound = "Unlimited"
+const MINS_MIN = 10;
+const MINS_MAX = 300; // upper bound = "Unlimited"
+
+const DEFAULT_FILTERS: PlanFilters = {
+  validity: [],
+  price: [PRICE_MIN, PRICE_MAX],
+  data: [DATA_MIN, DATA_MAX],
+  mins: [MINS_MIN, MINS_MAX],
+};
+
+const parsePlanData = (s: string) => {
+  if (/unlimited/i.test(s)) return DATA_MAX;
+  const m = s.match(/\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+};
+const parsePlanMins = (s: string) => {
+  if (/unlimited/i.test(s)) return MINS_MAX;
+  const m = s.match(/\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+};
 
 type Plan = PlanCardData & {
   categories: ("featured" | "1m" | "3m" | "12m")[];
@@ -162,7 +206,9 @@ const PrepaidActivation = () => {
 
   // Plans
   const [planType, setPlanType] = useState<string>(d("planType", ""));
-  const [activeTags, setActiveTags] = useState<PlanTag[]>(d("activeTags", []));
+  const [planFilters, setPlanFilters] = useState<PlanFilters>(
+    d("planFilters", DEFAULT_FILTERS),
+  );
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number>(d("selectedPlan", 0));
 
@@ -185,15 +231,48 @@ const PrepaidActivation = () => {
   const [orderId, setOrderId] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("Nafath");
 
-  // Filter plans
+  // Count of non-default filter sections (used for the badge on the filter button).
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (planFilters.validity.length > 0) n++;
+    if (
+      planFilters.price[0] !== PRICE_MIN ||
+      planFilters.price[1] !== PRICE_MAX
+    )
+      n++;
+    if (
+      planFilters.data[0] !== DATA_MIN ||
+      planFilters.data[1] !== DATA_MAX
+    )
+      n++;
+    if (
+      planFilters.mins[0] !== MINS_MIN ||
+      planFilters.mins[1] !== MINS_MAX
+    )
+      n++;
+    return n;
+  }, [planFilters]);
+
+  // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
       const matchesType = !planType || p.categories.includes(planType as any);
-      const matchesTags =
-        activeTags.length === 0 || activeTags.every((t) => p.tags.includes(t));
-      return matchesType && matchesTags;
+      const matchesValidity =
+        planFilters.validity.length === 0 ||
+        planFilters.validity.some((v) => p.categories.includes(v as any));
+      const matchesPrice =
+        p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
+      const pData = parsePlanData(p.internet);
+      const matchesData =
+        pData >= planFilters.data[0] && pData <= planFilters.data[1];
+      const pMins = parsePlanMins(p.mins);
+      const matchesMins =
+        pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
+      return (
+        matchesType && matchesValidity && matchesPrice && matchesData && matchesMins
+      );
     });
-  }, [planType, activeTags]);
+  }, [planType, planFilters]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
@@ -253,7 +332,7 @@ const PrepaidActivation = () => {
       portOperator,
       isPrimary,
       planType,
-      activeTags,
+      planFilters,
       selectedPlan,
       promoOn,
       promoCode,
@@ -273,7 +352,7 @@ const PrepaidActivation = () => {
     portOperator,
     isPrimary,
     planType,
-    activeTags,
+    planFilters,
     selectedPlan,
     promoOn,
     promoCode,
@@ -442,14 +521,14 @@ const PrepaidActivation = () => {
               onClick={() => setFilterOpen(true)}
               className={cn(
                 "relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center text-primary",
-                activeTags.length > 0 && "ring-2 ring-primary"
+                activeFilterCount > 0 && "ring-2 ring-primary"
               )}
               aria-label="Filter plans"
             >
               <SlidersHorizontal className="w-5 h-5" />
-              {activeTags.length > 0 && (
+              {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                  {activeTags.length}
+                  {activeFilterCount}
                 </span>
               )}
             </button>
@@ -616,10 +695,10 @@ const PrepaidActivation = () => {
       {/* Plan filter sheet */}
       <PlanFilterSheet
         open={filterOpen}
-        active={activeTags}
+        active={planFilters}
         onClose={() => setFilterOpen(false)}
-        onApply={(tags) => {
-          setActiveTags(tags);
+        onApply={(next) => {
+          setPlanFilters(next);
           setFilterOpen(false);
         }}
       />
@@ -737,24 +816,32 @@ const PlanFilterSheet = ({
   onApply,
 }: {
   open: boolean;
-  active: PlanTag[];
+  active: PlanFilters;
   onClose: () => void;
-  onApply: (tags: PlanTag[]) => void;
+  onApply: (filters: PlanFilters) => void;
 }) => {
-  const [draft, setDraft] = useState<PlanTag[]>(active);
+  const [draft, setDraft] = useState<PlanFilters>(active);
   useEffect(() => {
     if (open) setDraft(active);
   }, [open, active]);
 
-  const toggle = (t: PlanTag) =>
-    setDraft((d) => (d.includes(t) ? d.filter((x) => x !== t) : [...d, t]));
+  const toggleValidity = (v: string) =>
+    setDraft((d) => ({
+      ...d,
+      validity: d.validity.includes(v)
+        ? d.validity.filter((x) => x !== v)
+        : [...d.validity, v],
+    }));
+
+  const fmtData = (n: number) => (n >= DATA_MAX ? "Unlimited" : `${n} GB`);
+  const fmtMins = (n: number) => (n >= MINS_MAX ? "Unlimited" : `${n} min`);
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
         <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-foreground">Filter plans</h3>
+          <h3 className="font-semibold text-foreground">Filters</h3>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
@@ -763,39 +850,106 @@ const PlanFilterSheet = ({
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
-          Narrow the plans by feature attributes.
-        </p>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {ALL_TAGS.map((t) => {
-            const on = draft.includes(t);
-            return (
-              <button
-                key={t}
-                onClick={() => toggle(t)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-                  on
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-foreground border-border"
-                )}
-              >
-                {t}
-              </button>
-            );
-          })}
+
+        <div className="overflow-y-auto -mx-5 px-5 space-y-6 pb-2">
+          {/* Validity */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Validity</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VALIDITY_OPTIONS.map((opt) => {
+                const on = draft.validity.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => toggleValidity(opt.value)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-semibold transition-colors",
+                      on
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground/80",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Price */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <Tag className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Price</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {draft.price[0]} — {draft.price[1]} SAR
+            </p>
+            <RangeSlider
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={1}
+              value={draft.price}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, price: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
+
+          {/* Data */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <Database className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Data</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {fmtData(draft.data[0])} — {fmtData(draft.data[1])}
+            </p>
+            <RangeSlider
+              min={DATA_MIN}
+              max={DATA_MAX}
+              step={10}
+              value={draft.data}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, data: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
+
+          {/* Call minutes */}
+          <section>
+            <div className="flex items-center gap-2 mb-2">
+              <PhoneCall className="w-4 h-4 text-foreground" />
+              <p className="text-sm font-semibold text-foreground">Call minutes</p>
+            </div>
+            <p className="text-center text-sm font-semibold text-foreground mb-3">
+              {fmtMins(draft.mins[0])} — {fmtMins(draft.mins[1])}
+            </p>
+            <RangeSlider
+              min={MINS_MIN}
+              max={MINS_MAX}
+              step={10}
+              value={draft.mins}
+              onValueChange={(v) =>
+                setDraft((d) => ({ ...d, mins: [v[0], v[1]] as [number, number] }))
+              }
+            />
+          </section>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setDraft([])}
-            className="flex-1 h-11 rounded-full"
+
+        <div className="flex items-center justify-between gap-3 mt-5 pt-3 border-t border-border/60">
+          <button
+            onClick={() => setDraft(DEFAULT_FILTERS)}
+            className="text-sm font-semibold text-primary"
           >
-            Clear
-          </Button>
+            Clear all
+          </button>
           <Button
             onClick={() => onApply(draft)}
-            className="flex-1 h-11 rounded-full"
+            className="h-11 px-8 rounded-full text-sm font-semibold"
           >
             Apply
           </Button>
@@ -804,6 +958,44 @@ const PlanFilterSheet = ({
     </Drawer>
   );
 };
+
+// Dual-handle range slider built on Radix primitive (shadcn's wrapper
+// renders a single thumb, so we use the primitive directly here).
+const RangeSlider = ({
+  value,
+  onValueChange,
+  min,
+  max,
+  step,
+}: {
+  value: [number, number];
+  onValueChange: (v: number[]) => void;
+  min: number;
+  max: number;
+  step: number;
+}) => (
+  <SliderPrimitive.Root
+    value={value}
+    onValueChange={onValueChange}
+    min={min}
+    max={max}
+    step={step}
+    minStepsBetweenThumbs={1}
+    className="relative flex w-full touch-none select-none items-center"
+  >
+    <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
+      <SliderPrimitive.Range className="absolute h-full bg-primary" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb
+      aria-label="Minimum"
+      className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    />
+    <SliderPrimitive.Thumb
+      aria-label="Maximum"
+      className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    />
+  </SliderPrimitive.Root>
+);
 
 
 const PlanDetailsSheet = ({
