@@ -61,9 +61,9 @@ import { cn } from "@/lib/utils";
 type SimType = "psim" | "esim";
 type PayMethod = "card" | "cash" | "apple";
 type NumberSource = "new" | "mnp";
+type NumberMode = "plan" | "topup";
 
 // Feature flags (pending product decisions)
-const FEATURE_PRIMARY_TOGGLE = true; // "Set as primary" switch on number block
 const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
@@ -76,6 +76,19 @@ const numbersByTier: Record<Tier, string[]> = {
 };
 
 const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
+
+const cities = [
+  "Riyadh",
+  "Jeddah",
+  "Mecca",
+  "Medina",
+  "Dammam",
+  "Khobar",
+  "Tabuk",
+  "Abha",
+];
+
+const topupValues = ["10", "20", "30", "50", "100", "200"];
 
 const ALL_TAGS = ["5G", "Roaming", "Social", "Unlimited"] as const;
 type PlanTag = typeof ALL_TAGS[number];
@@ -218,6 +231,7 @@ const PrepaidActivation = () => {
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
   const [kit, setKit] = useState<string>(d("kit", ""));
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? ""));
+  const [city, setCity] = useState<string>(d("city", prefill?.city ?? ""));
 
   // Number source
   const [numberSource, setNumberSource] = useState<NumberSource>(d("numberSource", "new"));
@@ -226,9 +240,13 @@ const PrepaidActivation = () => {
   const [portOperator, setPortOperator] = useState<string>(d("portOperator", ""));
   const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
 
+  // Number-mode (number with plan vs. number with top-up only)
+  const [numberMode, setNumberMode] = useState<NumberMode>(d("numberMode", "plan"));
+  const [topupValue, setTopupValue] = useState<string>(d("topupValue", ""));
+
   // Plans
   const [planType, setPlanType] = useState<string>(
-    d("planType", "all") || "all",
+    d("planType", "base-plan") || "base-plan",
   );
   const [planFilters, setPlanFilters] = useState<PlanFilters>(
     d("planFilters", DEFAULT_FILTERS),
@@ -241,6 +259,9 @@ const PrepaidActivation = () => {
   const [pay, setPay] = useState<PayMethod | "">(d("pay", ""));
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
+
+  // Wizard step: 1 = activation details, 2 = review + payment
+  const [step, setStep] = useState<1 | 2>(1);
 
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -281,7 +302,7 @@ const PrepaidActivation = () => {
   // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = planType === "all" || p.categories.includes(planType as any);
+      const matchesType = p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
         planFilters.validity.some((v) => p.validity.includes(v));
@@ -351,11 +372,14 @@ const PrepaidActivation = () => {
       simType,
       kit,
       email,
+      city,
       numberSource,
       phone,
       portNumber,
       portOperator,
       isPrimary,
+      numberMode,
+      topupValue,
       planType,
       planFilters,
       selectedPlan,
@@ -371,11 +395,14 @@ const PrepaidActivation = () => {
     simType,
     kit,
     email,
+    city,
     numberSource,
     phone,
     portNumber,
     portOperator,
     isPrimary,
+    numberMode,
+    topupValue,
     planType,
     planFilters,
     selectedPlan,
