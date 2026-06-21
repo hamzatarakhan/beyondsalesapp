@@ -48,6 +48,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
       setStep("select");
       setMethod(null);
       setOtp(["", "", "", "", "", ""]);
+      setNafathDigits(["", ""]);
     }
   }, [open]);
 
