@@ -102,6 +102,30 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Customer Activities */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Customer Activities</h3>
+            <button className="w-8 h-8 flex items-center justify-center">
+              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {activities.map((activity) => (
+              <ActivityIcon
+                key={activity.label}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                onClick={activity.label === "Prepaid" ? () => handleActivityClick(activity.path) : undefined}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Working Shift */}
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
