@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,12 @@ import {
   Search,
   X,
   Eye,
+  Wifi,
+  PhoneCall,
+  MessageSquare,
+  Share2,
+  Calendar,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,9 +47,51 @@ const numbersByTier: Record<Tier, string[]> = {
 };
 
 const plans = [
-  { title: "Plan Title", internet: "60 GB", mins: "100", sms: "500", social: "Unlimited", price: 30, discount: "Discount 50%" },
-  { title: "Plan Title", internet: "80 GB", mins: "200", sms: "1000", social: "Unlimited", price: 45, discount: "Discount 30%" },
-  { title: "Plan Title", internet: "120 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: null },
+  {
+    title: "Starter Plan",
+    internet: "60 GB",
+    mins: "100",
+    sms: "500",
+    social: "Unlimited",
+    price: 30,
+    discount: "Discount 50%",
+    features: [
+      "Free roaming in GCC countries",
+      "5G access included",
+      "Unlimited WhatsApp & social apps",
+      "Free SIM replacement once",
+    ],
+  },
+  {
+    title: "Smart Plan",
+    internet: "80 GB",
+    mins: "200",
+    sms: "1000",
+    social: "Unlimited",
+    price: 45,
+    discount: "Discount 30%",
+    features: [
+      "Free roaming in GCC + Egypt",
+      "5G+ access included",
+      "Unlimited social & streaming apps",
+      "Free international minutes: 30 min",
+    ],
+  },
+  {
+    title: "Ultimate Plan",
+    internet: "120 GB",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 60,
+    discount: null,
+    features: [
+      "Truly unlimited local calls & SMS",
+      "5G+ priority network access",
+      "Free international minutes: 100 min",
+      "Premium customer support 24/7",
+    ],
+  },
 ];
 
 const PrepaidActivation = () => {
@@ -57,6 +106,29 @@ const PrepaidActivation = () => {
   const [promoCode, setPromoCode] = useState("");
   const [pay, setPay] = useState<PayMethod | "">("");
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
+  const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "center",
+    containScroll: "trimSnaps",
+    loop: false,
+  });
+  const [activeSnap, setActiveSnap] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setActiveSnap(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
+
+  const scrollTo = useCallback(
+    (i: number) => emblaApi?.scrollTo(i),
+    [emblaApi]
+  );
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
@@ -151,25 +223,35 @@ const PrepaidActivation = () => {
             </button>
           </div>
 
-          {/* Plans carousel */}
-          <div className="-mx-4 mt-3 overflow-x-auto no-scrollbar">
-            <div className="flex gap-3 px-4 snap-x snap-mandatory">
-              {plans.map((p, i) => (
-                <PlanCard
-                  key={i}
-                  plan={p}
-                  selected={selectedPlan === i}
-                  onSelect={() => setSelectedPlan(i)}
-                />
-              ))}
+          {/* Plans carousel — embla swipe */}
+          <div className="-mx-4 mt-3">
+            <div className="overflow-hidden" ref={emblaRef}>
+              <div className="flex touch-pan-y">
+                {plans.map((p, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4"
+                  >
+                    <PlanCard
+                      plan={p}
+                      selected={selectedPlan === i}
+                      active={activeSnap === i}
+                      onSelect={() => setSelectedPlan(i)}
+                      onMoreDetails={() => setDetailsPlan(i)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex justify-center gap-1.5 mt-3">
               {plans.map((_, i) => (
-                <span
+                <button
                   key={i}
+                  onClick={() => scrollTo(i)}
+                  aria-label={`Go to plan ${i + 1}`}
                   className={cn(
                     "h-1.5 rounded-full transition-all",
-                    selectedPlan === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
+                    activeSnap === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
                   )}
                 />
               ))}
@@ -235,6 +317,16 @@ const PrepaidActivation = () => {
           setPhone(n);
           setNumberSheetOpen(false);
         }}
+      />
+
+      <PlanDetailsSheet
+        plan={detailsPlan !== null ? plans[detailsPlan] : null}
+        onClose={() => setDetailsPlan(null)}
+        onSelect={() => {
+          if (detailsPlan !== null) setSelectedPlan(detailsPlan);
+          setDetailsPlan(null);
+        }}
+        isSelected={detailsPlan !== null && selectedPlan === detailsPlan}
       />
     </div>
   );
