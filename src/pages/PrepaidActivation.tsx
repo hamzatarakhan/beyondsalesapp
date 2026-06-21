@@ -706,6 +706,7 @@ const PrepaidActivation = () => {
         {SHOW_CUSTOMER_SIGNATURE && (
           <SignatureBox
             title="Customer Signature"
+            required={SHOW_CUSTOMER_SIGNATURE}
             value={customerSig}
             onEdit={() => setSigEditor("customer")}
             onClear={() => setCustomerSig(null)}
@@ -713,6 +714,7 @@ const PrepaidActivation = () => {
         )}
         <SignatureBox
           title="Dealer Signature"
+          required
           value={dealerSig}
           onEdit={() => setSigEditor("dealer")}
           onClear={() => setDealerSig(null)}
