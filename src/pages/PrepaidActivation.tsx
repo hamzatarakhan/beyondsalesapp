@@ -122,7 +122,7 @@ const parsePlanMins = (s: string) => {
 };
 
 type Plan = PlanCardData & {
-  categories: ("featured" | "1m" | "3m" | "12m")[];
+  categories: ("base-plan" | "minutes" | "data")[];
   tags: PlanTag[];
 };
 
@@ -136,7 +136,7 @@ const plans: Plan[] = [
     price: 30,
     discount: "Discount 50%",
     validityLabel: "Valid 30 days",
-    categories: ["featured", "1m"],
+    categories: ["base-plan", "minutes"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC countries",
@@ -154,7 +154,7 @@ const plans: Plan[] = [
     price: 45,
     discount: "Discount 30%",
     validityLabel: "Valid 30 days",
-    categories: ["3m"],
+    categories: ["base-plan", "data"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC + Egypt",
@@ -172,7 +172,7 @@ const plans: Plan[] = [
     price: 60,
     discount: null,
     validityLabel: "Valid 30 days",
-    categories: ["12m"],
+    categories: ["data", "minutes"],
     tags: ["5G", "Roaming", "Social", "Unlimited"],
     features: [
       "Truly unlimited local calls & SMS",
@@ -546,10 +546,9 @@ const PrepaidActivation = () => {
                 <SelectValue placeholder="Select plan type" />
               </SelectTrigger>
               <SelectContent className="bg-card">
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="1m">1 Month</SelectItem>
-                <SelectItem value="3m">3 Months</SelectItem>
-                <SelectItem value="12m">12 Months</SelectItem>
+              <SelectItem value="base-plan">Base Plan</SelectItem>
+                <SelectItem value="minutes">Minutes</SelectItem>
+                <SelectItem value="data">Data</SelectItem>
               </SelectContent>
             </Select>
             <button
