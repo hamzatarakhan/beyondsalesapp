@@ -1,13 +1,7 @@
-import { Moon, Sun, Palette } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/contexts/ThemeContext";
 
 const SettingsPage = () => {
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
-
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
       <AppHeader title="Settings" showBack />
