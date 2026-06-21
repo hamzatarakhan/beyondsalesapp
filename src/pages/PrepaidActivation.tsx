@@ -48,6 +48,8 @@ import {
   Share2,
   Calendar,
   CheckCircle2,
+  Check,
+  ClipboardList,
   ArrowRightLeft,
   Sparkles,
   Pencil,
