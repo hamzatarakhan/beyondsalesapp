@@ -425,7 +425,7 @@ const PrepaidActivation = () => {
       <AppHeader
         title="Prepaid Activation"
         showBack
-        onBackClick={() => navigate(-1)}
+        onBackClick={() => step === 2 ? setStep(1) : navigate(-1)}
         rightElement={
           <button
             onClick={() => setCancelOpen(true)}
