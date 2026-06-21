@@ -123,6 +123,7 @@ const parsePlanMins = (s: string) => {
 
 type Plan = PlanCardData & {
   categories: ("base-plan" | "minutes" | "data")[];
+  validity: string[];
   tags: PlanTag[];
 };
 
