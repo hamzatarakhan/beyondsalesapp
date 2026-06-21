@@ -361,13 +361,22 @@ const SimCard = ({ active, label, onClick }: { active: boolean; label: string; o
 const PlanCard = ({
   plan,
   selected,
+  active,
   onSelect,
+  onMoreDetails,
 }: {
   plan: typeof plans[number];
   selected: boolean;
+  active: boolean;
   onSelect: () => void;
+  onMoreDetails: () => void;
 }) => (
-  <div className="snap-center shrink-0 w-[78%] bg-card rounded-2xl p-4 shadow-sm">
+  <div
+    className={cn(
+      "bg-card rounded-2xl p-4 shadow-sm transition-all duration-200",
+      active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
+    )}
+  >
     <div className="flex items-center justify-between mb-3">
       <p className="font-semibold text-foreground">{plan.title}</p>
       {plan.discount && (
@@ -382,7 +391,10 @@ const PlanCard = ({
       <Stat label="SMS" value={plan.sms} />
       <Stat label="Social Media" value={plan.social} />
     </div>
-    <button className="flex items-center gap-1 text-sky-600 text-xs font-medium mb-3">
+    <button
+      onClick={onMoreDetails}
+      className="flex items-center gap-1 text-sky-600 text-xs font-medium mb-3 active:opacity-70"
+    >
       More Details <Eye className="w-3.5 h-3.5" />
     </button>
     <div className="flex items-center justify-between mb-3">
@@ -413,6 +425,107 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
     <p className="font-semibold text-foreground">{value}</p>
   </div>
 );
+
+const PlanDetailsSheet = ({
+  plan,
+  isSelected,
+  onClose,
+  onSelect,
+}: {
+  plan: typeof plans[number] | null;
+  isSelected: boolean;
+  onClose: () => void;
+  onSelect: () => void;
+}) => {
+  if (!plan) return null;
+  const rows = [
+    { icon: Wifi, label: "Internet", value: plan.internet },
+    { icon: PhoneCall, label: "Local Minutes", value: plan.mins },
+    { icon: MessageSquare, label: "SMS", value: plan.sms },
+    { icon: Share2, label: "Social Media", value: plan.social },
+    { icon: Calendar, label: "Validity", value: "30 days" },
+  ];
+  return (
+    <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[85vh]">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-foreground text-lg">{plan.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Plan details and features
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="bg-primary/5 rounded-2xl p-4 mb-4 flex items-end justify-between">
+          <div>
+            <p className="text-3xl font-bold text-primary leading-none">
+              {plan.price}
+              <span className="text-base ml-1">/mo</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              KSA · +15% VAT included
+            </p>
+          </div>
+          {plan.discount && (
+            <span className="px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-[11px] font-semibold">
+              {plan.discount}
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-2 mb-5 overflow-y-auto">
+          {rows.map((r) => (
+            <div
+              key={r.label}
+              className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-muted/40"
+            >
+              <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center">
+                <r.icon className="w-4 h-4 text-primary" />
+              </div>
+              <p className="flex-1 text-sm text-muted-foreground">{r.label}</p>
+              <p className="text-sm font-semibold text-foreground">{r.value}</p>
+            </div>
+          ))}
+
+          {plan.features.length > 0 && (
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-foreground mb-2 px-1">
+                What's included
+              </p>
+              <ul className="space-y-1.5">
+                {plan.features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-foreground"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={onSelect}
+          className="w-full h-12 rounded-full text-base font-semibold"
+        >
+          {isSelected ? "Selected" : "Select this plan"}
+        </Button>
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 const SignatureBox = ({ title }: { title: string }) => (
   <section>
