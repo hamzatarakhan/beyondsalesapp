@@ -767,6 +767,36 @@ const PrepaidActivation = () => {
           setSigEditor(null);
         }}
       />
+      {/* Cancel / back confirmation — tells the user their progress is saved */}
+      <Dialog open={backConfirmOpen} onOpenChange={(o) => !o && setBackConfirmOpen(false)}>
+        <DialogContent className="max-w-[340px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Progress saved</DialogTitle>
+            <DialogDescription>
+              Your filled details have been saved for this customer. You can
+              resume later by searching the same ID number.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => {
+                setBackConfirmOpen(false);
+                navigate("/");
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Go to Home
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setBackConfirmOpen(false)}
+              className="w-full h-11 rounded-full border-primary text-primary"
+            >
+              Keep editing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
