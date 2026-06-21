@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
@@ -35,6 +35,8 @@ import {
   CheckCircle2,
   ArrowRightLeft,
   Sparkles,
+  Pencil,
+  Eraser,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -153,6 +155,11 @@ const PrepaidActivation = () => {
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+
+  // Signatures
+  const [customerSig, setCustomerSig] = useState<string | null>(null);
+  const [dealerSig, setDealerSig] = useState<string | null>(null);
+  const [sigEditor, setSigEditor] = useState<null | "customer" | "dealer">(null);
 
   // Filter plans
   const filteredPlans = useMemo(() => {
@@ -432,8 +439,20 @@ const PrepaidActivation = () => {
         </section>
 
         {/* Signatures */}
-        {SHOW_CUSTOMER_SIGNATURE && <SignatureBox title="Customer Signature" />}
-        <SignatureBox title="Dealer Signature" />
+        {SHOW_CUSTOMER_SIGNATURE && (
+          <SignatureBox
+            title="Customer Signature"
+            value={customerSig}
+            onEdit={() => setSigEditor("customer")}
+            onClear={() => setCustomerSig(null)}
+          />
+        )}
+        <SignatureBox
+          title="Dealer Signature"
+          value={dealerSig}
+          onEdit={() => setSigEditor("dealer")}
+          onClear={() => setDealerSig(null)}
+        />
 
         {/* Promo code */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -470,14 +489,29 @@ const PrepaidActivation = () => {
       {/* Pay CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)]">
         <div className="max-w-[390px] mx-auto">
+          {(() => {
+            const sigMissing =
+              (SHOW_CUSTOMER_SIGNATURE && !customerSig) || !dealerSig;
+            return (
+              <>
+                {sigMissing && pay && (
+                  <p className="text-xs text-destructive text-center mb-2">
+                    Please capture {SHOW_CUSTOMER_SIGNATURE && !customerSig ? "customer" : ""}
+                    {SHOW_CUSTOMER_SIGNATURE && !customerSig && !dealerSig ? " and " : ""}
+                    {!dealerSig ? "dealer" : ""} signature to continue.
+                  </p>
+                )}
           <Button
-            disabled={!pay || !currentPlan}
+            disabled={!pay || !currentPlan || sigMissing}
             onClick={handlePay}
             className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
           >
             <span>Pay</span>
             <span>{currentPlan ? currentPlan.price + 0.5 : 0} KSA</span>
           </Button>
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -538,6 +572,25 @@ const PrepaidActivation = () => {
         onClose={() => {
           setSuccessOpen(false);
           navigate("/");
+        }}
+      />
+
+      {/* Signature capture */}
+      <SignaturePadSheet
+        open={sigEditor !== null}
+        title={sigEditor === "dealer" ? "Dealer Signature" : "Customer Signature"}
+        initial={
+          sigEditor === "dealer"
+            ? dealerSig
+            : sigEditor === "customer"
+            ? customerSig
+            : null
+        }
+        onClose={() => setSigEditor(null)}
+        onSave={(dataUrl) => {
+          if (sigEditor === "dealer") setDealerSig(dataUrl);
+          else if (sigEditor === "customer") setCustomerSig(dataUrl);
+          setSigEditor(null);
         }}
       />
     </div>
@@ -822,17 +875,205 @@ const PlanDetailsSheet = ({
   );
 };
 
-const SignatureBox = ({ title }: { title: string }) => (
+const SignatureBox = ({
+  title,
+  value,
+  onEdit,
+  onClear,
+}: {
+  title: string;
+  value: string | null;
+  onEdit: () => void;
+  onClear: () => void;
+}) => (
   <section>
-    <h3 className="text-sm font-semibold text-foreground mb-2">{title}</h3>
-    <button className="w-full border-2 border-dashed border-primary/30 rounded-2xl bg-card py-8 flex flex-col items-center gap-2">
-      <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
-        <Plus className="w-4 h-4" />
-      </span>
-      <p className="text-xs text-muted-foreground">No signature found here</p>
-    </button>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      {value && (
+        <button
+          onClick={onClear}
+          className="text-[11px] text-destructive font-medium flex items-center gap-1"
+        >
+          <Eraser className="w-3 h-3" /> Clear
+        </button>
+      )}
+    </div>
+    {value ? (
+      <button
+        onClick={onEdit}
+        className="w-full bg-card rounded-2xl p-3 border border-emerald-200 shadow-sm flex items-center gap-3"
+      >
+        <img
+          src={value}
+          alt={`${title} preview`}
+          className="h-16 flex-1 object-contain"
+        />
+        <span className="flex items-center gap-1 text-xs font-semibold text-primary">
+          <Pencil className="w-3.5 h-3.5" /> Edit
+        </span>
+      </button>
+    ) : (
+      <button
+        onClick={onEdit}
+        className="w-full border-2 border-dashed border-primary/30 rounded-2xl bg-card py-8 flex flex-col items-center gap-2 active:bg-primary/5 transition-colors"
+      >
+        <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
+          <Plus className="w-4 h-4" />
+        </span>
+        <p className="text-xs text-muted-foreground">Tap to sign</p>
+      </button>
+    )}
   </section>
 );
+
+const SignaturePadSheet = ({
+  open,
+  title,
+  initial,
+  onClose,
+  onSave,
+}: {
+  open: boolean;
+  title: string;
+  initial: string | null;
+  onClose: () => void;
+  onSave: (dataUrl: string) => void;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawingRef = useRef(false);
+  const lastRef = useRef<{ x: number; y: number } | null>(null);
+  const [hasInk, setHasInk] = useState(false);
+
+  // Init canvas when opened
+  useEffect(() => {
+    if (!open) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#0f172a";
+    ctx.lineWidth = 2.5;
+    // Restore previous signature if any
+    if (initial) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        setHasInk(true);
+      };
+      img.src = initial;
+    } else {
+      setHasInk(false);
+    }
+  }, [open, initial]);
+
+  const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const start = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    (e.target as Element).setPointerCapture(e.pointerId);
+    drawingRef.current = true;
+    lastRef.current = getPos(e);
+  };
+  const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
+    const ctx = canvasRef.current!.getContext("2d");
+    if (!ctx || !lastRef.current) return;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastRef.current.x, lastRef.current.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastRef.current = p;
+    if (!hasInk) setHasInk(true);
+  };
+  const end = () => {
+    drawingRef.current = false;
+    lastRef.current = null;
+  };
+
+  const clear = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setHasInk(false);
+  };
+
+  const save = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !hasInk) return;
+    onSave(canvas.toDataURL("image/png"));
+  };
+
+  return (
+    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-semibold text-foreground">{title}</h3>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Sign with your finger inside the box below.
+        </p>
+
+        <div className="relative rounded-2xl border-2 border-dashed border-primary/30 bg-muted/30 mb-3">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-44 rounded-2xl touch-none"
+            onPointerDown={start}
+            onPointerMove={move}
+            onPointerUp={end}
+            onPointerCancel={end}
+            onPointerLeave={end}
+          />
+          <div className="absolute bottom-1.5 left-0 right-0 mx-auto w-3/4 border-b border-muted-foreground/30 pointer-events-none" />
+          {!hasInk && (
+            <p className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground pointer-events-none">
+              Draw your signature here
+            </p>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={clear}
+            className="flex-1 h-11 rounded-full"
+          >
+            <Eraser className="w-4 h-4 mr-1.5" />
+            Clear
+          </Button>
+          <Button
+            onClick={save}
+            disabled={!hasInk}
+            className="flex-1 h-11 rounded-full"
+          >
+            <CheckCircle2 className="w-4 h-4 mr-1.5" />
+            Save
+          </Button>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 const PayOption = ({
   icon: Icon,
