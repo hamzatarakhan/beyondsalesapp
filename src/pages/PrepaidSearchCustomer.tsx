@@ -11,7 +11,20 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { AlertCircle, RotateCcw, UserPlus } from "lucide-react";
+import { AlertCircle, RotateCcw, UserPlus, History } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  clearActivationDraft,
+  getActivationDraft,
+  formatDraftAge,
+} from "@/lib/activationDrafts";
 
 // Mock data: which IDs resolve to which state
 const EXISTING_CUSTOMERS: Record<string, any> = {
@@ -57,6 +70,15 @@ const PrepaidSearchCustomer = () => {
   const [errors, setErrors] = useState<FieldErrors>({});
   // Distinct from the empty-field error: result of a backend lookup
   const [lookupError, setLookupError] = useState<null | "not-found" | "invalid">(null);
+  const [draftPrompt, setDraftPrompt] = useState<
+    | null
+    | {
+        idType: string;
+        nationality: string;
+        idNumber: string;
+        savedAt: number;
+      }
+  >(null);
 
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
@@ -89,7 +111,18 @@ const PrepaidSearchCustomer = () => {
       });
       return;
     }
-    // New customer flow
+    // New customer flow — check whether this ID already has a previously
+    // cancelled draft on file before sending them into a fresh activation.
+    const existingDraft = getActivationDraft(value);
+    if (existingDraft) {
+      setDraftPrompt({
+        idType,
+        nationality,
+        idNumber: value,
+        savedAt: existingDraft.savedAt,
+      });
+      return;
+    }
     navigate("/prepaid-activation", {
       state: { prefill: { idType, nationality, idNumber: value } },
     });
@@ -241,6 +274,67 @@ const PrepaidSearchCustomer = () => {
           </Button>
         </div>
       </div>
+
+      <Dialog open={!!draftPrompt} onOpenChange={(o) => !o && setDraftPrompt(null)}>
+        <DialogContent className="max-w-[340px] rounded-2xl">
+          <DialogHeader>
+            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-2">
+              <History className="w-5 h-5 text-amber-600" />
+            </div>
+            <DialogTitle>Resume previous activation?</DialogTitle>
+            <DialogDescription>
+              This customer already started an activation that wasn't
+              completed
+              {draftPrompt ? ` (${formatDraftAge(draftPrompt.savedAt)})` : ""}.
+              Would you like to continue from the saved data or start a new
+              activation?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => {
+                if (!draftPrompt) return;
+                const p = draftPrompt;
+                setDraftPrompt(null);
+                navigate("/prepaid-activation", {
+                  state: {
+                    prefill: {
+                      idType: p.idType,
+                      nationality: p.nationality,
+                      idNumber: p.idNumber,
+                    },
+                    resumeDraft: true,
+                  },
+                });
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Continue from saved data
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!draftPrompt) return;
+                const p = draftPrompt;
+                clearActivationDraft(p.idNumber);
+                setDraftPrompt(null);
+                navigate("/prepaid-activation", {
+                  state: {
+                    prefill: {
+                      idType: p.idType,
+                      nationality: p.nationality,
+                      idNumber: p.idNumber,
+                    },
+                  },
+                });
+              }}
+              className="w-full h-11 rounded-full border-primary text-primary"
+            >
+              Start new activation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
