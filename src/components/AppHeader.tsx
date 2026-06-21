@@ -6,16 +6,17 @@ interface AppHeaderProps {
   title: string;
   showBack?: boolean;
   rightElement?: ReactNode;
+  onBackClick?: () => void;
 }
 
-const AppHeader = ({ title, showBack = false, rightElement }: AppHeaderProps) => {
+const AppHeader = ({ title, showBack = false, rightElement, onBackClick }: AppHeaderProps) => {
   const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-10 bg-background px-4 py-4 flex items-center">
       {showBack && (
         <button
-          onClick={() => navigate("/")}
+          onClick={onBackClick ? onBackClick : () => navigate("/")}
           className="w-10 h-10 flex items-center justify-center -ml-2"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
