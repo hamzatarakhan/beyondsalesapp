@@ -389,6 +389,18 @@ const PrepaidActivation = () => {
       />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
+        {savedDraft && (
+          <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5 flex items-start gap-2">
+            <History className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] font-semibold text-amber-800">Continuing from saved data</p>
+              <p className="text-[10px] text-amber-700/80 leading-snug">
+                Last saved {formatDraftAge(savedDraft.savedAt)}. Your progress is kept if you leave.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* SIM Type */}
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type</h3>
