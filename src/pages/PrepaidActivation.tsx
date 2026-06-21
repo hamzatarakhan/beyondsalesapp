@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -266,6 +267,9 @@ const PrepaidActivation = () => {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [backConfirmOpen, setBackConfirmOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
+  const [cancelOtherText, setCancelOtherText] = useState<string>("");
 
   // Signatures
   const [customerSig, setCustomerSig] = useState<string | null>(d("customerSig", null));
@@ -417,7 +421,16 @@ const PrepaidActivation = () => {
       <AppHeader
         title="Prepaid Activation"
         showBack
-        onBackClick={() => setBackConfirmOpen(true)}
+        onBackClick={() => navigate(-1)}
+        rightElement={
+          <button
+            onClick={() => setCancelOpen(true)}
+            aria-label="Cancel activation"
+            className="w-10 h-10 flex items-center justify-center -mr-2"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        }
       />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
@@ -948,6 +961,87 @@ const PrepaidActivation = () => {
             <Button
               variant="outline"
               onClick={() => setBackConfirmOpen(false)}
+              className="w-full h-11 rounded-full border-primary text-primary"
+            >
+              Keep editing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Cancel activation — requires a reason */}
+      <Dialog
+        open={cancelOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setCancelOpen(false);
+            setCancelReason("");
+            setCancelOtherText("");
+          }
+        }}
+      >
+        <DialogContent className="max-w-[340px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Cancel activation</DialogTitle>
+            <DialogDescription>
+              Please tell us why you're cancelling this activation.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">
+                Cancel reason <span className="text-destructive">*</span>
+              </label>
+              <Select value={cancelReason} onValueChange={setCancelReason}>
+                <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  <SelectItem value="customer-changed-mind">Customer changed mind</SelectItem>
+                  <SelectItem value="missing-documents">Missing documents</SelectItem>
+                  <SelectItem value="price-too-high">Price too high</SelectItem>
+                  <SelectItem value="system-issue">System issue</SelectItem>
+                  <SelectItem value="wrong-plan-selected">Wrong plan selected</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {cancelReason === "other" && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
+                  Please specify <span className="text-destructive">*</span>
+                </label>
+                <Textarea
+                  value={cancelOtherText}
+                  onChange={(e) => setCancelOtherText(e.target.value)}
+                  placeholder="Describe the reason"
+                  className="min-h-[88px] bg-muted/40 border-0 rounded-xl resize-none"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              disabled={
+                !cancelReason ||
+                (cancelReason === "other" && !cancelOtherText.trim())
+              }
+              onClick={() => {
+                setCancelOpen(false);
+                setCancelReason("");
+                setCancelOtherText("");
+                navigate("/");
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Confirm cancel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCancelOpen(false);
+                setCancelReason("");
+                setCancelOtherText("");
+              }}
               className="w-full h-11 rounded-full border-primary text-primary"
             >
               Keep editing
