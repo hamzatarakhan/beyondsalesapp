@@ -372,7 +372,11 @@ const PrepaidActivation = () => {
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
-      <AppHeader title="Prepaid Activation" showBack />
+      <AppHeader
+        title="Prepaid Activation"
+        showBack
+        onBackClick={() => setBackConfirmOpen(true)}
+      />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
         {/* SIM Type */}
