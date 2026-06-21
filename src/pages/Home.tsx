@@ -10,6 +10,15 @@ import {
   Package,
   BarChart3,
   History,
+  Smartphone,
+  CreditCard,
+  RefreshCw,
+  PackageCheck,
+  MapPin,
+  ArrowLeftRight,
+  UserPlus,
+  ClipboardList,
+  ChevronRight,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -17,6 +26,10 @@ import EWalletBalancePreview from "@/components/EWalletBalancePreview";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const activities = [
+  { icon: Smartphone, label: "Prepaid", path: "/search-subscription" },
+  { icon: CreditCard, label: "Postpaid", path: "/search-subscription" },
+  { icon: RefreshCw, label: "SIM Replacement", path: "/search-subscription" },
+  { icon: PackageCheck, label: "Fulfilment", path: "/search-subscription" },
   { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
   { icon: UserX, label: "Customer Termination", path: "/search-customer" },
   { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
@@ -29,36 +42,44 @@ const eWalletActivities = [
   { icon: History, label: "Transactions", path: "/ewallet?view=transactions" },
 ];
 
+const memberOnboarding = [
+  { icon: UserPlus, label: "Channel Onboarding", path: "/", badge: 0 },
+  { icon: ClipboardList, label: "Onboarding Requests", path: "/", badge: 3 },
+];
+
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="mobile-container pb-24">
+    <div className="mobile-container pb-24 bg-[hsl(210,20%,96%)]">
       {/* Header */}
-      <header className="px-4 pt-4 pb-2 flex items-center justify-between">
+      <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-semibold text-lg">
-            H
-          </div>
           <div>
-            <p className="font-semibold text-foreground">Hello, Hamza</p>
-            <p className="text-sm text-muted-foreground">123456789</p>
+            <p className="font-semibold text-foreground text-[15px]">Hello, Hamza 👋</p>
+            <p className="text-xs text-muted-foreground">123456789</p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
-          <button className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm">
-            <QrCode className="w-5 h-5 text-foreground" />
+          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative">
+            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[8px] font-bold text-primary-foreground">
+              V
+            </div>
+            <ArrowLeftRight className="w-3 h-3 text-foreground absolute -right-0.5 -bottom-0.5 bg-card rounded-full p-0.5 box-content" strokeWidth={2.5} />
           </button>
-          <button className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm relative">
-            <Bell className="w-5 h-5 text-foreground" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
+          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
+            <QrCode className="w-4 h-4 text-foreground" />
+          </button>
+          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative">
+            <Bell className="w-4 h-4 text-foreground" />
+            <span className="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full" />
           </button>
         </div>
       </header>
 
       {/* Hero Banner */}
-      <div className="px-4 py-4">
+      <div className="px-4 pb-4">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-primary/80 h-[140px]">
           <div className="absolute inset-0 p-5 flex flex-col justify-center z-10">
             <h2 className="text-xl font-bold text-primary-foreground mb-1">
@@ -83,56 +104,163 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Customer Activities */}
-      <div className="px-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground text-lg">Customer Activities</h3>
-          <button className="w-8 h-8 flex items-center justify-center">
-            <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+      {/* Working Shift */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground">My Working Shift</h3>
+            <button className="flex items-center gap-1 text-primary text-sm font-medium">
+              See all <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3 mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-foreground">10:00 AM - 6:00 PM</p>
+              <p className="text-xs text-muted-foreground">Today's Schedule</p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+              Not Started
+            </span>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3 mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-sky-600" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Store Name</p>
+                <p className="text-xs text-muted-foreground">City Centre, Muscat</p>
+              </div>
+            </div>
+            <button className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white text-xs font-medium">
+              View map
+            </button>
+          </div>
+          <div className="flex gap-2 mb-3">
+            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+              ✓ Check-in: HH:MM
+            </span>
+            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-medium">
+              ✓ Check-out: HH:MM
+            </span>
+          </div>
+          <button className="w-full py-3 rounded-full bg-muted text-muted-foreground font-medium text-sm">
+            Check in
           </button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-          {activities.map((activity) => (
-            <ActivityIcon
-              key={activity.path}
-              icon={activity.icon}
-              label={activity.label}
-              onClick={() => navigate(activity.path)}
-            />
-          ))}
+      {/* Tickets */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground">Tickets</h3>
+            <button className="flex items-center gap-1 text-primary text-sm font-medium">
+              See all <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[
+              { count: 100, label: "Progress", color: "bg-amber-100 text-amber-700" },
+              { count: 50, label: "Closed", color: "bg-rose-100 text-rose-700" },
+              { count: 20, label: "Resolved", color: "bg-emerald-100 text-emerald-700" },
+            ].map((s) => (
+              <div key={s.label} className="bg-muted/40 rounded-xl py-3 flex flex-col items-center gap-1.5">
+                <p className="text-xl font-bold text-foreground">{s.count}</p>
+                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${s.color}`}>
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button className="w-full py-3 rounded-full bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
+            + New Ticket
+          </button>
+        </div>
+      </div>
+
+      {/* Customer Activities */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Customer Activities</h3>
+            <button className="w-8 h-8 flex items-center justify-center">
+              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {activities.map((activity) => (
+              <ActivityIcon
+                key={activity.label}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                onClick={() => navigate(activity.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Member Onboarding */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {memberOnboarding.map((item) => (
+              <div key={item.label} className="relative">
+                {item.badge > 0 && (
+                  <span className="absolute -top-1 right-2 z-10 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+                <ActivityIcon
+                  icon={item.icon}
+                  label={item.label}
+                  color="amber"
+                  onClick={() => navigate(item.path)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* E-Wallet Section */}
-      <div className="px-4 mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-primary" />
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground">E-Wallet</h3>
             </div>
-            <h3 className="font-semibold text-foreground text-lg">E-Wallet</h3>
+            <button className="w-8 h-8 flex items-center justify-center">
+              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+            </button>
           </div>
-          <button className="w-8 h-8 flex items-center justify-center">
-            <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </div>
 
-        {/* Balance Preview Widget */}
-        <div className="mb-4">
-          <EWalletBalancePreview />
-        </div>
+          {/* Balance Preview Widget */}
+          <div className="mb-4">
+            <EWalletBalancePreview />
+          </div>
 
-        {/* E-Wallet Activity Icons */}
-        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-          {eWalletActivities.map((activity) => (
-            <ActivityIcon
-              key={activity.path}
-              icon={activity.icon}
-              label={activity.label}
-              onClick={() => navigate(activity.path)}
-            />
-          ))}
+          {/* E-Wallet Activity Icons */}
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {eWalletActivities.map((activity) => (
+              <ActivityIcon
+                key={activity.path}
+                icon={activity.icon}
+                label={activity.label}
+                color="primary"
+                onClick={() => navigate(activity.path)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
