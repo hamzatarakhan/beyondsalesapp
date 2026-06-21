@@ -39,7 +39,6 @@ import {
   Plus,
   CreditCard,
   Banknote,
-  Banknote,
   Search,
   X,
   Wifi,
