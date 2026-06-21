@@ -16,6 +16,7 @@ export const markSematiVerified = () => {
   localStorage.setItem(STORAGE_KEY, Date.now().toString());
 };
 
+type Step = "select" | "connecting" | "success" | "failed";
 export type Method = "nafath" | "fingerprint" | "absher";
 
 interface Props {
