@@ -168,7 +168,17 @@ const BundlePlans = () => {
   const [selectedPayment, setSelectedPayment] = useState("sms-pay");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const selectedPlanData = plans.find((p) => p.id === selectedPlan);
+  const filteredPlans = plans.filter(
+    (p) => activeTab === "Featured" || p.category === activeTab
+  );
+
+  const selectedPlanData = filteredPlans.find((p) => p.id === selectedPlan);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    const firstPlan = plans.find((p) => tab === "Featured" || p.category === tab);
+    setSelectedPlan(firstPlan?.id ?? null);
+  };
 
   return (
     <div className="mobile-container min-h-screen flex flex-col pb-20">
