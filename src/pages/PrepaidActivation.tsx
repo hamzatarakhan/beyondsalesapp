@@ -1221,8 +1221,7 @@ const PrepaidActivation = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                <Tag className="w-4 h-4 text-primary" />
+              <label className="text-sm font-semibold text-foreground">
                 Cancel reason <span className="text-destructive">*</span>
               </label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
@@ -1241,8 +1240,7 @@ const PrepaidActivation = () => {
             </div>
             {cancelReason === "other" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                  <Pencil className="w-4 h-4 text-primary" />
+                <label className="text-sm font-semibold text-foreground">
                   Please specify <span className="text-destructive">*</span>
                 </label>
                 <Textarea
