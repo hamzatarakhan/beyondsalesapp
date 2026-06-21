@@ -737,56 +737,6 @@ const PlanFilterSheet = ({
   );
 };
 
-const SuccessDialog = ({
-  open,
-  ported,
-  number,
-  onClose,
-}: {
-  open: boolean;
-  ported: boolean;
-  number: string;
-  onClose: () => void;
-}) => (
-  <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-    <DialogContent className="max-w-[320px] rounded-3xl border-0 p-7 text-center [&>button]:hidden">
-      <div className="flex flex-col items-center gap-3">
-        <CheckCircle2 className="w-16 h-16 text-emerald-500" strokeWidth={2} />
-        <div>
-          <h4 className="font-semibold text-foreground mb-1">
-            {ported ? "Number ported successfully!" : "Activation successful!"}
-          </h4>
-          <p className="text-xs text-muted-foreground">
-            {ported
-              ? "The customer's existing number has been transferred (MNP) and is now active."
-              : "A new number has been assigned and activated for the customer."}
-          </p>
-        </div>
-        <div className="bg-primary/5 rounded-xl py-2.5 px-4 mt-1 w-full">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-            {ported ? "Ported number" : "New number"}
-          </p>
-          <p className="text-base font-semibold text-foreground tracking-wide">
-            {number}
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2"
-        >
-          Go to Home
-        </button>
-      </div>
-    </DialogContent>
-  </Dialog>
-);
-
-const Stat = ({ label, value }: { label: string; value: string }) => (
-  <div>
-    <p className="text-muted-foreground">{label}</p>
-    <p className="font-semibold text-foreground">{value}</p>
-  </div>
-);
 
 const PlanDetailsSheet = ({
   plan,
