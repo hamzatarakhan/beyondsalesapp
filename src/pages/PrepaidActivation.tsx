@@ -857,11 +857,6 @@ const PrepaidActivation = () => {
               aria-label="Filter plans"
             >
               <SlidersHorizontal className="w-5 h-5" />
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                  {activeFilterCount}
-                </span>
-              )}
             </button>
           </div>
 
