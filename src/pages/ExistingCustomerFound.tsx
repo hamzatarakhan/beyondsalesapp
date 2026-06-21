@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -11,32 +10,12 @@ import {
   MapPin,
   Calendar,
   Globe,
-  History,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  clearActivationDraft,
-  getActivationDraft,
-  formatDraftAge,
-} from "@/lib/activationDrafts";
 
 const ExistingCustomerFound = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const customer = (location.state as any)?.customer;
-
-  const draft = useMemo(
-    () => (customer ? getActivationDraft(customer.idNumber) : null),
-    [customer]
-  );
-  const [confirmStartNew, setConfirmStartNew] = useState(false);
 
   if (!customer) {
     return (
@@ -95,64 +74,21 @@ const ExistingCustomerFound = () => {
         </div>
       </div>
 
-      {draft && (
-        <div className="px-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2 mb-4">
-            <History className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-900">
-                Unfinished activation found
-              </p>
-              <p className="text-[11px] text-amber-800/80">
-                This customer started an activation that wasn't completed
-                ({formatDraftAge(draft.savedAt)}). You can pick up where
-                they left off, or start a new activation.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)] space-y-2">
         <div className="max-w-[390px] mx-auto space-y-2">
-          {draft && (
-            <Button
-              onClick={() =>
-                navigate("/prepaid-activation", {
-                  state: {
-                    prefill: customer,
-                    fromExisting: true,
-                    resumeDraft: true,
-                  },
-                })
-              }
-              className="w-full h-12 rounded-full text-base font-semibold"
-            >
-              Continue from saved data
-            </Button>
-          )}
           <Button
-            variant={draft ? "outline" : "default"}
             onClick={() =>
               navigate("/prepaid-activation", {
                 state: { prefill: customer, fromExisting: true },
               })
             }
-            className={
-              draft
-                ? "w-full h-12 rounded-full text-base font-semibold border-primary text-primary"
-                : "w-full h-12 rounded-full text-base font-semibold"
-            }
+            className="w-full h-12 rounded-full text-base font-semibold"
           >
             Continue with existing data
           </Button>
           <Button
             variant="outline"
-            onClick={() => {
-              if (draft) {
-                setConfirmStartNew(true);
-                return;
-              }
+            onClick={() =>
               navigate("/prepaid-activation", {
                 state: {
                   prefill: {
@@ -161,53 +97,14 @@ const ExistingCustomerFound = () => {
                     idNumber: customer.idNumber,
                   },
                 },
-              });
-            }}
+              })
+            }
             className="w-full h-12 rounded-full text-base font-semibold border-primary text-primary"
           >
             Start new activation
           </Button>
         </div>
       </div>
-
-      <Dialog open={confirmStartNew} onOpenChange={setConfirmStartNew}>
-        <DialogContent className="max-w-[340px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Discard saved activation?</DialogTitle>
-            <DialogDescription>
-              Starting a new activation will permanently delete the
-              previously saved data for this customer.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-row gap-2 sm:gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setConfirmStartNew(false)}
-              className="flex-1 h-11 rounded-full"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                clearActivationDraft(customer.idNumber);
-                setConfirmStartNew(false);
-                navigate("/prepaid-activation", {
-                  state: {
-                    prefill: {
-                      idType: customer.idType,
-                      nationality: customer.nationality,
-                      idNumber: customer.idNumber,
-                    },
-                  },
-                });
-              }}
-              className="flex-1 h-11 rounded-full"
-            >
-              Discard & start new
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
