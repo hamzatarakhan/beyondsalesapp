@@ -23,6 +23,10 @@ import {
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import EWalletBalancePreview from "@/components/EWalletBalancePreview";
+import SematiVerification, {
+  shouldShowSematiVerification,
+} from "@/components/SematiVerification";
+import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const activities = [
@@ -49,6 +53,17 @@ const memberOnboarding = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const [verifyOpen, setVerifyOpen] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+
+  const handleActivityClick = (path: string) => {
+    if (shouldShowSematiVerification()) {
+      setPendingPath(path);
+      setVerifyOpen(true);
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div className="mobile-container pb-24 bg-[hsl(210,20%,96%)]">
@@ -196,7 +211,7 @@ const Home = () => {
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
-                onClick={() => navigate(activity.path)}
+                onClick={() => handleActivityClick(activity.path)}
               />
             ))}
           </div>
@@ -265,6 +280,18 @@ const Home = () => {
       </div>
 
       <BottomNav />
+      <SematiVerification
+        open={verifyOpen}
+        onClose={() => {
+          setVerifyOpen(false);
+          setPendingPath(null);
+        }}
+        onVerified={() => {
+          setVerifyOpen(false);
+          if (pendingPath) navigate(pendingPath);
+          setPendingPath(null);
+        }}
+      />
     </div>
   );
 };
