@@ -56,7 +56,7 @@ const SplashScreen = ({ onFinish, duration = 2500 }: SplashScreenProps) => {
 
         <div className="flex flex-col items-center gap-4 animate-fade-in-up">
           <p className="text-base font-semibold tracking-tight text-foreground">
-            Beyond Sales
+            Beyond Sales App
           </p>
           <div className="flex items-center gap-1.5" aria-label="Loading">
             <span
