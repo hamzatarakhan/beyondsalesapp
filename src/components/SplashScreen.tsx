@@ -49,14 +49,14 @@ const SplashScreen = ({ onFinish, duration = 2500 }: SplashScreenProps) => {
           <div className="absolute inset-0 -m-8 rounded-full bg-primary/20 blur-2xl animate-ping-slow" aria-hidden="true" />
           <img
             src={logoAsset.url}
-            alt="Beyond Sales"
+            alt="Beyond Sales App"
             className="relative w-56 max-w-[68vw] h-auto animate-logo-reveal"
           />
         </div>
 
         <div className="flex flex-col items-center gap-4 animate-fade-in-up">
           <p className="text-base font-semibold tracking-tight text-foreground">
-            Beyond Sales
+            Beyond Sales App
           </p>
           <div className="flex items-center gap-1.5" aria-label="Loading">
             <span
