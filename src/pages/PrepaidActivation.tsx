@@ -287,7 +287,7 @@ const PrepaidActivation = () => {
   // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = !planType || p.categories.includes(planType as any);
+      const matchesType = planType === "all" || p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
         planFilters.validity.some((v) => p.validity.includes(v));
