@@ -117,6 +117,14 @@
     @apply flex justify-between items-center py-3 border-b border-border last:border-b-0;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .value-positive {
     @apply text-[hsl(var(--success))] font-semibold;
   }

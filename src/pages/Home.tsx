@@ -30,7 +30,7 @@ import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const activities = [
-  { icon: Smartphone, label: "Prepaid", path: "/search-subscription" },
+  { icon: Smartphone, label: "Prepaid", path: "/prepaid-search" },
   { icon: CreditCard, label: "Postpaid", path: "/search-subscription" },
   { icon: RefreshCw, label: "SIM Replacement", path: "/search-subscription" },
   { icon: PackageCheck, label: "Fulfilment", path: "/search-subscription" },
