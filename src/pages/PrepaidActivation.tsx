@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,12 @@ import {
   Search,
   X,
   Eye,
+  Wifi,
+  PhoneCall,
+  MessageSquare,
+  Share2,
+  Calendar,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,9 +47,51 @@ const numbersByTier: Record<Tier, string[]> = {
 };
 
 const plans = [
-  { title: "Plan Title", internet: "60 GB", mins: "100", sms: "500", social: "Unlimited", price: 30, discount: "Discount 50%" },
-  { title: "Plan Title", internet: "80 GB", mins: "200", sms: "1000", social: "Unlimited", price: 45, discount: "Discount 30%" },
-  { title: "Plan Title", internet: "120 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: null },
+  {
+    title: "Starter Plan",
+    internet: "60 GB",
+    mins: "100",
+    sms: "500",
+    social: "Unlimited",
+    price: 30,
+    discount: "Discount 50%",
+    features: [
+      "Free roaming in GCC countries",
+      "5G access included",
+      "Unlimited WhatsApp & social apps",
+      "Free SIM replacement once",
+    ],
+  },
+  {
+    title: "Smart Plan",
+    internet: "80 GB",
+    mins: "200",
+    sms: "1000",
+    social: "Unlimited",
+    price: 45,
+    discount: "Discount 30%",
+    features: [
+      "Free roaming in GCC + Egypt",
+      "5G+ access included",
+      "Unlimited social & streaming apps",
+      "Free international minutes: 30 min",
+    ],
+  },
+  {
+    title: "Ultimate Plan",
+    internet: "120 GB",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 60,
+    discount: null,
+    features: [
+      "Truly unlimited local calls & SMS",
+      "5G+ priority network access",
+      "Free international minutes: 100 min",
+      "Premium customer support 24/7",
+    ],
+  },
 ];
 
 const PrepaidActivation = () => {
@@ -57,6 +106,29 @@ const PrepaidActivation = () => {
   const [promoCode, setPromoCode] = useState("");
   const [pay, setPay] = useState<PayMethod | "">("");
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
+  const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "center",
+    containScroll: "trimSnaps",
+    loop: false,
+  });
+  const [activeSnap, setActiveSnap] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setActiveSnap(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
+
+  const scrollTo = useCallback(
+    (i: number) => emblaApi?.scrollTo(i),
+    [emblaApi]
+  );
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
@@ -151,25 +223,35 @@ const PrepaidActivation = () => {
             </button>
           </div>
 
-          {/* Plans carousel */}
-          <div className="-mx-4 mt-3 overflow-x-auto no-scrollbar">
-            <div className="flex gap-3 px-4 snap-x snap-mandatory">
-              {plans.map((p, i) => (
-                <PlanCard
-                  key={i}
-                  plan={p}
-                  selected={selectedPlan === i}
-                  onSelect={() => setSelectedPlan(i)}
-                />
-              ))}
+          {/* Plans carousel — embla swipe */}
+          <div className="-mx-4 mt-3">
+            <div className="overflow-hidden" ref={emblaRef}>
+              <div className="flex touch-pan-y">
+                {plans.map((p, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4"
+                  >
+                    <PlanCard
+                      plan={p}
+                      selected={selectedPlan === i}
+                      active={activeSnap === i}
+                      onSelect={() => setSelectedPlan(i)}
+                      onMoreDetails={() => setDetailsPlan(i)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex justify-center gap-1.5 mt-3">
               {plans.map((_, i) => (
-                <span
+                <button
                   key={i}
+                  onClick={() => scrollTo(i)}
+                  aria-label={`Go to plan ${i + 1}`}
                   className={cn(
                     "h-1.5 rounded-full transition-all",
-                    selectedPlan === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
+                    activeSnap === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
                   )}
                 />
               ))}
@@ -236,6 +318,16 @@ const PrepaidActivation = () => {
           setNumberSheetOpen(false);
         }}
       />
+
+      <PlanDetailsSheet
+        plan={detailsPlan !== null ? plans[detailsPlan] : null}
+        onClose={() => setDetailsPlan(null)}
+        onSelect={() => {
+          if (detailsPlan !== null) setSelectedPlan(detailsPlan);
+          setDetailsPlan(null);
+        }}
+        isSelected={detailsPlan !== null && selectedPlan === detailsPlan}
+      />
     </div>
   );
 };
@@ -269,13 +361,22 @@ const SimCard = ({ active, label, onClick }: { active: boolean; label: string; o
 const PlanCard = ({
   plan,
   selected,
+  active,
   onSelect,
+  onMoreDetails,
 }: {
   plan: typeof plans[number];
   selected: boolean;
+  active: boolean;
   onSelect: () => void;
+  onMoreDetails: () => void;
 }) => (
-  <div className="snap-center shrink-0 w-[78%] bg-card rounded-2xl p-4 shadow-sm">
+  <div
+    className={cn(
+      "bg-card rounded-2xl p-4 shadow-sm transition-all duration-200",
+      active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
+    )}
+  >
     <div className="flex items-center justify-between mb-3">
       <p className="font-semibold text-foreground">{plan.title}</p>
       {plan.discount && (
@@ -290,7 +391,10 @@ const PlanCard = ({
       <Stat label="SMS" value={plan.sms} />
       <Stat label="Social Media" value={plan.social} />
     </div>
-    <button className="flex items-center gap-1 text-sky-600 text-xs font-medium mb-3">
+    <button
+      onClick={onMoreDetails}
+      className="flex items-center gap-1 text-sky-600 text-xs font-medium mb-3 active:opacity-70"
+    >
       More Details <Eye className="w-3.5 h-3.5" />
     </button>
     <div className="flex items-center justify-between mb-3">
@@ -321,6 +425,107 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
     <p className="font-semibold text-foreground">{value}</p>
   </div>
 );
+
+const PlanDetailsSheet = ({
+  plan,
+  isSelected,
+  onClose,
+  onSelect,
+}: {
+  plan: typeof plans[number] | null;
+  isSelected: boolean;
+  onClose: () => void;
+  onSelect: () => void;
+}) => {
+  if (!plan) return null;
+  const rows = [
+    { icon: Wifi, label: "Internet", value: plan.internet },
+    { icon: PhoneCall, label: "Local Minutes", value: plan.mins },
+    { icon: MessageSquare, label: "SMS", value: plan.sms },
+    { icon: Share2, label: "Social Media", value: plan.social },
+    { icon: Calendar, label: "Validity", value: "30 days" },
+  ];
+  return (
+    <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[85vh]">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-foreground text-lg">{plan.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Plan details and features
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="bg-primary/5 rounded-2xl p-4 mb-4 flex items-end justify-between">
+          <div>
+            <p className="text-3xl font-bold text-primary leading-none">
+              {plan.price}
+              <span className="text-base ml-1">/mo</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              KSA · +15% VAT included
+            </p>
+          </div>
+          {plan.discount && (
+            <span className="px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-[11px] font-semibold">
+              {plan.discount}
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-2 mb-5 overflow-y-auto">
+          {rows.map((r) => (
+            <div
+              key={r.label}
+              className="flex items-center gap-3 py-2.5 px-3 rounded-xl bg-muted/40"
+            >
+              <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center">
+                <r.icon className="w-4 h-4 text-primary" />
+              </div>
+              <p className="flex-1 text-sm text-muted-foreground">{r.label}</p>
+              <p className="text-sm font-semibold text-foreground">{r.value}</p>
+            </div>
+          ))}
+
+          {plan.features.length > 0 && (
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-foreground mb-2 px-1">
+                What's included
+              </p>
+              <ul className="space-y-1.5">
+                {plan.features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-foreground"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={onSelect}
+          className="w-full h-12 rounded-full text-base font-semibold"
+        >
+          {isSelected ? "Selected" : "Select this plan"}
+        </Button>
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 const SignatureBox = ({ title }: { title: string }) => (
   <section>
