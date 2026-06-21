@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import SematiVerification from "@/components/SematiVerification";
+import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
 import {
   ScanLine,
   Phone,
@@ -24,18 +27,24 @@ import {
   Apple,
   Search,
   X,
-  Eye,
   Wifi,
   PhoneCall,
   MessageSquare,
   Share2,
   Calendar,
   CheckCircle2,
+  ArrowRightLeft,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SimType = "psim" | "esim";
 type PayMethod = "card" | "cash" | "apple";
+type NumberSource = "new" | "mnp";
+
+// Feature flags (pending product decisions)
+const FEATURE_PRIMARY_TOGGLE = true; // "Set as primary" switch on number block
+const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
 type Tier = typeof tiers[number];
@@ -46,7 +55,17 @@ const numbersByTier: Record<Tier, string[]> = {
   "Super Gold": Array.from({ length: 9 }, () => "566789012"),
 };
 
-const plans = [
+const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
+
+const ALL_TAGS = ["5G", "Roaming", "Social", "Unlimited"] as const;
+type PlanTag = typeof ALL_TAGS[number];
+
+type Plan = PlanCardData & {
+  categories: ("featured" | "1m" | "3m" | "12m")[];
+  tags: PlanTag[];
+};
+
+const plans: Plan[] = [
   {
     title: "Starter Plan",
     internet: "60 GB",
@@ -55,6 +74,9 @@ const plans = [
     social: "Unlimited",
     price: 30,
     discount: "Discount 50%",
+    validityLabel: "Valid 30 days",
+    categories: ["featured", "1m"],
+    tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC countries",
       "5G access included",
@@ -70,6 +92,9 @@ const plans = [
     social: "Unlimited",
     price: 45,
     discount: "Discount 30%",
+    validityLabel: "Valid 30 days",
+    categories: ["3m"],
+    tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC + Egypt",
       "5G+ access included",
@@ -85,6 +110,9 @@ const plans = [
     social: "Unlimited",
     price: 60,
     discount: null,
+    validityLabel: "Valid 30 days",
+    categories: ["12m"],
+    tags: ["5G", "Roaming", "Social", "Unlimited"],
     features: [
       "Truly unlimited local calls & SMS",
       "5G+ priority network access",
@@ -96,17 +124,45 @@ const plans = [
 
 const PrepaidActivation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefill = (location.state as any)?.prefill;
+
   const [simType, setSimType] = useState<SimType>("psim");
   const [kit, setKit] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(prefill?.email ?? "");
+
+  // Number source
+  const [numberSource, setNumberSource] = useState<NumberSource>("new");
   const [phone, setPhone] = useState("0785599574");
+  const [portNumber, setPortNumber] = useState("");
+  const [portOperator, setPortOperator] = useState("");
+  const [isPrimary, setIsPrimary] = useState(true);
+
+  // Plans
   const [planType, setPlanType] = useState("");
+  const [activeTags, setActiveTags] = useState<PlanTag[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(0);
+
   const [promoOn, setPromoOn] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [pay, setPay] = useState<PayMethod | "">("");
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
+
+  // Verification + success flow
+  const [verifyOpen, setVerifyOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+
+  // Filter plans
+  const filteredPlans = useMemo(() => {
+    return plans.filter((p) => {
+      const matchesType = !planType || p.categories.includes(planType as any);
+      const matchesTags =
+        activeTags.length === 0 || activeTags.every((t) => p.tags.includes(t));
+      return matchesType && matchesTags;
+    });
+  }, [planType, activeTags]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
@@ -129,10 +185,25 @@ const PrepaidActivation = () => {
     };
   }, [emblaApi]);
 
+  // Reset carousel when filters change
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.reInit();
+    setActiveSnap(0);
+    setSelectedPlan(0);
+  }, [filteredPlans.length, emblaApi]);
+
   const scrollTo = useCallback(
     (i: number) => emblaApi?.scrollTo(i),
     [emblaApi]
   );
+
+  const handlePay = () => {
+    if (!pay) return;
+    setVerifyOpen(true);
+  };
+
+  const currentPlan = filteredPlans[selectedPlan] ?? filteredPlans[0];
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
@@ -186,24 +257,92 @@ const PrepaidActivation = () => {
           </section>
         )}
 
-        {/* Phone number card */}
+        {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <Phone className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground">Your phone number.</p>
+            <p className="text-sm font-semibold text-foreground">Phone number</p>
           </div>
-          <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">
-            {phone}
+
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <SourceTab
+              active={numberSource === "new"}
+              icon={Sparkles}
+              label="New number"
+              onClick={() => setNumberSource("new")}
+            />
+            <SourceTab
+              active={numberSource === "mnp"}
+              icon={ArrowRightLeft}
+              label="Port (MNP)"
+              onClick={() => setNumberSource("mnp")}
+            />
           </div>
-          {simType === "psim" && (
-            <button
-              onClick={() => setNumberSheetOpen(true)}
-              className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
-            >
-              Get Different Number <ArrowRight className="w-4 h-4" />
-            </button>
+
+          {numberSource === "new" ? (
+            <>
+              <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">
+                {phone}
+              </div>
+              {simType === "psim" && (
+                <button
+                  onClick={() => setNumberSheetOpen(true)}
+                  className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
+                >
+                  Get Different Number <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Existing number
+                </label>
+                <Input
+                  value={portNumber}
+                  onChange={(e) => setPortNumber(e.target.value)}
+                  placeholder="e.g. 0501234567"
+                  inputMode="tel"
+                  className="h-11 bg-muted/40 border-0 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Current operator
+                </label>
+                <Select value={portOperator} onValueChange={setPortOperator}>
+                  <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
+                    <SelectValue placeholder="Select operator" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card">
+                    {operators.map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                The number will be transferred from the selected operator
+                after verification.
+              </p>
+            </div>
+          )}
+
+          {FEATURE_PRIMARY_TOGGLE && (
+            <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Set as primary</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Use this number as the customer's primary line.
+                </p>
+              </div>
+              <Switch checked={isPrimary} onCheckedChange={setIsPrimary} />
+            </div>
           )}
         </section>
 
@@ -222,49 +361,78 @@ const PrepaidActivation = () => {
                 <SelectItem value="12m">12 Months</SelectItem>
               </SelectContent>
             </Select>
-            <button className="w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center text-primary">
+            <button
+              onClick={() => setFilterOpen(true)}
+              className={cn(
+                "relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center text-primary",
+                activeTags.length > 0 && "ring-2 ring-primary"
+              )}
+              aria-label="Filter plans"
+            >
               <SlidersHorizontal className="w-5 h-5" />
+              {activeTags.length > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  {activeTags.length}
+                </span>
+              )}
             </button>
           </div>
 
+          {planType && (
+            <button
+              onClick={() => setPlanType("")}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary"
+            >
+              Clear plan-type filter <X className="w-3 h-3" />
+            </button>
+          )}
+
           {/* Plans carousel — embla swipe */}
-          <div className="-mx-4 mt-3">
-            <div className="overflow-hidden" ref={emblaRef}>
-              <div className="flex touch-pan-y">
-                {plans.map((p, i) => (
-                  <div
+          {filteredPlans.length === 0 ? (
+            <div className="mt-3 bg-card rounded-2xl p-6 text-center text-sm text-muted-foreground shadow-sm">
+              No plans match the current filters.
+            </div>
+          ) : (
+            <div className="-mx-4 mt-3">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex touch-pan-y">
+                  {filteredPlans.map((p, i) => (
+                    <div
+                      key={p.title}
+                      className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4"
+                    >
+                      <PlanCardComponent
+                        plan={p}
+                        selected={selectedPlan === i}
+                        active={activeSnap === i}
+                        onSelect={() => setSelectedPlan(i)}
+                        onMoreDetails={() =>
+                          setDetailsPlan(plans.indexOf(p as Plan))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-center gap-1.5 mt-3">
+                {filteredPlans.map((_, i) => (
+                  <button
                     key={i}
-                    className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4"
-                  >
-                    <PlanCard
-                      plan={p}
-                      selected={selectedPlan === i}
-                      active={activeSnap === i}
-                      onSelect={() => setSelectedPlan(i)}
-                      onMoreDetails={() => setDetailsPlan(i)}
-                    />
-                  </div>
+                    onClick={() => scrollTo(i)}
+                    aria-label={`Go to plan ${i + 1}`}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all",
+                      activeSnap === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
+                    )}
+                  />
                 ))}
               </div>
             </div>
-            <div className="flex justify-center gap-1.5 mt-3">
-              {plans.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => scrollTo(i)}
-                  aria-label={`Go to plan ${i + 1}`}
-                  className={cn(
-                    "h-1.5 rounded-full transition-all",
-                    activeSnap === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+          )}
         </section>
 
         {/* Signatures */}
-        <SignatureBox title="Customer Signature" />
+        {SHOW_CUSTOMER_SIGNATURE && <SignatureBox title="Customer Signature" />}
         <SignatureBox title="Dealer Signature" />
 
         {/* Promo code */}
@@ -303,12 +471,12 @@ const PrepaidActivation = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)]">
         <div className="max-w-[390px] mx-auto">
           <Button
-            disabled={!pay}
-            onClick={() => navigate("/")}
+            disabled={!pay || !currentPlan}
+            onClick={handlePay}
             className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
           >
             <span>Pay</span>
-            <span>{plans[selectedPlan].price + 0.5} KSA</span>
+            <span>{currentPlan ? currentPlan.price + 0.5 : 0} KSA</span>
           </Button>
         </div>
       </div>
@@ -327,10 +495,50 @@ const PrepaidActivation = () => {
         plan={detailsPlan !== null ? plans[detailsPlan] : null}
         onClose={() => setDetailsPlan(null)}
         onSelect={() => {
-          if (detailsPlan !== null) setSelectedPlan(detailsPlan);
+          if (detailsPlan !== null) {
+            const idx = filteredPlans.findIndex(
+              (p) => p.title === plans[detailsPlan].title
+            );
+            if (idx >= 0) {
+              setSelectedPlan(idx);
+              scrollTo(idx);
+            }
+          }
           setDetailsPlan(null);
         }}
         isSelected={detailsPlan !== null && selectedPlan === detailsPlan}
+      />
+
+      {/* Plan filter sheet */}
+      <PlanFilterSheet
+        open={filterOpen}
+        active={activeTags}
+        onClose={() => setFilterOpen(false)}
+        onApply={(tags) => {
+          setActiveTags(tags);
+          setFilterOpen(false);
+        }}
+      />
+
+      {/* Customer verification step */}
+      <SematiVerification
+        open={verifyOpen}
+        onClose={() => setVerifyOpen(false)}
+        onVerified={() => {
+          setVerifyOpen(false);
+          setSuccessOpen(true);
+        }}
+      />
+
+      {/* Success */}
+      <SuccessDialog
+        open={successOpen}
+        ported={numberSource === "mnp"}
+        number={numberSource === "mnp" ? portNumber : phone}
+        onClose={() => {
+          setSuccessOpen(false);
+          navigate("/");
+        }}
       />
     </div>
   );
@@ -362,65 +570,148 @@ const SimCard = ({ active, label, onClick }: { active: boolean; label: string; o
   </button>
 );
 
-const PlanCard = ({
-  plan,
-  selected,
+const SourceTab = ({
   active,
-  onSelect,
-  onMoreDetails,
+  icon: Icon,
+  label,
+  onClick,
 }: {
-  plan: typeof plans[number];
-  selected: boolean;
   active: boolean;
-  onSelect: () => void;
-  onMoreDetails: () => void;
+  icon: typeof Phone;
+  label: string;
+  onClick: () => void;
 }) => (
-  <div
+  <button
+    onClick={onClick}
     className={cn(
-      "bg-card rounded-2xl p-4 shadow-sm transition-all duration-200",
-      active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
+      "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-colors",
+      active
+        ? "bg-primary text-primary-foreground"
+        : "bg-muted text-foreground"
     )}
   >
-    <div className="flex items-center justify-between mb-3">
-      <p className="font-semibold text-foreground">{plan.title}</p>
-      {plan.discount && (
-        <span className="px-2 py-1 rounded-md bg-primary text-primary-foreground text-[10px] font-semibold">
-          {plan.discount}
-        </span>
-      )}
-    </div>
-    <div className="grid grid-cols-2 gap-y-2 text-xs mb-3">
-      <Stat label="Internet" value={plan.internet} />
-      <Stat label="Local Mins" value={plan.mins} />
-      <Stat label="SMS" value={plan.sms} />
-      <Stat label="Social Media" value={plan.social} />
-    </div>
-    <button
-      onClick={onMoreDetails}
-      className="flex items-center gap-1 text-sky-600 text-xs font-medium mb-3 active:opacity-70"
-    >
-      More Details <Eye className="w-3.5 h-3.5" />
-    </button>
-    <div className="flex items-center justify-between mb-3">
-      <p>
-        <span className="text-2xl font-bold text-primary">{plan.price}/mo</span>
-        <span className="text-xs text-muted-foreground ml-1">kSA</span>
-      </p>
-      <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-medium">
-        Valid 30 days
-      </span>
-    </div>
-    <p className="text-[11px] text-muted-foreground mb-3">+15% Vat included</p>
-    <button
-      onClick={onSelect}
-      className={cn(
-        "w-full py-2.5 rounded-full text-sm font-semibold transition-colors",
-        selected ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
-      )}
-    >
-      {selected ? "Selected" : "Select"}
-    </button>
-  </div>
+    <Icon className="w-4 h-4" />
+    {label}
+  </button>
+);
+
+const PlanFilterSheet = ({
+  open,
+  active,
+  onClose,
+  onApply,
+}: {
+  open: boolean;
+  active: PlanTag[];
+  onClose: () => void;
+  onApply: (tags: PlanTag[]) => void;
+}) => {
+  const [draft, setDraft] = useState<PlanTag[]>(active);
+  useEffect(() => {
+    if (open) setDraft(active);
+  }, [open, active]);
+
+  const toggle = (t: PlanTag) =>
+    setDraft((d) => (d.includes(t) ? d.filter((x) => x !== t) : [...d, t]));
+
+  return (
+    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-foreground">Filter plans</h3>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">
+          Narrow the plans by feature attributes.
+        </p>
+        <div className="flex flex-wrap gap-2 mb-6">
+          {ALL_TAGS.map((t) => {
+            const on = draft.includes(t);
+            return (
+              <button
+                key={t}
+                onClick={() => toggle(t)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                  on
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border"
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setDraft([])}
+            className="flex-1 h-11 rounded-full"
+          >
+            Clear
+          </Button>
+          <Button
+            onClick={() => onApply(draft)}
+            className="flex-1 h-11 rounded-full"
+          >
+            Apply
+          </Button>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+const SuccessDialog = ({
+  open,
+  ported,
+  number,
+  onClose,
+}: {
+  open: boolean;
+  ported: boolean;
+  number: string;
+  onClose: () => void;
+}) => (
+  <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <DialogContent className="max-w-[320px] rounded-3xl border-0 p-7 text-center [&>button]:hidden">
+      <div className="flex flex-col items-center gap-3">
+        <CheckCircle2 className="w-16 h-16 text-emerald-500" strokeWidth={2} />
+        <div>
+          <h4 className="font-semibold text-foreground mb-1">
+            {ported ? "Number ported successfully!" : "Activation successful!"}
+          </h4>
+          <p className="text-xs text-muted-foreground">
+            {ported
+              ? "The customer's existing number has been transferred (MNP) and is now active."
+              : "A new number has been assigned and activated for the customer."}
+          </p>
+        </div>
+        <div className="bg-primary/5 rounded-xl py-2.5 px-4 mt-1 w-full">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+            {ported ? "Ported number" : "New number"}
+          </p>
+          <p className="text-base font-semibold text-foreground tracking-wide">
+            {number}
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2"
+        >
+          Go to Home
+        </button>
+      </div>
+    </DialogContent>
+  </Dialog>
 );
 
 const Stat = ({ label, value }: { label: string; value: string }) => (
