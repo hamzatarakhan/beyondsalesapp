@@ -199,7 +199,8 @@ const Home = () => {
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
-                onClick={() => handleActivityClick(activity.path)}
+                disabled={activity.label !== "Prepaid"}
+                onClick={activity.label === "Prepaid" ? () => handleActivityClick(activity.path) : undefined}
               />
             ))}
           </div>
