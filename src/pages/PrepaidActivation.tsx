@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
@@ -42,6 +43,8 @@ import {
   Sparkles,
   Pencil,
   Eraser,
+  Tag,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +69,47 @@ const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 
 const ALL_TAGS = ["5G", "Roaming", "Social", "Unlimited"] as const;
 type PlanTag = typeof ALL_TAGS[number];
+
+// Validity options shown as chips inside the filter sheet.
+const VALIDITY_OPTIONS: { value: string; label: string }[] = [
+  { value: "7d", label: "7 days" },
+  { value: "1m", label: "1 month" },
+  { value: "3m", label: "3 months" },
+  { value: "6m", label: "6 months" },
+  { value: "12m", label: "12 months" },
+];
+
+type PlanFilters = {
+  validity: string[];
+  price: [number, number]; // SAR
+  data: [number, number]; // GB, DATA_MAX = Unlimited
+  mins: [number, number]; // minutes, MINS_MAX = Unlimited
+};
+
+const PRICE_MIN = 10;
+const PRICE_MAX = 60;
+const DATA_MIN = 10;
+const DATA_MAX = 200; // upper bound = "Unlimited"
+const MINS_MIN = 10;
+const MINS_MAX = 300; // upper bound = "Unlimited"
+
+const DEFAULT_FILTERS: PlanFilters = {
+  validity: [],
+  price: [PRICE_MIN, PRICE_MAX],
+  data: [DATA_MIN, DATA_MAX],
+  mins: [MINS_MIN, MINS_MAX],
+};
+
+const parsePlanData = (s: string) => {
+  if (/unlimited/i.test(s)) return DATA_MAX;
+  const m = s.match(/\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+};
+const parsePlanMins = (s: string) => {
+  if (/unlimited/i.test(s)) return MINS_MAX;
+  const m = s.match(/\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+};
 
 type Plan = PlanCardData & {
   categories: ("featured" | "1m" | "3m" | "12m")[];
@@ -162,7 +206,9 @@ const PrepaidActivation = () => {
 
   // Plans
   const [planType, setPlanType] = useState<string>(d("planType", ""));
-  const [activeTags, setActiveTags] = useState<PlanTag[]>(d("activeTags", []));
+  const [planFilters, setPlanFilters] = useState<PlanFilters>(
+    d("planFilters", DEFAULT_FILTERS),
+  );
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number>(d("selectedPlan", 0));
 
@@ -185,15 +231,48 @@ const PrepaidActivation = () => {
   const [orderId, setOrderId] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("Nafath");
 
-  // Filter plans
+  // Count of non-default filter sections (used for the badge on the filter button).
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (planFilters.validity.length > 0) n++;
+    if (
+      planFilters.price[0] !== PRICE_MIN ||
+      planFilters.price[1] !== PRICE_MAX
+    )
+      n++;
+    if (
+      planFilters.data[0] !== DATA_MIN ||
+      planFilters.data[1] !== DATA_MAX
+    )
+      n++;
+    if (
+      planFilters.mins[0] !== MINS_MIN ||
+      planFilters.mins[1] !== MINS_MAX
+    )
+      n++;
+    return n;
+  }, [planFilters]);
+
+  // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
       const matchesType = !planType || p.categories.includes(planType as any);
-      const matchesTags =
-        activeTags.length === 0 || activeTags.every((t) => p.tags.includes(t));
-      return matchesType && matchesTags;
+      const matchesValidity =
+        planFilters.validity.length === 0 ||
+        planFilters.validity.some((v) => p.categories.includes(v as any));
+      const matchesPrice =
+        p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
+      const pData = parsePlanData(p.internet);
+      const matchesData =
+        pData >= planFilters.data[0] && pData <= planFilters.data[1];
+      const pMins = parsePlanMins(p.mins);
+      const matchesMins =
+        pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
+      return (
+        matchesType && matchesValidity && matchesPrice && matchesData && matchesMins
+      );
     });
-  }, [planType, activeTags]);
+  }, [planType, planFilters]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
