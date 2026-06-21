@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Fingerprint, CheckCircle2, XCircle, Scan } from "lucide-react";
@@ -16,7 +16,15 @@ export const markSematiVerified = () => {
   localStorage.setItem(STORAGE_KEY, Date.now().toString());
 };
 
-type Step = "select" | "connecting" | "success" | "failed";
+type Step =
+  | "select"
+  | "nafath_code"
+  | "fingerprint_select"
+  | "fingerprint_ready"
+  | "absher_otp"
+  | "connecting"
+  | "success"
+  | "failed";
 export type Method = "nafath" | "fingerprint" | "absher";
 
 interface Props {
@@ -29,35 +37,74 @@ interface Props {
 const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Props) => {
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [nafathSecs, setNafathSecs] = useState(60);
+  const nafathCode = useMemo(() => Math.floor(10 + Math.random() * 89), [step === "nafath_code"]);
 
   useEffect(() => {
     if (open) {
       setStep("select");
       setMethod(null);
+      setOtp(["", "", "", "", "", ""]);
     }
   }, [open]);
 
-  const startVerification = (m: Method) => {
+  const pickMethod = (m: Method) => {
     setMethod(m);
     onMethodSelected?.(m);
+    if (m === "nafath") {
+      setNafathSecs(60);
+      setStep("nafath_code");
+    } else if (m === "fingerprint") {
+      setStep("fingerprint_select");
+      setTimeout(() => setStep("fingerprint_ready"), 1500);
+    } else {
+      setOtp(["", "", "", "", "", ""]);
+      setStep("absher_otp");
+    }
+  };
+
+  const runConnecting = () => {
     setStep("connecting");
-    // Simulate a connection / verification call. ~85% success rate.
     setTimeout(() => {
       const ok = Math.random() < 0.85;
       setStep(ok ? "success" : "failed");
       if (ok) {
         markSematiVerified();
-        setTimeout(() => {
-          onVerified();
-        }, 1200);
+        setTimeout(() => onVerified(), 1200);
       }
     }, 1800);
   };
 
   const retry = () => {
-    if (method) startVerification(method);
+    if (method) pickMethod(method);
     else setStep("select");
   };
+
+  // Nafath countdown
+  useEffect(() => {
+    if (step !== "nafath_code") return;
+    if (nafathSecs <= 0) {
+      runConnecting();
+      return;
+    }
+    const t = setTimeout(() => setNafathSecs((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [step, nafathSecs]);
+
+  const setOtpDigit = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setOtp((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      return next;
+    });
+    if (d && i < 5) {
+      const el = document.getElementById(`otp-${i + 1}`) as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+  const otpFilled = otp.every((d) => d !== "");
 
   // Step 1: bottom sheet to pick method
   if (step === "select") {
@@ -68,7 +115,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 text-center">
               <h3 className="font-semibold text-foreground text-base">
-                Semati Verification
+                Verification
               </h3>
             </div>
             <button
@@ -80,33 +127,33 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
             </button>
           </div>
           <p className="text-xs text-muted-foreground text-center mb-5 px-6">
-            Select a verification method to verify the channel member's identity.
+            Please select the verification type
           </p>
 
           <div className="space-y-3">
             <MethodCard
-              onClick={() => startVerification("nafath")}
+              onClick={() => pickMethod("nafath")}
               iconBg="bg-teal-500"
               iconContent={
                 <span className="text-white text-[10px] font-bold tracking-tight" dir="rtl">
                   نفاذ
                 </span>
               }
-              title="Nafath Verification"
+              title="Nafath"
               desc="Approve the verification request through the Nafath app."
             />
             <MethodCard
-              onClick={() => startVerification("fingerprint")}
+              onClick={() => pickMethod("fingerprint")}
               iconBg="bg-rose-100"
               iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
-              title="Fingerprint Verification"
+              title="Fingerprint"
               desc="Verify your identity using your device fingerprint."
             />
             <MethodCard
-              onClick={() => startVerification("absher")}
+              onClick={() => pickMethod("absher")}
               iconBg="bg-emerald-100"
               iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
-              title="Absher OTP Verification"
+              title="Absher IAM OTP"
               desc="Enter the one-time password received through Absher."
             />
           </div>
@@ -119,6 +166,104 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
+        {step === "nafath_code" && (
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center">
+              <span className="text-teal-600 text-xs font-bold" dir="rtl">نفاذ</span>
+            </div>
+            <h4 className="font-semibold text-foreground -mt-1">Nafath Verification</h4>
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 px-3 py-2 text-left flex gap-2">
+              <span className="text-sky-500 text-sm">ⓘ</span>
+              <div>
+                <p className="text-[11px] font-semibold text-sky-700">Action Required</p>
+                <p className="text-[10px] text-sky-700/80 leading-snug">
+                  Ask the Member Name to open Nafath App and approve the request using the number below.
+                </p>
+              </div>
+            </div>
+            <div className="w-full rounded-xl border border-border py-3">
+              <p className="text-[10px] text-muted-foreground">Verification Number</p>
+              <p className="text-primary text-3xl font-bold mt-1">{nafathCode}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Time remaining: {Math.floor(nafathSecs / 60)}:{String(nafathSecs % 60).padStart(2, "0")}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {(step === "fingerprint_select" || step === "fingerprint_ready") && (
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center">
+              <Fingerprint className="w-6 h-6 text-rose-500" />
+            </div>
+            <h4 className="font-semibold text-foreground">Fingerprint Verification</h4>
+            <HandsDiagram active={step === "fingerprint_ready"} />
+            <p className="text-[11px] text-muted-foreground">
+              {step === "fingerprint_ready"
+                ? "Right hand , finger 1"
+                : "Please wait while a finger is being selected"}
+            </p>
+            <button
+              disabled={step !== "fingerprint_ready"}
+              onClick={runConnecting}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm disabled:bg-muted disabled:text-muted-foreground"
+            >
+              Start
+            </button>
+            <button onClick={onClose} className="text-primary text-sm font-medium">
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {step === "absher_otp" && (
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
+              <Scan className="w-6 h-6 text-emerald-600" />
+            </div>
+            <h4 className="font-semibold text-foreground">Absher IAM OTP Verification</h4>
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 px-3 py-2 text-left flex gap-2">
+              <span className="text-sky-500 text-sm">ⓘ</span>
+              <div>
+                <p className="text-[11px] font-semibold text-sky-700">Action Required</p>
+                <p className="text-[10px] text-sky-700/80 leading-snug">
+                  Enter the IAM code received through Absher account.
+                </p>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground self-start">Abshir Code</p>
+            <div className="flex gap-2 w-full justify-between">
+              {otp.map((d, i) => (
+                <input
+                  key={i}
+                  id={`otp-${i}`}
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => setOtpDigit(i, e.target.value)}
+                  className="w-9 h-10 rounded-full border border-border text-center text-sm font-semibold focus:outline-none focus:border-primary"
+                />
+              ))}
+            </div>
+            <button
+              disabled={!otpFilled}
+              onClick={runConnecting}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2 disabled:bg-muted disabled:text-muted-foreground"
+            >
+              Submit
+            </button>
+            <button onClick={onClose} className="text-primary text-sm font-medium">
+              Cancel
+            </button>
+          </div>
+        )}
+
         {step === "connecting" && (
           <div className="flex flex-col items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
