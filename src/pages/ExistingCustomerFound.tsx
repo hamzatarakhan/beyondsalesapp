@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -11,21 +10,7 @@ import {
   MapPin,
   Calendar,
   Globe,
-  History,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  clearActivationDraft,
-  getActivationDraft,
-  formatDraftAge,
-} from "@/lib/activationDrafts";
 
 const ExistingCustomerFound = () => {
   const navigate = useNavigate();
