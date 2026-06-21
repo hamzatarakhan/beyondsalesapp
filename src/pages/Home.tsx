@@ -30,11 +30,6 @@ const activities = [
   { icon: CreditCard, label: "Postpaid", path: "/search-subscription" },
   { icon: RefreshCw, label: "SIM Replacement", path: "/search-subscription" },
   { icon: PackageCheck, label: "Fulfilment", path: "/search-subscription" },
-  { icon: XCircle, label: "SIM Termination", path: "/search-subscription" },
-  { icon: UserX, label: "Customer Termination", path: "/search-customer" },
-  { icon: Users, label: "Change Ownership", path: "/search-customer-ownership" },
-  { icon: Wallet, label: "Credit Limit", path: "/search-customer-credit" },
-  { icon: Package, label: "Bundle Activation", path: "/search-bundle" },
 ];
 
 
