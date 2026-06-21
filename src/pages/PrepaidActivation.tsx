@@ -242,6 +242,8 @@ const PrepaidActivation = () => {
 
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [dealerVerifyOpen, setDealerVerifyOpen] = useState(false);
+  const [dealerVerified, setDealerVerified] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [backConfirmOpen, setBackConfirmOpen] = useState(false);
 
@@ -253,6 +255,12 @@ const PrepaidActivation = () => {
   // Order details
   const [orderId, setOrderId] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("Nafath");
+
+  // Dealer verification runs once at the start of the activation flow.
+  useEffect(() => {
+    if (!dealerVerified) setDealerVerifyOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Count of non-default filter sections (used for the badge on the filter button).
   const activeFilterCount = useMemo(() => {
