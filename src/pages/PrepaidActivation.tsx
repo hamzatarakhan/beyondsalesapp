@@ -227,7 +227,7 @@ const PrepaidActivation = () => {
   const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
 
   // Plans
-  const [planType, setPlanType] = useState<string>(d("planType", ""));
+  const [planType, setPlanType] = useState<string>(d("planType", "all"));
   const [planFilters, setPlanFilters] = useState<PlanFilters>(
     d("planFilters", DEFAULT_FILTERS),
   );

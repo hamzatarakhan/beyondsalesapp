@@ -276,6 +276,7 @@ const Home = () => {
       <BottomNav />
       <SematiVerification
         open={verifyOpen}
+        audience="dealer"
         onClose={() => {
           setVerifyOpen(false);
           setPendingPath(null);
