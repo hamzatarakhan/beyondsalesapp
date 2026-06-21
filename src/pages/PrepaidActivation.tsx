@@ -143,7 +143,11 @@ const PrepaidActivation = () => {
     return getActivationDraft(draftIdNumber)?.data ?? null;
   }, [resumeDraft, draftIdNumber]);
   const d = (k: string, fallback: any) =>
-    initialDraft && initialDraft[k] !== undefined ? (initialDraft as any)[k] : fallback;
+    initialDraft && initialDraft[k] !== undefined
+      ? (initialDraft as any)[k]
+      : prefill && prefill[k] !== undefined
+      ? (prefill as any)[k]
+      : fallback;
 
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
   const [kit, setKit] = useState<string>(d("kit", ""));

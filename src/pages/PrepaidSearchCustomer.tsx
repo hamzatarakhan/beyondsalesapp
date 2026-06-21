@@ -37,6 +37,22 @@ const EXISTING_CUSTOMERS: Record<string, any> = {
     phone: "0501234567",
     email: "mohammed@example.com",
     address: "Riyadh, Saudi Arabia",
+    // Previously captured activation details for this customer.
+    // Used by ExistingCustomerFound + PrepaidActivation prefill so the
+    // dealer can resume with the same data shown on the activation form.
+    previousActivation: {
+      simType: "psim",
+      kit: "1234567890",
+      numberSource: "new",
+      phone: "0785599574",
+      isPrimary: true,
+      planType: "1m",
+      selectedPlan: 0,
+      planTitle: "Starter Plan",
+      planPrice: 30,
+      planValidity: "Valid 30 days",
+      pay: "card",
+    },
   },
 };
 const NOT_FOUND_IDS = new Set(["0000000000"]);

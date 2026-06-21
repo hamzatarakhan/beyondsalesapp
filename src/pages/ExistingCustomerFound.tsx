@@ -10,6 +10,10 @@ import {
   MapPin,
   Calendar,
   Globe,
+  Smartphone,
+  Sparkles,
+  CreditCard,
+  ArrowRightLeft,
 } from "lucide-react";
 
 const ExistingCustomerFound = () => {
@@ -39,6 +43,39 @@ const ExistingCustomerFound = () => {
     { icon: Mail, label: "Email", value: customer.email },
     { icon: MapPin, label: "Address", value: customer.address },
   ].filter((r) => r.value);
+
+  const prev = customer.previousActivation;
+  const payLabel: Record<string, string> = {
+    card: "Card",
+    cash: "Cash",
+    apple: "Apple Pay",
+  };
+  const activationRows = prev
+    ? [
+        {
+          icon: Smartphone,
+          label: "SIM Type",
+          value: prev.simType === "esim" ? "E-SIM" : "P-SIM",
+        },
+        {
+          icon: prev.numberSource === "mnp" ? ArrowRightLeft : Sparkles,
+          label: prev.numberSource === "mnp" ? "Port number (MNP)" : "New number",
+          value: prev.numberSource === "mnp" ? prev.portNumber : prev.phone,
+        },
+        {
+          icon: Sparkles,
+          label: "Plan",
+          value: prev.planTitle
+            ? `${prev.planTitle} • ${prev.planPrice} SAR / ${prev.planValidity}`
+            : undefined,
+        },
+        {
+          icon: CreditCard,
+          label: "Payment method",
+          value: payLabel[prev.pay] ?? prev.pay,
+        },
+      ].filter((r) => r.value)
+    : [];
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-[hsl(210,20%,96%)]">
@@ -72,6 +109,35 @@ const ExistingCustomerFound = () => {
             </div>
           ))}
         </div>
+
+        {activationRows.length > 0 && (
+          <>
+            <h3 className="text-sm font-semibold text-foreground mt-5 mb-2">
+              Previous activation details
+            </h3>
+            <div className="bg-card rounded-2xl shadow-sm divide-y divide-border">
+              {activationRows.map((r) => (
+                <div key={r.label} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <r.icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] text-muted-foreground">
+                      {r.label}
+                    </p>
+                    <p className="text-sm font-semibold text-foreground truncate">
+                      {r.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              Selecting "Continue with existing data" will prefill these values
+              into the activation form.
+            </p>
+          </>
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[hsl(210,20%,96%)] space-y-2">
@@ -79,7 +145,10 @@ const ExistingCustomerFound = () => {
           <Button
             onClick={() =>
               navigate("/prepaid-activation", {
-                state: { prefill: customer, fromExisting: true },
+                state: {
+                  prefill: { ...customer, ...(customer.previousActivation ?? {}) },
+                  fromExisting: true,
+                },
               })
             }
             className="w-full h-12 rounded-full text-base font-semibold"
