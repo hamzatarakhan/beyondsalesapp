@@ -38,6 +38,8 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [nafathDigits, setNafathDigits] = useState<[string, string]>(["", ""]);
+
   const [nafathSecs, setNafathSecs] = useState(60);
   const nafathCode = useMemo(() => Math.floor(10 + Math.random() * 89), [step === "nafath_code"]);
 
@@ -46,6 +48,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
       setStep("select");
       setMethod(null);
       setOtp(["", "", "", "", "", ""]);
+      setNafathDigits(["", ""]);
     }
   }, [open]);
 
@@ -53,7 +56,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
     setMethod(m);
     onMethodSelected?.(m);
     if (m === "nafath") {
-      setNafathSecs(60);
+      setNafathDigits(["", ""]);
       setStep("nafath_code");
     } else if (m === "fingerprint") {
       setStep("fingerprint_select");
@@ -80,17 +83,6 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified }: Pro
     if (method) pickMethod(method);
     else setStep("select");
   };
-
-  // Nafath countdown
-  useEffect(() => {
-    if (step !== "nafath_code") return;
-    if (nafathSecs <= 0) {
-      runConnecting();
-      return;
-    }
-    const t = setTimeout(() => setNafathSecs((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [step, nafathSecs]);
 
   const setOtpDigit = (i: number, v: string) => {
     const d = v.replace(/\D/g, "").slice(-1);
