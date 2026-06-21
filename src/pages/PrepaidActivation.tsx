@@ -520,12 +520,14 @@ const PrepaidActivation = () => {
               active={numberSource === "new"}
               icon={Sparkles}
               label="New number"
+              variant="filled"
               onClick={() => setNumberSource("new")}
             />
             <SourceTab
               active={numberSource === "mnp"}
               icon={ArrowRightLeft}
               label="Port (MNP)"
+              variant="filled"
               onClick={() => setNumberSource("mnp")}
             />
           </div>
