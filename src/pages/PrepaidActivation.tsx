@@ -39,7 +39,6 @@ import {
   Plus,
   CreditCard,
   Banknote,
-  Apple,
   Search,
   X,
   Wifi,
@@ -770,7 +769,7 @@ const PrepaidActivation = () => {
           <div className="space-y-2">
             <PayOption icon={CreditCard} label="Dealer Wallet" value="card" selected={pay === "card"} onClick={() => setPay("card")} />
             <PayOption icon={Banknote} label="Method name (demo purposes)" value="cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
-            <PayOption icon={Apple} label="Other method (demo purposes)" value="apple" selected={pay === "apple"} onClick={() => setPay("apple")} />
+            
           </div>
         </section>
           </>
