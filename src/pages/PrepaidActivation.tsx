@@ -847,23 +847,14 @@ const PrepaidActivation = () => {
                     {!dealerSig ? "dealer" : ""} signature to continue.
                   </p>
                 )}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="h-12 rounded-full px-4 border-primary text-primary"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing}
-                    onClick={handlePay}
-                    className="flex-1 h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
-                  >
-                    <span>Pay</span>
-                    <span>{amount} KSA</span>
-                  </Button>
-                </div>
+                <Button
+                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing}
+                  onClick={handlePay}
+                  className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
+                >
+                  <span>Pay</span>
+                  <span>{amount} KSA</span>
+                </Button>
               </>
             );
           })()}
