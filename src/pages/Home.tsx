@@ -120,10 +120,11 @@ const Home = () => {
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
-                onClick={activity.label === "Prepaid" ? () => handleActivityClick(activity.path) : undefined}
+                onClick={() => activity.label === "Prepaid" ? handleActivityClick(activity.path) : navigate(activity.path)}
               />
             ))}
           </div>
+
         </div>
       </div>
 
