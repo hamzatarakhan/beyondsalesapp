@@ -314,8 +314,18 @@ const BundlePlans = () => {
 
         {/* Carousel Dots */}
         <div className="flex justify-center gap-1.5 mt-3">
-          <span className="w-5 h-1.5 rounded-full bg-primary" />
-          <span className="w-1.5 h-1.5 rounded-full bg-muted" />
+          {filteredPlans.map((plan, index) => {
+            const isActive = plan.id === selectedPlan;
+            return (
+              <span
+                key={plan.id}
+                className={cn(
+                  "h-1.5 rounded-full transition-all",
+                  isActive ? "w-5 bg-primary" : "w-1.5 bg-muted"
+                )}
+              />
+            );
+          })}
         </div>
       </div>
 
