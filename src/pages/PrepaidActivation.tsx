@@ -421,7 +421,16 @@ const PrepaidActivation = () => {
       <AppHeader
         title="Prepaid Activation"
         showBack
-        onBackClick={() => setBackConfirmOpen(true)}
+        onBackClick={() => navigate(-1)}
+        rightElement={
+          <button
+            onClick={() => setCancelOpen(true)}
+            aria-label="Cancel activation"
+            className="w-10 h-10 flex items-center justify-center -mr-2"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        }
       />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
