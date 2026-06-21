@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Menu from "./pages/Menu";
+import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import SearchSubscription from "./pages/SearchSubscription";
 import SearchCustomer from "./pages/SearchCustomer";
 import SearchCustomerForOwnership from "./pages/SearchCustomerForOwnership";
@@ -31,6 +34,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/search-subscription" element={<SearchSubscription />} />
           <Route path="/search-customer" element={<SearchCustomer />} />
           <Route path="/search-customer-ownership" element={<SearchCustomerForOwnership />} />
