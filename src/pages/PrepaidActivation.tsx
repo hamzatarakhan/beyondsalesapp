@@ -53,6 +53,7 @@ import {
   Eraser,
   Tag,
   Database,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
