@@ -138,6 +138,7 @@ const plans: Plan[] = [
     discount: "Discount 50%",
     validityLabel: "Valid 30 days",
     categories: ["base-plan", "minutes"],
+    validity: ["1m"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC countries",
@@ -156,6 +157,7 @@ const plans: Plan[] = [
     discount: "Discount 30%",
     validityLabel: "Valid 30 days",
     categories: ["base-plan", "data"],
+    validity: ["3m"],
     tags: ["5G", "Roaming", "Social"],
     features: [
       "Free roaming in GCC + Egypt",
@@ -174,6 +176,7 @@ const plans: Plan[] = [
     discount: null,
     validityLabel: "Valid 30 days",
     categories: ["data", "minutes"],
+    validity: ["12m"],
     tags: ["5G", "Roaming", "Social", "Unlimited"],
     features: [
       "Truly unlimited local calls & SMS",
