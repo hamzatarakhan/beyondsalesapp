@@ -241,7 +241,7 @@ const BundlePlans = () => {
       {/* Plans Carousel */}
       <div className="px-4 mb-6">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {plans.map((plan) => (
+          {filteredPlans.map((plan) => (
             <div
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
