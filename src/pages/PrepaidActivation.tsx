@@ -1226,7 +1226,7 @@ const PrepaidActivation = () => {
                 Cancel reason <span className="text-destructive">*</span>
               </label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
-                <SelectTrigger className="h-12 px-4 bg-muted/50 border border-border/60 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
@@ -1249,7 +1249,7 @@ const PrepaidActivation = () => {
                   value={cancelOtherText}
                   onChange={(e) => setCancelOtherText(e.target.value)}
                   placeholder="Describe the reason in detail..."
-                  className="min-h-[100px] px-4 py-3 bg-muted/50 border border-border/60 rounded-xl text-sm resize-none placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
             )}
