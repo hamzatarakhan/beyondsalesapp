@@ -65,6 +65,7 @@ type NumberMode = "plan" | "topup";
 
 // Feature flags (pending product decisions)
 const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
+const SHOW_SAVED_DRAFT_BANNER = false; // hide saved-draft resume banner
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
 type Tier = typeof tiers[number];
@@ -434,7 +435,7 @@ const PrepaidActivation = () => {
       />
 
       <div className="flex-1 px-4 pb-28 space-y-5">
-        {savedDraft && (
+        {SHOW_SAVED_DRAFT_BANNER && savedDraft && (
           <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5 flex items-start gap-2">
             <History className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
             <div>
