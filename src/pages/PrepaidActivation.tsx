@@ -990,16 +990,17 @@ const PrepaidActivation = () => {
               Please tell us why you're cancelling this activation.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                <Tag className="w-4 h-4 text-primary" />
                 Cancel reason <span className="text-destructive">*</span>
               </label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
-                <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
+                <SelectTrigger className="h-12 px-4 bg-muted/50 border border-border/60 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
-                <SelectContent className="bg-card">
+                <SelectContent className="bg-card border-border/60 rounded-xl">
                   <SelectItem value="customer-changed-mind">Customer changed mind</SelectItem>
                   <SelectItem value="missing-documents">Missing documents</SelectItem>
                   <SelectItem value="price-too-high">Price too high</SelectItem>
@@ -1010,15 +1011,16 @@ const PrepaidActivation = () => {
               </Select>
             </div>
             {cancelReason === "other" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground">
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Pencil className="w-4 h-4 text-primary" />
                   Please specify <span className="text-destructive">*</span>
                 </label>
                 <Textarea
                   value={cancelOtherText}
                   onChange={(e) => setCancelOtherText(e.target.value)}
-                  placeholder="Describe the reason"
-                  className="min-h-[88px] bg-muted/40 border-0 rounded-xl resize-none"
+                  placeholder="Describe the reason in detail..."
+                  className="min-h-[100px] px-4 py-3 bg-muted/50 border border-border/60 rounded-xl text-sm resize-none placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
             )}
