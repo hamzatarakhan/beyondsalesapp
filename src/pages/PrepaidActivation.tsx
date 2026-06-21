@@ -822,7 +822,9 @@ const PrepaidActivation = () => {
               !!city &&
               !!email &&
               (numberSource === "new" || (portNumber && portOperator)) &&
-              (numberMode === "plan" ? !!currentPlan : !!topupValue);
+              (numberMode === "plan" ? !!currentPlan : !!topupValue) &&
+              (!SHOW_CUSTOMER_SIGNATURE || !!customerSig) &&
+              !!dealerSig;
             return (
               <Button
                 disabled={!detailsReady}
