@@ -551,7 +551,6 @@ const PrepaidActivation = () => {
           )}
         </section>
 
-
         {/* Number type: with plan or with top-up */}
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">Number type</h3>
