@@ -6,21 +6,7 @@ interface SplashScreenProps {
   duration?: number;
 }
 
-// Palette pulled directly from the Beyond logo pixel grid
-const PIXEL_COLORS = [
-  "#0076BF", "#027B95", "#0A7A6B", "#365240", "#582F3C",
-  "#417041", "#56563E", "#643E3A", "#2583C6", "#758768",
-  "#70783D", "#7C4037", "#873037", "#7C8DA3", "#948E67",
-  "#958039", "#9A4133", "#9D3036", "#9694C8", "#A997A4",
-  "#B59665", "#BB8833", "#B16233", "#BC412E", "#B82B30",
-  "#DA8F2B", "#D1652C", "#F6ADCD", "#F8ABA4", "#EF3E23",
-  "#ED1C24",
-];
-
-const GRID_COLS = 7;
-const GRID_ROWS = 7;
-
-const SplashScreen = ({ onFinish, duration = 2600 }: SplashScreenProps) => {
+const SplashScreen = ({ onFinish, duration = 2500 }: SplashScreenProps) => {
   const [fadingOut, setFadingOut] = useState(false);
 
   useEffect(() => {
@@ -32,91 +18,62 @@ const SplashScreen = ({ onFinish, duration = 2600 }: SplashScreenProps) => {
     };
   }, [duration, onFinish]);
 
-  const tiles = Array.from({ length: GRID_COLS * GRID_ROWS }, (_, i) => {
-    const col = i % GRID_COLS;
-    const row = Math.floor(i / GRID_COLS);
-    const delay = (col + row) * 70;
-    const color = PIXEL_COLORS[(i * 7) % PIXEL_COLORS.length];
-    return { i, delay, color };
-  });
-
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-white transition-opacity duration-500 ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-background transition-opacity duration-700 ease-in-out ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
     >
-      <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        aria-hidden="true"
-      >
+      {/* Animated ambient blobs */}
+      <div className="pointer-events-none absolute inset-0">
         <div
-          className="grid gap-1.5"
-          style={{
-            gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))`,
-            width: "min(78vw, 360px)",
-            height: "min(78vw, 360px)",
-          }}
-        >
-          {tiles.map((t) => (
-            <span
-              key={t.i}
-              className="rounded-[6px] splash-tile"
-              style={{
-                backgroundColor: t.color,
-                animationDelay: `${t.delay}ms`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.85)_30%,_rgba(255,255,255,0.35)_60%,_rgba(255,255,255,0)_100%)]"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 flex flex-col items-center gap-6 splash-logo-in">
-        <img
-          src={logoAsset.url}
-          alt="Beyond Sales"
-          className="w-52 max-w-[64vw] h-auto drop-shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+          className="absolute -left-1/4 -top-1/4 h-3/4 w-3/4 rounded-full bg-primary/10 blur-[80px] animate-blob-slow"
+          aria-hidden="true"
         />
         <div
-          className="h-[3px] w-24 overflow-hidden rounded-full bg-black/5"
-          aria-label="Loading"
-        >
-          <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-[#0076BF] via-[#BB8833] to-[#ED1C24] splash-bar" />
-        </div>
+          className="absolute -right-1/4 top-1/3 h-2/3 w-2/3 rounded-full bg-secondary/50 blur-[60px] animate-blob-slow"
+          style={{ animationDelay: "-4s" }}
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-1/4 left-1/4 h-1/2 w-1/2 rounded-full bg-primary/5 blur-[70px] animate-blob-slow"
+          style={{ animationDelay: "-8s" }}
+          aria-hidden="true"
+        />
       </div>
 
-      <style>{`
-        @keyframes splash-tile-in {
-          0%   { opacity: 0; transform: scale(0.4); }
-          60%  { opacity: 1; transform: scale(1.08); }
-          100% { opacity: 0.85; transform: scale(1); }
-        }
-        .splash-tile {
-          opacity: 0;
-          transform-origin: center;
-          animation: splash-tile-in 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes splash-logo-in {
-          0%   { opacity: 0; transform: scale(0.92) translateY(8px); filter: blur(6px); }
-          100% { opacity: 1; transform: scale(1) translateY(0);     filter: blur(0); }
-        }
-        .splash-logo-in {
-          opacity: 0;
-          animation: splash-logo-in 800ms cubic-bezier(0.22, 1, 0.36, 1) 700ms forwards;
-        }
-        @keyframes splash-bar-slide {
-          0%   { transform: translateX(-120%); }
-          100% { transform: translateX(320%); }
-        }
-        .splash-bar {
-          animation: splash-bar-slide 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-        }
-      `}</style>
+      {/* Center content */}
+      <div className="relative z-10 flex flex-col items-center gap-8">
+        <div className="relative">
+          {/* Soft pulse ring behind logo */}
+          <div className="absolute inset-0 -m-8 rounded-full bg-primary/20 blur-2xl animate-ping-slow" aria-hidden="true" />
+          <img
+            src={logoAsset.url}
+            alt="Beyond Sales"
+            className="relative w-56 max-w-[68vw] h-auto animate-logo-reveal"
+          />
+        </div>
+
+        <div className="flex flex-col items-center gap-4 animate-fade-in-up">
+          <p className="text-base font-semibold tracking-tight text-foreground">
+            Beyond Sales
+          </p>
+          <div className="flex items-center gap-1.5" aria-label="Loading">
+            <span
+              className="h-2 w-2 rounded-full bg-primary animate-bounce-dot"
+              style={{ animationDelay: "0s" }}
+            />
+            <span
+              className="h-2 w-2 rounded-full bg-primary animate-bounce-dot"
+              style={{ animationDelay: "0.12s" }}
+            />
+            <span
+              className="h-2 w-2 rounded-full bg-primary animate-bounce-dot"
+              style={{ animationDelay: "0.24s" }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
