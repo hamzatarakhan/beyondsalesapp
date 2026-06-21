@@ -70,10 +70,37 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "blob-slow": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "33%": { transform: "translate(8%, -6%) scale(1.05)" },
+          "66%": { transform: "translate(-6%, 8%) scale(0.95)" },
+        },
+        "ping-slow": {
+          "0%": { transform: "scale(1)", opacity: "0.25" },
+          "75%, 100%": { transform: "scale(1.6)", opacity: "0" },
+        },
+        "logo-reveal": {
+          "0%": { opacity: "0", transform: "scale(0.85) translateY(12px)" },
+          "60%": { opacity: "1", transform: "scale(1.03) translateY(-4px)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "bounce-dot": {
+          "0%, 100%": { transform: "scaleY(0.7) translateY(0)" },
+          "50%": { transform: "scaleY(1) translateY(-6px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "blob-slow": "blob-slow 10s ease-in-out infinite",
+        "ping-slow": "ping-slow 2.5s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "logo-reveal": "logo-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "fade-in-up": "fade-in-up 0.7s ease-out 0.4s forwards",
+        "bounce-dot": "bounce-dot 0.8s ease-in-out infinite",
       },
     },
   },
