@@ -233,9 +233,9 @@ const PrepaidActivation = () => {
       : fallback;
 
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
-  const [kit, setKit] = useState<string>(d("kit", ""));
-  const [email, setEmail] = useState<string>(d("email", prefill?.email ?? ""));
-  const [city, setCity] = useState<string>(d("city", prefill?.city ?? ""));
+  const [kit, setKit] = useState<string>(d("kit", "1234567890"));
+  const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
+  const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
 
   // Number source
   const [numberSource, setNumberSource] = useState<NumberSource>(d("numberSource", "new"));
@@ -260,7 +260,7 @@ const PrepaidActivation = () => {
 
   const [promoOn, setPromoOn] = useState<boolean>(d("promoOn", false));
   const [promoCode, setPromoCode] = useState<string>(d("promoCode", ""));
-  const [pay, setPay] = useState<PayMethod | "">(d("pay", ""));
+  const [pay, setPay] = useState<PayMethod | "">(d("pay", "card"));
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
 
