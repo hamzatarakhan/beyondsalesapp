@@ -242,6 +242,8 @@ const PrepaidActivation = () => {
 
   // Verification + success flow
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [dealerVerifyOpen, setDealerVerifyOpen] = useState(false);
+  const [dealerVerified, setDealerVerified] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [backConfirmOpen, setBackConfirmOpen] = useState(false);
 
@@ -253,6 +255,12 @@ const PrepaidActivation = () => {
   // Order details
   const [orderId, setOrderId] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("Nafath");
+
+  // Dealer verification runs once at the start of the activation flow.
+  useEffect(() => {
+    if (!dealerVerified) setDealerVerifyOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Count of non-default filter sections (used for the badge on the filter button).
   const activeFilterCount = useMemo(() => {
@@ -744,6 +752,7 @@ const PrepaidActivation = () => {
       {/* Customer verification step */}
       <SematiVerification
         open={verifyOpen}
+        audience="customer"
         onClose={() => setVerifyOpen(false)}
         onMethodSelected={(m) =>
           setVerificationMethod(
@@ -756,6 +765,17 @@ const PrepaidActivation = () => {
           // Activation completed — discard the saved draft for this customer.
           clearActivationDraft(draftIdNumber);
           setSuccessOpen(true);
+        }}
+      />
+
+      {/* Dealer verification — required at the start of activation */}
+      <SematiVerification
+        open={dealerVerifyOpen}
+        audience="dealer"
+        onClose={() => setDealerVerifyOpen(false)}
+        onVerified={() => {
+          setDealerVerified(true);
+          setDealerVerifyOpen(false);
         }}
       />
 
