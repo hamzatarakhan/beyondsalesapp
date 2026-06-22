@@ -1105,6 +1105,7 @@ const PrepaidActivation = () => {
             planPrice={currentPlan?.price}
             numberTier={numberTier}
             simPrice={simPriceByTier[numberTier]}
+            promoApplied={promoApplied}
             onEdit={() => setStep(1)}
           />
         )}
@@ -1115,15 +1116,85 @@ const PrepaidActivation = () => {
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">Promo code</p>
-            <Switch checked={promoOn} onCheckedChange={setPromoOn} />
+            <Switch
+              checked={promoOn}
+              onCheckedChange={(v) => {
+                setPromoOn(v);
+                if (!v) {
+                  setPromoApplied(null);
+                  setPromoError("");
+                  setPromoCode("");
+                }
+              }}
+            />
           </div>
           {promoOn && (
-            <Input
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder="Enter the code"
-              className="h-11 bg-muted/40 border-0 rounded-xl mt-3"
-            />
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value);
+                    setPromoError("");
+                  }}
+                  disabled={!!promoApplied}
+                  placeholder="Enter the code"
+                  className="h-11 bg-muted/40 border-0 rounded-xl flex-1"
+                />
+                {promoApplied ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPromoApplied(null);
+                      setPromoError("");
+                    }}
+                    className="h-11 px-4 rounded-xl bg-muted text-foreground text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = promoCode.trim().toUpperCase();
+                      const catalog: Record<string, { type: "percent" | "flat"; value: number }> = {
+                        WELCOME10: { type: "percent", value: 10 },
+                        SAVE20: { type: "percent", value: 20 },
+                        FLAT50: { type: "flat", value: 50 },
+                      };
+                      if (!code) {
+                        setPromoError("Please enter a promo code");
+                        return;
+                      }
+                      const found = catalog[code];
+                      if (!found) {
+                        setPromoError("Invalid or expired promo code");
+                        return;
+                      }
+                      setPromoApplied({ code, ...found });
+                      setPromoError("");
+                    }}
+                    className="h-11 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+                  >
+                    Apply
+                  </button>
+                )}
+              </div>
+              {promoApplied && (
+                <p className="text-[11px] text-emerald-600 font-medium">
+                  ✓ Code “{promoApplied.code}” applied —{" "}
+                  {promoApplied.type === "percent"
+                    ? `${promoApplied.value}% off`
+                    : `${promoApplied.value} SAR off`}
+                </p>
+              )}
+              {promoError && (
+                <p className="text-[11px] text-destructive font-medium">{promoError}</p>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                Try: WELCOME10, SAVE20, FLAT50
+              </p>
+            </div>
           )}
         </section>
 
