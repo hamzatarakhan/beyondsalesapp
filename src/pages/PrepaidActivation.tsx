@@ -79,6 +79,13 @@ const numbersByTier: Record<Tier, string[]> = {
   "Super Gold": Array.from({ length: 9 }, () => "566789012"),
 };
 
+// SIM price (SAR) per number tier (vanity numbers cost more)
+const simPriceByTier: Record<Tier, number> = {
+  Purple: 25,
+  Gold: 100,
+  "Super Gold": 300,
+};
+
 const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 
 const cities = [
@@ -459,6 +466,7 @@ const PrepaidActivation = () => {
   const [portNumber, setPortNumber] = useState<string>(d("portNumber", ""));
   const [portOperator, setPortOperator] = useState<string>(d("portOperator", ""));
   const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
+  const [numberTier, setNumberTier] = useState<Tier>(d("numberTier", "Purple"));
 
   // Number-mode (number with plan vs. number with top-up only)
   const [numberMode, setNumberMode] = useState<NumberMode>(d("numberMode", "plan"));
@@ -1077,6 +1085,8 @@ const PrepaidActivation = () => {
             topupValue={topupValue}
             planTitle={currentPlan?.title}
             planPrice={currentPlan?.price}
+            numberTier={numberTier}
+            simPrice={simPriceByTier[numberTier]}
             onEdit={() => setStep(1)}
           />
         )}
@@ -1171,8 +1181,9 @@ const PrepaidActivation = () => {
       <ChooseNumberSheet
         open={numberSheetOpen}
         onClose={() => setNumberSheetOpen(false)}
-        onPick={(n) => {
+        onPick={(n, t) => {
           setPhone(n);
+          setNumberTier(t);
           setNumberSheetOpen(false);
         }}
       />
@@ -1447,6 +1458,8 @@ const ReviewSummary = ({
   topupValue,
   planTitle,
   planPrice,
+  numberTier,
+  simPrice,
   onEdit,
 }: {
   simType: SimType;
@@ -1462,12 +1475,15 @@ const ReviewSummary = ({
   topupValue: string;
   planTitle?: string;
   planPrice?: number;
+  numberTier: Tier;
+  simPrice: number;
   onEdit: () => void;
 }) => {
-  const basePrice = numberMode === "topup"
+  const planOrTopup = numberMode === "topup"
     ? parseFloat(topupValue || "0")
     : (planPrice ?? 0);
-  const vatAmount = basePrice - basePrice / 1.15;
+  const subtotal = planOrTopup + simPrice;
+  const vatAmount = subtotal - subtotal / 1.15;
 
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
@@ -1476,43 +1492,62 @@ const ReviewSummary = ({
     </div>
   );
   return (
-    <section className="bg-card rounded-2xl p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-semibold text-foreground">Review activation</p>
-        <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
-          <Pencil className="w-3 h-3" /> Edit
-        </button>
-      </div>
-      <Row label="SIM type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-      {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
-      <Row
-        label="Phone number"
-        value={
-          numberSource === "mnp"
-            ? `${portNumber || "—"} (Port from ${portOperator || "—"})`
-            : phone
-        }
-      />
-      <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
-      <Row label="City" value={city || "—"} />
-      <Row label="Email" value={email || "—"} />
-      <Row
-        label={numberMode === "topup" ? "Top-up" : "Plan"}
-        value={
-          numberMode === "topup"
-            ? topupValue
-              ? `${topupValue} SAR`
-              : "—"
-            : `${planTitle ?? "—"}${planPrice != null ? ` · ${planPrice} SAR` : ""}`
-        }
-      />
-      {basePrice > 0 && (
+    <div className="space-y-3">
+      {/* Activation details */}
+      <section className="bg-card rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-foreground">Activation details</p>
+          <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
+            <Pencil className="w-3 h-3" /> Edit
+          </button>
+        </div>
+        <Row label="Number type" value={numberSource === "mnp" ? "Ported number" : numberTier} />
         <Row
-          label="VAT amount (+15% included)"
-          value={`${vatAmount.toFixed(2)} SAR`}
+          label="Phone number"
+          value={
+            numberSource === "mnp"
+              ? `${portNumber || "—"} (Port from ${portOperator || "—"})`
+              : phone
+          }
         />
-      )}
-    </section>
+        <Row label="SIM type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
+        {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
+        <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
+        <Row label="City" value={city || "—"} />
+        <Row label="Email" value={email || "—"} />
+      </section>
+
+      {/* Price details */}
+      <section className="bg-card rounded-2xl p-4 shadow-sm">
+        <p className="text-sm font-semibold text-foreground mb-2">Price details</p>
+        {numberMode === "topup" ? (
+          <Row
+            label="Top-up value"
+            value={topupValue ? `${topupValue} SAR` : "—"}
+          />
+        ) : (
+          <Row
+            label={planTitle ? `Plan · ${planTitle}` : "Plan"}
+            value={planPrice != null ? `${planPrice} SAR` : "—"}
+          />
+        )}
+        {numberSource !== "mnp" && (
+          <Row
+            label={`SIM price (${numberTier})`}
+            value={`${simPrice} SAR`}
+          />
+        )}
+        {subtotal > 0 && (
+          <>
+            <Row label="VAT (15% included)" value={`${vatAmount.toFixed(2)} SAR`} />
+            <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
+              <span className="text-sm font-semibold text-foreground">Total</span>
+              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} SAR</span>
+            </div>
+          </>
+        )}
+      </section>
+    </div>
   );
 };
 
@@ -2041,7 +2076,7 @@ const ChooseNumberSheet = ({
 }: {
   open: boolean;
   onClose: () => void;
-  onPick: (n: string) => void;
+  onPick: (n: string, tier: Tier) => void;
 }) => {
   const [tier, setTier] = useState<Tier>("Purple");
   const [query, setQuery] = useState("");
@@ -2093,7 +2128,7 @@ const ChooseNumberSheet = ({
           {list.map((n, i) => (
             <button
               key={i}
-              onClick={() => onPick(n)}
+              onClick={() => onPick(n, tier)}
               className="w-full flex items-center justify-between px-3 py-3.5 border-b border-border/60 last:border-0"
             >
               <span className="text-sm font-medium text-foreground">{n}</span>
