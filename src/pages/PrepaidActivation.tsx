@@ -1634,6 +1634,17 @@ const ReviewSummary = ({
             value={`${simPrice} SAR`}
           />
         )}
+        {promoApplied && discountAmount > 0 && (
+          <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40">
+            <span className="text-[11px] text-emerald-600 font-medium">
+              Promo “{promoApplied.code}”
+              {promoApplied.type === "percent" ? ` (-${promoApplied.value}%)` : ""}
+            </span>
+            <span className="text-xs font-semibold text-emerald-600 text-right">
+              -{discountAmount.toFixed(2)} SAR
+            </span>
+          </div>
+        )}
         {subtotal > 0 && (
           <>
             <Row label="VAT (15% included)" value={`${vatAmount.toFixed(2)} SAR`} />
