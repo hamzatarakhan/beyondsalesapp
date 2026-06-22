@@ -32,7 +32,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
