@@ -1593,8 +1593,13 @@ const ReviewSummary = ({
     <div className="space-y-3">
       {/* Activation details */}
       <section className="bg-card rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-foreground">Activation details</p>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ClipboardList className="w-3.5 h-3.5 text-primary" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">Activation details</p>
+          </div>
           <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
             <Pencil className="w-3 h-3" /> Edit
           </button>
@@ -1617,7 +1622,12 @@ const ReviewSummary = ({
 
       {/* Price details */}
       <section className="bg-card rounded-2xl p-4 shadow-sm">
-        <p className="text-sm font-semibold text-foreground mb-2">Price details</p>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Receipt className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <p className="text-sm font-semibold text-foreground">Price details</p>
+        </div>
         {numberMode === "topup" ? (
           <Row
             label="Top-up value"
