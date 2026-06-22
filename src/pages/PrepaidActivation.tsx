@@ -2050,7 +2050,7 @@ const ChooseNumberSheet = ({
 }: {
   open: boolean;
   onClose: () => void;
-  onPick: (n: string) => void;
+  onPick: (n: string, tier: Tier) => void;
 }) => {
   const [tier, setTier] = useState<Tier>("Purple");
   const [query, setQuery] = useState("");
@@ -2102,7 +2102,7 @@ const ChooseNumberSheet = ({
           {list.map((n, i) => (
             <button
               key={i}
-              onClick={() => onPick(n)}
+              onClick={() => onPick(n, tier)}
               className="w-full flex items-center justify-between px-3 py-3.5 border-b border-border/60 last:border-0"
             >
               <span className="text-sm font-medium text-foreground">{n}</span>
