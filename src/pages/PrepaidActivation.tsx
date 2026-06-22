@@ -1549,6 +1549,7 @@ const ReviewSummary = ({
   planPrice,
   numberTier,
   simPrice,
+  promoApplied,
   onEdit,
 }: {
   simType: SimType;
@@ -1566,12 +1567,19 @@ const ReviewSummary = ({
   planPrice?: number;
   numberTier: Tier;
   simPrice: number;
+  promoApplied: { code: string; type: "percent" | "flat"; value: number } | null;
   onEdit: () => void;
 }) => {
   const planOrTopup = numberMode === "topup"
     ? parseFloat(topupValue || "0")
     : (planPrice ?? 0);
-  const subtotal = planOrTopup + simPrice;
+  const gross = planOrTopup + simPrice;
+  const discountAmount = promoApplied
+    ? promoApplied.type === "percent"
+      ? Math.min(gross, (gross * promoApplied.value) / 100)
+      : Math.min(gross, promoApplied.value)
+    : 0;
+  const subtotal = Math.max(0, gross - discountAmount);
   const vatAmount = subtotal - subtotal / 1.15;
 
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
