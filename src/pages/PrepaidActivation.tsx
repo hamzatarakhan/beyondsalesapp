@@ -1524,9 +1524,9 @@ const ReviewSummary = ({
         />
         <Row label="SIM type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
         {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
-        <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
         <Row label="City" value={city || "—"} />
         <Row label="Email" value={email || "—"} />
+        <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
       </section>
 
       {/* Price details */}
