@@ -32,12 +32,15 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  // HIDDEN: Splash screen disabled by user request.
+  // To restore the "Beyond Sales App" splash screen, uncomment the next line
+  // and replace the line below it with: {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+  // const [showSplash, setShowSplash] = useState(true);
   return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
-        {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+        {/* {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />} */}
         <Toaster />
         <Sonner />
         <BrowserRouter>
