@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
-// import SplashScreen from "./components/SplashScreen";
+import SplashScreen from "./components/SplashScreen";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Settings from "./pages/Settings";
@@ -31,15 +32,12 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // HIDDEN: Splash screen disabled by user request.
-  // To restore the "Beyond Sales App" splash screen, uncomment the next line
-  // and replace the line below it with: {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
-  // const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
-        {/* {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />} */}
+        {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         <Toaster />
         <Sonner />
         <BrowserRouter>
