@@ -1681,6 +1681,7 @@ const ReviewSummary = ({
           </>
         )}
       </section>
+      )}
     </div>
   );
 };
