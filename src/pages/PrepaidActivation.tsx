@@ -459,6 +459,7 @@ const PrepaidActivation = () => {
   const [kit, setKit] = useState<string>(d("kit", "1234567890"));
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
   const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
+  const [contactPhone, setContactPhone] = useState<string>(d("contactPhone", "0555555555"));
 
   // Number source
   const [numberSource, setNumberSource] = useState<NumberSource>(d("numberSource", "new"));
@@ -1013,17 +1014,15 @@ const PrepaidActivation = () => {
         <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <p className="text-sm font-semibold text-foreground">Contact <span className="text-destructive">*</span></p>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">City <span className="text-destructive">*</span></label>
-            <Select value={city} onValueChange={setCity}>
-              <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent className="bg-card">
-                {cities.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Phone <span className="text-destructive">*</span></label>
+            <Input
+              type="tel"
+              inputMode="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="05XXXXXXXX"
+              className="h-11 bg-muted/40 border-0 rounded-xl"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email <span className="text-destructive">*</span></label>
@@ -1039,6 +1038,19 @@ const PrepaidActivation = () => {
                 The eSIM activation QR will be emailed to the customer.
               </p>
             )}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">City <span className="text-destructive">*</span></label>
+            <Select value={city} onValueChange={setCity}>
+              <SelectTrigger className="h-11 bg-muted/40 border-0 rounded-xl">
+                <SelectValue placeholder="Select city" />
+              </SelectTrigger>
+              <SelectContent className="bg-card">
+                {cities.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           {SHOW_SET_AS_PRIMARY && (
             <div className="pt-2 border-t border-border/60 flex items-center justify-between">
