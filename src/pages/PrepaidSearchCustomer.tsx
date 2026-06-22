@@ -122,9 +122,8 @@ const PrepaidSearchCustomer = () => {
     }
     const existing = EXISTING_CUSTOMERS[value];
     if (existing) {
-      // Existing customer stage hidden; proceed directly to activation.
-      navigate("/prepaid-activation", {
-        state: { prefill: { idType, nationality, idNumber: value } },
+      navigate("/prepaid-existing-customer", {
+        state: { customer: existing },
       });
       return;
     }
