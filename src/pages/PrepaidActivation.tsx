@@ -1179,8 +1179,9 @@ const PrepaidActivation = () => {
       <ChooseNumberSheet
         open={numberSheetOpen}
         onClose={() => setNumberSheetOpen(false)}
-        onPick={(n) => {
+        onPick={(n, t) => {
           setPhone(n);
+          setNumberTier(t);
           setNumberSheetOpen(false);
         }}
       />
