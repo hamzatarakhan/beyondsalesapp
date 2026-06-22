@@ -68,7 +68,7 @@ type NumberMode = "plan" | "topup";
 // Feature flags (pending product decisions)
 const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
 const SHOW_SAVED_DRAFT_BANNER = false; // hide saved-draft resume banner
-const SHOW_SET_AS_PRIMARY = false; // hide "Set as primary" toggle
+const SHOW_SET_AS_PRIMARY = true; // show "Set as primary" toggle in Contact section
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
 type Tier = typeof tiers[number];
