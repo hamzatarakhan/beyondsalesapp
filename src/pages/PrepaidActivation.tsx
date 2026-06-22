@@ -1116,7 +1116,12 @@ const PrepaidActivation = () => {
         {/* Promo code */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Promo code</p>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Tag className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <p className="text-sm font-semibold text-foreground">Promo code</p>
+            </div>
             <Switch
               checked={promoOn}
               onCheckedChange={(v) => {
