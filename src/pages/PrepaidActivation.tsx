@@ -485,6 +485,10 @@ const PrepaidActivation = () => {
 
   const [promoOn, setPromoOn] = useState<boolean>(d("promoOn", false));
   const [promoCode, setPromoCode] = useState<string>(d("promoCode", ""));
+  const [promoApplied, setPromoApplied] = useState<{ code: string; type: "percent" | "flat"; value: number } | null>(
+    d("promoApplied", null),
+  );
+  const [promoError, setPromoError] = useState<string>("");
   const [pay, setPay] = useState<PayMethod | "">(d("pay", "card"));
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
