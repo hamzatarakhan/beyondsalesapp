@@ -459,6 +459,7 @@ const PrepaidActivation = () => {
   const [kit, setKit] = useState<string>(d("kit", "1234567890"));
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
   const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
+  const [contactPhone, setContactPhone] = useState<string>(d("contactPhone", "0555555555"));
 
   // Number source
   const [numberSource, setNumberSource] = useState<NumberSource>(d("numberSource", "new"));
