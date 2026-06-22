@@ -79,6 +79,13 @@ const numbersByTier: Record<Tier, string[]> = {
   "Super Gold": Array.from({ length: 9 }, () => "566789012"),
 };
 
+// SIM price (SAR) per number tier (vanity numbers cost more)
+const simPriceByTier: Record<Tier, number> = {
+  Purple: 25,
+  Gold: 100,
+  "Super Gold": 300,
+};
+
 const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 
 const cities = [
