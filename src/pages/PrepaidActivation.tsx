@@ -1085,6 +1085,8 @@ const PrepaidActivation = () => {
             topupValue={topupValue}
             planTitle={currentPlan?.title}
             planPrice={currentPlan?.price}
+            numberTier={numberTier}
+            simPrice={simPriceByTier[numberTier]}
             onEdit={() => setStep(1)}
           />
         )}
