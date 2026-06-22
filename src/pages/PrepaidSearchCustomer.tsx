@@ -122,8 +122,11 @@ const PrepaidSearchCustomer = () => {
     }
     const existing = EXISTING_CUSTOMERS[value];
     if (existing) {
-      navigate("/prepaid-existing-customer", {
-        state: { customer: existing },
+      navigate("/prepaid-activation", {
+        state: {
+          prefill: { ...existing, ...(existing.previousActivation ?? {}) },
+          fromExisting: true,
+        },
       });
       return;
     }
