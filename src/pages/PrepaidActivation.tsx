@@ -57,6 +57,7 @@ import {
   Tag,
   Database,
   History,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
