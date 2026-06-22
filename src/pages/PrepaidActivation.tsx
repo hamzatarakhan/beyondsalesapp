@@ -485,6 +485,10 @@ const PrepaidActivation = () => {
 
   const [promoOn, setPromoOn] = useState<boolean>(d("promoOn", false));
   const [promoCode, setPromoCode] = useState<string>(d("promoCode", ""));
+  const [promoApplied, setPromoApplied] = useState<{ code: string; type: "percent" | "flat"; value: number } | null>(
+    d("promoApplied", null),
+  );
+  const [promoError, setPromoError] = useState<string>("");
   const [pay, setPay] = useState<PayMethod | "">(d("pay", "card"));
   const [numberSheetOpen, setNumberSheetOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
@@ -617,6 +621,7 @@ const PrepaidActivation = () => {
       selectedPlan,
       promoOn,
       promoCode,
+      promoApplied,
       pay,
       customerSig,
       dealerSig,
@@ -640,6 +645,7 @@ const PrepaidActivation = () => {
     selectedPlan,
     promoOn,
     promoCode,
+    promoApplied,
     pay,
     customerSig,
     dealerSig,
@@ -1099,6 +1105,7 @@ const PrepaidActivation = () => {
             planPrice={currentPlan?.price}
             numberTier={numberTier}
             simPrice={simPriceByTier[numberTier]}
+            promoApplied={promoApplied}
             onEdit={() => setStep(1)}
           />
         )}
@@ -1109,15 +1116,85 @@ const PrepaidActivation = () => {
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">Promo code</p>
-            <Switch checked={promoOn} onCheckedChange={setPromoOn} />
+            <Switch
+              checked={promoOn}
+              onCheckedChange={(v) => {
+                setPromoOn(v);
+                if (!v) {
+                  setPromoApplied(null);
+                  setPromoError("");
+                  setPromoCode("");
+                }
+              }}
+            />
           </div>
           {promoOn && (
-            <Input
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder="Enter the code"
-              className="h-11 bg-muted/40 border-0 rounded-xl mt-3"
-            />
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value);
+                    setPromoError("");
+                  }}
+                  disabled={!!promoApplied}
+                  placeholder="Enter the code"
+                  className="h-11 bg-muted/40 border-0 rounded-xl flex-1"
+                />
+                {promoApplied ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPromoApplied(null);
+                      setPromoError("");
+                    }}
+                    className="h-11 px-4 rounded-xl bg-muted text-foreground text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = promoCode.trim().toUpperCase();
+                      const catalog: Record<string, { type: "percent" | "flat"; value: number }> = {
+                        WELCOME10: { type: "percent", value: 10 },
+                        SAVE20: { type: "percent", value: 20 },
+                        FLAT50: { type: "flat", value: 50 },
+                      };
+                      if (!code) {
+                        setPromoError("Please enter a promo code");
+                        return;
+                      }
+                      const found = catalog[code];
+                      if (!found) {
+                        setPromoError("Invalid or expired promo code");
+                        return;
+                      }
+                      setPromoApplied({ code, ...found });
+                      setPromoError("");
+                    }}
+                    className="h-11 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+                  >
+                    Apply
+                  </button>
+                )}
+              </div>
+              {promoApplied && (
+                <p className="text-[11px] text-emerald-600 font-medium">
+                  ✓ Code “{promoApplied.code}” applied —{" "}
+                  {promoApplied.type === "percent"
+                    ? `${promoApplied.value}% off`
+                    : `${promoApplied.value} SAR off`}
+                </p>
+              )}
+              {promoError && (
+                <p className="text-[11px] text-destructive font-medium">{promoError}</p>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                Try: WELCOME10, SAVE20, FLAT50
+              </p>
+            </div>
           )}
         </section>
 
@@ -1472,6 +1549,7 @@ const ReviewSummary = ({
   planPrice,
   numberTier,
   simPrice,
+  promoApplied,
   onEdit,
 }: {
   simType: SimType;
@@ -1489,12 +1567,19 @@ const ReviewSummary = ({
   planPrice?: number;
   numberTier: Tier;
   simPrice: number;
+  promoApplied: { code: string; type: "percent" | "flat"; value: number } | null;
   onEdit: () => void;
 }) => {
   const planOrTopup = numberMode === "topup"
     ? parseFloat(topupValue || "0")
     : (planPrice ?? 0);
-  const subtotal = planOrTopup + simPrice;
+  const gross = planOrTopup + simPrice;
+  const discountAmount = promoApplied
+    ? promoApplied.type === "percent"
+      ? Math.min(gross, (gross * promoApplied.value) / 100)
+      : Math.min(gross, promoApplied.value)
+    : 0;
+  const subtotal = Math.max(0, gross - discountAmount);
   const vatAmount = subtotal - subtotal / 1.15;
 
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -1548,6 +1633,17 @@ const ReviewSummary = ({
             label={`SIM price (${numberTier})`}
             value={`${simPrice} SAR`}
           />
+        )}
+        {promoApplied && discountAmount > 0 && (
+          <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40">
+            <span className="text-[11px] text-emerald-600 font-medium">
+              Promo “{promoApplied.code}”
+              {promoApplied.type === "percent" ? ` (-${promoApplied.value}%)` : ""}
+            </span>
+            <span className="text-xs font-semibold text-emerald-600 text-right">
+              -{discountAmount.toFixed(2)} SAR
+            </span>
+          </div>
         )}
         {subtotal > 0 && (
           <>
