@@ -1107,12 +1107,27 @@ const PrepaidActivation = () => {
             numberTier={numberTier}
             simPrice={simPriceByTier[numberTier]}
             promoApplied={promoApplied}
+            part="activation"
             onEdit={() => setStep(1)}
           />
         )}
 
         {step === 2 && (
           <>
+        {/* Payment */}
+        <section className="bg-card rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <CreditCard className="w-3.5 h-3.5 text-primary" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">Select Payment Method <span className="text-destructive">*</span></p>
+          </div>
+          <div className="space-y-2">
+            <PayOption icon={CreditCard} label="Dealer Wallet" value="card" selected={pay === "card"} onClick={() => setPay("card")} />
+            <PayOption icon={Banknote} label="Method name (demo purposes)" value="cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
+          </div>
+        </section>
+
         {/* Promo code */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
@@ -1204,20 +1219,27 @@ const PrepaidActivation = () => {
           )}
         </section>
 
-        {/* Payment */}
-        <section className="bg-card rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-              <CreditCard className="w-3.5 h-3.5 text-primary" />
-            </div>
-            <p className="text-sm font-semibold text-foreground">Select Payment Method <span className="text-destructive">*</span></p>
-          </div>
-          <div className="space-y-2">
-            <PayOption icon={CreditCard} label="Dealer Wallet" value="card" selected={pay === "card"} onClick={() => setPay("card")} />
-            <PayOption icon={Banknote} label="Method name (demo purposes)" value="cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
-            
-          </div>
-        </section>
+        {/* Price details */}
+        <ReviewSummary
+          simType={simType}
+          kit={kit}
+          email={email}
+          city={city}
+          isPrimary={isPrimary}
+          numberSource={numberSource}
+          phone={phone}
+          portNumber={portNumber}
+          portOperator={portOperator}
+          numberMode={numberMode}
+          topupValue={topupValue}
+          planTitle={currentPlan?.title}
+          planPrice={currentPlan?.price}
+          numberTier={numberTier}
+          simPrice={simPriceByTier[numberTier]}
+          promoApplied={promoApplied}
+          part="price"
+          onEdit={() => setStep(1)}
+        />
           </>
         )}
       </div>
@@ -1556,6 +1578,7 @@ const ReviewSummary = ({
   numberTier,
   simPrice,
   promoApplied,
+  part = "all",
   onEdit,
 }: {
   simType: SimType;
@@ -1574,6 +1597,7 @@ const ReviewSummary = ({
   numberTier: Tier;
   simPrice: number;
   promoApplied: { code: string; type: "percent" | "flat"; value: number } | null;
+  part?: "all" | "activation" | "price";
   onEdit: () => void;
 }) => {
   const planOrTopup = numberMode === "topup"
@@ -1597,6 +1621,7 @@ const ReviewSummary = ({
   return (
     <div className="space-y-3">
       {/* Activation details */}
+      {(part === "all" || part === "activation") && (
       <section className="bg-card rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -1624,8 +1649,10 @@ const ReviewSummary = ({
         <Row label="Email" value={email || "—"} />
         <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
       </section>
+      )}
 
       {/* Price details */}
+      {(part === "all" || part === "price") && (
       <section className="bg-card rounded-2xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -1676,6 +1703,7 @@ const ReviewSummary = ({
           </>
         )}
       </section>
+      )}
     </div>
   );
 };
