@@ -466,6 +466,7 @@ const PrepaidActivation = () => {
   const [portNumber, setPortNumber] = useState<string>(d("portNumber", ""));
   const [portOperator, setPortOperator] = useState<string>(d("portOperator", ""));
   const [isPrimary, setIsPrimary] = useState<boolean>(d("isPrimary", true));
+  const [numberTier, setNumberTier] = useState<Tier>(d("numberTier", "Purple"));
 
   // Number-mode (number with plan vs. number with top-up only)
   const [numberMode, setNumberMode] = useState<NumberMode>(d("numberMode", "plan"));
