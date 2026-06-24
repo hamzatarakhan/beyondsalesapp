@@ -2153,43 +2153,52 @@ const SignaturePadSheet = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
+  const hasInkRef = useRef(false);
   const [hasInk, setHasInk] = useState(false);
+
+  const markHasInk = useCallback((value: boolean) => {
+    hasInkRef.current = value;
+    setHasInk(value);
+  }, []);
+
+  const configureContext = useCallback((ctx: CanvasRenderingContext2D, dpr: number) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "hsl(var(--foreground))";
+    ctx.lineWidth = 2.5 * dpr;
+  }, []);
 
   // Init canvas when opened
   useEffect(() => {
     if (!open) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
 
     const setup = () => {
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return false;
+      const dpr = window.devicePixelRatio || 1;
       // Preserve current drawing while resizing
       const prev = canvas.toDataURL("image/png");
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
       const ctx = canvas.getContext("2d");
       if (!ctx) return true;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 2.5;
-      const source = initial || (hasInk ? prev : null);
+      configureContext(ctx, dpr);
+      const source = initial || (hasInkRef.current ? prev : null);
       if (source) {
         const img = new Image();
         img.onload = () => {
-          ctx.drawImage(img, 0, 0, rect.width, rect.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         };
         img.src = source;
-        if (initial) setHasInk(true);
+        if (initial) markHasInk(true);
       }
       return true;
     };
 
-    setHasInk(!!initial);
+    markHasInk(!!initial);
     // Retry until layout settles (drawer animates open)
     let raf = 0;
     const tick = () => {
@@ -2204,33 +2213,54 @@ const SignaturePadSheet = ({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initial]);
+  }, [open, initial, configureContext, markHasInk]);
 
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const rect = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (canvas.width / rect.width),
+      y: (e.clientY - rect.top) * (canvas.height / rect.height),
+    };
+  };
+
+  const drawTo = (point: { x: number; y: number }) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !lastRef.current) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.moveTo(lastRef.current.x, lastRef.current.y);
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+    lastRef.current = point;
   };
 
   const start = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    (e.target as Element).setPointerCapture(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
     drawingRef.current = true;
     lastRef.current = getPos(e);
   };
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drawingRef.current) return;
-    const ctx = canvasRef.current!.getContext("2d");
-    if (!ctx || !lastRef.current) return;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastRef.current.x, lastRef.current.y);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    lastRef.current = p;
-    if (!hasInk) setHasInk(true);
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas || !lastRef.current) return;
+    const rect = canvas.getBoundingClientRect();
+    const events = e.nativeEvent.getCoalescedEvents?.() ?? [e.nativeEvent];
+    events.forEach((event) => {
+      drawTo({
+        x: (event.clientX - rect.left) * (canvas.width / rect.width),
+        y: (event.clientY - rect.top) * (canvas.height / rect.height),
+      });
+    });
+    if (!hasInkRef.current) markHasInk(true);
   };
-  const end = () => {
+  const end = (e?: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e?.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
     drawingRef.current = false;
     lastRef.current = null;
   };
@@ -2241,7 +2271,7 @@ const SignaturePadSheet = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasInk(false);
+    markHasInk(false);
   };
 
   const save = () => {
@@ -2259,18 +2289,17 @@ const SignaturePadSheet = ({
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const rect = canvas.getBoundingClientRect();
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         // contain
-        const ratio = Math.min(rect.width / img.width, rect.height / img.height);
+        const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
         const w = img.width * ratio;
         const h = img.height * ratio;
-        const x = (rect.width - w) / 2;
-        const y = (rect.height - h) / 2;
+        const x = (canvas.width - w) / 2;
+        const y = (canvas.height - h) / 2;
         ctx.drawImage(img, x, y, w, h);
-        setHasInk(true);
+        markHasInk(true);
       };
       img.src = reader.result as string;
     };
