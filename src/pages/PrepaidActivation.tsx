@@ -61,6 +61,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SarIcon } from "@/components/SarIcon";
 
 type SimType = "psim" | "esim";
 type PayMethod = "card" | "cash" | "apple";
@@ -844,7 +845,9 @@ const PrepaidActivation = () => {
               </SelectTrigger>
               <SelectContent className="bg-card">
                 {topupValues.map((v) => (
-                  <SelectItem key={v} value={v}>{v} SAR</SelectItem>
+                  <SelectItem key={v} value={v}>
+                    <span className="inline-flex items-center gap-1">{v} <SarIcon className="opacity-70" /></span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -902,7 +905,9 @@ const PrepaidActivation = () => {
               {(planFilters.price[0] !== PRICE_MIN ||
                 planFilters.price[1] !== PRICE_MAX) && (
                 <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full border border-primary text-primary bg-transparent text-xs font-medium shrink-0">
-                  Price: {planFilters.price[0]}–{planFilters.price[1]} SAR
+                  <span className="inline-flex items-center gap-1">
+                    Price: {planFilters.price[0]}–{planFilters.price[1]} <SarIcon className="opacity-80" />
+                  </span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1208,7 +1213,7 @@ const PrepaidActivation = () => {
                   ✓ Code “{promoApplied.code}” applied —{" "}
                   {promoApplied.type === "percent"
                     ? `${promoApplied.value}% off`
-                    : `${promoApplied.value} SAR off`}
+                    : <span className="inline-flex items-center gap-1">{promoApplied.value} <SarIcon className="opacity-80" /> off</span>}
                 </p>
               )}
               {promoError && (
@@ -1690,10 +1695,24 @@ const ReviewSummary = ({
         {numberMode === "plan" ? (
           <>
             <Row label="Plan Name" value={planTitle || "—"} />
-            <Row label="Plan Price" value={planPrice != null ? `${planPrice} SAR` : "—"} />
+            <Row
+              label="Plan Price"
+              value={
+                planPrice != null ? (
+                  <span className="inline-flex items-center gap-1">{planPrice} <SarIcon className="opacity-70" /></span>
+                ) : "—"
+              }
+            />
           </>
         ) : (
-          <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
+          <Row
+            label="Initial Balance"
+            value={
+              topupValue ? (
+                <span className="inline-flex items-center gap-1">{topupValue} <SarIcon className="opacity-70" /></span>
+              ) : "—"
+            }
+          />
         )}
         {numberSource !== "mnp" && (
           <Row label="Vanity level" value={numberTier} />
@@ -1711,18 +1730,26 @@ const ReviewSummary = ({
         {numberMode === "topup" ? (
           <Row
             label="Top-up"
-            value={topupValue ? `${topupValue} SAR` : "—"}
+            value={
+              topupValue ? (
+                <span className="inline-flex items-center gap-1">{topupValue} <SarIcon className="opacity-70" /></span>
+              ) : "—"
+            }
           />
         ) : (
           <Row
             label="Plan Price"
-            value={planPrice != null ? `${planPrice} SAR` : "—"}
+            value={
+              planPrice != null ? (
+                <span className="inline-flex items-center gap-1">{planPrice} <SarIcon className="opacity-70" /></span>
+              ) : "—"
+            }
           />
         )}
         {simType === "psim" && (
           <Row
             label="SIM Price"
-            value={`${simPrice} SAR`}
+            value={<span className="inline-flex items-center gap-1">{simPrice} <SarIcon className="opacity-70" /></span>}
           />
         )}
         {promoApplied && discountAmount > 0 && (
@@ -1732,7 +1759,7 @@ const ReviewSummary = ({
               {promoApplied.type === "percent" ? ` (-${promoApplied.value}%)` : ""}
             </span>
             <span className="text-xs font-semibold text-emerald-600 text-right">
-              -{discountAmount.toFixed(2)} SAR
+              <span className="inline-flex items-center gap-1">-{discountAmount.toFixed(2)} <SarIcon /></span>
             </span>
           </div>
         )}
@@ -1741,12 +1768,12 @@ const ReviewSummary = ({
             <div className="flex items-start justify-between gap-3 py-2">
               <span className="text-[11px] text-muted-foreground">VAT (15% included)</span>
               <span className="text-xs font-semibold text-foreground text-right">
-                {vatAmount.toFixed(2)} SAR
+                <span className="inline-flex items-center gap-1">{vatAmount.toFixed(2)} <SarIcon className="opacity-70" /></span>
               </span>
             </div>
             <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
               <span className="text-sm font-semibold text-foreground">Total</span>
-              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} SAR</span>
+              <span className="text-base font-bold text-primary inline-flex items-center gap-1">{subtotal.toFixed(2)} <SarIcon /></span>
             </div>
           </>
         )}
