@@ -477,7 +477,7 @@ const PrepaidActivation = () => {
 
   // Plans
   const [planType, setPlanType] = useState<string>(
-    d("planType", "base-plan") || "base-plan",
+    d("planType", "all") || "all",
   );
   const [planFilters, setPlanFilters] = useState<PlanFilters>(
     d("planFilters", DEFAULT_FILTERS),
@@ -540,7 +540,8 @@ const PrepaidActivation = () => {
   // Filter plans against planType + structured filters.
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = p.categories.includes(planType as any);
+      const matchesType =
+        planType === "all" || p.categories.includes(planType as any);
       const matchesValidity =
         planFilters.validity.length === 0 ||
         planFilters.validity.some((v) => p.validity.includes(v));
@@ -841,6 +842,7 @@ const PrepaidActivation = () => {
                 <SelectValue placeholder="Select plan type" />
               </SelectTrigger>
               <SelectContent className="bg-card">
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="base-plan">Base Plan</SelectItem>
                 <SelectItem value="minutes">Minutes</SelectItem>
                 <SelectItem value="data">Data</SelectItem>
