@@ -47,7 +47,7 @@ const EXISTING_CUSTOMERS: Record<string, any> = {
       numberSource: "new",
       phone: "0785599574",
       isPrimary: true,
-      planType: "1m",
+      planType: "all",
       selectedPlan: 0,
       planTitle: "Starter Plan",
       planPrice: 30,
