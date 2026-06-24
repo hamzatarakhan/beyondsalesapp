@@ -139,18 +139,11 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Sub-stage indicator for the staged activation flow (Option 2).
-const SubStepper = ({
-  current,
-  skipKit,
-}: {
-  current: 0 | 1 | 2;
-  skipKit: boolean;
-}) => {
+const SubStepper = ({ current }: { current: 0 | 1 }) => {
   const steps = [
-    { i: 0, label: "SIM type" },
-    { i: 1, label: "KIT", hide: skipKit },
-    { i: 2, label: "Details" },
-  ].filter((s) => !s.hide);
+    { i: 0, label: "SIM & KIT" },
+    { i: 1, label: "Details" },
+  ];
   return (
     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
       {steps.map((s, idx) => {
