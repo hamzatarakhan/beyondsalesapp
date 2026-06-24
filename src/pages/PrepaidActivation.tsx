@@ -1400,27 +1400,24 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 && staged && subStep < 3 ? (() => {
+          {step === 1 && staged && subStep < 2 ? (() => {
             const advance = () => {
-              if (subStep === 0) return setSubStep(1);
-              if (subStep === 1) {
+              if (subStep === 0) {
                 // skip KIT on eSIM
-                return setSubStep(simType === "esim" ? 3 : 2);
+                return setSubStep(simType === "esim" ? 2 : 1);
               }
-              if (subStep === 2) {
+              if (subStep === 1) {
                 if (!isKitValid) {
                   setInvalidKitOpen(true);
                   return;
                 }
-                return setSubStep(3);
+                return setSubStep(2);
               }
             };
             const canContinue =
               subStep === 0
-                ? customerIdNumber.trim().length === 10 && customerName.trim().length > 0
-                : subStep === 1
                 ? !!simType
-                : subStep === 2
+                : subStep === 1
                 ? kit.trim().length === 10
                 : false;
             return (

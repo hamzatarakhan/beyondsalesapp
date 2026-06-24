@@ -309,7 +309,7 @@ const Home = () => {
               <div className="flex-1">
                 <p className="font-semibold text-sm text-foreground">Option 2 — Step by step</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Identity → SIM type → KIT validation → Details → Review & pay.
+                  SIM type → KIT validation → Details → Review & pay.
                 </p>
               </div>
             </button>
