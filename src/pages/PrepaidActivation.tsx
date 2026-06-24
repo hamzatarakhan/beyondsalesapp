@@ -1157,6 +1157,9 @@ const PrepaidActivation = () => {
                 placeholder="Enter the code"
                 className="h-12 bg-background border rounded-xl"
               />
+              <p className="text-[11px] text-muted-foreground">
+                Try test codes: WELCOME10, SAVE20, FLAT50
+              </p>
               {promoApplied ? (
                 <>
                   <div className="flex items-center gap-1.5 text-sm text-emerald-600 font-medium">
