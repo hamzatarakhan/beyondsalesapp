@@ -70,7 +70,7 @@ type NumberMode = "plan" | "topup";
 // Feature flags (pending product decisions)
 const SHOW_CUSTOMER_SIGNATURE = true; // hide cleanly when verification supersedes it
 const SHOW_SAVED_DRAFT_BANNER = false; // hide saved-draft resume banner
-const SHOW_SET_AS_PRIMARY = true; // show "Set as primary" toggle in Contact section
+const SHOW_SET_AS_PRIMARY = false; // show "Set as primary" toggle in Contact section
 
 const tiers = ["Purple", "Gold", "Super Gold"] as const;
 type Tier = typeof tiers[number];
@@ -1631,7 +1631,7 @@ const ReviewSummary = ({
         {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
         <Row label="City" value={city || "—"} />
         <Row label="Email" value={email || "—"} />
-        <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />
+        {SHOW_SET_AS_PRIMARY && <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />}
       </section>
       )}
 
