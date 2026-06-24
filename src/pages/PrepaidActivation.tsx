@@ -1430,13 +1430,49 @@ const PrepaidActivation = () => {
           setSuccessOpen(false);
           navigate("/");
         }}
-        planName={currentPlan?.title ?? "—"}
         orderId={orderId || "ORD-000000"}
-        mobileNumber={numberSource === "mnp" ? portNumber : phone}
-        verificationMethod={verificationMethod}
-        contactPhone={phone}
-        email={email}
-      />
+      >
+        <ReviewSummary
+          simType={simType}
+          kit={kit}
+          email={email}
+          city={city}
+          contactPhone={contactPhone}
+          isPrimary={isPrimary}
+          numberSource={numberSource}
+          phone={phone}
+          portNumber={portNumber}
+          portOperator={portOperator}
+          numberMode={numberMode}
+          topupValue={topupValue}
+          planTitle={currentPlan?.title}
+          planPrice={currentPlan?.price}
+          numberTier={numberTier}
+          simPrice={simPriceByTier[numberTier]}
+          promoApplied={promoApplied}
+          part="activation"
+        />
+        <ReviewSummary
+          simType={simType}
+          kit={kit}
+          email={email}
+          city={city}
+          contactPhone={contactPhone}
+          isPrimary={isPrimary}
+          numberSource={numberSource}
+          phone={phone}
+          portNumber={portNumber}
+          portOperator={portOperator}
+          numberMode={numberMode}
+          topupValue={topupValue}
+          planTitle={currentPlan?.title}
+          planPrice={currentPlan?.price}
+          numberTier={numberTier}
+          simPrice={simPriceByTier[numberTier]}
+          promoApplied={promoApplied}
+          part="price"
+        />
+      </SuccessBottomSheet>
 
       {/* Signature capture */}
       <SignaturePadSheet
@@ -1694,7 +1730,7 @@ const ReviewSummary = ({
   simPrice: number;
   promoApplied: { code: string; type: "percent" | "flat"; value: number } | null;
   part?: "all" | "activation" | "price";
-  onEdit: () => void;
+  onEdit?: () => void;
 }) => {
   const planOrTopup = numberMode === "topup"
     ? parseFloat(topupValue || "0")
@@ -1726,9 +1762,11 @@ const ReviewSummary = ({
             </div>
             <p className="text-sm font-semibold text-foreground">Summary</p>
           </div>
-          <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
-            <Pencil className="w-3 h-3" /> Edit
-          </button>
+          {onEdit && (
+            <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
+              <Pencil className="w-3 h-3" /> Edit
+            </button>
+          )}
         </div>
         <Row label="SIM Type" value={simType === "psim" ? "Physical SIM (P-SIM)" : "eSIM (E-SIM)"} />
         {simType === "psim" && <Row label="KIT Number" value={kit || "—"} />}
