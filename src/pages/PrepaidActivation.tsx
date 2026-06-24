@@ -1430,13 +1430,49 @@ const PrepaidActivation = () => {
           setSuccessOpen(false);
           navigate("/");
         }}
-        planName={currentPlan?.title ?? "—"}
         orderId={orderId || "ORD-000000"}
-        mobileNumber={numberSource === "mnp" ? portNumber : phone}
-        verificationMethod={verificationMethod}
-        contactPhone={phone}
-        email={email}
-      />
+      >
+        <ReviewSummary
+          simType={simType}
+          kit={kit}
+          email={email}
+          city={city}
+          contactPhone={contactPhone}
+          isPrimary={isPrimary}
+          numberSource={numberSource}
+          phone={phone}
+          portNumber={portNumber}
+          portOperator={portOperator}
+          numberMode={numberMode}
+          topupValue={topupValue}
+          planTitle={currentPlan?.title}
+          planPrice={currentPlan?.price}
+          numberTier={numberTier}
+          simPrice={simPriceByTier[numberTier]}
+          promoApplied={promoApplied}
+          part="activation"
+        />
+        <ReviewSummary
+          simType={simType}
+          kit={kit}
+          email={email}
+          city={city}
+          contactPhone={contactPhone}
+          isPrimary={isPrimary}
+          numberSource={numberSource}
+          phone={phone}
+          portNumber={portNumber}
+          portOperator={portOperator}
+          numberMode={numberMode}
+          topupValue={topupValue}
+          planTitle={currentPlan?.title}
+          planPrice={currentPlan?.price}
+          numberTier={numberTier}
+          simPrice={simPriceByTier[numberTier]}
+          promoApplied={promoApplied}
+          part="price"
+        />
+      </SuccessBottomSheet>
 
       {/* Signature capture */}
       <SignaturePadSheet
