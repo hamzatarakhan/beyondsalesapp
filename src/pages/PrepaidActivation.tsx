@@ -1591,6 +1591,7 @@ const ReviewSummary = ({
   kit,
   email,
   city,
+  contactPhone,
   isPrimary,
   numberSource,
   phone,
@@ -1610,6 +1611,7 @@ const ReviewSummary = ({
   kit: string;
   email: string;
   city: string;
+  contactPhone: string;
   isPrimary: boolean;
   numberSource: NumberSource;
   phone: string;
@@ -1653,24 +1655,32 @@ const ReviewSummary = ({
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <ClipboardList className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground">Activation details</p>
+            <p className="text-sm font-semibold text-foreground">Summary</p>
           </div>
           <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
             <Pencil className="w-3 h-3" /> Edit
           </button>
         </div>
-        <Row label="Number type" value={numberSource === "mnp" ? "Ported number" : numberTier} />
+        <Row label="SIM Type" value={simType === "psim" ? "Physical SIM (P-SIM)" : "eSIM (E-SIM)"} />
+        {simType === "psim" && <Row label="KIT Number" value={kit || "—"} />}
         <Row
-          label="Phone number"
+          label="MSISDN"
           value={
             numberSource === "mnp"
               ? `${portNumber || "—"} (Port from ${portOperator || "—"})`
               : phone
           }
         />
-        <Row label="SIM type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-        {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
+        {numberMode === "plan" ? (
+          <Row label="Plan Name" value={planTitle || "—"} />
+        ) : (
+          <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
+        )}
+        {numberSource !== "mnp" && (
+          <Row label="Vanity level" value={numberTier} />
+        )}
         <Row label="City" value={city || "—"} />
+        <Row label="Contact Number" value={contactPhone || "—"} />
         <Row label="Email" value={email || "—"} />
         {SHOW_SET_AS_PRIMARY && <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />}
       </section>
@@ -1679,26 +1689,20 @@ const ReviewSummary = ({
       {/* Price details */}
       {(part === "all" || part === "price") && (
       <section className="bg-card rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Receipt className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <p className="text-sm font-semibold text-foreground">Price details</p>
-        </div>
         {numberMode === "topup" ? (
           <Row
-            label="Top-up value"
+            label="Top-up"
             value={topupValue ? `${topupValue} SAR` : "—"}
           />
         ) : (
           <Row
-            label={planTitle ? `Plan · ${planTitle}` : "Plan"}
+            label="Plan Price"
             value={planPrice != null ? `${planPrice} SAR` : "—"}
           />
         )}
         {numberSource !== "mnp" && (
           <Row
-            label={`SIM price (${numberTier})`}
+            label="SIM Price"
             value={`${simPrice} SAR`}
           />
         )}
