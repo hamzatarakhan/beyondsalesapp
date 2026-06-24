@@ -24,14 +24,6 @@ import ActivityIcon from "@/components/ActivityIcon";
 import SematiVerification from "@/components/SematiVerification";
 import { useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer";
-import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
 const activities = [
   { icon: Smartphone, label: "Prepaid", path: "/prepaid-search" },
@@ -51,21 +43,10 @@ const Home = () => {
   const navigate = useNavigate();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-  const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
 
   const handleActivityClick = (path: string) => {
     setPendingPath(path);
     setVerifyOpen(true);
-  };
-
-  const goWithMode = (mode: "classic" | "staged") => {
-    try {
-      sessionStorage.setItem("activationMode", mode);
-    } catch {}
-    const path = pendingPath;
-    setFlowChoiceOpen(false);
-    setPendingPath(null);
-    if (path) navigate(path);
   };
 
   return (
@@ -258,64 +239,10 @@ const Home = () => {
         }}
         onVerified={() => {
           setVerifyOpen(false);
-          // Only the Prepaid flow has the two-option choice; everything else
-          // navigates directly.
-          if (pendingPath === "/prepaid-search") {
-            setFlowChoiceOpen(true);
-          } else {
-            if (pendingPath) navigate(pendingPath);
-            setPendingPath(null);
-          }
+          if (pendingPath) navigate(pendingPath);
+          setPendingPath(null);
         }}
       />
-
-      <Drawer open={flowChoiceOpen} onOpenChange={(o) => { if (!o) { setFlowChoiceOpen(false); setPendingPath(null); } }}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
-          <button
-            onClick={() => { setFlowChoiceOpen(false); setPendingPath(null); }}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
-          >
-            <XIcon className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">Choose Activation Flow</DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground">
-              Select how you want to complete this activation
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-6 space-y-3">
-            <button
-              onClick={() => goWithMode("classic")}
-              className="w-full text-left flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <LayoutList className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 1 — Single page</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  All activation details on one screen (current flow).
-                </p>
-              </div>
-            </button>
-            <button
-              onClick={() => goWithMode("staged")}
-              className="w-full text-left flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <ListChecks className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 2 — Step by step</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Identity → SIM type → KIT validation → Details → Review & pay.
-                </p>
-              </div>
-            </button>
-          </div>
-        </DrawerContent>
-      </Drawer>
     </div>
   );
 };
