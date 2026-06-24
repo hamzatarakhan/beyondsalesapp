@@ -1202,7 +1202,7 @@ const PrepaidActivation = () => {
                     setPromoApplied({ code, ...found });
                     setPromoError("");
                   }}
-                  className="w-full h-12 rounded-full bg-primary/10 text-primary text-sm font-semibold"
+                  className="w-full h-12 rounded-full bg-primary/10 text-foreground text-sm font-semibold"
                 >
                   Apply
                 </button>
