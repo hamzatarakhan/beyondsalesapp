@@ -458,7 +458,20 @@ const PrepaidActivation = () => {
       : fallback;
 
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
-  const [kit, setKit] = useState<string>(d("kit", "1234567890"));
+  const [kit, setKit] = useState<string>(d("kit", ""));
+  const [invalidKitOpen, setInvalidKitOpen] = useState(false);
+  // KIT considered valid when it is exactly 10 digits and starts with "12"
+  // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
+  const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
+  const showDetails = simType === "esim" || isKitValid;
+
+  const handleKitChange = (val: string) => {
+    const digits = val.replace(/\D/g, "").slice(0, 10);
+    setKit(digits);
+    if (digits.length === 10 && !(digits.startsWith("12"))) {
+      setInvalidKitOpen(true);
+    }
+  };
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
   const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
   const [contactPhone, setContactPhone] = useState<string>(d("contactPhone", "0555555555"));
@@ -705,13 +718,14 @@ const PrepaidActivation = () => {
             <div className="relative">
               <Input
                 value={kit}
-                onChange={(e) => setKit(e.target.value)}
+                onChange={(e) => handleKitChange(e.target.value)}
                 placeholder="KIT Code (10 Digits)"
                 className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
+                inputMode="numeric"
               />
               <button
                 type="button"
-                onClick={() => setKit(Math.floor(1000000000 + Math.random() * 9000000000).toString())}
+                onClick={() => handleKitChange("1234567890")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
                 aria-label="Scan KIT"
               >
@@ -721,6 +735,7 @@ const PrepaidActivation = () => {
           </section>
         )}
 
+        {showDetails && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
@@ -1070,6 +1085,7 @@ const PrepaidActivation = () => {
           onEdit={() => setSigEditor("dealer")}
           onClear={() => setDealerSig(null)}
         />
+        </>)}
           </>
         )}
 
@@ -1397,6 +1413,31 @@ const PrepaidActivation = () => {
               className="w-full h-11 rounded-full border-primary text-primary"
             >
               Keep editing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Invalid KIT number dialog */}
+      <Dialog open={invalidKitOpen} onOpenChange={setInvalidKitOpen}>
+        <DialogContent className="max-w-[320px] rounded-2xl text-center">
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center">
+              <X className="w-7 h-7 text-destructive" strokeWidth={3} />
+            </div>
+            <DialogTitle className="text-base">Invalid KIT Number</DialogTitle>
+            <DialogDescription className="text-sm">
+              The entered KIT number is invalid. Please check the number and try again.
+            </DialogDescription>
+          </div>
+          <DialogFooter className="sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => {
+                setInvalidKitOpen(false);
+                setKit("");
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
