@@ -2161,27 +2161,50 @@ const SignaturePadSheet = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#0f172a";
-    ctx.lineWidth = 2.5;
-    // Restore previous signature if any
-    if (initial) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-        setHasInk(true);
-      };
-      img.src = initial;
-    } else {
-      setHasInk(false);
-    }
+
+    const setup = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return false;
+      // Preserve current drawing while resizing
+      const prev = canvas.toDataURL("image/png");
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return true;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = 2.5;
+      const source = initial || (hasInk ? prev : null);
+      if (source) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        };
+        img.src = source;
+        if (initial) setHasInk(true);
+      }
+      return true;
+    };
+
+    setHasInk(!!initial);
+    // Retry until layout settles (drawer animates open)
+    let raf = 0;
+    const tick = () => {
+      if (!setup()) raf = requestAnimationFrame(tick);
+    };
+    tick();
+
+    const ro = new ResizeObserver(() => setup());
+    ro.observe(canvas);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial]);
 
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
