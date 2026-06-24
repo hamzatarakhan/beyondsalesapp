@@ -519,7 +519,7 @@ const PrepaidActivation = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   // Staged-flow mode (Option 2 from Home). When true, step 1 is split into
-  // sub-stages: Identity → SIM type → KIT → Details.
+  // sub-stages: SIM type → KIT → Details.
   const staged = useMemo(() => {
     try {
       return sessionStorage.getItem("activationMode") === "staged";
@@ -527,14 +527,9 @@ const PrepaidActivation = () => {
       return false;
     }
   }, []);
-  const [subStep, setSubStep] = useState<0 | 1 | 2 | 3>(0);
-  const [customerIdNumber, setCustomerIdNumber] = useState<string>(
-    d("customerIdNumber", prefill?.idNumber ?? ""),
-  );
-  const [customerName, setCustomerName] = useState<string>(
-    d("customerName", prefill?.name ?? ""),
-  );
+  const [subStep, setSubStep] = useState<0 | 1 | 2>(0);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
+  // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
   const showDetails = simType === "esim" || isKitValid;
