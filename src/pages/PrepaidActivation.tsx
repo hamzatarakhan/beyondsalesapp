@@ -1154,7 +1154,6 @@ const PrepaidActivation = () => {
                   setPromoCode(e.target.value);
                   setPromoError("");
                 }}
-                disabled={false}
                 placeholder="Enter the code"
                 className="h-12 bg-background border rounded-xl"
               />
