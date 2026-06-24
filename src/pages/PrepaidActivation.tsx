@@ -460,6 +460,7 @@ const PrepaidActivation = () => {
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
   const [kit, setKit] = useState<string>(d("kit", ""));
   const [invalidKitOpen, setInvalidKitOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
@@ -1095,6 +1096,7 @@ const PrepaidActivation = () => {
             kit={kit}
             email={email}
             city={city}
+            contactPhone={contactPhone}
             isPrimary={isPrimary}
             numberSource={numberSource}
             phone={phone}
@@ -1225,6 +1227,7 @@ const PrepaidActivation = () => {
           kit={kit}
           email={email}
           city={city}
+          contactPhone={contactPhone}
           isPrimary={isPrimary}
           numberSource={numberSource}
           phone={phone}
@@ -1240,6 +1243,19 @@ const PrepaidActivation = () => {
           part="price"
           onEdit={() => setStep(1)}
         />
+
+        {/* Terms and Conditions */}
+        <section className="bg-card rounded-2xl p-4 shadow-sm">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary"
+            />
+            <span className="text-sm text-foreground">Terms and Conditions</span>
+          </label>
+        </section>
           </>
         )}
       </div>
@@ -1281,7 +1297,7 @@ const PrepaidActivation = () => {
                   </p>
                 )}
                 <Button
-                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing}
+                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing || !termsAccepted}
                   onClick={handlePay}
                   className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
                 >
@@ -1591,6 +1607,7 @@ const ReviewSummary = ({
   kit,
   email,
   city,
+  contactPhone,
   isPrimary,
   numberSource,
   phone,
@@ -1610,6 +1627,7 @@ const ReviewSummary = ({
   kit: string;
   email: string;
   city: string;
+  contactPhone: string;
   isPrimary: boolean;
   numberSource: NumberSource;
   phone: string;
@@ -1653,24 +1671,32 @@ const ReviewSummary = ({
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <ClipboardList className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground">Activation details</p>
+            <p className="text-sm font-semibold text-foreground">Summary</p>
           </div>
           <button onClick={onEdit} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
             <Pencil className="w-3 h-3" /> Edit
           </button>
         </div>
-        <Row label="Number type" value={numberSource === "mnp" ? "Ported number" : numberTier} />
+        <Row label="SIM Type" value={simType === "psim" ? "Physical SIM (P-SIM)" : "eSIM (E-SIM)"} />
+        {simType === "psim" && <Row label="KIT Number" value={kit || "—"} />}
         <Row
-          label="Phone number"
+          label="MSISDN"
           value={
             numberSource === "mnp"
               ? `${portNumber || "—"} (Port from ${portOperator || "—"})`
               : phone
           }
         />
-        <Row label="SIM type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-        {simType === "psim" && <Row label="KIT" value={kit || "—"} />}
+        {numberMode === "plan" ? (
+          <Row label="Plan Name" value={planTitle || "—"} />
+        ) : (
+          <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
+        )}
+        {numberSource !== "mnp" && (
+          <Row label="Vanity level" value={numberTier} />
+        )}
         <Row label="City" value={city || "—"} />
+        <Row label="Contact Number" value={contactPhone || "—"} />
         <Row label="Email" value={email || "—"} />
         {SHOW_SET_AS_PRIMARY && <Row label="Primary line" value={isPrimary ? "Yes" : "No"} />}
       </section>
@@ -1679,26 +1705,20 @@ const ReviewSummary = ({
       {/* Price details */}
       {(part === "all" || part === "price") && (
       <section className="bg-card rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Receipt className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <p className="text-sm font-semibold text-foreground">Price details</p>
-        </div>
         {numberMode === "topup" ? (
           <Row
-            label="Top-up value"
+            label="Top-up"
             value={topupValue ? `${topupValue} SAR` : "—"}
           />
         ) : (
           <Row
-            label={planTitle ? `Plan · ${planTitle}` : "Plan"}
+            label="Plan Price"
             value={planPrice != null ? `${planPrice} SAR` : "—"}
           />
         )}
         {numberSource !== "mnp" && (
           <Row
-            label={`SIM price (${numberTier})`}
+            label="SIM Price"
             value={`${simPrice} SAR`}
           />
         )}
