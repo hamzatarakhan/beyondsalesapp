@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
+import { SarIcon } from "@/components/SarIcon";
 import {
   CheckCircle2,
   User,
@@ -65,9 +66,11 @@ const ExistingCustomerFound = () => {
         {
           icon: Sparkles,
           label: "Plan",
-          value: prev.planTitle
-            ? `${prev.planTitle} • ${prev.planPrice} SAR / ${prev.planValidity}`
-            : undefined,
+          value: prev.planTitle ? (
+            <span className="inline-flex items-center gap-1">
+              {prev.planTitle} • {prev.planPrice} <SarIcon className="opacity-70" /> / {prev.planValidity}
+            </span>
+          ) : undefined,
         },
         {
           icon: CreditCard,
