@@ -1695,7 +1695,7 @@ const ReviewSummary = ({
         ) : (
           <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
         )}
-        {simType === "psim" && (
+        {numberSource !== "mnp" && (
           <Row label="Vanity level" value={numberTier} />
         )}
         <Row label="City" value={city || "—"} />
