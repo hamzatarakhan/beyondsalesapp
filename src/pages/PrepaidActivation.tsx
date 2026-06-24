@@ -722,7 +722,43 @@ const PrepaidActivation = () => {
 
         {step === 1 && (
           <>
+        {staged && (
+          <SubStepper current={subStep} skipKit={simType === "esim"} />
+        )}
+
+        {/* Identity — staged-only stage 1 */}
+        {staged && subStep === 0 && (
+          <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Identity <span className="text-destructive">*</span></h3>
+              <p className="text-[11px] text-muted-foreground">Capture the customer identity to start.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">ID Number <span className="text-destructive">*</span></label>
+              <Input
+                value={customerIdNumber}
+                onChange={(e) =>
+                  setCustomerIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
+                }
+                placeholder="10-digit ID"
+                inputMode="numeric"
+                className="h-11 bg-muted/40 border-0 rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Name <span className="text-destructive">*</span></label>
+              <Input
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Full name"
+                className="h-11 bg-muted/40 border-0 rounded-xl"
+              />
+            </div>
+          </section>
+        )}
+
         {/* SIM Type */}
+        {(!staged || subStep === 1) && (
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type <span className="text-destructive">*</span></h3>
           <div className="grid grid-cols-2 gap-3">
@@ -730,9 +766,10 @@ const PrepaidActivation = () => {
             <SimCard active={simType === "esim"} label="E-SIM" onClick={() => setSimType("esim")} />
           </div>
         </section>
+        )}
 
         {/* KIT (P-SIM only) */}
-        {simType === "psim" && (
+        {simType === "psim" && (!staged || subStep === 2) && (
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
@@ -752,10 +789,15 @@ const PrepaidActivation = () => {
                 <ScanLine className="w-5 h-5" />
               </button>
             </div>
+            {staged && (
+              <p className="text-[11px] text-muted-foreground mt-2">
+                The KIT will be validated when you tap Continue.
+              </p>
+            )}
           </section>
         )}
 
-        {showDetails && (<>
+        {((!staged && showDetails) || (staged && subStep === 3)) && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
