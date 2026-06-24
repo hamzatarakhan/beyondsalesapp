@@ -1244,18 +1244,22 @@ const PrepaidActivation = () => {
 
         {/* Terms and Conditions */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
-          <label className="flex items-center gap-3 cursor-pointer select-none">
+          <div className="flex items-center gap-3 select-none">
             <input
+              id="terms-checkbox"
               type="checkbox"
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary"
+              className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary cursor-pointer"
             />
             <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
               <DrawerTrigger asChild>
-                <span className="text-sm text-foreground">
+                <button
+                  type="button"
+                  className="text-sm text-foreground text-left"
+                >
                   Terms and Conditions
-                </span>
+                </button>
               </DrawerTrigger>
               <DrawerContent className="max-h-[85vh]">
                 <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
@@ -1303,7 +1307,7 @@ const PrepaidActivation = () => {
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
-          </label>
+          </div>
         </section>
           </>
         )}
