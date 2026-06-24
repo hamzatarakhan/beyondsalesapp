@@ -1419,7 +1419,7 @@ const PrepaidActivation = () => {
       </Dialog>
       {/* Invalid KIT number dialog */}
       <Dialog open={invalidKitOpen} onOpenChange={setInvalidKitOpen}>
-        <DialogContent className="max-w-[320px] rounded-2xl text-center" hideClose>
+        <DialogContent className="max-w-[320px] rounded-2xl text-center">
           <div className="flex flex-col items-center gap-3 pt-2">
             <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center">
               <X className="w-7 h-7 text-destructive" strokeWidth={3} />
