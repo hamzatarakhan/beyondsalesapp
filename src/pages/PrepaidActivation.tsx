@@ -461,6 +461,7 @@ const PrepaidActivation = () => {
   const [kit, setKit] = useState<string>(d("kit", ""));
   const [invalidKitOpen, setInvalidKitOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
