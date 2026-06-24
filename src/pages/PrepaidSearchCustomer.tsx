@@ -11,16 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  RotateCcw,
-  UserPlus,
-  History,
-  ScanLine,
-  ClipboardEdit,
-  Wallet,
-  ChevronRight,
-} from "lucide-react";
+import { AlertCircle, RotateCcw, UserPlus, History } from "lucide-react";
+import FlowStepper from "@/components/FlowStepper";
 import {
   Dialog,
   DialogContent,
@@ -169,7 +161,7 @@ const PrepaidSearchCustomer = () => {
       <AppHeader title="Search Customer" showBack />
 
       <div className="flex-1 px-4 pb-28">
-        <Stepper current={0} />
+        <FlowStepper current={0} />
         <Field
           label="ID Type"
           required
