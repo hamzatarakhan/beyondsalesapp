@@ -293,9 +293,9 @@ const Home = () => {
                 <LayoutList className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 1 — Single page</p>
+                <p className="font-semibold text-sm text-foreground">Option 1 -- 3 stages</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  All activation details on one screen (current flow).
+                  Details → Review & pay → Complete.
                 </p>
               </div>
             </button>
@@ -307,9 +307,9 @@ const Home = () => {
                 <ListChecks className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 2 — Step by step</p>
+                <p className="font-semibold text-sm text-foreground">Option 2 -- Multiple steps</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  SIM type → KIT validation → Details → Review & pay.
+                  SIM & KIT → Details → Review & pay.
                 </p>
               </div>
             </button>
