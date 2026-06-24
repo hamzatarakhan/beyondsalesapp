@@ -458,7 +458,20 @@ const PrepaidActivation = () => {
       : fallback;
 
   const [simType, setSimType] = useState<SimType>(d("simType", "psim"));
-  const [kit, setKit] = useState<string>(d("kit", "1234567890"));
+  const [kit, setKit] = useState<string>(d("kit", ""));
+  const [invalidKitOpen, setInvalidKitOpen] = useState(false);
+  // KIT considered valid when it is exactly 10 digits and starts with "12"
+  // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
+  const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
+  const showDetails = simType === "esim" || isKitValid;
+
+  const handleKitChange = (val: string) => {
+    const digits = val.replace(/\D/g, "").slice(0, 10);
+    setKit(digits);
+    if (digits.length === 10 && !(digits.startsWith("12"))) {
+      setInvalidKitOpen(true);
+    }
+  };
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
   const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
   const [contactPhone, setContactPhone] = useState<string>(d("contactPhone", "0555555555"));
@@ -705,13 +718,14 @@ const PrepaidActivation = () => {
             <div className="relative">
               <Input
                 value={kit}
-                onChange={(e) => setKit(e.target.value)}
+                onChange={(e) => handleKitChange(e.target.value)}
                 placeholder="KIT Code (10 Digits)"
                 className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
+                inputMode="numeric"
               />
               <button
                 type="button"
-                onClick={() => setKit(Math.floor(1000000000 + Math.random() * 9000000000).toString())}
+                onClick={() => handleKitChange("1234567890")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
                 aria-label="Scan KIT"
               >
@@ -721,6 +735,7 @@ const PrepaidActivation = () => {
           </section>
         )}
 
+        {showDetails && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
