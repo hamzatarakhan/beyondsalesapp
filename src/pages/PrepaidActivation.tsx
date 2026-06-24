@@ -1688,11 +1688,14 @@ const ReviewSummary = ({
           }
         />
         {numberMode === "plan" ? (
-          <Row label="Plan Name" value={planTitle || "—"} />
+          <>
+            <Row label="Plan Name" value={planTitle || "—"} />
+            <Row label="Plan Price" value={planPrice != null ? `${planPrice} SAR` : "—"} />
+          </>
         ) : (
           <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
         )}
-        {numberSource !== "mnp" && (
+        {simType === "psim" && (
           <Row label="Vanity level" value={numberTier} />
         )}
         <Row label="City" value={city || "—"} />
@@ -1716,7 +1719,7 @@ const ReviewSummary = ({
             value={planPrice != null ? `${planPrice} SAR` : "—"}
           />
         )}
-        {numberSource !== "mnp" && (
+        {simType === "psim" && (
           <Row
             label="SIM Price"
             value={`${simPrice} SAR`}
