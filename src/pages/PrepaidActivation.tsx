@@ -784,7 +784,7 @@ const PrepaidActivation = () => {
         )}
 
         {/* KIT (P-SIM only) */}
-        {simType === "psim" && (!staged || subStep === 1) && (
+        {simType === "psim" && (!staged || subStep === 0) && (
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
@@ -812,7 +812,7 @@ const PrepaidActivation = () => {
           </section>
         )}
 
-        {((!staged && showDetails) || (staged && subStep === 2)) && (<>
+        {((!staged && showDetails) || (staged && subStep === 1)) && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
