@@ -1095,6 +1095,7 @@ const PrepaidActivation = () => {
             kit={kit}
             email={email}
             city={city}
+            contactPhone={contactPhone}
             isPrimary={isPrimary}
             numberSource={numberSource}
             phone={phone}
@@ -1225,6 +1226,7 @@ const PrepaidActivation = () => {
           kit={kit}
           email={email}
           city={city}
+          contactPhone={contactPhone}
           isPrimary={isPrimary}
           numberSource={numberSource}
           phone={phone}
