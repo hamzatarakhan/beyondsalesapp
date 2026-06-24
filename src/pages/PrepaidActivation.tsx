@@ -138,6 +138,61 @@ const DEFAULT_FILTERS: PlanFilters = {
   mins: [MINS_MIN, MINS_MAX],
 };
 
+// Sub-stage indicator for the staged activation flow (Option 2).
+const SubStepper = ({
+  current,
+  skipKit,
+}: {
+  current: 0 | 1 | 2 | 3;
+  skipKit: boolean;
+}) => {
+  const steps = [
+    { i: 0, label: "Identity" },
+    { i: 1, label: "SIM type" },
+    { i: 2, label: "KIT", hide: skipKit },
+    { i: 3, label: "Details" },
+  ].filter((s) => !s.hide);
+  return (
+    <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
+      {steps.map((s, idx) => {
+        const active = current === s.i;
+        const done = current > s.i;
+        return (
+          <div key={s.i} className="flex items-center gap-1 shrink-0">
+            <div
+              className={cn(
+                "flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-medium",
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : done
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              <span
+                className={cn(
+                  "w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center",
+                  active
+                    ? "bg-primary-foreground/20"
+                    : done
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted-foreground/20",
+                )}
+              >
+                {done ? <Check className="w-2.5 h-2.5" /> : idx + 1}
+              </span>
+              {s.label}
+            </div>
+            {idx < steps.length - 1 && (
+              <ArrowRight className="w-3 h-3 text-muted-foreground/60" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const parsePlanData = (s: string) => {
   if (/unlimited/i.test(s)) return DATA_MAX;
   const m = s.match(/\d+/);
@@ -464,6 +519,22 @@ const PrepaidActivation = () => {
   const [invalidKitOpen, setInvalidKitOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  // Staged-flow mode (Option 2 from Home). When true, step 1 is split into
+  // sub-stages: Identity → SIM type → KIT → Details.
+  const staged = useMemo(() => {
+    try {
+      return sessionStorage.getItem("activationMode") === "staged";
+    } catch {
+      return false;
+    }
+  }, []);
+  const [subStep, setSubStep] = useState<0 | 1 | 2 | 3>(0);
+  const [customerIdNumber, setCustomerIdNumber] = useState<string>(
+    d("customerIdNumber", prefill?.idNumber ?? ""),
+  );
+  const [customerName, setCustomerName] = useState<string>(
+    d("customerName", prefill?.name ?? ""),
+  );
   // KIT considered valid when it is exactly 10 digits and starts with "12"
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
@@ -676,7 +747,15 @@ const PrepaidActivation = () => {
       <AppHeader
         title="Prepaid Activation"
         showBack
-        onBackClick={() => step === 2 ? setStep(1) : navigate(-1)}
+        onBackClick={() => {
+          if (step === 2) return setStep(1);
+          if (staged && subStep > 0) {
+            // Skip KIT step when going back from Details on eSIM
+            if (subStep === 3 && simType === "esim") return setSubStep(1);
+            return setSubStep((subStep - 1) as 0 | 1 | 2 | 3);
+          }
+          navigate(-1);
+        }}
         rightElement={
           <button
             onClick={() => setCancelOpen(true)}
@@ -706,7 +785,43 @@ const PrepaidActivation = () => {
 
         {step === 1 && (
           <>
+        {staged && (
+          <SubStepper current={subStep} skipKit={simType === "esim"} />
+        )}
+
+        {/* Identity — staged-only stage 1 */}
+        {staged && subStep === 0 && (
+          <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Identity <span className="text-destructive">*</span></h3>
+              <p className="text-[11px] text-muted-foreground">Capture the customer identity to start.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">ID Number <span className="text-destructive">*</span></label>
+              <Input
+                value={customerIdNumber}
+                onChange={(e) =>
+                  setCustomerIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
+                }
+                placeholder="10-digit ID"
+                inputMode="numeric"
+                className="h-11 bg-muted/40 border-0 rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Name <span className="text-destructive">*</span></label>
+              <Input
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Full name"
+                className="h-11 bg-muted/40 border-0 rounded-xl"
+              />
+            </div>
+          </section>
+        )}
+
         {/* SIM Type */}
+        {(!staged || subStep === 1) && (
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type <span className="text-destructive">*</span></h3>
           <div className="grid grid-cols-2 gap-3">
@@ -714,9 +829,10 @@ const PrepaidActivation = () => {
             <SimCard active={simType === "esim"} label="E-SIM" onClick={() => setSimType("esim")} />
           </div>
         </section>
+        )}
 
         {/* KIT (P-SIM only) */}
-        {simType === "psim" && (
+        {simType === "psim" && (!staged || subStep === 2) && (
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
@@ -736,10 +852,15 @@ const PrepaidActivation = () => {
                 <ScanLine className="w-5 h-5" />
               </button>
             </div>
+            {staged && (
+              <p className="text-[11px] text-muted-foreground mt-2">
+                The KIT will be validated when you tap Continue.
+              </p>
+            )}
           </section>
         )}
 
-        {showDetails && (<>
+        {((!staged && showDetails) || (staged && subStep === 3)) && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
@@ -1316,7 +1437,39 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 ? (() => {
+          {step === 1 && staged && subStep < 3 ? (() => {
+            const advance = () => {
+              if (subStep === 0) return setSubStep(1);
+              if (subStep === 1) {
+                // skip KIT on eSIM
+                return setSubStep(simType === "esim" ? 3 : 2);
+              }
+              if (subStep === 2) {
+                if (!isKitValid) {
+                  setInvalidKitOpen(true);
+                  return;
+                }
+                return setSubStep(3);
+              }
+            };
+            const canContinue =
+              subStep === 0
+                ? customerIdNumber.trim().length === 10 && customerName.trim().length > 0
+                : subStep === 1
+                ? !!simType
+                : subStep === 2
+                ? kit.trim().length === 10
+                : false;
+            return (
+              <Button
+                disabled={!canContinue}
+                onClick={advance}
+                className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                Continue <ArrowRight className="w-4 h-4" />
+              </Button>
+            );
+          })() : step === 1 ? (() => {
             const detailsReady =
               (simType === "psim" ? kit.trim().length > 0 : true) &&
               !!city &&
