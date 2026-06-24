@@ -2104,36 +2104,33 @@ const SignatureBox = ({
       </h3>
       {value && (
         <button
-          onClick={onClear}
-          className="text-[11px] text-destructive font-medium flex items-center gap-1"
+          onClick={onEdit}
+          className="text-xs text-primary font-semibold flex items-center gap-1"
         >
-          <Eraser className="w-3 h-3" /> Clear
+          <RefreshCw className="w-3.5 h-3.5" /> Change
         </button>
       )}
     </div>
     {value ? (
       <button
         onClick={onEdit}
-        className="w-full bg-card rounded-2xl p-3 border border-emerald-200 shadow-sm flex items-center gap-3"
+        className="w-full bg-card rounded-2xl p-3 border border-border shadow-sm flex items-center justify-center"
       >
         <img
           src={value}
           alt={`${title} preview`}
-          className="h-16 flex-1 object-contain"
+          className="h-28 w-full object-contain"
         />
-        <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-          <Pencil className="w-3.5 h-3.5" /> Edit
-        </span>
       </button>
     ) : (
       <button
         onClick={onEdit}
-        className="w-full border-2 border-dashed border-primary/30 rounded-2xl bg-card py-8 flex flex-col items-center gap-2 active:bg-primary/5 transition-colors"
+        className="w-full border-2 border-dashed border-border rounded-2xl bg-card py-8 flex flex-col items-center gap-2 active:bg-primary/5 transition-colors"
       >
         <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
           <Plus className="w-4 h-4" />
         </span>
-        <p className="text-xs text-muted-foreground">Tap to sign</p>
+        <p className="text-sm text-muted-foreground">Upload your signature here</p>
       </button>
     )}
   </section>
