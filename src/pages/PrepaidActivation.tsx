@@ -1253,7 +1253,7 @@ const PrepaidActivation = () => {
             />
             <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
               <DrawerTrigger asChild>
-                <span className="text-sm text-foreground underline underline-offset-2 decoration-primary/50">
+                <span className="text-sm text-foreground">
                   Terms and Conditions
                 </span>
               </DrawerTrigger>
