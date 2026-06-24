@@ -745,8 +745,8 @@ const PrepaidActivation = () => {
           if (step === 2) return setStep(1);
           if (staged && subStep > 0) {
             // Skip KIT step when going back from Details on eSIM
-            if (subStep === 3 && simType === "esim") return setSubStep(1);
-            return setSubStep((subStep - 1) as 0 | 1 | 2 | 3);
+            if (subStep === 2 && simType === "esim") return setSubStep(0);
+            return setSubStep((subStep - 1) as 0 | 1 | 2);
           }
           navigate(-1);
         }}
