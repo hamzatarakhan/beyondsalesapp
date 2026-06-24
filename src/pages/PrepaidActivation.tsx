@@ -139,18 +139,11 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Sub-stage indicator for the staged activation flow (Option 2).
-const SubStepper = ({
-  current,
-  skipKit,
-}: {
-  current: 0 | 1 | 2;
-  skipKit: boolean;
-}) => {
+const SubStepper = ({ current }: { current: 0 | 1 }) => {
   const steps = [
-    { i: 0, label: "SIM type" },
-    { i: 1, label: "KIT", hide: skipKit },
-    { i: 2, label: "Details" },
-  ].filter((s) => !s.hide);
+    { i: 0, label: "SIM & KIT" },
+    { i: 1, label: "Details" },
+  ];
   return (
     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
       {steps.map((s, idx) => {
@@ -527,7 +520,7 @@ const PrepaidActivation = () => {
       return false;
     }
   }, []);
-  const [subStep, setSubStep] = useState<0 | 1 | 2>(0);
+  const [subStep, setSubStep] = useState<0 | 1>(0);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
@@ -744,9 +737,7 @@ const PrepaidActivation = () => {
         onBackClick={() => {
           if (step === 2) return setStep(1);
           if (staged && subStep > 0) {
-            // Skip KIT step when going back from Details on eSIM
-            if (subStep === 2 && simType === "esim") return setSubStep(0);
-            return setSubStep((subStep - 1) as 0 | 1 | 2);
+            return setSubStep(0);
           }
           navigate(-1);
         }}
@@ -779,9 +770,7 @@ const PrepaidActivation = () => {
 
         {step === 1 && (
           <>
-        {staged && (
-          <SubStepper current={subStep} skipKit={simType === "esim"} />
-        )}
+        {staged && <SubStepper current={subStep} />}
 
         {/* SIM Type */}
         {(!staged || subStep === 0) && (
@@ -795,7 +784,7 @@ const PrepaidActivation = () => {
         )}
 
         {/* KIT (P-SIM only) */}
-        {simType === "psim" && (!staged || subStep === 1) && (
+        {simType === "psim" && (!staged || subStep === 0) && (
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
@@ -823,7 +812,7 @@ const PrepaidActivation = () => {
           </section>
         )}
 
-        {((!staged && showDetails) || (staged && subStep === 2)) && (<>
+        {((!staged && showDetails) || (staged && subStep === 1)) && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
@@ -1400,26 +1389,19 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 && staged && subStep < 2 ? (() => {
+          {step === 1 && staged && subStep < 1 ? (() => {
             const advance = () => {
-              if (subStep === 0) {
-                // skip KIT on eSIM
-                return setSubStep(simType === "esim" ? 2 : 1);
-              }
-              if (subStep === 1) {
+              // On the combined SIM + KIT stage, validate KIT for P-SIM
+              if (simType === "psim") {
                 if (!isKitValid) {
                   setInvalidKitOpen(true);
                   return;
                 }
-                return setSubStep(2);
               }
+              setSubStep(1);
             };
             const canContinue =
-              subStep === 0
-                ? !!simType
-                : subStep === 1
-                ? kit.trim().length === 10
-                : false;
+              simType === "esim" || kit.trim().length === 10;
             return (
               <Button
                 disabled={!canContinue}
