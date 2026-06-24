@@ -1297,7 +1297,7 @@ const PrepaidActivation = () => {
                   </p>
                 )}
                 <Button
-                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing}
+                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing || !termsAccepted}
                   onClick={handlePay}
                   className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
                 >
