@@ -1133,12 +1133,7 @@ const PrepaidActivation = () => {
         {/* Promo code */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Tag className="w-3.5 h-3.5 text-primary" />
-              </div>
-              <p className="text-sm font-semibold text-foreground">Promo code</p>
-            </div>
+            <p className="text-sm font-semibold text-foreground">Promo code</p>
             <Switch
               checked={promoOn}
               onCheckedChange={(v) => {
@@ -1152,71 +1147,69 @@ const PrepaidActivation = () => {
             />
           </div>
           {promoOn && (
-            <div className="mt-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <Input
-                  value={promoCode}
-                  onChange={(e) => {
-                    setPromoCode(e.target.value);
-                    setPromoError("");
-                  }}
-                  disabled={!!promoApplied}
-                  placeholder="Enter the code"
-                  className="h-11 bg-muted/40 border-0 rounded-xl flex-1"
-                />
-                {promoApplied ? (
+            <div className="mt-3 space-y-3">
+              <Input
+                value={promoCode}
+                onChange={(e) => {
+                  setPromoCode(e.target.value);
+                  setPromoError("");
+                }}
+                disabled={!!promoApplied}
+                placeholder="Enter the code"
+                className="h-12 bg-background border rounded-xl"
+              />
+              {promoApplied ? (
+                <>
+                  <div className="flex items-center gap-1.5 text-sm text-emerald-600 font-medium">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      Code “{promoApplied.code}” applied -{" "}
+                      {promoApplied.type === "percent"
+                        ? `${promoApplied.value}% off`
+                        : `${promoApplied.value} SAR off`}
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       setPromoApplied(null);
                       setPromoError("");
                     }}
-                    className="h-11 px-4 rounded-xl bg-muted text-foreground text-sm font-semibold"
+                    className="w-full h-12 rounded-full bg-primary text-primary-foreground text-sm font-semibold"
                   >
                     Remove
                   </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const code = promoCode.trim().toUpperCase();
-                      const catalog: Record<string, { type: "percent" | "flat"; value: number }> = {
-                        WELCOME10: { type: "percent", value: 10 },
-                        SAVE20: { type: "percent", value: 20 },
-                        FLAT50: { type: "flat", value: 50 },
-                      };
-                      if (!code) {
-                        setPromoError("Please enter a promo code");
-                        return;
-                      }
-                      const found = catalog[code];
-                      if (!found) {
-                        setPromoError("Invalid or expired promo code");
-                        return;
-                      }
-                      setPromoApplied({ code, ...found });
-                      setPromoError("");
-                    }}
-                    className="h-11 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
-                  >
-                    Apply
-                  </button>
-                )}
-              </div>
-              {promoApplied && (
-                <p className="text-[11px] text-emerald-600 font-medium">
-                  ✓ Code “{promoApplied.code}” applied —{" "}
-                  {promoApplied.type === "percent"
-                    ? `${promoApplied.value}% off`
-                    : `${promoApplied.value} SAR off`}
-                </p>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = promoCode.trim().toUpperCase();
+                    const catalog: Record<string, { type: "percent" | "flat"; value: number }> = {
+                      WELCOME10: { type: "percent", value: 10 },
+                      SAVE20: { type: "percent", value: 20 },
+                      FLAT50: { type: "flat", value: 50 },
+                    };
+                    if (!code) {
+                      setPromoError("Please enter a promo code");
+                      return;
+                    }
+                    const found = catalog[code];
+                    if (!found) {
+                      setPromoError("Invalid or expired promo code");
+                      return;
+                    }
+                    setPromoApplied({ code, ...found });
+                    setPromoError("");
+                  }}
+                  className="w-full h-12 rounded-full bg-primary/10 text-foreground text-sm font-semibold"
+                >
+                  Apply
+                </button>
               )}
               {promoError && (
                 <p className="text-[11px] text-destructive font-medium">{promoError}</p>
               )}
-              <p className="text-[10px] text-muted-foreground">
-                Try: WELCOME10, SAVE20, FLAT50
-              </p>
             </div>
           )}
         </section>
