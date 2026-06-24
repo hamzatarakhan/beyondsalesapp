@@ -61,6 +61,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SarIcon } from "@/components/SarIcon";
 
 type SimType = "psim" | "esim";
 type PayMethod = "card" | "cash" | "apple";
