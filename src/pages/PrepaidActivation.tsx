@@ -59,6 +59,7 @@ import {
   Database,
   History,
   Receipt,
+  UploadCloud,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -2228,59 +2229,89 @@ const SignaturePadSheet = ({
     onSave(canvas.toDataURL("image/png"));
   };
 
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const rect = canvas.getBoundingClientRect();
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // contain
+        const ratio = Math.min(rect.width / img.width, rect.height / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const x = (rect.width - w) / 2;
+        const y = (rect.height - h) / 2;
+        ctx.drawImage(img, x, y, w, h);
+        setHasInk(true);
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[92vh]">
         <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="font-semibold text-foreground">{title}</h3>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
-            aria-label="Close"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-5 w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4 text-foreground" />
+        </button>
+        <div className="text-center px-8 mb-4">
+          <h3 className="text-xl font-bold text-foreground">Signature</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Please add your signature in the box below.
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Sign with your finger inside the box below.
-        </p>
 
-        <div className="relative rounded-2xl border-2 border-dashed border-primary/30 bg-muted/30 mb-3">
+        <div className="relative rounded-2xl bg-muted/40 mb-5 flex-1 min-h-[360px]">
+          <label className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-primary text-primary text-xs font-semibold bg-card cursor-pointer">
+            <UploadCloud className="w-3.5 h-3.5" />
+            Upload Signature
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleUpload}
+            />
+          </label>
           <canvas
             ref={canvasRef}
-            className="w-full h-44 rounded-2xl touch-none"
+            className="w-full h-full absolute inset-0 rounded-2xl touch-none"
             onPointerDown={start}
             onPointerMove={move}
             onPointerUp={end}
             onPointerCancel={end}
             onPointerLeave={end}
           />
-          <div className="absolute bottom-1.5 left-0 right-0 mx-auto w-3/4 border-b border-muted-foreground/30 pointer-events-none" />
-          {!hasInk && (
-            <p className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground pointer-events-none">
-              Draw your signature here
-            </p>
-          )}
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={clear}
-            className="flex-1 h-11 rounded-full"
-          >
-            <Eraser className="w-4 h-4 mr-1.5" />
-            Clear
-          </Button>
+        <div className="flex flex-col gap-2">
           <Button
             onClick={save}
             disabled={!hasInk}
-            className="flex-1 h-11 rounded-full"
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-base"
           >
-            <CheckCircle2 className="w-4 h-4 mr-1.5" />
-            Save
+            Apply
           </Button>
+          <button
+            type="button"
+            onClick={hasInk ? clear : onClose}
+            className="w-full h-11 text-primary font-semibold text-base"
+          >
+            {hasInk ? "Clear" : "Cancel"}
+          </button>
         </div>
       </DrawerContent>
     </Drawer>
