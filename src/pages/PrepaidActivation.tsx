@@ -1242,6 +1242,19 @@ const PrepaidActivation = () => {
           part="price"
           onEdit={() => setStep(1)}
         />
+
+        {/* Terms and Conditions */}
+        <section className="bg-card rounded-2xl p-4 shadow-sm">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary"
+            />
+            <span className="text-sm text-foreground">Terms and Conditions</span>
+          </label>
+        </section>
           </>
         )}
       </div>
