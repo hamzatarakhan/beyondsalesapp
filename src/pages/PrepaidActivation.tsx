@@ -143,14 +143,13 @@ const SubStepper = ({
   current,
   skipKit,
 }: {
-  current: 0 | 1 | 2 | 3;
+  current: 0 | 1 | 2;
   skipKit: boolean;
 }) => {
   const steps = [
-    { i: 0, label: "Identity" },
-    { i: 1, label: "SIM type" },
-    { i: 2, label: "KIT", hide: skipKit },
-    { i: 3, label: "Details" },
+    { i: 0, label: "SIM type" },
+    { i: 1, label: "KIT", hide: skipKit },
+    { i: 2, label: "Details" },
   ].filter((s) => !s.hide);
   return (
     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
