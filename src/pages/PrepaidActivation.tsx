@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
+import FlowStepper from "@/components/FlowStepper";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -683,26 +684,7 @@ const PrepaidActivation = () => {
         )}
 
         {/* Step indicator */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <StepPill
-            icon={step > 1 ? <Check className="w-5 h-5" strokeWidth={3} /> : <ClipboardList className="w-5 h-5" />}
-            label="Details"
-            active={step === 1}
-            done={step > 1}
-          />
-          <ArrowRight
-            className={cn(
-              "w-4 h-4 -mt-5 shrink-0",
-              step > 1 ? "text-primary" : "text-muted-foreground/50",
-            )}
-          />
-          <StepPill
-            icon={<CreditCard className="w-5 h-5" />}
-            label="Payment"
-            active={step === 2}
-            done={false}
-          />
-        </div>
+        <FlowStepper current={step === 1 ? 1 : 2} />
 
         {step === 1 && (
           <>
