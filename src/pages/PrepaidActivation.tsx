@@ -747,7 +747,15 @@ const PrepaidActivation = () => {
       <AppHeader
         title="Prepaid Activation"
         showBack
-        onBackClick={() => step === 2 ? setStep(1) : navigate(-1)}
+        onBackClick={() => {
+          if (step === 2) return setStep(1);
+          if (staged && subStep > 0) {
+            // Skip KIT step when going back from Details on eSIM
+            if (subStep === 3 && simType === "esim") return setSubStep(1);
+            return setSubStep((subStep - 1) as 0 | 1 | 2 | 3);
+          }
+          navigate(-1);
+        }}
         rightElement={
           <button
             onClick={() => setCancelOpen(true)}
@@ -1429,7 +1437,39 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 ? (() => {
+          {step === 1 && staged && subStep < 3 ? (() => {
+            const advance = () => {
+              if (subStep === 0) return setSubStep(1);
+              if (subStep === 1) {
+                // skip KIT on eSIM
+                return setSubStep(simType === "esim" ? 3 : 2);
+              }
+              if (subStep === 2) {
+                if (!isKitValid) {
+                  setInvalidKitOpen(true);
+                  return;
+                }
+                return setSubStep(3);
+              }
+            };
+            const canContinue =
+              subStep === 0
+                ? customerIdNumber.trim().length === 10 && customerName.trim().length > 0
+                : subStep === 1
+                ? !!simType
+                : subStep === 2
+                ? kit.trim().length === 10
+                : false;
+            return (
+              <Button
+                disabled={!canContinue}
+                onClick={advance}
+                className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                Continue <ArrowRight className="w-4 h-4" />
+              </Button>
+            );
+          })() : step === 1 ? (() => {
             const detailsReady =
               (simType === "psim" ? kit.trim().length > 0 : true) &&
               !!city &&
