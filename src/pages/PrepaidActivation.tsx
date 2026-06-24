@@ -1256,6 +1256,10 @@ const PrepaidActivation = () => {
                 </span>
               </DrawerTrigger>
               <DrawerContent className="max-h-[85vh]">
+                <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                  <X className="h-5 w-5 text-foreground" />
+                  <span className="sr-only">Close</span>
+                </DrawerClose>
                 <DrawerHeader className="text-center">
                   <DrawerTitle>Terms and Conditions</DrawerTitle>
                   <DrawerDescription>
