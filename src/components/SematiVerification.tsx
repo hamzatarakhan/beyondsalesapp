@@ -165,9 +165,9 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               onClick={() => pickMethod("nafath")}
               iconBg="bg-teal-500"
               iconContent={
-              <span className="text-white text-[10px] font-bold tracking-tight">
-                Nafath
-              </span>
+                <span className="text-white text-[10px] font-bold tracking-tight" dir="rtl">
+                  نفاذ
+                </span>
               }
               title="Nafath"
               desc="Approve the verification request through the Nafath app."
@@ -199,7 +199,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
         {step === "nafath_code" && (
           <div className="flex flex-col items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">Nafath</span>
+              <span className="text-white text-sm font-bold" dir="rtl">نفاذ</span>
             </div>
             <h4 className="font-semibold text-teal-600 -mt-1">Nafath Verification</h4>
             <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-left flex gap-2">

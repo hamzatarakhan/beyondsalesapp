@@ -66,7 +66,7 @@ const ExistingCustomerFound = () => {
           icon: Sparkles,
           label: "Plan",
           value: prev.planTitle
-            ? `${prev.planTitle} • ${prev.planPrice} ﷼ / ${prev.planValidity}`
+            ? `${prev.planTitle} • ${prev.planPrice} SAR / ${prev.planValidity}`
             : undefined,
         },
         {

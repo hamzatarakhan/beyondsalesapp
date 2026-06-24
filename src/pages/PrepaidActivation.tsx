@@ -117,7 +117,7 @@ const VALIDITY_OPTIONS: { value: string; label: string }[] = [
 
 type PlanFilters = {
   validity: string[];
-  price: [number, number]; // ﷼
+  price: [number, number]; // SAR
   data: [number, number]; // GB, DATA_MAX = Unlimited
   mins: [number, number]; // minutes, MINS_MAX = Unlimited
 };
@@ -844,7 +844,7 @@ const PrepaidActivation = () => {
               </SelectTrigger>
               <SelectContent className="bg-card">
                 {topupValues.map((v) => (
-                  <SelectItem key={v} value={v}>{v} ﷼</SelectItem>
+                  <SelectItem key={v} value={v}>{v} SAR</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -902,7 +902,7 @@ const PrepaidActivation = () => {
               {(planFilters.price[0] !== PRICE_MIN ||
                 planFilters.price[1] !== PRICE_MAX) && (
                 <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full border border-primary text-primary bg-transparent text-xs font-medium shrink-0">
-                  Price: {planFilters.price[0]}–{planFilters.price[1]} ﷼
+                  Price: {planFilters.price[0]}–{planFilters.price[1]} SAR
                   <button
                     type="button"
                     onClick={() =>
@@ -1208,7 +1208,7 @@ const PrepaidActivation = () => {
                   ✓ Code “{promoApplied.code}” applied —{" "}
                   {promoApplied.type === "percent"
                     ? `${promoApplied.value}% off`
-                    : `${promoApplied.value} ﷼ off`}
+                    : `${promoApplied.value} SAR off`}
                 </p>
               )}
               {promoError && (
@@ -1302,7 +1302,7 @@ const PrepaidActivation = () => {
                   className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
                 >
                   <span>Pay</span>
-                  <span>{amount} ﷼</span>
+                  <span>{amount} KSA</span>
                 </Button>
               </>
             );
@@ -1690,10 +1690,10 @@ const ReviewSummary = ({
         {numberMode === "plan" ? (
           <>
             <Row label="Plan Name" value={planTitle || "—"} />
-            <Row label="Plan Price" value={planPrice != null ? `${planPrice} ﷼` : "—"} />
+            <Row label="Plan Price" value={planPrice != null ? `${planPrice} SAR` : "—"} />
           </>
         ) : (
-          <Row label="Initial Balance" value={topupValue ? `${topupValue} ﷼` : "—"} />
+          <Row label="Initial Balance" value={topupValue ? `${topupValue} SAR` : "—"} />
         )}
         {numberSource !== "mnp" && (
           <Row label="Vanity level" value={numberTier} />
@@ -1711,18 +1711,18 @@ const ReviewSummary = ({
         {numberMode === "topup" ? (
           <Row
             label="Top-up"
-            value={topupValue ? `${topupValue} ﷼` : "—"}
+            value={topupValue ? `${topupValue} SAR` : "—"}
           />
         ) : (
           <Row
             label="Plan Price"
-            value={planPrice != null ? `${planPrice} ﷼` : "—"}
+            value={planPrice != null ? `${planPrice} SAR` : "—"}
           />
         )}
         {simType === "psim" && (
           <Row
             label="SIM Price"
-            value={`${simPrice} ﷼`}
+            value={`${simPrice} SAR`}
           />
         )}
         {promoApplied && discountAmount > 0 && (
@@ -1732,7 +1732,7 @@ const ReviewSummary = ({
               {promoApplied.type === "percent" ? ` (-${promoApplied.value}%)` : ""}
             </span>
             <span className="text-xs font-semibold text-emerald-600 text-right">
-              -{discountAmount.toFixed(2)} ﷼
+              -{discountAmount.toFixed(2)} SAR
             </span>
           </div>
         )}
@@ -1741,12 +1741,12 @@ const ReviewSummary = ({
             <div className="flex items-start justify-between gap-3 py-2">
               <span className="text-[11px] text-muted-foreground">VAT (15% included)</span>
               <span className="text-xs font-semibold text-foreground text-right">
-                {vatAmount.toFixed(2)} ﷼
+                {vatAmount.toFixed(2)} SAR
               </span>
             </div>
             <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
               <span className="text-sm font-semibold text-foreground">Total</span>
-              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} ﷼</span>
+              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} SAR</span>
             </div>
           </>
         )}
@@ -1867,8 +1867,8 @@ const PlanFilterSheet = ({
           <section>
             <p className="text-sm font-semibold text-foreground mb-2">Price</p>
             <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
-              <span>{draft.price[0]} ﷼</span>
-              <span>{draft.price[1]} ﷼</span>
+              <span>{draft.price[0]} KSA</span>
+              <span>{draft.price[1]} KSA</span>
             </div>
             <RangeSlider
               min={PRICE_MIN}
@@ -1993,7 +1993,7 @@ const PlanDetailsSheet = ({
   const total = +(priceNum + tax).toFixed(2);
   const rows = [
     { label: "Internet", value: plan.internet },
-    { label: "Tax", value: `${tax} ﷼` },
+    { label: "Tax", value: `${tax} KSA` },
     { label: "Local Mints", value: plan.mins },
     { label: "SMS", value: plan.sms },
     { label: "Validity", value: "30 DAYS" },
@@ -2027,7 +2027,7 @@ const PlanDetailsSheet = ({
 
           <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
             <p className="text-base font-bold text-primary">Total</p>
-            <p className="text-base font-bold text-primary">{total} ﷼</p>
+            <p className="text-base font-bold text-primary">{total} KSA</p>
           </div>
         </div>
       </DrawerContent>
@@ -2339,7 +2339,7 @@ const ChooseNumberSheet = ({
               <span className="text-sm font-medium text-foreground">{n}</span>
               <span className="text-xs">
                 <span className="font-semibold text-foreground">0</span>{" "}
-                <span className="text-muted-foreground">﷼</span>
+                <span className="text-muted-foreground">KSA</span>
               </span>
             </button>
           ))}
