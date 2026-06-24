@@ -1389,26 +1389,19 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 && staged && subStep < 2 ? (() => {
+          {step === 1 && staged && subStep < 1 ? (() => {
             const advance = () => {
-              if (subStep === 0) {
-                // skip KIT on eSIM
-                return setSubStep(simType === "esim" ? 2 : 1);
-              }
-              if (subStep === 1) {
+              // On the combined SIM + KIT stage, validate KIT for P-SIM
+              if (simType === "psim") {
                 if (!isKitValid) {
                   setInvalidKitOpen(true);
                   return;
                 }
-                return setSubStep(2);
               }
+              setSubStep(1);
             };
             const canContinue =
-              subStep === 0
-                ? !!simType
-                : subStep === 1
-                ? kit.trim().length === 10
-                : false;
+              simType === "esim" || kit.trim().length === 10;
             return (
               <Button
                 disabled={!canContinue}
