@@ -138,6 +138,61 @@ const DEFAULT_FILTERS: PlanFilters = {
   mins: [MINS_MIN, MINS_MAX],
 };
 
+// Sub-stage indicator for the staged activation flow (Option 2).
+const SubStepper = ({
+  current,
+  skipKit,
+}: {
+  current: 0 | 1 | 2 | 3;
+  skipKit: boolean;
+}) => {
+  const steps = [
+    { i: 0, label: "Identity" },
+    { i: 1, label: "SIM type" },
+    { i: 2, label: "KIT", hide: skipKit },
+    { i: 3, label: "Details" },
+  ].filter((s) => !s.hide);
+  return (
+    <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
+      {steps.map((s, idx) => {
+        const active = current === s.i;
+        const done = current > s.i;
+        return (
+          <div key={s.i} className="flex items-center gap-1 shrink-0">
+            <div
+              className={cn(
+                "flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-medium",
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : done
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              <span
+                className={cn(
+                  "w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center",
+                  active
+                    ? "bg-primary-foreground/20"
+                    : done
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted-foreground/20",
+                )}
+              >
+                {done ? <Check className="w-2.5 h-2.5" /> : idx + 1}
+              </span>
+              {s.label}
+            </div>
+            {idx < steps.length - 1 && (
+              <ArrowRight className="w-3 h-3 text-muted-foreground/60" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const parsePlanData = (s: string) => {
   if (/unlimited/i.test(s)) return DATA_MAX;
   const m = s.match(/\d+/);
