@@ -520,7 +520,7 @@ const PrepaidActivation = () => {
       return false;
     }
   }, []);
-  const [subStep, setSubStep] = useState<0 | 1 | 2>(0);
+  const [subStep, setSubStep] = useState<0 | 1>(0);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
@@ -737,9 +737,7 @@ const PrepaidActivation = () => {
         onBackClick={() => {
           if (step === 2) return setStep(1);
           if (staged && subStep > 0) {
-            // Skip KIT step when going back from Details on eSIM
-            if (subStep === 2 && simType === "esim") return setSubStep(0);
-            return setSubStep((subStep - 1) as 0 | 1 | 2);
+            return setSubStep(0);
           }
           navigate(-1);
         }}
@@ -772,9 +770,7 @@ const PrepaidActivation = () => {
 
         {step === 1 && (
           <>
-        {staged && (
-          <SubStepper current={subStep} skipKit={simType === "esim"} />
-        )}
+        {staged && <SubStepper current={subStep} />}
 
         {/* SIM Type */}
         {(!staged || subStep === 0) && (
