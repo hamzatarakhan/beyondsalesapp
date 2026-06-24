@@ -1417,6 +1417,31 @@ const PrepaidActivation = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Invalid KIT number dialog */}
+      <Dialog open={invalidKitOpen} onOpenChange={setInvalidKitOpen}>
+        <DialogContent className="max-w-[320px] rounded-2xl text-center" hideClose>
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center">
+              <X className="w-7 h-7 text-destructive" strokeWidth={3} />
+            </div>
+            <DialogTitle className="text-base">Invalid KIT Number</DialogTitle>
+            <DialogDescription className="text-sm">
+              The entered KIT number is invalid. Please check the number and try again.
+            </DialogDescription>
+          </div>
+          <DialogFooter className="sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => {
+                setInvalidKitOpen(false);
+                setKit("");
+              }}
+              className="w-full h-11 rounded-full"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Cancel activation — requires a reason */}
       <Dialog
         open={cancelOpen}
