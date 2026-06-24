@@ -60,6 +60,7 @@ import {
   History,
   Receipt,
   UploadCloud,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
