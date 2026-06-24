@@ -143,14 +143,13 @@ const SubStepper = ({
   current,
   skipKit,
 }: {
-  current: 0 | 1 | 2 | 3;
+  current: 0 | 1 | 2;
   skipKit: boolean;
 }) => {
   const steps = [
-    { i: 0, label: "Identity" },
-    { i: 1, label: "SIM type" },
-    { i: 2, label: "KIT", hide: skipKit },
-    { i: 3, label: "Details" },
+    { i: 0, label: "SIM type" },
+    { i: 1, label: "KIT", hide: skipKit },
+    { i: 2, label: "Details" },
   ].filter((s) => !s.hide);
   return (
     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
@@ -520,7 +519,7 @@ const PrepaidActivation = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   // Staged-flow mode (Option 2 from Home). When true, step 1 is split into
-  // sub-stages: Identity → SIM type → KIT → Details.
+  // sub-stages: SIM type → KIT → Details.
   const staged = useMemo(() => {
     try {
       return sessionStorage.getItem("activationMode") === "staged";
@@ -528,14 +527,9 @@ const PrepaidActivation = () => {
       return false;
     }
   }, []);
-  const [subStep, setSubStep] = useState<0 | 1 | 2 | 3>(0);
-  const [customerIdNumber, setCustomerIdNumber] = useState<string>(
-    d("customerIdNumber", prefill?.idNumber ?? ""),
-  );
-  const [customerName, setCustomerName] = useState<string>(
-    d("customerName", prefill?.name ?? ""),
-  );
+  const [subStep, setSubStep] = useState<0 | 1 | 2>(0);
   // KIT considered valid when it is exactly 10 digits and starts with "12"
+  // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   // (use "1234567890" for the happy path; any other 10-digit value triggers the invalid dialog).
   const isKitValid = /^\d{10}$/.test(kit) && kit.startsWith("12");
   const showDetails = simType === "esim" || isKitValid;
@@ -751,8 +745,8 @@ const PrepaidActivation = () => {
           if (step === 2) return setStep(1);
           if (staged && subStep > 0) {
             // Skip KIT step when going back from Details on eSIM
-            if (subStep === 3 && simType === "esim") return setSubStep(1);
-            return setSubStep((subStep - 1) as 0 | 1 | 2 | 3);
+            if (subStep === 2 && simType === "esim") return setSubStep(0);
+            return setSubStep((subStep - 1) as 0 | 1 | 2);
           }
           navigate(-1);
         }}
@@ -789,39 +783,8 @@ const PrepaidActivation = () => {
           <SubStepper current={subStep} skipKit={simType === "esim"} />
         )}
 
-        {/* Identity — staged-only stage 1 */}
-        {staged && subStep === 0 && (
-          <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Identity <span className="text-destructive">*</span></h3>
-              <p className="text-[11px] text-muted-foreground">Capture the customer identity to start.</p>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">ID Number <span className="text-destructive">*</span></label>
-              <Input
-                value={customerIdNumber}
-                onChange={(e) =>
-                  setCustomerIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
-                }
-                placeholder="10-digit ID"
-                inputMode="numeric"
-                className="h-11 bg-muted/40 border-0 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Name <span className="text-destructive">*</span></label>
-              <Input
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Full name"
-                className="h-11 bg-muted/40 border-0 rounded-xl"
-              />
-            </div>
-          </section>
-        )}
-
         {/* SIM Type */}
-        {(!staged || subStep === 1) && (
+        {(!staged || subStep === 0) && (
         <section>
           <h3 className="text-sm font-semibold text-foreground mb-2">SIM Type <span className="text-destructive">*</span></h3>
           <div className="grid grid-cols-2 gap-3">
@@ -832,7 +795,7 @@ const PrepaidActivation = () => {
         )}
 
         {/* KIT (P-SIM only) */}
-        {simType === "psim" && (!staged || subStep === 2) && (
+        {simType === "psim" && (!staged || subStep === 1) && (
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">KIT <span className="text-destructive">*</span></h3>
             <div className="relative">
@@ -860,7 +823,7 @@ const PrepaidActivation = () => {
           </section>
         )}
 
-        {((!staged && showDetails) || (staged && subStep === 3)) && (<>
+        {((!staged && showDetails) || (staged && subStep === 2)) && (<>
         {/* Number source selector */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
@@ -1437,27 +1400,24 @@ const PrepaidActivation = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
         <div className="max-w-[390px] mx-auto">
-          {step === 1 && staged && subStep < 3 ? (() => {
+          {step === 1 && staged && subStep < 2 ? (() => {
             const advance = () => {
-              if (subStep === 0) return setSubStep(1);
-              if (subStep === 1) {
+              if (subStep === 0) {
                 // skip KIT on eSIM
-                return setSubStep(simType === "esim" ? 3 : 2);
+                return setSubStep(simType === "esim" ? 2 : 1);
               }
-              if (subStep === 2) {
+              if (subStep === 1) {
                 if (!isKitValid) {
                   setInvalidKitOpen(true);
                   return;
                 }
-                return setSubStep(3);
+                return setSubStep(2);
               }
             };
             const canContinue =
               subStep === 0
-                ? customerIdNumber.trim().length === 10 && customerName.trim().length > 0
-                : subStep === 1
                 ? !!simType
-                : subStep === 2
+                : subStep === 1
                 ? kit.trim().length === 10
                 : false;
             return (
