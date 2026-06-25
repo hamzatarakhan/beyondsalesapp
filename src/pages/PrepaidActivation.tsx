@@ -26,7 +26,7 @@ import {
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import SematiVerification from "@/components/SematiVerification";
 import PlanCardComponent, { PlanCardData } from "@/components/PlanCard";
-import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import SourceTab from "@/components/activation/SourceTab";
 import {
   saveActivationDraft,
   clearActivationDraft,
