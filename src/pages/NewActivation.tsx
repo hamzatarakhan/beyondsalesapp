@@ -354,7 +354,7 @@ const NewActivation = () => {
       <div className="px-4 space-y-4">
         {/* Stage 1 — Identity */}
         {step === 0 && (
-          <SectionCard title="Customer Identity">
+          <>
             <Field label="ID Type">
               <Select
                 value={idType}
@@ -396,7 +396,7 @@ const NewActivation = () => {
                 className="h-12 bg-card rounded-xl shadow-sm border-0"
               />
             </Field>
-          </SectionCard>
+          </>
         )}
 
         {/* Stage 2 — Service & SIM */}
@@ -425,34 +425,62 @@ const NewActivation = () => {
               </div>
             </SectionCard>
 
-            <SectionCard title="SIM details">
-              <Field label="SIM Type">
-                <SegmentedTabs value={simType} onChange={(v) => setSimType(v as SimType)} options={simOptions} />
-              </Field>
+            <section>
+              <h3 className="text-sm font-semibold text-foreground mb-2">
+                SIM Type <span className="text-destructive">*</span>
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {simOptions.map((opt) => (
+                  <SimCard
+                    key={opt.value}
+                    active={simType === opt.value}
+                    label={opt.label}
+                    disabled={opt.disabled}
+                    onClick={() => setSimType(opt.value)}
+                  />
+                ))}
+              </div>
               {simType === "esim" && (
                 <button
                   type="button"
                   onClick={() => setEsimInfoOpen(true)}
-                  className="w-full flex items-center gap-2 text-left p-3 rounded-xl bg-primary/5 border border-primary/20"
+                  className="w-full mt-3 flex items-center gap-2 text-left p-3 rounded-xl bg-primary/5 border border-primary/20"
                 >
                   <Info className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-xs text-foreground flex-1">View supported devices &amp; iOS versions</span>
+                  <span className="text-xs text-foreground flex-1">
+                    View supported devices &amp; iOS versions
+                  </span>
                 </button>
               )}
-              {simType === "psim" && (
-                <Field label="KIT Code">
+            </section>
+
+            {simType === "psim" && (
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  KIT <span className="text-destructive">*</span>
+                </h3>
+                <div className="relative">
                   <Input
                     value={kit}
                     onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     placeholder="KIT Code (10 Digits)"
+                    className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
                     inputMode="numeric"
                   />
-                  {kit && !isKitValid && (
-                    <p className="text-xs text-destructive">KIT must be 10 digits</p>
-                  )}
-                </Field>
-              )}
-            </SectionCard>
+                  <button
+                    type="button"
+                    onClick={() => setKit("1234567890")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
+                    aria-label="Scan KIT"
+                  >
+                    <ScanLine className="w-5 h-5" />
+                  </button>
+                </div>
+                {kit && !isKitValid && (
+                  <p className="text-xs text-destructive mt-1.5">KIT must be 10 digits</p>
+                )}
+              </section>
+            )}
           </>
         )}
 
