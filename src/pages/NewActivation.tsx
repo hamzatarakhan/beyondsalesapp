@@ -826,7 +826,7 @@ const NewActivation = () => {
           <Row label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
           <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
           {planMode === "plan"
-            ? <Row label="Plan" value={`${selectedPlanObj?.name}`} />
+            ? <Row label="Plan" value={`${selectedPlanObj?.title}`} />
             : <Row label="Top-up" value={`${topupAmount} SAR`} />}
           <Row label="Total" value={`${total} SAR`} />
         </div>
