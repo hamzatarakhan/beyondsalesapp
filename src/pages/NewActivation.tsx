@@ -47,6 +47,8 @@ import {
   ArrowRight,
   ScanLine,
   Apple,
+  Tag,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
