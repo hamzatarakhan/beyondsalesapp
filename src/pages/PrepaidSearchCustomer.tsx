@@ -43,7 +43,6 @@ const EXISTING_CUSTOMERS: Record<string, any> = {
     // dealer can resume with the same data shown on the activation form.
     previousActivation: {
       simType: "psim",
-      kit: "1234567890",
       numberSource: "new",
       phone: "0785599574",
       isPrimary: true,
