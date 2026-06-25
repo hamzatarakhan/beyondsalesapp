@@ -150,9 +150,8 @@ const Home = () => {
       {/*
         NOTE: Hidden per request — keep these widgets in source for future use.
         To restore, uncomment the Working Shift, Tickets, and Member Onboarding sections below.
-      */}
-      {/*
-      {/* Working Shift */}
+
+      // Working Shift
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
           <div className="flex items-center justify-between mb-3">
@@ -198,7 +197,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Tickets */}
+      // Tickets
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
           <div className="flex items-center justify-between mb-3">
@@ -227,7 +226,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Member Onboarding */}
+      // Member Onboarding
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
           <div className="flex items-center justify-between mb-4">
