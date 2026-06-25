@@ -298,7 +298,7 @@ const Home = () => {
                 <LayoutList className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 1 -- 3 stages</p>
+                <p className="font-semibold text-sm text-foreground">STC Flow</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Details → Review & pay → Complete.
                 </p>
