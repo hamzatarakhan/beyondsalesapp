@@ -69,14 +69,14 @@ const ESIM_DEVICES = [
 ];
 
 // ---------- Small UI helpers ----------
-const SegmentedTabs = <T extends string>({
+const SegmentedTabs = ({
   value,
   onChange,
   options,
 }: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { value: T; label: string; disabled?: boolean }[];
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string; disabled?: boolean }[];
 }) => (
   <div className="grid gap-1 bg-muted/60 rounded-xl p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
     {options.map((opt) => (
@@ -360,7 +360,7 @@ const NewActivation = () => {
 
             <SectionCard title="SIM details">
               <Field label="SIM Type">
-                <SegmentedTabs value={simType} onChange={setSimType} options={simOptions} />
+                <SegmentedTabs value={simType} onChange={(v) => setSimType(v as SimType)} options={simOptions} />
               </Field>
               {simType === "esim" && (
                 <button
@@ -395,7 +395,7 @@ const NewActivation = () => {
             <SectionCard title="Subscription type">
               <SegmentedTabs
                 value={subType}
-                onChange={setSubType}
+                onChange={(v) => setSubType(v as SubType)}
                 options={[
                   { value: "sim", label: "SIM Number" },
                   { value: "mnp", label: "MNP" },
@@ -420,16 +420,16 @@ const NewActivation = () => {
             </SectionCard>
 
             <SectionCard title="Payment type">
-              <SegmentedTabs value={payType} onChange={setPayType} options={payOptions} />
+              <SegmentedTabs value={payType} onChange={(v) => setPayType(v as PayType)} options={payOptions} />
             </SectionCard>
 
             <SectionCard title="Plan">
               <SegmentedTabs
                 value={planMode}
-                onChange={setPlanMode}
+                onChange={(v) => setPlanMode(v as PlanMode)}
                 options={[
                   { value: "plan", label: "With Plan" },
-                  ...(showTopupOption ? [{ value: "topup" as const, label: "With Topup" }] : []),
+                  ...(showTopupOption ? [{ value: "topup", label: "With Topup" }] : []),
                 ]}
               />
               {planMode === "plan" ? (
