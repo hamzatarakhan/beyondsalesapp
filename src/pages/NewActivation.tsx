@@ -33,7 +33,6 @@ import {
   Wifi,
   Router,
   CreditCard,
-  Banknote,
   ShieldCheck,
   Pencil,
   Info,
@@ -46,7 +45,6 @@ import {
   ArrowRightLeft,
   ArrowRight,
   ScanLine,
-  Apple,
   Tag,
   Database,
 } from "lucide-react";
