@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { AlertCircle, RotateCcw, UserPlus, History } from "lucide-react";
-import FlowStepper from "@/components/FlowStepper";
+import FlowStepper, { STAGED_STEPS } from "@/components/FlowStepper";
 import {
   Dialog,
   DialogContent,
@@ -96,6 +96,14 @@ const PrepaidSearchCustomer = () => {
       }
   >(null);
 
+  const staged = useMemo(() => {
+    try {
+      return sessionStorage.getItem("activationMode") === "staged";
+    } catch {
+      return false;
+    }
+  }, []);
+
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
     if (!idType) e.idType = "Please select an ID type.";
@@ -160,7 +168,7 @@ const PrepaidSearchCustomer = () => {
       <AppHeader title="Search Customer" showBack />
 
       <div className="flex-1 px-4 pb-28">
-        <FlowStepper current={0} />
+        <FlowStepper current={0} steps={staged ? STAGED_STEPS : undefined} />
         <Field
           label="ID Type"
           required
