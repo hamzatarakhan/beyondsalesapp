@@ -571,8 +571,6 @@ const NewActivation = () => {
               </div>
               <div className="space-y-2">
                 <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
-                <PayOption icon={Banknote} label="Cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
-                <PayOption icon={Apple} label="Apple Pay" selected={pay === "apple"} onClick={() => setPay("apple")} />
               </div>
             </section>
 
