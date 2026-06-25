@@ -161,90 +161,13 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-// ---------- Signature pad ----------
-function SignaturePad({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawingRef = useRef(false);
-  const lastRef = useRef<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    const c = canvasRef.current;
-    if (!c) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = c.getBoundingClientRect();
-    c.width = rect.width * dpr;
-    c.height = rect.height * dpr;
-    const ctx = c.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#0f172a";
-    if (value) {
-      const img = new Image();
-      img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      img.src = value;
-    }
-  }, []);
-
-  const pos = (e: React.PointerEvent) => {
-    const c = canvasRef.current!;
-    const r = c.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
-
-  const down = (e: React.PointerEvent) => {
-    drawingRef.current = true;
-    lastRef.current = pos(e);
-    (e.target as Element).setPointerCapture(e.pointerId);
-  };
-  const move = (e: React.PointerEvent) => {
-    if (!drawingRef.current) return;
-    const ctx = canvasRef.current!.getContext("2d")!;
-    const p = pos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastRef.current!.x, lastRef.current!.y);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    lastRef.current = p;
-  };
-  const up = () => {
-    if (!drawingRef.current) return;
-    drawingRef.current = false;
-    const c = canvasRef.current!;
-    onChange(c.toDataURL("image/png"));
-  };
-  const clear = () => {
-    const c = canvasRef.current!;
-    const ctx = c.getContext("2d")!;
-    ctx.clearRect(0, 0, c.width, c.height);
-    onChange(null);
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="relative h-32 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/30 overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full touch-none"
-          onPointerDown={down}
-          onPointerMove={move}
-          onPointerUp={up}
-          onPointerCancel={up}
-        />
-        {!value && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-xs text-muted-foreground">
-            <Pencil className="w-4 h-4 mr-1.5" /> Sign here
-          </div>
-        )}
-      </div>
-      {value && (
-        <button type="button" onClick={clear} className="text-xs text-primary inline-flex items-center gap-1">
-          <Eraser className="w-3.5 h-3.5" /> Clear
-        </button>
-      )}
-    </div>
-  );
-}
+// ---------- Summary row ----------
+const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
+    <span className="text-[11px] text-muted-foreground">{label}</span>
+    <span className="text-xs font-semibold text-foreground text-right">{value}</span>
+  </div>
+);
 
 // ---------- Page ----------
 const NewActivation = () => {
