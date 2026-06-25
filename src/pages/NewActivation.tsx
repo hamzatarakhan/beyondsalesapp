@@ -642,25 +642,39 @@ const NewActivation = () => {
         {/* Stage 4 — Checkout */}
         {step === 3 && (
           <>
-            <SectionCard title="Summary">
-              <Row label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
-              <Row label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-              {simType === "psim" && <Row label="KIT" value={kit} />}
-              <Row label="Subscription" value={subType === "sim" ? "SIM Number" : "MNP"} />
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">Summary</p>
+                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold"
+                >
+                  <Pencil className="w-3 h-3" /> Edit
+                </button>
+              </div>
+              <SummaryRow label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
+              <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
+              {simType === "psim" && <SummaryRow label="KIT" value={kit} />}
+              <SummaryRow label="Subscription" value={subType === "sim" ? "SIM Number" : "MNP"} />
               {subType === "mnp" && (
                 <>
-                  <Row label="Port number" value={portNumber} />
-                  <Row label="From operator" value={portOperator} />
+                  <SummaryRow label="Port number" value={portNumber} />
+                  <SummaryRow label="From operator" value={portOperator} />
                 </>
               )}
-              <Row label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
+              <SummaryRow label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
               {planMode === "plan" ? (
-                <Row label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
+                <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
               ) : (
-                <Row label="Top-up" value={`${topupAmount} SAR`} />
+                <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />
               )}
-              <Row label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
-            </SectionCard>
+              <SummaryRow label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
+            </section>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
@@ -706,29 +720,51 @@ const NewActivation = () => {
               )}
             </SectionCard>
 
-            <SectionCard title="Signatures">
-              <Field label="Customer signature"><SignaturePad value={customerSig} onChange={setCustomerSig} /></Field>
-              <Field label="Dealer signature"><SignaturePad value={dealerSig} onChange={setDealerSig} /></Field>
-            </SectionCard>
+            <SignatureBox
+              title="Customer Signature"
+              required
+              value={customerSig}
+              onEdit={() => setSigEditor("customer")}
+              onClear={() => setCustomerSig(null)}
+            />
+            <SignatureBox
+              title="Dealer Signature"
+              required
+              value={dealerSig}
+              onEdit={() => setSigEditor("dealer")}
+              onClear={() => setDealerSig(null)}
+            />
 
-            <SectionCard title="Price details">
-              <Row label="Subtotal" value={`${subtotal} SAR`} />
-              <Row label="VAT (15%)" value={`${vat} SAR`} />
-              <div className="pt-2 mt-1 border-t border-border flex items-center justify-between">
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <SummaryRow label="Subtotal" value={`${subtotal} SAR`} />
+              <div className="flex items-start justify-between gap-3 py-2">
+                <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                <span className="text-xs font-semibold text-foreground text-right">{vat} SAR</span>
+              </div>
+              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
                 <span className="text-sm font-semibold text-foreground">Total</span>
                 <span className="text-base font-bold text-primary">{total} SAR</span>
               </div>
-            </SectionCard>
+            </section>
 
-            <div className="flex items-start gap-2 px-1">
-              <Checkbox id="terms" checked={terms} onCheckedChange={(v) => setTerms(!!v)} />
-              <label htmlFor="terms" className="text-xs text-foreground leading-tight">
-                I agree to the{" "}
-                <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-medium">
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 select-none">
+                <input
+                  id="terms-checkbox"
+                  type="checkbox"
+                  checked={terms}
+                  onChange={(e) => setTerms(e.target.checked)}
+                  className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTermsOpen(true)}
+                  className="text-sm text-foreground text-left"
+                >
                   Terms and Conditions
                 </button>
-              </label>
-            </div>
+              </div>
+            </section>
           </>
         )}
       </div>
