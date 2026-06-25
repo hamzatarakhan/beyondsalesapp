@@ -1,21 +1,29 @@
-import { ScanLine, ClipboardEdit, Wallet, ChevronRight, Check } from "lucide-react";
+import { ScanLine, ClipboardEdit, Wallet, ChevronRight, Check, Smartphone, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const STEPS = [
+const DEFAULT_STEPS = [
   { label: "Identity", Icon: ScanLine },
   { label: "Subscription", Icon: ClipboardEdit },
   { label: "Checkout", Icon: Wallet },
 ];
 
+export const STAGED_STEPS = [
+  { label: "Identity", Icon: ScanLine },
+  { label: "SIM & KIT", Icon: Smartphone },
+  { label: "Details", Icon: FileText },
+  { label: "Checkout", Icon: Wallet },
+];
+
 interface FlowStepperProps {
-  /** Zero-based index of the current step (0 = Identity, 1 = Subscription, 2 = Checkout) */
+  /** Zero-based index of the current step */
   current: number;
   className?: string;
+  steps?: { label: string; Icon: typeof ScanLine }[];
 }
 
-const FlowStepper = ({ current, className }: FlowStepperProps) => (
+const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperProps) => (
   <div className={cn("flex items-center justify-center gap-2 py-4", className)}>
-    {STEPS.map((step, i) => {
+    {steps.map((step, i) => {
       const isActive = i === current;
       const isDone = i < current;
       const Icon = step.Icon;
@@ -42,7 +50,7 @@ const FlowStepper = ({ current, className }: FlowStepperProps) => (
               {step.label}
             </span>
           </div>
-          {i < STEPS.length - 1 && (
+          {i < steps.length - 1 && (
             <ChevronRight
               className={cn(
                 "w-4 h-4 -mt-4 shrink-0",

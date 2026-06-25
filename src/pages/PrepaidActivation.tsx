@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
-import FlowStepper from "@/components/FlowStepper";
+import FlowStepper, { STAGED_STEPS } from "@/components/FlowStepper";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -766,11 +766,17 @@ const PrepaidActivation = () => {
         )}
 
         {/* Step indicator */}
-        <FlowStepper current={step === 1 ? 1 : 2} />
+        {staged ? (
+          <FlowStepper
+            steps={STAGED_STEPS}
+            current={step === 2 ? 3 : subStep === 0 ? 1 : 2}
+          />
+        ) : (
+          <FlowStepper current={step === 1 ? 1 : 2} />
+        )}
 
         {step === 1 && (
           <>
-        {staged && <SubStepper current={subStep} />}
 
         {/* SIM Type */}
         {(!staged || subStep === 0) && (
