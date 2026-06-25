@@ -207,9 +207,9 @@ const NewActivation = () => {
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
 
   // Stage 1 — Identity
-  const [identityOpen, setIdentityOpen] = useState(false);
-  const [identityDone, setIdentityDone] = useState(false);
-  const [idNumber, setIdNumber] = useState("1234567890");
+  const [idType, setIdType] = useState("national-id");
+  const [nationality, setNationality] = useState("sa");
+  const [idNumber, setIdNumber] = useState("");
 
   // Stage 2 — Service & SIM
   const [service, setService] = useState<Service>("mobile");
@@ -268,7 +268,7 @@ const NewActivation = () => {
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
-    if (step === 0) return identityDone;
+    if (step === 0) return !!idType && !!nationality && idNumber.trim().length > 0;
     if (step === 1) return !!service && !!simType && isKitValid;
     if (step === 2) {
       if (subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
@@ -277,7 +277,7 @@ const NewActivation = () => {
       return true;
     }
     return true;
-  }, [step, identityDone, service, simType, isKitValid, subType, portNumber, portOperator, portContact, planMode, selectedPlan, topupDenom, topupManual]);
+  }, [step, idType, nationality, idNumber, service, simType, isKitValid, subType, portNumber, portOperator, portContact, planMode, selectedPlan, topupDenom, topupManual]);
 
   const selectedPlanObj = plans.find((p) => p.id === selectedPlan);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
@@ -312,23 +312,47 @@ const NewActivation = () => {
         {/* Stage 1 — Identity */}
         {step === 0 && (
           <SectionCard title="Customer Identity">
-            <Field label="ID Number">
-              <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="ID / Iqama" inputMode="numeric" maxLength={10} />
+            <Field label="ID Type">
+              <Select
+                value={idType}
+                onValueChange={(v) => {
+                  setIdType(v);
+                  if (v === "national-id") setNationality("sa");
+                }}
+              >
+                <SelectTrigger className="w-full bg-card rounded-xl h-12 shadow-sm border-0">
+                  <SelectValue placeholder="Select ID type" />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  <SelectItem value="national-id">National ID</SelectItem>
+                  <SelectItem value="passport">Passport</SelectItem>
+                  <SelectItem value="resident-card">Resident Card</SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
-            <Button
-              type="button"
-              variant={identityDone ? "outline" : "default"}
-              className="w-full"
-              onClick={() => setIdentityOpen(true)}
-            >
-              <ShieldCheck className="w-4 h-4 mr-2" />
-              {identityDone ? "Identity verified" : "Verify identity"}
-            </Button>
-            {identityDone && (
-              <p className="text-xs text-success inline-flex items-center gap-1">
-                <Check className="w-3.5 h-3.5" /> Verification successful
-              </p>
-            )}
+            <Field label="Nationality">
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12 shadow-sm border-0">
+                  <SelectValue placeholder="Select nationality" />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  <SelectItem value="sa">Saudi</SelectItem>
+                  <SelectItem value="om">Omani</SelectItem>
+                  <SelectItem value="ae">Emirati</SelectItem>
+                  <SelectItem value="eg">Egyptian</SelectItem>
+                  <SelectItem value="in">Indian</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="ID Number">
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                placeholder="Enter the ID Number"
+                className="h-12 bg-card rounded-xl shadow-sm border-0"
+              />
+            </Field>
           </SectionCard>
         )}
 
@@ -616,14 +640,6 @@ const NewActivation = () => {
           )}
         </div>
       </div>
-
-      {/* Identity verification */}
-      <SematiVerification
-        open={identityOpen}
-        audience="customer"
-        onClose={() => setIdentityOpen(false)}
-        onVerified={() => { setIdentityOpen(false); setIdentityDone(true); }}
-      />
 
       {/* Customer verification on checkout */}
       <SematiVerification
