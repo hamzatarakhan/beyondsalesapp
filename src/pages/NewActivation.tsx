@@ -33,6 +33,10 @@ import {
   Info,
   X as XIcon,
   Check,
+  Phone,
+  Sparkles,
+  ArrowRightLeft,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -219,6 +223,7 @@ const NewActivation = () => {
 
   // Stage 3 — Subscription
   const [subType, setSubType] = useState<SubType>("sim");
+  const [phone, setPhone] = useState("0785599574");
   const [portNumber, setPortNumber] = useState("");
   const [portOperator, setPortOperator] = useState("");
   const [portContact, setPortContact] = useState("");
@@ -416,17 +421,59 @@ const NewActivation = () => {
         {/* Stage 3 — Subscription details */}
         {step === 2 && (
           <>
-            <SectionCard title="Subscription type">
-              <SegmentedTabs
-                value={subType}
-                onChange={(v) => setSubType(v as SubType)}
-                options={[
-                  { value: "sim", label: "SIM Number" },
-                  { value: "mnp", label: "MNP" },
-                ]}
-              />
-              {subType === "mnp" && (
-                <div className="space-y-3 pt-1">
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Phone className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">
+                  Phone number <span className="text-destructive">*</span>
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  onClick={() => setSubType("sim")}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors",
+                    subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                  )}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  New number
+                </button>
+                <button
+                  onClick={() => setSubType("mnp")}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors",
+                    subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                  )}
+                >
+                  <ArrowRightLeft className="w-4 h-4" />
+                  Port (MNP)
+                </button>
+              </div>
+
+              {subType === "sim" ? (
+                <>
+                  <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">
+                    {phone}
+                  </div>
+                  {simType === "psim" && (
+                    <button
+                      onClick={() =>
+                        setPhone(
+                          "07" + Math.floor(10000000 + Math.random() * 89999999).toString(),
+                        )
+                      }
+                      className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
+                    >
+                      Pick Different Number <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-3">
                   <Field label="Port number">
                     <Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" />
                   </Field>
@@ -439,9 +486,12 @@ const NewActivation = () => {
                   <Field label="Contact number">
                     <Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" />
                   </Field>
+                  <p className="text-[11px] text-muted-foreground">
+                    The number will be transferred from the selected operator after verification.
+                  </p>
                 </div>
               )}
-            </SectionCard>
+            </section>
 
             <SectionCard title="Payment type">
               <SegmentedTabs value={payType} onChange={(v) => setPayType(v as PayType)} options={payOptions} />
