@@ -771,18 +771,52 @@ const NewActivation = () => {
 
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
-          <DrawerHeader>
-            <DrawerTitle className="text-center">Terms and Conditions</DrawerTitle>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+            <X className="h-5 w-5 text-foreground" />
+            <span className="sr-only">Close</span>
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Terms and Conditions</DrawerTitle>
+            <DrawerDescription>
+              Please read and accept our terms and conditions to continue.
+            </DrawerDescription>
           </DrawerHeader>
-          <div className="px-5 pb-6 space-y-3 overflow-y-auto text-sm text-muted-foreground">
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
             <p>By proceeding, the customer agrees to the service agreement, billing terms, and acceptable use policy.</p>
             <p>All activations are subject to identity verification and regulatory approval. The customer acknowledges receipt of the SIM/eSIM and authorizes the selected plan or top-up amount.</p>
             <p>Refunds, replacements, and cancellations follow the standard policy available in the merchant portal.</p>
-            <Button className="w-full mt-4" onClick={() => { setTerms(true); setTermsOpen(false); }}>I agree</Button>
           </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button
+                onClick={() => setTerms(true)}
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
+              >
+                Accept
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                Cancel
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Signature pad sheet */}
+      <SignaturePadSheet
+        open={sigEditor !== null}
+        title={sigEditor === "customer" ? "Customer Signature" : "Dealer Signature"}
+        initial={sigEditor === "customer" ? customerSig : sigEditor === "dealer" ? dealerSig : null}
+        onClose={() => setSigEditor(null)}
+        onSave={(dataUrl) => {
+          if (sigEditor === "customer") setCustomerSig(dataUrl);
+          if (sigEditor === "dealer") setDealerSig(dataUrl);
+          setSigEditor(null);
+        }}
+      />
 
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
