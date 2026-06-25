@@ -96,6 +96,14 @@ const PrepaidSearchCustomer = () => {
       }
   >(null);
 
+  const staged = useMemo(() => {
+    try {
+      return sessionStorage.getItem("activationMode") === "staged";
+    } catch {
+      return false;
+    }
+  }, []);
+
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
     if (!idType) e.idType = "Please select an ID type.";
