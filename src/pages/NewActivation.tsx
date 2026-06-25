@@ -641,14 +641,6 @@ const NewActivation = () => {
         </div>
       </div>
 
-      {/* Identity verification */}
-      <SematiVerification
-        open={identityOpen}
-        audience="customer"
-        onClose={() => setIdentityOpen(false)}
-        onVerified={() => { setIdentityOpen(false); setIdentityDone(true); }}
-      />
-
       {/* Customer verification on checkout */}
       <SematiVerification
         open={customerVerifyOpen}
