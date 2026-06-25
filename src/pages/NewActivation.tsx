@@ -7,6 +7,7 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import PlanCard, { PlanCardData } from "@/components/PlanCard";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
+import PlanSelector, { PLANS as SHARED_PLANS, Plan as SharedPlan } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -63,45 +64,7 @@ const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smar
   { value: "hbb", label: "HBB", desc: "Home Broadband — 5G / Vnet", Icon: Router },
 ];
 
-const PLAN_TYPES = ["All", "Voice", "Data", "Bundle"];
-const plans: (PlanCardData & { id: number })[] = [
-  {
-    id: 1,
-    title: "Smart 50",
-    internet: "20 GB",
-    mins: "200",
-    sms: "500",
-    social: "Unlimited",
-    price: 50,
-    validityLabel: "Valid 30 days",
-    discount: "Discount 20%",
-    features: ["5G access", "Unlimited social apps"],
-  },
-  {
-    id: 2,
-    title: "Power 100",
-    internet: "60 GB",
-    mins: "Unlimited",
-    sms: "Unlimited",
-    social: "Unlimited",
-    price: 100,
-    validityLabel: "Valid 30 days",
-    discount: null,
-    features: ["5G+ priority access", "Free roaming in GCC"],
-  },
-  {
-    id: 3,
-    title: "Ultra 200",
-    internet: "Unlimited",
-    mins: "Unlimited",
-    sms: "Unlimited",
-    social: "Unlimited",
-    price: 200,
-    validityLabel: "Valid 30 days",
-    discount: "Discount 10%",
-    features: ["Premium 24/7 support", "Free 100 international min"],
-  },
-];
+const plans = SHARED_PLANS;
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
@@ -194,8 +157,7 @@ const NewActivation = () => {
   const [portContact, setPortContact] = useState("");
   const [payType, setPayType] = useState<PayType>("prepaid");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
-  const [planType, setPlanType] = useState("All");
-  const [selectedPlan, setSelectedPlan] = useState<number>(plans[0].id);
+  const [selectedPlan, setSelectedPlan] = useState<number>(0);
   const [topupDenom, setTopupDenom] = useState<number | null>(50);
   const [topupManual, setTopupManual] = useState("");
   const [addrCity, setAddrCity] = useState("Riyadh");
@@ -250,7 +212,7 @@ const NewActivation = () => {
     return true;
   }, [step, idType, nationality, idNumber, service, simType, isKitValid, subType, portNumber, portOperator, portContact, planMode, selectedPlan, topupDenom, topupManual]);
 
-  const selectedPlanObj = plans.find((p) => p.id === selectedPlan);
+  const selectedPlanObj = plans[selectedPlan];
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const subtotal = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const vat = Math.round(subtotal * 0.15);
@@ -501,23 +463,11 @@ const NewActivation = () => {
                 ]}
               />
               {planMode === "plan" ? (
-                <div className="space-y-3 pt-1">
-                  <Field label="Plan Type">
-                    <Select value={planType} onValueChange={setPlanType}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{PLAN_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                  <div className="grid gap-3">
-                    {plans.map((p) => (
-                      <PlanCard
-                        key={p.id}
-                        plan={p}
-                        selected={selectedPlan === p.id}
-                        onSelect={() => setSelectedPlan(p.id)}
-                      />
-                    ))}
-                  </div>
+                <div className="pt-1">
+                  <PlanSelector
+                    selectedPlan={selectedPlan}
+                    onSelect={(i) => setSelectedPlan(i)}
+                  />
                 </div>
               ) : (
                 <div className="space-y-3 pt-1">
