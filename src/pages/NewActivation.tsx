@@ -453,51 +453,52 @@ const NewActivation = () => {
               <SegmentedTabs value={payType} onChange={(v) => setPayType(v as PayType)} options={payOptions} />
             </SectionCard>
 
-            <SectionCard title="Plan">
-              <SegmentedTabs
-                value={planMode}
-                onChange={(v) => setPlanMode(v as PlanMode)}
-                options={[
-                  { value: "plan", label: "With Plan" },
-                  ...(showTopupOption ? [{ value: "topup", label: "With Topup" }] : []),
-                ]}
+            {showTopupOption && (
+              <SectionCard title="Plan">
+                <SegmentedTabs
+                  value={planMode}
+                  onChange={(v) => setPlanMode(v as PlanMode)}
+                  options={[
+                    { value: "plan", label: "With Plan" },
+                    { value: "topup", label: "With Topup" },
+                  ]}
+                />
+              </SectionCard>
+            )}
+
+            {planMode === "plan" ? (
+              <PlanSelector
+                selectedPlan={selectedPlan}
+                onSelect={(i) => setSelectedPlan(i)}
               />
-              {planMode === "plan" ? (
-                <div className="pt-1">
-                  <PlanSelector
-                    selectedPlan={selectedPlan}
-                    onSelect={(i) => setSelectedPlan(i)}
+            ) : (
+              <SectionCard title="Top-up">
+                <Field label="Denomination">
+                  <div className="grid grid-cols-3 gap-2">
+                    {TOPUP_DENOMS.map((d) => (
+                      <button
+                        key={d}
+                        onClick={() => { setTopupDenom(d); setTopupManual(""); }}
+                        className={cn(
+                          "h-10 rounded-lg border text-sm font-medium",
+                          topupDenom === d && !topupManual ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground",
+                        )}
+                      >
+                        {d} SAR
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+                <Field label="Or enter amount manually">
+                  <Input
+                    value={topupManual}
+                    onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
+                    placeholder="Amount in SAR"
+                    inputMode="numeric"
                   />
-                </div>
-              ) : (
-                <div className="space-y-3 pt-1">
-                  <Field label="Denomination">
-                    <div className="grid grid-cols-3 gap-2">
-                      {TOPUP_DENOMS.map((d) => (
-                        <button
-                          key={d}
-                          onClick={() => { setTopupDenom(d); setTopupManual(""); }}
-                          className={cn(
-                            "h-10 rounded-lg border text-sm font-medium",
-                            topupDenom === d && !topupManual ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground",
-                          )}
-                        >
-                          {d} SAR
-                        </button>
-                      ))}
-                    </div>
-                  </Field>
-                  <Field label="Or enter amount manually">
-                    <Input
-                      value={topupManual}
-                      onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                      placeholder="Amount in SAR"
-                      inputMode="numeric"
-                    />
-                  </Field>
-                </div>
-              )}
-            </SectionCard>
+                </Field>
+              </SectionCard>
+            )}
 
             <SectionCard title="Address details">
               <Field label="City">
