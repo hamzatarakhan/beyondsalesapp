@@ -1,4 +1,4 @@
-import { ScanLine, ClipboardEdit, Wallet, ChevronRight, Check, Smartphone, FileText } from "lucide-react";
+import { ScanLine, ClipboardEdit, Wallet, ChevronRight, Check, Smartphone, FileText, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_STEPS = [
@@ -11,6 +11,13 @@ export const STAGED_STEPS = [
   { label: "Identity", Icon: ScanLine },
   { label: "SIM & KIT", Icon: Smartphone },
   { label: "Details", Icon: FileText },
+  { label: "Checkout", Icon: Wallet },
+];
+
+export const NEW_ACTIVATION_STEPS = [
+  { label: "Identity", Icon: ScanLine },
+  { label: "Service & SIM", Icon: Smartphone },
+  { label: "Subscription", Icon: Settings2 },
   { label: "Checkout", Icon: Wallet },
 ];
 
