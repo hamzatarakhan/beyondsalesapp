@@ -33,7 +33,6 @@ import {
   Wifi,
   Router,
   CreditCard,
-  Banknote,
   ShieldCheck,
   Pencil,
   Info,
@@ -46,7 +45,6 @@ import {
   ArrowRightLeft,
   ArrowRight,
   ScanLine,
-  Apple,
   Tag,
   Database,
 } from "lucide-react";
@@ -571,8 +569,6 @@ const NewActivation = () => {
               </div>
               <div className="space-y-2">
                 <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
-                <PayOption icon={Banknote} label="Cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
-                <PayOption icon={Apple} label="Apple Pay" selected={pay === "apple"} onClick={() => setPay("apple")} />
               </div>
             </section>
 
@@ -640,13 +636,61 @@ const NewActivation = () => {
                   onChange={(e) => setTerms(e.target.checked)}
                   className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary cursor-pointer"
                 />
-                <button
-                  type="button"
-                  onClick={() => setTermsOpen(true)}
-                  className="text-sm text-foreground text-left"
-                >
-                  Terms and Conditions
-                </button>
+                <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+                  <DrawerTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-sm text-foreground text-left"
+                    >
+                      Terms and Conditions
+                    </button>
+                  </DrawerTrigger>
+                  <DrawerContent className="max-h-[85vh]">
+                    <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                      <X className="h-5 w-5 text-foreground" />
+                      <span className="sr-only">Close</span>
+                    </DrawerClose>
+                    <DrawerHeader className="text-center">
+                      <DrawerTitle>Terms and Conditions</DrawerTitle>
+                      <DrawerDescription>
+                        Please read and accept our terms and conditions to continue.
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
+                      <p>
+                        By activating this line, you agree to our service terms,
+                        including fair usage policies, payment obligations, and applicable
+                        regulatory requirements.
+                      </p>
+                      <p>
+                        All provided information must be accurate. The SIM/eSIM and selected
+                        number are subject to availability and approval.
+                      </p>
+                      <p>
+                        Plans, top-ups, and vanity fees are non-refundable once the activation
+                        is completed. VAT is included where stated.
+                      </p>
+                    </div>
+                    <DrawerFooter className="flex-col gap-3">
+                      <DrawerClose asChild>
+                        <Button
+                          onClick={() => setTerms(true)}
+                          className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
+                        >
+                          Accept
+                        </Button>
+                      </DrawerClose>
+                      <DrawerClose asChild>
+                        <button
+                          type="button"
+                          className="text-sm font-semibold text-primary"
+                        >
+                          Cancel
+                        </button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
               </div>
             </section>
           </>
