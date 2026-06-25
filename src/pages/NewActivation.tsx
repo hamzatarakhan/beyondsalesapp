@@ -580,22 +580,14 @@ const NewActivation = () => {
                       <SelectContent>{PLAN_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
-                  <div className="grid gap-2">
+                  <div className="grid gap-3">
                     {plans.map((p) => (
-                      <button
+                      <PlanCard
                         key={p.id}
-                        onClick={() => setSelectedPlan(p.id)}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-xl border text-left transition-colors",
-                          selectedPlan === p.id ? "border-primary bg-primary/5" : "border-border bg-card",
-                        )}
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                          <p className="text-xs text-muted-foreground">{p.data} · {p.mins} · {p.validity}</p>
-                        </div>
-                        <p className="text-sm font-bold text-primary">{p.price} SAR</p>
-                      </button>
+                        plan={p}
+                        selected={selectedPlan === p.id}
+                        onSelect={() => setSelectedPlan(p.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -658,34 +650,28 @@ const NewActivation = () => {
               )}
               <Row label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
               {planMode === "plan" ? (
-                <Row label="Plan" value={`${selectedPlanObj?.name} · ${selectedPlanObj?.price} SAR`} />
+                <Row label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
               ) : (
                 <Row label="Top-up" value={`${topupAmount} SAR`} />
               )}
               <Row label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
             </SectionCard>
 
-            <SectionCard title="Payment method">
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { v: "card" as const, label: "Card", Icon: CreditCard },
-                  { v: "cash" as const, label: "Cash", Icon: Banknote },
-                  { v: "apple" as const, label: "Apple Pay", Icon: CreditCard },
-                ].map((o) => (
-                  <button
-                    key={o.v}
-                    onClick={() => setPay(o.v)}
-                    className={cn(
-                      "p-3 rounded-xl border flex flex-col items-center gap-1 text-xs font-medium",
-                      pay === o.v ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground",
-                    )}
-                  >
-                    <o.Icon className="w-4 h-4" />
-                    {o.label}
-                  </button>
-                ))}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <CreditCard className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">
+                  Select Payment Method <span className="text-destructive">*</span>
+                </p>
               </div>
-            </SectionCard>
+              <div className="space-y-2">
+                <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
+                <PayOption icon={Banknote} label="Cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
+                <PayOption icon={Apple} label="Apple Pay" selected={pay === "apple"} onClick={() => setPay("apple")} />
+              </div>
+            </section>
 
             <SectionCard title="OTP Verification">
               {otpVerified ? (
