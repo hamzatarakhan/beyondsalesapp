@@ -9,7 +9,6 @@ import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerFooter,
 } from "@/components/ui/drawer";
 import {
   Smartphone,
@@ -32,9 +34,10 @@ import {
   Banknote,
   ShieldCheck,
   Pencil,
-  Eraser,
   Info,
   X as XIcon,
+  X,
+  ClipboardList,
   Check,
   Phone,
   Sparkles,
@@ -44,6 +47,7 @@ import {
   Apple,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 
 // ---------- Types & constants ----------
 type Service = "mobile" | "mbb" | "hbb";
@@ -287,6 +291,7 @@ const NewActivation = () => {
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
 
   // ---------- Conditional rules ----------
   const simOptions = useMemo<{ value: SimType; label: string; disabled?: boolean }[]>(() => {
