@@ -1,0 +1,35 @@
+import { CreditCard } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  icon: typeof CreditCard;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}
+
+const PayOption = ({ icon: Icon, label, selected, onClick }: Props) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "w-full flex items-center gap-3 p-3 rounded-xl bg-card border transition-colors",
+      selected ? "border-primary" : "border-border",
+    )}
+  >
+    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+      <Icon className="w-4 h-4 text-primary" />
+    </div>
+    <p className="flex-1 text-left text-sm font-medium text-foreground">{label}</p>
+    <span
+      className={cn(
+        "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+        selected ? "border-primary" : "border-primary/40",
+      )}
+    >
+      {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+    </span>
+  </button>
+);
+
+export default PayOption;
