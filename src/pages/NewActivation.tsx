@@ -4,6 +4,9 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import PlanCard, { PlanCardData } from "@/components/PlanCard";
+import SimCard from "@/components/activation/SimCard";
+import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +40,8 @@ import {
   Sparkles,
   ArrowRightLeft,
   ArrowRight,
+  ScanLine,
+  Apple,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,10 +60,43 @@ const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smar
 ];
 
 const PLAN_TYPES = ["All", "Voice", "Data", "Bundle"];
-const plans = [
-  { id: 1, name: "Smart 50", price: 50, data: "20 GB", mins: "200 min", validity: "30 days" },
-  { id: 2, name: "Power 100", price: 100, data: "60 GB", mins: "Unlimited", validity: "30 days" },
-  { id: 3, name: "Ultra 200", price: 200, data: "Unlimited", mins: "Unlimited", validity: "30 days" },
+const plans: (PlanCardData & { id: number })[] = [
+  {
+    id: 1,
+    title: "Smart 50",
+    internet: "20 GB",
+    mins: "200",
+    sms: "500",
+    social: "Unlimited",
+    price: 50,
+    validityLabel: "Valid 30 days",
+    discount: "Discount 20%",
+    features: ["5G access", "Unlimited social apps"],
+  },
+  {
+    id: 2,
+    title: "Power 100",
+    internet: "60 GB",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 100,
+    validityLabel: "Valid 30 days",
+    discount: null,
+    features: ["5G+ priority access", "Free roaming in GCC"],
+  },
+  {
+    id: 3,
+    title: "Ultra 200",
+    internet: "Unlimited",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 200,
+    validityLabel: "Valid 30 days",
+    discount: "Discount 10%",
+    features: ["Premium 24/7 support", "Free 100 international min"],
+  },
 ];
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
