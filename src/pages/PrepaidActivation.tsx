@@ -766,11 +766,17 @@ const PrepaidActivation = () => {
         )}
 
         {/* Step indicator */}
-        <FlowStepper current={step === 1 ? 1 : 2} />
+        {staged ? (
+          <FlowStepper
+            steps={STAGED_STEPS}
+            current={step === 2 ? 3 : subStep === 0 ? 1 : 2}
+          />
+        ) : (
+          <FlowStepper current={step === 1 ? 1 : 2} />
+        )}
 
         {step === 1 && (
           <>
-        {staged && <SubStepper current={subStep} />}
 
         {/* SIM Type */}
         {(!staged || subStep === 0) && (
