@@ -139,7 +139,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
     return (
       <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+          
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 text-center">
               <h3 className="font-semibold text-foreground text-base">
