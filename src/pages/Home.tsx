@@ -147,6 +147,11 @@ const Home = () => {
         </div>
       </div>
 
+      {/*
+        NOTE: Hidden per request — keep these widgets in source for future use.
+        To restore, uncomment the Working Shift, Tickets, and Member Onboarding sections below.
+      */}
+      {/*
       {/* Working Shift */}
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
@@ -247,6 +252,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      */}
 
       <BottomNav />
       <SematiVerification
