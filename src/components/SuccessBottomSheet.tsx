@@ -18,7 +18,7 @@ export function SuccessBottomSheet({
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        
 
         <div className="flex items-center justify-between mb-5">
           <div className="w-7" />

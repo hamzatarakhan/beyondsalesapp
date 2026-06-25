@@ -2015,7 +2015,6 @@ const PlanFilterSheet = ({
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
         <div className="relative mb-4 text-center">
           <h3 className="font-semibold text-foreground">Filter</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -2194,7 +2193,7 @@ const PlanDetailsSheet = ({
   return (
     <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 pb-6 max-h-[85vh] flex flex-col">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-2 shrink-0" />
+        
         <div className="relative flex items-center justify-center px-5 py-3 shrink-0">
           <h3 className="font-semibold text-foreground text-lg">Plan Details</h3>
           <button
@@ -2453,7 +2452,6 @@ const SignaturePadSheet = ({
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[92vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
         <button
           onClick={onClose}
           className="absolute right-4 top-5 w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center"
@@ -2562,7 +2560,7 @@ const ChooseNumberSheet = ({
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[85vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        
         <div className="flex items-center justify-between mb-4">
           <div className="w-7" />
           <h3 className="font-semibold text-foreground">Choose Different Number</h3>
