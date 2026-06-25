@@ -457,15 +457,21 @@ const NewActivation = () => {
             </SectionCard>
 
             {showTopupOption && (
-              <SectionCard title="Plan">
-                <SegmentedTabs
-                  value={planMode}
-                  onChange={(v) => setPlanMode(v as PlanMode)}
-                  options={[
-                    { value: "plan", label: "With Plan" },
-                    { value: "topup", label: "With Topup" },
-                  ]}
-                />
+              <SectionCard title="Plan type">
+                <div className="grid grid-cols-2 border-b border-border">
+                  <SourceTab
+                    active={planMode === "plan"}
+                    icon={Tag}
+                    label="With plan"
+                    onClick={() => setPlanMode("plan")}
+                  />
+                  <SourceTab
+                    active={planMode === "topup"}
+                    icon={Database}
+                    label="With top-up"
+                    onClick={() => setPlanMode("topup")}
+                  />
+                </div>
               </SectionCard>
             )}
 
