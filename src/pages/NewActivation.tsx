@@ -4,6 +4,9 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import PlanCard, { PlanCardData } from "@/components/PlanCard";
+import SimCard from "@/components/activation/SimCard";
+import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +40,8 @@ import {
   Sparkles,
   ArrowRightLeft,
   ArrowRight,
+  ScanLine,
+  Apple,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,10 +60,43 @@ const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smar
 ];
 
 const PLAN_TYPES = ["All", "Voice", "Data", "Bundle"];
-const plans = [
-  { id: 1, name: "Smart 50", price: 50, data: "20 GB", mins: "200 min", validity: "30 days" },
-  { id: 2, name: "Power 100", price: 100, data: "60 GB", mins: "Unlimited", validity: "30 days" },
-  { id: 3, name: "Ultra 200", price: 200, data: "Unlimited", mins: "Unlimited", validity: "30 days" },
+const plans: (PlanCardData & { id: number })[] = [
+  {
+    id: 1,
+    title: "Smart 50",
+    internet: "20 GB",
+    mins: "200",
+    sms: "500",
+    social: "Unlimited",
+    price: 50,
+    validityLabel: "Valid 30 days",
+    discount: "Discount 20%",
+    features: ["5G access", "Unlimited social apps"],
+  },
+  {
+    id: 2,
+    title: "Power 100",
+    internet: "60 GB",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 100,
+    validityLabel: "Valid 30 days",
+    discount: null,
+    features: ["5G+ priority access", "Free roaming in GCC"],
+  },
+  {
+    id: 3,
+    title: "Ultra 200",
+    internet: "Unlimited",
+    mins: "Unlimited",
+    sms: "Unlimited",
+    social: "Unlimited",
+    price: 200,
+    validityLabel: "Valid 30 days",
+    discount: "Discount 10%",
+    features: ["Premium 24/7 support", "Free 100 international min"],
+  },
 ];
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
@@ -316,7 +354,7 @@ const NewActivation = () => {
       <div className="px-4 space-y-4">
         {/* Stage 1 — Identity */}
         {step === 0 && (
-          <SectionCard title="Customer Identity">
+          <>
             <Field label="ID Type">
               <Select
                 value={idType}
@@ -358,7 +396,7 @@ const NewActivation = () => {
                 className="h-12 bg-card rounded-xl shadow-sm border-0"
               />
             </Field>
-          </SectionCard>
+          </>
         )}
 
         {/* Stage 2 — Service & SIM */}
@@ -387,34 +425,62 @@ const NewActivation = () => {
               </div>
             </SectionCard>
 
-            <SectionCard title="SIM details">
-              <Field label="SIM Type">
-                <SegmentedTabs value={simType} onChange={(v) => setSimType(v as SimType)} options={simOptions} />
-              </Field>
+            <section>
+              <h3 className="text-sm font-semibold text-foreground mb-2">
+                SIM Type <span className="text-destructive">*</span>
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {simOptions.map((opt) => (
+                  <SimCard
+                    key={opt.value}
+                    active={simType === opt.value}
+                    label={opt.label}
+                    disabled={opt.disabled}
+                    onClick={() => setSimType(opt.value)}
+                  />
+                ))}
+              </div>
               {simType === "esim" && (
                 <button
                   type="button"
                   onClick={() => setEsimInfoOpen(true)}
-                  className="w-full flex items-center gap-2 text-left p-3 rounded-xl bg-primary/5 border border-primary/20"
+                  className="w-full mt-3 flex items-center gap-2 text-left p-3 rounded-xl bg-primary/5 border border-primary/20"
                 >
                   <Info className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-xs text-foreground flex-1">View supported devices &amp; iOS versions</span>
+                  <span className="text-xs text-foreground flex-1">
+                    View supported devices &amp; iOS versions
+                  </span>
                 </button>
               )}
-              {simType === "psim" && (
-                <Field label="KIT Code">
+            </section>
+
+            {simType === "psim" && (
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  KIT <span className="text-destructive">*</span>
+                </h3>
+                <div className="relative">
                   <Input
                     value={kit}
                     onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     placeholder="KIT Code (10 Digits)"
+                    className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
                     inputMode="numeric"
                   />
-                  {kit && !isKitValid && (
-                    <p className="text-xs text-destructive">KIT must be 10 digits</p>
-                  )}
-                </Field>
-              )}
-            </SectionCard>
+                  <button
+                    type="button"
+                    onClick={() => setKit("1234567890")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
+                    aria-label="Scan KIT"
+                  >
+                    <ScanLine className="w-5 h-5" />
+                  </button>
+                </div>
+                {kit && !isKitValid && (
+                  <p className="text-xs text-destructive mt-1.5">KIT must be 10 digits</p>
+                )}
+              </section>
+            )}
           </>
         )}
 
@@ -514,22 +580,14 @@ const NewActivation = () => {
                       <SelectContent>{PLAN_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
-                  <div className="grid gap-2">
+                  <div className="grid gap-3">
                     {plans.map((p) => (
-                      <button
+                      <PlanCard
                         key={p.id}
-                        onClick={() => setSelectedPlan(p.id)}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-xl border text-left transition-colors",
-                          selectedPlan === p.id ? "border-primary bg-primary/5" : "border-border bg-card",
-                        )}
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                          <p className="text-xs text-muted-foreground">{p.data} · {p.mins} · {p.validity}</p>
-                        </div>
-                        <p className="text-sm font-bold text-primary">{p.price} SAR</p>
-                      </button>
+                        plan={p}
+                        selected={selectedPlan === p.id}
+                        onSelect={() => setSelectedPlan(p.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -592,34 +650,28 @@ const NewActivation = () => {
               )}
               <Row label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
               {planMode === "plan" ? (
-                <Row label="Plan" value={`${selectedPlanObj?.name} · ${selectedPlanObj?.price} SAR`} />
+                <Row label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
               ) : (
                 <Row label="Top-up" value={`${topupAmount} SAR`} />
               )}
               <Row label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
             </SectionCard>
 
-            <SectionCard title="Payment method">
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { v: "card" as const, label: "Card", Icon: CreditCard },
-                  { v: "cash" as const, label: "Cash", Icon: Banknote },
-                  { v: "apple" as const, label: "Apple Pay", Icon: CreditCard },
-                ].map((o) => (
-                  <button
-                    key={o.v}
-                    onClick={() => setPay(o.v)}
-                    className={cn(
-                      "p-3 rounded-xl border flex flex-col items-center gap-1 text-xs font-medium",
-                      pay === o.v ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground",
-                    )}
-                  >
-                    <o.Icon className="w-4 h-4" />
-                    {o.label}
-                  </button>
-                ))}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <CreditCard className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">
+                  Select Payment Method <span className="text-destructive">*</span>
+                </p>
               </div>
-            </SectionCard>
+              <div className="space-y-2">
+                <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
+                <PayOption icon={Banknote} label="Cash" selected={pay === "cash"} onClick={() => setPay("cash")} />
+                <PayOption icon={Apple} label="Apple Pay" selected={pay === "apple"} onClick={() => setPay("apple")} />
+              </div>
+            </section>
 
             <SectionCard title="OTP Verification">
               {otpVerified ? (
@@ -774,7 +826,7 @@ const NewActivation = () => {
           <Row label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
           <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
           {planMode === "plan"
-            ? <Row label="Plan" value={`${selectedPlanObj?.name}`} />
+            ? <Row label="Plan" value={`${selectedPlanObj?.title}`} />
             : <Row label="Top-up" value={`${topupAmount} SAR`} />}
           <Row label="Total" value={`${total} SAR`} />
         </div>
