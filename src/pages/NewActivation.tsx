@@ -457,7 +457,8 @@ const NewActivation = () => {
             </SectionCard>
 
             {showTopupOption && (
-              <SectionCard title="Plan type">
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">Plan type <span className="text-destructive">*</span></h3>
                 <div className="grid grid-cols-2 border-b border-border">
                   <SourceTab
                     active={planMode === "plan"}
@@ -472,7 +473,7 @@ const NewActivation = () => {
                     onClick={() => setPlanMode("topup")}
                   />
                 </div>
-              </SectionCard>
+              </section>
             )}
 
             {planMode === "plan" ? (
