@@ -205,7 +205,7 @@ const NewActivation = () => {
     if (step === 1) return !!service && !!simType && isKitValid;
     if (step === 2) {
       if (subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
-      if (planMode === "plan" && !selectedPlan) return false;
+      if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
       return true;
     }
