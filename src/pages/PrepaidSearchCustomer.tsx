@@ -168,7 +168,7 @@ const PrepaidSearchCustomer = () => {
       <AppHeader title="Search Customer" showBack />
 
       <div className="flex-1 px-4 pb-28">
-        <FlowStepper current={0} />
+        <FlowStepper current={0} steps={staged ? STAGED_STEPS : undefined} />
         <Field
           label="ID Type"
           required
