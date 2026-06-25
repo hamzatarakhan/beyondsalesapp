@@ -9,7 +9,6 @@ import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerFooter,
 } from "@/components/ui/drawer";
 import {
   Smartphone,
@@ -32,9 +34,10 @@ import {
   Banknote,
   ShieldCheck,
   Pencil,
-  Eraser,
   Info,
   X as XIcon,
+  X,
+  ClipboardList,
   Check,
   Phone,
   Sparkles,
@@ -44,6 +47,7 @@ import {
   Apple,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 
 // ---------- Types & constants ----------
 type Service = "mobile" | "mbb" | "hbb";
@@ -157,90 +161,13 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-// ---------- Signature pad ----------
-function SignaturePad({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawingRef = useRef(false);
-  const lastRef = useRef<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    const c = canvasRef.current;
-    if (!c) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = c.getBoundingClientRect();
-    c.width = rect.width * dpr;
-    c.height = rect.height * dpr;
-    const ctx = c.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#0f172a";
-    if (value) {
-      const img = new Image();
-      img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      img.src = value;
-    }
-  }, []);
-
-  const pos = (e: React.PointerEvent) => {
-    const c = canvasRef.current!;
-    const r = c.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
-
-  const down = (e: React.PointerEvent) => {
-    drawingRef.current = true;
-    lastRef.current = pos(e);
-    (e.target as Element).setPointerCapture(e.pointerId);
-  };
-  const move = (e: React.PointerEvent) => {
-    if (!drawingRef.current) return;
-    const ctx = canvasRef.current!.getContext("2d")!;
-    const p = pos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastRef.current!.x, lastRef.current!.y);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    lastRef.current = p;
-  };
-  const up = () => {
-    if (!drawingRef.current) return;
-    drawingRef.current = false;
-    const c = canvasRef.current!;
-    onChange(c.toDataURL("image/png"));
-  };
-  const clear = () => {
-    const c = canvasRef.current!;
-    const ctx = c.getContext("2d")!;
-    ctx.clearRect(0, 0, c.width, c.height);
-    onChange(null);
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="relative h-32 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/30 overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full touch-none"
-          onPointerDown={down}
-          onPointerMove={move}
-          onPointerUp={up}
-          onPointerCancel={up}
-        />
-        {!value && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-xs text-muted-foreground">
-            <Pencil className="w-4 h-4 mr-1.5" /> Sign here
-          </div>
-        )}
-      </div>
-      {value && (
-        <button type="button" onClick={clear} className="text-xs text-primary inline-flex items-center gap-1">
-          <Eraser className="w-3.5 h-3.5" /> Clear
-        </button>
-      )}
-    </div>
-  );
-}
+// ---------- Summary row ----------
+const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
+    <span className="text-[11px] text-muted-foreground">{label}</span>
+    <span className="text-xs font-semibold text-foreground text-right">{value}</span>
+  </div>
+);
 
 // ---------- Page ----------
 const NewActivation = () => {
@@ -287,6 +214,7 @@ const NewActivation = () => {
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
 
   // ---------- Conditional rules ----------
   const simOptions = useMemo<{ value: SimType; label: string; disabled?: boolean }[]>(() => {
@@ -637,25 +565,39 @@ const NewActivation = () => {
         {/* Stage 4 — Checkout */}
         {step === 3 && (
           <>
-            <SectionCard title="Summary">
-              <Row label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
-              <Row label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-              {simType === "psim" && <Row label="KIT" value={kit} />}
-              <Row label="Subscription" value={subType === "sim" ? "SIM Number" : "MNP"} />
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">Summary</p>
+                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold"
+                >
+                  <Pencil className="w-3 h-3" /> Edit
+                </button>
+              </div>
+              <SummaryRow label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
+              <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
+              {simType === "psim" && <SummaryRow label="KIT" value={kit} />}
+              <SummaryRow label="Subscription" value={subType === "sim" ? "SIM Number" : "MNP"} />
               {subType === "mnp" && (
                 <>
-                  <Row label="Port number" value={portNumber} />
-                  <Row label="From operator" value={portOperator} />
+                  <SummaryRow label="Port number" value={portNumber} />
+                  <SummaryRow label="From operator" value={portOperator} />
                 </>
               )}
-              <Row label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
+              <SummaryRow label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
               {planMode === "plan" ? (
-                <Row label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
+                <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
               ) : (
-                <Row label="Top-up" value={`${topupAmount} SAR`} />
+                <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />
               )}
-              <Row label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
-            </SectionCard>
+              <SummaryRow label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
+            </section>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
@@ -701,29 +643,51 @@ const NewActivation = () => {
               )}
             </SectionCard>
 
-            <SectionCard title="Signatures">
-              <Field label="Customer signature"><SignaturePad value={customerSig} onChange={setCustomerSig} /></Field>
-              <Field label="Dealer signature"><SignaturePad value={dealerSig} onChange={setDealerSig} /></Field>
-            </SectionCard>
+            <SignatureBox
+              title="Customer Signature"
+              required
+              value={customerSig}
+              onEdit={() => setSigEditor("customer")}
+              onClear={() => setCustomerSig(null)}
+            />
+            <SignatureBox
+              title="Dealer Signature"
+              required
+              value={dealerSig}
+              onEdit={() => setSigEditor("dealer")}
+              onClear={() => setDealerSig(null)}
+            />
 
-            <SectionCard title="Price details">
-              <Row label="Subtotal" value={`${subtotal} SAR`} />
-              <Row label="VAT (15%)" value={`${vat} SAR`} />
-              <div className="pt-2 mt-1 border-t border-border flex items-center justify-between">
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <SummaryRow label="Subtotal" value={`${subtotal} SAR`} />
+              <div className="flex items-start justify-between gap-3 py-2">
+                <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                <span className="text-xs font-semibold text-foreground text-right">{vat} SAR</span>
+              </div>
+              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
                 <span className="text-sm font-semibold text-foreground">Total</span>
                 <span className="text-base font-bold text-primary">{total} SAR</span>
               </div>
-            </SectionCard>
+            </section>
 
-            <div className="flex items-start gap-2 px-1">
-              <Checkbox id="terms" checked={terms} onCheckedChange={(v) => setTerms(!!v)} />
-              <label htmlFor="terms" className="text-xs text-foreground leading-tight">
-                I agree to the{" "}
-                <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-medium">
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 select-none">
+                <input
+                  id="terms-checkbox"
+                  type="checkbox"
+                  checked={terms}
+                  onChange={(e) => setTerms(e.target.checked)}
+                  className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTermsOpen(true)}
+                  className="text-sm text-foreground text-left"
+                >
                   Terms and Conditions
                 </button>
-              </label>
-            </div>
+              </div>
+            </section>
           </>
         )}
       </div>
@@ -807,18 +771,52 @@ const NewActivation = () => {
 
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
-          <DrawerHeader>
-            <DrawerTitle className="text-center">Terms and Conditions</DrawerTitle>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+            <X className="h-5 w-5 text-foreground" />
+            <span className="sr-only">Close</span>
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Terms and Conditions</DrawerTitle>
+            <DrawerDescription>
+              Please read and accept our terms and conditions to continue.
+            </DrawerDescription>
           </DrawerHeader>
-          <div className="px-5 pb-6 space-y-3 overflow-y-auto text-sm text-muted-foreground">
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
             <p>By proceeding, the customer agrees to the service agreement, billing terms, and acceptable use policy.</p>
             <p>All activations are subject to identity verification and regulatory approval. The customer acknowledges receipt of the SIM/eSIM and authorizes the selected plan or top-up amount.</p>
             <p>Refunds, replacements, and cancellations follow the standard policy available in the merchant portal.</p>
-            <Button className="w-full mt-4" onClick={() => { setTerms(true); setTermsOpen(false); }}>I agree</Button>
           </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button
+                onClick={() => setTerms(true)}
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
+              >
+                Accept
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                Cancel
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Signature pad sheet */}
+      <SignaturePadSheet
+        open={sigEditor !== null}
+        title={sigEditor === "customer" ? "Customer Signature" : "Dealer Signature"}
+        initial={sigEditor === "customer" ? customerSig : sigEditor === "dealer" ? dealerSig : null}
+        onClose={() => setSigEditor(null)}
+        onSave={(dataUrl) => {
+          if (sigEditor === "customer") setCustomerSig(dataUrl);
+          if (sigEditor === "dealer") setDealerSig(dataUrl);
+          setSigEditor(null);
+        }}
+      />
 
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
