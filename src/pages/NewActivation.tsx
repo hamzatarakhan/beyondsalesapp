@@ -7,6 +7,7 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import PlanCard, { PlanCardData } from "@/components/PlanCard";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
+import SourceTab from "@/components/activation/SourceTab";
 import PlanSelector, { PLANS as SHARED_PLANS, Plan as SharedPlan } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
