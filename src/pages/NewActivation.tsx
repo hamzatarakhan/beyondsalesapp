@@ -604,7 +604,7 @@ const NewActivation = () => {
 
       {/* Sticky bottom action */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
-        <div className="mobile-container mx-auto">
+        <div className="max-w-[390px] mx-auto">
           {step < 3 ? (
             <Button className="w-full h-12 text-sm font-semibold" disabled={!canContinue} onClick={onContinue}>
               Continue
