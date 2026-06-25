@@ -7,6 +7,7 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import PlanCard, { PlanCardData } from "@/components/PlanCard";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
+import SourceTab from "@/components/activation/SourceTab";
 import PlanSelector, { PLANS as SHARED_PLANS, Plan as SharedPlan } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,8 @@ import {
   ArrowRight,
   ScanLine,
   Apple,
+  Tag,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -454,15 +457,21 @@ const NewActivation = () => {
             </SectionCard>
 
             {showTopupOption && (
-              <SectionCard title="Plan">
-                <SegmentedTabs
-                  value={planMode}
-                  onChange={(v) => setPlanMode(v as PlanMode)}
-                  options={[
-                    { value: "plan", label: "With Plan" },
-                    { value: "topup", label: "With Topup" },
-                  ]}
-                />
+              <SectionCard title="Plan type">
+                <div className="grid grid-cols-2 border-b border-border">
+                  <SourceTab
+                    active={planMode === "plan"}
+                    icon={Tag}
+                    label="With plan"
+                    onClick={() => setPlanMode("plan")}
+                  />
+                  <SourceTab
+                    active={planMode === "topup"}
+                    icon={Database}
+                    label="With top-up"
+                    onClick={() => setPlanMode("topup")}
+                  />
+                </div>
               </SectionCard>
             )}
 
