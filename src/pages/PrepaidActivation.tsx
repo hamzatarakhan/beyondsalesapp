@@ -2015,7 +2015,6 @@ const PlanFilterSheet = ({
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
-        <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
         <div className="relative mb-4 text-center">
           <h3 className="font-semibold text-foreground">Filter</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">
