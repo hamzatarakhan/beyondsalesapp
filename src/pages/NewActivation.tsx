@@ -47,6 +47,8 @@ import {
   ScanLine,
   Tag,
   Database,
+  FileText,
+  HandCoins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -450,9 +452,43 @@ const NewActivation = () => {
               )}
             </section>
 
-            <SectionCard title="Payment type">
-              <SegmentedTabs value={payType} onChange={(v) => setPayType(v as PayType)} options={payOptions} />
-            </SectionCard>
+            <section>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Payment Type</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {payOptions.map((opt) => {
+                  const selected = payType === opt.value;
+                  const Icon = opt.value === "prepaid" ? FileText : HandCoins;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      disabled={opt.disabled}
+                      onClick={() => !opt.disabled && setPayType(opt.value)}
+                      className={cn(
+                        "relative rounded-2xl border p-4 flex flex-col items-center justify-center gap-2 transition-colors",
+                        selected
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card",
+                        opt.disabled && "opacity-50",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                          selected ? "border-primary" : "border-muted-foreground/40",
+                        )}
+                      >
+                        {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+                      </span>
+                      <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-foreground")} />
+                      <span className={cn("text-sm font-medium", selected ? "text-foreground" : "text-foreground")}>
+                        {opt.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
 
             {showTopupOption && (
               <section>
