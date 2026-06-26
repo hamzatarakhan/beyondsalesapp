@@ -255,7 +255,20 @@ const NewActivation = () => {
 
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
-      <AppHeader title="New Activation" showBack onBackClick={onBack} />
+      <AppHeader
+        title="New Activation"
+        showBack
+        onBackClick={onBack}
+        rightElement={
+          <button
+            onClick={() => setCancelOpen(true)}
+            aria-label="Cancel activation"
+            className="w-10 h-10 flex items-center justify-center -mr-2"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        }
+      />
       <FlowStepper current={step} steps={NEW_ACTIVATION_STEPS} />
 
       <div className="px-4 space-y-4">
