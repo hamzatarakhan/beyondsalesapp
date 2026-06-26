@@ -190,6 +190,11 @@ const NewActivation = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
 
+  // Cancel activation dialog state
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
+  const [cancelOtherText, setCancelOtherText] = useState<string>("");
+
   // ---------- Conditional rules ----------
   const simOptions = useMemo<{ value: SimType; label: string; disabled?: boolean }[]>(() => {
     if (service === "hbb") return [{ value: "psim", label: "P-SIM" }, { value: "esim", label: "E-SIM", disabled: true }];
