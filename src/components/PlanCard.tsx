@@ -1,5 +1,7 @@
-import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 /**
  * Reusable, data-driven plan card.
@@ -53,7 +55,7 @@ const FeatureRow = ({
 );
 
 const SocialChip = () => (
-  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold">
+  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
     <span className="flex -space-x-1">
       <span className="w-3.5 h-3.5 rounded-full bg-blue-600 border border-card" />
       <span className="w-3.5 h-3.5 rounded-full bg-red-500 border border-card" />
@@ -63,7 +65,7 @@ const SocialChip = () => (
 );
 
 const FlagChip = () => (
-  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold">
+  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
     <span className="flex -space-x-1">
       <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-b from-red-500 via-white to-black border border-card" />
       <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-green-600 via-white to-red-600 border border-card" />
@@ -82,7 +84,9 @@ const PlanCard = ({
   onMoreDetails,
 }: Props) => {
   const validity = plan.validityLabel?.toLowerCase().replace("valid ", "") ?? "30 days";
+  const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
   return (
+    <>
     <div
       className={cn(
         "rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200",
@@ -126,7 +130,7 @@ const PlanCard = ({
             <p className="text-[11px] text-muted-foreground">Vat Incl</p>
             <p className="text-xl font-bold text-foreground">
               {Number(plan.price).toFixed(2)}{" "}
-              <span className="text-muted-foreground font-normal">﷼</span>
+              <span className="text-muted-foreground font-normal text-sm">SAR</span>
             </p>
           </div>
         </div>
@@ -137,7 +141,11 @@ const PlanCard = ({
           <FeatureRow
             icon={Globe}
             label={<>Unlimited social data</>}
-            chip={<SocialChip />}
+            chip={
+              <button onClick={() => setOpenSheet("apps")} className="active:opacity-70">
+                <SocialChip />
+              </button>
+            }
           />
           <FeatureRow icon={Phone} label={`${plan.mins} local minutes`} />
           <FeatureRow icon={Phone} label="Unlimited (receiving) roaming" />
@@ -145,7 +153,11 @@ const PlanCard = ({
           <FeatureRow
             icon={Star}
             label="Free subscription upon activation"
-            chip={<FlagChip />}
+            chip={
+              <button onClick={() => setOpenSheet("countries")} className="active:opacity-70">
+                <FlagChip />
+              </button>
+            }
           />
         </div>
 
@@ -163,7 +175,70 @@ const PlanCard = ({
         </button>
       </div>
     </div>
+    <InfoSheet
+      open={openSheet === "apps"}
+      onClose={() => setOpenSheet(null)}
+      title="Supported Apps"
+      items={[
+        { label: "Facebook", icon: <span className="w-9 h-9 rounded-full bg-blue-600 text-white grid place-items-center font-bold text-sm">f</span> },
+        { label: "Youtube", icon: <span className="w-9 h-9 rounded-full bg-red-600 text-white grid place-items-center text-xs">▶</span> },
+        { label: "Whatsapp", icon: <span className="w-9 h-9 rounded-full bg-green-500 text-white grid place-items-center font-bold text-sm">W</span> },
+        { label: "X", icon: <span className="w-9 h-9 rounded-full bg-black text-white grid place-items-center font-bold text-sm">X</span> },
+        { label: "Instagram", icon: <span className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white grid place-items-center font-bold text-sm">IG</span> },
+        { label: "TikTok", icon: <span className="w-9 h-9 rounded-full bg-black text-white grid place-items-center font-bold text-xs">TT</span> },
+      ]}
+    />
+    <InfoSheet
+      open={openSheet === "countries"}
+      onClose={() => setOpenSheet(null)}
+      title="Available in"
+      items={[
+        { label: "Saudi Arabia", icon: <span className="w-9 h-9 rounded-full bg-green-700 text-white grid place-items-center text-[10px]">KSA</span> },
+        { label: "Egypt", icon: <span className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-b from-red-500 via-white to-black border" /> },
+        { label: "UAE", icon: <span className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-red-600 via-white to-green-600 border" /> },
+        { label: "India", icon: <span className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-b from-orange-500 via-white to-green-600 border" /> },
+        { label: "Bahrain", icon: <span className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-red-600 to-white border" /> },
+      ]}
+    />
+    </>
   );
 };
+
+const InfoSheet = ({
+  open,
+  onClose,
+  title,
+  items,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  items: { label: string; icon: React.ReactNode }[];
+}) => (
+  <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+    <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[80vh]">
+      <div className="relative mb-4 mt-2 flex items-center justify-center">
+        <h3 className="font-semibold text-foreground text-lg">{title}</h3>
+        <button
+          onClick={onClose}
+          className="absolute right-0 w-8 h-8 rounded-full border border-border flex items-center justify-center"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="space-y-2 overflow-y-auto">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
+          >
+            {item.icon}
+            <span className="text-sm font-medium text-foreground">{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </DrawerContent>
+  </Drawer>
+);
 
 export default PlanCard;
