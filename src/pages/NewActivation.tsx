@@ -169,9 +169,9 @@ const NewActivation = () => {
   // Stage 3 — Subscription
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
-  const [portNumber, setPortNumber] = useState("");
-  const [portOperator, setPortOperator] = useState("");
-  const [portContact, setPortContact] = useState("");
+  const [portNumber, setPortNumber] = useState("0512345678");
+  const [portOperator, setPortOperator] = useState("STC");
+  const [portContact, setPortContact] = useState("0598765432");
   const [payType, setPayType] = useState<PayType>("prepaid");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number>(0);
@@ -262,7 +262,7 @@ const NewActivation = () => {
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
       <AppHeader
-        title="New Activation"
+        title={service === "mbb" ? "MBB Activation" : service === "hbb" ? "HBB Activation" : "Mobile Activation"}
         showBack
         onBackClick={onBack}
         rightElement={
@@ -559,7 +559,6 @@ const NewActivation = () => {
 
             {showTopupOption && (
               <section>
-                <h3 className="text-sm font-semibold text-foreground mb-2">Plan type <span className="text-destructive">*</span></h3>
                 <div className="grid grid-cols-2 border-b border-border">
                   <SourceTab
                     active={planMode === "plan"}
