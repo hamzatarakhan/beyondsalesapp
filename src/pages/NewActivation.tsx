@@ -81,6 +81,16 @@ const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
+const NUMBER_TABS = [
+  { value: "basic", label: "Basic", fee: 0 },
+  { value: "value", label: "Value", fee: 10 },
+  { value: "rare", label: "Rare", fee: 50 },
+  { value: "legendary", label: "Legendary", fee: 200 },
+  { value: "exotic", label: "Exotic", fee: 500 },
+];
+
+const SIM_FEES: Record<SimType, number> = { psim: 10, esim: 0 };
+
 const ESIM_DEVICES = [
   { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+", emoji: "📱", supported: true },
   { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+", emoji: "📱", supported: true },
@@ -240,7 +250,10 @@ const NewActivation = () => {
 
   const selectedPlanObj = plans[selectedPlan];
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
-  const subtotal = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
+  const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
+  const simFee = SIM_FEES[simType];
+  const numberFee = subType === "sim" ? (NUMBER_TABS.find(t => t.value === numberPickerTab)?.fee ?? 0) : 0;
+  const subtotal = planPrice + simFee + numberFee;
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
@@ -682,10 +695,40 @@ const NewActivation = () => {
                 </div>
                 <p className="text-sm font-semibold text-foreground">Payment Summary</p>
               </div>
-              <SummaryRow label="Subtotal" value={`${subtotal} SAR`} />
-              <div className="flex items-start justify-between gap-3 py-2">
-                <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
-                <span className="text-xs font-semibold text-foreground text-right">{vat} SAR</span>
+
+              {/* SIM card fee */}
+              <SummaryRow
+                label={simType === "psim" ? "P-SIM Card" : "E-SIM"}
+                value={simFee > 0 ? `${simFee} SAR` : "Free"}
+              />
+
+              {/* Vanity number fee */}
+              {subType === "sim" && numberFee > 0 && (
+                <SummaryRow
+                  label={`${NUMBER_TABS.find(t => t.value === numberPickerTab)?.label} Number`}
+                  value={`${numberFee} SAR`}
+                />
+              )}
+
+              {/* Plan or top-up */}
+              {planMode === "plan" ? (
+                <SummaryRow
+                  label={selectedPlanObj?.title ?? "Plan"}
+                  value={`${planPrice} SAR`}
+                />
+              ) : (
+                <SummaryRow label="Top-up" value={`${planPrice} SAR`} />
+              )}
+
+              <div className="border-t border-border/60 mt-2 pt-2">
+                <div className="flex items-start justify-between gap-3 py-1.5">
+                  <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                  <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
+                </div>
+                <div className="flex items-start justify-between gap-3 py-1.5">
+                  <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                  <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
+                </div>
               </div>
               <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
                 <span className="text-sm font-semibold text-foreground">Total</span>
@@ -807,13 +850,6 @@ const NewActivation = () => {
 
       {/* Number picker drawer */}
       {(() => {
-        const NUMBER_TABS = [
-          { value: "basic", label: "Basic", price: null },
-          { value: "value", label: "Value", price: 10 },
-          { value: "rare", label: "Rare", price: 50 },
-          { value: "legendary", label: "Legendary", price: 200 },
-          { value: "exotic", label: "Exotic", price: 500 },
-        ];
         const DEMO_NUMBERS = ["0512345678","0523456789","0534567890","0545678901","0556789012","0567890123","0578901234","0589012345","0590123456","0501234567"];
         const activeTab = NUMBER_TABS.find(t => t.value === numberPickerTab)!;
         const filtered = DEMO_NUMBERS.filter(n => n.includes(numberSearch));
@@ -861,8 +897,8 @@ const NewActivation = () => {
                       className="w-full flex items-center justify-between px-4 py-3.5 bg-card hover:bg-muted/30 transition-colors"
                     >
                       <span className="text-base font-semibold text-foreground">{num}</span>
-                      {activeTab.price && (
-                        <span className="text-sm text-muted-foreground">{activeTab.price}.0 <span className="font-bold">SAR</span></span>
+                      {activeTab.fee > 0 && (
+                        <span className="text-sm text-muted-foreground">{activeTab.fee} <span className="font-bold">SAR</span></span>
                       )}
                     </button>
                   ))}
