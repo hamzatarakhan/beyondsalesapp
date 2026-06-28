@@ -309,9 +309,8 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS }: PlanSelectorPro
           </SelectTrigger>
           <SelectContent className="bg-card">
             <SelectItem value="all">All</SelectItem>
-            <SelectItem value="base-plan">Base Plan</SelectItem>
-            <SelectItem value="minutes">Minutes</SelectItem>
-            <SelectItem value="data">Data</SelectItem>
+            <SelectItem value="flex">Flex</SelectItem>
+            <SelectItem value="aman">Aman</SelectItem>
           </SelectContent>
         </Select>
         <button

@@ -169,6 +169,9 @@ const NewActivation = () => {
   // Stage 3 — Subscription
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
+  const [numberPickerOpen, setNumberPickerOpen] = useState(false);
+  const [numberPickerTab, setNumberPickerTab] = useState("basic");
+  const [numberSearch, setNumberSearch] = useState("");
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
@@ -472,11 +475,7 @@ const NewActivation = () => {
                   </div>
                   {simType === "psim" && (
                     <button
-                      onClick={() =>
-                        setPhone(
-                          "07" + Math.floor(10000000 + Math.random() * 89999999).toString(),
-                        )
-                      }
+                      onClick={() => setNumberPickerOpen(true)}
                       className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
                     >
                       Pick Different Number <ArrowRight className="w-4 h-4" />
@@ -823,6 +822,74 @@ const NewActivation = () => {
         onClose={() => setCustomerVerifyOpen(false)}
         onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
       />
+
+      {/* Number picker drawer */}
+      {(() => {
+        const NUMBER_TABS = [
+          { value: "basic", label: "Basic", price: null },
+          { value: "value", label: "Value", price: 10 },
+          { value: "rare", label: "Rare", price: 50 },
+          { value: "legendary", label: "Legendary", price: 200 },
+          { value: "exotic", label: "Exotic", price: 500 },
+        ];
+        const DEMO_NUMBERS = ["0512345678","0523456789","0534567890","0545678901","0556789012","0567890123","0578901234","0589012345","0590123456","0501234567"];
+        const activeTab = NUMBER_TABS.find(t => t.value === numberPickerTab)!;
+        const filtered = DEMO_NUMBERS.filter(n => n.includes(numberSearch));
+        return (
+          <Drawer open={numberPickerOpen} onOpenChange={setNumberPickerOpen}>
+            <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+              <div className="flex items-center justify-between px-5 pt-3 pb-4">
+                <h2 className="text-lg font-bold text-foreground">Choose Different Number</h2>
+                <button onClick={() => setNumberPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+              {/* Search */}
+              <div className="px-5 mb-3">
+                <div className="relative">
+                  <input
+                    value={numberSearch}
+                    onChange={e => setNumberSearch(e.target.value)}
+                    placeholder="Search"
+                    className="w-full h-11 bg-muted/50 rounded-xl pl-4 pr-10 text-sm outline-none border border-border/40"
+                  />
+                  <svg className="absolute right-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+              </div>
+              {/* Tabs */}
+              <div className="grid grid-cols-5 gap-1.5 px-5 mb-3">
+                {NUMBER_TABS.map(tab => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setNumberPickerTab(tab.value)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors",
+                      numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground"
+                    )}
+                  >{tab.label}</button>
+                ))}
+              </div>
+              {/* Number list */}
+              <div className="overflow-y-auto flex-1 px-5 pb-6">
+                <div className="rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/40">
+                  {filtered.map((num, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setPhone(num); setNumberPickerOpen(false); }}
+                      className="w-full flex items-center justify-between px-4 py-3.5 bg-card hover:bg-muted/30 transition-colors"
+                    >
+                      <span className="text-base font-semibold text-foreground">{num}</span>
+                      {activeTab.price && (
+                        <span className="text-sm text-muted-foreground">{activeTab.price}.0 <span className="font-bold">SAR</span></span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        );
+      })()}
 
       {/* eSIM devices drawer */}
       <Drawer open={esimInfoOpen} onOpenChange={setEsimInfoOpen}>
