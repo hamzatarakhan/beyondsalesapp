@@ -167,8 +167,8 @@ const PlanCard = ({
           className={cn(
             "w-full py-3 rounded-full text-sm font-semibold transition-colors",
             selected
-              ? "bg-red-700 text-white"
-              : "bg-red-600 text-white hover:bg-red-700"
+              ? "bg-primary text-primary-foreground"
+              : "bg-transparent border border-primary text-primary hover:bg-primary/10"
           )}
         >
           {selected ? selectedLabel : selectLabel}
