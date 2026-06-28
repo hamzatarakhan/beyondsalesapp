@@ -196,6 +196,11 @@ const NewActivation = () => {
 
   // Stage 4 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
+  const VALID_PROMO = "SAVE10";
+  const promoDiscount = promoApplied ? 10 : 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
@@ -253,7 +258,7 @@ const NewActivation = () => {
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = SIM_FEES[simType];
   const numberFee = subType === "sim" ? (NUMBER_TABS.find(t => t.value === numberPickerTab)?.fee ?? 0) : 0;
-  const subtotal = planPrice + simFee + numberFee;
+  const subtotal = planPrice + simFee + numberFee - promoDiscount;
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
@@ -650,7 +655,54 @@ const NewActivation = () => {
               </div>
             </section>
 
-            {/* 3. Payment Summary */}
+            {/* 3. Promo Code */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Tag className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">Promo Code</p>
+              </div>
+              {promoApplied ? (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-semibold text-green-700">{VALID_PROMO}</span>
+                    <span className="text-xs text-green-600">— 10 SAR off</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }}
+                    className="text-xs text-muted-foreground hover:text-destructive font-medium"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={promoCode}
+                    onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }}
+                    placeholder="Enter promo code"
+                    className={cn("flex-1", promoError && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() => {
+                      if (promoCode === VALID_PROMO) { setPromoApplied(true); setPromoError(false); }
+                      else setPromoError(true);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              )}
+              {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>.</p>}
+            </section>
+
+            {/* 4. Payment Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -675,6 +727,12 @@ const NewActivation = () => {
                   <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
                   <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
                 </div>
+                {promoApplied && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-green-600">Promo ({VALID_PROMO})</span>
+                    <span className="text-xs font-semibold text-green-600">−{promoDiscount} SAR</span>
+                  </div>
+                )}
               </div>
 
               {/* Subtotal + VAT */}
