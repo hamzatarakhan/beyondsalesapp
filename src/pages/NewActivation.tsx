@@ -518,28 +518,22 @@ const NewActivation = () => {
 
             <section>
               <h3 className="text-sm font-semibold text-foreground mb-2">Subscription Type</h3>
-              {service === "mbb" ? (
-                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">Prepaid only</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">MBB plans are prepaid by default — postpaid is not available</p>
-                  </div>
-                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
-                </div>
-              ) : service === "hbb" ? (
-                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <HandCoins className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">Postpaid only</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Vnet plans are postpaid — prepaid is not available</p>
-                  </div>
-                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
-                </div>
+              {(service === "mbb" || service === "hbb") ? (
+                (() => {
+                  const opt = payOptions.find(o => o.value === payType)!;
+                  const Icon = opt.value === "prepaid" ? FileText : HandCoins;
+                  return (
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="relative rounded-2xl border border-primary bg-primary/10 p-4 flex flex-col items-center justify-center gap-2">
+                        <span className="absolute top-2 right-2 w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center">
+                          <span className="w-2 h-2 rounded-full bg-primary" />
+                        </span>
+                        <Icon className="w-6 h-6 text-primary" />
+                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                      </div>
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {payOptions.map((opt) => {
