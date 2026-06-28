@@ -443,7 +443,7 @@ const NewActivation = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mb-3">
+              {service !== "hbb" && <div className="grid grid-cols-2 gap-2 mb-3">
                 <button
                   onClick={() => setSubType("sim")}
                   className={cn(
@@ -464,7 +464,7 @@ const NewActivation = () => {
                   <ArrowRightLeft className="w-4 h-4" />
                   Port (MNP)
                 </button>
-              </div>
+              </div>}
 
               {subType === "sim" ? (
                 <>
