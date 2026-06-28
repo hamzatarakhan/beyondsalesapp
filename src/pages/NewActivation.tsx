@@ -516,25 +516,9 @@ const NewActivation = () => {
               )}
             </section>
 
-            <section>
-              <h3 className="text-sm font-semibold text-foreground mb-2">Subscription Type</h3>
-              {(service === "mbb" || service === "hbb") ? (
-                (() => {
-                  const opt = payOptions.find(o => o.value === payType)!;
-                  const Icon = opt.value === "prepaid" ? FileText : HandCoins;
-                  return (
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="relative rounded-2xl border border-primary bg-primary/10 p-4 flex flex-col items-center justify-center gap-2">
-                        <span className="absolute top-2 right-2 w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center">
-                          <span className="w-2 h-2 rounded-full bg-primary" />
-                        </span>
-                        <Icon className="w-6 h-6 text-primary" />
-                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : (
+            {service !== "mbb" && service !== "hbb" && (
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">Subscription Type</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {payOptions.map((opt) => {
                     const selected = payType === opt.value;
@@ -560,8 +544,8 @@ const NewActivation = () => {
                     );
                   })}
                 </div>
-              )}
-            </section>
+              </section>
+            )}
 
             {showTopupOption && (
               <section>
