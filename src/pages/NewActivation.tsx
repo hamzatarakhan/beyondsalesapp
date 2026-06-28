@@ -625,18 +625,16 @@ const NewActivation = () => {
         {/* Stage 4 — Checkout */}
         {step === 3 && (
           <>
+            {/* 1. Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                     <ClipboardList className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <p className="text-sm font-semibold text-foreground">Summary</p>
+                  <p className="text-sm font-semibold text-foreground">Subscription Summary</p>
                 </div>
-                <button
-                  onClick={() => setStep(2)}
-                  className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold"
-                >
+                <button onClick={() => setStep(2)} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
                   <Pencil className="w-3 h-3" /> Edit
                 </button>
               </div>
@@ -661,13 +659,14 @@ const NewActivation = () => {
               <SummaryRow label="Email" value={addrEmail} />
             </section>
 
+            {/* 2. Payment Method */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <CreditCard className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <p className="text-sm font-semibold text-foreground">
-                  Select Payment Method <span className="text-destructive">*</span>
+                  Payment Method <span className="text-destructive">*</span>
                 </p>
               </div>
               <div className="space-y-2">
@@ -675,50 +674,14 @@ const NewActivation = () => {
               </div>
             </section>
 
-            <SectionCard title="OTP Verification">
-              {otpVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> OTP verified</p>
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
-                  Send &amp; verify OTP
-                </Button>
-              )}
-            </SectionCard>
-
-            <SectionCard title="Customer verification">
-              {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Customer verified</p>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  disabled={!otpVerified}
-                  onClick={() => setCustomerVerifyOpen(true)}
-                >
-                  Verify customer
-                </Button>
-              )}
-              {!otpVerified && (
-                <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>
-              )}
-            </SectionCard>
-
-            <SignatureBox
-              title="Customer Signature"
-              required
-              value={customerSig}
-              onEdit={() => setSigEditor("customer")}
-              onClear={() => setCustomerSig(null)}
-            />
-            <SignatureBox
-              title="Dealer Signature"
-              required
-              value={dealerSig}
-              onEdit={() => setSigEditor("dealer")}
-              onClear={() => setDealerSig(null)}
-            />
-
+            {/* 3. Payment Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">Payment Summary</p>
+              </div>
               <SummaryRow label="Subtotal" value={`${subtotal} SAR`} />
               <div className="flex items-start justify-between gap-3 py-2">
                 <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
@@ -730,6 +693,32 @@ const NewActivation = () => {
               </div>
             </section>
 
+            {/* 4. OTP Verification */}
+            <SectionCard title="OTP Verification">
+              {otpVerified ? (
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> OTP verified</p>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
+                  Send &amp; verify OTP
+                </Button>
+              )}
+            </SectionCard>
+
+            {/* 5. Customer Verification */}
+            <SectionCard title="Customer Verification">
+              {customerVerified ? (
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Customer verified</p>
+              ) : (
+                <Button variant="outline" className="w-full" disabled={!otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
+                  Verify customer
+                </Button>
+              )}
+              {!otpVerified && (
+                <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>
+              )}
+            </SectionCard>
+
+            {/* 6. Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-3 select-none">
                 <input
@@ -741,10 +730,7 @@ const NewActivation = () => {
                 />
                 <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
                   <DrawerTrigger asChild>
-                    <button
-                      type="button"
-                      className="text-sm text-foreground text-left"
-                    >
+                    <button type="button" className="text-sm text-foreground text-left">
                       Terms and Conditions
                     </button>
                   </DrawerTrigger>
@@ -755,47 +741,43 @@ const NewActivation = () => {
                     </DrawerClose>
                     <DrawerHeader className="text-center">
                       <DrawerTitle>Terms and Conditions</DrawerTitle>
-                      <DrawerDescription>
-                        Please read and accept our terms and conditions to continue.
-                      </DrawerDescription>
+                      <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
                     </DrawerHeader>
                     <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
-                      <p>
-                        By activating this line, you agree to our service terms,
-                        including fair usage policies, payment obligations, and applicable
-                        regulatory requirements.
-                      </p>
-                      <p>
-                        All provided information must be accurate. The SIM/eSIM and selected
-                        number are subject to availability and approval.
-                      </p>
-                      <p>
-                        Plans, top-ups, and vanity fees are non-refundable once the activation
-                        is completed. VAT is included where stated.
-                      </p>
+                      <p>By activating this line, you agree to our service terms, including fair usage policies, payment obligations, and applicable regulatory requirements.</p>
+                      <p>All provided information must be accurate. The SIM/eSIM and selected number are subject to availability and approval.</p>
+                      <p>Plans, top-ups, and vanity fees are non-refundable once the activation is completed. VAT is included where stated.</p>
                     </div>
                     <DrawerFooter className="flex-col gap-3">
                       <DrawerClose asChild>
-                        <Button
-                          onClick={() => setTerms(true)}
-                          className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
-                        >
-                          Accept
-                        </Button>
+                        <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold">Accept</Button>
                       </DrawerClose>
                       <DrawerClose asChild>
-                        <button
-                          type="button"
-                          className="text-sm font-semibold text-primary"
-                        >
-                          Cancel
-                        </button>
+                        <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
                       </DrawerClose>
                     </DrawerFooter>
                   </DrawerContent>
                 </Drawer>
               </div>
             </section>
+
+            {/* 7. Customer Signature */}
+            <SignatureBox
+              title="Customer Signature"
+              required
+              value={customerSig}
+              onEdit={() => setSigEditor("customer")}
+              onClear={() => setCustomerSig(null)}
+            />
+
+            {/* 8. Dealer Signature */}
+            <SignatureBox
+              title="Dealer Signature"
+              required
+              value={dealerSig}
+              onEdit={() => setSigEditor("dealer")}
+              onClear={() => setDealerSig(null)}
+            />
           </>
         )}
       </div>
