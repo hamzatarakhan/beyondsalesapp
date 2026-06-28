@@ -696,41 +696,38 @@ const NewActivation = () => {
                 <p className="text-sm font-semibold text-foreground">Payment Summary</p>
               </div>
 
-              {/* SIM card fee */}
-              <SummaryRow
-                label={simType === "psim" ? "P-SIM Card" : "E-SIM"}
-                value={simFee > 0 ? `${simFee} SAR` : "Free"}
-              />
+              {/* Line items */}
+              <div className="space-y-2 pb-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
+                  <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
+                </div>
+                {subType === "sim" && numberFee > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === numberPickerTab)?.label} Number</span>
+                    <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
+                  <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                </div>
+              </div>
 
-              {/* Vanity number fee */}
-              {subType === "sim" && numberFee > 0 && (
-                <SummaryRow
-                  label={`${NUMBER_TABS.find(t => t.value === numberPickerTab)?.label} Number`}
-                  value={`${numberFee} SAR`}
-                />
-              )}
-
-              {/* Plan or top-up */}
-              {planMode === "plan" ? (
-                <SummaryRow
-                  label={selectedPlanObj?.title ?? "Plan"}
-                  value={`${planPrice} SAR`}
-                />
-              ) : (
-                <SummaryRow label="Top-up" value={`${planPrice} SAR`} />
-              )}
-
-              <div className="border-t border-border/60 mt-2 pt-2">
-                <div className="flex items-start justify-between gap-3 py-1.5">
+              {/* Subtotal + VAT */}
+              <div className="border-t border-border/60 space-y-2 py-3">
+                <div className="flex items-center justify-between">
                   <span className="text-[11px] text-muted-foreground">Subtotal</span>
                   <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
                 </div>
-                <div className="flex items-start justify-between gap-3 py-1.5">
+                <div className="flex items-center justify-between">
                   <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
                   <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
+
+              {/* Total */}
+              <div className="flex items-center justify-between border-t border-border/60 pt-3">
                 <span className="text-sm font-semibold text-foreground">Total</span>
                 <span className="text-base font-bold text-primary">{total} SAR</span>
               </div>
