@@ -168,7 +168,7 @@ const PlanCard = ({
             "w-full py-3 rounded-full text-sm font-semibold transition-colors",
             selected
               ? "bg-primary text-primary-foreground"
-              : "bg-transparent border border-primary text-primary hover:bg-primary/10"
+              : "bg-primary/10 text-foreground hover:bg-primary/20"
           )}
         >
           {selected ? selectedLabel : selectLabel}
