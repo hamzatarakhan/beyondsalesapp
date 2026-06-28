@@ -371,32 +371,17 @@ const NewActivation = () => {
               <h3 className="text-sm font-semibold text-foreground mb-2">
                 SIM Type <span className="text-destructive">*</span>
               </h3>
-              {service === "hbb" ? (
-                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="6" y="3" width="12" height="18" rx="2" /><path d="M10 8h4M10 12h4M10 16h4" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">Physical SIM only</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">HBB routers use P-SIM — eSIM is not supported</p>
-                  </div>
-                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  {simOptions.map((opt) => (
-                    <SimCard
-                      key={opt.value}
-                      active={simType === opt.value}
-                      label={opt.label}
-                      disabled={opt.disabled}
-                      onClick={() => setSimType(opt.value)}
-                    />
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-3">
+                {simOptions.map((opt) => (
+                  <SimCard
+                    key={opt.value}
+                    active={simType === opt.value}
+                    label={opt.label}
+                    disabled={opt.disabled}
+                    onClick={() => setSimType(opt.value)}
+                  />
+                ))}
+              </div>
               {simType === "esim" && (
                 <button
                   type="button"
