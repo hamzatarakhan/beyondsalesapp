@@ -39,7 +39,7 @@ const activities = [
   { icon: CreditCard, label: "Postpaid", path: "/phase-2" },
   { icon: RefreshCw, label: "SIM Replacement", path: "/phase-2" },
   { icon: PackageCheck, label: "Fulfilment", path: "/phase-2" },
-  { icon: Sparkles, label: "New Activation", path: "/new-activation" },
+  { icon: Sparkles, label: "SIM Activation", path: "/new-activation" },
 ];
 
 
@@ -142,7 +142,7 @@ const Home = () => {
                 label={activity.label}
                 color="teal"
                 onClick={() =>
-                  activity.label === "Prepaid" || activity.label === "New Activation"
+                  activity.label === "Prepaid" || activity.label === "SIM Activation"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
