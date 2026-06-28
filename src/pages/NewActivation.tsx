@@ -73,7 +73,7 @@ type PayMethod = "card" | "cash" | "apple";
 const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smartphone }[] = [
   { value: "mobile", label: "Mobile", desc: "Prepaid / Postpaid line", Icon: Smartphone },
   { value: "mbb", label: "MBB", desc: "Mobile Broadband — Prepaid 5G Internet", Icon: Wifi },
-  { value: "hbb", label: "HBB", desc: "Home Broadband — 5G / Vnet", Icon: Router },
+  { value: "hbb", label: "HBB", desc: "Home Broadband - Postpaid 5G Vnet", Icon: Router },
 ];
 
 const plans = SHARED_PLANS;
@@ -82,11 +82,16 @@ const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const ESIM_DEVICES = [
-  "iPhone XS, XS Max, XR",
-  "iPhone 11 / 11 Pro / 11 Pro Max",
-  "iPhone 12 series and newer",
-  "iPad Pro (2018) and newer",
-  "Requires iOS 12.1 or later",
+  { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+", emoji: "📱", supported: true },
+  { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+", emoji: "📱", supported: true },
+  { model: "iPhone 12 / Mini / Pro / Pro Max", ios: "iOS 14+", emoji: "📱", supported: true },
+  { model: "iPhone 13 series", ios: "iOS 15+", emoji: "📱", supported: true },
+  { model: "iPhone 14 series", ios: "iOS 16+", emoji: "📱", supported: true },
+  { model: "iPhone 15 series", ios: "iOS 17+", emoji: "📱", supported: true },
+  { model: "iPhone 16 series", ios: "iOS 18+", emoji: "📱", supported: true },
+  { model: "iPad Pro (2018+)", ios: "iPadOS 12.1+", emoji: "⬛", supported: true },
+  { model: "iPad Air (3rd gen+)", ios: "iPadOS 13+", emoji: "⬛", supported: true },
+  { model: "iPad Mini (5th gen+)", ios: "iPadOS 13+", emoji: "⬛", supported: true },
 ];
 
 // ---------- Small UI helpers ----------
@@ -153,7 +158,7 @@ const NewActivation = () => {
   // Stage 1 — Identity
   const [idType, setIdType] = useState("national-id");
   const [nationality, setNationality] = useState("sa");
-  const [idNumber, setIdNumber] = useState("");
+  const [idNumber, setIdNumber] = useState("1324567896");
 
   // Stage 2 — Service & SIM
   const [service, setService] = useState<Service>("mobile");
@@ -173,8 +178,8 @@ const NewActivation = () => {
   const [topupDenom, setTopupDenom] = useState<number | null>(50);
   const [topupManual, setTopupManual] = useState("");
   const [addrCity, setAddrCity] = useState("Riyadh");
-  const [addrStreet, setAddrStreet] = useState("King Fahd Rd");
-  const [addrBuilding, setAddrBuilding] = useState("123");
+  const [addrAddress, setAddrAddress] = useState("");
+  const [addrEmail, setAddrEmail] = useState("");
 
   // Stage 4 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
@@ -204,6 +209,7 @@ const NewActivation = () => {
   useEffect(() => {
     if (service === "hbb" && simType === "esim") setSimType("psim");
     if (service === "mbb" && payType === "postpaid") setPayType("prepaid");
+    if (service === "hbb" && payType === "prepaid") setPayType("postpaid");
     if (service === "hbb" && planMode === "topup") setPlanMode("plan");
   }, [service, simType, payType, planMode]);
 
@@ -213,7 +219,7 @@ const NewActivation = () => {
     return [{ value: "prepaid", label: "Prepaid" }, { value: "postpaid", label: "Postpaid" }];
   }, [service]);
 
-  const showTopupOption = service !== "hbb";
+  const showTopupOption = service !== "hbb" && service !== "mbb";
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
 
   // ---------- Stage gating ----------
@@ -349,27 +355,46 @@ const NewActivation = () => {
               <h3 className="text-sm font-semibold text-foreground mb-2">
                 SIM Type <span className="text-destructive">*</span>
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {simOptions.map((opt) => (
-                  <SimCard
-                    key={opt.value}
-                    active={simType === opt.value}
-                    label={opt.label}
-                    disabled={opt.disabled}
-                    onClick={() => setSimType(opt.value)}
-                  />
-                ))}
-              </div>
+              {service === "hbb" ? (
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="6" y="3" width="12" height="18" rx="2" /><path d="M10 8h4M10 12h4M10 16h4" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">Physical SIM only</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">HBB routers use P-SIM — eSIM is not supported</p>
+                  </div>
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {simOptions.map((opt) => (
+                    <SimCard
+                      key={opt.value}
+                      active={simType === opt.value}
+                      label={opt.label}
+                      disabled={opt.disabled}
+                      onClick={() => setSimType(opt.value)}
+                    />
+                  ))}
+                </div>
+              )}
               {simType === "esim" && (
                 <button
                   type="button"
                   onClick={() => setEsimInfoOpen(true)}
-                  className="w-full mt-3 flex items-center gap-2 text-left p-3 rounded-xl bg-primary/5 border border-primary/20"
+                  className="w-full mt-3 flex items-center gap-3 text-left p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 hover:from-primary/15 transition-all duration-200 group"
                 >
-                  <Info className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-xs text-foreground flex-1">
-                    View supported devices &amp; iOS versions
-                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/25 transition-colors">
+                    <Smartphone className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground">Supported devices &amp; iOS versions</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">iPhone XS and later · iOS 12.1+</p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               )}
             </section>
@@ -480,41 +505,56 @@ const NewActivation = () => {
             </section>
 
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-2">Payment Type</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {payOptions.map((opt) => {
-                  const selected = payType === opt.value;
-                  const Icon = opt.value === "prepaid" ? FileText : HandCoins;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      disabled={opt.disabled}
-                      onClick={() => !opt.disabled && setPayType(opt.value)}
-                      className={cn(
-                        "relative rounded-2xl border p-4 flex flex-col items-center justify-center gap-2 transition-colors",
-                        selected
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-card",
-                        opt.disabled && "opacity-50",
-                      )}
-                    >
-                      <span
+              <h3 className="text-sm font-semibold text-foreground mb-2">Subscription Type</h3>
+              {service === "mbb" ? (
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">Prepaid only</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">MBB plans are prepaid by default — postpaid is not available</p>
+                  </div>
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
+                </div>
+              ) : service === "hbb" ? (
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <HandCoins className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">Postpaid only</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Vnet plans are postpaid — prepaid is not available</p>
+                  </div>
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">Auto-selected</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {payOptions.map((opt) => {
+                    const selected = payType === opt.value;
+                    const Icon = opt.value === "prepaid" ? FileText : HandCoins;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        disabled={opt.disabled}
+                        onClick={() => !opt.disabled && setPayType(opt.value)}
                         className={cn(
-                          "absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                          selected ? "border-primary" : "border-muted-foreground/40",
+                          "relative rounded-2xl border p-4 flex flex-col items-center justify-center gap-2 transition-colors",
+                          selected ? "border-primary bg-primary/10" : "border-border bg-card",
+                          opt.disabled && "opacity-50",
                         )}
                       >
-                        {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
-                      </span>
-                      <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-foreground")} />
-                      <span className={cn("text-sm font-medium", selected ? "text-foreground" : "text-foreground")}>
-                        {opt.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                        <span className={cn("absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center", selected ? "border-primary" : "border-muted-foreground/40")}>
+                          {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+                        </span>
+                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-foreground")} />
+                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </section>
 
             {showTopupOption && (
@@ -578,8 +618,8 @@ const NewActivation = () => {
                   <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
-              <Field label="Street"><Input value={addrStreet} onChange={(e) => setAddrStreet(e.target.value)} /></Field>
-              <Field label="Building / unit"><Input value={addrBuilding} onChange={(e) => setAddrBuilding(e.target.value)} /></Field>
+              <Field label="Address"><Input value={addrAddress} onChange={(e) => setAddrAddress(e.target.value)} placeholder="Enter full address" /></Field>
+              <Field label="Email"><Input value={addrEmail} onChange={(e) => setAddrEmail(e.target.value)} placeholder="example@email.com" inputMode="email" /></Field>
             </SectionCard>
           </>
         )}
@@ -612,13 +652,15 @@ const NewActivation = () => {
                   <SummaryRow label="From operator" value={portOperator} />
                 </>
               )}
-              <SummaryRow label="Payment type" value={payOptions.find((o) => o.value === payType)!.label} />
+              <SummaryRow label="Subscription type" value={payOptions.find((o) => o.value === payType)!.label} />
               {planMode === "plan" ? (
                 <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
               ) : (
                 <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />
               )}
-              <SummaryRow label="Address" value={`${addrBuilding}, ${addrStreet}, ${addrCity}`} />
+              <SummaryRow label="City" value={addrCity} />
+              <SummaryRow label="Address" value={addrAddress} />
+              <SummaryRow label="Email" value={addrEmail} />
             </section>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -785,25 +827,83 @@ const NewActivation = () => {
 
       {/* eSIM devices drawer */}
       <Drawer open={esimInfoOpen} onOpenChange={setEsimInfoOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
-          <DrawerHeader>
-            <DrawerTitle className="text-center">Supported eSIM devices</DrawerTitle>
-            <DrawerDescription className="text-center text-xs">
-              Make sure the customer's device supports eSIM
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-5 pb-6 space-y-2">
-            <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-muted/30 p-6 text-center text-xs text-muted-foreground">
-              iPhone reference screenshots will appear here once uploaded.
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+          {/* Handle */}
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-9 h-1 bg-muted-foreground/20 rounded-full" />
+          </div>
+
+          {/* Header */}
+          <div className="px-5 pt-3 pb-4">
+            <h2 className="text-lg font-bold text-foreground">Compatible Devices</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">iPhone XS and later support eSIM</p>
+          </div>
+
+          <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-5">
+            {/* iPhone SVG illustration */}
+            <div className="flex justify-center py-2">
+              <svg width="160" height="220" viewBox="0 0 160 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Phone body */}
+                <rect x="18" y="4" width="124" height="212" rx="24" fill="#1C1C1E"/>
+                {/* Highlight edge */}
+                <rect x="18" y="4" width="124" height="212" rx="24" stroke="#3A3A3C" strokeWidth="1.5"/>
+                {/* Screen */}
+                <rect x="24" y="10" width="112" height="200" rx="20" fill="#F2F2F7"/>
+                {/* Dynamic Island */}
+                <rect x="56" y="18" width="48" height="14" rx="7" fill="#1C1C1E"/>
+                {/* Status bar time */}
+                <text x="32" y="28" fontFamily="system-ui" fontSize="8" fontWeight="600" fill="#1C1C1E">9:41</text>
+                {/* Settings header */}
+                <rect x="24" y="38" width="112" height="22" fill="#F2F2F7"/>
+                <text x="80" y="53" fontFamily="system-ui" fontSize="9" fontWeight="600" fill="#1C1C1E" textAnchor="middle">Cellular</text>
+                {/* Divider */}
+                <line x1="24" y1="60" x2="136" y2="60" stroke="#C6C6C8" strokeWidth="0.5"/>
+                {/* eSIM row - highlighted */}
+                <rect x="30" y="65" width="100" height="26" rx="8" fill="#007AFF" opacity="0.12"/>
+                <rect x="30" y="65" width="100" height="26" rx="8" stroke="#007AFF" strokeWidth="0.8"/>
+                <circle cx="44" cy="78" r="6" fill="#007AFF"/>
+                <text x="55" y="82" fontFamily="system-ui" fontSize="8" fontWeight="600" fill="#007AFF">Add eSIM</text>
+                {/* Chevron */}
+                <path d="M122 75 L126 78 L122 81" stroke="#007AFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* Regular rows */}
+                <rect x="30" y="97" width="100" height="22" rx="6" fill="white"/>
+                <text x="42" y="112" fontFamily="system-ui" fontSize="7.5" fill="#1C1C1E">Primary — STC</text>
+                <circle cx="124" cy="108" r="3" fill="#34C759"/>
+                <rect x="30" y="124" width="100" height="22" rx="6" fill="white"/>
+                <text x="42" y="139" fontFamily="system-ui" fontSize="7.5" fill="#8E8E93">Secondary</text>
+                <text x="105" y="139" fontFamily="system-ui" fontSize="7" fill="#C7C7CC">Off</text>
+                {/* Hint text */}
+                <text x="80" y="165" fontFamily="system-ui" fontSize="7" fill="#8E8E93" textAnchor="middle">Tap "Add eSIM" to scan QR</text>
+                {/* Home bar */}
+                <rect x="60" y="198" width="40" height="3" rx="1.5" fill="#1C1C1E" opacity="0.2"/>
+                {/* Side buttons */}
+                <rect x="14" y="68" width="4" height="18" rx="2" fill="#3A3A3C"/>
+                <rect x="14" y="92" width="4" height="28" rx="2" fill="#3A3A3C"/>
+                <rect x="142" y="80" width="4" height="32" rx="2" fill="#3A3A3C"/>
+              </svg>
             </div>
-            <ul className="space-y-2 pt-2">
-              {ESIM_DEVICES.map((d) => (
-                <li key={d} className="flex items-start gap-2 text-sm text-foreground">
-                  <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                  {d}
-                </li>
+
+            {/* Device list */}
+            <div className="rounded-2xl bg-muted/40 overflow-hidden divide-y divide-border/50">
+              {ESIM_DEVICES.map((d, i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="text-sm text-foreground flex-1">{d.model}</span>
+                  <span className="text-[10px] text-muted-foreground">{d.ios}</span>
+                </div>
               ))}
-            </ul>
+            </div>
+
+            {/* Note */}
+            <p className="text-[11px] text-muted-foreground text-center px-4">
+              Device must be <span className="text-foreground font-medium">unlocked</span> with an active internet connection.
+            </p>
+          </div>
+
+          <div className="px-5 pb-6 pt-2">
+            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>
+              Got it
+            </Button>
           </div>
         </DrawerContent>
       </Drawer>
