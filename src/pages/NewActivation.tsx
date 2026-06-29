@@ -173,7 +173,7 @@ const NewActivation = () => {
   // Stage 2 — Service & SIM
   const [service, setService] = useState<Service>("mobile");
   const [simType, setSimType] = useState<SimType>("psim");
-  const [kit, setKit] = useState("");
+  const [kit, setKit] = useState("1234567890");
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
 
   // Stage 3 — Subscription
