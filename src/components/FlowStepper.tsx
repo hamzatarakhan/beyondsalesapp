@@ -16,7 +16,7 @@ export const STAGED_STEPS = [
 
 export const NEW_ACTIVATION_STEPS = [
   { label: "Identity", Icon: ScanLine },
-  { label: "Service & SIM", Icon: Smartphone },
+  { label: "Line & SIM", Icon: Smartphone },
   { label: "Subscription", Icon: Settings2 },
   { label: "Checkout", Icon: Wallet },
 ];
