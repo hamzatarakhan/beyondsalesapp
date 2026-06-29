@@ -77,16 +77,43 @@ const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smar
 ];
 
 const plans = SHARED_PLANS;
+
+const PREPAID_PLANS: typeof SHARED_PLANS = [
+  { title: "Baqah Flix", internet: "55 GB", mins: "100", sms: "100", social: "Unlimited", price: 30, discount: "Bonus 20 GB data", validityLabel: "Valid 20 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB core data", "Unlimited social data", "Free subscription upon activation"], bonuses: ["Bonus 20 GB data", "Bonus 20 GB data"] },
+  { title: "Baqah Plus", internet: "80 GB", mins: "200", sms: "200", social: "Unlimited", price: 45, discount: "Bonus 30 GB data", validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social", "Roaming"], features: ["80 GB core data", "Unlimited social & streaming", "Free roaming in GCC countries"], bonuses: ["Bonus 30 GB data", "Bonus 30 GB data"] },
+  { title: "Baqah Max", internet: "120 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: "Bonus 50 GB data", validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m", "3m"], tags: ["5G", "Unlimited", "Roaming"], features: ["Truly unlimited local calls & SMS", "120 GB high-speed data", "5G priority access"], bonuses: ["Bonus 50 GB data", "Bonus 50 GB data"] },
+  { title: "Data Mini", internet: "20 GB", mins: "50", sms: "50", social: "Unlimited", price: 15, discount: "Bonus 5 GB data", validityLabel: "Valid 7 days", categories: ["data"], validity: ["7d"], tags: ["Social"], features: ["20 GB high-speed data", "Unlimited WhatsApp & social apps"], bonuses: ["Bonus 5 GB data"] },
+  { title: "Data Pro", internet: "60 GB", mins: "100", sms: "100", social: "Unlimited", price: 35, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB high-speed data", "Unlimited social apps", "5G access included"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
+  { title: "Talk & Data", internet: "30 GB", mins: "500", sms: "500", social: "Unlimited", price: 25, discount: null, validityLabel: "Valid 30 days", categories: ["minutes"], validity: ["1m"], tags: ["Social"], features: ["500 local minutes", "30 GB data", "Unlimited WhatsApp calls"], bonuses: ["Bonus 5 GB data"] },
+];
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const NUMBER_TABS = [
-  { value: "basic", label: "Basic", fee: 0 },
-  { value: "value", label: "Value", fee: 10 },
-  { value: "rare", label: "Rare", fee: 50 },
-  { value: "legendary", label: "Legendary", fee: 200 },
-  { value: "exotic", label: "Exotic", fee: 500 },
+  { value: "all",      label: "All",      fee: null,  color: null },
+  { value: "standard", label: "Standard", fee: 0,     color: "#0EA5E9" },
+  { value: "diamond",  label: "Diamond",  fee: 10,    color: "#3B82F6" },
+  { value: "silver",   label: "Silver",   fee: 10,    color: "#94A3B8" },
+  { value: "gold",     label: "Gold",     fee: 10,    color: "#EAB308" },
+];
+
+const DEMO_NUMBER_POOL = [
+  { number: "0547896324", tier: "gold" },
+  { number: "0547896325", tier: "diamond" },
+  { number: "0547896326", tier: "silver" },
+  { number: "0547896327", tier: "standard" },
+  { number: "0547896328", tier: "silver" },
+  { number: "0547896329", tier: "standard" },
+  { number: "0547896330", tier: "gold" },
+  { number: "0547896331", tier: "standard" },
+  { number: "0547896332", tier: "silver" },
+  { number: "0547896333", tier: "standard" },
+  { number: "0547896334", tier: "diamond" },
+  { number: "0547896335", tier: "standard" },
+  { number: "0547896336", tier: "gold" },
+  { number: "0547896337", tier: "standard" },
+  { number: "0547896338", tier: "silver" },
 ];
 
 const SIM_FEES: Record<SimType, number> = { psim: 10, esim: 0 };
@@ -180,7 +207,7 @@ const NewActivation = () => {
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
-  const [numberPickerTab, setNumberPickerTab] = useState("basic");
+  const [numberPickerTab, setNumberPickerTab] = useState("all");
   const [numberSearch, setNumberSearch] = useState("");
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
@@ -196,7 +223,7 @@ const NewActivation = () => {
 
   // Stage 4 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
-  const [promoCode, setPromoCode] = useState("");
+  const [promoCode, setPromoCode] = useState("SAVE10");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
   const VALID_PROMO = "SAVE10";
@@ -229,6 +256,7 @@ const NewActivation = () => {
     if (service === "mbb" && payType === "postpaid") setPayType("prepaid");
     if (service === "hbb" && payType === "prepaid") setPayType("postpaid");
     if (service === "hbb" && planMode === "topup") setPlanMode("plan");
+    setSelectedPlan(0);
   }, [service, simType, payType, planMode]);
 
   const payOptions = useMemo<{ value: PayType; label: string; disabled?: boolean }[]>(() => {
@@ -253,11 +281,12 @@ const NewActivation = () => {
     return true;
   }, [step, idType, nationality, idNumber, service, simType, isKitValid, subType, portNumber, portOperator, portContact, planMode, selectedPlan, topupDenom, topupManual]);
 
-  const selectedPlanObj = plans[selectedPlan];
+  const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
+  const selectedPlanObj = activePlans[selectedPlan];
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = SIM_FEES[simType];
-  const numberFee = subType === "sim" ? (NUMBER_TABS.find(t => t.value === numberPickerTab)?.fee ?? 0) : 0;
+  const numberFee = subType === "sim" ? (() => { const t = DEMO_NUMBER_POOL.find(n => n.number === phone); if (!t) return 0; const tier = NUMBER_TABS.find(tab => tab.value === t.tier); return tier?.fee ?? 0; })() : 0;
   const subtotal = planPrice + simFee + numberFee - promoDiscount;
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
@@ -560,6 +589,7 @@ const NewActivation = () => {
               <PlanSelector
                 selectedPlan={selectedPlan}
                 onSelect={(i) => setSelectedPlan(i)}
+                plans={payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS}
               />
             ) : (
               <SectionCard title="Top-up">
@@ -719,7 +749,7 @@ const NewActivation = () => {
                 </div>
                 {subType === "sim" && numberFee > 0 && (
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === numberPickerTab)?.label} Number</span>
+                    <span className="text-[11px] text-muted-foreground">{(() => { const t = DEMO_NUMBER_POOL.find(n => n.number === phone); return NUMBER_TABS.find(tab => tab.value === (t?.tier ?? "standard"))?.label; })()} Number</span>
                     <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
                   </div>
                 )}
@@ -865,18 +895,20 @@ const NewActivation = () => {
 
       {/* Number picker drawer */}
       {(() => {
-        const DEMO_NUMBERS = ["0512345678","0523456789","0534567890","0545678901","0556789012","0567890123","0578901234","0589012345","0590123456","0501234567"];
         const activeTab = NUMBER_TABS.find(t => t.value === numberPickerTab)!;
-        const filtered = DEMO_NUMBERS.filter(n => n.includes(numberSearch));
+        const filtered = DEMO_NUMBER_POOL
+          .filter(n => numberPickerTab === "all" || n.tier === numberPickerTab)
+          .filter(n => n.number.includes(numberSearch));
         return (
           <Drawer open={numberPickerOpen} onOpenChange={setNumberPickerOpen}>
-            <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+            <DrawerContent className="bg-card rounded-t-3xl h-[88vh] flex flex-col">
               <div className="flex items-center justify-between px-5 pt-3 pb-4">
                 <h2 className="text-lg font-bold text-foreground">Choose Different Number</h2>
                 <button onClick={() => setNumberPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
+
               {/* Search */}
               <div className="px-5 mb-3">
                 <div className="relative">
@@ -889,34 +921,43 @@ const NewActivation = () => {
                   <svg className="absolute right-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </div>
               </div>
+
               {/* Tabs */}
-              <div className="grid grid-cols-5 gap-1.5 px-5 mb-3">
+              <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {NUMBER_TABS.map(tab => (
                   <button
                     key={tab.value}
                     onClick={() => setNumberPickerTab(tab.value)}
                     className={cn(
-                      "px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors",
+                      "px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors shrink-0",
                       numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground"
                     )}
                   >{tab.label}</button>
                 ))}
               </div>
+
               {/* Number list */}
               <div className="overflow-y-auto flex-1 px-5 pb-6">
-                <div className="rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/40">
-                  {filtered.map((num, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setPhone(num); setNumberPickerOpen(false); }}
-                      className="w-full flex items-center justify-between px-4 py-3.5 bg-card hover:bg-muted/30 transition-colors"
-                    >
-                      <span className="text-base font-semibold text-foreground">{num}</span>
-                      {activeTab.fee > 0 && (
-                        <span className="text-sm text-muted-foreground">{activeTab.fee} <span className="font-bold">SAR</span></span>
-                      )}
-                    </button>
-                  ))}
+                <div className="divide-y divide-border/40">
+                  {filtered.map((item, i) => {
+                    const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
+                    const fee = tier.fee ?? 0;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }}
+                        className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors"
+                      >
+                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
+                        <span className="flex-1 text-left text-base font-semibold text-foreground">{item.number}</span>
+                        {fee > 0 ? (
+                          <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">SAR</span></span>
+                        ) : (
+                          <span className="text-sm font-semibold text-muted-foreground">Free</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </DrawerContent>

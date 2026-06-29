@@ -26,6 +26,7 @@ export interface PlanCardData {
   features?: string[];
   categories?: string[];
   tags?: string[];
+  bonuses?: string[];
 }
 
 interface Props {
@@ -101,13 +102,23 @@ const PlanCard = ({
       <div className="p-4">
         {/* Bonus chips */}
         <div className="flex flex-wrap gap-2 mb-3">
-          <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-            <Gift className="w-3 h-3" /> Bonus {plan.internet} data
-          </span>
-          {plan.discount && (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-              <Gift className="w-3 h-3" /> {plan.discount}
-            </span>
+          {plan.bonuses ? (
+            plan.bonuses.map((b, i) => (
+              <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
+                <Gift className="w-3 h-3" /> {b}
+              </span>
+            ))
+          ) : (
+            <>
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
+                <Gift className="w-3 h-3" /> Bonus {plan.internet} data
+              </span>
+              {plan.discount && (
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
+                  <Gift className="w-3 h-3" /> {plan.discount}
+                </span>
+              )}
+            </>
           )}
         </div>
 
@@ -125,7 +136,7 @@ const PlanCard = ({
 
         {/* Data + price */}
         <div className="flex items-end justify-between mb-4">
-          <p className="text-3xl font-bold text-primary leading-none">{plan.internet}</p>
+          <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
           <div className="text-right">
             <p className="text-[11px] text-muted-foreground">Vat Incl</p>
             <p className="text-xl font-bold text-foreground">
@@ -147,9 +158,13 @@ const PlanCard = ({
               </button>
             }
           />
-          <FeatureRow icon={Phone} label={`${plan.mins} local minutes`} />
-          <FeatureRow icon={Phone} label="Unlimited (receiving) roaming" />
-          <FeatureRow icon={MessageSquare} label={`Unlimited SMS`} />
+          {!plan.bonuses && (
+            <>
+              <FeatureRow icon={Phone} label={`${plan.mins} local minutes`} />
+              <FeatureRow icon={Phone} label="Unlimited (receiving) roaming" />
+              <FeatureRow icon={MessageSquare} label={`Unlimited SMS`} />
+            </>
+          )}
           <FeatureRow
             icon={Star}
             label="Free subscription upon activation"
