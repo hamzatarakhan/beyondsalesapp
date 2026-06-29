@@ -349,7 +349,7 @@ const NewActivation = () => {
         {/* Stage 2 — Service & SIM */}
         {step === 1 && (
           <>
-            <SectionCard title="Service type">
+            <SectionCard title="Line Type">
               <div className="grid gap-2">
                 {SERVICES.map((s) => (
                   <button
