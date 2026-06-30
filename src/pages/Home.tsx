@@ -79,12 +79,6 @@ const Home = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative">
-            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[8px] font-bold text-primary-foreground">
-              V
-            </div>
-            <ArrowLeftRight className="w-3 h-3 text-foreground absolute -right-0.5 -bottom-0.5 bg-card rounded-full p-0.5 box-content" strokeWidth={2.5} />
-          </button>
           <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
             <QrCode className="w-4 h-4 text-foreground" />
           </button>
