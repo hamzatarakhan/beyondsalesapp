@@ -205,7 +205,7 @@ const NewActivation = () => {
   const [lineType, setLineType] = useState<LineType>("mobile");
   const [simType, setSimType] = useState<SimType>("psim");
   const [kit, setKit] = useState("1234567890");
-  const [kitError, setKitError] = useState<string | null>("registered");
+  const [kitError, setKitError] = useState<string | null>(null);
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
@@ -214,9 +214,9 @@ const NewActivation = () => {
   const [topupManual, setTopupManual] = useState("");
   // Contact & Delivery
   const [contactCity, setContactCity] = useState("Riyadh");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [contactEmail, setContactEmail] = useState("test@beyondsales.com");
+  const [contactNumber, setContactNumber] = useState("0512345678");
+  const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   // Number — Mobile only
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
@@ -321,9 +321,7 @@ const NewActivation = () => {
 
   const orderId = useMemo(() => "NA-" + Math.floor(Math.random() * 900000 + 100000), [successOpen]);
 
-  const pageTitle = step === 0
-    ? "New Activation"
-    : `${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`;
+  const pageTitle = "SIM Activation";
 
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
@@ -461,36 +459,51 @@ const NewActivation = () => {
             {/* 2. Subscription Type */}
             <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
-              <Select
-                value={`${payType}-${lineType}`}
-                onValueChange={(v) => {
-                  const [p, l] = v.split("-") as [PayType, LineType];
-                  setPayType(p); setLineType(l);
-                }}
-              >
-                <SelectTrigger className="h-12 bg-card rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {([
-                    { pay: "prepaid",  line: "mobile",   label: "Prepaid Mobile",   Icon: Smartphone },
-                    { pay: "prepaid",  line: "internet", label: "Prepaid Internet",  Icon: Wifi       },
-                    { pay: "postpaid", line: "mobile",   label: "Postpaid Mobile",   Icon: Smartphone },
-                    { pay: "postpaid", line: "internet", label: "Postpaid Internet", Icon: Wifi, locked: true },
-                  ] as const).map(({ pay, line, label, Icon, locked }) => {
-                    const isLocked = locked && simType === "esim";
+              {/* Payment type toggle */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground w-20 shrink-0">Payment</span>
+                <div className="flex flex-1 bg-muted rounded-xl p-1 gap-1">
+                  {([{ value: "prepaid", label: "Prepaid", Icon: FileText }, { value: "postpaid", label: "Postpaid", Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
+                    const selected = payType === value;
                     return (
-                      <SelectItem key={label} value={`${pay}-${line}`} disabled={isLocked}>
-                        <span className={cn("flex items-center gap-2", isLocked && "opacity-40")}>
-                          <Icon className="w-4 h-4" />
-                          {label}
-                          {isLocked && <Lock className="w-3 h-3 ml-1" />}
-                        </span>
-                      </SelectItem>
+                      <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
+                        className={cn("flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all", selected ? "bg-card text-primary shadow-sm" : "text-muted-foreground")}>
+                        <Icon className="w-3.5 h-3.5" />
+                        {label}
+                      </button>
                     );
                   })}
-                </SelectContent>
-              </Select>
+                </div>
+              </div>
+              {/* Line type toggle */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground w-20 shrink-0">Line</span>
+                <div className="flex flex-1 bg-muted rounded-xl p-1 gap-1">
+                  {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const).map(({ value, label, Icon }) => {
+                    const selected = lineType === value;
+                    const unavailable = value === "internet" && payType === "postpaid" && simType === "esim";
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => !unavailable && setLineType(value as LineType)}
+                        className={cn(
+                          "flex-1 relative flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-sm font-medium transition-all",
+                          selected && !unavailable ? "bg-card text-primary shadow-sm" : "text-muted-foreground",
+                          unavailable && "opacity-40 cursor-not-allowed"
+                        )}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                          {unavailable && <Lock className="w-3 h-3" />}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </section>
 
             {/* 3. Plan Type chips — Prepaid Mobile only */}
