@@ -485,35 +485,16 @@ const NewActivation = () => {
                       <p className="text-xs text-destructive">KIT must be 10 digits</p>
                     )}
                     {kitError && (() => {
-                      const errors: Record<string, { title: string; message: string; code: string }> = {
-                        registered: { title: "KIT Already Registered", message: "This KIT Code is already registered to another SIM.", code: "101" },
-                        invalid:    { title: "Invalid KIT Code",       message: "This KIT Code does not exist in the system.",            code: "102" },
-                        used:       { title: "KIT Code Already Used",  message: "This KIT Code has already been used for an activation.", code: "103" },
+                      const messages: Record<string, string> = {
+                        registered: "This KIT Code is already registered to another SIM.",
+                        invalid:    "This KIT Code is not valid. Please check and try again.",
+                        used:       "This KIT Code has already been used for a previous activation.",
                       };
-                      const err = errors[kitError] ?? errors.invalid;
                       return (
-                        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2.5">
-                          <div className="flex gap-2">
-                            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs font-semibold text-destructive">{err.title}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {err.message}{" "}
-                                <span className="font-medium text-foreground">Error Code: {err.code}.</span>
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button type="button" onClick={() => { setKit(""); setKitError(null); setKitChecked(false); }}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border bg-card text-xs font-medium text-foreground">
-                              <RotateCcw className="w-3.5 h-3.5" /> Enter Another KIT
-                            </button>
-                            <button type="button" onClick={() => { setKit(""); setKitError(null); setKitChecked(false); }}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary text-xs font-medium text-primary-foreground">
-                              <PlusCircle className="w-3.5 h-3.5" /> Add New KIT Code
-                            </button>
-                          </div>
-                        </div>
+                        <p className="text-xs text-destructive flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          {messages[kitError] ?? "Invalid KIT Code. Please try again."}
+                        </p>
                       );
                     })()}
                   </div>
