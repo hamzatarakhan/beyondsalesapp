@@ -35,10 +35,8 @@ import {
 import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
 const activities = [
-  { icon: CreditCard, label: "Postpaid", path: "/phase-2" },
-  { icon: RefreshCw, label: "SIM Replacement", path: "/phase-2" },
-  { icon: PackageCheck, label: "Fulfilment", path: "/phase-2" },
   { icon: Sparkles, label: "SIM Activation", path: "/new-activation" },
+  { icon: PackageCheck, label: "Fulfilment", path: "/phase-2" },
 ];
 
 

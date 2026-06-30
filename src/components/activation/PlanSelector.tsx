@@ -32,11 +32,11 @@ type PlanFilters = {
 };
 
 const PRICE_MIN = 10;
-const PRICE_MAX = 60;
-const DATA_MIN = 10;
-const DATA_MAX = 200;
-const MINS_MIN = 10;
-const MINS_MAX = 300;
+const PRICE_MAX = 600;
+const DATA_MIN = 6;
+const DATA_MAX = 500;
+const MINS_MIN = 0;
+const MINS_MAX = 1000;
 
 const DEFAULT_FILTERS: PlanFilters = {
   validity: [],
@@ -279,7 +279,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       const matchesMins = pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
       return matchesType && matchesValidity && matchesPrice && matchesData && matchesMins;
     });
-  }, [plans, planType, planFilters]);
+  }, [plans, activePlanType, planFilters]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false });
   const [activeSnap, setActiveSnap] = useState(0);

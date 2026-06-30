@@ -149,31 +149,35 @@ const PlanCard = ({
         {/* Features */}
         <div className="space-y-2.5 mb-4">
           <FeatureRow icon={Signal} label={`${plan.internet} core data`} />
-          <FeatureRow
-            icon={Globe}
-            label={<>Unlimited social data</>}
-            chip={
-              <button onClick={() => setOpenSheet("apps")} className="active:opacity-70">
-                <SocialChip />
-              </button>
-            }
-          />
+          {plan.social && plan.social !== "-" && (
+            <FeatureRow
+              icon={Globe}
+              label={plan.social === "Unlimited" ? "Unlimited social data" : `${plan.social} social data`}
+              chip={
+                <button onClick={() => setOpenSheet("apps")} className="active:opacity-70">
+                  <SocialChip />
+                </button>
+              }
+            />
+          )}
           {!plan.bonuses && (
             <>
               <FeatureRow icon={Phone} label={`${plan.mins} local minutes`} />
               <FeatureRow icon={Phone} label="Unlimited (receiving) roaming" />
-              <FeatureRow icon={MessageSquare} label={`Unlimited SMS`} />
+              <FeatureRow icon={MessageSquare} label="Unlimited SMS" />
             </>
           )}
-          <FeatureRow
-            icon={Star}
-            label="Free subscription upon activation"
-            chip={
-              <button onClick={() => setOpenSheet("countries")} className="active:opacity-70">
-                <FlagChip />
-              </button>
-            }
-          />
+          {plan.social && plan.social !== "-" && (
+            <FeatureRow
+              icon={Star}
+              label="Free subscription upon activation"
+              chip={
+                <button onClick={() => setOpenSheet("countries")} className="active:opacity-70">
+                  <FlagChip />
+                </button>
+              }
+            />
+          )}
         </div>
 
         {/* CTA */}

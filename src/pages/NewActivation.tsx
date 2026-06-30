@@ -65,16 +65,29 @@ type PayMethod = "card" | "cash" | "apple";
 
 // ---------- Constants ----------
 const PREPAID_PLANS: typeof SHARED_PLANS = [
-  { title: "Baqah Flix", internet: "55 GB", mins: "100", sms: "100", social: "Unlimited", price: 30, discount: "Bonus 20 GB data", validityLabel: "Valid 20 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB core data", "Unlimited social data", "Free subscription upon activation"], bonuses: ["Bonus 20 GB data", "Bonus 20 GB data"] },
-  { title: "Baqah Plus", internet: "80 GB", mins: "200", sms: "200", social: "Unlimited", price: 45, discount: "Bonus 30 GB data", validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social", "Roaming"], features: ["80 GB core data", "Unlimited social & streaming", "Free roaming in GCC countries"], bonuses: ["Bonus 30 GB data", "Bonus 30 GB data"] },
-  { title: "Baqah Max", internet: "120 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: "Bonus 50 GB data", validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m", "3m"], tags: ["5G", "Unlimited", "Roaming"], features: ["Truly unlimited local calls & SMS", "120 GB high-speed data", "5G priority access"], bonuses: ["Bonus 50 GB data", "Bonus 50 GB data"] },
-  { title: "Data Mini", internet: "20 GB", mins: "50", sms: "50", social: "Unlimited", price: 15, discount: "Bonus 5 GB data", validityLabel: "Valid 7 days", categories: ["data"], validity: ["7d"], tags: ["Social"], features: ["20 GB high-speed data", "Unlimited WhatsApp & social apps"], bonuses: ["Bonus 5 GB data"] },
-  { title: "Data Pro", internet: "60 GB", mins: "100", sms: "100", social: "Unlimited", price: 35, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB high-speed data", "Unlimited social apps", "5G access included"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
-  { title: "Talk & Data", internet: "30 GB", mins: "500", sms: "500", social: "Unlimited", price: 25, discount: null, validityLabel: "Valid 30 days", categories: ["minutes"], validity: ["1m"], tags: ["Social"], features: ["500 local minutes", "30 GB data", "Unlimited WhatsApp calls"], bonuses: ["Bonus 5 GB data"] },
-  { title: "Flex 30", internet: "30 GB", mins: "100", sms: "100", social: "Unlimited", price: 20, discount: "Bonus 5 GB data", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m"], tags: ["Social"], features: ["30 GB flexible data", "Unlimited social apps", "No contract required"], bonuses: ["Bonus 5 GB data", "Bonus 5 GB data"] },
-  { title: "Flex 60", internet: "60 GB", mins: "200", sms: "200", social: "Unlimited", price: 35, discount: "Bonus 10 GB data", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB flexible data", "Unlimited social & streaming", "Cancel anytime"], bonuses: ["Bonus 10 GB data", "Bonus 10 GB data"] },
-  { title: "Aman Basic", internet: "20 GB", mins: "200", sms: "200", social: "Unlimited", price: 18, discount: "Bonus 5 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["Social"], features: ["20 GB secure data", "Family safety features", "Parental controls included"], bonuses: ["Bonus 5 GB data"] },
-  { title: "Aman Plus", internet: "50 GB", mins: "500", sms: "500", social: "Unlimited", price: 38, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["5G", "Social"], features: ["50 GB secure data", "Advanced parental controls", "Family sharing up to 4 lines"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
+  // Flex
+  { title: "Baqah Flex 60",  internet: "6 GB",  mins: "300",  sms: "Unlimited", social: "6 GB",  price: 69,  discount: null, validityLabel: "Valid 28 days", categories: ["flex"],       validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["300 Flex minutes", "6 GB social data"] },
+  { title: "Baqah Flex 100", internet: "35 GB", mins: "1000", sms: "Unlimited", social: "35 GB", price: 115, discount: null, validityLabel: "Valid 28 days", categories: ["flex"],       validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["1000 Flex minutes", "35 GB social data"] },
+  // Baqa (base-plan)
+  { title: "Baqah Flix",     internet: "55 GB", mins: "100",  sms: "100",       social: "Unlimited", price: 30, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 20 GB data", "Free STC TV"] },
+  { title: "Baqah Plus",     internet: "80 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 45, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 30 GB data"] },
+  { title: "Baqah Max",      internet: "120 GB",mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m","3m"], tags: ["5G","Unlimited"],  features: [], bonuses: ["Bonus 50 GB data"] },
+  // Aman
+  { title: "Aman Basic",     internet: "20 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 18, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["Bonus 5 GB data"] },
+  { title: "Aman Plus",      internet: "50 GB", mins: "500",  sms: "500",       social: "Unlimited", price: 38, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 15 GB data"] },
+];
+
+const POSTPAID_PLANS: typeof SHARED_PLANS = [
+  { title: "Switch Postpaid 120", internet: "35 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
+  { title: "Switch Postpaid 150", internet: "55 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
+  { title: "Switch Postpaid 180", internet: "75 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
+  { title: "Switch Postpaid 210", internet: "100 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 241.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
+];
+
+const INTERNET_PLANS: typeof SHARED_PLANS = [
+  { title: "Internet 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],  tags: ["5G"], features: [], bonuses: [] },
+  { title: "Internet 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 253,   discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
+  { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
@@ -85,9 +98,7 @@ const PLAN_TYPE_CHIPS = [
   { value: "all", label: "All" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
-  { value: "base-plan", label: "Base Plan" },
-  { value: "minutes", label: "Minutes" },
-  { value: "data", label: "Data" },
+  { value: "base-plan", label: "Baqa" },
 ];
 
 const NUMBER_TABS = [
@@ -506,8 +517,32 @@ const NewActivation = () => {
               </div>
             </section>
 
-            {/* 3. Plan Type chips — Prepaid Mobile only */}
-            {showPlanTypeChips && (
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
+            {showTopupTab && (
+              <section>
+                <div className="grid grid-cols-2 border-b border-border">
+                  <SourceTab active={planMode === "plan"} icon={Tag} label="With plan" onClick={() => setPlanMode("plan")} />
+                  <SourceTab active={planMode === "topup"} icon={Database} label="With top-up" onClick={() => setPlanMode("topup")} />
+                </div>
+                {showPlanTypeChips && planMode === "plan" && (
+                  <div className="flex gap-2 overflow-x-auto pt-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {PLAN_TYPE_CHIPS.map(chip => (
+                      <button
+                        key={chip.value}
+                        onClick={() => setPlanTypeChip(chip.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                          planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
+                        )}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+            {!showTopupTab && showPlanTypeChips && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {PLAN_TYPE_CHIPS.map(chip => (
                   <button
@@ -524,21 +559,11 @@ const NewActivation = () => {
               </div>
             )}
 
-            {/* 4. Plan / Topup */}
-            {showTopupTab && (
-              <section>
-                <div className="grid grid-cols-2 border-b border-border">
-                  <SourceTab active={planMode === "plan"} icon={Tag} label="With plan" onClick={() => setPlanMode("plan")} />
-                  <SourceTab active={planMode === "topup"} icon={Database} label="With top-up" onClick={() => setPlanMode("topup")} />
-                </div>
-              </section>
-            )}
-
             {planMode === "plan" ? (
               <PlanSelector
                 selectedPlan={selectedPlan}
                 onSelect={(i) => setSelectedPlan(i)}
-                plans={payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS}
+                plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS}
                 categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
               />
             ) : (
@@ -560,55 +585,7 @@ const NewActivation = () => {
             )}
 
 
-            {/* 6. Number — Mobile only */}
-            {showNumber && (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Phone className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <p className="text-sm font-semibold text-foreground">
-                    Phone Number <span className="text-destructive">*</span>
-                  </p>
-                </div>
-
-                {showMnp && (
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <Sparkles className="w-4 h-4" /> New number
-                    </button>
-                    <button onClick={() => setSubType("mnp")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <ArrowRightLeft className="w-4 h-4" /> Port (MNP)
-                    </button>
-                  </div>
-                )}
-
-                {subType === "sim" ? (
-                  <>
-                    <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">{phone}</div>
-                    {simType === "psim" && (
-                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                        Pick Different Number <ArrowRight className="w-4 h-4" />
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <Field label="Port number"><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
-                    <Field label="Current operator">
-                      <Select value={portOperator} onValueChange={setPortOperator}>
-                        <SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger>
-                        <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Contact number"><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
-                    <p className="text-[11px] text-muted-foreground">The number will be transferred from the selected operator after verification.</p>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* 7. Device — Postpaid Internet only */}
+            {/* 6. Device — Postpaid Internet only */}
             {showDevice && (
               <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -663,6 +640,52 @@ const NewActivation = () => {
                 </Field>
               )}
             </SectionCard>
+
+            {/* Number — Mobile only */}
+            {showNumber && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Phone Number <span className="text-destructive">*</span>
+                  </p>
+                </div>
+                {showMnp && (
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                      <Sparkles className="w-4 h-4" /> New number
+                    </button>
+                    <button onClick={() => setSubType("mnp")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                      <ArrowRightLeft className="w-4 h-4" /> Port (MNP)
+                    </button>
+                  </div>
+                )}
+                {subType === "sim" ? (
+                  <>
+                    <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">{phone}</div>
+                    {simType === "psim" && (
+                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                        Pick Different Number <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <Field label="Port number"><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <Field label="Current operator">
+                      <Select value={portOperator} onValueChange={setPortOperator}>
+                        <SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger>
+                        <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Contact number"><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <p className="text-[11px] text-muted-foreground">The number will be transferred from the selected operator after verification.</p>
+                  </div>
+                )}
+              </section>
+            )}
           </>
         )}
 
