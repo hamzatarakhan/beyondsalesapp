@@ -697,11 +697,9 @@ const NewActivation = () => {
                 {subType === "sim" ? (
                   <>
                     <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">{phone}</div>
-                    {simType === "psim" && (
-                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                        Pick Different Number <ArrowRight className="w-4 h-4" />
-                      </button>
-                    )}
+                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                      Pick Different Number <ArrowRight className="w-4 h-4" />
+                    </button>
                   </>
                 ) : (
                   <div className="space-y-3">
