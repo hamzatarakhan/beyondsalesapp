@@ -51,6 +51,8 @@ import {
   RotateCcw,
   PlusCircle,
   Lock,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -217,6 +219,8 @@ const NewActivation = () => {
   const [simType, setSimType] = useState<SimType>("psim");
   const [kit, setKit] = useState("1234567890");
   const [kitError, setKitError] = useState<string | null>(null);
+  const [kitChecking, setKitChecking] = useState(false);
+  const [kitChecked, setKitChecked] = useState(false);
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
@@ -309,7 +313,7 @@ const NewActivation = () => {
   const canContinue = useMemo(() => {
     if (step === 0) return !!idType && !!nationality && idNumber.trim().length > 0;
     if (step === 1) {
-      if (showEsim && (!isKitValid || !!kitError)) return false;
+      if (simType === "psim" && (!kitChecked || !!kitError)) return false;
       if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
       if (showContactField && !contactNumber.trim()) return false;
@@ -412,23 +416,62 @@ const NewActivation = () => {
                 )}
                 {simType === "psim" && (
                   <div className="mt-3 space-y-2">
-                    <div className="relative">
-                      <Input
-                        value={kit}
-                        onChange={(e) => {
-                          setKit(e.target.value.replace(/\D/g, "").slice(0, 10));
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          value={kit}
+                          onChange={(e) => {
+                            setKit(e.target.value.replace(/\D/g, "").slice(0, 10));
+                            setKitError(null);
+                            setKitChecked(false);
+                          }}
+                          placeholder="KIT Code (10 Digits)"
+                          className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive", kitChecked && !kitError && "border-emerald-500 focus-visible:ring-emerald-500")}
+                          inputMode="numeric"
+                        />
+                        <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                          <ScanLine className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={!isKitValid || kitChecking}
+                        onClick={() => {
+                          setKitChecking(true);
+                          setKitChecked(false);
                           setKitError(null);
+                          setTimeout(() => {
+                            setKitChecking(false);
+                            // Simulate: kit "0000000000" is registered
+                            if (kit === "0000000000") {
+                              setKitError("registered");
+                            } else {
+                              setKitChecked(true);
+                            }
+                          }, 1500);
                         }}
-                        placeholder="KIT Code (10 Digits)"
-                        className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive")}
-                        inputMode="numeric"
-                      />
-                      <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
-                        <ScanLine className="w-5 h-5" />
+                        className={cn(
+                          "h-12 px-4 rounded-xl text-sm font-semibold shrink-0 flex items-center gap-1.5 transition-all",
+                          kitChecked && !kitError
+                            ? "bg-emerald-500 text-white"
+                            : "bg-primary text-primary-foreground",
+                          (!isKitValid || kitChecking) && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        {kitChecking ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : kitChecked && !kitError ? (
+                          <><CheckCircle2 className="w-4 h-4" /> Valid</>
+                        ) : (
+                          "Check"
+                        )}
                       </button>
                     </div>
                     {kit && !isKitValid && !kitError && (
                       <p className="text-xs text-destructive">KIT must be 10 digits</p>
+                    )}
+                    {kitChecked && !kitError && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> KIT code is valid and ready to use</p>
                     )}
                     {kitError === "registered" && (
                       <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2.5">
