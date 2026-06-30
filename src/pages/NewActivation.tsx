@@ -292,7 +292,7 @@ const NewActivation = () => {
   const total = subtotal + vat;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const canPay = otpVerified && customerVerified && !!customerSig && !!dealerSig && terms;
+  const canPay = (isPostpaidInternet || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -790,23 +790,27 @@ const NewActivation = () => {
               </div>
             </section>
 
-            {/* OTP Verification */}
-            <SectionCard title="OTP Verification">
-              {otpVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> OTP verified</p>
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
-              )}
-            </SectionCard>
+            {/* OTP Verification — not needed for Postpaid Internet (Nafath only) */}
+            {!isPostpaidInternet && (
+              <SectionCard title="OTP Verification">
+                {otpVerified ? (
+                  <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> OTP verified</p>
+                ) : (
+                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                )}
+              </SectionCard>
+            )}
 
             {/* Customer Verification */}
-            <SectionCard title="Customer Verification">
+            <SectionCard title={isPostpaidInternet ? "Nafath Verification" : "Customer Verification"}>
               {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Customer verified</p>
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? "Nafath verified" : "Customer verified"}</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={!otpVerified} onClick={() => setCustomerVerifyOpen(true)}>Verify customer</Button>
+                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
+                  {isPostpaidInternet ? "Verify via Nafath" : "Verify customer"}
+                </Button>
               )}
-              {!otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
+              {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
             </SectionCard>
 
             {/* Terms & Conditions */}
