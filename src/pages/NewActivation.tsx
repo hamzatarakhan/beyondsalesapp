@@ -426,15 +426,24 @@ const NewActivation = () => {
                         <Input
                           value={kit}
                           onChange={(e) => {
-                            setKit(e.target.value.replace(/\D/g, "").slice(0, 10));
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setKit(val);
                             setKitError(null);
                             setKitChecked(false);
+                            if (val.length === 10) {
+                              setKitChecking(true);
+                              setTimeout(() => {
+                                setKitChecking(false);
+                                if (val === "0000000000") setKitError("registered");
+                                else setKitChecked(true);
+                              }, 1500);
+                            }
                           }}
                           placeholder="KIT Code (10 Digits)"
                           className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive", kitChecked && !kitError && "border-emerald-500 focus-visible:ring-emerald-500")}
                           inputMode="numeric"
                         />
-                        <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                        <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); setTimeout(() => { setKitChecking(true); setTimeout(() => { setKitChecking(false); setKitChecked(true); }, 1500); }, 0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
                           <ScanLine className="w-5 h-5" />
                         </button>
                       </div>
@@ -447,12 +456,8 @@ const NewActivation = () => {
                           setKitError(null);
                           setTimeout(() => {
                             setKitChecking(false);
-                            // Simulate: kit "0000000000" is registered
-                            if (kit === "0000000000") {
-                              setKitError("registered");
-                            } else {
-                              setKitChecked(true);
-                            }
+                            if (kit === "0000000000") setKitError("registered");
+                            else setKitChecked(true);
                           }, 1500);
                         }}
                         className={cn(
