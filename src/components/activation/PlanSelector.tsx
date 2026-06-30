@@ -355,11 +355,11 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       ) : (
         <div className="-mx-4 mt-3">
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex touch-pan-y">
+            <div className="flex touch-pan-y items-stretch">
               {filteredPlans.map((p, i) => {
                 const originalIdx = plans.indexOf(p);
                 return (
-                  <div key={p.title} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4">
+                  <div key={p.title} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4 flex">
                     <PlanCard
                       plan={p}
                       selected={selectedPlan === originalIdx}

@@ -90,7 +90,7 @@ const PlanCard = ({
     <>
     <div
       className={cn(
-        "rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200",
+        "rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
         active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
       )}
     >
@@ -99,7 +99,7 @@ const PlanCard = ({
         <p className="text-[13px] font-semibold text-foreground">Most Popular</p>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         {/* Bonus chips */}
         <div className="flex flex-wrap gap-2 mb-3">
           {plan.bonuses ? (
@@ -184,7 +184,7 @@ const PlanCard = ({
         <button
           onClick={onSelect}
           className={cn(
-            "w-full py-3 rounded-full text-sm font-semibold transition-colors",
+            "mt-auto w-full py-3 rounded-full text-sm font-semibold transition-colors",
             selected
               ? "bg-primary text-primary-foreground"
               : "bg-primary/10 text-foreground hover:bg-primary/20"
