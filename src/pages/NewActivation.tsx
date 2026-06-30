@@ -85,6 +85,10 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Data Mini", internet: "20 GB", mins: "50", sms: "50", social: "Unlimited", price: 15, discount: "Bonus 5 GB data", validityLabel: "Valid 7 days", categories: ["data"], validity: ["7d"], tags: ["Social"], features: ["20 GB high-speed data", "Unlimited WhatsApp & social apps"], bonuses: ["Bonus 5 GB data"] },
   { title: "Data Pro", internet: "60 GB", mins: "100", sms: "100", social: "Unlimited", price: 35, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB high-speed data", "Unlimited social apps", "5G access included"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
   { title: "Talk & Data", internet: "30 GB", mins: "500", sms: "500", social: "Unlimited", price: 25, discount: null, validityLabel: "Valid 30 days", categories: ["minutes"], validity: ["1m"], tags: ["Social"], features: ["500 local minutes", "30 GB data", "Unlimited WhatsApp calls"], bonuses: ["Bonus 5 GB data"] },
+  { title: "Flex 30", internet: "30 GB", mins: "100", sms: "100", social: "Unlimited", price: 20, discount: "Bonus 5 GB data", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m"], tags: ["Social"], features: ["30 GB flexible data", "Unlimited social apps", "No contract required"], bonuses: ["Bonus 5 GB data", "Bonus 5 GB data"] },
+  { title: "Flex 60", internet: "60 GB", mins: "200", sms: "200", social: "Unlimited", price: 35, discount: "Bonus 10 GB data", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB flexible data", "Unlimited social & streaming", "Cancel anytime"], bonuses: ["Bonus 10 GB data", "Bonus 10 GB data"] },
+  { title: "Aman Basic", internet: "20 GB", mins: "200", sms: "200", social: "Unlimited", price: 18, discount: "Bonus 5 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["Social"], features: ["20 GB secure data", "Family safety features", "Parental controls included"], bonuses: ["Bonus 5 GB data"] },
+  { title: "Aman Plus", internet: "50 GB", mins: "500", sms: "500", social: "Unlimited", price: 38, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["5G", "Social"], features: ["50 GB secure data", "Advanced parental controls", "Family sharing up to 4 lines"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
 ];
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
@@ -1139,7 +1143,7 @@ const NewActivation = () => {
       </SuccessBottomSheet>
 
       {/* Cancel activation — requires a reason */}
-      <Dialog
+      <Drawer
         open={cancelOpen}
         onOpenChange={(o) => {
           if (!o) {
@@ -1149,13 +1153,13 @@ const NewActivation = () => {
           }
         }}
       >
-        <DialogContent className="max-w-[340px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Cancel activation</DialogTitle>
-            <DialogDescription>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <DrawerHeader className="text-left px-0 pb-4">
+            <DrawerTitle>Cancel activation</DrawerTitle>
+            <DrawerDescription>
               Please tell us why you're cancelling this activation.
-            </DialogDescription>
-          </DialogHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
@@ -1189,7 +1193,7 @@ const NewActivation = () => {
               </div>
             )}
           </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+          <div className="flex flex-col gap-2 mt-6">
             <Button
               disabled={
                 !cancelReason ||
@@ -1216,9 +1220,9 @@ const NewActivation = () => {
             >
               Keep editing
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

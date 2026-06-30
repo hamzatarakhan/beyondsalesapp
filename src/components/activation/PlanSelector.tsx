@@ -19,7 +19,7 @@ import PlanCard, { PlanCardData } from "@/components/PlanCard";
 
 // ---------- Types & constants (shared with PrepaidActivation) ----------
 export type Plan = PlanCardData & {
-  categories: ("base-plan" | "minutes" | "data")[];
+  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman")[];
   validity: string[];
   tags: string[];
 };
@@ -74,6 +74,12 @@ export const PLANS: Plan[] = [
   { title: "Data Boost 50", internet: "50 GB", mins: "50", sms: "50", social: "Unlimited", price: 25, discount: "Discount 25%", validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["5G", "Social"], features: ["50 GB high-speed data", "Unlimited social apps"] },
   { title: "Data Boost 100", internet: "100 GB", mins: "50", sms: "50", social: "Unlimited", price: 40, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["3m", "6m"], tags: ["5G", "Social"], features: ["100 GB high-speed data", "Unlimited streaming"] },
   { title: "Unlimited Data", internet: "Unlimited", mins: "100", sms: "100", social: "Unlimited", price: 75, discount: "Discount 10%", validityLabel: "Valid 30 days", categories: ["data"], validity: ["6m", "12m"], tags: ["5G", "Unlimited"], features: ["Truly unlimited data", "Hotspot allowance 50 GB"] },
+  { title: "Flex 30", internet: "30 GB", mins: "100", sms: "100", social: "Unlimited", price: 20, discount: "Discount 15%", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m"], tags: ["5G", "Social"], features: ["30 GB flexible data", "Unlimited social apps", "No contract required"] },
+  { title: "Flex 60", internet: "60 GB", mins: "200", sms: "200", social: "Unlimited", price: 35, discount: null, validityLabel: "Valid 30 days", categories: ["flex"], validity: ["1m", "3m"], tags: ["5G", "Social"], features: ["60 GB flexible data", "Unlimited social & streaming", "Cancel anytime"] },
+  { title: "Flex Max", internet: "100 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 55, discount: "Discount 20%", validityLabel: "Valid 30 days", categories: ["flex"], validity: ["3m", "6m"], tags: ["5G", "Unlimited"], features: ["100 GB flexible data", "Unlimited calls & SMS", "5G priority access"] },
+  { title: "Aman Basic", internet: "20 GB", mins: "200", sms: "200", social: "Unlimited", price: 18, discount: null, validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["Social"], features: ["20 GB secure data", "Family safety features", "Parental controls included"] },
+  { title: "Aman Plus", internet: "50 GB", mins: "500", sms: "500", social: "Unlimited", price: 38, discount: "Discount 10%", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m", "3m"], tags: ["5G", "Social"], features: ["50 GB secure data", "Advanced parental controls", "Family sharing up to 4 lines"] },
+  { title: "Aman Pro", internet: "80 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 58, discount: null, validityLabel: "Valid 30 days", categories: ["aman"], validity: ["3m", "6m", "12m"], tags: ["5G", "Unlimited"], features: ["80 GB secure data", "Full family protection suite", "Priority customer support"] },
 ];
 
 // ---------- Range slider ----------
