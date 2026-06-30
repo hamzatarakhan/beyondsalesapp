@@ -179,7 +179,7 @@ const SegmentedTabs = ({
 );
 
 const SectionCard = ({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) => (
-  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/50" style={{borderWidth:"0.5px"}}>
+  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
     <div className="flex items-center justify-between">
       <h3 className="font-semibold text-foreground text-sm">{title}</h3>
       {action}
@@ -511,7 +511,7 @@ const NewActivation = () => {
               </section>
 
             {/* 2. Subscription Type */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3 border border-border/50" style={{borderWidth:"0.5px"}}>
+            <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3 border border-border/60">
               <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
               {/* Payment type toggle */}
               <div className="flex items-center gap-2">
