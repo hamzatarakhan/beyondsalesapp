@@ -1,14 +1,13 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
-import PlanCard, { PlanCardData } from "@/components/PlanCard";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import SourceTab from "@/components/activation/SourceTab";
-import PlanSelector, { PLANS as SHARED_PLANS, Plan as SharedPlan } from "@/components/activation/PlanSelector";
+import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,28 +23,15 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
-  DrawerTrigger,
   DrawerClose,
   DrawerFooter,
 } from "@/components/ui/drawer";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Smartphone,
   Wifi,
-  Router,
   CreditCard,
-  ShieldCheck,
   Pencil,
-  Info,
-  X as XIcon,
   X,
   ClipboardList,
   Check,
@@ -58,26 +44,26 @@ import {
   Database,
   FileText,
   HandCoins,
+  Router,
+  MapPin,
+  Globe,
+  AlertCircle,
+  RotateCcw,
+  PlusCircle,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 
-// ---------- Types & constants ----------
-type Service = "mobile" | "mbb" | "hbb";
+// ---------- Types ----------
 type SimType = "psim" | "esim";
 type SubType = "sim" | "mnp";
 type PayType = "prepaid" | "postpaid";
+type LineType = "mobile" | "internet";
 type PlanMode = "plan" | "topup";
 type PayMethod = "card" | "cash" | "apple";
 
-const SERVICES: { value: Service; label: string; desc: string; Icon: typeof Smartphone }[] = [
-  { value: "mobile", label: "Mobile", desc: "Prepaid / Postpaid line", Icon: Smartphone },
-  { value: "mbb", label: "MBB", desc: "Mobile Broadband — Prepaid 5G Internet", Icon: Wifi },
-  { value: "hbb", label: "HBB", desc: "Home Broadband - Postpaid 5G Vnet", Icon: Router },
-];
-
-const plans = SHARED_PLANS;
-
+// ---------- Constants ----------
 const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Baqah Flix", internet: "55 GB", mins: "100", sms: "100", social: "Unlimited", price: 30, discount: "Bonus 20 GB data", validityLabel: "Valid 20 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social"], features: ["60 GB core data", "Unlimited social data", "Free subscription upon activation"], bonuses: ["Bonus 20 GB data", "Bonus 20 GB data"] },
   { title: "Baqah Plus", internet: "80 GB", mins: "200", sms: "200", social: "Unlimited", price: 45, discount: "Bonus 30 GB data", validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G", "Social", "Roaming"], features: ["80 GB core data", "Unlimited social & streaming", "Free roaming in GCC countries"], bonuses: ["Bonus 30 GB data", "Bonus 30 GB data"] },
@@ -90,16 +76,26 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Aman Basic", internet: "20 GB", mins: "200", sms: "200", social: "Unlimited", price: 18, discount: "Bonus 5 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["Social"], features: ["20 GB secure data", "Family safety features", "Parental controls included"], bonuses: ["Bonus 5 GB data"] },
   { title: "Aman Plus", internet: "50 GB", mins: "500", sms: "500", social: "Unlimited", price: 38, discount: "Bonus 15 GB data", validityLabel: "Valid 30 days", categories: ["aman"], validity: ["1m"], tags: ["5G", "Social"], features: ["50 GB secure data", "Advanced parental controls", "Family sharing up to 4 lines"], bonuses: ["Bonus 15 GB data", "Bonus 15 GB data"] },
 ];
+
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
+const PLAN_TYPE_CHIPS = [
+  { value: "all", label: "All" },
+  { value: "flex", label: "Flex" },
+  { value: "aman", label: "Aman" },
+  { value: "base-plan", label: "Base Plan" },
+  { value: "minutes", label: "Minutes" },
+  { value: "data", label: "Data" },
+];
+
 const NUMBER_TABS = [
-  { value: "all",      label: "All",      fee: null,  color: null },
-  { value: "standard", label: "Standard", fee: 0,     color: "#0EA5E9" },
-  { value: "diamond",  label: "Diamond",  fee: 10,    color: "#3B82F6" },
-  { value: "silver",   label: "Silver",   fee: 10,    color: "#94A3B8" },
-  { value: "gold",     label: "Gold",     fee: 10,    color: "#EAB308" },
+  { value: "all",      label: "All",      fee: null, color: null },
+  { value: "standard", label: "Standard", fee: 0,    color: "#0EA5E9" },
+  { value: "diamond",  label: "Diamond",  fee: 10,   color: "#3B82F6" },
+  { value: "silver",   label: "Silver",   fee: 10,   color: "#94A3B8" },
+  { value: "gold",     label: "Gold",     fee: 10,   color: "#EAB308" },
 ];
 
 const DEMO_NUMBER_POOL = [
@@ -122,17 +118,23 @@ const DEMO_NUMBER_POOL = [
 
 const SIM_FEES: Record<SimType, number> = { psim: 10, esim: 0 };
 
+const DEVICES = [
+  { id: "router-a", name: "5G Home Router", desc: "Up to 4 Gbps · 64 devices", price: 0 },
+  { id: "router-b", name: "5G Gateway Pro", desc: "Up to 2 Gbps · 32 devices", price: 0 },
+  { id: "router-c", name: "Premium 5G Router", desc: "Up to 8 Gbps · 128 devices", price: 200 },
+];
+
 const ESIM_DEVICES = [
-  { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+", emoji: "📱", supported: true },
-  { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+", emoji: "📱", supported: true },
-  { model: "iPhone 12 / Mini / Pro / Pro Max", ios: "iOS 14+", emoji: "📱", supported: true },
-  { model: "iPhone 13 series", ios: "iOS 15+", emoji: "📱", supported: true },
-  { model: "iPhone 14 series", ios: "iOS 16+", emoji: "📱", supported: true },
-  { model: "iPhone 15 series", ios: "iOS 17+", emoji: "📱", supported: true },
-  { model: "iPhone 16 series", ios: "iOS 18+", emoji: "📱", supported: true },
-  { model: "iPad Pro (2018+)", ios: "iPadOS 12.1+", emoji: "⬛", supported: true },
-  { model: "iPad Air (3rd gen+)", ios: "iPadOS 13+", emoji: "⬛", supported: true },
-  { model: "iPad Mini (5th gen+)", ios: "iPadOS 13+", emoji: "⬛", supported: true },
+  { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+" },
+  { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+" },
+  { model: "iPhone 12 / Mini / Pro / Pro Max", ios: "iOS 14+" },
+  { model: "iPhone 13 series", ios: "iOS 15+" },
+  { model: "iPhone 14 series", ios: "iOS 16+" },
+  { model: "iPhone 15 series", ios: "iOS 17+" },
+  { model: "iPhone 16 series", ios: "iOS 18+" },
+  { model: "iPad Pro (2018+)", ios: "iPadOS 12.1+" },
+  { model: "iPad Air (3rd gen+)", ios: "iPadOS 13+" },
+  { model: "iPad Mini (5th gen+)", ios: "iPadOS 13+" },
 ];
 
 // ---------- Small UI helpers ----------
@@ -153,9 +155,7 @@ const SegmentedTabs = ({
         onClick={() => onChange(opt.value)}
         className={cn(
           "h-9 rounded-lg text-xs font-medium transition-colors",
-          value === opt.value
-            ? "bg-card text-foreground shadow-sm"
-            : "text-muted-foreground",
+          value === opt.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
           opt.disabled && "opacity-50 cursor-not-allowed",
         )}
       >
@@ -182,7 +182,6 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-// ---------- Summary row ----------
 const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
     <span className="text-[11px] text-muted-foreground">{label}</span>
@@ -194,20 +193,31 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
 const NewActivation = () => {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
+  const [step, setStep] = useState<0 | 1 | 2>(0);
 
   // Stage 1 — Identity
   const [idType, setIdType] = useState("national-id");
   const [nationality, setNationality] = useState("sa");
   const [idNumber, setIdNumber] = useState("1324567896");
 
-  // Stage 2 — Service & SIM
-  const [service, setService] = useState<Service>("mobile");
+  // Stage 2 — Subscription Type
+  const [payType, setPayType] = useState<PayType>("prepaid");
+  const [lineType, setLineType] = useState<LineType>("mobile");
   const [simType, setSimType] = useState<SimType>("psim");
   const [kit, setKit] = useState("1234567890");
+  const [kitError, setKitError] = useState<string | null>("registered");
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
-
-  // Stage 3 — Subscription
+  const [planTypeChip, setPlanTypeChip] = useState("all");
+  const [planMode, setPlanMode] = useState<PlanMode>("plan");
+  const [selectedPlan, setSelectedPlan] = useState<number>(0);
+  const [topupDenom, setTopupDenom] = useState<number | null>(50);
+  const [topupManual, setTopupManual] = useState("");
+  // Contact & Delivery
+  const [contactCity, setContactCity] = useState("Riyadh");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  // Number — Mobile only
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
@@ -216,16 +226,10 @@ const NewActivation = () => {
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
-  const [payType, setPayType] = useState<PayType>("prepaid");
-  const [planMode, setPlanMode] = useState<PlanMode>("plan");
-  const [selectedPlan, setSelectedPlan] = useState<number>(0);
-  const [topupDenom, setTopupDenom] = useState<number | null>(50);
-  const [topupManual, setTopupManual] = useState("");
-  const [addrCity, setAddrCity] = useState("Riyadh");
-  const [addrAddress, setAddrAddress] = useState("");
-  const [addrEmail, setAddrEmail] = useState("");
+  // Device — Postpaid Internet only
+  const [selectedDevice, setSelectedDevice] = useState("router-a");
 
-  // Stage 4 — Checkout
+  // Stage 3 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
   const [promoCode, setPromoCode] = useState("SAVE10");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -243,88 +247,92 @@ const NewActivation = () => {
   const [termsOpen, setTermsOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
-
-  // Cancel activation dialog state
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
-  const [cancelOtherText, setCancelOtherText] = useState<string>("");
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelOtherText, setCancelOtherText] = useState("");
 
-  // ---------- Conditional rules ----------
-  const simOptions = useMemo<{ value: SimType; label: string; disabled?: boolean }[]>(() => {
-    if (service === "hbb") return [{ value: "psim", label: "P-SIM" }, { value: "esim", label: "E-SIM", disabled: true }];
-    return [{ value: "psim", label: "P-SIM" }, { value: "esim", label: "E-SIM" }];
-  }, [service]);
+  // ---------- Derived flags ----------
+  const isPrepaidMobile   = payType === "prepaid"  && lineType === "mobile";
+  const isPrepaidInternet = payType === "prepaid"  && lineType === "internet";
+  const isPostpaidMobile  = payType === "postpaid" && lineType === "mobile";
+  const isPostpaidInternet= payType === "postpaid" && lineType === "internet";
 
+  const showEsim         = true;
+  const showPlanTypeChips= isPrepaidMobile;
+  const showTopupTab     = isPrepaidMobile;
+  const showContactField = isPrepaidInternet;
+  const showNumber       = isPrepaidMobile || isPostpaidMobile;
+  const showMnp          = isPrepaidMobile || isPostpaidMobile;
+  const showDevice       = isPostpaidInternet;
+  const showDelivery     = isPostpaidInternet;
+
+  // Reset dependent fields when lineType or payType changes
   useEffect(() => {
-    if (service === "hbb" && simType === "esim") setSimType("psim");
-    if (service === "mbb" && payType === "postpaid") setPayType("prepaid");
-    if (service === "hbb" && payType === "prepaid") setPayType("postpaid");
-    if (service === "hbb" && planMode === "topup") setPlanMode("plan");
     setSelectedPlan(0);
-  }, [service, simType, payType, planMode]);
+    setPlanTypeChip("all");
+    setPlanMode("plan");
+    if (isPostpaidInternet) setSimType("psim");
+  }, [payType, lineType]);
 
-  const payOptions = useMemo<{ value: PayType; label: string; disabled?: boolean }[]>(() => {
-    if (service === "mbb") return [{ value: "prepaid", label: "Prepaid" }, { value: "postpaid", label: "Postpaid", disabled: true }];
-    if (service === "hbb") return [{ value: "prepaid", label: "Prepaid 5G" }, { value: "postpaid", label: "Postpaid 5G / Vnet" }];
-    return [{ value: "prepaid", label: "Prepaid" }, { value: "postpaid", label: "Postpaid" }];
-  }, [service]);
-
-  const showTopupOption = service !== "hbb" && service !== "mbb";
-  const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-
-  // ---------- Stage gating ----------
-  const canContinue = useMemo(() => {
-    if (step === 0) return !!idType && !!nationality && idNumber.trim().length > 0;
-    if (step === 1) return !!service && !!simType && isKitValid;
-    if (step === 2) {
-      if (subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
-      if (planMode === "plan" && selectedPlan == null) return false;
-      if (planMode === "topup" && !topupDenom && !topupManual) return false;
-      return true;
-    }
-    return true;
-  }, [step, idType, nationality, idNumber, service, simType, isKitValid, subType, portNumber, portOperator, portContact, planMode, selectedPlan, topupDenom, topupManual]);
-
+  // ---------- Pricing ----------
   const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
   const selectedPlanObj = activePlans[selectedPlan];
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
-  const simFee = SIM_FEES[simType];
-  const numberFee = subType === "sim" ? (() => { const t = DEMO_NUMBER_POOL.find(n => n.number === phone); if (!t) return 0; const tier = NUMBER_TABS.find(tab => tab.value === t.tier); return tier?.fee ?? 0; })() : 0;
-  const subtotal = planPrice + simFee + numberFee - promoDiscount;
+  const simFee = showEsim ? SIM_FEES[simType] : 0;
+  const numberFee = showNumber && subType === "sim" ? (() => {
+    const t = DEMO_NUMBER_POOL.find(n => n.number === phone);
+    if (!t) return 0;
+    return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
+  })() : 0;
+  const deviceObj = DEVICES.find(d => d.id === selectedDevice);
+  const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
+  const subtotal = planPrice + simFee + numberFee + deviceFee - promoDiscount;
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
+  const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const canPay = otpVerified && customerVerified && !!customerSig && !!dealerSig && terms;
 
-  // ---------- Handlers ----------
+  // ---------- Stage gating ----------
+  const canContinue = useMemo(() => {
+    if (step === 0) return !!idType && !!nationality && idNumber.trim().length > 0;
+    if (step === 1) {
+      if (showEsim && (!isKitValid || !!kitError)) return false;
+      if (planMode === "plan" && selectedPlan == null) return false;
+      if (planMode === "topup" && !topupDenom && !topupManual) return false;
+      if (showContactField && !contactNumber.trim()) return false;
+      if (showMnp && subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
+      if (showDelivery && !deliveryAddress.trim()) return false;
+      if (!contactEmail.trim()) return false;
+      return true;
+    }
+    return true;
+  }, [step, idType, nationality, idNumber, showEsim, isKitValid, planMode, selectedPlan, topupDenom, topupManual, showContactField, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+
   const onBack = () => {
     if (step === 0) navigate("/");
-    else setStep((s) => (s - 1) as 0 | 1 | 2 | 3);
+    else setStep((s) => (s - 1) as 0 | 1 | 2);
   };
 
   const onContinue = () => {
-    if (step < 3) setStep((s) => (s + 1) as 0 | 1 | 2 | 3);
-  };
-
-  const onPay = () => {
-    setSuccessOpen(true);
+    if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
   };
 
   const orderId = useMemo(() => "NA-" + Math.floor(Math.random() * 900000 + 100000), [successOpen]);
 
+  const pageTitle = step === 0
+    ? "New Activation"
+    : `${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`;
+
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
       <AppHeader
-        title={service === "mbb" ? "MBB Activation" : service === "hbb" ? "HBB Activation" : "Mobile Activation"}
+        title={pageTitle}
         showBack
         onBackClick={onBack}
         rightElement={
-          <button
-            onClick={() => setCancelOpen(true)}
-            aria-label="Cancel activation"
-            className="w-10 h-10 flex items-center justify-center -mr-2"
-          >
+          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 flex items-center justify-center -mr-2">
             <X className="w-5 h-5 text-foreground" />
           </button>
         }
@@ -332,18 +340,13 @@ const NewActivation = () => {
       <FlowStepper current={step} steps={NEW_ACTIVATION_STEPS} />
 
       <div className="px-4 space-y-4">
-        {/* Stage 1 — Identity */}
+
+        {/* ── Step 0 — Identity ── */}
         {step === 0 && (
           <>
             <Field label="ID Type">
-              <Select
-                value={idType}
-                onValueChange={(v) => {
-                  setIdType(v);
-                  if (v === "national-id") setNationality("sa");
-                }}
-              >
-                <SelectTrigger className="w-full bg-card rounded-xl h-12 shadow-sm border-0">
+              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue placeholder="Select ID type" />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
@@ -355,7 +358,7 @@ const NewActivation = () => {
             </Field>
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12 shadow-sm border-0">
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue placeholder="Select nationality" />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
@@ -369,222 +372,151 @@ const NewActivation = () => {
               </Select>
             </Field>
             <Field label="ID Number">
-              <Input
-                value={idNumber}
-                onChange={(e) => setIdNumber(e.target.value)}
-                placeholder="Enter the ID Number"
-                className="h-12 bg-card rounded-xl shadow-sm border-0"
-              />
+              <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="Enter the ID Number" className="h-12 bg-card rounded-xl" />
             </Field>
           </>
         )}
 
-        {/* Stage 2 — Service & SIM */}
+        {/* ── Step 1 — Subscription Type ── */}
         {step === 1 && (
           <>
-            <SectionCard title="Line Type">
-              <div className="grid gap-2">
-                {SERVICES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setService(s.value)}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-xl border text-left transition-colors",
-                      service === s.value ? "border-primary bg-primary/5" : "border-border bg-card",
-                    )}
-                  >
-                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", service === s.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                      <s.Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">{s.label}</p>
-                      <p className="text-xs text-muted-foreground">{s.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </SectionCard>
-
+            {/* 1. SIM Type */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-2">
-                SIM Type <span className="text-destructive">*</span>
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {simOptions.map((opt) => (
-                  <SimCard
-                    key={opt.value}
-                    active={simType === opt.value}
-                    label={opt.label}
-                    disabled={opt.disabled}
-                    onClick={() => setSimType(opt.value)}
-                  />
-                ))}
-              </div>
-              {simType === "esim" && (
-                <button
-                  type="button"
-                  onClick={() => setEsimInfoOpen(true)}
-                  className="w-full mt-3 flex items-center gap-3 text-left p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 hover:from-primary/15 transition-all duration-200 group"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/25 transition-colors">
-                    <Smartphone className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-foreground">Supported devices &amp; iOS versions</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">iPhone XS and later · iOS 12.1+</p>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              )}
-            </section>
-
-            {simType === "psim" && (
-              <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
-                  KIT <span className="text-destructive">*</span>
+                  SIM Type <span className="text-destructive">*</span>
                 </h3>
-                <div className="relative">
-                  <Input
-                    value={kit}
-                    onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="KIT Code (10 Digits)"
-                    className="h-12 bg-card border-0 rounded-xl shadow-sm pr-12"
-                    inputMode="numeric"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setKit("1234567890")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
-                    aria-label="Scan KIT"
-                  >
-                    <ScanLine className="w-5 h-5" />
-                  </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <SimCard active={simType === "psim"} label="P-SIM" onClick={() => setSimType("psim")} />
+                  <SimCard active={simType === "esim"} label="E-SIM" onClick={() => { setSimType("esim"); if (payType === "postpaid") setLineType("mobile"); }} />
                 </div>
-                {kit && !isKitValid && (
-                  <p className="text-xs text-destructive mt-1.5">KIT must be 10 digits</p>
+                {simType === "esim" && (
+                  <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-left p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
+                    <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                      <Smartphone className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">Supported devices & iOS versions</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">iPhone XS and later · iOS 12.1+</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                  </button>
+                )}
+                {simType === "psim" && (
+                  <div className="mt-3 space-y-2">
+                    <div className="relative">
+                      <Input
+                        value={kit}
+                        onChange={(e) => {
+                          setKit(e.target.value.replace(/\D/g, "").slice(0, 10));
+                          setKitError(null);
+                        }}
+                        placeholder="KIT Code (10 Digits)"
+                        className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive")}
+                        inputMode="numeric"
+                      />
+                      <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                        <ScanLine className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {kit && !isKitValid && !kitError && (
+                      <p className="text-xs text-destructive">KIT must be 10 digits</p>
+                    )}
+                    {kitError === "registered" && (
+                      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2.5">
+                        <div className="flex gap-2">
+                          <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-destructive">Invalid KIT Code</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              The KIT Code entered is already registered.{" "}
+                              <span className="font-medium text-foreground">Error Code: 101.</span>{" "}
+                              Please enter a new KIT Code.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => { setKit(""); setKitError(null); }}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border bg-card text-xs font-medium text-foreground"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            Enter Another KIT
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setKit(""); setKitError(null); }}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary text-xs font-medium text-primary-foreground"
+                          >
+                            <PlusCircle className="w-3.5 h-3.5" />
+                            Add New KIT Code
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </section>
-            )}
-          </>
-        )}
 
-        {/* Stage 3 — Subscription details */}
-        {step === 2 && (
-          <>
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Phone className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">
-                  Phone number <span className="text-destructive">*</span>
-                </p>
-              </div>
-
-              {service !== "hbb" && <div className="grid grid-cols-2 gap-2 mb-3">
-                <button
-                  onClick={() => setSubType("sim")}
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors",
-                    subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-                  )}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  New number
-                </button>
-                <button
-                  onClick={() => setSubType("mnp")}
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors",
-                    subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-                  )}
-                >
-                  <ArrowRightLeft className="w-4 h-4" />
-                  Port (MNP)
-                </button>
-              </div>}
-
-              {subType === "sim" ? (
-                <>
-                  <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">
-                    {phone}
-                  </div>
-                  {simType === "psim" && (
-                    <button
-                      onClick={() => setNumberPickerOpen(true)}
-                      className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
-                    >
-                      Pick Different Number <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <Field label="Port number">
-                    <Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" />
-                  </Field>
-                  <Field label="Current operator">
-                    <Select value={portOperator} onValueChange={setPortOperator}>
-                      <SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger>
-                      <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="Contact number">
-                    <Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" />
-                  </Field>
-                  <p className="text-[11px] text-muted-foreground">
-                    The number will be transferred from the selected operator after verification.
-                  </p>
-                </div>
-              )}
-            </section>
-
-            {service !== "mbb" && service !== "hbb" && (
-              <section>
-                <h3 className="text-sm font-semibold text-foreground mb-2">Subscription Type</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {payOptions.map((opt) => {
-                    const selected = payType === opt.value;
-                    const Icon = opt.value === "prepaid" ? FileText : HandCoins;
+            {/* 2. Subscription Type */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
+              <Select
+                value={`${payType}-${lineType}`}
+                onValueChange={(v) => {
+                  const [p, l] = v.split("-") as [PayType, LineType];
+                  setPayType(p); setLineType(l);
+                }}
+              >
+                <SelectTrigger className="h-12 bg-card rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {([
+                    { pay: "prepaid",  line: "mobile",   label: "Prepaid Mobile",   Icon: Smartphone },
+                    { pay: "prepaid",  line: "internet", label: "Prepaid Internet",  Icon: Wifi       },
+                    { pay: "postpaid", line: "mobile",   label: "Postpaid Mobile",   Icon: Smartphone },
+                    { pay: "postpaid", line: "internet", label: "Postpaid Internet", Icon: Wifi, locked: true },
+                  ] as const).map(({ pay, line, label, Icon, locked }) => {
+                    const isLocked = locked && simType === "esim";
                     return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        disabled={opt.disabled}
-                        onClick={() => !opt.disabled && setPayType(opt.value)}
-                        className={cn(
-                          "relative rounded-2xl border p-4 flex flex-col items-center justify-center gap-2 transition-colors",
-                          selected ? "border-primary bg-primary/10" : "border-border bg-card",
-                          opt.disabled && "opacity-50",
-                        )}
-                      >
-                        <span className={cn("absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center", selected ? "border-primary" : "border-muted-foreground/40")}>
-                          {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+                      <SelectItem key={label} value={`${pay}-${line}`} disabled={isLocked}>
+                        <span className={cn("flex items-center gap-2", isLocked && "opacity-40")}>
+                          <Icon className="w-4 h-4" />
+                          {label}
+                          {isLocked && <Lock className="w-3 h-3 ml-1" />}
                         </span>
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-foreground")} />
-                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                      </button>
+                      </SelectItem>
                     );
                   })}
-                </div>
-              </section>
+                </SelectContent>
+              </Select>
+            </section>
+
+            {/* 3. Plan Type chips — Prepaid Mobile only */}
+            {showPlanTypeChips && (
+              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {PLAN_TYPE_CHIPS.map(chip => (
+                  <button
+                    key={chip.value}
+                    onClick={() => setPlanTypeChip(chip.value)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                      planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
             )}
 
-            {showTopupOption && (
+            {/* 4. Plan / Topup */}
+            {showTopupTab && (
               <section>
                 <div className="grid grid-cols-2 border-b border-border">
-                  <SourceTab
-                    active={planMode === "plan"}
-                    icon={Tag}
-                    label="With plan"
-                    onClick={() => setPlanMode("plan")}
-                  />
-                  <SourceTab
-                    active={planMode === "topup"}
-                    icon={Database}
-                    label="With top-up"
-                    onClick={() => setPlanMode("topup")}
-                  />
+                  <SourceTab active={planMode === "plan"} icon={Tag} label="With plan" onClick={() => setPlanMode("plan")} />
+                  <SourceTab active={planMode === "topup"} icon={Database} label="With top-up" onClick={() => setPlanMode("topup")} />
                 </div>
               </section>
             )}
@@ -594,53 +526,137 @@ const NewActivation = () => {
                 selectedPlan={selectedPlan}
                 onSelect={(i) => setSelectedPlan(i)}
                 plans={payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS}
+                categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
               />
             ) : (
               <SectionCard title="Top-up">
                 <Field label="Denomination">
                   <div className="grid grid-cols-3 gap-2">
                     {TOPUP_DENOMS.map((d) => (
-                      <button
-                        key={d}
-                        onClick={() => { setTopupDenom(d); setTopupManual(""); }}
-                        className={cn(
-                          "h-10 rounded-lg border text-sm font-medium",
-                          topupDenom === d && !topupManual ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground",
-                        )}
-                      >
+                      <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(""); }}
+                        className={cn("h-10 rounded-lg border text-sm font-medium", topupDenom === d && !topupManual ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground")}>
                         {d} SAR
                       </button>
                     ))}
                   </div>
                 </Field>
                 <Field label="Or enter amount manually">
-                  <Input
-                    value={topupManual}
-                    onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                    placeholder="Amount in SAR"
-                    inputMode="numeric"
-                  />
+                  <Input value={topupManual} onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }} placeholder="Amount in SAR" inputMode="numeric" />
                 </Field>
               </SectionCard>
             )}
 
-            <SectionCard title="Address details">
+
+            {/* 6. Number — Mobile only */}
+            {showNumber && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Phone Number <span className="text-destructive">*</span>
+                  </p>
+                </div>
+
+                {showMnp && (
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                      <Sparkles className="w-4 h-4" /> New number
+                    </button>
+                    <button onClick={() => setSubType("mnp")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                      <ArrowRightLeft className="w-4 h-4" /> Port (MNP)
+                    </button>
+                  </div>
+                )}
+
+                {subType === "sim" ? (
+                  <>
+                    <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">{phone}</div>
+                    {simType === "psim" && (
+                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                        Pick Different Number <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <Field label="Port number"><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <Field label="Current operator">
+                      <Select value={portOperator} onValueChange={setPortOperator}>
+                        <SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger>
+                        <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Contact number"><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <p className="text-[11px] text-muted-foreground">The number will be transferred from the selected operator after verification.</p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* 7. Device — Postpaid Internet only */}
+            {showDevice && (
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  Device <span className="text-destructive">*</span>
+                </h3>
+                <div className="space-y-2">
+                  {DEVICES.map((device) => {
+                    const selected = selectedDevice === device.id;
+                    return (
+                      <button key={device.id} type="button" onClick={() => setSelectedDevice(device.id)}
+                        className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-colors", selected ? "border-primary bg-primary/5" : "border-border bg-card")}>
+                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                          <Router className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-foreground">{device.name}</p>
+                          <p className="text-xs text-muted-foreground">{device.desc}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          {device.price > 0
+                            ? <span className="text-sm font-bold text-foreground">{device.price} SAR</span>
+                            : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Included</span>
+                          }
+                        </div>
+                        <span className={cn("w-4 h-4 rounded-full border-2 shrink-0", selected ? "border-primary bg-primary" : "border-muted-foreground/40")} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* 8. Contact & Delivery — all cases */}
+            <SectionCard title="Contact">
               <Field label="City">
-                <Select value={addrCity} onValueChange={setAddrCity}>
+                <Select value={contactCity} onValueChange={setContactCity}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
-              <Field label="Address"><Input value={addrAddress} onChange={(e) => setAddrAddress(e.target.value)} placeholder="Enter full address" /></Field>
-              <Field label="Email"><Input value={addrEmail} onChange={(e) => setAddrEmail(e.target.value)} placeholder="example@email.com" inputMode="email" /></Field>
+              <Field label="Email *">
+                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+              </Field>
+              {showContactField && (
+                <Field label="Contact Number *">
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
+              {showDelivery && (
+                <Field label="Delivery Address *">
+                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
             </SectionCard>
           </>
         )}
 
-        {/* Stage 4 — Checkout */}
-        {step === 3 && (
+        {/* ── Step 2 — Checkout ── */}
+        {step === 2 && (
           <>
-            {/* 1. Subscription Summary */}
+            {/* Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -649,47 +665,39 @@ const NewActivation = () => {
                   </div>
                   <p className="text-sm font-semibold text-foreground">Subscription Summary</p>
                 </div>
-                <button onClick={() => setStep(2)} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
+                <button onClick={() => setStep(1)} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
                   <Pencil className="w-3 h-3" /> Edit
                 </button>
               </div>
-              <SummaryRow label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
-              <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-              {simType === "psim" && <SummaryRow label="KIT" value={kit} />}
-              <SummaryRow label="Subscription" value={subType === "sim" ? "SIM Number" : "MNP"} />
-              {subType === "mnp" && (
-                <>
-                  <SummaryRow label="Port number" value={portNumber} />
-                  <SummaryRow label="From operator" value={portOperator} />
-                </>
-              )}
-              <SummaryRow label="Subscription type" value={payOptions.find((o) => o.value === payType)!.label} />
-              {planMode === "plan" ? (
-                <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
-              ) : (
-                <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />
-              )}
-              <SummaryRow label="City" value={addrCity} />
-              <SummaryRow label="Address" value={addrAddress} />
-              <SummaryRow label="Email" value={addrEmail} />
+              <SummaryRow label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
+              {showEsim && <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
+              {showEsim && simType === "psim" && <SummaryRow label="KIT" value={kit} />}
+              {showNumber && <SummaryRow label="Subscription type" value={subType === "sim" ? "New Number" : "MNP"} />}
+              {showNumber && subType === "sim" && <SummaryRow label="Phone Number" value={phone} />}
+              {showNumber && subType === "mnp" && <SummaryRow label="Port Number" value={portNumber} />}
+              {showNumber && subType === "mnp" && <SummaryRow label="From Operator" value={portOperator} />}
+              <SummaryRow label="City" value={contactCity} />
+              <SummaryRow label="Email" value={contactEmail} />
+              {showContactField && <SummaryRow label="Contact Number" value={contactNumber} />}
+              {planMode === "plan"
+                ? <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
+                : <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />}
+              {showDevice && <SummaryRow label="Device" value={deviceObj?.name ?? ""} />}
+              {showDelivery && <SummaryRow label="Delivery Address" value={deliveryAddress} />}
             </section>
 
-            {/* 2. Payment Method */}
+            {/* Payment Method */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <CreditCard className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <p className="text-sm font-semibold text-foreground">
-                  Payment Method <span className="text-destructive">*</span>
-                </p>
+                <p className="text-sm font-semibold text-foreground">Payment Method <span className="text-destructive">*</span></p>
               </div>
-              <div className="space-y-2">
-                <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
-              </div>
+              <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
             </section>
 
-            {/* 3. Promo Code */}
+            {/* Promo Code */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -704,39 +712,18 @@ const NewActivation = () => {
                     <span className="text-sm font-semibold text-green-700">{VALID_PROMO}</span>
                     <span className="text-xs text-green-600">— 10 SAR off</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }}
-                    className="text-xs text-muted-foreground hover:text-destructive font-medium"
-                  >
-                    Remove
-                  </button>
+                  <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium">Remove</button>
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <Input
-                    value={promoCode}
-                    onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }}
-                    placeholder="Enter promo code"
-                    className={cn("flex-1", promoError && "border-destructive focus-visible:ring-destructive")}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="shrink-0"
-                    onClick={() => {
-                      if (promoCode === VALID_PROMO) { setPromoApplied(true); setPromoError(false); }
-                      else setPromoError(true);
-                    }}
-                  >
-                    Apply
-                  </Button>
+                  <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder="Enter promo code" className={cn("flex-1", promoError && "border-destructive")} />
+                  <Button type="button" variant="outline" className="shrink-0" onClick={() => { if (promoCode === VALID_PROMO) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>Apply</Button>
                 </div>
               )}
               {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>.</p>}
             </section>
 
-            {/* 4. Payment Summary */}
+            {/* Payment Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -744,17 +731,23 @@ const NewActivation = () => {
                 </div>
                 <p className="text-sm font-semibold text-foreground">Payment Summary</p>
               </div>
-
-              {/* Line items */}
               <div className="space-y-2 pb-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
-                  <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
-                </div>
-                {subType === "sim" && numberFee > 0 && (
+                {showEsim && (
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{(() => { const t = DEMO_NUMBER_POOL.find(n => n.number === phone); return NUMBER_TABS.find(tab => tab.value === (t?.tier ?? "standard"))?.label; })()} Number</span>
+                    <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
+                    <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
+                  </div>
+                )}
+                {showNumber && subType === "sim" && numberFee > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
                     <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                  </div>
+                )}
+                {showDevice && deviceFee > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                    <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
@@ -768,8 +761,6 @@ const NewActivation = () => {
                   </div>
                 )}
               </div>
-
-              {/* Subtotal + VAT */}
               <div className="border-t border-border/60 space-y-2 py-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] text-muted-foreground">Subtotal</span>
@@ -780,57 +771,41 @@ const NewActivation = () => {
                   <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
                 </div>
               </div>
-
-              {/* Total */}
               <div className="flex items-center justify-between border-t border-border/60 pt-3">
                 <span className="text-sm font-semibold text-foreground">Total</span>
                 <span className="text-base font-bold text-primary">{total} SAR</span>
               </div>
             </section>
 
-            {/* 4. OTP Verification */}
+            {/* OTP Verification */}
             <SectionCard title="OTP Verification">
               {otpVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> OTP verified</p>
               ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
-                  Send &amp; verify OTP
-                </Button>
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
               )}
             </SectionCard>
 
-            {/* 5. Customer Verification */}
+            {/* Customer Verification */}
             <SectionCard title="Customer Verification">
               {customerVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Customer verified</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={!otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
-                  Verify customer
-                </Button>
+                <Button variant="outline" className="w-full" disabled={!otpVerified} onClick={() => setCustomerVerifyOpen(true)}>Verify customer</Button>
               )}
-              {!otpVerified && (
-                <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>
-              )}
+              {!otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
             </SectionCard>
 
-            {/* 6. Terms & Conditions */}
+            {/* Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
                 <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => setTermsOpen(true)}>
-                  <input
-                    id="terms-checkbox"
-                    type="checkbox"
-                    checked={terms}
-                    onChange={(e) => { e.stopPropagation(); setTerms(e.target.checked); }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-4 h-4 rounded border-2 border-primary text-primary focus:ring-primary accent-primary cursor-pointer"
-                  />
+                  <input id="terms-checkbox" type="checkbox" checked={terms} onChange={(e) => { e.stopPropagation(); setTerms(e.target.checked); }} onClick={(e) => e.stopPropagation()} className="w-4 h-4 rounded border-2 border-primary accent-primary cursor-pointer" />
                   <span className="text-sm text-foreground">Terms and Conditions</span>
                 </div>
                 <DrawerContent className="max-h-[85vh]">
-                  <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                  <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
                     <X className="h-5 w-5 text-foreground" />
-                    <span className="sr-only">Close</span>
                   </DrawerClose>
                   <DrawerHeader className="text-center">
                     <DrawerTitle>Terms and Conditions</DrawerTitle>
@@ -843,7 +818,7 @@ const NewActivation = () => {
                   </div>
                   <DrawerFooter className="flex-col gap-3">
                     <DrawerClose asChild>
-                      <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold">Accept</Button>
+                      <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">Accept</Button>
                     </DrawerClose>
                     <DrawerClose asChild>
                       <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
@@ -853,53 +828,31 @@ const NewActivation = () => {
               </Drawer>
             </section>
 
-            {/* 7. Customer Signature */}
-            <SignatureBox
-              title="Customer Signature"
-              required
-              value={customerSig}
-              onEdit={() => setSigEditor("customer")}
-              onClear={() => setCustomerSig(null)}
-            />
+            {/* Customer Signature */}
+            <SignatureBox title="Customer Signature" required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} />
 
-            {/* 8. Dealer Signature */}
-            <SignatureBox
-              title="Dealer Signature"
-              required
-              value={dealerSig}
-              onEdit={() => setSigEditor("dealer")}
-              onClear={() => setDealerSig(null)}
-            />
+            {/* Dealer Signature */}
+            <SignatureBox title="Dealer Signature" required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} />
           </>
         )}
       </div>
 
-      {/* Sticky bottom action */}
+      {/* Sticky bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {step < 3 ? (
-            <Button className="w-full h-12 text-sm font-semibold" disabled={!canContinue} onClick={onContinue}>
-              Continue
-            </Button>
+          {step < 2 ? (
+            <Button className="w-full h-12 text-sm font-semibold" disabled={!canContinue} onClick={onContinue}>Continue</Button>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold" disabled={!canPay} onClick={onPay}>
-              Pay {total} SAR
-            </Button>
+            <Button className="w-full h-12 text-sm font-semibold" disabled={!canPay} onClick={() => setSuccessOpen(true)}>Pay {total} SAR</Button>
           )}
         </div>
       </div>
 
-      {/* Customer verification on checkout */}
-      <SematiVerification
-        open={customerVerifyOpen}
-        audience="customer"
-        onClose={() => setCustomerVerifyOpen(false)}
-        onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
-      />
+      {/* Customer verification */}
+      <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
 
       {/* Number picker drawer */}
       {(() => {
-        const activeTab = NUMBER_TABS.find(t => t.value === numberPickerTab)!;
         const filtered = DEMO_NUMBER_POOL
           .filter(n => numberPickerTab === "all" || n.tier === numberPickerTab)
           .filter(n => n.number.includes(numberSearch));
@@ -912,53 +865,32 @@ const NewActivation = () => {
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
-
-              {/* Search */}
               <div className="px-5 mb-3">
                 <div className="relative">
-                  <input
-                    value={numberSearch}
-                    onChange={e => setNumberSearch(e.target.value)}
-                    placeholder="Search"
-                    className="w-full h-11 bg-muted/50 rounded-xl pl-4 pr-10 text-sm outline-none border border-border/40"
-                  />
+                  <input value={numberSearch} onChange={e => setNumberSearch(e.target.value)} placeholder="Search" className="w-full h-11 bg-muted/50 rounded-xl pl-4 pr-10 text-sm outline-none border border-border/40" />
                   <svg className="absolute right-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </div>
               </div>
-
-              {/* Tabs */}
               <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {NUMBER_TABS.map(tab => (
-                  <button
-                    key={tab.value}
-                    onClick={() => setNumberPickerTab(tab.value)}
-                    className={cn(
-                      "px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors shrink-0",
-                      numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground"
-                    )}
-                  >{tab.label}</button>
+                  <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
+                    className={cn("px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0", numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground")}>
+                    {tab.label}
+                  </button>
                 ))}
               </div>
-
-              {/* Number list */}
               <div className="overflow-y-auto flex-1 px-5 pb-6">
                 <div className="divide-y divide-border/40">
                   {filtered.map((item, i) => {
                     const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
                     const fee = tier.fee ?? 0;
                     return (
-                      <button
-                        key={i}
-                        onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }}
-                        className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors"
-                      >
+                      <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
                         <span className="flex-1 text-left text-base font-semibold text-foreground">{item.number}</span>
-                        {fee > 0 ? (
-                          <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">SAR</span></span>
-                        ) : (
-                          <span className="text-sm font-semibold text-muted-foreground">Free</span>
-                        )}
+                        {fee > 0
+                          ? <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">SAR</span></span>
+                          : <span className="text-sm font-semibold text-muted-foreground">Free</span>}
                       </button>
                     );
                   })}
@@ -972,62 +904,12 @@ const NewActivation = () => {
       {/* eSIM devices drawer */}
       <Drawer open={esimInfoOpen} onOpenChange={setEsimInfoOpen}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
-          {/* Handle */}
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-9 h-1 bg-muted-foreground/20 rounded-full" />
-          </div>
-
-          {/* Header */}
+          <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="px-5 pt-3 pb-4">
             <h2 className="text-lg font-bold text-foreground">Compatible Devices</h2>
             <p className="text-xs text-muted-foreground mt-0.5">iPhone XS and later support eSIM</p>
           </div>
-
-          <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-5">
-            {/* iPhone SVG illustration */}
-            <div className="flex justify-center py-2">
-              <svg width="160" height="220" viewBox="0 0 160 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Phone body */}
-                <rect x="18" y="4" width="124" height="212" rx="24" fill="#1C1C1E"/>
-                {/* Highlight edge */}
-                <rect x="18" y="4" width="124" height="212" rx="24" stroke="#3A3A3C" strokeWidth="1.5"/>
-                {/* Screen */}
-                <rect x="24" y="10" width="112" height="200" rx="20" fill="#F2F2F7"/>
-                {/* Dynamic Island */}
-                <rect x="56" y="18" width="48" height="14" rx="7" fill="#1C1C1E"/>
-                {/* Status bar time */}
-                <text x="32" y="28" fontFamily="system-ui" fontSize="8" fontWeight="600" fill="#1C1C1E">9:41</text>
-                {/* Settings header */}
-                <rect x="24" y="38" width="112" height="22" fill="#F2F2F7"/>
-                <text x="80" y="53" fontFamily="system-ui" fontSize="9" fontWeight="600" fill="#1C1C1E" textAnchor="middle">Cellular</text>
-                {/* Divider */}
-                <line x1="24" y1="60" x2="136" y2="60" stroke="#C6C6C8" strokeWidth="0.5"/>
-                {/* eSIM row - highlighted */}
-                <rect x="30" y="65" width="100" height="26" rx="8" fill="#007AFF" opacity="0.12"/>
-                <rect x="30" y="65" width="100" height="26" rx="8" stroke="#007AFF" strokeWidth="0.8"/>
-                <circle cx="44" cy="78" r="6" fill="#007AFF"/>
-                <text x="55" y="82" fontFamily="system-ui" fontSize="8" fontWeight="600" fill="#007AFF">Add eSIM</text>
-                {/* Chevron */}
-                <path d="M122 75 L126 78 L122 81" stroke="#007AFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                {/* Regular rows */}
-                <rect x="30" y="97" width="100" height="22" rx="6" fill="white"/>
-                <text x="42" y="112" fontFamily="system-ui" fontSize="7.5" fill="#1C1C1E">Primary — STC</text>
-                <circle cx="124" cy="108" r="3" fill="#34C759"/>
-                <rect x="30" y="124" width="100" height="22" rx="6" fill="white"/>
-                <text x="42" y="139" fontFamily="system-ui" fontSize="7.5" fill="#8E8E93">Secondary</text>
-                <text x="105" y="139" fontFamily="system-ui" fontSize="7" fill="#C7C7CC">Off</text>
-                {/* Hint text */}
-                <text x="80" y="165" fontFamily="system-ui" fontSize="7" fill="#8E8E93" textAnchor="middle">Tap "Add eSIM" to scan QR</text>
-                {/* Home bar */}
-                <rect x="60" y="198" width="40" height="3" rx="1.5" fill="#1C1C1E" opacity="0.2"/>
-                {/* Side buttons */}
-                <rect x="14" y="68" width="4" height="18" rx="2" fill="#3A3A3C"/>
-                <rect x="14" y="92" width="4" height="28" rx="2" fill="#3A3A3C"/>
-                <rect x="142" y="80" width="4" height="32" rx="2" fill="#3A3A3C"/>
-              </svg>
-            </div>
-
-            {/* Device list */}
+          <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-4">
             <div className="rounded-2xl bg-muted/40 overflow-hidden divide-y divide-border/50">
               {ESIM_DEVICES.map((d, i) => (
                 <div key={i} className="flex items-center gap-3 px-4 py-3">
@@ -1037,17 +919,10 @@ const NewActivation = () => {
                 </div>
               ))}
             </div>
-
-            {/* Note */}
-            <p className="text-[11px] text-muted-foreground text-center px-4">
-              Device must be <span className="text-foreground font-medium">unlocked</span> with an active internet connection.
-            </p>
+            <p className="text-[11px] text-muted-foreground text-center px-4">Device must be <span className="text-foreground font-medium">unlocked</span> with an active internet connection.</p>
           </div>
-
           <div className="px-5 pb-6 pt-2">
-            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>
-              Got it
-            </Button>
+            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>Got it</Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -1057,26 +932,12 @@ const NewActivation = () => {
         <DrawerContent className="bg-card rounded-t-3xl">
           <DrawerHeader>
             <DrawerTitle className="text-center">OTP Verification</DrawerTitle>
-            <DrawerDescription className="text-center text-xs">
-              Enter the 4-digit code sent to the customer's number
-            </DrawerDescription>
+            <DrawerDescription className="text-center text-xs">Enter the 4-digit code sent to the customer's number</DrawerDescription>
           </DrawerHeader>
           <div className="px-5 pb-6 space-y-3">
-            <Input
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              placeholder="••••"
-              inputMode="numeric"
-              className="text-center tracking-[0.5em] text-lg"
-            />
+            <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
             <p className="text-xs text-muted-foreground text-center">Demo: any 4 digits will work</p>
-            <Button
-              className="w-full"
-              disabled={otpCode.length !== 4}
-              onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}
-            >
-              Verify
-            </Button>
+            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>Verify</Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -1084,89 +945,60 @@ const NewActivation = () => {
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
         <DrawerContent className="max-h-[85vh]">
-          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
-            <span className="sr-only">Close</span>
           </DrawerClose>
           <DrawerHeader className="text-center">
             <DrawerTitle>Terms and Conditions</DrawerTitle>
-            <DrawerDescription>
-              Please read and accept our terms and conditions to continue.
-            </DrawerDescription>
+            <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
             <p>By proceeding, the customer agrees to the service agreement, billing terms, and acceptable use policy.</p>
-            <p>All activations are subject to identity verification and regulatory approval. The customer acknowledges receipt of the SIM/eSIM and authorizes the selected plan or top-up amount.</p>
+            <p>All activations are subject to identity verification and regulatory approval.</p>
             <p>Refunds, replacements, and cancellations follow the standard policy available in the merchant portal.</p>
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button
-                onClick={() => setTerms(true)}
-                className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
-              >
-                Accept
-              </Button>
+              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">Accept</Button>
             </DrawerClose>
             <DrawerClose asChild>
-              <button type="button" className="text-sm font-semibold text-primary">
-                Cancel
-              </button>
+              <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
-      {/* Signature pad sheet */}
+      {/* Signature pad */}
       <SignaturePadSheet
         open={sigEditor !== null}
         title={sigEditor === "customer" ? "Customer Signature" : "Dealer Signature"}
         initial={sigEditor === "customer" ? customerSig : sigEditor === "dealer" ? dealerSig : null}
         onClose={() => setSigEditor(null)}
-        onSave={(dataUrl) => {
-          if (sigEditor === "customer") setCustomerSig(dataUrl);
-          if (sigEditor === "dealer") setDealerSig(dataUrl);
-          setSigEditor(null);
-        }}
+        onSave={(dataUrl) => { if (sigEditor === "customer") setCustomerSig(dataUrl); if (sigEditor === "dealer") setDealerSig(dataUrl); setSigEditor(null); }}
       />
 
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
         <div className="rounded-xl border border-border p-3 space-y-1.5">
-          <Row label="Service" value={SERVICES.find((s) => s.value === service)!.label} />
-          <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />
-          {planMode === "plan"
-            ? <Row label="Plan" value={`${selectedPlanObj?.title}`} />
-            : <Row label="Top-up" value={`${topupAmount} SAR`} />}
+          <Row label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
+          {showEsim && <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
+          {planMode === "plan" ? <Row label="Plan" value={selectedPlanObj?.title ?? ""} /> : <Row label="Top-up" value={`${topupAmount} SAR`} />}
           <Row label="Total" value={`${total} SAR`} />
         </div>
       </SuccessBottomSheet>
 
-      {/* Cancel activation — requires a reason */}
-      <Drawer
-        open={cancelOpen}
-        onOpenChange={(o) => {
-          if (!o) {
-            setCancelOpen(false);
-            setCancelReason("");
-            setCancelOtherText("");
-          }
-        }}
-      >
+      {/* Cancel bottom sheet */}
+      <Drawer open={cancelOpen} onOpenChange={(o) => { if (!o) { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <DrawerHeader className="text-left px-0 pb-4">
             <DrawerTitle>Cancel activation</DrawerTitle>
-            <DrawerDescription>
-              Please tell us why you're cancelling this activation.
-            </DrawerDescription>
+            <DrawerDescription>Please tell us why you're cancelling this activation.</DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">
-                Cancel reason <span className="text-destructive">*</span>
-              </label>
+              <label className="text-sm font-semibold text-foreground">Cancel reason <span className="text-destructive">*</span></label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
-                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
@@ -1181,45 +1013,14 @@ const NewActivation = () => {
             </div>
             {cancelReason === "other" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label className="text-sm font-semibold text-foreground">
-                  Please specify <span className="text-destructive">*</span>
-                </label>
-                <Textarea
-                  value={cancelOtherText}
-                  onChange={(e) => setCancelOtherText(e.target.value)}
-                  placeholder="Describe the reason in detail..."
-                  className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
+                <label className="text-sm font-semibold text-foreground">Please specify <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder="Describe the reason in detail..." className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none" />
               </div>
             )}
           </div>
           <div className="flex flex-col gap-2 mt-6">
-            <Button
-              disabled={
-                !cancelReason ||
-                (cancelReason === "other" && !cancelOtherText.trim())
-              }
-              onClick={() => {
-                setCancelOpen(false);
-                setCancelReason("");
-                setCancelOtherText("");
-                navigate("/");
-              }}
-              className="w-full h-11 rounded-full"
-            >
-              Confirm cancel
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCancelOpen(false);
-                setCancelReason("");
-                setCancelOtherText("");
-              }}
-              className="w-full h-11 rounded-full border-primary text-primary"
-            >
-              Keep editing
-            </Button>
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); navigate("/"); }} className="w-full h-11 rounded-full">Confirm cancel</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">Keep editing</Button>
           </div>
         </DrawerContent>
       </Drawer>

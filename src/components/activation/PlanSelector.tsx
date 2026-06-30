@@ -249,10 +249,12 @@ interface PlanSelectorProps {
   selectedPlan: number;
   onSelect: (idx: number, plan: Plan) => void;
   plans?: Plan[];
+  categoryFilter?: string;
 }
 
-const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS }: PlanSelectorProps) => {
+const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }: PlanSelectorProps) => {
   const [planType, setPlanType] = useState<string>("all");
+  const activePlanType = categoryFilter ?? planType;
   const [planFilters, setPlanFilters] = useState<PlanFilters>(DEFAULT_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
@@ -268,7 +270,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS }: PlanSelectorPro
 
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = planType === "all" || p.categories.includes(planType as any);
+      const matchesType = activePlanType === "all" || p.categories.includes(activePlanType as any);
       const matchesValidity = planFilters.validity.length === 0 || planFilters.validity.some((v) => p.validity.includes(v));
       const matchesPrice = p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
       const pData = parsePlanData(p.internet);
@@ -305,31 +307,6 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS }: PlanSelectorPro
 
   return (
     <section>
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        Plan Type <span className="text-destructive">*</span>
-      </h3>
-      <div className="flex gap-2">
-        <Select value={planType} onValueChange={setPlanType}>
-          <SelectTrigger className="flex-1 bg-card border-0 rounded-xl h-12 shadow-sm">
-            <SelectValue placeholder="Select plan type" />
-          </SelectTrigger>
-          <SelectContent className="bg-card">
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="flex">Flex</SelectItem>
-            <SelectItem value="aman">Aman</SelectItem>
-          </SelectContent>
-        </Select>
-        <button
-          onClick={() => setFilterOpen(true)}
-          className={cn(
-            "relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center text-primary",
-            activeFilterCount > 0 && "ring-2 ring-primary",
-          )}
-          aria-label="Filter plans"
-        >
-          <SlidersHorizontal className="w-5 h-5" />
-        </button>
-      </div>
 
       {activeFilterCount > 0 && (
         <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide">
