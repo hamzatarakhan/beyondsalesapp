@@ -93,6 +93,12 @@
     @apply app-card transition-shadow duration-200 hover:shadow-[var(--card-shadow-hover)] cursor-pointer;
   }
 
+  /* Soft border on all card-level containers (anything bg-card + shadow).
+     Skips inputs, buttons, and bottom sheets which don't carry shadow classes. */
+  [class*="bg-card"][class*="shadow"] {
+    border: 0.5px solid hsl(var(--border) / 0.5);
+  }
+
   .section-title {
     @apply text-sm font-semibold text-foreground mb-3;
   }
