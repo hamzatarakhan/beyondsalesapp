@@ -514,14 +514,15 @@ const NewActivation = () => {
             <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3 border border-border/60">
               <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
               {/* Payment type toggle */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-20 shrink-0">Payment</span>
-                <div className="flex flex-1 bg-muted rounded-xl p-1 gap-1">
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground">Payment</p>
+                <div className="flex gap-2">
                   {([{ value: "prepaid", label: "Prepaid", Icon: FileText }, { value: "postpaid", label: "Postpaid", Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
                     const selected = payType === value;
                     return (
                       <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all", selected ? "bg-card text-primary shadow-sm" : "text-muted-foreground")}>
+                        className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
+                          selected ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40")}>
                         <Icon className="w-3.5 h-3.5" />
                         {label}
                       </button>
@@ -530,9 +531,9 @@ const NewActivation = () => {
                 </div>
               </div>
               {/* Line type toggle */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-20 shrink-0">Line</span>
-                <div className="flex flex-1 bg-muted rounded-xl p-1 gap-1">
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground">Line</p>
+                <div className="flex gap-2">
                   {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const).map(({ value, label, Icon }) => {
                     const selected = lineType === value;
                     const unavailable = value === "internet" && payType === "postpaid" && simType === "esim";
@@ -543,16 +544,14 @@ const NewActivation = () => {
                         disabled={unavailable}
                         onClick={() => !unavailable && setLineType(value as LineType)}
                         className={cn(
-                          "flex-1 relative flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-sm font-medium transition-all",
-                          selected && !unavailable ? "bg-card text-primary shadow-sm" : "text-muted-foreground",
+                          "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
+                          selected && !unavailable ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40",
                           unavailable && "opacity-40 cursor-not-allowed"
                         )}
                       >
-                        <span className="flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5" />
-                          {label}
-                          {unavailable && <Lock className="w-3 h-3" />}
-                        </span>
+                        <Icon className="w-3.5 h-3.5" />
+                        {label}
+                        {unavailable && <Lock className="w-3 h-3" />}
                       </button>
                     );
                   })}
