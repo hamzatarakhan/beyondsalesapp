@@ -604,6 +604,7 @@ const NewActivation = () => {
 
             {planMode === "plan" ? (
               <PlanSelector
+                key={`${payType}-${lineType}`}
                 selectedPlan={selectedPlan}
                 onSelect={(i) => setSelectedPlan(i)}
                 plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS}
