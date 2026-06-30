@@ -513,7 +513,7 @@ const NewActivation = () => {
                     return (
                       <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                         className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
-                          selected ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40")}>
+                          selected ? "bg-primary/10 text-primary border-primary/30" : "bg-card text-muted-foreground border-border/60")}>
                         <Icon className="w-3.5 h-3.5" />
                         {label}
                       </button>
@@ -536,7 +536,7 @@ const NewActivation = () => {
                           onClick={() => setLineType(value as LineType)}
                           className={cn(
                             "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
-                            selected ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40"
+                            selected ? "bg-primary/10 text-primary border-primary/30" : "bg-card text-muted-foreground border-border/60"
                           )}
                         >
                           <Icon className="w-3.5 h-3.5" />
