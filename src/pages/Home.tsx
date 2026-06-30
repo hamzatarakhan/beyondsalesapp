@@ -123,7 +123,7 @@ const Home = () => {
 
       {/* Customer Activities */}
       <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/50" style={{borderWidth:"0.5px"}}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Customer Activities</h3>
             <button className="w-8 h-8 flex items-center justify-center">
@@ -156,7 +156,7 @@ const Home = () => {
 
       // Working Shift
       <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/50" style={{borderWidth:"0.5px"}}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-foreground">My Working Shift</h3>
             <button className="flex items-center gap-1 text-primary text-sm font-medium">
@@ -202,7 +202,7 @@ const Home = () => {
 
       // Tickets
       <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/50" style={{borderWidth:"0.5px"}}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-foreground">Tickets</h3>
             <button className="flex items-center gap-1 text-primary text-sm font-medium">
@@ -231,7 +231,7 @@ const Home = () => {
 
       // Member Onboarding
       <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)]">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/50" style={{borderWidth:"0.5px"}}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Member Onboarding</h3>
           </div>
