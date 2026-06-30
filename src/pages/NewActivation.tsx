@@ -286,9 +286,13 @@ const NewActivation = () => {
     setSelectedPlan(0);
     setPlanTypeChip("all");
     setPlanMode("plan");
-    // Auto-reset to P-SIM when Postpaid Internet is selected (E-SIM not available)
-    if (payType === "postpaid" && lineType === "internet") setSimType("psim");
   }, [payType, lineType]);
+
+  useEffect(() => {
+    if (simType === "esim" && payType === "postpaid" && lineType === "internet") {
+      setLineType("mobile");
+    }
+  }, [simType, payType]);
 
   // ---------- Pricing ----------
   const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
@@ -399,11 +403,9 @@ const NewActivation = () => {
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   SIM Type <span className="text-destructive">*</span>
                 </h3>
-                <div className={cn("grid gap-3", isPostpaidInternet ? "grid-cols-1" : "grid-cols-2")}>
+                <div className="grid grid-cols-2 gap-3">
                   <SimCard active={simType === "psim"} label="P-SIM" onClick={() => setSimType("psim")} />
-                  {!isPostpaidInternet && (
-                    <SimCard active={simType === "esim"} label="E-SIM" onClick={() => setSimType("esim")} />
-                  )}
+                  <SimCard active={simType === "esim"} label="E-SIM" onClick={() => setSimType("esim")} />
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-left p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
@@ -537,23 +539,25 @@ const NewActivation = () => {
               <div className="space-y-1.5">
                 <p className="text-xs text-muted-foreground">Line</p>
                 <div className="flex gap-2">
-                  {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const).map(({ value, label, Icon }) => {
-                    const selected = lineType === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setLineType(value as LineType)}
-                        className={cn(
-                          "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
-                          selected ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40"
-                        )}
-                      >
-                        <Icon className="w-3.5 h-3.5" />
-                        {label}
-                      </button>
-                    );
-                  })}
+                  {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const)
+                    .filter(({ value }) => !(value === "internet" && simType === "esim" && payType === "postpaid"))
+                    .map(({ value, label, Icon }) => {
+                      const selected = lineType === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setLineType(value as LineType)}
+                          className={cn(
+                            "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
+                            selected ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border/60 hover:border-primary/40"
+                          )}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             </section>
