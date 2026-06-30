@@ -453,8 +453,8 @@ const NewActivation = () => {
                         className={cn(
                           "h-12 px-4 rounded-xl text-sm font-semibold shrink-0 flex items-center gap-1.5 transition-all",
                           kitChecked && !kitError
-                            ? "bg-emerald-500 text-white"
-                            : "bg-primary text-primary-foreground",
+                            ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
+                            : "bg-primary/10 text-primary border border-primary/20",
                           (!isKitValid || kitChecking) && "opacity-50 cursor-not-allowed"
                         )}
                       >
