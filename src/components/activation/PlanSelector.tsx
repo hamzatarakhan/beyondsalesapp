@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { Button } from "@/components/ui/button";
@@ -283,6 +283,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false });
   const [activeSnap, setActiveSnap] = useState(0);
+  const carouselContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -301,7 +302,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     setActiveSnap(0);
   }, [filteredPlans.length, emblaApi]);
 
-  // Scroll carousel back to the selected plan when it changes or embla initialises
+  // Scroll to selected plan when selectedPlan changes (e.g. user taps Select)
   useEffect(() => {
     if (!emblaApi || selectedPlan == null) return;
     const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
@@ -309,6 +310,26 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       emblaApi.scrollTo(filteredIdx, true);
       setActiveSnap(filteredIdx);
     }
+  }, [emblaApi, selectedPlan, filteredPlans, plans]);
+
+  // When carousel leaves viewport, instantly reset it to the selected plan
+  // so it's already centred when the user scrolls back up
+  useEffect(() => {
+    const el = carouselContainerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting || !emblaApi || selectedPlan == null) return;
+        const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
+        if (filteredIdx >= 0) {
+          emblaApi.scrollTo(filteredIdx, true);
+          setActiveSnap(filteredIdx);
+        }
+      },
+      { threshold: 0 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, [emblaApi, selectedPlan, filteredPlans, plans]);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
@@ -361,7 +382,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
           No plans match the current filters.
         </div>
       ) : (
-        <div className="-mx-4 mt-3">
+        <div className="-mx-4 mt-3" ref={carouselContainerRef}>
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y items-stretch">
               {filteredPlans.map((p, i) => {
