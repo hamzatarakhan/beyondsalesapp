@@ -95,22 +95,17 @@ const PlanCard = ({
       )}
     >
       <div className="p-4 flex flex-col flex-1">
-        {/* Title + validity + Most Popular chip */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <p className="text-[13px]">
-            <button
-              onClick={onMoreDetails}
-              className="font-semibold text-primary active:opacity-70"
-            >
-              {plan.title}
-            </button>
-            <span className="mx-1.5 inline-block w-1 h-1 rounded-full bg-red-500 align-middle" />
-            <span className="text-muted-foreground">valid {validity}</span>
-          </p>
-          <span className="shrink-0 px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold whitespace-nowrap">
-            Most Popular
-          </span>
-        </div>
+        {/* Title + validity */}
+        <p className="text-[13px] mb-3">
+          <button
+            onClick={onMoreDetails}
+            className="font-semibold text-primary active:opacity-70"
+          >
+            {plan.title}
+          </button>
+          <span className="mx-1.5 inline-block w-1 h-1 rounded-full bg-red-500 align-middle" />
+          <span className="text-muted-foreground">valid {validity}</span>
+        </p>
 
         {/* Bonus chips */}
         <div className="flex flex-wrap gap-2 mb-3">
@@ -192,6 +187,11 @@ const PlanCard = ({
         >
           {selected ? selectedLabel : selectLabel}
         </button>
+      </div>
+
+      {/* Most Popular footer strip — full width, no side padding */}
+      <div className="bg-indigo-50 dark:bg-indigo-500/10 text-center py-2">
+        <p className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">Most Popular</p>
       </div>
     </div>
     <InfoSheet
