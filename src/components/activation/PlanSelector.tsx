@@ -356,8 +356,9 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
         setActiveSnap(filteredIdx);
       }
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // capture:true catches scroll on any element (container or window)
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    return () => document.removeEventListener("scroll", onScroll, { capture: true });
   }, []);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
