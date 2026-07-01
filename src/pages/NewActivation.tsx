@@ -286,9 +286,11 @@ const NewActivation = () => {
   const [cancelOtherText, setCancelOtherText] = useState("");
 
   // ---------- Derived flags ----------
-  // lineType is no longer shown as a toggle; "internet mode" is inferred from chip
-  const isVnetMode        = payType === "postpaid" && planTypeChip === "vnet";
-  const is5GDataMode      = payType === "prepaid"  && planTypeChip === "data";
+  // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
+  const activePlansForType = payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
+  const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
+  const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
+  const is5GDataMode      = payType === "prepaid"  && (planTypeChip === "data" || selectedPlanCategories.includes("data"));
   const isPrepaidMobile   = payType === "prepaid"  && !is5GDataMode;
   const isPrepaidInternet = is5GDataMode;
   const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
