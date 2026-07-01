@@ -35,6 +35,7 @@ interface Props {
   active?: boolean;
   selectLabel?: string;
   selectedLabel?: string;
+  minsLabel?: string;
   onSelect: () => void;
   onMoreDetails?: () => void;
 }
@@ -81,6 +82,7 @@ const PlanCard = ({
   active = true,
   selectLabel = "Select this plan",
   selectedLabel = "Selected",
+  minsLabel = "Flex Mins",
   onSelect,
   onMoreDetails,
 }: Props) => {
@@ -147,7 +149,7 @@ const PlanCard = ({
             <div className="flex items-end justify-between mb-4">
               <p className="text-3xl font-bold leading-none text-primary">
                 {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
-                <span className="text-xl">Flex Mins</span>
+                <span className="text-xl">{minsLabel}</span>
               </p>
               <div className="text-right">
                 <p className="text-[11px] text-muted-foreground">Vat Incl</p>
@@ -170,7 +172,7 @@ const PlanCard = ({
               )}
               <FeatureRow
                 icon={Phone}
-                label={<><span className="font-semibold">{plan.mins === "Unlimited" ? "Unlimited" : plan.mins}</span> Flex minutes</>}
+                label={<><span className="font-semibold">{plan.mins === "Unlimited" ? "Unlimited" : plan.mins}</span> {minsLabel.toLowerCase()}</>}
                 chip={<button onClick={() => setOpenSheet("countries")} className="active:opacity-70"><FlagChip /></button>}
               />
             </div>
