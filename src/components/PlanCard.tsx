@@ -84,103 +84,115 @@ const PlanCard = ({
   onSelect,
   onMoreDetails,
 }: Props) => {
-  const validity = plan.validityLabel?.toLowerCase().replace("valid ", "") ?? "30 days";
+  const validity = plan.validityLabel ?? "Valid 30 days";
+  const isDataOnly = !plan.mins || plan.mins === "-";
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
+
   return (
     <>
     <div
       className={cn(
-        "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
+        "rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
         active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
       )}
     >
-      {/* Most Popular badge — top right, no left padding impact */}
-      <span className="absolute top-0 right-0 px-2.5 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold rounded-bl-xl rounded-tr-2xl">
-        Most Popular
-      </span>
+      {/* Most Popular header strip */}
+      <div className="bg-indigo-50 dark:bg-indigo-500/10 text-center py-2">
+        <p className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">Most Popular</p>
+      </div>
 
       <div className="p-4 flex flex-col flex-1">
-        {/* Title + validity */}
-        <p className="text-[13px] mb-3">
-          <button
-            onClick={onMoreDetails}
-            className="font-semibold text-primary active:opacity-70"
-          >
-            {plan.title}
-          </button>
-          <span className="mx-1.5 inline-block w-1 h-1 rounded-full bg-red-500 align-middle" />
-          <span className="text-muted-foreground">valid {validity}</span>
-        </p>
-
-        {/* Bonus chips */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {plan.bonuses ? (
-            plan.bonuses.map((b, i) => (
-              <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-                <Gift className="w-3 h-3" /> {b}
-              </span>
-            ))
-          ) : (
-            <>
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-                <Gift className="w-3 h-3" /> Bonus {plan.internet} data
-              </span>
-              {plan.discount && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-                  <Gift className="w-3 h-3" /> {plan.discount}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Data + price */}
-        <div className="flex items-end justify-between mb-4">
-          <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-          <div className="text-right">
-            <p className="text-[11px] text-muted-foreground">Vat Incl</p>
-            <p className="text-xl font-bold text-foreground">
-              {Number(plan.price).toFixed(2)}{" "}
-              <span className="text-muted-foreground font-normal text-sm">SAR</span>
+        {isDataOnly ? (
+          /* ── Data-only layout (Vnet / 5G Data) ── */
+          <>
+            {/* data amount • validity */}
+            <p className="text-[12px] text-muted-foreground mb-1">
+              {plan.internet}
+              <span className="mx-1.5">•</span>
+              <span className="text-primary font-medium">{validity}</span>
             </p>
-          </div>
-        </div>
 
-        {/* Features */}
-        <div className="space-y-2.5 mb-4">
-          <FeatureRow icon={Signal} label={`${plan.internet} core data`} />
-          {plan.social && plan.social !== "-" && (
-            <FeatureRow
-              icon={Globe}
-              label={plan.social === "Unlimited" ? "Unlimited social data" : `${plan.social} social data`}
-              chip={
-                <button onClick={() => setOpenSheet("apps")} className="active:opacity-70">
-                  <SocialChip />
-                </button>
-              }
-            />
-          )}
-          {plan.mins && plan.mins !== "-" && (
-            <FeatureRow icon={Phone} label={plan.mins === "Unlimited" ? "Unlimited national minutes" : `${plan.mins} local minutes`} />
-          )}
-          {plan.mins && plan.mins !== "-" && (
-            <FeatureRow icon={Phone} label="Unlimited roaming (receiving calls)" />
-          )}
-          {plan.sms && plan.sms !== "-" && (
-            <FeatureRow icon={MessageSquare} label={plan.sms === "Unlimited" ? "Unlimited SMS" : `${plan.sms} SMS`} />
-          )}
-          {plan.social && plan.social !== "-" && (
-            <FeatureRow
-              icon={Star}
-              label="Free subscription upon activation"
-              chip={
-                <button onClick={() => setOpenSheet("countries")} className="active:opacity-70">
-                  <FlagChip />
-                </button>
-              }
-            />
-          )}
-        </div>
+            {/* Big data + price */}
+            <div className="flex items-end justify-between mb-4">
+              <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+              <div className="text-right">
+                <p className="text-[11px] text-muted-foreground">Vat Incl</p>
+                <p className="text-xl font-bold text-foreground">
+                  {Number(plan.price).toFixed(2)}{" "}
+                  <span className="text-muted-foreground font-normal text-sm">SAR</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Single feature */}
+            <div className="mb-4">
+              <FeatureRow icon={Signal} label={<><span className="font-bold">{plan.internet}</span> Core data</>} />
+            </div>
+          </>
+        ) : (
+          /* ── Regular layout (mobile / postpaid plans) ── */
+          <>
+            {/* Title + validity */}
+            <p className="text-[13px] mb-3">
+              <button onClick={onMoreDetails} className="font-semibold text-primary active:opacity-70">
+                {plan.title}
+              </button>
+              <span className="mx-1.5 inline-block w-1 h-1 rounded-full bg-red-500 align-middle" />
+              <span className="text-muted-foreground">valid {validity.toLowerCase().replace("valid ", "")}</span>
+            </p>
+
+            {/* Bonus chips */}
+            {plan.bonuses && plan.bonuses.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {plan.bonuses.map((b, i) => (
+                  <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
+                    <Gift className="w-3 h-3" /> {b}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Data + price */}
+            <div className="flex items-end justify-between mb-4">
+              <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+              <div className="text-right">
+                <p className="text-[11px] text-muted-foreground">Vat Incl</p>
+                <p className="text-xl font-bold text-foreground">
+                  {Number(plan.price).toFixed(2)}{" "}
+                  <span className="text-muted-foreground font-normal text-sm">SAR</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-2.5 mb-4">
+              <FeatureRow icon={Signal} label={`${plan.internet} core data`} />
+              {plan.social && plan.social !== "-" && (
+                <FeatureRow
+                  icon={Globe}
+                  label={plan.social === "Unlimited" ? "Unlimited social data" : `${plan.social} social data`}
+                  chip={<button onClick={() => setOpenSheet("apps")} className="active:opacity-70"><SocialChip /></button>}
+                />
+              )}
+              {plan.mins && plan.mins !== "-" && (
+                <FeatureRow icon={Phone} label={plan.mins === "Unlimited" ? "Unlimited national minutes" : `${plan.mins} local minutes`} />
+              )}
+              {plan.mins && plan.mins !== "-" && (
+                <FeatureRow icon={Phone} label="Unlimited roaming (receiving calls)" />
+              )}
+              {plan.sms && plan.sms !== "-" && (
+                <FeatureRow icon={MessageSquare} label={plan.sms === "Unlimited" ? "Unlimited SMS" : `${plan.sms} SMS`} />
+              )}
+              {plan.social && plan.social !== "-" && (
+                <FeatureRow
+                  icon={Star}
+                  label="Free subscription upon activation"
+                  chip={<button onClick={() => setOpenSheet("countries")} className="active:opacity-70"><FlagChip /></button>}
+                />
+              )}
+            </div>
+          </>
+        )}
 
         {/* CTA */}
         <button
@@ -195,7 +207,6 @@ const PlanCard = ({
           {selected ? selectedLabel : selectLabel}
         </button>
       </div>
-
     </div>
     <InfoSheet
       open={openSheet === "apps"}
