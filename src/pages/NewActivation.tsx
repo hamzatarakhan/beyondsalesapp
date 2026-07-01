@@ -488,14 +488,9 @@ const NewActivation = () => {
                           <ScanLine className="w-5 h-5" />
                         </button>
                       </div>
-                      {(kitChecking || (kitChecked && !kitError)) && (
-                        <div className={cn(
-                          "h-12 w-20 rounded-xl text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5",
-                          kitChecked && !kitError
-                            ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
-                            : "bg-primary/10 text-primary border border-primary/20"
-                        )}>
-                          {kitChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /> Valid</>}
+                      {kitChecking && (
+                        <div className="h-12 w-20 rounded-xl shrink-0 flex items-center justify-center bg-primary/10 text-primary border border-primary/20">
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         </div>
                       )}
                     </div>
