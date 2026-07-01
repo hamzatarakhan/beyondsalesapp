@@ -105,11 +105,13 @@ const PlanCard = ({
         {isDataOnly ? (
           /* ── Data-only layout (Vnet / 5G Data) ── */
           <>
-            {/* data amount • validity */}
+            {/* Title • validity */}
             <p className="text-[12px] text-muted-foreground mb-1">
-              {plan.internet}
+              <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                {plan.title}
+              </button>
               <span className="mx-1.5">•</span>
-              <span className="text-primary font-medium">{validity}</span>
+              {validity.toLowerCase().replace("valid ", "")} plan
             </p>
 
             {/* Big data + price */}
