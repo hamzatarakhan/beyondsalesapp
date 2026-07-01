@@ -353,7 +353,8 @@ const NewActivation = () => {
   const total = subtotal + vat;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const canPay = (isPostpaidInternet || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
+  const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
+  const canPay = isContactValid && (isPostpaidInternet || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -362,10 +363,7 @@ const NewActivation = () => {
       if (simType === "psim" && (!kitChecked || !!kitError)) return false;
       if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
-      if (showContactField && !contactNumber.trim()) return false;
       if (showMnp && subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
-      if (showDelivery && !deliveryAddress.trim()) return false;
-      if (!contactEmail.trim()) return false;
       return true;
     }
     return true;
@@ -643,29 +641,6 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* 8. Contact & Delivery — all cases */}
-            <SectionCard title="Contact">
-              <Field label="City">
-                <Select value={contactCity} onValueChange={setContactCity}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Email *">
-                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
-              </Field>
-              {showContactField && (
-                <Field label="Contact Number *">
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
-                </Field>
-              )}
-              {showDelivery && (
-                <Field label="Delivery Address *">
-                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
-                </Field>
-              )}
-            </SectionCard>
-
             {/* Number — Mobile only */}
             {showNumber && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -715,6 +690,29 @@ const NewActivation = () => {
         {/* ── Step 2 — Checkout ── */}
         {step === 2 && (
           <>
+            {/* Contact & Delivery */}
+            <SectionCard title="Contact">
+              <Field label="City">
+                <Select value={contactCity} onValueChange={setContactCity}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </Field>
+              <Field label="Email *">
+                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+              </Field>
+              {showContactField && (
+                <Field label="Contact Number *">
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
+              {showDelivery && (
+                <Field label="Delivery Address *">
+                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
+            </SectionCard>
+
             {/* Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
