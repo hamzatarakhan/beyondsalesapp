@@ -241,7 +241,7 @@ const NewActivation = () => {
   const [kitChecking, setKitChecking] = useState(false);
   const [kitChecked, setKitChecked] = useState(false);
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
-  const [planTypeChip, setPlanTypeChip] = useState("all");
+  const [planTypeChip, setPlanTypeChip] = useState("flex");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(50);
@@ -310,13 +310,13 @@ const NewActivation = () => {
   // Reset dependent fields when lineType or payType changes
   useEffect(() => {
     setSelectedPlan(null);
-    setPlanTypeChip("all");
+    setPlanTypeChip(payType === "prepaid" ? "flex" : "switch-postpaid");
     setPlanMode("plan");
   }, [payType, lineType]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
-      setPlanTypeChip("all");
+      setPlanTypeChip("switch-postpaid");
       setSelectedPlan(null);
     }
   }, [simType]);
