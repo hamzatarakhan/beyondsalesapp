@@ -146,7 +146,7 @@ const PlanCard = ({
             {/* Hero: flex mins + price */}
             <div className="flex items-end justify-between mb-4">
               <p className="text-3xl font-bold leading-none text-primary">
-                {plan.mins === "Unlimited" ? "Unlimited" : plan.mins}{" "}
+                {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
                 <span className="text-xl">Flex Mins</span>
               </p>
               <div className="text-right">
