@@ -512,6 +512,9 @@ const PrepaidActivation = () => {
   const [invalidKitOpen, setInvalidKitOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
   // Staged-flow mode (Option 2 from Home). When true, step 1 is split into
   // sub-stages: SIM type → KIT → Details.
   const staged = useMemo(() => {
@@ -1322,6 +1325,20 @@ const PrepaidActivation = () => {
           onEdit={() => setStep(1)}
         />
 
+        {/* OTP Verification */}
+        <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+          <p className="text-sm font-semibold text-foreground">OTP Verification</p>
+          {otpVerified ? (
+            <p className="text-xs text-emerald-600 flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" /> OTP verified
+            </p>
+          ) : (
+            <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
+              Send &amp; verify OTP
+            </Button>
+          )}
+        </section>
+
         {/* Terms and Conditions */}
         <section className="bg-card rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-3 select-none">
@@ -1452,7 +1469,7 @@ const PrepaidActivation = () => {
                   </p>
                 )}
                 <Button
-                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing || !termsAccepted}
+                  disabled={!pay || (numberMode === "plan" && !currentPlan) || (numberMode === "topup" && !topupValue) || sigMissing || !termsAccepted || !otpVerified}
                   onClick={handlePay}
                   className="w-full h-12 rounded-full text-base font-semibold flex items-center justify-between px-6 disabled:opacity-60"
                 >
@@ -1624,6 +1641,21 @@ const PrepaidActivation = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* OTP drawer */}
+      <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl">
+          <DrawerHeader>
+            <DrawerTitle className="text-center">OTP Verification</DrawerTitle>
+            <DrawerDescription className="text-center text-xs">Enter the 4-digit code sent to the customer's number</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-5 pb-6 space-y-3">
+            <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
+            <p className="text-xs text-muted-foreground text-center">Demo: any 4 digits will work</p>
+            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>Verify</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
       {/* Invalid KIT number dialog */}
       <Dialog open={invalidKitOpen} onOpenChange={setInvalidKitOpen}>
         <DialogContent className="max-w-[320px] rounded-2xl text-center">
