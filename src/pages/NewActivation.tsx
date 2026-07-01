@@ -527,8 +527,11 @@ const NewActivation = () => {
                 <div className="flex gap-2">
                   {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const)
                     .filter(({ value }) => !(value === "internet" && simType === "esim" && payType === "postpaid"))
-                    .map(({ value, label, Icon }) => {
+                    .map(({ value, Icon }) => {
                       const selected = lineType === value;
+                      const displayLabel = value === "internet"
+                        ? `Internet · ${payType === "prepaid" ? "5G MBB" : "Vnet"}`
+                        : "Mobile";
                       return (
                         <button
                           key={value}
@@ -540,7 +543,7 @@ const NewActivation = () => {
                           )}
                         >
                           <Icon className="w-3.5 h-3.5" />
-                          {label}
+                          {displayLabel}
                         </button>
                       );
                     })}
