@@ -425,6 +425,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                       onSelect={() => onSelect(originalIdx, p)}
                       onMoreDetails={() => setDetailsPlan(originalIdx)}
                       minsLabel={p.categories.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      layout={p.categories.includes("switch-postpaid") ? "postpaid" : "flex"}
                     />
                   </div>
                 );
