@@ -148,7 +148,7 @@ const PlanCard = ({
               {plan.mins === "Unlimited" ? (
                 <div className="leading-tight">
                   <p className="text-3xl font-bold text-primary">Unlimited</p>
-                  <p className="text-sm font-medium text-muted-foreground">Flex Minutes</p>
+                  <p className="text-sm font-medium text-muted-foreground">{plan.title} · Flex Minutes</p>
                 </div>
               ) : (
                 <p className="text-3xl font-bold leading-none text-primary">
