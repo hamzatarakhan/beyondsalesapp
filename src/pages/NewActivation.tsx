@@ -722,9 +722,6 @@ const NewActivation = () => {
                   </div>
                   <p className="text-sm font-semibold text-foreground">Subscription Summary</p>
                 </div>
-                <button onClick={() => setStep(1)} className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold">
-                  <Pencil className="w-3 h-3" /> Edit
-                </button>
               </div>
               <SummaryRow label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
               {showEsim && <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
