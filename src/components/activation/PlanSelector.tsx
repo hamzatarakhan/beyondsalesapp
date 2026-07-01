@@ -281,7 +281,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     });
   }, [plans, activePlanType, planFilters]);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false, watchDrag: selectedPlan == null });
   const [activeSnap, setActiveSnap] = useState(0);
   const carouselContainerRef = useRef<HTMLDivElement>(null);
 
@@ -330,13 +330,18 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     setActiveSnap(0);
   }, [filteredPlans.length, emblaApi]);
 
-  // Scroll to selected plan when selectedPlan changes (e.g. user taps Select)
+  // Lock/unlock dragging and scroll to selected plan when selectedPlan changes
   useEffect(() => {
-    if (!emblaApi || selectedPlan == null) return;
-    const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
-    if (filteredIdx >= 0) {
-      emblaApi.scrollTo(filteredIdx, true);
-      setActiveSnap(filteredIdx);
+    if (!emblaApi) return;
+    if (selectedPlan == null) {
+      emblaApi.reInit({ watchDrag: true });
+    } else {
+      const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
+      if (filteredIdx >= 0) {
+        emblaApi.scrollTo(filteredIdx, true);
+        setActiveSnap(filteredIdx);
+      }
+      emblaApi.reInit({ watchDrag: false });
     }
   }, [emblaApi, selectedPlan, filteredPlans, plans]);
 
