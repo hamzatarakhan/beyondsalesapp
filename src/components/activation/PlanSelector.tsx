@@ -285,6 +285,16 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
   const [activeSnap, setActiveSnap] = useState(0);
   const carouselContainerRef = useRef<HTMLDivElement>(null);
 
+  // Keep refs so the IntersectionObserver callback always reads the latest values
+  const emblaApiRef = useRef(emblaApi);
+  const selectedPlanRef = useRef(selectedPlan);
+  const filteredPlansRef = useRef(filteredPlans);
+  const plansRef = useRef(plans);
+  useEffect(() => { emblaApiRef.current = emblaApi; }, [emblaApi]);
+  useEffect(() => { selectedPlanRef.current = selectedPlan; }, [selectedPlan]);
+  useEffect(() => { filteredPlansRef.current = filteredPlans; }, [filteredPlans]);
+  useEffect(() => { plansRef.current = plans; }, [plans]);
+
   useEffect(() => {
     if (!emblaApi) return;
     const handler = () => {
@@ -312,17 +322,22 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     }
   }, [emblaApi, selectedPlan, filteredPlans, plans]);
 
-  // When carousel leaves viewport, instantly reset it to the selected plan
-  // so it's already centred when the user scrolls back up
+  // When carousel leaves viewport, instantly snap back to the selected plan
+  // Uses refs so the callback always reads the latest state (no stale closures)
   useEffect(() => {
     const el = carouselContainerRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting || !emblaApi || selectedPlan == null) return;
-        const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
+        if (entry.isIntersecting) return;
+        const api = emblaApiRef.current;
+        const sp = selectedPlanRef.current;
+        if (!api || sp == null) return;
+        const fp = filteredPlansRef.current;
+        const ps = plansRef.current;
+        const filteredIdx = fp.findIndex((p) => ps.indexOf(p) === sp);
         if (filteredIdx >= 0) {
-          emblaApi.scrollTo(filteredIdx, true);
+          api.scrollTo(filteredIdx, true);
           setActiveSnap(filteredIdx);
         }
       },
@@ -330,7 +345,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [emblaApi, selectedPlan, filteredPlans, plans]);
+  }, []);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
 
