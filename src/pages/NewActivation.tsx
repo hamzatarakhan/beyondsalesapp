@@ -601,10 +601,10 @@ const NewActivation = () => {
                       placeholder="Amount in SAR"
                       inputMode="numeric"
                     />
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="grid grid-cols-5 gap-2">
                       {TOPUP_DENOMS.map((d) => (
                         <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(""); }}
-                          className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors", topupDenom === d && !topupManual ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                          className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d && !topupManual ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
                           {d} SAR
                         </button>
                       ))}
