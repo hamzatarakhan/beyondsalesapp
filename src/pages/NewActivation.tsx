@@ -296,8 +296,9 @@ const NewActivation = () => {
 
   const showEsim         = true;
   const showPlanTypeChips= true;
-  const activePlanChips  = payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS;
-  const showTopupTab     = isPrepaidMobile;
+  const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
+    .filter(c => !(c.value === "vnet" && simType === "esim"));
+  const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   const showContactField = isPrepaidInternet;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
@@ -312,10 +313,11 @@ const NewActivation = () => {
   }, [payType, lineType]);
 
   useEffect(() => {
-    if (simType === "esim" && lineType === "internet") {
-      setLineType("mobile");
+    if (simType === "esim" && planTypeChip === "vnet") {
+      setPlanTypeChip("all");
+      setSelectedPlan(null);
     }
-  }, [simType, payType]);
+  }, [simType]);
 
   // ---------- Pricing ----------
   const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
