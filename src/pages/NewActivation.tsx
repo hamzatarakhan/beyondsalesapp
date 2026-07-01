@@ -690,29 +690,6 @@ const NewActivation = () => {
         {/* ── Step 2 — Checkout ── */}
         {step === 2 && (
           <>
-            {/* Contact & Delivery */}
-            <SectionCard title="Contact">
-              <Field label="City">
-                <Select value={contactCity} onValueChange={setContactCity}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Email *">
-                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
-              </Field>
-              {showContactField && (
-                <Field label="Contact Number *">
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
-                </Field>
-              )}
-              {showDelivery && (
-                <Field label="Delivery Address *">
-                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
-                </Field>
-              )}
-            </SectionCard>
-
             {/* Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -739,6 +716,29 @@ const NewActivation = () => {
               {showDevice && <SummaryRow label="Device" value={deviceObj?.name ?? ""} />}
               {showDelivery && <SummaryRow label="Delivery Address" value={deliveryAddress} />}
             </section>
+
+            {/* Contact & Delivery */}
+            <SectionCard title="Contact">
+              <Field label="City">
+                <Select value={contactCity} onValueChange={setContactCity}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </Field>
+              <Field label="Email *">
+                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+              </Field>
+              {showContactField && (
+                <Field label="Contact Number *">
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
+              {showDelivery && (
+                <Field label="Delivery Address *">
+                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
+                </Field>
+              )}
+            </SectionCard>
 
             {/* Payment Method */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
