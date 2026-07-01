@@ -109,7 +109,7 @@ const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const PREPAID_CHIPS = [
-  // { value: "all", label: "All" },
+  { value: "all", label: "All" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
   { value: "base-plan", label: "Baqa" },
@@ -117,7 +117,7 @@ const PREPAID_CHIPS = [
 ];
 
 const POSTPAID_CHIPS = [
-  // { value: "all", label: "All" },
+  { value: "all", label: "All" },
   { value: "switch-postpaid", label: "Switch Postpaid" },
   { value: "vnet", label: "Vnet" },
 ];
@@ -241,7 +241,7 @@ const NewActivation = () => {
   const [kitChecking, setKitChecking] = useState(false);
   const [kitChecked, setKitChecked] = useState(false);
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
-  const [planTypeChip, setPlanTypeChip] = useState("flex");
+  const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(50);
@@ -310,13 +310,13 @@ const NewActivation = () => {
   // Reset dependent fields when lineType or payType changes
   useEffect(() => {
     setSelectedPlan(null);
-    setPlanTypeChip(payType === "prepaid" ? "flex" : "switch-postpaid");
+    setPlanTypeChip("all");
     setPlanMode("plan");
   }, [payType, lineType]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
-      setPlanTypeChip("switch-postpaid");
+      setPlanTypeChip("all");
       setSelectedPlan(null);
     }
   }, [simType]);
