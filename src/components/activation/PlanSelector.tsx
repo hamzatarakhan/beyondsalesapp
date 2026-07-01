@@ -306,6 +306,24 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     return () => { emblaApi.off("select", handler); };
   }, [emblaApi, filteredPlans, plans, onSelect]);
 
+  // After user stops dragging the carousel, snap back to the selected plan
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSettle = () => {
+      const sp = selectedPlanRef.current;
+      if (sp == null) return;
+      const fp = filteredPlansRef.current;
+      const ps = plansRef.current;
+      const filteredIdx = fp.findIndex((p) => ps.indexOf(p) === sp);
+      if (filteredIdx >= 0 && emblaApi.selectedScrollSnap() !== filteredIdx) {
+        emblaApi.scrollTo(filteredIdx);
+        setActiveSnap(filteredIdx);
+      }
+    };
+    emblaApi.on("settle", onSettle);
+    return () => { emblaApi.off("settle", onSettle); };
+  }, [emblaApi]);
+
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.reInit();
