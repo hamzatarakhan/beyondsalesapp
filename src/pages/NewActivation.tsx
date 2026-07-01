@@ -109,7 +109,7 @@ const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const PREPAID_CHIPS = [
-  { value: "all", label: "All" },
+  // { value: "all", label: "All" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
   { value: "base-plan", label: "Baqa" },
@@ -117,7 +117,7 @@ const PREPAID_CHIPS = [
 ];
 
 const POSTPAID_CHIPS = [
-  { value: "all", label: "All" },
+  // { value: "all", label: "All" },
   { value: "switch-postpaid", label: "Switch Postpaid" },
   { value: "vnet", label: "Vnet" },
 ];
