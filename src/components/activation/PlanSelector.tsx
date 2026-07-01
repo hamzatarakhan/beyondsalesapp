@@ -340,29 +340,24 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     }
   }, [emblaApi, selectedPlan, filteredPlans, plans]);
 
-  // When carousel leaves viewport, instantly snap back to the selected plan
-  // Uses refs so the callback always reads the latest state (no stale closures)
+  // On every page scroll, instantly reset the carousel to the selected plan
+  // (instant = no animation, so it's ready before the user scrolls back up)
   useEffect(() => {
-    const el = carouselContainerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) return;
-        const api = emblaApiRef.current;
-        const sp = selectedPlanRef.current;
-        if (!api || sp == null) return;
-        const fp = filteredPlansRef.current;
-        const ps = plansRef.current;
-        const filteredIdx = fp.findIndex((p) => ps.indexOf(p) === sp);
-        if (filteredIdx >= 0) {
-          api.scrollTo(filteredIdx, true);
-          setActiveSnap(filteredIdx);
-        }
-      },
-      { threshold: 0 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
+    const onScroll = () => {
+      const sp = selectedPlanRef.current;
+      if (sp == null) return;
+      const api = emblaApiRef.current;
+      if (!api) return;
+      const fp = filteredPlansRef.current;
+      const ps = plansRef.current;
+      const filteredIdx = fp.findIndex((p) => ps.indexOf(p) === sp);
+      if (filteredIdx >= 0 && api.selectedScrollSnap() !== filteredIdx) {
+        api.scrollTo(filteredIdx, true);
+        setActiveSnap(filteredIdx);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
