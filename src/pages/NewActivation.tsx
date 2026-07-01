@@ -474,37 +474,16 @@ const NewActivation = () => {
                           <ScanLine className="w-5 h-5" />
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        disabled={!isKitValid || kitChecking}
-                        onClick={() => {
-                          setKitChecking(true);
-                          setKitChecked(false);
-                          setKitError(null);
-                          setTimeout(() => {
-                            setKitChecking(false);
-                            if (kit === "0000000000") setKitError("registered");
-                            else if (kit === "1111111111") setKitError("invalid");
-                            else if (kit === "2222222222") setKitError("used");
-                            else setKitChecked(true);
-                          }, 1500);
-                        }}
-                        className={cn(
-                          "h-12 w-20 rounded-xl text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5 transition-all",
+                      {(kitChecking || (kitChecked && !kitError)) && (
+                        <div className={cn(
+                          "h-12 w-20 rounded-xl text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5",
                           kitChecked && !kitError
                             ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
-                            : "bg-primary/10 text-primary border border-primary/20",
-                          (!isKitValid || kitChecking) && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        {kitChecking ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : kitChecked && !kitError ? (
-                          <><CheckCircle2 className="w-4 h-4" /> Valid</>
-                        ) : (
-                          "Check"
-                        )}
-                      </button>
+                            : "bg-primary/10 text-primary border border-primary/20"
+                        )}>
+                          {kitChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /> Valid</>}
+                        </div>
+                      )}
                     </div>
                     {kit && !isKitValid && !kitError && (
                       <p className="text-xs text-destructive">KIT must be 10 digits</p>
