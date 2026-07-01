@@ -130,31 +130,23 @@ const PlanCard = ({
             </div>
           </>
         ) : (
-          /* ── Regular layout (mobile / postpaid plans) ── */
+          /* ── Regular layout (Flex / Aman / Baqa — plans with minutes) ── */
           <>
-            {/* Title + validity */}
-            <p className="text-[13px] mb-3">
-              <button onClick={onMoreDetails} className="font-semibold text-primary active:opacity-70">
+            {/* Title • validity */}
+            <p className="text-[12px] text-muted-foreground mb-1">
+              <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
                 {plan.title}
               </button>
-              <span className="mx-1.5 inline-block w-1 h-1 rounded-full bg-red-500 align-middle" />
-              <span className="text-muted-foreground">valid {validity.toLowerCase().replace("valid ", "")}</span>
+              <span className="mx-1.5">•</span>
+              {validity.toLowerCase().replace("valid ", "")} plan
             </p>
 
-            {/* Bonus chips */}
-            {plan.bonuses && plan.bonuses.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {plan.bonuses.map((b, i) => (
-                  <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 text-[11px] font-medium">
-                    <Gift className="w-3 h-3" /> {b}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Data + price */}
+            {/* Hero: flex mins + price */}
             <div className="flex items-end justify-between mb-4">
-              <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+              <p className="text-3xl font-bold leading-none text-primary">
+                {plan.mins === "Unlimited" ? "Unlimited" : plan.mins}{" "}
+                <span className="text-xl">Flex Mins</span>
+              </p>
               <div className="text-right">
                 <p className="text-[11px] text-muted-foreground">Vat Incl</p>
                 <p className="text-xl font-bold text-foreground">
@@ -166,30 +158,19 @@ const PlanCard = ({
 
             {/* Features */}
             <div className="space-y-2.5 mb-4">
-              <FeatureRow icon={Signal} label={`${plan.internet} core data`} />
+              <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> Core data</>} />
               {plan.social && plan.social !== "-" && (
                 <FeatureRow
                   icon={Globe}
-                  label={plan.social === "Unlimited" ? "Unlimited social data" : `${plan.social} social data`}
+                  label={<><span className="font-semibold">{plan.social === "Unlimited" ? "Unlimited" : plan.social}</span> Social data</>}
                   chip={<button onClick={() => setOpenSheet("apps")} className="active:opacity-70"><SocialChip /></button>}
                 />
               )}
-              {plan.mins && plan.mins !== "-" && (
-                <FeatureRow icon={Phone} label={plan.mins === "Unlimited" ? "Unlimited national minutes" : `${plan.mins} local minutes`} />
-              )}
-              {plan.mins && plan.mins !== "-" && (
-                <FeatureRow icon={Phone} label="Unlimited roaming (receiving calls)" />
-              )}
-              {plan.sms && plan.sms !== "-" && (
-                <FeatureRow icon={MessageSquare} label={plan.sms === "Unlimited" ? "Unlimited SMS" : `${plan.sms} SMS`} />
-              )}
-              {plan.social && plan.social !== "-" && (
-                <FeatureRow
-                  icon={Star}
-                  label="Free subscription upon activation"
-                  chip={<button onClick={() => setOpenSheet("countries")} className="active:opacity-70"><FlagChip /></button>}
-                />
-              )}
+              <FeatureRow
+                icon={Phone}
+                label={<><span className="font-semibold">{plan.mins === "Unlimited" ? "Unlimited" : plan.mins}</span> Flex minutes</>}
+                chip={<button onClick={() => setOpenSheet("countries")} className="active:opacity-70"><FlagChip /></button>}
+              />
             </div>
           </>
         )}
