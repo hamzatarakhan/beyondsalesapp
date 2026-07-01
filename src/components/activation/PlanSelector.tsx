@@ -19,7 +19,7 @@ import PlanCard, { PlanCardData } from "@/components/PlanCard";
 
 // ---------- Types & constants (shared with PrepaidActivation) ----------
 export type Plan = PlanCardData & {
-  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman")[];
+  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman" | "switch-postpaid" | "vnet")[];
   validity: string[];
   tags: string[];
 };

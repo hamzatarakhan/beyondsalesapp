@@ -87,10 +87,15 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
 ];
 
 const POSTPAID_PLANS: typeof SHARED_PLANS = [
-  { title: "Switch Postpaid 120", internet: "35 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
-  { title: "Switch Postpaid 150", internet: "55 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
-  { title: "Switch Postpaid 180", internet: "75 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
-  { title: "Switch Postpaid 210", internet: "100 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 241.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [] },
+  // Switch Postpaid
+  { title: "Switch Postpaid 120", internet: "35 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "35 GB data"] },
+  { title: "Switch Postpaid 150", internet: "55 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "55 GB data"] },
+  { title: "Switch Postpaid 180", internet: "75 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "75 GB data"] },
+  { title: "Switch Postpaid 210", internet: "100 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 241.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "100 GB data"] },
+  // Vnet (internet/data line)
+  { title: "Vnet 100 GB",  internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["100 GB high-speed data"] },
+  { title: "Vnet 300 GB",  internet: "300 GB", mins: "-", sms: "-", social: "-", price: 345,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["300 GB high-speed data"] },
+  { title: "Vnet Unlimited", internet: "Unlimited", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G","Unlimited"], features: [], bonuses: ["Unlimited data", "100 GB hotspot"] },
 ];
 
 const INTERNET_PLANS: typeof SHARED_PLANS = [
@@ -103,13 +108,18 @@ const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
-const PLAN_TYPE_CHIPS = [
+const PREPAID_CHIPS = [
   { value: "all", label: "All" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
   { value: "base-plan", label: "Baqa" },
-  { value: "data", label: "Data" },
-  { value: "minutes", label: "Minutes" },
+  { value: "data", label: "5G Data" },
+];
+
+const POSTPAID_CHIPS = [
+  { value: "all", label: "All" },
+  { value: "switch-postpaid", label: "Switch Postpaid" },
+  { value: "vnet", label: "Vnet" },
 ];
 
 const NUMBER_TABS = [
@@ -282,7 +292,8 @@ const NewActivation = () => {
   const isPostpaidInternet= payType === "postpaid" && lineType === "internet";
 
   const showEsim         = true;
-  const showPlanTypeChips= isPrepaidMobile;
+  const showPlanTypeChips= true;
+  const activePlanChips  = payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS;
   const showTopupTab     = isPrepaidMobile;
   const showContactField = isPrepaidInternet;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
@@ -538,7 +549,7 @@ const NewActivation = () => {
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {PLAN_TYPE_CHIPS.map(chip => (
+                {activePlanChips.map(chip => (
                   <button
                     key={chip.value}
                     onClick={() => { setPlanTypeChip(chip.value); setSelectedPlan(null); }}
