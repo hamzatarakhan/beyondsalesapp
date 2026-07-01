@@ -286,10 +286,13 @@ const NewActivation = () => {
   const [cancelOtherText, setCancelOtherText] = useState("");
 
   // ---------- Derived flags ----------
-  const isPrepaidMobile   = payType === "prepaid"  && lineType === "mobile";
-  const isPrepaidInternet = payType === "prepaid"  && lineType === "internet";
-  const isPostpaidMobile  = payType === "postpaid" && lineType === "mobile";
-  const isPostpaidInternet= payType === "postpaid" && lineType === "internet";
+  // lineType is no longer shown as a toggle; "internet mode" is inferred from chip
+  const isVnetMode        = payType === "postpaid" && planTypeChip === "vnet";
+  const is5GDataMode      = payType === "prepaid"  && planTypeChip === "data";
+  const isPrepaidMobile   = payType === "prepaid"  && !is5GDataMode;
+  const isPrepaidInternet = is5GDataMode;
+  const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
+  const isPostpaidInternet= isVnetMode;
 
   const showEsim         = true;
   const showPlanTypeChips= true;
