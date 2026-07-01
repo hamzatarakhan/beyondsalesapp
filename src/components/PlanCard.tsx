@@ -97,7 +97,7 @@ const PlanCard = ({
       )}
     >
       {/* Most Popular badge — top-right */}
-      <span className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
+      <span className="absolute top-0 right-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
         Most Popular
       </span>
 
