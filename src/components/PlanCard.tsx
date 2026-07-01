@@ -90,10 +90,15 @@ const PlanCard = ({
     <>
     <div
       className={cn(
-        "rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
+        "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
         active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
       )}
     >
+      {/* Most Popular badge — top right, no left padding impact */}
+      <span className="absolute top-0 right-0 px-2.5 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold rounded-bl-xl rounded-tr-2xl">
+        Most Popular
+      </span>
+
       <div className="p-4 flex flex-col flex-1">
         {/* Title + validity */}
         <p className="text-[13px] mb-3">
@@ -189,10 +194,6 @@ const PlanCard = ({
         </button>
       </div>
 
-      {/* Most Popular footer strip — full width, no side padding */}
-      <div className="bg-indigo-50 dark:bg-indigo-500/10 text-center py-2">
-        <p className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">Most Popular</p>
-      </div>
     </div>
     <InfoSheet
       open={openSheet === "apps"}
