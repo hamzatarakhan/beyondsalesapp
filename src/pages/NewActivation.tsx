@@ -77,6 +77,13 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   // Aman
   { title: "Aman Basic",     internet: "20 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 18, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["Bonus 5 GB data"] },
   { title: "Aman Plus",      internet: "50 GB", mins: "500",  sms: "500",       social: "Unlimited", price: 38, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 15 GB data"] },
+  // Data
+  { title: "Data Boost 50",  internet: "50 GB",  mins: "-", sms: "-", social: "Unlimited", price: 25, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["50 GB high-speed data"] },
+  { title: "Data Boost 100", internet: "100 GB", mins: "-", sms: "-", social: "Unlimited", price: 40, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m", "3m"], tags: ["5G", "Social"],     features: [], bonuses: ["100 GB high-speed data"] },
+  { title: "Data Unlimited", internet: "Unlimited", mins: "-", sms: "-", social: "Unlimited", price: 75, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],  tags: ["5G", "Unlimited"],  features: [], bonuses: ["Unlimited data", "50 GB hotspot"] },
+  // Minutes
+  { title: "Talk Basic",  internet: "5 GB",  mins: "500",       sms: "100", social: "Unlimited", price: 20, discount: null, validityLabel: "Valid 7 days",  categories: ["minutes"], validity: ["7d"], tags: ["Social"],    features: [], bonuses: ["500 local minutes"] },
+  { title: "Talk More",   internet: "10 GB", mins: "Unlimited", sms: "250", social: "Unlimited", price: 35, discount: null, validityLabel: "Valid 30 days", categories: ["minutes"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: ["Unlimited local calls", "10 GB data"] },
 ];
 
 const POSTPAID_PLANS: typeof SHARED_PLANS = [
@@ -101,6 +108,8 @@ const PLAN_TYPE_CHIPS = [
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
   { value: "base-plan", label: "Baqa" },
+  { value: "data", label: "Data" },
+  { value: "minutes", label: "Minutes" },
 ];
 
 const NUMBER_TABS = [
@@ -224,7 +233,7 @@ const NewActivation = () => {
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
-  const [selectedPlan, setSelectedPlan] = useState<number>(0);
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(50);
   const [topupManual, setTopupManual] = useState("");
   // Contact & Delivery
@@ -283,13 +292,13 @@ const NewActivation = () => {
 
   // Reset dependent fields when lineType or payType changes
   useEffect(() => {
-    setSelectedPlan(0);
+    setSelectedPlan(null);
     setPlanTypeChip("all");
     setPlanMode("plan");
   }, [payType, lineType]);
 
   useEffect(() => {
-    if (simType === "esim" && payType === "postpaid" && lineType === "internet") {
+    if (simType === "esim" && lineType === "internet") {
       setLineType("mobile");
     }
   }, [simType, payType]);
@@ -502,86 +511,37 @@ const NewActivation = () => {
               </section>
 
             {/* 2. Subscription Type */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3 border border-border/60">
+            <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
               {/* Payment type toggle */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">Payment</p>
-                <div className="flex gap-2">
-                  {([{ value: "prepaid", label: "Prepaid", Icon: FileText }, { value: "postpaid", label: "Postpaid", Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
-                    const selected = payType === value;
-                    return (
-                      <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
-                          selected ? "bg-primary/10 text-primary border-primary/30" : "bg-card text-muted-foreground border-border/60")}>
-                        <Icon className="w-3.5 h-3.5" />
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="flex gap-3">
+                {([{ value: "prepaid", label: "Prepaid", Icon: FileText }, { value: "postpaid", label: "Postpaid", Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
+                  const selected = payType === value;
+                  return (
+                    <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
+                      className={cn("relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all border",
+                        selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60")}>
+                      {/* Radio indicator */}
+                      <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                        selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                        {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </span>
+                      <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                      <p className={cn("text-sm font-semibold", selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
+                    </button>
+                  );
+                })}
               </div>
-              {/* Line type toggle */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">Line</p>
-                <div className="flex gap-2">
-                  {([{ value: "mobile", label: "Mobile", Icon: Smartphone }, { value: "internet", label: "Internet", Icon: Wifi }] as const)
-                    .filter(({ value }) => !(value === "internet" && simType === "esim" && payType === "postpaid"))
-                    .map(({ value, Icon }) => {
-                      const selected = lineType === value;
-                      const displayLabel = value === "internet"
-                        ? `Internet · ${payType === "prepaid" ? "5G MBB" : "Vnet"}`
-                        : "Mobile";
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setLineType(value as LineType)}
-                          className={cn(
-                            "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-all border",
-                            selected ? "bg-primary/10 text-primary border-primary/30" : "bg-card text-muted-foreground border-border/60"
-                          )}
-                        >
-                          <Icon className="w-3.5 h-3.5" />
-                          {displayLabel}
-                        </button>
-                      );
-                    })}
-                </div>
-              </div>
-            </section>
+            </div>
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
-            {showTopupTab && (
-              <section>
-                <div className="grid grid-cols-2 border-b border-border">
-                  <SourceTab active={planMode === "plan"} icon={Tag} label="With plan" onClick={() => setPlanMode("plan")} />
-                  <SourceTab active={planMode === "topup"} icon={Database} label="With top-up" onClick={() => setPlanMode("topup")} />
-                </div>
-                {showPlanTypeChips && planMode === "plan" && (
-                  <div className="flex gap-2 overflow-x-auto pt-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    {PLAN_TYPE_CHIPS.map(chip => (
-                      <button
-                        key={chip.value}
-                        onClick={() => setPlanTypeChip(chip.value)}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
-                          planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
-                        )}
-                      >
-                        {chip.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-            {!showTopupTab && showPlanTypeChips && (
+            {/* Plan type filter chips */}
+            {showPlanTypeChips && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {PLAN_TYPE_CHIPS.map(chip => (
                   <button
                     key={chip.value}
-                    onClick={() => setPlanTypeChip(chip.value)}
+                    onClick={() => { setPlanTypeChip(chip.value); setSelectedPlan(null); }}
                     className={cn(
                       "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
                       planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
@@ -593,30 +553,54 @@ const NewActivation = () => {
               </div>
             )}
 
-            {planMode === "plan" ? (
-              <PlanSelector
-                key={`${payType}-${lineType}`}
-                selectedPlan={selectedPlan}
-                onSelect={(i) => setSelectedPlan(i)}
-                plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS}
-                categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
-              />
-            ) : (
-              <SectionCard title="Top-up">
-                <Field label="Denomination">
-                  <div className="grid grid-cols-3 gap-2">
-                    {TOPUP_DENOMS.map((d) => (
-                      <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(""); }}
-                        className={cn("h-10 rounded-lg border text-sm font-medium", topupDenom === d && !topupManual ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground")}>
-                        {d} SAR
-                      </button>
-                    ))}
+            <PlanSelector
+              key={`${payType}-${lineType}`}
+              selectedPlan={selectedPlan}
+              onSelect={(i) => setSelectedPlan(i)}
+              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS}
+              categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
+            />
+
+            {/* Top-up toggle */}
+            {showTopupTab && (
+              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setPlanMode(planMode === "topup" ? "plan" : "topup")}
+                  className="w-full flex items-center gap-3 px-4 py-3.5"
+                >
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", planMode === "topup" ? "bg-primary/15" : "bg-muted")}>
+                    <Database className={cn("w-4 h-4", planMode === "topup" ? "text-primary" : "text-muted-foreground")} />
                   </div>
-                </Field>
-                <Field label="Or enter amount manually">
-                  <Input value={topupManual} onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }} placeholder="Amount in SAR" inputMode="numeric" />
-                </Field>
-              </SectionCard>
+                  <div className="flex-1 text-left">
+                    <p className={cn("text-sm font-semibold", planMode === "topup" ? "text-foreground" : "text-muted-foreground")}>Add Top-up</p>
+                    <p className="text-xs text-muted-foreground">Optional balance added to the line</p>
+                  </div>
+                  {/* Toggle switch */}
+                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", planMode === "topup" ? "bg-primary" : "bg-muted")}>
+                    <span className={cn("absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all", planMode === "topup" ? "left-6" : "left-1")} />
+                  </div>
+                </button>
+                {planMode === "topup" && (
+                  <div className="px-4 pb-4 space-y-3 border-t border-border/60 pt-3">
+                    <p className="text-xs text-muted-foreground">Enter or select an amount</p>
+                    <Input
+                      value={topupManual}
+                      onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
+                      placeholder="Amount in SAR"
+                      inputMode="numeric"
+                    />
+                    <div className="flex gap-2 flex-wrap">
+                      {TOPUP_DENOMS.map((d) => (
+                        <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(""); }}
+                          className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors", topupDenom === d && !topupManual ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                          {d} SAR
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
 

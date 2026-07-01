@@ -246,7 +246,7 @@ const PlanDetailsSheet = ({
 
 // ---------- Main selector ----------
 interface PlanSelectorProps {
-  selectedPlan: number;
+  selectedPlan: number | null;
   onSelect: (idx: number, plan: Plan) => void;
   plans?: Plan[];
   categoryFilter?: string;
@@ -289,8 +289,6 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     const handler = () => {
       const idx = emblaApi.selectedScrollSnap();
       setActiveSnap(idx);
-      const p = filteredPlans[idx];
-      if (p) onSelect(plans.indexOf(p), p);
     };
     emblaApi.on("select", handler);
     handler();
