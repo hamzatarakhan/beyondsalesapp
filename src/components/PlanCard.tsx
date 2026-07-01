@@ -145,16 +145,10 @@ const PlanCard = ({
 
             {/* Hero: flex mins + price */}
             <div className="flex items-end justify-between mb-4">
-              {plan.mins === "Unlimited" ? (
-                <div className="leading-tight">
-                  <p className="text-3xl font-bold text-primary">Unlimited</p>
-                  <p className="text-sm font-medium text-muted-foreground">{plan.title} · Flex Minutes</p>
-                </div>
-              ) : (
-                <p className="text-3xl font-bold leading-none text-primary">
-                  {plan.mins} <span className="text-xl">Flex Mins</span>
-                </p>
-              )}
+              <p className="text-3xl font-bold leading-none text-primary">
+                {plan.mins === "Unlimited" ? "Unlimited" : plan.mins}{" "}
+                <span className="text-xl">Flex Mins</span>
+              </p>
               <div className="text-right">
                 <p className="text-[11px] text-muted-foreground">Vat Incl</p>
                 <p className="text-xl font-bold text-foreground">
