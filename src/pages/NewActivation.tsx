@@ -297,9 +297,9 @@ const NewActivation = () => {
   const isPostpaidInternet= isVnetMode;
 
   const showEsim         = true;
-  const showPlanTypeChips= true;
   const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
     .filter(c => !(c.value === "vnet" && simType === "esim"));
+  const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   const showContactField = isPrepaidInternet;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
