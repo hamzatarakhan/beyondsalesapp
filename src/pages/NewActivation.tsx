@@ -319,6 +319,20 @@ const NewActivation = () => {
     }
   }, [simType]);
 
+  // Auto-verify KIT on mount if already 10 digits
+  useEffect(() => {
+    if (/^\d{10}$/.test(kit)) {
+      setKitChecking(true);
+      setTimeout(() => {
+        setKitChecking(false);
+        if (kit === "0000000000") setKitError("registered");
+        else if (kit === "1111111111") setKitError("invalid");
+        else if (kit === "2222222222") setKitError("used");
+        else setKitChecked(true);
+      }, 1500);
+    }
+  }, []);
+
   // ---------- Pricing ----------
   const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
   const selectedPlanObj = activePlans[selectedPlan];
