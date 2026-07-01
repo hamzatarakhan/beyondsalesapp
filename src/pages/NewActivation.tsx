@@ -488,11 +488,7 @@ const NewActivation = () => {
                           <ScanLine className="w-5 h-5" />
                         </button>
                       </div>
-                      {kitChecking && (
-                        <div className="h-12 w-20 rounded-xl shrink-0 flex items-center justify-center bg-primary/10 text-primary border border-primary/20">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        </div>
-                      )}
+                      {/* kitChecking loader hidden */}
                     </div>
                     {kit && !isKitValid && !kitError && (
                       <p className="text-xs text-destructive">KIT must be 10 digits</p>
