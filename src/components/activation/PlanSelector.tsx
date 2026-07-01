@@ -301,6 +301,16 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     setActiveSnap(0);
   }, [filteredPlans.length, emblaApi]);
 
+  // Scroll carousel back to the selected plan when it changes or embla initialises
+  useEffect(() => {
+    if (!emblaApi || selectedPlan == null) return;
+    const filteredIdx = filteredPlans.findIndex((p) => plans.indexOf(p) === selectedPlan);
+    if (filteredIdx >= 0) {
+      emblaApi.scrollTo(filteredIdx, true);
+      setActiveSnap(filteredIdx);
+    }
+  }, [emblaApi, selectedPlan, filteredPlans, plans]);
+
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
 
   return (
