@@ -160,12 +160,14 @@ const PlanCard = ({
               }
             />
           )}
-          {!plan.bonuses && (
-            <>
-              <FeatureRow icon={Phone} label={`${plan.mins} local minutes`} />
-              <FeatureRow icon={Phone} label="Unlimited (receiving) roaming" />
-              <FeatureRow icon={MessageSquare} label="Unlimited SMS" />
-            </>
+          {plan.mins && plan.mins !== "-" && (
+            <FeatureRow icon={Phone} label={plan.mins === "Unlimited" ? "Unlimited national minutes" : `${plan.mins} local minutes`} />
+          )}
+          {plan.mins && plan.mins !== "-" && (
+            <FeatureRow icon={Phone} label="Unlimited roaming (receiving calls)" />
+          )}
+          {plan.sms && plan.sms !== "-" && (
+            <FeatureRow icon={MessageSquare} label={plan.sms === "Unlimited" ? "Unlimited SMS" : `${plan.sms} SMS`} />
           )}
           {plan.social && plan.social !== "-" && (
             <FeatureRow
