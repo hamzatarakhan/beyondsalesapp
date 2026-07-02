@@ -75,6 +75,10 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Baqah Flix",     internet: "55 GB", mins: "100",  sms: "100",       social: "Unlimited", price: 30, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 20 GB data", "Free STC TV"] },
   { title: "Baqah Plus",     internet: "80 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 45, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 30 GB data"] },
   { title: "Baqah Max",      internet: "120 GB",mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m","3m"], tags: ["5G","Unlimited"],  features: [], bonuses: ["Bonus 50 GB data"] },
+  // Basic
+  { title: "Basic 10",  internet: "2 GB",  mins: "100", sms: "50",  social: "-",          price: 10, discount: null, validityLabel: "Valid 7 days",  categories: ["basic"], validity: ["7d"], tags: [],            features: [], bonuses: [] },
+  { title: "Basic 20",  internet: "5 GB",  mins: "200", sms: "100", social: "-",          price: 20, discount: null, validityLabel: "Valid 30 days", categories: ["basic"], validity: ["1m"], tags: [],            features: [], bonuses: [] },
+  { title: "Basic 30",  internet: "10 GB", mins: "300", sms: "200", social: "Unlimited",  price: 30, discount: null, validityLabel: "Valid 30 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: ["Social data included"] },
   // Aman
   { title: "Aman Basic",     internet: "20 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 18, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["Bonus 5 GB data"] },
   { title: "Aman Plus",      internet: "50 GB", mins: "500",  sms: "500",       social: "Unlimited", price: 38, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 15 GB data"] },
@@ -121,6 +125,7 @@ const DISTRICTS: Record<string, string[]> = {
 
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
+  { value: "basic", label: "Basic" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
   { value: "base-plan", label: "Baqa" },
@@ -284,11 +289,17 @@ const NewActivation = () => {
 
   // Stage 3 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
-  const [promoCode, setPromoCode] = useState("SAVE10");
+  const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
-  const VALID_PROMO = "SAVE10";
-  const promoDiscount = promoApplied ? 10 : 0;
+  // Promo catalogue: type = "discount" | "data" | "credit"
+  const PROMO_CATALOGUE: Record<string, { type: "discount" | "data" | "credit"; value: number; label: string }> = {
+    SAVE10:   { type: "discount", value: 10,  label: "10 SAR discount applied" },
+    DATA5GB:  { type: "data",     value: 5,   label: "5 GB bonus data added" },
+    CREDIT20: { type: "credit",   value: 20,  label: "20 SAR credit added to your balance" },
+  };
+  const activePromo = promoApplied ? PROMO_CATALOGUE[promoCode] : null;
+  const promoDiscount = activePromo?.type === "discount" ? activePromo.value : 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
@@ -888,22 +899,38 @@ const NewActivation = () => {
                 </div>
                 <p className="text-sm font-semibold text-foreground">Promo Code</p>
               </div>
-              {promoApplied ? (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-semibold text-green-700">{VALID_PROMO}</span>
-                    <span className="text-xs text-green-600">— 10 SAR off</span>
+              {promoApplied && activePromo ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600 shrink-0" />
+                      <div>
+                        <span className="text-sm font-semibold text-green-700">{promoCode}</span>
+                        <p className="text-xs text-green-600 mt-0.5">{activePromo.label}</p>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium shrink-0">Remove</button>
                   </div>
-                  <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium">Remove</button>
+                  {activePromo.type === "data" && (
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
+                      <Database className="w-4 h-4 text-blue-600 shrink-0" />
+                      <span className="text-xs font-semibold text-blue-700">+{activePromo.value} GB bonus data will be added on activation</span>
+                    </div>
+                  )}
+                  {activePromo.type === "credit" && (
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-purple-50 border border-purple-200">
+                      <HandCoins className="w-4 h-4 text-purple-600 shrink-0" />
+                      <span className="text-xs font-semibold text-purple-700">{activePromo.value} SAR credit will be added to the line balance</span>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex gap-2">
                   <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder="Enter promo code" className={cn("flex-1", promoError && "border-destructive")} />
-                  <Button type="button" variant="outline" className="shrink-0" onClick={() => { if (promoCode === VALID_PROMO) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>Apply</Button>
+                  <Button type="button" variant="outline" className="shrink-0" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>Apply</Button>
                 </div>
               )}
-              {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>.</p>}
+              {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>, <span className="font-semibold">DATA5GB</span>, or <span className="font-semibold">CREDIT20</span>.</p>}
             </section>
 
             {/* Whitelisted customer notice */}
