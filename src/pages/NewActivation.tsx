@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import MapPicker from "@/components/MapPicker";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
@@ -107,6 +108,16 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
+
+const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
+
+const DISTRICTS: Record<string, string[]> = {
+  "Riyadh":  ["Al Olaya", "Al Malaz", "Al Muruj", "Al Nakheel", "Al Rawdah", "Al Qirawan", "Al Yasmin"],
+  "Jeddah":  ["Al Hamra", "Al Rawdah", "Al Sharafeyah", "Al Balad", "Al Safa", "Al Zahraa"],
+  "Dammam":  ["Al Faisaliyah", "Al Nuzha", "Al Shatea", "Al Adamah", "Al Badiyah"],
+  "Mecca":   ["Al Aziziyah", "Al Shisha", "Al Zaher", "Al Rusaifa"],
+  "Medina":  ["Al Haram", "Al Aziziyah", "Quba", "Al Salam"],
+};
 
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
@@ -251,6 +262,10 @@ const NewActivation = () => {
   const [contactEmail, setContactEmail] = useState("test@beyondsales.com");
   const [contactNumber, setContactNumber] = useState("0512345678");
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
+  const [nationalAddress, setNationalAddress] = useState("");
+  const [locationRegion, setLocationRegion] = useState("");
+  const [locationDistrict, setLocationDistrict] = useState("");
+  const [mapOpen, setMapOpen] = useState(false);
   // Number — Mobile only
   const [subType, setSubType] = useState<SubType>("sim");
   const [phone, setPhone] = useState("0785599574");
@@ -301,7 +316,7 @@ const NewActivation = () => {
     .filter(c => !(c.value === "vnet" && simType === "esim"));
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
-  const showContactField = isPrepaidInternet;
+  const showContactField = isPrepaidInternet || isPostpaidInternet;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
@@ -592,8 +607,8 @@ const NewActivation = () => {
                     />
                     <div className="grid grid-cols-5 gap-2">
                       {TOPUP_DENOMS.map((d) => (
-                        <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(""); }}
-                          className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d && !topupManual ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                        <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
+                          className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
                           {d} SAR
                         </button>
                       ))}
@@ -713,28 +728,86 @@ const NewActivation = () => {
               {showDelivery && <SummaryRow label="Delivery Address" value={deliveryAddress} />}
             </section>
 
-            {/* Contact & Delivery */}
-            <SectionCard title="Contact">
-              <Field label="City">
-                <Select value={contactCity} onValueChange={setContactCity}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </Field>
-              <Field label="Email *">
-                <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
-              </Field>
-              {showContactField && (
-                <Field label="Contact Number *">
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+            {/* Contact */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">Contact</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                <Field label="City">
+                  <Select value={contactCity} onValueChange={setContactCity}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
                 </Field>
-              )}
-              {showDelivery && (
-                <Field label="Delivery Address *">
-                  <Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Enter full address" className="h-12 bg-card rounded-xl" />
+                <Field label="Email *">
+                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
                 </Field>
-              )}
-            </SectionCard>
+                {showContactField && (
+                  <Field label="Contact Number *">
+                    <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                  </Field>
+                )}
+              </div>
+            </div>
+
+            {/* Location Information — Vnet only */}
+            {showDelivery && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-sm font-semibold text-foreground">Location Information</p>
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(true)}
+                    className="flex items-center gap-1 text-xs font-semibold text-primary"
+                  >
+                    Map
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                  {/* National Address hidden */}
+                  <Field label="Region *">
+                    <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select the region" /></SelectTrigger>
+                      <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="City *">
+                    <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select the city" /></SelectTrigger>
+                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="District *">
+                    <Select value={locationDistrict} onValueChange={setLocationDistrict}>
+                      <SelectTrigger><SelectValue placeholder="Select the district" /></SelectTrigger>
+                      <SelectContent>
+                        {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Address Line">
+                    <textarea
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Building, floor, landmark or additional details…"
+                      rows={3}
+                      className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
+            <MapPicker
+              open={mapOpen}
+              onOpenChange={setMapOpen}
+              onConfirm={(city, address) => {
+                if (city) setContactCity(city);
+                setDeliveryAddress(address);
+                setNationalAddress("");
+                setLocationDistrict("");
+              }}
+            />
 
             {/* Payment Method */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
