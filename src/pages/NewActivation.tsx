@@ -233,7 +233,7 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
 );
 
 // Dealer's saved signature — pre-loaded into dealer signature box
-const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNzAgQzQwIDMwIDYwIDgwIDgwIDUwIEM5MCAzMCAxMTAgNzAgMTMwIDUwIEMxNTAgMzAgMTcwIDcwIDE5MCA1MCBDMJEJIDI1IDIyMCA2NSAyNDAgNDUgQzI1MCAzMCAyNzAgNjAgMjgwIDUwIiBzdHJva2U9IiMxMTEiIHN0cm9rZS13aWR0aD0iMi41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
+const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNjUgQzMwIDQwIDQ1IDc1IDU1IDU1IEM2MiA0MCA3MCA3MCA4MCA1NSBDODggNDIgOTUgNjAgMTA1IDUwIEMxMTUgMzggMTIyIDYyIDEzNSA1MiBDMTQ1IDQ0IDE1MCA1OCAxNjIgNDggQzE3MiAzOCAxNzggNTUgMTkwIDQ2IEMyMDAgMzcgMjA1IDUyIDIxNSA0NCBDMjI1IDM2IDIyOCA1MCAyMzggNDQgQzI0NSA0MCAyNDggNTIgMjU1IDQ2IiBzdHJva2U9IiMxMTE4MjciIHN0cm9rZS13aWR0aD0iMi41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMzAgNzIgQzUwIDY4IDkwIDcyIDEzMCA3MCBDMTYwIDY4IDIwMCA3MSAyNDAgNjkiIHN0cm9rZT0iIzExMTgyNyIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC40Ii8+PC9zdmc+";
 
 // ---------- Page ----------
 const NewActivation = () => {
@@ -874,8 +874,10 @@ const NewActivation = () => {
                 </div>
                 <p className="text-sm font-semibold text-foreground">Payment Method <span className="text-destructive">*</span></p>
               </div>
-              <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
-              <PayOption icon={HandCoins} label="POS Terminal" selected={pay === "pos"} onClick={() => setPay("pos")} />
+              <div className="space-y-2">
+                <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
+                <PayOption icon={HandCoins} label="POS Terminal" selected={pay === "pos"} onClick={() => setPay("pos")} />
+              </div>
             </section>
 
             {/* Promo Code */}
