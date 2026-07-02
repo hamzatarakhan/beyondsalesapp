@@ -475,6 +475,7 @@ const NewActivation = () => {
                 <div>
                   <p className={cn("text-sm font-semibold", isWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>Whitelisted Customer</p>
                   <p className="text-[11px] text-muted-foreground">VPPR class 5→6 · No deposit required</p>
+                  <p className="text-[10px] text-amber-500 font-medium mt-0.5">Prototype only — for demo purposes</p>
                 </div>
               </div>
               <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
