@@ -422,9 +422,10 @@ const NewActivation = () => {
                   <SelectValue placeholder="Select ID type" />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
-                  <SelectItem value="national-id">National ID</SelectItem>
-                  <SelectItem value="passport">Passport</SelectItem>
-                  <SelectItem value="resident-card">Resident Card</SelectItem>
+                  <SelectItem value="national-id">Saudi ID / Iqama ID</SelectItem>
+                  <SelectItem value="gcc-id">GCC ID</SelectItem>
+                  <SelectItem value="gcc-passport">GCC Passport</SelectItem>
+                  <SelectItem value="visitor-passport">Visitor Passport</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
