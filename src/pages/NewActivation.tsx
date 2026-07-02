@@ -255,7 +255,7 @@ const NewActivation = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  const [topupDenom, setTopupDenom] = useState<number | null>(50);
+  const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
   // Contact & Delivery
   const [contactCity, setContactCity] = useState("Riyadh");
@@ -351,8 +351,7 @@ const NewActivation = () => {
   }, []);
 
   // ---------- Pricing ----------
-  const activePlans = payType === "prepaid" ? PREPAID_PLANS : SHARED_PLANS;
-  const selectedPlanObj = activePlans[selectedPlan];
+  const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
@@ -676,7 +675,22 @@ const NewActivation = () => {
                 )}
                 {subType === "sim" ? (
                   <>
-                    <div className="bg-primary/5 rounded-xl py-3 text-center text-lg font-semibold tracking-wide text-foreground mb-3">{phone}</div>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{tab.label}</span>
+                            <span className="text-[11px] text-muted-foreground">·</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} SAR` : "Free"}</span>
+                          </div>
+                        );
+                      })()}
+                    </div>
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
                       Pick Different Number <ArrowRight className="w-4 h-4" />
                     </button>
@@ -712,21 +726,26 @@ const NewActivation = () => {
                   <p className="text-sm font-semibold text-foreground">Subscription Summary</p>
                 </div>
               </div>
-              <SummaryRow label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
               {showEsim && <SummaryRow label="SIM Type" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
-              {showEsim && simType === "psim" && <SummaryRow label="KIT" value={kit} />}
-              {showNumber && <SummaryRow label="Subscription type" value={subType === "sim" ? "New Number" : "MNP"} />}
-              {showNumber && subType === "sim" && <SummaryRow label="Phone Number" value={phone} />}
-              {showNumber && subType === "mnp" && <SummaryRow label="Port Number" value={portNumber} />}
-              {showNumber && subType === "mnp" && <SummaryRow label="From Operator" value={portOperator} />}
-              <SummaryRow label="City" value={contactCity} />
-              <SummaryRow label="Email" value={contactEmail} />
-              {showContactField && <SummaryRow label="Contact Number" value={contactNumber} />}
-              {planMode === "plan"
-                ? <SummaryRow label="Plan" value={`${selectedPlanObj?.title} · ${selectedPlanObj?.price} SAR`} />
-                : <SummaryRow label="Top-up" value={`${topupAmount} SAR`} />}
+              {showEsim && simType === "psim" && kit && <SummaryRow label="SIM Number" value={kit} />}
+              <SummaryRow label="Subscription Type" value={payType === "prepaid" ? "Prepaid" : "Postpaid"} />
+              {selectedPlanObj && (() => {
+                const cats = selectedPlanObj.categories ?? [];
+                const planTypeLabel =
+                  cats.includes("switch-postpaid") ? "Switch Postpaid" :
+                  cats.includes("vnet") ? "Vnet" :
+                  cats.includes("data") ? "5G Data" :
+                  cats.includes("aman") ? "Aman" :
+                  cats.includes("base-plan") ? "Baqa" :
+                  cats.includes("flex") ? "Flex" : "";
+                return planTypeLabel ? <SummaryRow label="Plan Type" value={planTypeLabel} /> : null;
+              })()}
+              {selectedPlanObj && <SummaryRow label="Plan Name" value={selectedPlanObj.title} />}
+              {planMode === "topup" && topupAmount > 0 && <SummaryRow label="Top-up Value" value={`${topupAmount} SAR`} />}
+              {showNumber && <SummaryRow label="Number Type" value={subType === "sim" ? "New Number" : "MNP (Port)"} />}
+              {showNumber && subType === "sim" && phone && <SummaryRow label="Phone Number" value={phone} />}
+              {showNumber && subType === "mnp" && portNumber && <SummaryRow label="Port Number" value={portNumber} />}
               {showDevice && <SummaryRow label="Device" value={deviceObj?.name ?? ""} />}
-              {showDelivery && <SummaryRow label="Delivery Address" value={deliveryAddress} />}
             </section>
 
             {/* Contact */}
