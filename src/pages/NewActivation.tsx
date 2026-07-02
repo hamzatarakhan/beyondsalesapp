@@ -893,9 +893,8 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* Promo Code — hidden for whitelisted postpaid */}
-            {!(isWhitelisted && payType === "postpaid") && (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
+            {/* Promo Code */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Tag className="w-3.5 h-3.5 text-primary" />
@@ -934,8 +933,7 @@ const NewActivation = () => {
                 </div>
               )}
               {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>, <span className="font-semibold">DATA5GB</span>, or <span className="font-semibold">CREDIT20</span>.</p>}
-              </section>
-            )}
+            </section>
 
             {/* Whitelisted customer notice */}
             {isWhitelisted && payType === "postpaid" && (
