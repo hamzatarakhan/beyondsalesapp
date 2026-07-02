@@ -253,27 +253,14 @@ const PlanCard = ({
     <>
       <div
         className={cn(
-          "relative rounded-2xl overflow-hidden border bg-card transition-all duration-200 flex flex-col w-full",
-          selected
-            ? "border-primary shadow-[0_0_0_2px] shadow-primary/30"
-            : "border-border",
+          "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Selected banner */}
-        {selected && (
-          <div className="bg-primary px-3 py-1.5 flex items-center gap-1.5">
-            <Check className="w-3.5 h-3.5 text-primary-foreground" />
-            <span className="text-[11px] font-semibold text-primary-foreground tracking-wide uppercase">Plan Selected</span>
-          </div>
-        )}
-
-        {/* Most Popular badge — only when not selected */}
-        {!selected && (
-          <span className="absolute top-0 right-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
-            Most Popular
-          </span>
-        )}
+        {/* Most Popular badge — top-right */}
+        <span className="absolute top-0 right-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
+          Most Popular
+        </span>
 
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
