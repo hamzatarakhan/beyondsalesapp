@@ -572,7 +572,7 @@ const NewActivation = () => {
               key={`${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan(i)}
-              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS}
+              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : (simType === "esim" ? POSTPAID_PLANS.filter(p => !p.categories?.includes("vnet")) : POSTPAID_PLANS)}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
@@ -932,12 +932,12 @@ const NewActivation = () => {
             )}
 
             {/* Customer Verification */}
-            <SectionCard title={isPostpaidInternet ? "Nafath Verification" : "Customer Verification"}>
+            <SectionCard title={isPostpaidInternet ? "Manafath Verification" : "Customer Verification"}>
               {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? "Nafath verified" : "Customer verified"}</p>
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? "Manafath verified" : "Customer verified"}</p>
               ) : (
                 <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
-                  {isPostpaidInternet ? "Verify via Nafath" : "Verify customer"}
+                  {isPostpaidInternet ? "Verify via Manafath" : "Verify customer"}
                 </Button>
               )}
               {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
