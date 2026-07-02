@@ -741,6 +741,7 @@ const NewActivation = () => {
                 return planTypeLabel ? <SummaryRow label="Plan Type" value={planTypeLabel} /> : null;
               })()}
               {selectedPlanObj && <SummaryRow label="Plan Name" value={selectedPlanObj.title} />}
+              {selectedPlanObj?.validityLabel && <SummaryRow label="Plan Validity" value={selectedPlanObj.validityLabel} />}
               {planMode === "topup" && topupAmount > 0 && <SummaryRow label="Top-up Value" value={`${topupAmount} SAR`} />}
               {showNumber && <SummaryRow label="Number Type" value={subType === "sim" ? "New Number" : "MNP (Port)"} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label="Phone Number" value={phone} />}
