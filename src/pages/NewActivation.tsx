@@ -877,8 +877,8 @@ const NewActivation = () => {
               }}
             />
 
-            {/* Payment Method */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
+            {/* Payment Method — hidden for whitelisted postpaid with free number */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <CreditCard className="w-3.5 h-3.5 text-primary" />
@@ -889,7 +889,7 @@ const NewActivation = () => {
                 <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
                 <PayOption icon={HandCoins} label="POS Terminal" selected={pay === "pos"} onClick={() => setPay("pos")} />
               </div>
-            </section>
+            </section>}
 
             {/* Promo Code — hidden for whitelisted postpaid */}
             {!(isWhitelisted && payType === "postpaid") && <section className="bg-card rounded-2xl p-4 shadow-sm">
