@@ -889,7 +889,7 @@ const NewActivation = () => {
                 <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
                 <PayOption icon={HandCoins} label="POS Terminal" selected={pay === "pos"} onClick={() => setPay("pos")} />
               </div>
-            </section>
+            </section>}
 
             {/* Promo Code — hidden for whitelisted postpaid */}
             {!(isWhitelisted && payType === "postpaid") && <section className="bg-card rounded-2xl p-4 shadow-sm">
