@@ -877,8 +877,8 @@ const NewActivation = () => {
               }}
             />
 
-            {/* Payment Method */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
+            {/* Payment Method — hidden for whitelisted postpaid with free number (no payment at all) */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <CreditCard className="w-3.5 h-3.5 text-primary" />
@@ -891,8 +891,8 @@ const NewActivation = () => {
               </div>
             </section>
 
-            {/* Promo Code */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
+            {/* Promo Code — hidden for whitelisted postpaid */}
+            {!(isWhitelisted && payType === "postpaid") && <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Tag className="w-3.5 h-3.5 text-primary" />
@@ -931,7 +931,7 @@ const NewActivation = () => {
                 </div>
               )}
               {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>, <span className="font-semibold">DATA5GB</span>, or <span className="font-semibold">CREDIT20</span>.</p>}
-            </section>
+            </section>}
 
             {/* Whitelisted customer notice */}
             {isWhitelisted && payType === "postpaid" && (
@@ -953,70 +953,90 @@ const NewActivation = () => {
             )}
 
             {/* Payment Summary */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <FileText className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">Payment Summary</p>
-              </div>
-              <div className="space-y-2 pb-3">
-                {showEsim && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
-                    {isWhitelisted && payType === "postpaid" ? (
-                      <span className="text-xs font-semibold text-amber-600">Waived</span>
-                    ) : (
-                      <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
-                    )}
+            {/* Case 1: whitelisted + postpaid + free number → hide entirely */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="w-3.5 h-3.5 text-primary" />
                   </div>
-                )}
-                {showNumber && subType === "sim" && numberFee > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
-                    <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
-                  </div>
-                )}
-                {showDevice && deviceFee > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
-                    {isWhitelisted && payType === "postpaid" ? (
-                      <span className="text-xs font-semibold text-amber-600">Waived</span>
-                    ) : (
-                      <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
-                    )}
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
-                  {isWhitelisted && payType === "postpaid" ? (
-                    <span className="text-xs font-semibold text-amber-600">Waived</span>
-                  ) : (
-                    <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
-                  )}
+                  <p className="text-sm font-semibold text-foreground">Payment Summary</p>
                 </div>
-                {promoApplied && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-green-600">Promo ({VALID_PROMO})</span>
-                    <span className="text-xs font-semibold text-green-600">−{promoDiscount} SAR</span>
-                  </div>
+
+                {/* Case 2: whitelisted + postpaid + VIP number → only show VIP number fee + VAT */}
+                {isWhitelisted && payType === "postpaid" && isVipNumber ? (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
+                        <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                      </div>
+                    </div>
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-xs font-semibold text-foreground">{Math.round(numberFee * 0.15)} SAR</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-base font-bold text-primary">{numberFee + Math.round(numberFee * 0.15)} SAR</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      {showEsim && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
+                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
+                        </div>
+                      )}
+                      {showNumber && subType === "sim" && numberFee > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
+                          <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                        </div>
+                      )}
+                      {showDevice && deviceFee > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                          <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                      </div>
+                      {promoApplied && activePromo?.type === "discount" && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-green-600">Promo ({promoCode})</span>
+                          <span className="text-xs font-semibold text-green-600">−{promoDiscount} SAR</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-base font-bold text-primary">{total} SAR</span>
+                    </div>
+                  </>
                 )}
-              </div>
-              <div className="border-t border-border/60 space-y-2 py-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">Subtotal</span>
-                  <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
-                  <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                <span className="text-sm font-semibold text-foreground">Total</span>
-                <span className="text-base font-bold text-primary">{total} SAR</span>
-              </div>
-            </section>
+              </section>
+            )}
 
             {/* OTP Verification — not needed for Postpaid Internet (Nafath only) */}
             {!isPostpaidInternet && (
