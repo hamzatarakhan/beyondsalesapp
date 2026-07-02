@@ -937,7 +937,7 @@ const NewActivation = () => {
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? "Manafath verified" : "Customer verified"}</p>
               ) : (
                 <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
-                  {isPostpaidInternet ? "Verify via Manafath" : "Verify customer"}
+                  {isPostpaidInternet ? "Verify customer" : "Verify customer"}
                 </Button>
               )}
               {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
@@ -996,7 +996,7 @@ const NewActivation = () => {
       </div>
 
       {/* Customer verification */}
-      <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <SematiVerification open={customerVerifyOpen} audience={isPostpaidInternet ? "manafath" : "customer"} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
 
       {/* Number picker drawer */}
       {(() => {

@@ -32,7 +32,7 @@ interface Props {
   onClose: () => void;
   onMethodSelected?: (method: Method) => void;
   onVerified: () => void;
-  audience?: "dealer" | "customer";
+  audience?: "dealer" | "customer" | "manafath";
 }
 
 const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audience = "customer" }: Props) => {
@@ -143,7 +143,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 text-center">
               <h3 className="font-semibold text-foreground text-base">
-                {audience === "dealer" ? "Dealer Verification" : "Customer Verification"}
+                {audience === "dealer" ? "Dealer Verification" : audience === "manafath" ? "Manafath Verification" : "Customer Verification"}
               </h3>
             </div>
             <button
@@ -157,6 +157,8 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           <p className="text-xs text-muted-foreground text-center mb-5 px-6">
             {audience === "dealer"
               ? "Verify your identity as the dealer to start the activation"
+              : audience === "manafath"
+              ? "Verify the customer identity through Manafath"
               : "Please select the verification type for the customer"}
           </p>
 
@@ -169,23 +171,27 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
                   نفاذ
                 </span>
               }
-              title="Nafath"
-              desc="Approve the verification request through the Nafath app."
+              title={audience === "manafath" ? "Manafath" : "Nafath"}
+              desc={audience === "manafath" ? "Approve the verification request through the Manafath app." : "Approve the verification request through the Nafath app."}
             />
-            <MethodCard
-              onClick={() => pickMethod("fingerprint")}
-              iconBg="bg-rose-100 dark:bg-rose-500/15"
-              iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
-              title="Fingerprint"
-              desc="Verify your identity using your device fingerprint."
-            />
-            <MethodCard
-              onClick={() => pickMethod("absher")}
-              iconBg="bg-emerald-100 dark:bg-emerald-500/15"
-              iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
-              title="Absher IAM OTP"
-              desc="Enter the one-time password received through Absher."
-            />
+            {audience !== "manafath" && (
+              <>
+                <MethodCard
+                  onClick={() => pickMethod("fingerprint")}
+                  iconBg="bg-rose-100 dark:bg-rose-500/15"
+                  iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
+                  title="Fingerprint"
+                  desc="Verify your identity using your device fingerprint."
+                />
+                <MethodCard
+                  onClick={() => pickMethod("absher")}
+                  iconBg="bg-emerald-100 dark:bg-emerald-500/15"
+                  iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
+                  title="Absher IAM OTP"
+                  desc="Enter the one-time password received through Absher."
+                />
+              </>
+            )}
           </div>
         </DrawerContent>
       </Drawer>
