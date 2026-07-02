@@ -64,7 +64,7 @@ type SubType = "sim" | "mnp";
 type PayType = "prepaid" | "postpaid";
 type LineType = "mobile" | "internet";
 type PlanMode = "plan" | "topup";
-type PayMethod = "card" | "cash" | "apple";
+type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
 const PREPAID_PLANS: typeof SHARED_PLANS = [
@@ -232,6 +232,9 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
   </div>
 );
 
+// Dealer's saved signature — pre-loaded into dealer signature box
+const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNzAgQzQwIDMwIDYwIDgwIDgwIDUwIEM5MCAzMCAxMTAgNzAgMTMwIDUwIEMxNTAgMzAgMTcwIDcwIDE5MCA1MCBDMJEJIDI1IDIyMCA2NSAyNDAgNDUgQzI1MCAzMCAyNzAgNjAgMjgwIDUwIiBzdHJva2U9IiMxMTEiIHN0cm9rZS13aWR0aD0iMi41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
+
 // ---------- Page ----------
 const NewActivation = () => {
   const navigate = useNavigate();
@@ -292,7 +295,7 @@ const NewActivation = () => {
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
   const [customerVerified, setCustomerVerified] = useState(false);
   const [customerSig, setCustomerSig] = useState<string | null>(null);
-  const [dealerSig, setDealerSig] = useState<string | null>(null);
+  const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -300,6 +303,7 @@ const NewActivation = () => {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
+  const [payConfirmOpen, setPayConfirmOpen] = useState(false);
 
   // ---------- Derived flags ----------
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
@@ -870,6 +874,7 @@ const NewActivation = () => {
                 <p className="text-sm font-semibold text-foreground">Payment Method <span className="text-destructive">*</span></p>
               </div>
               <PayOption icon={CreditCard} label="Dealer Wallet" selected={pay === "card"} onClick={() => setPay("card")} />
+              <PayOption icon={HandCoins} label="POS Terminal" selected={pay === "pos"} onClick={() => setPay("pos")} />
             </section>
 
             {/* Promo Code */}
@@ -1008,34 +1013,20 @@ const NewActivation = () => {
 
             {/* Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-                <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => setTermsOpen(true)}>
-                  <input id="terms-checkbox" type="checkbox" checked={terms} onChange={(e) => { e.stopPropagation(); setTerms(e.target.checked); }} onClick={(e) => e.stopPropagation()} className="w-4 h-4 rounded border-2 border-primary accent-primary cursor-pointer" />
-                  <span className="text-sm text-foreground">Terms and Conditions</span>
+              <button
+                type="button"
+                className="flex items-center gap-3 select-none cursor-pointer w-full text-left"
+                onClick={() => setTermsOpen(true)}
+              >
+                <div className={cn(
+                  "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                  terms ? "bg-primary border-primary" : "border-primary"
+                )}>
+                  {terms && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
-                <DrawerContent className="max-h-[85vh]">
-                  <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
-                    <X className="h-5 w-5 text-foreground" />
-                  </DrawerClose>
-                  <DrawerHeader className="text-center">
-                    <DrawerTitle>Terms and Conditions</DrawerTitle>
-                    <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
-                  </DrawerHeader>
-                  <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
-                    <p>By activating this line, you agree to our service terms, including fair usage policies, payment obligations, and applicable regulatory requirements.</p>
-                    <p>All provided information must be accurate. The SIM/eSIM and selected number are subject to availability and approval.</p>
-                    <p>Plans, top-ups, and vanity fees are non-refundable once the activation is completed. VAT is included where stated.</p>
-                  </div>
-                  <DrawerFooter className="flex-col gap-3">
-                    <DrawerClose asChild>
-                      <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">Accept</Button>
-                    </DrawerClose>
-                    <DrawerClose asChild>
-                      <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
+                <span className="text-sm text-foreground">Terms and Conditions</span>
+                {!terms && <span className="ml-auto text-xs text-primary font-semibold">Read &amp; Accept</span>}
+              </button>
             </section>
 
             {/* Customer Signature */}
@@ -1053,7 +1044,7 @@ const NewActivation = () => {
           {step < 2 ? (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>Continue</Button>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setSuccessOpen(true)}>Pay {total} SAR</Button>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>Pay {total} SAR</Button>
           )}
         </div>
       </div>
@@ -1175,6 +1166,30 @@ const NewActivation = () => {
               <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
             </DrawerClose>
           </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Pay confirmation */}
+      <Drawer open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <DrawerHeader className="text-center px-0 pb-4">
+            <DrawerTitle>Confirm Payment</DrawerTitle>
+            <DrawerDescription>
+              {pay === "card" ? "The following amount will be deducted from your dealer wallet." : "Collect the following amount via POS terminal."}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 flex flex-col items-center gap-1 mb-6">
+            <p className="text-3xl font-bold text-primary">{total} SAR</p>
+            <p className="text-xs text-muted-foreground">{pay === "card" ? "Dealer Wallet deduction" : "POS Terminal charge"}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
+              Confirm &amp; Pay
+            </Button>
+            <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPayConfirmOpen(false)}>
+              Cancel
+            </button>
+          </div>
         </DrawerContent>
       </Drawer>
 
