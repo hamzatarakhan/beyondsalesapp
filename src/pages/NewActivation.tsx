@@ -293,13 +293,15 @@ const NewActivation = () => {
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
   // Promo catalogue: type = "discount" | "data" | "credit"
-  const PROMO_CATALOGUE: Record<string, { type: "discount" | "data" | "credit"; value: number; label: string }> = {
-    SAVE10:   { type: "discount", value: 10,  label: "10 SAR discount applied" },
-    DATA5GB:  { type: "data",     value: 5,   label: "5 GB bonus data added" },
-    CREDIT20: { type: "credit",   value: 20,  label: "20 SAR credit added to your balance" },
+  type PromoBenefit = { type: "discount"; value: number } | { type: "data"; value: number } | { type: "credit"; value: number };
+  const PROMO_CATALOGUE: Record<string, { benefits: PromoBenefit[] }> = {
+    SAVE10:   { benefits: [{ type: "discount", value: 10 }] },
+    DATA5GB:  { benefits: [{ type: "data", value: 5 }] },
+    CREDIT20: { benefits: [{ type: "credit", value: 20 }] },
+    MEGA:     { benefits: [{ type: "discount", value: 15 }, { type: "data", value: 10 }, { type: "credit", value: 25 }] },
   };
   const activePromo = promoApplied ? PROMO_CATALOGUE[promoCode] : null;
-  const promoDiscount = activePromo?.type === "discount" ? activePromo.value : 0;
+  const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
@@ -903,28 +905,36 @@ const NewActivation = () => {
               </div>
               {promoApplied && activePromo ? (
                 <div className="space-y-2">
+                  {/* Applied header row */}
                   <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-600 shrink-0" />
-                      <div>
-                        <span className="text-sm font-semibold text-green-700">{promoCode}</span>
-                        <p className="text-xs text-green-600 mt-0.5">{activePromo.label}</p>
-                      </div>
+                      <span className="text-sm font-semibold text-green-700">{promoCode} applied</span>
                     </div>
                     <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium shrink-0">Remove</button>
                   </div>
-                  {activePromo.type === "data" && (
-                    <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
-                      <Database className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span className="text-xs font-semibold text-blue-700">+{activePromo.value} GB bonus data will be added on activation</span>
-                    </div>
-                  )}
-                  {activePromo.type === "credit" && (
-                    <div className="flex items-center gap-2 p-3 rounded-xl bg-purple-50 border border-purple-200">
-                      <HandCoins className="w-4 h-4 text-purple-600 shrink-0" />
-                      <span className="text-xs font-semibold text-purple-700">{activePromo.value} SAR credit will be added to the line balance</span>
-                    </div>
-                  )}
+                  {/* One banner per benefit */}
+                  {activePromo.benefits.map((b, i) => {
+                    if (b.type === "discount") return (
+                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200">
+                        <Tag className="w-4 h-4 text-green-600 shrink-0" />
+                        <span className="text-xs font-semibold text-green-700">{b.value} SAR discount applied</span>
+                      </div>
+                    );
+                    if (b.type === "data") return (
+                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
+                        <Database className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span className="text-xs font-semibold text-blue-700">+{b.value} GB bonus data will be added on activation</span>
+                      </div>
+                    );
+                    if (b.type === "credit") return (
+                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-purple-50 border border-purple-200">
+                        <HandCoins className="w-4 h-4 text-purple-600 shrink-0" />
+                        <span className="text-xs font-semibold text-purple-700">{b.value} SAR credit will be added to the line balance</span>
+                      </div>
+                    );
+                    return null;
+                  })}
                 </div>
               ) : (
                 <div className="flex gap-2">
@@ -932,7 +942,7 @@ const NewActivation = () => {
                   <Button type="button" variant="outline" className="shrink-0" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>Apply</Button>
                 </div>
               )}
-              {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>, <span className="font-semibold">DATA5GB</span>, or <span className="font-semibold">CREDIT20</span>.</p>}
+              {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>, <span className="font-semibold">DATA5GB</span>, <span className="font-semibold">CREDIT20</span>, or <span className="font-semibold">MEGA</span>.</p>}
             </section>
 
             {/* Whitelisted customer notice */}
@@ -1048,7 +1058,7 @@ const NewActivation = () => {
                         <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
                         <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
                       </div>
-                      {promoApplied && activePromo?.type === "discount" && (
+                      {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">Promo ({promoCode})</span>
                           <span className="text-xs font-semibold text-green-600">−{promoDiscount} SAR</span>
