@@ -242,6 +242,7 @@ const NewActivation = () => {
   const [idType, setIdType] = useState("national-id");
   const [nationality, setNationality] = useState("sa");
   const [idNumber, setIdNumber] = useState("1324567896");
+  const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
 
   // Stage 2 — Subscription Type
   const [payType, setPayType] = useState<PayType>("prepaid");
@@ -355,14 +356,22 @@ const NewActivation = () => {
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
-  const numberFee = showNumber && subType === "sim" ? (() => {
+  const rawNumberFee = showNumber && subType === "sim" ? (() => {
     const t = DEMO_NUMBER_POOL.find(n => n.number === phone);
     if (!t) return 0;
     return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
   })() : 0;
+  const isVipNumber = rawNumberFee > 0;
+
+  // Whitelisted customer: no deposit for plan; only pays VIP number fee + VAT if applicable
+  const effectivePlanPrice  = isWhitelisted && payType === "postpaid" ? 0 : planPrice;
+  const effectiveSimFee     = isWhitelisted && payType === "postpaid" ? 0 : simFee;
+  const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
-  const subtotal = planPrice + simFee + numberFee + deviceFee - promoDiscount;
+  const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
+
+  const subtotal = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
@@ -446,6 +455,28 @@ const NewActivation = () => {
             <Field label="ID Number">
               <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="Enter the ID Number" className="h-12 bg-card rounded-xl" />
             </Field>
+
+            {/* Whitelisted customer toggle */}
+            <div
+              className={cn(
+                "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
+                isWhitelisted ? "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700" : "bg-card border-border/60"
+              )}
+              onClick={() => setIsWhitelisted(v => !v)}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isWhitelisted ? "bg-amber-100 dark:bg-amber-800/40" : "bg-muted")}>
+                  <Lock className={cn("w-4 h-4", isWhitelisted ? "text-amber-600" : "text-muted-foreground")} />
+                </div>
+                <div>
+                  <p className={cn("text-sm font-semibold", isWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>Whitelisted Customer</p>
+                  <p className="text-[11px] text-muted-foreground">VPPR class 5→6 · No deposit required</p>
+                </div>
+              </div>
+              <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
+                <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isWhitelisted ? "left-5" : "left-0.5")} />
+              </div>
+            </div>
           </>
         )}
 
@@ -572,7 +603,7 @@ const NewActivation = () => {
               key={`${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan(i)}
-              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : (simType === "esim" ? POSTPAID_PLANS.filter(p => !p.categories?.includes("vnet")) : POSTPAID_PLANS)}
+              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
@@ -867,6 +898,25 @@ const NewActivation = () => {
               {promoError && <p className="text-xs text-destructive mt-1.5">Invalid promo code. Try <span className="font-semibold">SAVE10</span>.</p>}
             </section>
 
+            {/* Whitelisted customer notice */}
+            {isWhitelisted && payType === "postpaid" && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3 flex items-start gap-3">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Whitelisted Customer — No Deposit</p>
+                  {isVipNumber ? (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-500 mt-0.5">
+                      This customer will not pay for the plan. VIP number fee + 15% VAT applies.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-500 mt-0.5">
+                      This customer will not pay anything. No deposit required.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Payment Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
@@ -879,7 +929,11 @@ const NewActivation = () => {
                 {showEsim && (
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
-                    <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
+                    {isWhitelisted && payType === "postpaid" ? (
+                      <span className="text-xs font-semibold text-amber-600">Waived</span>
+                    ) : (
+                      <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} SAR` : "Free"}</span>
+                    )}
                   </div>
                 )}
                 {showNumber && subType === "sim" && numberFee > 0 && (
@@ -891,12 +945,20 @@ const NewActivation = () => {
                 {showDevice && deviceFee > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
-                    <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
+                    {isWhitelisted && payType === "postpaid" ? (
+                      <span className="text-xs font-semibold text-amber-600">Waived</span>
+                    ) : (
+                      <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
+                    )}
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
-                  <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                  {isWhitelisted && payType === "postpaid" ? (
+                    <span className="text-xs font-semibold text-amber-600">Waived</span>
+                  ) : (
+                    <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                  )}
                 </div>
                 {promoApplied && (
                   <div className="flex items-center justify-between">
