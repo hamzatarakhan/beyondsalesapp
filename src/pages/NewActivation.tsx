@@ -1028,7 +1028,6 @@ const NewActivation = () => {
                   {terms && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
                 <span className="text-sm text-foreground">Terms and Conditions</span>
-                {!terms && <span className="ml-auto text-xs text-primary font-semibold">Read &amp; Accept</span>}
               </button>
             </section>
 
