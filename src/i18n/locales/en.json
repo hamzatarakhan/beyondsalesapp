@@ -249,7 +249,22 @@
       "gotIt": "Got it",
       "planLabel": "Plan",
       "topupLabel": "Top-up",
-      "promoLabel": "Promo"
+      "promoLabel": "Promo",
+      "subscription": "Subscription",
+      "mobile": "Mobile",
+      "internet": "Internet",
+      "simNumber": "SIM Number",
+      "topupValue": "Top-up Value",
+      "device": "Device",
+      "confirmPayWallet": "The following amount will be deducted from your dealer wallet.",
+      "confirmPayPos": "Collect the following amount via POS terminal."
+    },
+    "success": {
+      "title": "Success",
+      "message": "Your activation request has been submitted successfully",
+      "orderId": "Order ID:",
+      "goHome": "Go to Home",
+      "close": "Close"
     },
     "signature": {
       "change": "Change",

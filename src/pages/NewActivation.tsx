@@ -234,7 +234,7 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
     <span className="text-[11px] text-muted-foreground">{label}</span>
-    <span className="text-xs font-semibold text-foreground text-right">{value}</span>
+    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
   </div>
 );
 
@@ -780,7 +780,7 @@ const NewActivation = () => {
                 </div>
               </div>
               {showEsim && <SummaryRow label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />}
-              {showEsim && simType === "psim" && kit && <SummaryRow label="SIM Number" value={kit} />}
+              {showEsim && simType === "psim" && kit && <SummaryRow label={t("activation.checkout.simNumber")} value={kit} />}
               <SummaryRow label={t("activation.subscription.type")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
               {selectedPlanObj && (() => {
                 const cats = selectedPlanObj.categories ?? [];
@@ -795,11 +795,11 @@ const NewActivation = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
-              {planMode === "topup" && topupAmount > 0 && <SummaryRow label="Top-up Value" value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
+              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
-              {showDevice && <SummaryRow label="Device" value={deviceObj?.name ?? ""} />}
+              {showDevice && <SummaryRow label={t("activation.checkout.device")} value={deviceObj?.name ?? ""} />}
             </section>
 
             {/* Contact */}
@@ -1275,7 +1275,7 @@ const NewActivation = () => {
           <DrawerHeader className="text-center px-0 pb-4">
             <DrawerTitle>{t("activation.checkout.confirmPay")}</DrawerTitle>
             <DrawerDescription>
-              {pay === "card" ? "The following amount will be deducted from your dealer wallet." : "Collect the following amount via POS terminal."}
+              {pay === "card" ? t("activation.checkout.confirmPayWallet") : t("activation.checkout.confirmPayPos")}
             </DrawerDescription>
           </DrawerHeader>
           <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 flex flex-col items-center gap-1 mb-6">
@@ -1305,9 +1305,15 @@ const NewActivation = () => {
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
         <div className="rounded-xl border border-border p-3 space-y-1.5">
-          <Row label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
-          {showEsim && <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
-          {planMode === "plan" ? <Row label={t("activation.checkout.planLabel")} value={selectedPlanObj?.title ?? ""} /> : <Row label={t("activation.checkout.topupLabel")} value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
+          <Row label={t("activation.checkout.subscription")} value={`${payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} ${lineType === "mobile" ? t("activation.checkout.mobile") : t("activation.checkout.internet")}`} />
+          {showEsim && <Row label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />}
+          {planMode === "plan" && selectedPlanObj && <Row label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
+          {planMode === "plan" && selectedPlanObj?.validityLabel && <Row label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
+          {planMode === "topup" && <Row label={t("activation.checkout.topupValue")} value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
+          {showNumber && <Row label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
+          {showNumber && subType === "sim" && phone && <Row label={t("activation.checkout.phoneNumber")} value={phone} />}
+          {showNumber && subType === "mnp" && portNumber && <Row label={t("activation.subscription.portNumber")} value={portNumber} />}
+          {showDevice && deviceObj && <Row label={t("activation.checkout.device")} value={deviceObj.name} />}
           <Row label={t("activation.checkout.total")} value={`${total} ${t("activation.checkout.sar")}`} />
         </div>
       </SuccessBottomSheet>
@@ -1356,7 +1362,7 @@ const NewActivation = () => {
 const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-center justify-between text-sm">
     <span className="text-muted-foreground">{label}</span>
-    <span className="text-foreground font-medium text-right max-w-[60%] truncate">{value}</span>
+    <span className="text-foreground font-medium text-end max-w-[60%] truncate">{value}</span>
   </div>
 );
 

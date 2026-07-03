@@ -249,7 +249,22 @@
       "gotIt": "حسناً",
       "planLabel": "الخطة",
       "topupLabel": "إضافة رصيد",
-      "promoLabel": "عرض"
+      "promoLabel": "عرض",
+      "subscription": "الاشتراك",
+      "mobile": "جوال",
+      "internet": "إنترنت",
+      "simNumber": "رقم الشريحة",
+      "topupValue": "قيمة الرصيد",
+      "device": "الجهاز",
+      "confirmPayWallet": "سيتم خصم المبلغ التالي من محفظة المندوب.",
+      "confirmPayPos": "حصّل المبلغ التالي عبر نقطة البيع."
+    },
+    "success": {
+      "title": "تم بنجاح",
+      "message": "تم إرسال طلب التفعيل بنجاح",
+      "orderId": "رقم الطلب:",
+      "goHome": "الذهاب إلى الرئيسية",
+      "close": "إغلاق"
     },
     "signature": {
       "change": "تغيير",
