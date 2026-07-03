@@ -73,11 +73,16 @@
       "mnp": "نقل الرقم",
       "searchNumber": "ابحث عن رقم",
       "numberTabs": {
+        "all": "الكل",
         "standard": "عادي",
+        "diamond": "ألماسي",
         "silver": "فضي",
         "gold": "ذهبي",
         "vip": "مميّز"
       },
+      "numberTierSuffix": "رقم",
+      "esimSupportedDevices": "الأجهزة المدعومة وإصدارات iOS",
+      "esimSupportedNote": "iPhone XS والإصدارات الأحدث · iOS 12.1+",
       "portNumber": "رقم النقل",
       "portOperator": "المشغّل الحالي",
       "portContact": "رقم التواصل",
@@ -201,7 +206,20 @@
       "success": "تم التفعيل بنجاح!",
       "successSub": "تم تفعيل الشريحة بنجاح.",
       "done": "تم",
-      "sar": "ر.س"
+      "sar": "ر.س",
+      "customerVerification": "التحقق من العميل",
+      "verifyCustomer": "تحقق من العميل",
+      "customerVerified": "تم التحقق من العميل",
+      "otpFirst": "أكمل التحقق بـ OTP أولاً.",
+      "numberPickerTitle": "اختر رقماً مختلفاً",
+      "search": "بحث",
+      "esimDevicesTitle": "الأجهزة المتوافقة",
+      "esimDevicesNote": "iPhone XS والإصدارات الأحدث تدعم eSIM",
+      "esimUnlocked": "يجب أن يكون الجهاز غير مقفل مع اتصال إنترنت نشط.",
+      "gotIt": "حسناً",
+      "planLabel": "الخطة",
+      "topupLabel": "إضافة رصيد",
+      "promoLabel": "عرض"
     }
   },
   "settings": {

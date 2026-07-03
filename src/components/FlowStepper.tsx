@@ -1,5 +1,6 @@
 import { ScanLine, ClipboardEdit, Wallet, ChevronRight, Check, Smartphone, FileText, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const DEFAULT_STEPS = [
   { label: "Identity", Icon: ScanLine },
@@ -27,12 +28,15 @@ interface FlowStepperProps {
   steps?: { label: string; Icon: typeof ScanLine }[];
 }
 
-const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperProps) => (
+const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperProps) => {
+  const { t } = useTranslation();
+  return (
   <div className={cn("flex items-center justify-center gap-2 py-4", className)}>
     {steps.map((step, i) => {
       const isActive = i === current;
       const isDone = i < current;
       const Icon = step.Icon;
+      const label = t(`activation.steps.${step.label.toLowerCase()}`, step.label);
       return (
         <div key={step.label} className="flex items-center gap-2">
           <div className="flex flex-col items-center">
@@ -53,7 +57,7 @@ const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperP
                 isActive || isDone ? "text-primary" : "text-muted-foreground",
               )}
             >
-              {step.label}
+              {label}
             </span>
           </div>
           {i < steps.length - 1 && (
@@ -68,6 +72,7 @@ const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperP
       );
     })}
   </div>
-);
+  );
+};
 
 export default FlowStepper;

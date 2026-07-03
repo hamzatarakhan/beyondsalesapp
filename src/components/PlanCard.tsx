@@ -13,6 +13,7 @@ export interface PlanCardData {
   price: number;
   discount?: string | null;
   validityLabel?: string;
+  validity?: string[];
   priceSuffix?: string;
   features?: string[];
   categories?: string[];
@@ -259,7 +260,11 @@ const PlanCard = ({
   const resolvedSelectedLabel = selectedLabel ?? t("activation.plan.selected");
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
-  const validity = plan.validityLabel ?? "Valid 30 days";
+  const validityRaw = plan.validityLabel ?? "Valid 30 days";
+  const validityKey = plan.validity?.[0];
+  const validity = validityKey
+    ? t(`activation.plan.validityLabels.${validityKey}`, validityRaw.toLowerCase().replace("valid ", ""))
+    : validityRaw.toLowerCase().replace("valid ", "");
   const isDataOnly = !plan.mins || plan.mins === "-";
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
 
@@ -284,7 +289,7 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
+                {validity} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
@@ -307,7 +312,7 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
+                {validity} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
@@ -353,7 +358,7 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
+                {validity} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">

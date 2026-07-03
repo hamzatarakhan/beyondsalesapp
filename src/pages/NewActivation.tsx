@@ -513,13 +513,13 @@ const NewActivation = () => {
                   <SimCard active={simType === "esim"} label={t("activation.subscription.esim")} onClick={() => setSimType("esim")} />
                 </div>
                 {simType === "esim" && (
-                  <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-left p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
+                  <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
                     <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
                       <Smartphone className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">Supported devices & iOS versions</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">iPhone XS and later · iOS 12.1+</p>
+                      <p className="text-xs font-semibold text-foreground">{t("activation.subscription.esimSupportedDevices")}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.subscription.esimSupportedNote")}</p>
                     </div>
                     <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0" />
                   </button>
@@ -640,7 +640,7 @@ const NewActivation = () => {
                   <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", planMode === "topup" ? "bg-primary/15" : "bg-muted")}>
                     <Database className={cn("w-4 h-4", planMode === "topup" ? "text-primary" : "text-muted-foreground")} />
                   </div>
-                  <div className="flex-1 text-left">
+                  <div className="flex-1 text-start">
                     <p className={cn("text-sm font-semibold", planMode === "topup" ? "text-foreground" : "text-muted-foreground")}>{t("activation.subscription.topupTitle")}</p>
                     <p className="text-xs text-muted-foreground">{t("activation.subscription.topupSub")}</p>
                   </div>
@@ -662,7 +662,7 @@ const NewActivation = () => {
                       {TOPUP_DENOMS.map((d) => (
                         <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
                           className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                          {d} SAR
+                          {d} {t("activation.checkout.sar")}
                         </button>
                       ))}
                     </div>
@@ -683,7 +683,7 @@ const NewActivation = () => {
                     const selected = selectedDevice === device.id;
                     return (
                       <button key={device.id} type="button" onClick={() => setSelectedDevice(device.id)}
-                        className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-colors", selected ? "border-primary bg-primary/5" : "border-border bg-card")}>
+                        className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-start transition-colors", selected ? "border-primary bg-primary/5" : "border-border bg-card")}>
                         <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
                           <Router className="w-5 h-5" />
                         </div>
@@ -1007,12 +1007,12 @@ const NewActivation = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                      <span className="text-xs font-semibold text-foreground">0 SAR</span>
+                      <span className="text-xs font-semibold text-foreground">0 {t("activation.checkout.sar")}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border/60 pt-3">
                     <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                    <span className="text-base font-bold text-primary">0 SAR</span>
+                    <span className="text-base font-bold text-primary">0 {t("activation.checkout.sar")}</span>
                   </div>
                 </>
               ) : /* Case 2: whitelisted + postpaid + VIP number → only show VIP number fee + VAT */
@@ -1020,23 +1020,23 @@ const NewActivation = () => {
                   <>
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
-                        <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                        <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                        <span className="text-xs font-semibold text-foreground">{numberFee} {t("activation.checkout.sar")}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                        <span className="text-xs font-semibold text-foreground">{numberFee} {t("activation.checkout.sar")}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground">{Math.round(numberFee * 0.15)} SAR</span>
+                        <span className="text-xs font-semibold text-foreground">{Math.round(numberFee * 0.15)} {t("activation.checkout.sar")}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                      <span className="text-base font-bold text-primary">{numberFee + Math.round(numberFee * 0.15)} SAR</span>
+                      <span className="text-base font-bold text-primary">{numberFee + Math.round(numberFee * 0.15)} {t("activation.checkout.sar")}</span>
                     </div>
                   </>
                 ) : (
@@ -1050,40 +1050,40 @@ const NewActivation = () => {
                       )}
                       {showNumber && subType === "sim" && numberFee > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{NUMBER_TABS.find(t => t.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label} Number</span>
-                          <span className="text-xs font-semibold text-foreground">{numberFee} SAR</span>
+                          <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                          <span className="text-xs font-semibold text-foreground">{numberFee} {t("activation.checkout.sar")}</span>
                         </div>
                       )}
                       {showDevice && deviceFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
-                          <span className="text-xs font-semibold text-foreground">{deviceFee} SAR</span>
+                          <span className="text-xs font-semibold text-foreground">{deviceFee} {t("activation.checkout.sar")}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
-                        <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                        <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} {t("activation.checkout.sar")}</span>
                       </div>
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-green-600">Promo ({promoCode})</span>
-                          <span className="text-xs font-semibold text-green-600">−{promoDiscount} SAR</span>
+                          <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
+                          <span className="text-xs font-semibold text-green-600">−{promoDiscount} {t("activation.checkout.sar")}</span>
                         </div>
                       )}
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} {t("activation.checkout.sar")}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} {t("activation.checkout.sar")}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                      <span className="text-base font-bold text-primary">{total} SAR</span>
+                      <span className="text-base font-bold text-primary">{total} {t("activation.checkout.sar")}</span>
                     </div>
                   </>
                 )}
@@ -1101,22 +1101,22 @@ const NewActivation = () => {
             )}
 
             {/* Customer Verification */}
-            <SectionCard title={isPostpaidInternet ? t("activation.checkout.nafath") : "Customer Verification"}>
+            <SectionCard title={isPostpaidInternet ? t("activation.checkout.nafath") : t("activation.checkout.customerVerification")}>
               {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : "Customer verified"}</p>
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
               ) : (
                 <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
-                  {isPostpaidInternet ? t("activation.checkout.nafathVerify") : "Verify customer"}
+                  {isPostpaidInternet ? t("activation.checkout.nafathVerify") : t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
-              {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">Complete OTP verification first.</p>}
+              {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
             {/* Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <button
                 type="button"
-                className="flex items-center gap-3 select-none cursor-pointer w-full text-left"
+                className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
                 onClick={() => setTermsOpen(true)}
               >
                 <div className={cn(
@@ -1161,22 +1161,22 @@ const NewActivation = () => {
           <Drawer open={numberPickerOpen} onOpenChange={setNumberPickerOpen}>
             <DrawerContent className="bg-card rounded-t-3xl h-[88vh] flex flex-col">
               <div className="flex items-center justify-between px-5 pt-3 pb-4">
-                <h2 className="text-lg font-bold text-foreground">Choose Different Number</h2>
+                <h2 className="text-lg font-bold text-foreground">{t("activation.checkout.numberPickerTitle")}</h2>
                 <button onClick={() => setNumberPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
               <div className="px-5 mb-3">
                 <div className="relative">
-                  <input value={numberSearch} onChange={e => setNumberSearch(e.target.value)} placeholder="Search" className="w-full h-11 bg-muted/50 rounded-xl pl-4 pr-10 text-sm outline-none border border-border/40" />
-                  <svg className="absolute right-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input value={numberSearch} onChange={e => setNumberSearch(e.target.value)} placeholder={t("activation.checkout.search")} className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-sm outline-none border border-border/40 rtl:text-right" />
+                  <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </div>
               </div>
               <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {NUMBER_TABS.map(tab => (
                   <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
                     className={cn("px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0", numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground")}>
-                    {tab.label}
+                    {t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}
                   </button>
                 ))}
               </div>
@@ -1188,10 +1188,10 @@ const NewActivation = () => {
                     return (
                       <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
-                        <span className="flex-1 text-left text-base font-semibold text-foreground">{item.number}</span>
+                        <span className="flex-1 text-start text-base font-semibold text-foreground">{item.number}</span>
                         {fee > 0
-                          ? <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">SAR</span></span>
-                          : <span className="text-sm font-semibold text-muted-foreground">Free</span>}
+                          ? <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">{t("activation.checkout.sar")}</span></span>
+                          : <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>}
                       </button>
                     );
                   })}
@@ -1207,8 +1207,8 @@ const NewActivation = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
           <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="px-5 pt-3 pb-4">
-            <h2 className="text-lg font-bold text-foreground">Compatible Devices</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">iPhone XS and later support eSIM</p>
+            <h2 className="text-lg font-bold text-foreground">{t("activation.checkout.esimDevicesTitle")}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("activation.checkout.esimDevicesNote")}</p>
           </div>
           <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-4">
             <div className="rounded-2xl bg-muted/40 overflow-hidden divide-y divide-border/50">
@@ -1220,10 +1220,10 @@ const NewActivation = () => {
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground text-center px-4">Device must be <span className="text-foreground font-medium">unlocked</span> with an active internet connection.</p>
+            <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation.checkout.esimUnlocked")}</p>
           </div>
           <div className="px-5 pb-6 pt-2">
-            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>Got it</Button>
+            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>{t("activation.checkout.gotIt")}</Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -1307,15 +1307,15 @@ const NewActivation = () => {
         <div className="rounded-xl border border-border p-3 space-y-1.5">
           <Row label="Subscription" value={`${payType === "prepaid" ? "Prepaid" : "Postpaid"} ${lineType === "mobile" ? "Mobile" : "Internet"}`} />
           {showEsim && <Row label="SIM" value={simType === "psim" ? "P-SIM" : "E-SIM"} />}
-          {planMode === "plan" ? <Row label="Plan" value={selectedPlanObj?.title ?? ""} /> : <Row label="Top-up" value={`${topupAmount} SAR`} />}
-          <Row label="Total" value={`${total} SAR`} />
+          {planMode === "plan" ? <Row label={t("activation.checkout.planLabel")} value={selectedPlanObj?.title ?? ""} /> : <Row label={t("activation.checkout.topupLabel")} value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
+          <Row label={t("activation.checkout.total")} value={`${total} ${t("activation.checkout.sar")}`} />
         </div>
       </SuccessBottomSheet>
 
       {/* Cancel bottom sheet */}
       <Drawer open={cancelOpen} onOpenChange={(o) => { if (!o) { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <DrawerHeader className="text-left px-0 pb-4">
+          <DrawerHeader className="text-start px-0 pb-4">
             <DrawerTitle>Cancel activation</DrawerTitle>
             <DrawerDescription>Please tell us why you're cancelling this activation.</DrawerDescription>
           </DrawerHeader>

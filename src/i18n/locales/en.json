@@ -73,11 +73,16 @@
       "mnp": "MNP",
       "searchNumber": "Search for a number",
       "numberTabs": {
+        "all": "All",
         "standard": "Standard",
+        "diamond": "Diamond",
         "silver": "Silver",
         "gold": "Gold",
         "vip": "VIP"
       },
+      "numberTierSuffix": "Number",
+      "esimSupportedDevices": "Supported Devices & iOS",
+      "esimSupportedNote": "iPhone XS and later · iOS 12.1+",
       "portNumber": "Port Number",
       "portOperator": "Current Operator",
       "portContact": "Contact Number",
@@ -201,7 +206,20 @@
       "success": "Activation Successful!",
       "successSub": "The SIM has been activated successfully.",
       "done": "Done",
-      "sar": "SAR"
+      "sar": "SAR",
+      "customerVerification": "Customer Verification",
+      "verifyCustomer": "Verify customer",
+      "customerVerified": "Customer verified",
+      "otpFirst": "Complete OTP verification first.",
+      "numberPickerTitle": "Choose Different Number",
+      "search": "Search",
+      "esimDevicesTitle": "Compatible Devices",
+      "esimDevicesNote": "iPhone XS and later support eSIM",
+      "esimUnlocked": "Device must be unlocked with an active internet connection.",
+      "gotIt": "Got it",
+      "planLabel": "Plan",
+      "topupLabel": "Top-up",
+      "promoLabel": "Promo"
     }
   },
   "settings": {
