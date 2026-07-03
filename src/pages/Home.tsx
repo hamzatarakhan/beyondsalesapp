@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { 
   Bell, 
   QrCode, 
-  MoreHorizontal,
   XCircle,
   UserX,
   Users,
@@ -125,9 +124,6 @@ const Home = () => {
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">{t("home.customerActivities")}</h3>
-            <button className="w-8 h-8 flex items-center justify-center">
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-            </button>
           </div>
 
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
