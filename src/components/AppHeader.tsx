@@ -13,7 +13,7 @@ const AppHeader = ({ title, showBack = false, rightElement, onBackClick }: AppHe
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
+    <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
       <div className="flex items-center justify-center">
         {showBack && (
           <button
