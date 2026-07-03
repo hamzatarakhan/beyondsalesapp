@@ -546,7 +546,7 @@ const NewActivation = () => {
                               }, 1500);
                             }
                           }}
-                          placeholder="KIT Code (10 Digits)"
+                          placeholder={t("activation.subscription.kitPlaceholder")}
                           className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive")}
                           inputMode="numeric"
                         />
@@ -557,28 +557,21 @@ const NewActivation = () => {
                       {/* kitChecking loader hidden */}
                     </div>
                     {kit && !isKitValid && !kitError && (
-                      <p className="text-xs text-destructive">KIT must be 10 digits</p>
+                      <p className="text-xs text-destructive">{t("activation.subscription.kitDigitsError")}</p>
                     )}
-                    {kitError && (() => {
-                      const messages: Record<string, string> = {
-                        registered: "This KIT Code is already registered to another SIM.",
-                        invalid:    "This KIT Code is not valid. Please check and try again.",
-                        used:       "This KIT Code has already been used for a previous activation.",
-                      };
-                      return (
-                        <p className="text-xs text-destructive flex items-center gap-1.5">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                          {messages[kitError] ?? "Invalid KIT Code. Please try again."}
-                        </p>
-                      );
-                    })()}
+                    {kitError && (
+                      <p className="text-xs text-destructive flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        {t(`activation.subscription.kitErrors.${kitError}`, "Invalid KIT Code. Please try again.")}
+                      </p>
+                    )}
                   </div>
                 )}
               </section>
 
             {/* 2. Subscription Type */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
               <div className="flex gap-3">
                 {([{ value: "prepaid", label: t("activation.subscription.prepaid"), Icon: FileText }, { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
@@ -648,8 +641,8 @@ const NewActivation = () => {
                     <Database className={cn("w-4 h-4", planMode === "topup" ? "text-primary" : "text-muted-foreground")} />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={cn("text-sm font-semibold", planMode === "topup" ? "text-foreground" : "text-muted-foreground")}>Add Top-up</p>
-                    <p className="text-xs text-muted-foreground">Optional balance added to the line</p>
+                    <p className={cn("text-sm font-semibold", planMode === "topup" ? "text-foreground" : "text-muted-foreground")}>{t("activation.subscription.topupTitle")}</p>
+                    <p className="text-xs text-muted-foreground">{t("activation.subscription.topupSub")}</p>
                   </div>
                   {/* Toggle switch */}
                   <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", planMode === "topup" ? "bg-primary" : "bg-muted")}>
@@ -658,11 +651,11 @@ const NewActivation = () => {
                 </button>
                 {planMode === "topup" && (
                   <div className="px-4 pb-4 space-y-3 border-t border-border/60 pt-3">
-                    <p className="text-xs text-muted-foreground">Enter or select an amount</p>
+                    <p className="text-xs text-muted-foreground">{t("activation.subscription.topupHint")}</p>
                     <Input
                       value={topupManual}
                       onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                      placeholder="Amount in SAR"
+                      placeholder={t("activation.subscription.topupPlaceholder")}
                       inputMode="numeric"
                     />
                     <div className="grid grid-cols-5 gap-2">
@@ -683,7 +676,7 @@ const NewActivation = () => {
             {showDevice && (
               <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
-                  Device <span className="text-destructive">*</span>
+                  {t("activation.subscription.deviceTitle")} <span className="text-destructive">*</span>
                 </h3>
                 <div className="space-y-2">
                   {DEVICES.map((device) => {
@@ -701,7 +694,7 @@ const NewActivation = () => {
                         <div className="text-right shrink-0">
                           {device.price > 0
                             ? <span className="text-sm font-bold text-foreground">{device.price} SAR</span>
-                            : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Included</span>
+                            : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation.subscription.deviceIncluded")}</span>
                           }
                         </div>
                         <span className={cn("w-4 h-4 rounded-full border-2 shrink-0", selected ? "border-primary bg-primary" : "border-muted-foreground/40")} />
@@ -720,16 +713,16 @@ const NewActivation = () => {
                     <Phone className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-foreground">
-                    Phone Number <span className="text-destructive">*</span>
+                    {t("activation.subscription.phoneSection")} <span className="text-destructive">*</span>
                   </p>
                 </div>
                 {showMnp && (
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <Sparkles className="w-4 h-4" /> New number
+                      <Sparkles className="w-4 h-4" /> {t("activation.subscription.newNumberBtn")}
                     </button>
                     <button onClick={() => setSubType("mnp")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <ArrowRightLeft className="w-4 h-4" /> Port (MNP)
+                      <ArrowRightLeft className="w-4 h-4" /> {t("activation.subscription.portMnp")}
                     </button>
                   </div>
                 )}
@@ -746,26 +739,26 @@ const NewActivation = () => {
                             {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
                             <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{tab.label}</span>
                             <span className="text-[11px] text-muted-foreground">·</span>
-                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} SAR` : "Free"}</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
                           </div>
                         );
                       })()}
                     </div>
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                      Pick Different Number <ArrowRight className="w-4 h-4" />
+                      {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4" />
                     </button>
                   </>
                 ) : (
                   <div className="space-y-3">
-                    <Field label="Port number"><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
-                    <Field label="Current operator">
+                    <Field label={t("activation.subscription.portNumber")}><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <Field label={t("activation.subscription.currentOperator")}>
                       <Select value={portOperator} onValueChange={setPortOperator}>
-                        <SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("activation.subscription.selectOperator")} /></SelectTrigger>
                         <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
                       </Select>
                     </Field>
-                    <Field label="Contact number"><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
-                    <p className="text-[11px] text-muted-foreground">The number will be transferred from the selected operator after verification.</p>
+                    <Field label={t("activation.subscription.contactNum")}><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <p className="text-[11px] text-muted-foreground">{t("activation.subscription.portNote")}</p>
                   </div>
                 )}
               </section>

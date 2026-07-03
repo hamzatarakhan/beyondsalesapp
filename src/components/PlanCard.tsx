@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { useTranslation } from "react-i18next";
 
 export interface PlanCardData {
   title: string;
@@ -213,46 +214,51 @@ const InfoSheet = ({
   </Drawer>
 );
 
-const AppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
-  <InfoSheet open={open} onClose={onClose} title="Supported Apps" description="Unlimited usage on these apps">
-    {AppIcons.map((item) => (
-      <div
-        key={item.label}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
-      >
-        {item.icon}
-        <span className="text-sm font-medium text-foreground">{item.label}</span>
-      </div>
-    ))}
-  </InfoSheet>
-);
+const AppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <InfoSheet open={open} onClose={onClose} title={t("activation.plan.supportedApps")} description={t("activation.plan.unlimitedApps")}>
+      {AppIcons.map((item) => (
+        <div key={item.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+          {item.icon}
+          <span className="text-sm font-medium text-foreground">{item.label}</span>
+        </div>
+      ))}
+    </InfoSheet>
+  );
+};
 
-const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
-  <InfoSheet open={open} onClose={onClose} title="Available Countries" description="Roaming included in these countries">
-    {COUNTRIES.map((c) => (
-      <div
-        key={c.label}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
-      >
-        <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
-        <span className="text-sm font-medium text-foreground">{c.label}</span>
-      </div>
-    ))}
-  </InfoSheet>
-);
+const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <InfoSheet open={open} onClose={onClose} title={t("activation.plan.availableCountries")} description={t("activation.plan.roamingCountries")}>
+      {COUNTRIES.map((c) => (
+        <div key={c.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+          <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
+          <span className="text-sm font-medium text-foreground">{c.label}</span>
+        </div>
+      ))}
+    </InfoSheet>
+  );
+};
 
 // ── Plan Card ──────────────────────────────────────────────────────────────
 const PlanCard = ({
   plan,
   selected,
   active = true,
-  selectLabel = "Select this plan",
-  selectedLabel = "Selected",
-  minsLabel = "Flex Mins",
+  selectLabel,
+  selectedLabel,
+  minsLabel,
   layout = "flex",
   onSelect,
   onMoreDetails,
 }: Props) => {
+  const { t } = useTranslation();
+  const resolvedSelectLabel = selectLabel ?? t("activation.plan.selectPlan");
+  const resolvedSelectedLabel = selectedLabel ?? t("activation.plan.selected");
+  const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
+  const unlimited = t("activation.plan.unlimited");
   const validity = plan.validityLabel ?? "Valid 30 days";
   const isDataOnly = !plan.mins || plan.mins === "-";
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
@@ -267,7 +273,7 @@ const PlanCard = ({
       >
         {/* Most Popular badge — top-right */}
         <span className="absolute top-0 right-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
-          Most Popular
+          {t("activation.plan.mostPopular")}
         </span>
 
         <div className="p-4 flex flex-col flex-1">
@@ -278,20 +284,20 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} plan
+                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground">Vat Incl</p>
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">SAR</span>
+                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
                   </p>
                 </div>
               </div>
               <div className="mb-4">
-                <FeatureRow icon={Signal} label={<><span className="font-bold">{plan.internet}</span> Core data</>} />
+                <FeatureRow icon={Signal} label={<><span className="font-bold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
               </div>
             </>
           ) : layout === "postpaid" ? (
@@ -301,40 +307,40 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} plan
+                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground">Vat Incl</p>
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">SAR</span>
+                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
                   </p>
                 </div>
               </div>
               <div className="space-y-2.5 mb-4">
-                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> Core data</>} />
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
                 {plan.social && plan.social !== "-" && (
                   <FeatureRow
                     icon={Globe}
-                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? "Unlimited" : plan.social}</span> Social data</>}
+                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? unlimited : plan.social}</span> {t("activation.plan.socialData")}</>}
                     chip={<SocialChip onClick={() => setOpenSheet("apps")} />}
                   />
                 )}
                 {plan.mins && plan.mins !== "-" && (
-                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? "Unlimited" : plan.mins}</span> National minutes</>} />
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
                 )}
                 {plan.mins && plan.mins !== "-" && (
-                  <FeatureRow icon={Phone} label={<><span className="font-semibold">Unlimited</span> Roaming (receiving calls)</>} />
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{unlimited}</span> {t("activation.plan.roaming")}</>} />
                 )}
                 {plan.sms && plan.sms !== "-" && (
-                  <FeatureRow icon={MessageSquare} label={<><span className="font-semibold">{plan.sms === "Unlimited" ? "Unlimited" : plan.sms}</span> SMS</>} />
+                  <FeatureRow icon={MessageSquare} label={<><span className="font-semibold">{plan.sms === "Unlimited" ? unlimited : plan.sms}</span> {t("activation.plan.sms")}</>} />
                 )}
                 {plan.social && plan.social !== "-" && (
                   <FeatureRow
                     icon={Star}
-                    label="Free subscription upon activation"
+                    label={t("activation.plan.freeSubscription")}
                     chip={<FlagChip onClick={() => setOpenSheet("countries")} />}
                   />
                 )}
@@ -347,33 +353,33 @@ const PlanCard = ({
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
-                {validity.toLowerCase().replace("valid ", "")} plan
+                {validity.toLowerCase().replace("valid ", "")} {t("activation.plan.planSuffix")}
               </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
-                  <span className="text-xl">{minsLabel}</span>
+                  <span className="text-xl">{resolvedMinsLabel}</span>
                 </p>
                 <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground">Vat Incl</p>
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">SAR</span>
+                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
                   </p>
                 </div>
               </div>
               <div className="space-y-2.5 mb-4">
-                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> Core data</>} />
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
                 {plan.social && plan.social !== "-" && (
                   <FeatureRow
                     icon={Globe}
-                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? "Unlimited" : plan.social}</span> Social data</>}
+                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? unlimited : plan.social}</span> {t("activation.plan.socialData")}</>}
                     chip={<SocialChip onClick={() => setOpenSheet("apps")} />}
                   />
                 )}
                 <FeatureRow
                   icon={Phone}
-                  label={<><span className="font-semibold">{plan.mins === "Unlimited" ? "Unlimited" : plan.mins}</span> {minsLabel.toLowerCase()}</>}
+                  label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {resolvedMinsLabel.toLowerCase()}</>}
                   chip={<FlagChip onClick={() => setOpenSheet("countries")} />}
                 />
               </div>
@@ -390,7 +396,7 @@ const PlanCard = ({
                 : "bg-primary/10 text-foreground hover:bg-primary/20"
             )}
           >
-            {selected ? selectedLabel : selectLabel}
+            {selected ? resolvedSelectedLabel : resolvedSelectLabel}
           </button>
         </div>
       </div>
