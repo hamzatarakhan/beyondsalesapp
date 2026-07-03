@@ -214,10 +214,10 @@ const SegmentedTabs = ({
   </div>
 );
 
-const SectionCard = ({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) => (
+const SectionCard = ({ title, children, action, required }: { title: string; children: React.ReactNode; action?: React.ReactNode; required?: boolean }) => (
   <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
     <div className="flex items-center justify-between">
-      <h3 className="font-semibold text-foreground text-sm">{title}</h3>
+      <h3 className="font-semibold text-foreground text-sm">{title}{required && <span className="text-destructive"> *</span>}</h3>
       {action}
     </div>
     {children}
@@ -1091,7 +1091,7 @@ const NewActivation = () => {
 
             {/* OTP Verification — not needed for Postpaid Internet (Nafath only) */}
             {!isPostpaidInternet && (
-              <SectionCard title={t("activation.checkout.otp")}>
+              <SectionCard title={t("activation.checkout.otp")} required>
                 {otpVerified ? (
                   <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.otpVerified")}</p>
                 ) : (
@@ -1101,7 +1101,7 @@ const NewActivation = () => {
             )}
 
             {/* Customer Verification */}
-            <SectionCard title={isPostpaidInternet ? t("activation.checkout.nafath") : t("activation.checkout.customerVerification")}>
+            <SectionCard title={isPostpaidInternet ? t("activation.checkout.nafath") : t("activation.checkout.customerVerification")} required>
               {customerVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
               ) : (

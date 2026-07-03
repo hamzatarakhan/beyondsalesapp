@@ -29,7 +29,8 @@ const SplashScreen = ({ onFinish }: SplashScreenProps) => {
       <Lottie
         animationData={splashAnimation}
         loop={false}
-        className="w-full h-full max-w-full max-h-full object-contain"
+        rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+        className="w-full h-full"
       />
     </div>
   );
