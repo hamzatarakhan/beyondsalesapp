@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw, UploadCloud, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const SignatureBox = ({
   title,
@@ -15,7 +16,9 @@ export const SignatureBox = ({
   onEdit: () => void;
   onClear: () => void;
   required?: boolean;
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <section>
     <div className="flex items-center justify-between mb-2">
       <h3 className="text-sm font-semibold text-foreground">
@@ -27,7 +30,7 @@ export const SignatureBox = ({
           onClick={onEdit}
           className="text-xs text-primary font-semibold flex items-center gap-1"
         >
-          <RefreshCw className="w-3.5 h-3.5" /> Change
+          <RefreshCw className="w-3.5 h-3.5" /> {t("activation.signature.change")}
         </button>
       )}
     </div>
@@ -46,11 +49,12 @@ export const SignatureBox = ({
         <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
           <Plus className="w-4 h-4" />
         </span>
-        <p className="text-sm text-muted-foreground">Upload your signature here</p>
+        <p className="text-sm text-muted-foreground">{t("activation.signature.upload")}</p>
       </button>
     )}
   </section>
-);
+  );
+};
 
 export const SignaturePadSheet = ({
   open,
@@ -65,6 +69,7 @@ export const SignaturePadSheet = ({
   onClose: () => void;
   onSave: (dataUrl: string) => void;
 }) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
@@ -212,21 +217,21 @@ export const SignaturePadSheet = ({
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[92vh]">
         <button
           onClick={onClose}
-          className="absolute right-4 top-5 w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center"
-          aria-label="Close"
+          className="absolute end-4 top-5 w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center"
+          aria-label={t("activation.signature.close")}
         >
           <X className="w-4 h-4 text-foreground" />
         </button>
         <div className="text-center px-8 mb-4">
           <h3 className="text-xl font-bold text-foreground">{title}</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Please add your signature in the box below.
+            {t("activation.signature.instruction")}
           </p>
         </div>
         <div className="relative rounded-2xl bg-muted/40 mb-5 flex-1 min-h-[360px]">
-          <label className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-primary text-primary text-xs font-semibold bg-card cursor-pointer">
+          <label className="absolute end-3 top-3 z-10 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-primary text-primary text-xs font-semibold bg-card cursor-pointer">
             <UploadCloud className="w-3.5 h-3.5" />
-            Upload Signature
+            {t("activation.signature.uploadBtn")}
             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
           </label>
           <canvas
@@ -245,14 +250,14 @@ export const SignaturePadSheet = ({
             disabled={!hasInk}
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-base"
           >
-            Apply
+            {t("activation.signature.apply")}
           </Button>
           <button
             type="button"
             onClick={hasInk ? clear : onClose}
             className="w-full h-11 text-primary font-semibold text-base"
           >
-            {hasInk ? "Clear" : "Cancel"}
+            {hasInk ? t("activation.signature.clear") : t("activation.signature.cancel")}
           </button>
         </div>
       </DrawerContent>

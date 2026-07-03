@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Fingerprint, CheckCircle2, XCircle, Scan } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const STORAGE_KEY = "semati_last_verified_at";
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
@@ -36,6 +37,7 @@ interface Props {
 }
 
 const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audience = "customer" }: Props) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
@@ -143,23 +145,23 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 text-center">
               <h3 className="font-semibold text-foreground text-base">
-                {audience === "dealer" ? "Dealer Verification" : audience === "manafath" ? "Manafath Verification" : "Customer Verification"}
+                {audience === "dealer" ? t("activation.verification.dealerTitle") : audience === "manafath" ? t("activation.verification.manafathTitle") : t("activation.verification.customerTitle")}
               </h3>
             </div>
             <button
               onClick={onClose}
               className="w-6 h-6 flex items-center justify-center text-muted-foreground"
-              aria-label="Close"
+              aria-label={t("activation.verification.cancel")}
             >
               <X className="w-4 h-4" />
             </button>
           </div>
           <p className="text-xs text-muted-foreground text-center mb-5 px-6">
             {audience === "dealer"
-              ? "Verify your identity as the dealer to start the activation"
+              ? t("activation.verification.dealerDesc")
               : audience === "manafath"
-              ? "Verify the customer identity through Manafath"
-              : "Please select the verification type for the customer"}
+              ? t("activation.verification.manafathDesc")
+              : t("activation.verification.customerDesc")}
           </p>
 
           <div className="space-y-3">
@@ -171,8 +173,8 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
                   نفاذ
                 </span>
               }
-              title={audience === "manafath" ? "Manafath" : "Nafath"}
-              desc={audience === "manafath" ? "Approve the verification request through the Manafath app." : "Approve the verification request through the Nafath app."}
+              title={audience === "manafath" ? t("activation.verification.manafath") : t("activation.verification.nafath")}
+              desc={audience === "manafath" ? t("activation.verification.manafathMethodDesc") : t("activation.verification.nafathMethodDesc")}
             />
             {audience !== "manafath" && (
               <>
@@ -180,15 +182,15 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
                   onClick={() => pickMethod("fingerprint")}
                   iconBg="bg-rose-100 dark:bg-rose-500/15"
                   iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
-                  title="Fingerprint"
-                  desc="Verify your identity using your device fingerprint."
+                  title={t("activation.verification.fingerprint")}
+                  desc={t("activation.verification.fingerprintMethodDesc")}
                 />
                 <MethodCard
                   onClick={() => pickMethod("absher")}
                   iconBg="bg-emerald-100 dark:bg-emerald-500/15"
                   iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
-                  title="Absher IAM OTP"
-                  desc="Enter the one-time password received through Absher."
+                  title={t("activation.verification.absher")}
+                  desc={t("activation.verification.absherMethodDesc")}
                 />
               </>
             )}
@@ -207,23 +209,23 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center">
               <span className="text-white text-sm font-bold" dir="rtl">نفاذ</span>
             </div>
-            <h4 className="font-semibold text-teal-600 -mt-1">Nafath Verification</h4>
-            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-left flex gap-2">
+            <h4 className="font-semibold text-teal-600 -mt-1">{t("activation.verification.nafathVerification")}</h4>
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-start flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
               <div>
-                <p className="text-[12px] font-semibold text-sky-700 dark:text-sky-300">Action Required</p>
+                <p className="text-[12px] font-semibold text-sky-700 dark:text-sky-300">{t("activation.verification.actionRequired")}</p>
                 <p className="text-[11px] text-sky-700/80 dark:text-sky-200/80 leading-snug">
-                  Ask the <span className="font-semibold">Member Name</span> to open Nafath App and approve the request using the number below.
+                  {t("activation.verification.nafathInstruction")}
                 </p>
               </div>
             </div>
             <div className="w-full rounded-xl bg-muted/40 border border-border px-3 py-3 flex flex-col items-center gap-2">
-              <p className="text-[12px] text-muted-foreground">Verification Number</p>
+              <p className="text-[12px] text-muted-foreground">{t("activation.verification.verificationNumber")}</p>
               <div className="w-full rounded-lg bg-card border border-border py-3 flex items-center justify-center">
                 <span className="text-4xl font-extrabold text-primary tracking-wide">{nafathNumber}</span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Time remaining:{" "}
+                {t("activation.verification.timeRemaining")}{" "}
                 <span className="text-sky-600 font-semibold">
                   {Math.floor(nafathSecondsLeft / 60)}:{String(nafathSecondsLeft % 60).padStart(2, "0")}
                 </span>
@@ -233,7 +235,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               onClick={onClose}
               className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
             >
-              Cancel
+              {t("activation.verification.cancel")}
             </button>
           </div>
         )}
@@ -243,22 +245,22 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-500/15 flex items-center justify-center">
               <Fingerprint className="w-6 h-6 text-rose-500" />
             </div>
-            <h4 className="font-semibold text-foreground">Fingerprint Verification</h4>
+            <h4 className="font-semibold text-foreground">{t("activation.verification.fingerprintVerification")}</h4>
             <HandsDiagram active={step === "fingerprint_ready"} />
             <p className="text-[11px] text-muted-foreground">
               {step === "fingerprint_ready"
-                ? "Right hand , finger 1"
-                : "Please wait while a finger is being selected"}
+                ? t("activation.verification.fingerReady")
+                : t("activation.verification.fingerSelecting")}
             </p>
             <button
               disabled={step !== "fingerprint_ready"}
               onClick={runConnecting}
               className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm disabled:bg-muted disabled:text-muted-foreground"
             >
-              Start
+              {t("activation.verification.start")}
             </button>
             <button onClick={onClose} className="text-primary text-sm font-medium">
-              Cancel
+              {t("activation.verification.cancel")}
             </button>
           </div>
         )}
@@ -268,17 +270,17 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
               <Scan className="w-6 h-6 text-emerald-600" />
             </div>
-            <h4 className="font-semibold text-foreground">Absher IAM OTP Verification</h4>
-            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-left flex gap-2">
+            <h4 className="font-semibold text-foreground">{t("activation.verification.absherVerification")}</h4>
+            <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-start flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
               <div>
-                <p className="text-[11px] font-semibold text-sky-700 dark:text-sky-300">Action Required</p>
+                <p className="text-[11px] font-semibold text-sky-700 dark:text-sky-300">{t("activation.verification.actionRequired")}</p>
                 <p className="text-[10px] text-sky-700/80 dark:text-sky-200/80 leading-snug">
-                  Enter the IAM code received through Absher account.
+                  {t("activation.verification.absherInstruction")}
                 </p>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground self-start">Abshir Code</p>
+            <p className="text-[11px] text-muted-foreground self-start">{t("activation.verification.absherCode")}</p>
             <div className="flex gap-2 w-full justify-between">
               {otp.map((d, i) => (
                 <input
@@ -297,10 +299,10 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               onClick={runConnecting}
               className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2 disabled:bg-muted disabled:text-muted-foreground"
             >
-              Submit
+              {t("activation.verification.submit")}
             </button>
             <button onClick={onClose} className="text-primary text-sm font-medium">
-              Cancel
+              {t("activation.verification.cancel")}
             </button>
           </div>
         )}
@@ -312,10 +314,10 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-1">
-                Connecting To {method === "nafath" ? "Nafath" : method === "absher" ? "Absher" : "Device"} App
+                {t("activation.verification.connectingTo", { app: method === "nafath" ? t("activation.verification.nafath") : method === "absher" ? t("activation.verification.absherApp") : t("activation.verification.device") })}
               </h4>
               <p className="text-xs text-muted-foreground">
-                We're confirming your verification and preparing the next step.
+                {t("activation.verification.connectingDesc")}
               </p>
             </div>
           </div>
@@ -325,9 +327,9 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           <div className="flex flex-col items-center gap-3">
             <CheckCircle2 className="w-16 h-16 text-emerald-500" strokeWidth={2} />
             <div>
-              <h4 className="font-semibold text-foreground mb-1">Verified Successfully !</h4>
+              <h4 className="font-semibold text-foreground mb-1">{t("activation.verification.successTitle")}</h4>
               <p className="text-xs text-muted-foreground">
-                Your identity has been verified successfully.
+                {t("activation.verification.successDesc")}
               </p>
             </div>
           </div>
@@ -337,22 +339,22 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           <div className="flex flex-col items-center gap-3">
             <XCircle className="w-16 h-16 text-primary" strokeWidth={2} />
             <div>
-              <h4 className="font-semibold text-foreground mb-1">Verification Failed !</h4>
+              <h4 className="font-semibold text-foreground mb-1">{t("activation.verification.failedTitle")}</h4>
               <p className="text-xs text-muted-foreground">
-                The verification could not be completed. Please try again.
+                {t("activation.verification.failedDesc")}
               </p>
             </div>
             <button
               onClick={retry}
               className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2"
             >
-              Again
+              {t("activation.verification.again")}
             </button>
             <button
               onClick={onClose}
               className="text-primary text-sm font-medium"
             >
-              Cancel
+              {t("activation.verification.cancel")}
             </button>
           </div>
         )}
@@ -376,7 +378,7 @@ const MethodCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="w-full bg-card border border-border rounded-2xl p-3 flex items-center gap-3 text-left shadow-sm active:scale-[0.99] transition-transform"
+    className="w-full bg-card border border-border rounded-2xl p-3 flex items-center gap-3 text-start shadow-sm active:scale-[0.99] transition-transform"
   >
     <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
       {iconContent}
@@ -385,7 +387,7 @@ const MethodCard = ({
       <p className="text-sm font-semibold text-foreground">{title}</p>
       <p className="text-[11px] text-muted-foreground leading-snug">{desc}</p>
     </div>
-    <span className="text-muted-foreground">›</span>
+    <span className="text-muted-foreground rtl:rotate-180">›</span>
   </button>
 );
 

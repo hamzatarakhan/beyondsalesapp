@@ -521,7 +521,7 @@ const NewActivation = () => {
                       <p className="text-xs font-semibold text-foreground">{t("activation.subscription.esimSupportedDevices")}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.subscription.esimSupportedNote")}</p>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                    <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
                   </button>
                 )}
                 {simType === "psim" && (
@@ -646,7 +646,7 @@ const NewActivation = () => {
                   </div>
                   {/* Toggle switch */}
                   <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", planMode === "topup" ? "bg-primary" : "bg-muted")}>
-                    <span className={cn("absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all", planMode === "topup" ? "left-6" : "left-1")} />
+                    <span className={cn("absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all", planMode === "topup" ? "start-6" : "start-1")} />
                   </div>
                 </button>
                 {planMode === "topup" && (
@@ -737,7 +737,7 @@ const NewActivation = () => {
                         return (
                           <div className="flex items-center gap-1.5">
                             {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
-                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{tab.label}</span>
+                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
                             <span className="text-[11px] text-muted-foreground">·</span>
                             <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
                           </div>
@@ -745,7 +745,7 @@ const NewActivation = () => {
                       })()}
                     </div>
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                      {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4" />
+                      {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
                   </>
                 ) : (
@@ -1232,13 +1232,13 @@ const NewActivation = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl">
           <DrawerHeader>
-            <DrawerTitle className="text-center">OTP Verification</DrawerTitle>
-            <DrawerDescription className="text-center text-xs">Enter the 4-digit code sent to the customer's number</DrawerDescription>
+            <DrawerTitle className="text-center">{t("activation.otpSheet.title")}</DrawerTitle>
+            <DrawerDescription className="text-center text-xs">{t("activation.otpSheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-5 pb-6 space-y-3">
             <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
-            <p className="text-xs text-muted-foreground text-center">Demo: any 4 digits will work</p>
-            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>Verify</Button>
+            <p className="text-xs text-muted-foreground text-center">{t("activation.otpSheet.demo")}</p>
+            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>{t("activation.otpSheet.verify")}</Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -1246,24 +1246,24 @@ const NewActivation = () => {
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
         <DrawerContent className="max-h-[85vh]">
-          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
           </DrawerClose>
           <DrawerHeader className="text-center">
-            <DrawerTitle>Terms and Conditions</DrawerTitle>
-            <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
+            <DrawerTitle>{t("activation.termsSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation.termsSheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
-            <p>By proceeding, the customer agrees to the service agreement, billing terms, and acceptable use policy.</p>
-            <p>All activations are subject to identity verification and regulatory approval.</p>
-            <p>Refunds, replacements, and cancellations follow the standard policy available in the merchant portal.</p>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation.termsSheet.p1")}</p>
+            <p>{t("activation.termsSheet.p2")}</p>
+            <p>{t("activation.termsSheet.p3")}</p>
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">Accept</Button>
+              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
             </DrawerClose>
             <DrawerClose asChild>
-              <button type="button" className="text-sm font-semibold text-primary">Cancel</button>
+              <button type="button" className="text-sm font-semibold text-primary">{t("activation.termsSheet.cancel")}</button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
@@ -1316,36 +1316,36 @@ const NewActivation = () => {
       <Drawer open={cancelOpen} onOpenChange={(o) => { if (!o) { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <DrawerHeader className="text-start px-0 pb-4">
-            <DrawerTitle>Cancel activation</DrawerTitle>
-            <DrawerDescription>Please tell us why you're cancelling this activation.</DrawerDescription>
+            <DrawerTitle>{t("activation.cancelSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation.cancelSheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Cancel reason <span className="text-destructive">*</span></label>
+              <label className="text-sm font-semibold text-foreground">{t("activation.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
                 <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
-                  <SelectValue placeholder="Select a reason" />
+                  <SelectValue placeholder={t("activation.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">Customer changed mind</SelectItem>
-                  <SelectItem value="missing-documents">Missing documents</SelectItem>
-                  <SelectItem value="price-too-high">Price too high</SelectItem>
-                  <SelectItem value="system-issue">System issue</SelectItem>
-                  <SelectItem value="wrong-plan-selected">Wrong plan selected</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="customer-changed-mind">{t("activation.cancelSheet.reasons.customerChangedMind")}</SelectItem>
+                  <SelectItem value="missing-documents">{t("activation.cancelSheet.reasons.missingDocuments")}</SelectItem>
+                  <SelectItem value="price-too-high">{t("activation.cancelSheet.reasons.priceTooHigh")}</SelectItem>
+                  <SelectItem value="system-issue">{t("activation.cancelSheet.reasons.systemIssue")}</SelectItem>
+                  <SelectItem value="wrong-plan-selected">{t("activation.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
+                  <SelectItem value="other">{t("activation.cancelSheet.reasons.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {cancelReason === "other" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label className="text-sm font-semibold text-foreground">Please specify <span className="text-destructive">*</span></label>
-                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder="Describe the reason in detail..." className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none" />
+                <label className="text-sm font-semibold text-foreground">{t("activation.cancelSheet.specify")} <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("activation.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
               </div>
             )}
           </div>
           <div className="flex flex-col gap-2 mt-6">
-            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); navigate("/"); }} className="w-full h-11 rounded-full">Confirm cancel</Button>
-            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">Keep editing</Button>
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); navigate("/"); }} className="w-full h-11 rounded-full">{t("activation.cancelSheet.confirm")}</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("activation.cancelSheet.keepEditing")}</Button>
           </div>
         </DrawerContent>
       </Drawer>

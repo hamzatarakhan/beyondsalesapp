@@ -17,6 +17,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PlanCard, { PlanCardData } from "@/components/PlanCard";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ---------- Types & constants (shared with PrepaidActivation) ----------
 export type Plan = PlanCardData & {
@@ -253,6 +254,7 @@ interface PlanSelectorProps {
 
 const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }: PlanSelectorProps) => {
   const { t } = useTranslation();
+  const { isRtl } = useLanguage();
   const [planType, setPlanType] = useState<string>("all");
   const activePlanType = categoryFilter ?? planType;
   const [planFilters, setPlanFilters] = useState<PlanFilters>(DEFAULT_FILTERS);
@@ -281,7 +283,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     });
   }, [plans, activePlanType, planFilters]);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
   const [activeSnap, setActiveSnap] = useState(0);
   const carouselContainerRef = useRef<HTMLDivElement>(null);
 
@@ -329,6 +331,12 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
     emblaApi.reInit();
     setActiveSnap(0);
   }, [filteredPlans.length, emblaApi]);
+
+  // Re-init when text direction flips (LTR ↔ RTL) so slides scroll the correct way
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.reInit({ direction: isRtl ? "rtl" : "ltr" });
+  }, [isRtl, emblaApi]);
 
   // Scroll to selected plan when selectedPlan changes (e.g. user taps Select)
   useEffect(() => {

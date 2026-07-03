@@ -29,7 +29,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps) => {
       <Lottie
         animationData={splashAnimation}
         loop={false}
-        className="w-full h-full object-cover"
+        className="w-full h-full max-w-full max-h-full object-contain"
       />
     </div>
   );

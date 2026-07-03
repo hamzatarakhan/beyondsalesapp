@@ -152,7 +152,9 @@ const PREVIEW_APPS: { bg: string; path: string }[] = [
 // Country codes for flagcdn.com (ISO 3166-1 alpha-2 lowercase)
 const PREVIEW_COUNTRY_CODES = COUNTRIES.slice(0, PREVIEW_COUNT).map(c => c.code);
 
-const SocialChip = ({ onClick }: { onClick: () => void }) => (
+const SocialChip = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation();
+  return (
   <button onClick={onClick} className="active:opacity-70 shrink-0">
     <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
       <span className="flex -space-x-1">
@@ -164,12 +166,15 @@ const SocialChip = ({ onClick }: { onClick: () => void }) => (
           </span>
         ))}
       </span>
-      +{AppIcons.length - PREVIEW_COUNT} more <ChevronRight className="w-2.5 h-2.5" />
+      {t("activation.plan.moreCount", { count: AppIcons.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
     </span>
   </button>
-);
+  );
+};
 
-const FlagChip = ({ onClick }: { onClick: () => void }) => (
+const FlagChip = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation();
+  return (
   <button onClick={onClick} className="active:opacity-70 shrink-0">
     <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
       <span className="flex -space-x-0.5">
@@ -177,10 +182,11 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => (
           <img key={code} src={`https://flagcdn.com/w20/${code}.png`} alt={code} className="w-4 h-3 rounded-[2px] object-cover border border-white" />
         ))}
       </span>
-      +{COUNTRIES.length - PREVIEW_COUNT} more <ChevronRight className="w-2.5 h-2.5" />
+      {t("activation.plan.moreCount", { count: COUNTRIES.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
     </span>
   </button>
-);
+  );
+};
 
 // ── Info bottom sheet ──────────────────────────────────────────────────────
 const InfoSheet = ({
@@ -202,7 +208,7 @@ const InfoSheet = ({
         <h3 className="font-semibold text-foreground text-lg">{title}</h3>
         <button
           onClick={onClose}
-          className="absolute right-0 w-8 h-8 rounded-full border border-border flex items-center justify-center"
+          className="absolute end-0 w-8 h-8 rounded-full border border-border flex items-center justify-center"
         >
           <X className="w-4 h-4" />
         </button>
@@ -219,12 +225,15 @@ const AppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
   const { t } = useTranslation();
   return (
     <InfoSheet open={open} onClose={onClose} title={t("activation.plan.supportedApps")} description={t("activation.plan.unlimitedApps")}>
-      {AppIcons.map((item) => (
-        <div key={item.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
-          {item.icon}
-          <span className="text-sm font-medium text-foreground">{item.label}</span>
-        </div>
-      ))}
+      {AppIcons.map((item) => {
+        const key = item.label.toLowerCase().replace(/\s*\(.*\)/, "").replace(/[^a-z]/g, "");
+        return (
+          <div key={item.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+            {item.icon}
+            <span className="text-sm font-medium text-foreground">{t(`activation.plan.apps.${key}`, item.label)}</span>
+          </div>
+        );
+      })}
     </InfoSheet>
   );
 };
@@ -236,7 +245,7 @@ const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void 
       {COUNTRIES.map((c) => (
         <div key={c.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
           <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
-          <span className="text-sm font-medium text-foreground">{c.label}</span>
+          <span className="text-sm font-medium text-foreground">{t(`activation.plan.countries.${c.code}`, c.label)}</span>
         </div>
       ))}
     </InfoSheet>

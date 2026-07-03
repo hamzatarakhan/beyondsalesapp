@@ -52,8 +52,8 @@ const Home = () => {
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
 
   const activities = [
-    { icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
-    { icon: PackageCheck, label: t("home.fulfilment"), path: "/phase-2" },
+    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/phase-2" },
   ];
 
   const handleActivityClick = (path: string) => {
@@ -138,7 +138,7 @@ const Home = () => {
                 label={activity.label}
                 color="teal"
                 onClick={() =>
-                  activity.label === "Prepaid" || activity.label === "SIM Activation"
+                  activity.id === "prepaid" || activity.id === "sim"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
