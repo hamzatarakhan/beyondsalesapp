@@ -802,7 +802,7 @@ const NewActivation = () => {
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">Contact</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {!isVnetMode && (
+                {payType !== "postpaid" && (
                   <Field label="City">
                     <Select value={contactCity} onValueChange={setContactCity}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
