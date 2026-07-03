@@ -227,32 +227,19 @@ const AppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
   </InfoSheet>
 );
 
-const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-  const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? COUNTRIES : COUNTRIES.slice(0, SHOW_INITIALLY);
-  return (
-    <InfoSheet open={open} onClose={onClose} title="Available Countries" description="Roaming included in these countries">
-      {visible.map((c) => (
-        <div
-          key={c.label}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
-        >
-          <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
-          <span className="text-sm font-medium text-foreground">{c.label}</span>
-        </div>
-      ))}
-      {!expanded && COUNTRIES.length > SHOW_INITIALLY && (
-        <button
-          onClick={() => setExpanded(true)}
-          className="w-full flex items-center justify-center gap-1.5 py-3 text-sm font-semibold text-primary"
-        >
-          <ChevronDown className="w-4 h-4" />
-          Show all ({COUNTRIES.length - SHOW_INITIALLY} more)
-        </button>
-      )}
-    </InfoSheet>
-  );
-};
+const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
+  <InfoSheet open={open} onClose={onClose} title="Available Countries" description="Roaming included in these countries">
+    {COUNTRIES.map((c) => (
+      <div
+        key={c.label}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
+      >
+        <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
+        <span className="text-sm font-medium text-foreground">{c.label}</span>
+      </div>
+    ))}
+  </InfoSheet>
+);
 
 // ── Plan Card ──────────────────────────────────────────────────────────────
 const PlanCard = ({
