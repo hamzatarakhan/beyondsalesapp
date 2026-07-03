@@ -31,7 +31,7 @@ interface FlowStepperProps {
 const FlowStepper = ({ current, className, steps = DEFAULT_STEPS }: FlowStepperProps) => {
   const { t } = useTranslation();
   return (
-  <div className={cn("flex items-center justify-center gap-2 py-4", className)}>
+  <div dir="ltr" className={cn("flex items-center justify-center gap-2 py-4", className)}>
     {steps.map((step, i) => {
       const isActive = i === current;
       const isDone = i < current;

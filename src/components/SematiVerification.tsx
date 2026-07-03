@@ -387,7 +387,7 @@ const MethodCard = ({
       <p className="text-sm font-semibold text-foreground">{title}</p>
       <p className="text-[11px] text-muted-foreground leading-snug">{desc}</p>
     </div>
-    <span className="text-muted-foreground rtl:rotate-180">›</span>
+    <span className="text-muted-foreground">›</span>
   </button>
 );
 
