@@ -354,6 +354,9 @@
     "language": "اللغة",
     "languageSub": "English",
     "languageSubAr": "العربية",
+    "languagesTitle": "اللغات",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
     "comingSoon": "قريباً",
     "comingSoonDesc": "المزيد من إعدادات التفضيلات قادمة."
   }
