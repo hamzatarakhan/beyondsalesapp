@@ -116,24 +116,24 @@ const AppIcons: { label: string; icon: React.ReactNode }[] = [
 ];
 
 // ── Country list (17+) with flag emojis ────────────────────────────────────
-const COUNTRIES: { label: string; flag: string }[] = [
-  { label: "Saudi Arabia", flag: "🇸🇦" },
-  { label: "UAE", flag: "🇦🇪" },
-  { label: "Egypt", flag: "🇪🇬" },
-  { label: "Bahrain", flag: "🇧🇭" },
-  { label: "Kuwait", flag: "🇰🇼" },
-  { label: "Qatar", flag: "🇶🇦" },
-  { label: "Oman", flag: "🇴🇲" },
-  { label: "Jordan", flag: "🇯🇴" },
-  { label: "Pakistan", flag: "🇵🇰" },
-  { label: "India", flag: "🇮🇳" },
-  { label: "Philippines", flag: "🇵🇭" },
-  { label: "Bangladesh", flag: "🇧🇩" },
-  { label: "Indonesia", flag: "🇮🇩" },
-  { label: "Nigeria", flag: "🇳🇬" },
-  { label: "United Kingdom", flag: "🇬🇧" },
-  { label: "United States", flag: "🇺🇸" },
-  { label: "Turkey", flag: "🇹🇷" },
+const COUNTRIES: { label: string; code: string }[] = [
+  { label: "Saudi Arabia", code: "sa" },
+  { label: "UAE", code: "ae" },
+  { label: "Egypt", code: "eg" },
+  { label: "Bahrain", code: "bh" },
+  { label: "Kuwait", code: "kw" },
+  { label: "Qatar", code: "qa" },
+  { label: "Oman", code: "om" },
+  { label: "Jordan", code: "jo" },
+  { label: "Pakistan", code: "pk" },
+  { label: "India", code: "in" },
+  { label: "Philippines", code: "ph" },
+  { label: "Bangladesh", code: "bd" },
+  { label: "Indonesia", code: "id" },
+  { label: "Nigeria", code: "ng" },
+  { label: "United Kingdom", code: "gb" },
+  { label: "United States", code: "us" },
+  { label: "Turkey", code: "tr" },
 ];
 
 const SHOW_INITIALLY = 8;
@@ -148,7 +148,7 @@ const PREVIEW_APPS: { bg: string; path: string }[] = [
 ];
 
 // Country codes for flagcdn.com (ISO 3166-1 alpha-2 lowercase)
-const PREVIEW_COUNTRY_CODES = ["sa", "ae", "eg"];
+const PREVIEW_COUNTRY_CODES = COUNTRIES.slice(0, PREVIEW_COUNT).map(c => c.code);
 
 const SocialChip = ({ onClick }: { onClick: () => void }) => (
   <button onClick={onClick} className="active:opacity-70 shrink-0">
@@ -237,7 +237,7 @@ const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void 
           key={c.label}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border"
         >
-          <span className="text-2xl w-9 text-center">{c.flag}</span>
+          <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.label} className="w-9 h-6 rounded object-cover border border-border/40" />
           <span className="text-sm font-medium text-foreground">{c.label}</span>
         </div>
       ))}
