@@ -24,6 +24,7 @@ import ActivityIcon from "@/components/ActivityIcon";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Drawer,
@@ -34,10 +35,7 @@ import {
 } from "@/components/ui/drawer";
 import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
-const activities = [
-  { icon: Sparkles, label: "SIM Activation", path: "/new-activation" },
-  { icon: PackageCheck, label: "Fulfilment", path: "/phase-2" },
-];
+// labels resolved dynamically inside component via t()
 
 
 
@@ -48,9 +46,15 @@ const memberOnboarding = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
+
+  const activities = [
+    { icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
+    { icon: PackageCheck, label: t("home.fulfilment"), path: "/phase-2" },
+  ];
 
   const handleActivityClick = (path: string) => {
     setPendingPath(path);
@@ -73,8 +77,8 @@ const Home = () => {
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <p className="font-semibold text-foreground text-[15px]">Hello, Hamza 👋</p>
-            <p className="text-xs text-muted-foreground">123456789</p>
+            <p className="font-semibold text-foreground text-[15px]">{t("home.greeting")}</p>
+            <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
           </div>
         </div>
         
@@ -94,11 +98,12 @@ const Home = () => {
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-primary/80 h-[140px]">
           <div className="absolute inset-0 p-5 flex flex-col justify-center z-10">
             <h2 className="text-xl font-bold text-primary-foreground mb-1">
-              Unlock Your Potential
+              {t("home.hero.title")}
             </h2>
             <p className="text-sm text-primary-foreground/90 leading-snug">
-              Drive Sales, Expand Reach,<br />
-              Achieve Success
+              {t("home.hero.subtitle").split("\n").map((line, i) => (
+                <span key={i}>{line}{i === 0 && <br />}</span>
+              ))}
             </p>
           </div>
           <img 
@@ -119,7 +124,7 @@ const Home = () => {
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Customer Activities</h3>
+            <h3 className="font-semibold text-foreground">{t("home.customerActivities")}</h3>
             <button className="w-8 h-8 flex items-center justify-center">
               <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
             </button>
