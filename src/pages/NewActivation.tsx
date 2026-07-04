@@ -254,8 +254,8 @@ const NewActivation = () => {
   const [nationality, setNationality] = useState("sa");
   const [idNumber, setIdNumber] = useState("1324567896");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
-  // Customer-whitelist toggle is kept in code but hidden from the UI for now.
-  const SHOW_CUSTOMER_WHITELIST = false;
+  // Customer-whitelist toggle visibility.
+  const SHOW_CUSTOMER_WHITELIST = true;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
 
