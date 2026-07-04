@@ -55,6 +55,7 @@ import {
   Lock,
   Loader2,
   CheckCircle2,
+  Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -253,6 +254,10 @@ const NewActivation = () => {
   const [nationality, setNationality] = useState("sa");
   const [idNumber, setIdNumber] = useState("1324567896");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
+  // Customer-whitelist toggle is kept in code but hidden from the UI for now.
+  const SHOW_CUSTOMER_WHITELIST = false;
+  // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
+  const [isDealerHandover, setIsDealerHandover] = useState(false);
 
   // Stage 2 — Subscription Type
   const [payType, setPayType] = useState<PayType>("prepaid");
@@ -340,7 +345,10 @@ const NewActivation = () => {
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
-  const showDelivery     = isPostpaidInternet;
+  // Dealer whitelisted for in-store handover → offer the Skip Delivery option (VNet only).
+  const showHandoverOption = isPostpaidInternet;
+  // Delivery step is skipped when the dealer opts for in-store handover.
+  const showDelivery     = isPostpaidInternet && !(showHandoverOption && isDealerHandover);
 
   // Reset dependent fields when lineType or payType changes
   useEffect(() => {
@@ -479,7 +487,8 @@ const NewActivation = () => {
               <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
             </Field>
 
-            {/* Whitelisted customer toggle */}
+            {/* Whitelisted customer toggle — kept in code, hidden from UI for now */}
+            {SHOW_CUSTOMER_WHITELIST && (
             <div
               className={cn(
                 "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
@@ -501,6 +510,7 @@ const NewActivation = () => {
                 <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isWhitelisted ? "start-5" : "start-0.5")} />
               </div>
             </div>
+            )}
           </>
         )}
 
@@ -828,6 +838,39 @@ const NewActivation = () => {
                 )}
               </div>
             </div>
+
+            {/* In-Store Device Handover / Skip Delivery — shown before delivery when dealer is whitelisted (VNet) */}
+            {showHandoverOption && (
+              <div className="space-y-2">
+                <div
+                  className={cn(
+                    "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
+                    isDealerHandover ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
+                  )}
+                  onClick={() => setIsDealerHandover(v => !v)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
+                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-emerald-600" : "text-muted-foreground")} />
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-semibold", isDealerHandover ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{t("activation.handover.title")}</p>
+                      <p className="text-[11px] text-muted-foreground">{t("activation.handover.subtitle")}</p>
+                      <p className="text-[10px] text-emerald-500 font-medium mt-0.5">{t("activation.handover.protoNote")}</p>
+                    </div>
+                  </div>
+                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-emerald-500" : "bg-muted-foreground/30")}>
+                    <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
+                  </div>
+                </div>
+                {isDealerHandover && (
+                  <div className="flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-2">
+                    <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-snug">{t("activation.handover.onNote")}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Location Information — Vnet only */}
             {showDelivery && (
