@@ -502,6 +502,7 @@ const NewActivation = () => {
                 </div>
                 <div>
                   <p className={cn("text-sm font-semibold", isWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>{t("activation.identity.whitelisted.label")}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{t("activation.identity.whitelisted.demoDesc")}</p>
                   <p className="text-[10px] text-amber-500 font-medium mt-0.5">{t("activation.identity.whitelisted.protoNote")}</p>
                 </div>
               </div>

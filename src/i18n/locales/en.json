@@ -39,6 +39,7 @@
       "whitelisted": {
         "label": "Whitelisted Customer",
         "sublabel": "VPPR class 5→6 upgrade",
+        "demoDesc": "Demo control only — not shown in the real app. Whitelist is set from the customer profile.",
         "protoNote": "Prototype only — for demo purposes",
         "noDeposit": "Whitelisted Customer — No Deposit",
         "freeNotice": "This customer will not pay anything. No deposit required.",
