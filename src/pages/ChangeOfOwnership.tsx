@@ -102,20 +102,20 @@ const ChangeOfOwnership = () => {
           <div className="app-card space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Current Balance</span>
-              <span className="text-sm font-medium text-foreground">80 OMR</span>
+              <span className="text-sm font-medium text-foreground">80 SAR</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Unbilled Amount</span>
-              <span className="text-sm font-medium text-foreground">150 OMR</span>
+              <span className="text-sm font-medium text-foreground">150 SAR</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Billed Amount</span>
-              <span className="text-sm font-medium text-foreground">120 OMR</span>
+              <span className="text-sm font-medium text-foreground">120 SAR</span>
             </div>
             <div className="border-t border-border pt-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-foreground">Total Outstanding</span>
-                <span className="text-sm font-bold text-primary">350 OMR</span>
+                <span className="text-sm font-bold text-primary">350 SAR</span>
               </div>
             </div>
           </div>

@@ -22,20 +22,20 @@ import {
 // Range lookups based on category
 const rangeLookups: Record<string, { value: string; label: string; creditLimit: number }[]> = {
   "bank-statement": [
-    { value: "balance-1000-5000", label: "Balance 1,000 - 5,000 OMR", creditLimit: 100 },
-    { value: "balance-5000-10000", label: "Balance 5,000 - 10,000 OMR", creditLimit: 200 },
-    { value: "balance-10000-plus", label: "Balance 10,000+ OMR", creditLimit: 300 },
+    { value: "balance-1000-5000", label: "Balance 1,000 - 5,000 SAR", creditLimit: 100 },
+    { value: "balance-5000-10000", label: "Balance 5,000 - 10,000 SAR", creditLimit: 200 },
+    { value: "balance-10000-plus", label: "Balance 10,000+ SAR", creditLimit: 300 },
   ],
   "salary-slip": [
-    { value: "salary-100-500", label: "Salary 100 - 500 OMR", creditLimit: 50 },
-    { value: "salary-500-1000", label: "Salary 500 - 1,000 OMR", creditLimit: 100 },
-    { value: "salary-1000-2000", label: "Salary 1,000 - 2,000 OMR", creditLimit: 150 },
-    { value: "salary-2000-plus", label: "Salary 2,000+ OMR", creditLimit: 250 },
+    { value: "salary-100-500", label: "Salary 100 - 500 SAR", creditLimit: 50 },
+    { value: "salary-500-1000", label: "Salary 500 - 1,000 SAR", creditLimit: 100 },
+    { value: "salary-1000-2000", label: "Salary 1,000 - 2,000 SAR", creditLimit: 150 },
+    { value: "salary-2000-plus", label: "Salary 2,000+ SAR", creditLimit: 250 },
   ],
   "credit-card": [
-    { value: "limit-500-2000", label: "Credit Limit 500 - 2,000 OMR", creditLimit: 75 },
-    { value: "limit-2000-5000", label: "Credit Limit 2,000 - 5,000 OMR", creditLimit: 150 },
-    { value: "limit-5000-plus", label: "Credit Limit 5,000+ OMR", creditLimit: 250 },
+    { value: "limit-500-2000", label: "Credit Limit 500 - 2,000 SAR", creditLimit: 75 },
+    { value: "limit-2000-5000", label: "Credit Limit 2,000 - 5,000 SAR", creditLimit: 150 },
+    { value: "limit-5000-plus", label: "Credit Limit 5,000+ SAR", creditLimit: 250 },
   ],
 };
 
@@ -95,7 +95,7 @@ const CreditLimitAdjustment = () => {
         <div className="app-card">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Current Credit Limit</span>
-            <span className="font-semibold text-foreground text-lg">{currentCreditLimit} OMR</span>
+            <span className="font-semibold text-foreground text-lg">{currentCreditLimit} SAR</span>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ const CreditLimitAdjustment = () => {
           <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
             <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <p className="text-sm text-foreground">
-              This range will give you a credit limit of <span className="font-semibold text-primary">{newCreditLimit} OMR</span> for usage.
+              This range will give you a credit limit of <span className="font-semibold text-primary">{newCreditLimit} SAR</span> for usage.
             </p>
           </div>
         )}
@@ -231,7 +231,7 @@ const CreditLimitAdjustment = () => {
               Credit Limit Updated
             </DialogTitle>
             <DialogDescription className="text-center mt-2">
-              The credit limit has been successfully adjusted from {currentCreditLimit} OMR to {newCreditLimit} OMR.
+              The credit limit has been successfully adjusted from {currentCreditLimit} SAR to {newCreditLimit} SAR.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4">

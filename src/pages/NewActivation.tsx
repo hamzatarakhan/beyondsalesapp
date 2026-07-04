@@ -697,7 +697,7 @@ const NewActivation = () => {
                         </div>
                         <div className="text-right shrink-0">
                           {device.price > 0
-                            ? <span className="text-sm font-bold text-foreground">{device.price} SAR</span>
+                            ? <span className="text-sm font-bold text-foreground">{device.price} {t("activation.checkout.sar")}</span>
                             : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation.subscription.deviceIncluded")}</span>
                           }
                         </div>
@@ -1007,7 +1007,7 @@ const NewActivation = () => {
                   <div className="border-t border-border/60 space-y-2 py-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                      <span className="text-xs font-semibold text-foreground">0 SAR</span>
+                      <span className="text-xs font-semibold text-foreground">0 {t("activation.checkout.sar")}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>

@@ -67,19 +67,19 @@ const SimTermination = () => {
           <div className="app-card">
             <div className="billing-row">
               <span className="text-muted-foreground">Current Balance</span>
-              <span className="value-positive">50 OMR</span>
+              <span className="value-positive">50 SAR</span>
             </div>
             <div className="billing-row">
               <span className="text-muted-foreground">Unbilled Amount</span>
-              <span className="value-warning">120 OMR</span>
+              <span className="value-warning">120 SAR</span>
             </div>
             <div className="billing-row">
               <span className="text-muted-foreground">Billed Amount</span>
-              <span className="value-negative">100 OMR</span>
+              <span className="value-negative">100 SAR</span>
             </div>
             <div className="billing-row">
               <span className="text-foreground font-medium">Total Outstanding Amount</span>
-              <span className="font-semibold text-foreground">{totalOutstandingAmount} OMR</span>
+              <span className="font-semibold text-foreground">{totalOutstandingAmount} SAR</span>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ const SimTermination = () => {
             <div>
               <p className="font-medium text-warning text-sm">Awaiting Payment Notice</p>
               <p className="text-sm text-muted-foreground mt-1">
-                You have an outstanding balance of {totalOutstandingAmount} OMR. This request will be placed in "Awaiting Payment" status and the SIM will not be terminated until all dues are cleared.
+                You have an outstanding balance of {totalOutstandingAmount} SAR. This request will be placed in "Awaiting Payment" status and the SIM will not be terminated until all dues are cleared.
               </p>
             </div>
           </div>
@@ -209,7 +209,7 @@ const SimTermination = () => {
             </DialogTitle>
             <DialogDescription className="text-center mt-2">
               {hasOutstandingBalance
-                ? `Your termination request has been submitted. The SIM will be terminated once the outstanding balance of ${totalOutstandingAmount} OMR is paid.`
+                ? `Your termination request has been submitted. The SIM will be terminated once the outstanding balance of ${totalOutstandingAmount} SAR is paid.`
                 : "Your SIM termination request has been processed successfully."}
             </DialogDescription>
           </DialogHeader>
