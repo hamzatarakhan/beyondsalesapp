@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SIM Activation — Case Flows</title>
+<style>
+  :root{ --pm:#2563eb; --pd:#0d9488; --sp:#7c3aed; --vn:#059669;
+         --free:#16a34a; --dep:#b45309; --paid:#334155; --block:#dc2626; --ink:#0f172a; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f6;color:var(--ink)}
+  header{background:#1f3864;color:#fff;padding:16px 22px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;font-size:12px;color:#c9d4e8}
+  .wrap{display:flex;gap:0;min-height:calc(100vh - 64px)}
+  .side{width:290px;background:#fff;border-right:1px solid #dbe1e8;padding:12px;overflow:auto}
+  .grp{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin:12px 6px 6px}
+  .case{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid #e2e8f0;background:#fff;
+        border-radius:10px;padding:9px 10px;margin:5px 0;cursor:pointer;font-size:12.5px;line-height:1.25;transition:.15s}
+  .case:hover{background:#f8fafc}
+  .case.active{border-color:#1f3864;box-shadow:0 0 0 2px #1f386422}
+  .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+  .main{flex:1;padding:18px 22px;overflow:auto}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .bar h2{margin:0;font-size:17px}
+  .btn{border:0;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;background:#1f3864}
+  .btn.alt{background:#e2e8f0;color:#1f3864}
+  .btns{display:flex;gap:8px}
+  #flow{background:#fff;border:1px solid #dbe1e8;border-radius:12px;padding:14px}
+  .foot{font-size:11px;color:#64748b;margin-top:10px}
+  @media print{.side,.bar .btns{display:none}.wrap{display:block}.main{overflow:visible}}
+</style>
+</head>
+<body>
+<header>
+  <h1>SIM Activation — Case Flows</h1>
+  <p>Click a case to see its flow. Notes are shown inside each step. Use “Download PNG” per flow, or “Print / Save all as PDF”. OTP = required whenever a contact number is captured · VNet identity = Nafith.</p>
+</header>
+<div class="wrap">
+  <div class="side" id="side"></div>
+  <div class="main">
+    <div class="bar">
+      <h2 id="ttl">—</h2>
+      <div class="btns">
+        <button class="btn" onclick="dl()">⬇ Download PNG</button>
+        <button class="btn alt" onclick="window.print()">🖨 Print / Save all as PDF</button>
+      </div>
+    </div>
+    <div id="flow"></div>
+    <div class="foot">* Prepaid Mobile has no contact-number field today → OTP requirement to be confirmed. Vanity tiers: Diamond / Gold / Silver / Bronze (fee) vs Standard (free).</div>
+  </div>
+</div>
+<script>
+const G={pm:{c:'var(--pm)',hex:'#2563eb',name:'Prepaid Mobile'},pd:{c:'var(--pd)',hex:'#0d9488',name:'Prepaid Data (5G)'},
+        sp:{c:'var(--sp)',hex:'#7c3aed',name:'Switch Postpaid'},vn:{c:'var(--vn)',hex:'#059669',name:'VNet (Internet)'}};
+const OUT={free:'#16a34a',dep:'#b45309',paid:'#334155',block:'#dc2626'};
+
+// step = {r:roleLabel, lines:[...], note:'', out:type?}  (out marks final payment node color)
+const CASES=[
+ {id:1,g:'pm',t:'Prepaid Mobile · P-SIM · New Standard number',steps:[
+   {r:'Identity',lines:['ID type · nationality · ID number']},
+   {r:'Subscription',lines:['Prepaid · Mobile · P-SIM','KIT code (10 digits, validated)']},
+   {r:'Number',lines:['New number · Standard (free)']},
+   {r:'Contact',lines:['Email','No contact number field'],note:'Prepaid mobile has no contact # → confirm OTP need'},
+   {r:'Verification',lines:['OTP: confirm*','Customer verification (Nafath / Fingerprint / Absher)']},
+   {r:'Payment',lines:['Plan + SIM (10) + VAT'],out:'paid'},
+ ]},
+ {id:2,g:'pm',t:'Prepaid Mobile · P-SIM · New Vanity number',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Prepaid · Mobile · P-SIM · KIT code']},
+   {r:'Number',lines:['New number · Vanity tier (fee)']},
+   {r:'Contact',lines:['Email'],note:'No contact # today → confirm OTP'},
+   {r:'Verification',lines:['OTP: confirm* · Customer verification']},
+   {r:'Payment',lines:['Plan + SIM + Vanity fee + VAT'],out:'paid'},
+ ]},
+ {id:3,g:'pm',t:'Prepaid Mobile · P-SIM · MNP (port)',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Prepaid · Mobile · P-SIM · KIT code']},
+   {r:'Number',lines:['MNP — port existing number','Operator + contact number + consent']},
+   {r:'Contact',lines:['Email'],note:'No contact # today → confirm OTP'},
+   {r:'Verification',lines:['OTP: confirm* · Customer verification']},
+   {r:'Payment',lines:['Plan + SIM + VAT'],out:'paid'},
+ ]},
+ {id:4,g:'pm',t:'Prepaid Mobile · E-SIM · New Standard',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Prepaid · Mobile · E-SIM','Compatible-devices info (no KIT)']},
+   {r:'Number',lines:['New number · Standard (free)']},
+   {r:'Contact',lines:['Email'],note:'No contact # today → confirm OTP'},
+   {r:'Verification',lines:['OTP: confirm* · Customer verification']},
+   {r:'Payment',lines:['Plan + SIM (0) + VAT'],out:'paid'},
+ ]},
+ {id:5,g:'pd',t:'Prepaid Data (5G) · P-SIM',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Prepaid · 5G Data · P-SIM · KIT code']},
+   {r:'Contact',lines:['Email + Contact number'],note:'City field is hidden for 5G Data'},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['Plan + SIM (10) + VAT'],out:'paid'},
+ ]},
+ {id:6,g:'pd',t:'Prepaid Data (5G) · E-SIM',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Prepaid · 5G Data · E-SIM','Compatible-devices info (no KIT)']},
+   {r:'Contact',lines:['Email + Contact number'],note:'City field is hidden for 5G Data'},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['Plan + SIM (0) + VAT'],out:'paid'},
+ ]},
+ {id:7,g:'sp',t:'Switch Postpaid · P-SIM · Not whitelisted · Standard',steps:[
+   {r:'Identity',lines:['ID details · Whitelisted = OFF']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · P-SIM · KIT']},
+   {r:'Number',lines:['New number · Standard (free)']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['DEPOSIT (= plan price) + SIM + VAT'],note:'Deposit clears the customer’s first bill',out:'dep'},
+ ]},
+ {id:8,g:'sp',t:'Switch Postpaid · P-SIM · Vanity + Commitment',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · P-SIM · KIT']},
+   {r:'Number → Vanity',lines:['System shows eligible categories by plan','(Diamond→Gold→Silver→Bronze→Standard)']},
+   {r:'Commitment',lines:['▸ ON  → free + sign Promissory Note (Nafith)','▸ OFF → pay the vanity number price'],note:'Req 1 — needs vanity prices + commitment durations'},
+   {r:'Verification',lines:['OTP required · Customer verification','+ Nafith (promissory note) if committed']},
+   {r:'Payment',lines:['Free with commitment  /  vanity price if OFF'],out:'paid'},
+ ]},
+ {id:9,g:'sp',t:'Switch Postpaid · P-SIM · Whitelisted · Standard',steps:[
+   {r:'Identity',lines:['ID details · Whitelisted = ON']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · P-SIM · KIT']},
+   {r:'Number',lines:['New number · Standard (free)']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['Total 0 — everything waived'],out:'free'},
+ ]},
+ {id:10,g:'sp',t:'Switch Postpaid · P-SIM · Whitelisted · Vanity',steps:[
+   {r:'Identity',lines:['ID details · Whitelisted = ON']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · P-SIM · KIT']},
+   {r:'Number',lines:['New number · VIP / Vanity']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['VIP number fee + 15% VAT only'],note:'Vanity fee applies even when whitelisted',out:'paid'},
+ ]},
+ {id:11,g:'sp',t:'Switch Postpaid · E-SIM · Not whitelisted · Standard',steps:[
+   {r:'Identity',lines:['ID details · Whitelisted = OFF']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · E-SIM','Plan-type chips hidden on E-SIM']},
+   {r:'Number',lines:['New number · Standard (free)']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['Deposit + SIM (0) + VAT'],out:'dep'},
+ ]},
+ {id:12,g:'sp',t:'Switch Postpaid · P-SIM · MNP (port)',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Postpaid · Switch Postpaid · P-SIM · KIT']},
+   {r:'Number',lines:['MNP — port existing number']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Customer verification']},
+   {r:'Payment',lines:['Deposit + SIM + VAT'],out:'dep'},
+ ]},
+ {id:13,g:'vn',t:'VNet · P-SIM · Handover OFF (delivery)',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Postpaid · VNet · P-SIM · KIT','Device = Router']},
+   {r:'In-Store Handover',lines:['OFF — dealer not using in-store handover']},
+   {r:'Delivery',lines:['Capture delivery address','Delivery request triggered']},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Nafith']},
+   {r:'Payment',lines:['Deposit + Router + SIM + VAT'],out:'dep'},
+ ]},
+ {id:14,g:'vn',t:'VNet · P-SIM · Handover ON (skip delivery)',steps:[
+   {r:'Identity',lines:['ID details']},
+   {r:'Subscription',lines:['Postpaid · VNet · P-SIM · KIT · Router']},
+   {r:'In-Store Handover',lines:['ON — dealer whitelisted for in-store handover'],note:'Delivery step skipped · no delivery request · router handed over in-store'},
+   {r:'Contact',lines:['Email + Contact number']},
+   {r:'Verification',lines:['OTP required · Nafith']},
+   {r:'Payment',lines:['Deposit + Router + SIM + VAT'],out:'dep'},
+ ]},
+ {id:15,g:'vn',t:'VNet · P-SIM · Whitelisted',steps:[
+   {r:'Identity',lines:['ID details · Whitelisted = ON']},
+   {r:'Subscription',lines:['Postpaid · VNet · P-SIM · KIT · Router']},
+   {r:'In-Store Handover',lines:['ON or OFF']},
+   {r:'Verification',lines:['OTP required · Nafith']},
+   {r:'Payment',lines:['Waived per whitelist (C1 / C2)'],out:'free'},
+ ]},
+ {id:16,g:'vn',t:'VNet · E-SIM',blocked:true,steps:[
+   {r:'Subscription',lines:['Postpaid · VNet · E-SIM']},
+   {r:'Blocked',lines:['VNet is not available on E-SIM','Use P-SIM for VNet'],out:'block'},
+ ]},
+];
+
+// ---- SVG flow renderer ----
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function renderSVG(cs){
+  const W=680, x=24, boxW=W-48, pad=12, arrow=26;
+  const hex=G[cs.g].hex;
+  let nodes=[], y=16;
+  cs.steps.forEach((s,i)=>{
+    const titleH=24;
+    const lineH=18, noteLH=15;
+    const bodyH=s.lines.length*lineH + (s.note?(pad+ Math.ceil(s.note.length/64)*noteLH):0);
+    const h=titleH+bodyH+pad*2;
+    let outHex = s.out?OUT[s.out]:hex;
+    let g=`<g>`;
+    g+=`<rect x="${x}" y="${y}" width="${boxW}" height="${h}" rx="12" fill="#ffffff" stroke="${s.out?outHex:'#e2e8f0'}" stroke-width="${s.out?2:1}"/>`;
+    g+=`<rect x="${x}" y="${y}" width="6" height="${h}" rx="3" fill="${outHex}"/>`;
+    g+=`<text x="${x+18}" y="${y+18}" font-family="Arial" font-size="12.5" font-weight="700" fill="${outHex}">${esc(s.r)}</text>`;
+    let ty=y+titleH+14;
+    s.lines.forEach(ln=>{ g+=`<text x="${x+18}" y="${ty}" font-family="Arial" font-size="12" fill="#0f172a">${esc(ln)}</text>`; ty+=lineH; });
+    if(s.note){
+      const ny=ty-4, nh=Math.ceil(s.note.length/64)*noteLH+8;
+      g+=`<rect x="${x+16}" y="${ny}" width="${boxW-32}" height="${nh}" rx="6" fill="#fff7ed" stroke="#fdba74"/>`;
+      // simple wrap
+      const words=('Note: '+s.note).split(' '); let line='',ly=ny+15;
+      words.forEach(w=>{ if((line+w).length>64){ g+=`<text x="${x+24}" y="${ly}" font-family="Arial" font-size="11" fill="#9a3412">${esc(line)}</text>`; line=w+' '; ly+=noteLH;} else line+=w+' '; });
+      g+=`<text x="${x+24}" y="${ly}" font-family="Arial" font-size="11" fill="#9a3412">${esc(line.trim())}</text>`;
+    }
+    g+=`</g>`;
+    nodes.push({svg:g,y,h});
+    y+=h;
+    if(i<cs.steps.length-1){ // arrow
+      const ax=x+boxW/2;
+      nodes.push({svg:`<line x1="${ax}" y1="${y}" x2="${ax}" y2="${y+arrow}" stroke="#94a3b8" stroke-width="2"/><polygon points="${ax-5},${y+arrow-6} ${ax+5},${y+arrow-6} ${ax},${y+arrow}" fill="#94a3b8"/>`,y,h:arrow});
+      y+=arrow;
+    }
+  });
+  const H=y+16;
+  const body=nodes.map(n=>n.svg).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`
+    +`<rect width="${W}" height="${H}" fill="#ffffff"/>`+body+`</svg>`;
+}
+
+let current=CASES[0];
+function select(cs){
+  current=cs;
+  document.getElementById('ttl').textContent = 'Case '+cs.id+' — '+cs.t;
+  document.getElementById('flow').innerHTML = renderSVG(cs);
+  document.querySelectorAll('.case').forEach(e=>e.classList.toggle('active', e.dataset.id==cs.id));
+}
+function buildSide(){
+  const groups={pm:[],pd:[],sp:[],vn:[]};
+  CASES.forEach(c=>groups[c.g].push(c));
+  let html='';
+  for(const k of ['pm','pd','sp','vn']){
+    html+=`<div class="grp" style="color:${G[k].hex}">${G[k].name}</div>`;
+    groups[k].forEach(c=>{ html+=`<button class="case" data-id="${c.id}" onclick='select(CASES[${CASES.indexOf(c)}])'>
+      <span class="dot" style="background:${G[k].hex}"></span><span><b>${c.id}.</b> ${esc(c.t)}</span></button>`; });
+  }
+  document.getElementById('side').innerHTML=html;
+}
+function dl(){
+  const svg=document.querySelector('#flow svg');
+  const s=new XMLSerializer().serializeToString(svg);
+  const url='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(s)));
+  const img=new Image();
+  img.onload=()=>{
+    const sc=2, c=document.createElement('canvas');
+    c.width=svg.viewBox.baseVal.width*sc; c.height=svg.viewBox.baseVal.height*sc;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(sc,sc); ctx.drawImage(img,0,0);
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+      a.download='SIM_Case_'+current.id+'.png'; document.body.appendChild(a); a.click(); a.remove(); });
+  };
+  img.src=url;
+}
+buildSide(); select(CASES[0]);
+</script>
+</body>
+</html>
