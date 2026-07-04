@@ -819,8 +819,8 @@ const NewActivation = () => {
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {/* City field hidden for now (state kept — used by delivery/map logic) */}
-                {false && payType !== "postpaid" && (
+                {/* City shown for prepaid mobile; hidden for prepaid data (5G Data) */}
+                {payType !== "postpaid" && !isPrepaidInternet && (
                   <Field label={t("activation.subscription.city")}>
                     <Select value={contactCity} onValueChange={setContactCity}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
