@@ -250,6 +250,8 @@
       "planLabel": "الخطة",
       "topupLabel": "إضافة رصيد",
       "promoLabel": "عرض",
+      "deposit": "وديعة",
+      "depositNote": "وديعة تعادل سعر الخطة — تُخصم من أول فاتورة للعميل.",
       "subscription": "الاشتراك",
       "mobile": "جوال",
       "internet": "إنترنت",

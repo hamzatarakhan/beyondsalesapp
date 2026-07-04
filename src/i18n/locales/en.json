@@ -250,6 +250,8 @@
       "planLabel": "Plan",
       "topupLabel": "Top-up",
       "promoLabel": "Promo",
+      "deposit": "Deposit",
+      "depositNote": "Deposit equal to the plan price — applied to the customer's first bill.",
       "subscription": "Subscription",
       "mobile": "Mobile",
       "internet": "Internet",

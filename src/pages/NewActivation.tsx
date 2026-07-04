@@ -394,6 +394,10 @@ const NewActivation = () => {
   const vat = Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
+  // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
+  // (equal to the plan price) that clears the customer's first bill.
+  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && planMode === "plan";
+
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   const canPay = isContactValid && (isPostpaidInternet || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
@@ -1061,9 +1065,12 @@ const NewActivation = () => {
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
+                        <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
                         <span className="text-xs font-semibold text-foreground">{planPrice} {t("activation.checkout.sar")}</span>
                       </div>
+                      {isPostpaidDeposit && (
+                        <p className="text-[10px] text-muted-foreground leading-snug">{t("activation.checkout.depositNote")}</p>
+                      )}
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
