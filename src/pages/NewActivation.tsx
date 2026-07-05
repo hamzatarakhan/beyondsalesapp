@@ -343,6 +343,8 @@ const NewActivation = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
   const [payConfirmOpen, setPayConfirmOpen] = useState(false);
+  // Vanity commitment for the picked number: ON = free + Nafith; OFF = pay the vanity price.
+  const [vanityCommitment, setVanityCommitment] = useState(true);
 
   // ---------- Derived flags ----------
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
@@ -406,6 +408,10 @@ const NewActivation = () => {
     ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
     : 0;
   const eligibleVanityCategories = VANITY_CATEGORIES.filter((c) => selectedPlanTier >= c.minTier);
+  // Map the picked number's tier to its vanity category (commitment toggle applies to it).
+  const TIER_TO_VANITY: Record<string, string> = { diamond: "exotics", gold: "legendary", silver: "rare", bronze: "value", standard: "standard" };
+  const pickedTier = DEMO_NUMBER_POOL.find((n) => n.number === phone)?.tier ?? "";
+  const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
@@ -820,9 +826,6 @@ const NewActivation = () => {
                               <p className="text-[11px] text-muted-foreground">
                                 {c.months > 0 ? t("activation.vanity.commitment", { months: c.months }) : t("activation.vanity.noCommitment")}
                               </p>
-                              {c.months > 0 && (
-                                <p className="text-[11px] text-primary">{t("activation.vanity.orPay")}</p>
-                              )}
                             </div>
                           </div>
                           <span className="text-[11px] font-semibold text-emerald-600 shrink-0 ms-2">
@@ -831,6 +834,28 @@ const NewActivation = () => {
                         </div>
                       ))}
                     </div>
+
+                    {/* Commitment toggle — applies to the picked vanity number (from the sheet) */}
+                    {pickedVanityCat && pickedVanityCat.months > 0 && (
+                      <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
+                        <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
+                          <div className="text-start">
+                            <p className="text-[13px] font-semibold text-foreground">{t("activation.vanity.commitmentLabel")}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {vanityCommitment
+                                ? t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })
+                                : t("activation.vanity.commitmentOff", { price: pickedVanityCat.price })}
+                            </p>
+                          </div>
+                          <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", vanityCommitment ? "bg-primary" : "bg-muted-foreground/30")}>
+                            <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", vanityCommitment ? "start-5" : "start-0.5")} />
+                          </div>
+                        </button>
+                        {vanityCommitment
+                          ? <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation.vanity.nafithNote")}</p>
+                          : <p className="text-[11px] font-semibold text-foreground">{pickedVanityCat.price} {t("activation.checkout.sar")} · {t("activation.vanity.noCommitment")}</p>}
+                      </div>
+                    )}
                   </div>
                 )}
               </section>
