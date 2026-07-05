@@ -70,35 +70,44 @@ type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
 const PREPAID_PLANS: typeof SHARED_PLANS = [
-  // Flex
-  { title: "Baqah Flex 60",  internet: "6 GB",  mins: "300",  sms: "Unlimited", social: "6 GB",  price: 69,  discount: null, validityLabel: "Valid 28 days", categories: ["flex"],       validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["300 Flex minutes", "6 GB social data"] },
-  { title: "Baqah Flex 100", internet: "35 GB", mins: "1000", sms: "Unlimited", social: "35 GB", price: 115, discount: null, validityLabel: "Valid 28 days", categories: ["flex"],       validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["1000 Flex minutes", "35 GB social data"] },
-  // Baqa (base-plan)
-  { title: "Baqah Flix",     internet: "55 GB", mins: "100",  sms: "100",       social: "Unlimited", price: 30, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 20 GB data", "Free STC TV"] },
-  { title: "Baqah Plus",     internet: "80 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 45, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 30 GB data"] },
-  { title: "Baqah Max",      internet: "120 GB",mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 60, discount: null, validityLabel: "Valid 30 days", categories: ["base-plan"], validity: ["1m","3m"], tags: ["5G","Unlimited"],  features: [], bonuses: ["Bonus 50 GB data"] },
-  // Basic
-  { title: "Basic 10",  internet: "2 GB",  mins: "100", sms: "50",  social: "-",          price: 10, discount: null, validityLabel: "Valid 7 days",  categories: ["basic"], validity: ["7d"], tags: [],            features: [], bonuses: [] },
-  { title: "Basic 20",  internet: "5 GB",  mins: "200", sms: "100", social: "-",          price: 20, discount: null, validityLabel: "Valid 30 days", categories: ["basic"], validity: ["1m"], tags: [],            features: [], bonuses: [] },
-  { title: "Basic 30",  internet: "10 GB", mins: "300", sms: "200", social: "Unlimited",  price: 30, discount: null, validityLabel: "Valid 30 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: ["Social data included"] },
-  // Aman
-  { title: "Aman Basic",     internet: "20 GB", mins: "200",  sms: "200",       social: "Unlimited", price: 18, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["Social"],           features: [], bonuses: ["Bonus 5 GB data"] },
-  { title: "Aman Plus",      internet: "50 GB", mins: "500",  sms: "500",       social: "Unlimited", price: 38, discount: null, validityLabel: "Valid 30 days", categories: ["aman"],      validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["Bonus 15 GB data"] },
-  // Data
-  { title: "Data Boost 50",  internet: "50 GB",  mins: "-", sms: "-", social: "Unlimited", price: 25, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],       tags: ["5G", "Social"],     features: [], bonuses: ["50 GB high-speed data"] },
-  { title: "Data Boost 100", internet: "100 GB", mins: "-", sms: "-", social: "Unlimited", price: 40, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m", "3m"], tags: ["5G", "Social"],     features: [], bonuses: ["100 GB high-speed data"] },
-  { title: "Data Unlimited", internet: "Unlimited", mins: "-", sms: "-", social: "Unlimited", price: 75, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],  tags: ["5G", "Unlimited"],  features: [], bonuses: ["Unlimited data", "50 GB hotspot"] },
-  // Minutes
-  { title: "Talk Basic",  internet: "5 GB",  mins: "500",       sms: "100", social: "Unlimited", price: 20, discount: null, validityLabel: "Valid 7 days",  categories: ["minutes"], validity: ["7d"], tags: ["Social"],    features: [], bonuses: ["500 local minutes"] },
-  { title: "Talk More",   internet: "10 GB", mins: "Unlimited", sms: "250", social: "Unlimited", price: 35, discount: null, validityLabel: "Valid 30 days", categories: ["minutes"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: ["Unlimited local calls", "10 GB data"] },
+  // ── Baqah (base-plan) — 28 days ──
+  { title: "Baqah 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 51.75,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
+  { title: "Baqah 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 80.5,   discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
+  { title: "Baqah 100", internet: "40 GB",     mins: "750",       sms: "-", social: "Unlimited", price: 115,    discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: false },
+  { title: "Baqah 110", internet: "45 GB",     mins: "745",       sms: "-", social: "Unlimited", price: 126.5,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: true },
+  { title: "Baqah 150", internet: "55 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 172.5,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true },
+  { title: "Baqah 185", internet: "80 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 212.75, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true },
+  { title: "Baqah 365", internet: "Unlimited", mins: "Unlimited", sms: "-", social: "Unlimited", price: 419.75, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true },
+  // ── Baqah Flex (flex) — flex minutes to 13+ countries ──
+  { title: "Baqah Flex 60",  internet: "6 GB",   mins: "300",  sms: "-", social: "6 GB",      price: 69,  discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Baqah Flex 100", internet: "35 GB",  mins: "1000", sms: "-", social: "35 GB",     price: 115, discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], badge: "recommended" },
+  { title: "Baqah Flex 300", internet: "100 GB", mins: "1500", sms: "-", social: "Unlimited", price: 345, discount: null, validityLabel: "Valid 90 days", categories: ["flex"], validity: ["3m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [] },
+  // ── Aman (kids / safe) ──
+  { title: "Virgin Mobile Aman 60", internet: "10 GB", mins: "100", sms: "-", social: "-", price: 69, discount: null, validityLabel: "Valid 28 days", categories: ["aman"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "trustedForKids" },
+  // ── Prepaid 5G Data (data-only, by size × validity) ──
+  { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 172.5,  discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous" },
+  { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 253,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous" },
+  { title: "75 GB",     internet: "75 GB",    mins: "-", sms: "-", social: "75 GB",  price: 230,    discount: null, validityLabel: "Valid 60 days",  categories: ["data"], validity: ["2m"],  tags: ["5G","Social"],    features: [], bonuses: [] },
+  { title: "125 GB",    internet: "125 GB",   mins: "-", sms: "-", social: "100 GB", price: 345,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G","Social"],    features: [], bonuses: [] },
+  { title: "300 GB",    internet: "300 GB",   mins: "-", sms: "-", social: "-",      price: 517.5,  discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G"],             features: [], bonuses: [] },
+  { title: "300 GB",    internet: "300 GB",   mins: "-", sms: "-", social: "-",      price: 546.25, discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G"],             features: [], bonuses: [] },
+  { title: "600 GB",    internet: "600 GB",   mins: "-", sms: "-", social: "-",      price: 1035,   discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G"],             features: [], bonuses: [] },
+  { title: "600 GB",    internet: "600 GB",   mins: "-", sms: "-", social: "-",      price: 1092.5, discount: null, validityLabel: "Valid 365 days", categories: ["data"], validity: ["12m"], tags: ["5G"],             features: [], bonuses: [] },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 373.75, discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G","Unlimited"], features: [], bonuses: [] },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 1121.25,discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G","Unlimited"], features: [], bonuses: [] },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 2242.5, discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G","Unlimited"], features: [], bonuses: [] },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 4542.5, discount: null, validityLabel: "Valid 365 days", categories: ["data"], validity: ["12m"], tags: ["5G","Unlimited"], features: [], bonuses: [] },
 ];
 
 const POSTPAID_PLANS: typeof SHARED_PLANS = [
-  // Switch Postpaid
-  { title: "Switch Postpaid 120", internet: "35 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "35 GB data"] },
-  { title: "Switch Postpaid 150", internet: "55 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "55 GB data"] },
-  { title: "Switch Postpaid 180", internet: "75 GB",  mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "75 GB data"] },
-  { title: "Switch Postpaid 210", internet: "100 GB", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 241.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["Unlimited local calls", "100 GB data"] },
+  // Switch Postpaid — all Unlimited social/national/roaming/SMS + Free subscription
+  { title: "Switch Postpaid 120", internet: "35 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,    discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Switch Postpaid 150", internet: "55 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5,  discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Switch Postpaid 180", internet: "75 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,    discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 200", internet: "90 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 230,    discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 250", internet: "120 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 287.5,  discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 300", internet: "155 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 345,    discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 365", internet: "Unlimited", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 419.75, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming","Unlimited"], features: [], bonuses: [] },
   // Vnet (internet/data line)
   { title: "Vnet 100 GB",  internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["100 GB high-speed data"] },
   { title: "Vnet 300 GB",  internet: "300 GB", mins: "-", sms: "-", social: "-", price: 345,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["300 GB high-speed data"] },
@@ -127,10 +136,9 @@ const DISTRICTS: Record<string, string[]> = {
 
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
-  { value: "basic", label: "Basic" },
+  { value: "base-plan", label: "Baqa" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
-  { value: "base-plan", label: "Baqa" },
   { value: "data", label: "5G Data" },
 ];
 

@@ -157,6 +157,29 @@
       "roaming": "Roaming (receiving calls)",
       "sms": "SMS",
       "freeSubscription": "Free subscription upon activation",
+      "badges": {
+        "mostFamous": "Most Famous",
+        "recommended": "Recommended",
+        "inDemand": "In demand",
+        "trustedForKids": "Trusted for Kids"
+      },
+      "aman": {
+        "blocks": "Blocks",
+        "social": "Social Media",
+        "restricted": "Restricted Mode",
+        "youtube": "YouTube",
+        "safeSearch": "Safe Search",
+        "enabled": "Enabled"
+      },
+      "validityText": {
+        "28 days": "28 days",
+        "30 days": "30 days",
+        "60 days": "60 days",
+        "90 days": "90 days",
+        "180 days": "180 days",
+        "365 days": "365 days",
+        "monthly": "Monthly"
+      },
       "moreCount": "+{{count}} more",
       "countries": {
         "sa": "Saudi Arabia",

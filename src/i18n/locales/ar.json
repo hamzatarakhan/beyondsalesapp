@@ -157,6 +157,29 @@
       "roaming": "التجوال (استقبال المكالمات)",
       "sms": "رسائل نصية",
       "freeSubscription": "اشتراك مجاني عند التفعيل",
+      "badges": {
+        "mostFamous": "الأكثر شهرة",
+        "recommended": "موصى به",
+        "inDemand": "عليه إقبال",
+        "trustedForKids": "موثوق للأطفال"
+      },
+      "aman": {
+        "blocks": "يحجب",
+        "social": "مواقع التواصل",
+        "restricted": "الوضع المقيّد",
+        "youtube": "يوتيوب",
+        "safeSearch": "البحث الآمن",
+        "enabled": "مُفعّل"
+      },
+      "validityText": {
+        "28 days": "28 يوم",
+        "30 days": "30 يوم",
+        "60 days": "60 يوم",
+        "90 days": "90 يوم",
+        "180 days": "180 يوم",
+        "365 days": "365 يوم",
+        "monthly": "شهري"
+      },
       "moreCount": "+{{count}} المزيد",
       "countries": {
         "sa": "السعودية",

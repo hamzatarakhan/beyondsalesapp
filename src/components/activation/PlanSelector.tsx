@@ -424,16 +424,21 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
             <div className="flex touch-pan-y items-stretch">
               {filteredPlans.map((p, i) => {
                 const originalIdx = plans.indexOf(p);
+                const cats = p.categories;
+                const layout = cats.includes("switch-postpaid") ? "postpaid"
+                  : cats.includes("aman") ? "aman"
+                  : cats.includes("base-plan") ? "baqa"
+                  : "flex";
                 return (
-                  <div key={p.title} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4 flex">
+                  <div key={`${p.title}-${p.price}`} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4 flex">
                     <PlanCard
                       plan={p}
                       selected={selectedPlan === originalIdx}
                       active={activeSnap === i}
                       onSelect={() => onSelect(originalIdx, p)}
                       onMoreDetails={() => setDetailsPlan(originalIdx)}
-                      minsLabel={p.categories.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
-                      layout={p.categories.includes("switch-postpaid") ? "postpaid" : "flex"}
+                      minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      layout={layout}
                     />
                   </div>
                 );

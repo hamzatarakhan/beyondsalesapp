@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown } from "lucide-react";
+import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,12 @@ export interface PlanCardData {
   categories?: string[];
   tags?: string[];
   bonuses?: string[];
+  /** Badge key rendered top-right (e.g. "mostFamous", "recommended", "trustedForKids"). */
+  badge?: string;
+  /** Postpaid: show the "Unlimited Roaming" row (default true). */
+  roaming?: boolean;
+  /** Show the "Free subscription upon activation" row (default true where applicable). */
+  freeSub?: boolean;
 }
 
 interface Props {
@@ -28,7 +34,7 @@ interface Props {
   selectLabel?: string;
   selectedLabel?: string;
   minsLabel?: string;
-  layout?: "flex" | "postpaid";
+  layout?: "flex" | "postpaid" | "baqa" | "aman";
   onSelect: () => void;
   onMoreDetails?: () => void;
 }
@@ -269,11 +275,8 @@ const PlanCard = ({
   const resolvedSelectedLabel = selectedLabel ?? t("activation.plan.selected");
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
-  const validityRaw = plan.validityLabel ?? "Valid 30 days";
-  const validityKey = plan.validity?.[0];
-  const validity = validityKey
-    ? t(`activation.plan.validityLabels.${validityKey}`, validityRaw.toLowerCase().replace("valid ", ""))
-    : validityRaw.toLowerCase().replace("valid ", "");
+  const validityRaw = (plan.validityLabel ?? "Valid 30 days").replace(/^valid\s*/i, "").trim();
+  const validity = t(`activation.plan.validityText.${validityRaw.toLowerCase()}`, validityRaw);
   const isDataOnly = !plan.mins || plan.mins === "-";
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
 
@@ -285,10 +288,12 @@ const PlanCard = ({
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Most Popular badge — top-right */}
-        <span className="absolute top-0 right-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl">
-          {t("activation.plan.mostPopular")}
-        </span>
+        {/* Per-plan badge — top-right (shown only when the plan has one) */}
+        {plan.badge && (
+          <span className="absolute top-0 end-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl z-10">
+            {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
+          </span>
+        )}
 
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
@@ -310,8 +315,80 @@ const PlanCard = ({
                   </p>
                 </div>
               </div>
-              <div className="mb-4">
+              <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-bold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
+                {plan.social && plan.social !== "-" && (
+                  <FeatureRow
+                    icon={Globe}
+                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? unlimited : plan.social}</span> {t("activation.plan.socialData")}</>}
+                    chip={<SocialChip onClick={() => setOpenSheet("apps")} />}
+                  />
+                )}
+              </div>
+            </>
+          ) : layout === "baqa" ? (
+            <>
+              <p className="text-[12px] text-muted-foreground mb-1">
+                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                  {plan.title}
+                </button>
+                <span className="mx-1.5">•</span>
+                {validity} {t("activation.plan.planSuffix")}
+              </p>
+              <div className="flex items-end justify-between mb-4">
+                <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  <p className="text-xl font-bold text-foreground">
+                    {Number(plan.price).toFixed(2)}{" "}
+                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 mb-4">
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
+                {plan.mins && plan.mins !== "-" && (
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
+                )}
+                {plan.social && plan.social !== "-" && (
+                  <FeatureRow
+                    icon={Globe}
+                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? unlimited : plan.social}</span> {t("activation.plan.socialData")}</>}
+                    chip={<SocialChip onClick={() => setOpenSheet("apps")} />}
+                  />
+                )}
+                {plan.freeSub && (
+                  <FeatureRow icon={Star} label={t("activation.plan.freeSubscription")} />
+                )}
+              </div>
+            </>
+          ) : layout === "aman" ? (
+            <>
+              <p className="text-[12px] text-muted-foreground mb-1">
+                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                  {plan.title}
+                </button>
+                <span className="mx-1.5">•</span>
+                {validity} {t("activation.plan.planSuffix")}
+              </p>
+              <div className="flex items-end justify-between mb-4">
+                <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  <p className="text-xl font-bold text-foreground">
+                    {Number(plan.price).toFixed(2)}{" "}
+                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 mb-4">
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
+                {plan.mins && plan.mins !== "-" && (
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
+                )}
+                <FeatureRow icon={Lock} label={<><span className="font-semibold">{t("activation.plan.aman.blocks")}</span> {t("activation.plan.aman.social")}</>} />
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{t("activation.plan.aman.restricted")}</span> {t("activation.plan.aman.youtube")}</>} />
+                <FeatureRow icon={Globe} label={<><span className="font-semibold">{t("activation.plan.aman.safeSearch")}</span> {t("activation.plan.aman.enabled")}</>} />
               </div>
             </>
           ) : layout === "postpaid" ? (
@@ -345,13 +422,13 @@ const PlanCard = ({
                 {plan.mins && plan.mins !== "-" && (
                   <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
                 )}
-                {plan.mins && plan.mins !== "-" && (
+                {plan.roaming !== false && plan.mins && plan.mins !== "-" && (
                   <FeatureRow icon={Phone} label={<><span className="font-semibold">{unlimited}</span> {t("activation.plan.roaming")}</>} />
                 )}
                 {plan.sms && plan.sms !== "-" && (
                   <FeatureRow icon={MessageSquare} label={<><span className="font-semibold">{plan.sms === "Unlimited" ? unlimited : plan.sms}</span> {t("activation.plan.sms")}</>} />
                 )}
-                {plan.social && plan.social !== "-" && (
+                {plan.freeSub !== false && plan.social && plan.social !== "-" && (
                   <FeatureRow
                     icon={Star}
                     label={t("activation.plan.freeSubscription")}
