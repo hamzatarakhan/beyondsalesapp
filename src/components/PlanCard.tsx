@@ -194,18 +194,19 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-// ── Search engines (Aman Safe Search) ──────────────────────────────────────
+// ── Search engines (Aman Safe Search) — real favicons (always current) ──────
 const SEARCH_ENGINES = [
-  { label: "Google",     color: "#4285F4" },
-  { label: "Bing",       color: "#0C8484" },
-  { label: "DuckDuckGo", color: "#DE5833" },
-  { label: "Yahoo",      color: "#6001D2" },
-  { label: "Ecosia",     color: "#2E8B57" },
-  { label: "Brave",      color: "#FB542B" },
-  { label: "Startpage",  color: "#6A5CFF" },
-  { label: "Yandex",     color: "#FF0000" },
+  { label: "Google",     domain: "google.com" },
+  { label: "Bing",       domain: "bing.com" },
+  { label: "DuckDuckGo", domain: "duckduckgo.com" },
+  { label: "Yahoo",      domain: "yahoo.com" },
+  { label: "Ecosia",     domain: "ecosia.org" },
+  { label: "Brave",      domain: "search.brave.com" },
+  { label: "Startpage",  domain: "startpage.com" },
+  { label: "Yandex",     domain: "yandex.com" },
 ];
 const SEARCH_PREVIEW = 2;
+const favicon = (domain: string) => `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 
 const SearchChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
@@ -214,9 +215,7 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
       <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
         <span className="flex -space-x-1">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
-            <span key={e.label} className="w-4 h-4 rounded-full border border-white shrink-0 flex items-center justify-center text-[8px] font-bold text-white" style={{ background: e.color }}>
-              {e.label[0]}
-            </span>
+            <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-4 h-4 rounded-full border border-white shrink-0 bg-white object-contain" />
           ))}
         </span>
         {t("activation.plan.moreCount", { count: SEARCH_ENGINES.length - SEARCH_PREVIEW })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
@@ -319,7 +318,7 @@ const SearchEnginesSheet = ({ open, onClose }: { open: boolean; onClose: () => v
     <InfoSheet open={open} onClose={onClose} title={t("activation.plan.aman.safeSearchTitle")} description={t("activation.plan.aman.safeSearchDesc")}>
       {SEARCH_ENGINES.map((e) => (
         <div key={e.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
-          <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: e.color }}>{e.label[0]}</span>
+          <img src={favicon(e.domain)} alt={e.label} className="w-8 h-8 rounded-full bg-white p-1 object-contain border border-border/40 shrink-0" />
           <span className="text-sm font-medium text-foreground flex-1">{e.label}</span>
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
         </div>
@@ -354,21 +353,17 @@ const PlanCard = ({
     <>
       <div
         className={cn(
-          "transition-all duration-200 flex flex-col w-full",
+          "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Per-plan badge — top banner ribbon (shown only when the plan has one) */}
+        {/* Per-plan badge — small tag, top-right */}
         {plan.badge && (
-          <div className="bg-muted text-foreground text-center text-[11px] font-bold py-1.5 rounded-t-2xl">
+          <span className="absolute top-0 end-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
-          </div>
+          </span>
         )}
 
-        <div className={cn(
-          "relative rounded-2xl overflow-hidden border border-border bg-card flex flex-col flex-1",
-          plan.badge && "rounded-t-none border-t-0"
-        )}>
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
             <>
@@ -581,7 +576,6 @@ const PlanCard = ({
           >
             {selected ? resolvedSelectedLabel : resolvedSelectLabel}
           </button>
-        </div>
         </div>
       </div>
 
