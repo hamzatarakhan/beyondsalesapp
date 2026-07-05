@@ -343,9 +343,6 @@ const NewActivation = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
   const [payConfirmOpen, setPayConfirmOpen] = useState(false);
-  // Vanity Number selection (Switch Postpaid). commitment ON = free + Nafith; OFF = pay price.
-  const [vanityCategory, setVanityCategory] = useState<string | null>(null);
-  const [vanityCommitment, setVanityCommitment] = useState(true);
 
   // ---------- Derived flags ----------
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
@@ -380,12 +377,6 @@ const NewActivation = () => {
     setPlanTypeChip("all");
     setPlanMode("plan");
   }, [payType, lineType]);
-
-  // Reset vanity selection when the selected plan changes (eligibility depends on it)
-  useEffect(() => {
-    setVanityCategory(null);
-    setVanityCommitment(true);
-  }, [selectedPlan]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
@@ -811,66 +802,35 @@ const NewActivation = () => {
                   </div>
                 )}
 
-                {/* Vanity Number categories — select one, then toggle commitment (Req 1) */}
+                {/* Vanity Number categories — informational overview of what's eligible for the plan */}
                 {isPostpaidMobile && subType === "sim" && selectedPlanObj && (
                   <div className="mt-4 pt-3 border-t border-border/60">
                     <p className="text-xs font-semibold text-foreground">{t("activation.vanity.title")}</p>
                     <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation.vanity.subtitle")}</p>
                     <div className="space-y-2">
-                      {eligibleVanityCategories.map((c) => {
-                        const active = vanityCategory === c.key;
-                        return (
-                          <button
-                            key={c.key}
-                            type="button"
-                            onClick={() => { setVanityCategory(c.key); setVanityCommitment(true); }}
-                            className={cn("w-full flex items-center justify-between rounded-xl border px-3 py-2.5 text-start transition-colors", active ? "border-primary bg-primary/5" : "border-border/60")}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
-                              <div className="min-w-0">
-                                <p className="text-[13px] font-semibold text-foreground truncate">
-                                  {t(`activation.vanity.categories.${c.key}`)}
-                                  <span className="text-muted-foreground font-normal"> · {t(`activation.vanity.tiers.${c.tier}`)}</span>
-                                </p>
-                                <p className="text-[11px] text-muted-foreground">
-                                  {c.months > 0 ? t("activation.vanity.commitment", { months: c.months }) : t("activation.vanity.noCommitment")}
-                                </p>
-                              </div>
-                            </div>
-                            <span className={cn("w-4 h-4 rounded-full border-2 shrink-0 ms-2", active ? "border-primary bg-primary" : "border-muted-foreground/40")} />
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Commitment toggle for the selected non-Standard category */}
-                    {(() => {
-                      const cat = VANITY_CATEGORIES.find((c) => c.key === vanityCategory);
-                      if (!cat || cat.months === 0) return null;
-                      return (
-                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
-                          <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
-                            <div className="text-start">
-                              <p className="text-[13px] font-semibold text-foreground">{t("activation.vanity.commitmentLabel")}</p>
-                              <p className="text-[11px] text-muted-foreground">
-                                {vanityCommitment
-                                  ? t("activation.vanity.commitmentOn", { months: cat.months })
-                                  : t("activation.vanity.commitmentOff", { price: cat.price })}
+                      {eligibleVanityCategories.map((c) => (
+                        <div key={c.key} className="flex items-center justify-between rounded-xl border border-border/60 px-3 py-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-foreground truncate">
+                                {t(`activation.vanity.categories.${c.key}`)}
+                                <span className="text-muted-foreground font-normal"> · {t(`activation.vanity.tiers.${c.tier}`)}</span>
                               </p>
+                              <p className="text-[11px] text-muted-foreground">
+                                {c.months > 0 ? t("activation.vanity.commitment", { months: c.months }) : t("activation.vanity.noCommitment")}
+                              </p>
+                              {c.months > 0 && (
+                                <p className="text-[11px] text-primary">{t("activation.vanity.orPay")}</p>
+                              )}
                             </div>
-                            <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", vanityCommitment ? "bg-primary" : "bg-muted-foreground/30")}>
-                              <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", vanityCommitment ? "start-5" : "start-0.5")} />
-                            </div>
-                          </button>
-                          {vanityCommitment ? (
-                            <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation.vanity.nafithNote")}</p>
-                          ) : (
-                            <p className="text-[11px] font-semibold text-foreground">{cat.price} {t("activation.checkout.sar")} · {t("activation.vanity.noCommitment")}</p>
-                          )}
+                          </div>
+                          <span className="text-[11px] font-semibold text-emerald-600 shrink-0 ms-2">
+                            {c.months > 0 ? t("activation.vanity.freeWithCommitment") : t("activation.vanity.alwaysFree")}
+                          </span>
                         </div>
-                      );
-                    })()}
+                      ))}
+                    </div>
                   </div>
                 )}
               </section>
