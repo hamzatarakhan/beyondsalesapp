@@ -280,7 +280,9 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       const pMins = parsePlanMins(p.mins);
       const matchesMins = pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
       return matchesType && matchesValidity && matchesPrice && matchesData && matchesMins;
-    });
+    })
+    // Order every chip (and "All") from the richest plan to the lowest.
+    .sort((a, b) => b.price - a.price);
   }, [plans, activePlanType, planFilters]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
