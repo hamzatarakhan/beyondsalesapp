@@ -857,7 +857,6 @@ const NewActivation = () => {
                     <div>
                       <p className={cn("text-sm font-semibold", isDealerHandover ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{t("activation.handover.title")}</p>
                       <p className="text-[11px] text-muted-foreground">{t("activation.handover.subtitle")}</p>
-                      <p className="text-[10px] text-emerald-500 font-medium mt-0.5">{t("activation.handover.protoNote")}</p>
                     </div>
                   </div>
                   <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-emerald-500" : "bg-muted-foreground/30")}>
