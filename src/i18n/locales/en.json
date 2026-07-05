@@ -311,6 +311,7 @@
       "commitment": "{{months}}-month commitment",
       "noCommitment": "No commitment",
       "freeWithCommitment": "Free with commitment",
+      "orPay": "Or pay the number price — no commitment",
       "alwaysFree": "Free",
       "categories": {
         "exotics": "Exotics",

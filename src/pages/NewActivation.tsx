@@ -360,6 +360,8 @@ const NewActivation = () => {
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   const showContactField = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
+  // OTP verification only for Prepaid 5G Data and Postpaid VNet; other cases use customer verification only.
+  const showOtp          = isPrepaidInternet || isPostpaidInternet;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
@@ -431,7 +433,7 @@ const NewActivation = () => {
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
-  const canPay = isContactValid && (isPostpaidInternet || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
+  const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -817,6 +819,9 @@ const NewActivation = () => {
                               <p className="text-[11px] text-muted-foreground">
                                 {c.months > 0 ? t("activation.vanity.commitment", { months: c.months }) : t("activation.vanity.noCommitment")}
                               </p>
+                              {c.months > 0 && (
+                                <p className="text-[11px] text-primary">{t("activation.vanity.orPay")}</p>
+                              )}
                             </div>
                           </div>
                           <span className="text-[11px] font-semibold text-emerald-600 shrink-0 ms-2">
@@ -1191,8 +1196,8 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* OTP Verification — not needed for Postpaid Internet (Nafath only) */}
-            {!isPostpaidInternet && (
+            {/* OTP Verification — only for Prepaid 5G Data and Postpaid VNet */}
+            {showOtp && (
               <SectionCard title={t("activation.checkout.otp")} required>
                 {otpVerified ? (
                   <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.otpVerified")}</p>
@@ -1207,11 +1212,11 @@ const NewActivation = () => {
               {customerVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
+                <Button variant="outline" className="w-full" disabled={showOtp && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
                   {isPostpaidInternet ? t("activation.checkout.nafathVerify") : t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
-              {!isPostpaidInternet && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
+              {showOtp && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
             {/* Terms & Conditions */}

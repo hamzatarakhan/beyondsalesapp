@@ -311,6 +311,7 @@
       "commitment": "التزام {{months}} شهراً",
       "noCommitment": "بدون التزام",
       "freeWithCommitment": "مجاني مع الالتزام",
+      "orPay": "أو ادفع سعر الرقم — بدون التزام",
       "alwaysFree": "مجاني",
       "categories": {
         "exotics": "إكزوتيك",
