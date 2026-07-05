@@ -70,6 +70,14 @@ type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
 const PREPAID_PLANS: typeof SHARED_PLANS = [
+  // ── Basic (prepaid) — same features as Switch Postpaid, treated as prepaid ──
+  { title: "Basic 120", internet: "35 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,    discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Basic 150", internet: "55 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5,  discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Basic 180", internet: "75 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 207,    discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Basic 200", internet: "90 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 230,    discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Basic 250", internet: "120 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 287.5,  discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Basic 300", internet: "155 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 345,    discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Basic 365", internet: "Unlimited", mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 419.75, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Roaming","Unlimited"], features: [], bonuses: [] },
   // ── Baqah (base-plan) — 28 days ──
   { title: "Baqah 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 51.75,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
   { title: "Baqah 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 80.5,   discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
@@ -136,6 +144,7 @@ const DISTRICTS: Record<string, string[]> = {
 
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
+  { value: "basic", label: "Basic" },
   { value: "base-plan", label: "Baqa" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
@@ -887,6 +896,7 @@ const NewActivation = () => {
                   cats.includes("data") ? t("activation.subscription.chips.data") :
                   cats.includes("aman") ? t("activation.subscription.chips.aman") :
                   cats.includes("base-plan") ? t("activation.subscription.chips.baqa") :
+                  cats.includes("basic") ? t("activation.subscription.chips.basic") :
                   cats.includes("flex") ? t("activation.subscription.chips.flex") : "";
                 return planTypeLabel ? <SummaryRow label={t("activation.checkout.planType")} value={planTypeLabel} /> : null;
               })()}
