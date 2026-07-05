@@ -305,6 +305,28 @@
       "onNote": "تم تخطي التوصيل — سيتم تسليم الراوتر للعميل في المتجر.",
       "summaryValue": "تسليم في المتجر"
     },
+    "vanity": {
+      "title": "فئة الرقم المميّز",
+      "subtitle": "الفئات المتاحة للخطة المختارة (الأعلى أولاً)",
+      "commitment": "التزام {{months}} شهراً",
+      "noCommitment": "بدون التزام",
+      "freeWithCommitment": "مجاني مع الالتزام",
+      "alwaysFree": "مجاني",
+      "categories": {
+        "exotics": "إكزوتيك",
+        "legendary": "ليجندري",
+        "rare": "نادر",
+        "value": "قيمة",
+        "standard": "عادي"
+      },
+      "tiers": {
+        "diamond": "ألماسي",
+        "gold": "ذهبي",
+        "silver": "فضي",
+        "bronze": "برونزي",
+        "standard": "عادي"
+      }
+    },
     "signature": {
       "change": "تغيير",
       "upload": "أضف توقيعك هنا",

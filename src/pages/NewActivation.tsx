@@ -176,6 +176,16 @@ const DEMO_NUMBER_POOL = [
 
 const SIM_FEES: Record<SimType, number> = { psim: 0, esim: 0 };
 
+// Vanity Number categories — highest → lowest. A category is eligible when the
+// selected Switch Postpaid plan tier (the number in its name) ≥ minTier.
+const VANITY_CATEGORIES = [
+  { key: "exotics",   tier: "diamond",  months: 24, minTier: 250, color: "#3B82F6" },
+  { key: "legendary", tier: "gold",     months: 18, minTier: 180, color: "#EAB308" },
+  { key: "rare",      tier: "silver",   months: 12, minTier: 0,   color: "#94A3B8" },
+  { key: "value",     tier: "bronze",   months: 6,  minTier: 0,   color: "#B45309" },
+  { key: "standard",  tier: "standard", months: 0,  minTier: 0,   color: "#0EA5E9" },
+];
+
 const DEVICES = [
   { id: "router-a", name: "5G Home Router", desc: "Up to 4 Gbps · 64 devices", price: 0 },
   { id: "router-b", name: "5G Gateway Pro", desc: "Up to 2 Gbps · 32 devices", price: 0 },
@@ -388,6 +398,11 @@ const NewActivation = () => {
 
   // ---------- Pricing ----------
   const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
+  // Vanity Number eligibility for the selected Switch Postpaid plan (Req 1).
+  const selectedPlanTier = isPostpaidMobile && selectedPlanObj
+    ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
+    : 0;
+  const eligibleVanityCategories = VANITY_CATEGORIES.filter((c) => selectedPlanTier >= c.minTier);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
@@ -727,8 +742,8 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* Number — Mobile only */}
-            {showNumber && (
+            {/* Number — Mobile only. Postpaid: shown after a plan is selected (vanity depends on it). */}
+            {showNumber && (payType !== "postpaid" || selectedPlan != null) && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -781,6 +796,35 @@ const NewActivation = () => {
                     </Field>
                     <Field label={t("activation.subscription.contactNum")}><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
                     <p className="text-[11px] text-muted-foreground">{t("activation.subscription.portNote")}</p>
+                  </div>
+                )}
+
+                {/* Vanity Number categories — eligible for the selected plan, highest → Standard */}
+                {isPostpaidMobile && subType === "sim" && selectedPlanObj && (
+                  <div className="mt-4 pt-3 border-t border-border/60">
+                    <p className="text-xs font-semibold text-foreground">{t("activation.vanity.title")}</p>
+                    <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation.vanity.subtitle")}</p>
+                    <div className="space-y-2">
+                      {eligibleVanityCategories.map((c) => (
+                        <div key={c.key} className="flex items-center justify-between rounded-xl border border-border/60 px-3 py-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-foreground truncate">
+                                {t(`activation.vanity.categories.${c.key}`)}
+                                <span className="text-muted-foreground font-normal"> · {t(`activation.vanity.tiers.${c.tier}`)}</span>
+                              </p>
+                              <p className="text-[11px] text-muted-foreground">
+                                {c.months > 0 ? t("activation.vanity.commitment", { months: c.months }) : t("activation.vanity.noCommitment")}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-semibold text-emerald-600 shrink-0 ms-2">
+                            {c.months > 0 ? t("activation.vanity.freeWithCommitment") : t("activation.vanity.alwaysFree")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </section>

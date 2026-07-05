@@ -305,6 +305,28 @@
       "onNote": "Delivery skipped — the router will be handed over to the customer in-store.",
       "summaryValue": "In-store handover"
     },
+    "vanity": {
+      "title": "Vanity Number Category",
+      "subtitle": "Categories available for the selected plan (highest first)",
+      "commitment": "{{months}}-month commitment",
+      "noCommitment": "No commitment",
+      "freeWithCommitment": "Free with commitment",
+      "alwaysFree": "Free",
+      "categories": {
+        "exotics": "Exotics",
+        "legendary": "Legendary",
+        "rare": "Rare",
+        "value": "Value",
+        "standard": "Standard"
+      },
+      "tiers": {
+        "diamond": "Diamond",
+        "gold": "Gold",
+        "silver": "Silver",
+        "bronze": "Bronze",
+        "standard": "Standard"
+      }
+    },
     "signature": {
       "change": "Change",
       "upload": "Upload your signature here",
