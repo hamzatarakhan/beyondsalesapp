@@ -174,7 +174,7 @@ const DEMO_NUMBER_POOL = [
   { number: "0547896338", tier: "silver" },
 ];
 
-const SIM_FEES: Record<SimType, number> = { psim: 10, esim: 0 };
+const SIM_FEES: Record<SimType, number> = { psim: 0, esim: 0 };
 
 const DEVICES = [
   { id: "router-a", name: "5G Home Router", desc: "Up to 4 Gbps · 64 devices", price: 0 },
@@ -1038,9 +1038,9 @@ const NewActivation = () => {
               {isWhitelisted && payType === "postpaid" && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
-                    {showEsim && (
+                    {showEsim && simType === "esim" && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.esim")}</span>
                         <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
                       </div>
                     )}
@@ -1097,9 +1097,9 @@ const NewActivation = () => {
                 ) : (
                   <>
                     <div className="space-y-2 pb-3">
-                      {showEsim && (
+                      {showEsim && simType === "esim" && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{simType === "psim" ? "P-SIM Card" : "E-SIM"}</span>
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.esim")}</span>
                           <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
                         </div>
                       )}
