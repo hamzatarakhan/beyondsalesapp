@@ -313,6 +313,10 @@
       "freeWithCommitment": "مجاني مع الالتزام",
       "orPay": "أو ادفع سعر الرقم — بدون التزام",
       "alwaysFree": "مجاني",
+      "commitmentLabel": "الالتزام",
+      "commitmentOn": "مجاني مع التزام {{months}} شهراً",
+      "commitmentOff": "ادفع {{price}} ر.س — بدون فترة التزام",
+      "nafithNote": "سيتم توقيع سند إقرار عبر نافث عند الدفع.",
       "categories": {
         "exotics": "إكزوتيك",
         "legendary": "ليجندري",

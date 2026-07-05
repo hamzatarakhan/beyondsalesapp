@@ -313,6 +313,10 @@
       "freeWithCommitment": "Free with commitment",
       "orPay": "Or pay the number price — no commitment",
       "alwaysFree": "Free",
+      "commitmentLabel": "Commitment",
+      "commitmentOn": "Free with {{months}}-month commitment",
+      "commitmentOff": "Pay {{price}} SAR — no commitment period",
+      "nafithNote": "A Promissory Note will be signed via Nafith at checkout.",
       "categories": {
         "exotics": "Exotics",
         "legendary": "Legendary",
