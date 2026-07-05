@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock } from "lucide-react";
+import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, Youtube, MonitorPlay, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
@@ -194,6 +194,43 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
+// ── Search engines (Aman Safe Search) ──────────────────────────────────────
+const SEARCH_ENGINES = [
+  { label: "Google",     color: "#4285F4" },
+  { label: "Bing",       color: "#0C8484" },
+  { label: "DuckDuckGo", color: "#DE5833" },
+  { label: "Yahoo",      color: "#6001D2" },
+  { label: "Ecosia",     color: "#2E8B57" },
+  { label: "Brave",      color: "#FB542B" },
+  { label: "Startpage",  color: "#6A5CFF" },
+  { label: "Yandex",     color: "#FF0000" },
+];
+const SEARCH_PREVIEW = 2;
+
+const SearchChip = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <button onClick={onClick} className="active:opacity-70 shrink-0">
+      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
+        <span className="flex -space-x-1">
+          {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
+            <span key={e.label} className="w-4 h-4 rounded-full border border-white shrink-0 flex items-center justify-center text-[8px] font-bold text-white" style={{ background: e.color }}>
+              {e.label[0]}
+            </span>
+          ))}
+        </span>
+        {t("activation.plan.moreCount", { count: SEARCH_ENGINES.length - SEARCH_PREVIEW })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+      </span>
+    </button>
+  );
+};
+
+const YouTubeChip = () => (
+  <span className="w-6 h-6 rounded-full bg-[#FF0000] flex items-center justify-center shrink-0">
+    <Youtube className="w-3.5 h-3.5 text-white" fill="white" stroke="#FF0000" strokeWidth={1.5} />
+  </span>
+);
+
 // ── Info bottom sheet ──────────────────────────────────────────────────────
 const InfoSheet = ({
   open,
@@ -258,6 +295,39 @@ const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void 
   );
 };
 
+const BlockedAppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <InfoSheet open={open} onClose={onClose} title={t("activation.plan.aman.blockedTitle")} description={t("activation.plan.aman.blockedDesc")}>
+      {AppIcons.map((item) => {
+        const key = item.label.toLowerCase().replace(/\s*\(.*\)/, "").replace(/[^a-z]/g, "");
+        return (
+          <div key={item.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+            {item.icon}
+            <span className="text-sm font-medium text-foreground flex-1">{t(`activation.plan.apps.${key}`, item.label)}</span>
+            <Lock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          </div>
+        );
+      })}
+    </InfoSheet>
+  );
+};
+
+const SearchEnginesSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <InfoSheet open={open} onClose={onClose} title={t("activation.plan.aman.safeSearchTitle")} description={t("activation.plan.aman.safeSearchDesc")}>
+      {SEARCH_ENGINES.map((e) => (
+        <div key={e.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+          <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: e.color }}>{e.label[0]}</span>
+          <span className="text-sm font-medium text-foreground flex-1">{e.label}</span>
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+        </div>
+      ))}
+    </InfoSheet>
+  );
+};
+
 // ── Plan Card ──────────────────────────────────────────────────────────────
 const PlanCard = ({
   plan,
@@ -278,23 +348,27 @@ const PlanCard = ({
   const validityRaw = (plan.validityLabel ?? "Valid 30 days").replace(/^valid\s*/i, "").trim();
   const validity = t(`activation.plan.validityText.${validityRaw.toLowerCase()}`, validityRaw);
   const isDataOnly = !plan.mins || plan.mins === "-";
-  const [openSheet, setOpenSheet] = useState<null | "apps" | "countries">(null);
+  const [openSheet, setOpenSheet] = useState<null | "apps" | "countries" | "blocked" | "search">(null);
 
   return (
     <>
       <div
         className={cn(
-          "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
+          "transition-all duration-200 flex flex-col w-full",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Per-plan badge — top-right (shown only when the plan has one) */}
+        {/* Per-plan badge — top banner ribbon (shown only when the plan has one) */}
         {plan.badge && (
-          <span className="absolute top-0 end-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl z-10">
+          <div className="bg-muted text-foreground text-center text-[11px] font-bold py-1.5 rounded-t-2xl">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
-          </span>
+          </div>
         )}
 
+        <div className={cn(
+          "relative rounded-2xl overflow-hidden border border-border bg-card flex flex-col flex-1",
+          plan.badge && "rounded-t-none border-t-0"
+        )}>
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
             <>
@@ -364,6 +438,12 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
+              {/* Trusted for Kids pill */}
+              <div className="mb-3">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wide">
+                  <ShieldCheck className="w-4 h-4" /> {t("activation.plan.aman.trustedPill")}
+                </span>
+              </div>
               <p className="text-[12px] text-muted-foreground mb-1">
                 <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
                   {plan.title}
@@ -384,11 +464,23 @@ const PlanCard = ({
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
                 {plan.mins && plan.mins !== "-" && (
-                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins} {t("activation.plan.aman.minUnit")}</span> {t("activation.plan.nationalMins")}</>} />
                 )}
-                <FeatureRow icon={Lock} label={<><span className="font-semibold">{t("activation.plan.aman.blocks")}</span> {t("activation.plan.aman.social")}</>} />
-                <FeatureRow icon={Signal} label={<><span className="font-semibold">{t("activation.plan.aman.restricted")}</span> {t("activation.plan.aman.youtube")}</>} />
-                <FeatureRow icon={Globe} label={<><span className="font-semibold">{t("activation.plan.aman.safeSearch")}</span> {t("activation.plan.aman.enabled")}</>} />
+                <FeatureRow
+                  icon={Lock}
+                  label={<><span className="font-semibold">{t("activation.plan.aman.blocks")}</span> {t("activation.plan.aman.social")}</>}
+                  chip={<SocialChip onClick={() => setOpenSheet("blocked")} />}
+                />
+                <FeatureRow
+                  icon={MonitorPlay}
+                  label={<><span className="font-semibold">{t("activation.plan.aman.restricted")}</span> {t("activation.plan.aman.youtube")}</>}
+                  chip={<YouTubeChip />}
+                />
+                <FeatureRow
+                  icon={Search}
+                  label={<><span className="font-semibold">{t("activation.plan.aman.safeSearch")}</span> {t("activation.plan.aman.enabled")}</>}
+                  chip={<SearchChip onClick={() => setOpenSheet("search")} />}
+                />
               </div>
             </>
           ) : layout === "postpaid" ? (
@@ -490,10 +582,13 @@ const PlanCard = ({
             {selected ? resolvedSelectedLabel : resolvedSelectLabel}
           </button>
         </div>
+        </div>
       </div>
 
       <AppsSheet open={openSheet === "apps"} onClose={() => setOpenSheet(null)} />
       <CountriesSheet open={openSheet === "countries"} onClose={() => setOpenSheet(null)} />
+      <BlockedAppsSheet open={openSheet === "blocked"} onClose={() => setOpenSheet(null)} />
+      <SearchEnginesSheet open={openSheet === "search"} onClose={() => setOpenSheet(null)} />
     </>
   );
 };

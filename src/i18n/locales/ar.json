@@ -169,7 +169,13 @@
         "restricted": "الوضع المقيّد",
         "youtube": "يوتيوب",
         "safeSearch": "البحث الآمن",
-        "enabled": "مُفعّل"
+        "enabled": "مُفعّل",
+        "trustedPill": "موثوق للأطفال",
+        "minUnit": "دقيقة",
+        "blockedTitle": "مواقع التواصل المحجوبة",
+        "blockedDesc": "هذه التطبيقات محجوبة في هذه الباقة",
+        "safeSearchTitle": "البحث الآمن",
+        "safeSearchDesc": "البحث الآمن مُفعّل على هذه المحركات"
       },
       "validityText": {
         "28 days": "28 يوم",

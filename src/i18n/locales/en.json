@@ -169,7 +169,13 @@
         "restricted": "Restricted Mode",
         "youtube": "YouTube",
         "safeSearch": "Safe Search",
-        "enabled": "Enabled"
+        "enabled": "Enabled",
+        "trustedPill": "Trusted for Kids",
+        "minUnit": "Min",
+        "blockedTitle": "Blocked Social Media",
+        "blockedDesc": "These apps are blocked on this plan",
+        "safeSearchTitle": "Safe Search",
+        "safeSearchDesc": "Safe Search is enforced on these engines"
       },
       "validityText": {
         "28 days": "28 days",

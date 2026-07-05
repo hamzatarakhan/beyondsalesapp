@@ -83,7 +83,7 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Baqah Flex 100", internet: "35 GB",  mins: "1000", sms: "-", social: "35 GB",     price: 115, discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], badge: "recommended" },
   { title: "Baqah Flex 300", internet: "100 GB", mins: "1500", sms: "-", social: "Unlimited", price: 345, discount: null, validityLabel: "Valid 90 days", categories: ["flex"], validity: ["3m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [] },
   // ── Aman (kids / safe) ──
-  { title: "Virgin Mobile Aman 60", internet: "10 GB", mins: "100", sms: "-", social: "-", price: 69, discount: null, validityLabel: "Valid 28 days", categories: ["aman"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "trustedForKids" },
+  { title: "Virgin Mobile Aman 60", internet: "10 GB", mins: "100", sms: "-", social: "-", price: 69, discount: null, validityLabel: "Valid 28 days", categories: ["aman"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "inDemand" },
   // ── Prepaid 5G Data (data-only, by size × validity) ──
   { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 172.5,  discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous" },
   { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 253,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous" },
