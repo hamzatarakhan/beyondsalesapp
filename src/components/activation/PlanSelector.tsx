@@ -34,17 +34,24 @@ type PlanFilters = {
 };
 
 const PRICE_MIN = 10;
-const PRICE_MAX = 600;
-const DATA_MIN = 6;
-const DATA_MAX = 500;
+const PRICE_MAX = 4600;
+const DATA_MIN = 1;
+const DATA_MAX = 1000;
 const MINS_MIN = 0;
-const MINS_MAX = 1000;
+const MINS_MAX = 1500;
 
 const DEFAULT_FILTERS: PlanFilters = {
   validity: [],
   price: [PRICE_MIN, PRICE_MAX],
   data: [DATA_MIN, DATA_MAX],
   mins: [MINS_MIN, MINS_MAX],
+};
+
+// Family display order in the "All" view: richest service mix first, data-only last.
+const FAMILY_ORDER = ["aman", "base-plan", "flex", "data", "switch-postpaid", "vnet"];
+const familyRank = (p: Plan) => {
+  const i = FAMILY_ORDER.findIndex((c) => p.categories.includes(c as any));
+  return i === -1 ? FAMILY_ORDER.length : i;
 };
 
 const VALIDITY_OPTION_VALUES = ["7d", "1m", "3m", "6m", "12m"];
@@ -281,8 +288,15 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       const matchesMins = pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
       return matchesType && matchesValidity && matchesPrice && matchesData && matchesMins;
     })
-    // Order every chip (and "All") from the richest plan to the lowest.
-    .sort((a, b) => b.price - a.price);
+    // In "All": group families richest-first (Aman → Baqa → Flex → 5G Data →
+    // Switch Postpaid → Vnet). In a specific chip: richest plan first.
+    .sort((a, b) => {
+      if (activePlanType === "all") {
+        const fr = familyRank(a) - familyRank(b);
+        if (fr !== 0) return fr;
+      }
+      return b.price - a.price;
+    });
   }, [plans, activePlanType, planFilters]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
