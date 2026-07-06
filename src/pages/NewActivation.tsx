@@ -503,9 +503,8 @@ const NewActivation = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-card">
                   <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                  <SelectItem value="gcc-id">{t("activation.identity.idTypes.gcc")}</SelectItem>
-                  <SelectItem value="gcc-passport">{t("activation.identity.idTypes.passport")}</SelectItem>
-                  <SelectItem value="visitor-passport">{t("activation.identity.idTypes.passport")}</SelectItem>
+                  <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
+                  <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>

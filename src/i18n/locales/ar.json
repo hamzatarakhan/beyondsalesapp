@@ -30,8 +30,8 @@
       "idType": "نوع الهوية",
       "idTypes": {
         "saudi": "الهوية الوطنية / الإقامة",
-        "gcc": "هوية دول الخليج",
-        "passport": "جواز السفر"
+        "gccPassport": "جواز دول الخليج",
+        "visitorPassport": "جواز الزائر"
       },
       "nationality": "الجنسية",
       "idNumber": "رقم الهوية",
