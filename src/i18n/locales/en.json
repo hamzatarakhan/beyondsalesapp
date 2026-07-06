@@ -30,6 +30,7 @@
       "idType": "ID Type",
       "idTypes": {
         "saudi": "Saudi ID / Iqama ID",
+        "gccId": "GCC ID",
         "gccPassport": "GCC Passport",
         "visitorPassport": "Visitor Passport"
       },
