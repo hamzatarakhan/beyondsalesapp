@@ -77,9 +77,10 @@
       "numberTabs": {
         "all": "All",
         "standard": "Standard",
-        "diamond": "Diamond",
+        "bronze": "Bronze",
         "silver": "Silver",
         "gold": "Gold",
+        "diamond": "Diamond",
         "vip": "VIP"
       },
       "numberTierSuffix": "Number",

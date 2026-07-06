@@ -160,9 +160,10 @@ const POSTPAID_CHIPS = [
 const NUMBER_TABS = [
   { value: "all",      label: "All",      fee: null, color: null },
   { value: "standard", label: "Standard", fee: 0,    color: "#0EA5E9" },
-  { value: "diamond",  label: "Diamond",  fee: 10,   color: "#3B82F6" },
+  { value: "bronze",   label: "Bronze",   fee: 10,   color: "#B45309" },
   { value: "silver",   label: "Silver",   fee: 10,   color: "#94A3B8" },
   { value: "gold",     label: "Gold",     fee: 10,   color: "#EAB308" },
+  { value: "diamond",  label: "Diamond",  fee: 10,   color: "#3B82F6" },
 ];
 
 const DEMO_NUMBER_POOL = [
@@ -181,6 +182,8 @@ const DEMO_NUMBER_POOL = [
   { number: "0547896336", tier: "gold" },
   { number: "0547896337", tier: "standard" },
   { number: "0547896338", tier: "silver" },
+  { number: "0547896339", tier: "bronze" },
+  { number: "0547896340", tier: "bronze" },
 ];
 
 const SIM_FEES: Record<SimType, number> = { psim: 0, esim: 0 };

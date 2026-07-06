@@ -77,9 +77,10 @@
       "numberTabs": {
         "all": "الكل",
         "standard": "عادي",
-        "diamond": "ألماسي",
+        "bronze": "برونزي",
         "silver": "فضي",
         "gold": "ذهبي",
+        "diamond": "ألماسي",
         "vip": "مميّز"
       },
       "numberTierSuffix": "رقم",
