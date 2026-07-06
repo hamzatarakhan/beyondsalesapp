@@ -605,11 +605,16 @@ const NewActivation = () => {
                           className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive")}
                           inputMode="numeric"
                         />
-                        <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); setKitChecking(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
-                          <ScanLine className="w-5 h-5" />
-                        </button>
+                        {kitChecking ? (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Checking KIT">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          </span>
+                        ) : (
+                          <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); setKitChecking(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                            <ScanLine className="w-5 h-5" />
+                          </button>
+                        )}
                       </div>
-                      {/* kitChecking loader hidden */}
                     </div>
                     {kit && !isKitValid && !kitError && (
                       <p className="text-xs text-destructive">{t("activation.subscription.kitDigitsError")}</p>
