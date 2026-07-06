@@ -1123,10 +1123,10 @@ const NewActivation = () => {
               {isWhitelisted && payType === "postpaid" && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
-                    {showEsim && simType === "esim" && (
+                    {showEsim && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.esim")}</span>
-                        <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
+                        <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
+                        <span className="text-xs font-semibold text-amber-600">{simType === "psim" ? t("activation.checkout.free") : t("activation.checkout.waived")}</span>
                       </div>
                     )}
                     {showDevice && deviceFee > 0 && (
@@ -1182,9 +1182,9 @@ const NewActivation = () => {
                 ) : (
                   <>
                     <div className="space-y-2 pb-3">
-                      {showEsim && simType === "esim" && (
+                      {showEsim && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.esim")}</span>
+                          <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
                           <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
                         </div>
                       )}
