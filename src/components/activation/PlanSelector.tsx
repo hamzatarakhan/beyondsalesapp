@@ -441,9 +441,9 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
               {filteredPlans.map((p, i) => {
                 const originalIdx = plans.indexOf(p);
                 const cats = p.categories;
-                const layout = cats.includes("switch-postpaid") || cats.includes("basic") ? "postpaid"
+                const layout = cats.includes("switch-postpaid") ? "postpaid"
                   : cats.includes("aman") ? "aman"
-                  : cats.includes("base-plan") ? "baqa"
+                  : cats.includes("base-plan") || cats.includes("basic") ? "baqa"
                   : "flex";
                 return (
                   <div key={`${p.title}-${p.price}`} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4 flex">
