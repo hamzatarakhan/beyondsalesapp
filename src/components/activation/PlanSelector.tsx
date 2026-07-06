@@ -461,19 +461,31 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
               })}
             </div>
           </div>
-          <div className="flex justify-center gap-1.5 mt-3">
-            {filteredPlans.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollTo(i)}
-                aria-label={`Go to plan ${i + 1}`}
-                className={cn(
-                  "h-1.5 rounded-full transition-all",
-                  activeSnap === i ? "w-5 bg-primary" : "w-1.5 bg-primary/30",
-                )}
-              />
-            ))}
-          </div>
+          {filteredPlans.length > 1 && (() => {
+            const total = filteredPlans.length;
+            const MAX_DOTS = 7;
+            const start = total <= MAX_DOTS ? 0 : Math.min(Math.max(activeSnap - Math.floor(MAX_DOTS / 2), 0), total - MAX_DOTS);
+            const shown = total <= MAX_DOTS ? total : MAX_DOTS;
+            return (
+              <div className="flex justify-center items-center gap-1.5 mt-3">
+                {Array.from({ length: shown }, (_, k) => start + k).map((i) => {
+                  const isActive = i === activeSnap;
+                  const atWindowEdge = total > MAX_DOTS && ((i === start && start > 0) || (i === start + shown - 1 && i < total - 1));
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => scrollTo(i)}
+                      aria-label={`Go to plan ${i + 1}`}
+                      className={cn(
+                        "rounded-full transition-all shrink-0",
+                        isActive ? "w-5 h-1.5 bg-primary" : atWindowEdge ? "w-1 h-1 bg-primary/30" : "w-1.5 h-1.5 bg-primary/30",
+                      )}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       )}
 
