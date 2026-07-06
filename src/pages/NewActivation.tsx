@@ -927,7 +927,7 @@ const NewActivation = () => {
                     </Select>
                   </Field>
                 )}
-                <Field label={`${t("activation.checkout.email")} *`}>
+                <Field label={t("activation.checkout.email")}>
                   <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
                 </Field>
                 {showContactField && (
