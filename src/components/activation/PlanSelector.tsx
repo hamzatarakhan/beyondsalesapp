@@ -48,7 +48,7 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Family display order in the "All" view: richest service mix first, data-only last.
-const FAMILY_ORDER = ["basic", "aman", "base-plan", "flex", "data", "switch-postpaid", "vnet"];
+const FAMILY_ORDER = ["aman", "base-plan", "basic", "flex", "data", "switch-postpaid", "vnet"];
 const familyRank = (p: Plan) => {
   const i = FAMILY_ORDER.findIndex((c) => p.categories.includes(c as any));
   return i === -1 ? FAMILY_ORDER.length : i;
