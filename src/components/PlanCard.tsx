@@ -158,12 +158,12 @@ const PREVIEW_APPS: { bg: string; path: string }[] = [
 // Country codes for flagcdn.com (ISO 3166-1 alpha-2 lowercase)
 const PREVIEW_COUNTRY_CODES = COUNTRIES.slice(0, PREVIEW_COUNT).map(c => c.code);
 
-const SocialChip = ({ onClick }: { onClick: () => void }) => {
+const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grayscale?: boolean }) => {
   const { t } = useTranslation();
   return (
   <button onClick={onClick} className="active:opacity-70 shrink-0">
-    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
-      <span className="flex -space-x-1">
+    <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none", grayscale && "bg-muted text-muted-foreground")}>
+      <span className={cn("flex -space-x-1", grayscale && "grayscale opacity-60")}>
         {PREVIEW_APPS.map((app, i) => (
           <span key={i} className="w-4 h-4 rounded-full border border-white shrink-0 flex items-center justify-center overflow-hidden" style={{ background: app.bg === "url(#ig)" ? "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" : app.bg }}>
             <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white">
@@ -212,8 +212,8 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
     <button onClick={onClick} className="active:opacity-70 shrink-0">
-      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
-        <span className="flex -space-x-1">
+      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold pointer-events-none">
+        <span className="flex -space-x-1 grayscale opacity-60">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
             <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-4 h-4 rounded-full border border-white shrink-0 bg-white object-contain" />
           ))}
@@ -225,7 +225,7 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
 };
 
 const YouTubeChip = () => (
-  <span className="w-6 h-6 rounded-full bg-[#FF0000] flex items-center justify-center shrink-0">
+  <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 grayscale opacity-60">
     <Youtube className="w-3.5 h-3.5 text-white" fill="white" stroke="#FF0000" strokeWidth={1.5} />
   </span>
 );
@@ -302,7 +302,7 @@ const BlockedAppsSheet = ({ open, onClose }: { open: boolean; onClose: () => voi
         const key = item.label.toLowerCase().replace(/\s*\(.*\)/, "").replace(/[^a-z]/g, "");
         return (
           <div key={item.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
-            {item.icon}
+            <span className="grayscale opacity-60">{item.icon}</span>
             <span className="text-sm font-medium text-foreground flex-1">{t(`activation.plan.apps.${key}`, item.label)}</span>
             <Lock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           </div>
@@ -318,7 +318,7 @@ const SearchEnginesSheet = ({ open, onClose }: { open: boolean; onClose: () => v
     <InfoSheet open={open} onClose={onClose} title={t("activation.plan.aman.safeSearchTitle")} description={t("activation.plan.aman.safeSearchDesc")}>
       {SEARCH_ENGINES.map((e) => (
         <div key={e.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
-          <img src={favicon(e.domain)} alt={e.label} className="w-8 h-8 rounded-full bg-white p-1 object-contain border border-border/40 shrink-0" />
+          <img src={favicon(e.domain)} alt={e.label} className="w-8 h-8 rounded-full bg-white p-1 object-contain border border-border/40 shrink-0 grayscale opacity-60" />
           <span className="text-sm font-medium text-foreground flex-1">{e.label}</span>
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
         </div>
@@ -464,7 +464,7 @@ const PlanCard = ({
                 <FeatureRow
                   icon={Lock}
                   label={<><span className="font-semibold">{t("activation.plan.aman.blocks")}</span> {t("activation.plan.aman.social")}</>}
-                  chip={<SocialChip onClick={() => setOpenSheet("blocked")} />}
+                  chip={<SocialChip onClick={() => setOpenSheet("blocked")} grayscale />}
                 />
                 <FeatureRow
                   icon={MonitorPlay}
