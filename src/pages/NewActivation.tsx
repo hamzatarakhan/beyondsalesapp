@@ -56,6 +56,7 @@ import {
   Loader2,
   CheckCircle2,
   Store,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -797,34 +798,58 @@ const NewActivation = () => {
                   </div>
                 )}
                 {subType === "sim" ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setNumberPickerOpen(true)}
-                      className="w-full bg-primary/5 hover:bg-primary/10 active:bg-primary/10 transition-colors rounded-xl py-3 px-4 mb-2 flex flex-col items-center gap-1"
-                    >
-                      <span className="flex items-center gap-2">
+                  isPostpaidMobile ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setNumberPickerOpen(true)}
+                        className="w-full bg-primary/5 hover:bg-primary/10 active:bg-primary/10 transition-colors rounded-xl py-3 px-4 mb-2 flex flex-col items-center gap-1"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                          <ArrowRight className="w-4 h-4 text-sky-600 rtl:rotate-180" />
+                        </span>
+                        {(() => {
+                          const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                          const tab = NUMBER_TABS.find(t => t.value === tier);
+                          if (!tab || tab.value === "all") return null;
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
+                            </div>
+                          );
+                        })()}
+                      </button>
+                      <p className="text-[11px] text-muted-foreground text-center mb-3">
+                        {t("activation.subscription.pickNumberHintVanity")}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
                         <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
-                        <ArrowRight className="w-4 h-4 text-sky-600 rtl:rotate-180" />
-                      </span>
-                      {(() => {
-                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
-                        const tab = NUMBER_TABS.find(t => t.value === tier);
-                        if (!tab || tab.value === "all") return null;
-                        return (
-                          <div className="flex items-center gap-1.5">
-                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
-                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
-                            <span className="text-[11px] text-muted-foreground">·</span>
-                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
-                          </div>
-                        );
-                      })()}
-                    </button>
-                    <p className="text-[11px] text-muted-foreground text-center mb-3">
-                      {isPostpaidMobile ? t("activation.subscription.pickNumberHintVanity") : t("activation.subscription.pickNumberHint")}
-                    </p>
-                  </>
+                        {(() => {
+                          const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                          const tab = NUMBER_TABS.find(t => t.value === tier);
+                          if (!tab || tab.value === "all") return null;
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                        {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                      </button>
+                    </>
+                  )
                 ) : (
                   <div className="space-y-3">
                     <Field label={t("activation.subscription.portNumber")}><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
@@ -846,7 +871,12 @@ const NewActivation = () => {
                     <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation.vanity.subtitle")}</p>
                     <div className="space-y-2">
                       {eligibleVanityCategories.map((c) => (
-                        <div key={c.key} className="flex items-center justify-between rounded-xl border border-border/60 px-3 py-2.5">
+                        <button
+                          key={c.key}
+                          type="button"
+                          onClick={() => { setNumberPickerTab(c.tier); setNumberPickerOpen(true); }}
+                          className="w-full flex items-center justify-between rounded-xl border border-border/60 px-3 py-2.5 text-start hover:bg-muted/40 active:bg-muted/50 transition-colors"
+                        >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
                             <div className="min-w-0">
@@ -859,10 +889,13 @@ const NewActivation = () => {
                               </p>
                             </div>
                           </div>
-                          <span className="text-[11px] font-semibold text-emerald-600 shrink-0 ms-2">
-                            {c.months > 0 ? t("activation.vanity.freeWithCommitment") : t("activation.vanity.alwaysFree")}
+                          <span className="flex items-center gap-1 shrink-0 ms-2">
+                            <span className="text-[11px] font-semibold text-emerald-600">
+                              {c.months > 0 ? t("activation.vanity.freeWithCommitment") : t("activation.vanity.alwaysFree")}
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground rtl:rotate-180" />
                           </span>
-                        </div>
+                        </button>
                       ))}
                     </div>
 
