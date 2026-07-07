@@ -427,6 +427,8 @@ const NewActivation = () => {
   const TIER_TO_VANITY: Record<string, string> = { diamond: "exotics", gold: "legendary", silver: "rare", bronze: "value", standard: "standard" };
   const pickedTier = DEMO_NUMBER_POOL.find((n) => n.number === phone)?.tier ?? "";
   const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
+  // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
+  const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
@@ -456,7 +458,7 @@ const NewActivation = () => {
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
-  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && vanityCommitment;
+  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
   const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -773,8 +775,8 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* Number — Mobile only. Postpaid: shown after a plan is selected (vanity depends on it). */}
-            {showNumber && (payType !== "postpaid" || selectedPlan != null) && (
+            {/* Number — Mobile only. Shown by default; the Vanity Number overview inside appears once a plan is selected. */}
+            {showNumber && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -796,8 +798,15 @@ const NewActivation = () => {
                 )}
                 {subType === "sim" ? (
                   <>
-                    <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
-                      <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                    <button
+                      type="button"
+                      onClick={() => setNumberPickerOpen(true)}
+                      className="w-full bg-primary/5 hover:bg-primary/10 active:bg-primary/10 transition-colors rounded-xl py-3 px-4 mb-2 flex flex-col items-center gap-1"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                        <ArrowRight className="w-4 h-4 text-sky-600 rtl:rotate-180" />
+                      </span>
                       {(() => {
                         const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
                         const tab = NUMBER_TABS.find(t => t.value === tier);
@@ -811,10 +820,10 @@ const NewActivation = () => {
                           </div>
                         );
                       })()}
-                    </div>
-                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                      {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
+                    <p className="text-[11px] text-muted-foreground text-center mb-3">
+                      {isPostpaidMobile ? t("activation.subscription.pickNumberHintVanity") : t("activation.subscription.pickNumberHint")}
+                    </p>
                   </>
                 ) : (
                   <div className="space-y-3">
@@ -859,24 +868,32 @@ const NewActivation = () => {
 
                     {/* Commitment toggle — applies to the picked vanity number (from the sheet) */}
                     {pickedVanityCat && pickedVanityCat.months > 0 && (
-                      <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
-                        <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
-                          <div className="text-start">
-                            <p className="text-[13px] font-semibold text-foreground">{t("activation.vanity.commitmentLabel")}</p>
-                            <p className="text-[11px] text-muted-foreground">
-                              {vanityCommitment
-                                ? t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })
-                                : t("activation.vanity.commitmentOff", { price: pickedVanityCat.price })}
-                            </p>
-                          </div>
-                          <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", vanityCommitment ? "bg-primary" : "bg-muted-foreground/30")}>
-                            <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", vanityCommitment ? "start-5" : "start-0.5")} />
-                          </div>
-                        </button>
-                        {vanityCommitment
-                          ? <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation.vanity.nafithNote")}</p>
-                          : <p className="text-[11px] font-semibold text-foreground">{pickedVanityCat.price} {t("activation.checkout.sar")} · {t("activation.vanity.noCommitment")}</p>}
-                      </div>
+                      pickedCategoryEligibleFree ? (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
+                          <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
+                            <div className="text-start">
+                              <p className="text-[13px] font-semibold text-foreground">{t("activation.vanity.commitmentLabel")}</p>
+                              <p className="text-[11px] text-muted-foreground">
+                                {vanityCommitment
+                                  ? t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })
+                                  : t("activation.vanity.commitmentOff", { price: pickedVanityCat.price })}
+                              </p>
+                            </div>
+                            <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", vanityCommitment ? "bg-primary" : "bg-muted-foreground/30")}>
+                              <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", vanityCommitment ? "start-5" : "start-0.5")} />
+                            </div>
+                          </button>
+                          {vanityCommitment
+                            ? <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation.vanity.nafithNote")}</p>
+                            : <p className="text-[11px] font-semibold text-foreground">{pickedVanityCat.price} {t("activation.checkout.sar")} · {t("activation.vanity.noCommitment")}</p>}
+                        </div>
+                      ) : (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
+                          <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
+                          <p className="text-[11px] text-muted-foreground">{t("activation.vanity.notEligible")}</p>
+                          <p className="text-[13px] font-semibold text-foreground">{pickedVanityCat.price} {t("activation.checkout.sar")}</p>
+                        </div>
+                      )
                     )}
                   </div>
                 )}

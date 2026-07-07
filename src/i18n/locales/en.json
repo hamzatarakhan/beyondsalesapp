@@ -107,6 +107,8 @@
       "portMnp": "Port (MNP)",
       "newNumberBtn": "New number",
       "pickDifferent": "Pick Different Number",
+      "pickNumberHint": "Tap the number to browse and choose a different one",
+      "pickNumberHintVanity": "Tap the number to browse Standard or Vanity numbers — eligible Vanity numbers come with free commitment by default",
       "currentOperator": "Current operator",
       "contactNum": "Contact number",
       "portNote": "The number will be transferred from the selected operator after verification.",
@@ -319,6 +321,7 @@
       "commitmentOn": "Free with {{months}}-month commitment",
       "commitmentOff": "Pay {{price}} SAR — no commitment period",
       "nafithNote": "A Promissory Note will be signed via Nafith at checkout.",
+      "notEligible": "Not eligible for free commitment on this plan — pay the number price below.",
       "categories": {
         "exotics": "Exotics",
         "legendary": "Legendary",
