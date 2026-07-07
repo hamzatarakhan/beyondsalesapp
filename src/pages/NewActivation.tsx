@@ -288,6 +288,8 @@ const NewActivation = () => {
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
+  // Vanity commitment ON/OFF toggle (and its Nafith requirement) hidden for now — may be reverted.
+  const SHOW_VANITY_COMMITMENT = false;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
 
@@ -465,7 +467,7 @@ const NewActivation = () => {
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
-  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+  const showNafith = SHOW_VANITY_COMMITMENT && isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
   const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -804,55 +806,30 @@ const NewActivation = () => {
                   </div>
                 )}
                 {subType === "sim" ? (
-                  isPostpaidMobile ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => setNumberPickerOpen(true)}
-                        className="w-full bg-primary/5 hover:bg-primary/10 active:bg-primary/10 transition-colors rounded-xl py-3 px-4 mb-2 flex flex-col items-center gap-1"
-                      >
-                        <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
-                        {(() => {
-                          const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
-                          const tab = NUMBER_TABS.find(t => t.value === tier);
-                          if (!tab || tab.value === "all") return null;
-                          return (
-                            <div className="flex items-center gap-1.5">
-                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
-                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
-                              <span className="text-[11px] text-muted-foreground">·</span>
-                              <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
-                            </div>
-                          );
-                        })()}
-                      </button>
-                      <p className="text-[11px] text-muted-foreground text-center mb-3">
-                        {selectedPlanObj ? t("activation.subscription.pickNumberHintVanity") : t("activation.vanity.selectPlanFirst")}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
-                        <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
-                        {(() => {
-                          const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
-                          const tab = NUMBER_TABS.find(t => t.value === tier);
-                          if (!tab || tab.value === "all") return null;
-                          return (
-                            <div className="flex items-center gap-1.5">
-                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
-                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
-                              <span className="text-[11px] text-muted-foreground">·</span>
-                              <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                      <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
-                        {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-                      </button>
-                    </>
-                  )
+                  <>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                            <span className="text-[11px] text-muted-foreground">·</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free")}</span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                      {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                    </button>
+                    {isPostpaidMobile && !selectedPlanObj && (
+                      <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation.vanity.selectPlanFirst")}</p>
+                    )}
+                  </>
                 ) : (
                   <div className="space-y-3">
                     <Field label={t("activation.subscription.portNumber")}><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
@@ -902,8 +879,8 @@ const NewActivation = () => {
                       ))}
                     </div>
 
-                    {/* Commitment toggle — applies to the picked vanity number (from the sheet) */}
-                    {pickedVanityCat && pickedVanityCat.months > 0 && (
+                    {/* Commitment toggle — applies to the picked vanity number (from the sheet) — hidden for now */}
+                    {SHOW_VANITY_COMMITMENT && pickedVanityCat && pickedVanityCat.months > 0 && (
                       pickedCategoryEligibleFree ? (
                         <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
                           <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
