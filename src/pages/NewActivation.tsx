@@ -403,6 +403,12 @@ const NewActivation = () => {
     }
   }, [simType]);
 
+  // Reset the number-picker tab when the selected plan changes, so it doesn't stay on a
+  // vanity tier the new plan no longer qualifies for.
+  useEffect(() => {
+    setNumberPickerTab("all");
+  }, [selectedPlan]);
+
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
     if (/^\d{10}$/.test(kit)) {
@@ -805,10 +811,7 @@ const NewActivation = () => {
                         onClick={() => setNumberPickerOpen(true)}
                         className="w-full bg-primary/5 hover:bg-primary/10 active:bg-primary/10 transition-colors rounded-xl py-3 px-4 mb-2 flex flex-col items-center gap-1"
                       >
-                        <span className="flex items-center gap-2">
-                          <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
-                          <ArrowRight className="w-4 h-4 text-sky-600 rtl:rotate-180" />
-                        </span>
+                        <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
                         {(() => {
                           const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
                           const tab = NUMBER_TABS.find(t => t.value === tier);
@@ -1374,7 +1377,11 @@ const NewActivation = () => {
 
       {/* Number picker drawer */}
       {(() => {
+        // Switch Postpaid: only offer tiers the selected plan actually qualifies for (+ Standard, always free).
+        const eligibleTiers = isPostpaidMobile ? new Set(["standard", ...eligibleVanityCategories.map(c => c.tier)]) : null;
+        const availableTabs = eligibleTiers ? NUMBER_TABS.filter(tab => tab.value === "all" || eligibleTiers.has(tab.value)) : NUMBER_TABS;
         const filtered = DEMO_NUMBER_POOL
+          .filter(n => !eligibleTiers || eligibleTiers.has(n.tier))
           .filter(n => numberPickerTab === "all" || n.tier === numberPickerTab)
           .filter(n => n.number.includes(numberSearch));
         return (
@@ -1393,7 +1400,7 @@ const NewActivation = () => {
                 </div>
               </div>
               <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {NUMBER_TABS.map(tab => (
+                {availableTabs.map(tab => (
                   <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
                     className={cn("px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0", numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground")}>
                     {t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}
