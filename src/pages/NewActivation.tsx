@@ -826,7 +826,7 @@ const NewActivation = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
                       {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {isPostpaidMobile && !selectedPlanObj && (
+                    {SHOW_VANITY_COMMITMENT && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation.vanity.selectPlanFirst")}</p>
                     )}
                   </>
@@ -844,8 +844,8 @@ const NewActivation = () => {
                   </div>
                 )}
 
-                {/* Vanity Number categories — informational overview of what's eligible for the plan */}
-                {isPostpaidMobile && subType === "sim" && selectedPlanObj && (
+                {/* Vanity Number categories — informational overview of what's eligible for the plan — hidden for now */}
+                {SHOW_VANITY_COMMITMENT && isPostpaidMobile && subType === "sim" && selectedPlanObj && (
                   <div className="mt-4 pt-3 border-t border-border/60">
                     <p className="text-xs font-semibold text-foreground">{t("activation.vanity.title")}</p>
                     <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation.vanity.subtitle")}</p>
