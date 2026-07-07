@@ -345,6 +345,9 @@ const NewActivation = () => {
   const [otpCode, setOtpCode] = useState("");
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
   const [customerVerified, setCustomerVerified] = useState(false);
+  // Nafith promissory-note verification — required when a Switch Postpaid vanity commitment is ON
+  const [nafithVerifyOpen, setNafithVerifyOpen] = useState(false);
+  const [nafithVerified, setNafithVerified] = useState(false);
   const [customerSig, setCustomerSig] = useState<string | null>(null);
   const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
@@ -452,7 +455,9 @@ const NewActivation = () => {
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
-  const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && !!customerSig && !!dealerSig && terms;
+  // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
+  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && vanityCommitment;
+  const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -1263,6 +1268,19 @@ const NewActivation = () => {
               {!isPostpaidInternet && showOtp && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
+            {/* Nafith Verification — Switch Postpaid vanity commitment ON */}
+            {showNafith && (
+              <SectionCard title={t("activation.checkout.nafath")} required>
+                {nafithVerified ? (
+                  <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.nafathVerified")}</p>
+                ) : (
+                  <Button variant="outline" className="w-full" onClick={() => setNafithVerifyOpen(true)}>
+                    {t("activation.checkout.nafathVerify")}
+                  </Button>
+                )}
+              </SectionCard>
+            )}
+
             {/* Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <button
@@ -1302,6 +1320,7 @@ const NewActivation = () => {
 
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience={isPostpaidInternet ? "manafath" : "customer"} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <SematiVerification open={nafithVerifyOpen} audience="manafath" onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Number picker drawer */}
       {(() => {
