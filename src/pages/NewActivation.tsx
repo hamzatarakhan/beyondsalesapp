@@ -827,7 +827,7 @@ const NewActivation = () => {
                         })()}
                       </button>
                       <p className="text-[11px] text-muted-foreground text-center mb-3">
-                        {t("activation.subscription.pickNumberHintVanity")}
+                        {selectedPlanObj ? t("activation.subscription.pickNumberHintVanity") : t("activation.vanity.selectPlanFirst")}
                       </p>
                     </>
                   ) : (

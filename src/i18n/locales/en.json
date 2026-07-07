@@ -322,6 +322,7 @@
       "commitmentOff": "Pay {{price}} SAR — no commitment period",
       "nafithNote": "A Promissory Note will be signed via Nafith at checkout.",
       "notEligible": "Not eligible for free commitment on this plan — pay the number price below.",
+      "selectPlanFirst": "Select a plan above to see the Vanity Number categories available for it.",
       "categories": {
         "exotics": "Exotics",
         "legendary": "Legendary",
