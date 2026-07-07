@@ -1256,11 +1256,11 @@ const NewActivation = () => {
               {customerVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={showOtp && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
+                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && showOtp && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
                   {isPostpaidInternet ? t("activation.checkout.nafathVerify") : t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
-              {showOtp && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
+              {!isPostpaidInternet && showOtp && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
             {/* Terms & Conditions */}
