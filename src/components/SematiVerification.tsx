@@ -47,11 +47,18 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
 
   useEffect(() => {
     if (open) {
-      setStep("select");
-      setMethod(null);
       setOtp(["", "", "", "", "", ""]);
       setNafathDigits(["", ""]);
+      if (audience === "dealer") {
+        // Dealer verification always uses Nafath — skip the method-select screen.
+        setMethod("nafath");
+        setStep("nafath_code");
+      } else {
+        setStep("select");
+        setMethod(null);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // Nafath countdown + auto-verify when on nafath_code step
