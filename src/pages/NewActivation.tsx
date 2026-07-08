@@ -58,6 +58,7 @@ import {
   Store,
   ChevronRight,
   Share2,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -475,6 +476,8 @@ const NewActivation = () => {
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
   // (equal to the plan price) that clears the customer's first bill.
   const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && planMode === "plan";
+  // Switch Postpaid: dealer app credit limit note — 20% of the selected plan's price.
+  const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
@@ -1187,6 +1190,17 @@ const NewActivation = () => {
               )}
               {promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
             </section>
+
+            {/* Switch Postpaid: dealer credit limit note */}
+            {isPostpaidMobile && selectedPlanObj && (
+              <div className="flex items-start gap-2.5 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 p-3.5">
+                <Info className="w-4 h-4 text-sky-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-sky-700 dark:text-sky-300 leading-snug">
+                  <span className="font-semibold">{t("activation.checkout.creditLimitNote", { amount: switchPostpaidCreditLimit.toFixed(2) })}</span>{" "}
+                  {t("activation.checkout.creditLimitSub")}
+                </p>
+              </div>
+            )}
 
             {/* Whitelisted customer notice */}
             {isWhitelisted && payType === "postpaid" && (
