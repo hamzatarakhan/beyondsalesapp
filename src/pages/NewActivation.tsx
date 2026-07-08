@@ -1161,8 +1161,8 @@ const NewActivation = () => {
                   <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
                 </div>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} selected={pay === "card"} onClick={() => setPay("card")} />
-                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} selected={pay === "pos"} onClick={() => setPay("pos")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc")} selected={pay === "card"} onClick={() => setPay("card")} />
+                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
               </section>
             )}

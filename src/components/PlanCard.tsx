@@ -31,8 +31,6 @@ interface Props {
   plan: PlanCardData;
   selected: boolean;
   active?: boolean;
-  selectLabel?: string;
-  selectedLabel?: string;
   minsLabel?: string;
   layout?: "flex" | "postpaid" | "baqa" | "aman";
   onSelect: () => void;
@@ -161,7 +159,7 @@ const PREVIEW_COUNTRY_CODES = COUNTRIES.slice(0, PREVIEW_COUNT).map(c => c.code)
 const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grayscale?: boolean }) => {
   const { t } = useTranslation();
   return (
-  <button onClick={onClick} className="active:opacity-70 shrink-0">
+  <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
     <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none", grayscale && "bg-muted text-muted-foreground")}>
       <span className={cn("flex -space-x-1", grayscale && "grayscale opacity-60")}>
         {PREVIEW_APPS.map((app, i) => (
@@ -181,7 +179,7 @@ const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grays
 const FlagChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
-  <button onClick={onClick} className="active:opacity-70 shrink-0">
+  <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
     <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
       <span className="flex -space-x-0.5">
         {PREVIEW_COUNTRY_CODES.map((code) => (
@@ -211,7 +209,7 @@ const favicon = (domain: string) => `https://www.google.com/s2/favicons?domain=$
 const SearchChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
-    <button onClick={onClick} className="active:opacity-70 shrink-0">
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
       <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold pointer-events-none">
         <span className="flex -space-x-1 grayscale opacity-60">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
@@ -229,6 +227,48 @@ const YouTubeChip = () => (
     <Youtube className="w-3.5 h-3.5 text-white" fill="white" stroke="#FF0000" strokeWidth={1.5} />
   </span>
 );
+
+// ── Select radio — same dot-in-circle pattern used by Subscription/SIM Type toggles ──
+const SelectRadio = ({ selected, onSelect }: { selected: boolean; onSelect: () => void }) => (
+  <button
+    type="button"
+    onClick={(e) => { e.stopPropagation(); onSelect(); }}
+    className={cn(
+      "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
+      selected ? "border-primary bg-primary" : "border-muted-foreground/30"
+    )}
+  >
+    {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+  </button>
+);
+
+const PlanTitleRow = ({
+  title,
+  validity,
+  selected,
+  onSelect,
+  onMoreDetails,
+}: {
+  title: string;
+  validity: string;
+  selected: boolean;
+  onSelect: () => void;
+  onMoreDetails?: () => void;
+}) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-between gap-2 mb-1">
+      <p className="text-[12px] text-muted-foreground">
+        <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
+          {title}
+        </button>
+        <span className="mx-1.5">•</span>
+        {validity} {t("activation.plan.planSuffix")}
+      </p>
+      <SelectRadio selected={selected} onSelect={onSelect} />
+    </div>
+  );
+};
 
 // ── Info bottom sheet ──────────────────────────────────────────────────────
 const InfoSheet = ({
@@ -332,16 +372,12 @@ const PlanCard = ({
   plan,
   selected,
   active = true,
-  selectLabel,
-  selectedLabel,
   minsLabel,
   layout = "flex",
   onSelect,
   onMoreDetails,
 }: Props) => {
   const { t } = useTranslation();
-  const resolvedSelectLabel = selectLabel ?? t("activation.plan.selectPlan");
-  const resolvedSelectedLabel = selectedLabel ?? t("activation.plan.selected");
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
   const validityRaw = (plan.validityLabel ?? "Valid 30 days").replace(/^valid\s*/i, "").trim();
@@ -352,14 +388,19 @@ const PlanCard = ({
   return (
     <>
       <div
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
         className={cn(
-          "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
+          "relative rounded-2xl border transition-all duration-200 flex flex-col w-full cursor-pointer",
+          selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Per-plan badge — small tag, top-right */}
+        {/* Per-plan badge — floats half over the card's top-right corner */}
         {plan.badge && (
-          <span className="absolute top-0 end-0 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl z-10">
+          <span className="absolute -top-2.5 end-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
@@ -367,13 +408,7 @@ const PlanCard = ({
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
             <>
-              <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
-                  {plan.title}
-                </button>
-                <span className="mx-1.5">•</span>
-                {validity} {t("activation.plan.planSuffix")}
-              </p>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -397,13 +432,7 @@ const PlanCard = ({
             </>
           ) : layout === "baqa" ? (
             <>
-              <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
-                  {plan.title}
-                </button>
-                <span className="mx-1.5">•</span>
-                {validity} {t("activation.plan.planSuffix")}
-              </p>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -433,19 +462,13 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               {/* Trusted for Kids pill */}
-              <div className="mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wide">
-                  <ShieldCheck className="w-4 h-4" /> {t("activation.plan.aman.trustedPill")}
+              <div className="mb-2">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold">
+                  <ShieldCheck className="w-3 h-3" /> {t("activation.plan.aman.trustedPill")}
                 </span>
               </div>
-              <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
-                  {plan.title}
-                </button>
-                <span className="mx-1.5">•</span>
-                {validity} {t("activation.plan.planSuffix")}
-              </p>
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -480,13 +503,7 @@ const PlanCard = ({
             </>
           ) : layout === "postpaid" ? (
             <>
-              <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
-                  {plan.title}
-                </button>
-                <span className="mx-1.5">•</span>
-                {validity} {t("activation.plan.planSuffix")}
-              </p>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -526,13 +543,7 @@ const PlanCard = ({
             </>
           ) : (
             <>
-              <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
-                  {plan.title}
-                </button>
-                <span className="mx-1.5">•</span>
-                {validity} {t("activation.plan.planSuffix")}
-              </p>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
@@ -563,19 +574,6 @@ const PlanCard = ({
               </div>
             </>
           )}
-
-          {/* CTA */}
-          <button
-            onClick={onSelect}
-            className={cn(
-              "mt-auto w-full py-3 rounded-full text-sm font-semibold transition-colors",
-              selected
-                ? "bg-primary text-primary-foreground"
-                : "bg-primary/10 text-foreground hover:bg-primary/20"
-            )}
-          >
-            {selected ? resolvedSelectedLabel : resolvedSelectLabel}
-          </button>
         </div>
       </div>
 
