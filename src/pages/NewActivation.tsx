@@ -390,8 +390,8 @@ const NewActivation = () => {
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   const showContactField = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
-  // OTP verification only for Prepaid 5G Data and Postpaid VNet; other cases use customer verification only.
-  const showOtp          = isPrepaidInternet || isPostpaidInternet;
+  // OTP mandatory for VNet, 5G Data, and Switch Postpaid; not required for all other cases.
+  const showOtp          = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
