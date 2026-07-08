@@ -389,10 +389,12 @@ const NewActivation = () => {
     .filter(c => !(c.value === "vnet" && simType === "esim"));
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
-  // Contact number field is always shown; mandatory only for VNet, 5G Data, and Switch Postpaid — optional otherwise.
-  const contactNumberRequired = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
-  // OTP mandatory for VNet, 5G Data, and Switch Postpaid; not required for all other cases.
-  const showOtp          = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
+  // Contact number field is always shown; mandatory for VNet, 5G Data, and Switch Postpaid — optional otherwise.
+  // For E-SIM, it stays visible but is never required, even on those three cases.
+  const contactNumberRequired = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
+  // OTP section is shown for VNet, 5G Data, and Switch Postpaid, but for E-SIM it's shown without being required.
+  const showOtp           = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
+  const otpRequired       = showOtp && simType !== "esim";
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
@@ -486,7 +488,7 @@ const NewActivation = () => {
   const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
   const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
-  const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
+  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -1366,9 +1368,9 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* OTP Verification — only for Prepaid 5G Data and Postpaid VNet */}
+            {/* OTP Verification — shown for VNet/5G Data/Switch Postpaid; not required on E-SIM */}
             {showOtp && (
-              <SectionCard title={t("activation.checkout.otp")} required>
+              <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
                 {otpVerified ? (
                   <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.otpVerified")}</p>
                 ) : (
@@ -1382,11 +1384,11 @@ const NewActivation = () => {
               {customerVerified ? (
                 <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && showOtp && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
+                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && otpRequired && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
                   {isPostpaidInternet ? t("activation.checkout.nafathVerify") : t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
-              {!isPostpaidInternet && showOtp && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
+              {!isPostpaidInternet && otpRequired && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
             {/* Nafith Verification — Switch Postpaid vanity commitment ON */}
