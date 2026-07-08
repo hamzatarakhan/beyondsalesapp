@@ -389,7 +389,8 @@ const NewActivation = () => {
     .filter(c => !(c.value === "vnet" && simType === "esim"));
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
-  const showContactField = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
+  // Contact number field is always shown; mandatory only for VNet, 5G Data, and Switch Postpaid — optional otherwise.
+  const contactNumberRequired = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
   // OTP mandatory for VNet, 5G Data, and Switch Postpaid; not required for all other cases.
   const showOtp          = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
@@ -482,7 +483,7 @@ const NewActivation = () => {
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
+  const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
   const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
   const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
@@ -498,7 +499,7 @@ const NewActivation = () => {
       return true;
     }
     return true;
-  }, [step, idType, nationality, idNumber, showEsim, isKitValid, planMode, selectedPlan, topupDenom, topupManual, showContactField, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, idType, nationality, idNumber, showEsim, isKitValid, planMode, selectedPlan, topupDenom, topupManual, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -1049,11 +1050,9 @@ const NewActivation = () => {
                 <Field label={t("activation.checkout.email")}>
                   <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
                 </Field>
-                {showContactField && (
-                  <Field label={`${t("activation.checkout.contactNumber")} *`}>
-                    <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
-                  </Field>
-                )}
+                <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
               </div>
             </div>
 
