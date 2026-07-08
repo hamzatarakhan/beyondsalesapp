@@ -1429,13 +1429,23 @@ const NewActivation = () => {
                   {filtered.map((item, i) => {
                     const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
                     const fee = tier.fee ?? 0;
+                    // Every non-Standard tier shown here already passed plan eligibility (eligibleTiers filter above),
+                    // so it's offered free with commitment on the selected Switch Postpaid plan.
+                    const freeWithCommitment = isPostpaidMobile && fee > 0 && item.tier !== "standard";
                     return (
                       <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
                         <span className="flex-1 text-start text-base font-semibold text-foreground">{item.number}</span>
-                        {fee > 0
-                          ? <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">{t("activation.checkout.sar")}</span></span>
-                          : <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>}
+                        {freeWithCommitment ? (
+                          <span className="flex flex-col items-end">
+                            <span className="text-xs font-semibold text-emerald-600">{t("activation.vanity.freeWithCommitment")}</span>
+                            <span className="text-[11px] text-muted-foreground line-through">{fee}.00 {t("activation.checkout.sar")}</span>
+                          </span>
+                        ) : fee > 0 ? (
+                          <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground">{t("activation.checkout.sar")}</span></span>
+                        ) : (
+                          <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>
+                        )}
                       </button>
                     );
                   })}
