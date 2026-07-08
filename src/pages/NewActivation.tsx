@@ -195,9 +195,11 @@ const SIM_FEES: Record<SimType, number> = { psim: 0, esim: 0 };
 // Vanity Number categories — highest → lowest. A category is eligible when the
 // selected Switch Postpaid plan tier (the number in its name) ≥ minTier.
 // price = vanity number price paid when commitment is OFF (placeholders — pending client confirmation).
+// Gold/Diamond (free-with-commitment) are only unlocked by Postpaid 250/300/365.
+// Silver/Bronze/Standard are free-with-commitment (or always-free) on every Switch Postpaid plan.
 const VANITY_CATEGORIES = [
   { key: "exotics",   tier: "diamond",  months: 24, minTier: 250, color: "#3B82F6", price: 500 },
-  { key: "legendary", tier: "gold",     months: 18, minTier: 180, color: "#EAB308", price: 300 },
+  { key: "legendary", tier: "gold",     months: 18, minTier: 250, color: "#EAB308", price: 300 },
   { key: "rare",      tier: "silver",   months: 12, minTier: 0,   color: "#94A3B8", price: 150 },
   { key: "value",     tier: "bronze",   months: 6,  minTier: 0,   color: "#B45309", price: 75  },
   { key: "standard",  tier: "standard", months: 0,  minTier: 0,   color: "#0EA5E9", price: 0   },
