@@ -392,9 +392,10 @@ const NewActivation = () => {
   // Contact number field is always shown; mandatory for VNet, 5G Data, and Switch Postpaid — optional otherwise.
   // For E-SIM, it stays visible but is never required, even on those three cases.
   const contactNumberRequired = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
-  // OTP section is shown for VNet, 5G Data, and Switch Postpaid, but for E-SIM it's shown without being required.
-  const showOtp           = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile;
-  const otpRequired       = showOtp && simType !== "esim";
+  // OTP section: mandatory for VNet/5G Data/Switch Postpaid on P-SIM. For E-SIM, it's shown on
+  // every case (including Basic/Baqa/Aman/Flex) but never required.
+  const showOtp           = isPrepaidInternet || isPostpaidInternet || isPostpaidMobile || simType === "esim";
+  const otpRequired       = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showDevice       = isPostpaidInternet;
