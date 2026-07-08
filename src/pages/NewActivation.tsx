@@ -711,7 +711,7 @@ const NewActivation = () => {
             <PlanSelector
               key={`${payType}-${lineType}`}
               selectedPlan={selectedPlan}
-              onSelect={(i) => setSelectedPlan(i)}
+              onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
               plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
