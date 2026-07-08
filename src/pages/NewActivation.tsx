@@ -846,7 +846,7 @@ const NewActivation = () => {
                           onClick={() => setVanityCommitment((v) => !v)}
                           className="w-full flex items-start gap-2.5 rounded-xl border border-border/60 p-3 mt-3 text-start"
                         >
-                          <span className={cn("mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors", vanityCommitment ? "bg-primary border-primary" : "border-muted-foreground/40")}>
+                          <span className={cn("mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors", vanityCommitment ? "bg-primary border-primary" : "border-muted-foreground/40")}>
                             {vanityCommitment && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
                           </span>
                           <span className="flex-1 min-w-0">
