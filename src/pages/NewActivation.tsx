@@ -168,6 +168,7 @@ const NUMBER_TABS = [
 ];
 
 const DEMO_NUMBER_POOL = [
+  { number: "0785599574", tier: "standard" },
   { number: "0547896324", tier: "gold" },
   { number: "0547896325", tier: "diamond" },
   { number: "0547896326", tier: "silver" },
@@ -288,8 +289,9 @@ const NewActivation = () => {
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
-  // Vanity commitment ON/OFF toggle (and its Nafith requirement) hidden for now — may be reverted.
-  const SHOW_VANITY_COMMITMENT = false;
+  // Vanity Number Category overview list (informational) hidden for now — the commitment
+  // checkbox on the picked number remains active. May be reverted.
+  const SHOW_VANITY_OVERVIEW = false;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
 
@@ -411,6 +413,12 @@ const NewActivation = () => {
     setNumberPickerTab("all");
   }, [selectedPlan]);
 
+  // Whenever a different number is picked, default the commitment checkbox back to checked
+  // (free with commitment) for an eligible vanity number.
+  useEffect(() => {
+    setVanityCommitment(true);
+  }, [phone]);
+
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
     if (/^\d{10}$/.test(kit)) {
@@ -467,7 +475,7 @@ const NewActivation = () => {
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!showContactField || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
-  const showNafith = SHOW_VANITY_COMMITMENT && isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
   const canPay = isContactValid && (!showOtp || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -826,8 +834,40 @@ const NewActivation = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
                       {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {SHOW_VANITY_COMMITMENT && isPostpaidMobile && !selectedPlanObj && (
+                    {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation.vanity.selectPlanFirst")}</p>
+                    )}
+
+                    {/* Vanity commitment checkbox — shown once an eligible vanity number is picked (Switch Postpaid) */}
+                    {isPostpaidMobile && selectedPlanObj && pickedVanityCat && pickedVanityCat.months > 0 && (
+                      pickedCategoryEligibleFree ? (
+                        <button
+                          type="button"
+                          onClick={() => setVanityCommitment((v) => !v)}
+                          className="w-full flex items-start gap-2.5 rounded-xl border border-border/60 p-3 mt-3 text-start"
+                        >
+                          <span className={cn("mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors", vanityCommitment ? "bg-primary border-primary" : "border-muted-foreground/40")}>
+                            {vanityCommitment && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <p className="text-[13px] font-semibold text-foreground">{t("activation.vanity.commitmentLabel")}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {vanityCommitment
+                                ? t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })
+                                : t("activation.vanity.commitmentOff", { price: pickedVanityCat.price })}
+                            </p>
+                          </span>
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 rounded-full px-2 py-1 shrink-0">
+                            {t("activation.vanity.monthsPill", { months: pickedVanityCat.months })}
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
+                          <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
+                          <p className="text-[11px] text-muted-foreground">{t("activation.vanity.notEligible")}</p>
+                          <p className="text-[13px] font-semibold text-foreground">{pickedVanityCat.price} {t("activation.checkout.sar")}</p>
+                        </div>
+                      )
                     )}
                   </>
                 ) : (
@@ -845,7 +885,7 @@ const NewActivation = () => {
                 )}
 
                 {/* Vanity Number categories — informational overview of what's eligible for the plan — hidden for now */}
-                {SHOW_VANITY_COMMITMENT && isPostpaidMobile && subType === "sim" && selectedPlanObj && (
+                {SHOW_VANITY_OVERVIEW && isPostpaidMobile && subType === "sim" && selectedPlanObj && (
                   <div className="mt-4 pt-3 border-t border-border/60">
                     <p className="text-xs font-semibold text-foreground">{t("activation.vanity.title")}</p>
                     <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation.vanity.subtitle")}</p>
@@ -880,7 +920,7 @@ const NewActivation = () => {
                     </div>
 
                     {/* Commitment toggle — applies to the picked vanity number (from the sheet) — hidden for now */}
-                    {SHOW_VANITY_COMMITMENT && pickedVanityCat && pickedVanityCat.months > 0 && (
+                    {SHOW_VANITY_OVERVIEW && pickedVanityCat && pickedVanityCat.months > 0 && (
                       pickedCategoryEligibleFree ? (
                         <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
                           <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
