@@ -1584,14 +1584,14 @@ const NewActivation = () => {
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
         {simType === "esim" && (
-          <div className="rounded-xl border border-border p-4 space-y-4">
+          <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`ESIM:${orderId}:${phone || contactNumber}`)}`}
                 alt={t("activation.success.qrAlt")}
-                className="w-40 h-40 rounded-lg border border-border"
+                className="w-40 h-40"
               />
-              <p className="text-[11px] text-muted-foreground text-center">{t("activation.success.qrHint")}</p>
+              <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation.success.qrHint")}</p>
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-foreground">{t("activation.success.shareVia")}</p>
