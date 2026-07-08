@@ -57,6 +57,7 @@ import {
   CheckCircle2,
   Store,
   ChevronRight,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -358,6 +359,9 @@ const NewActivation = () => {
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
+  const [shareVia, setShareVia] = useState<"mobile" | "email">("mobile");
+  const [shareValue, setShareValue] = useState("");
   const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -501,6 +505,16 @@ const NewActivation = () => {
   };
 
   const orderId = useMemo(() => "NA-" + Math.floor(Math.random() * 900000 + 100000), [successOpen]);
+
+  // When the success sheet opens for an E-SIM activation, default the share method to
+  // Mobile Number and pre-fill it from what was entered on the checkout page.
+  useEffect(() => {
+    if (successOpen && simType === "esim") {
+      setShareVia("mobile");
+      setShareValue(contactNumber || "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [successOpen]);
 
   const pageTitle = t("activation.title");
 
@@ -1569,6 +1583,56 @@ const NewActivation = () => {
 
       {/* Success */}
       <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
+        {simType === "esim" && (
+          <div className="rounded-xl border border-border p-4 space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`ESIM:${orderId}:${phone || contactNumber}`)}`}
+                alt={t("activation.success.qrAlt")}
+                className="w-40 h-40 rounded-lg border border-border"
+              />
+              <p className="text-[11px] text-muted-foreground text-center">{t("activation.success.qrHint")}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground">{t("activation.success.shareVia")}</p>
+              <Select
+                value={shareVia}
+                onValueChange={(v: "mobile" | "email") => {
+                  setShareVia(v);
+                  setShareValue(v === "mobile" ? contactNumber : contactEmail);
+                }}
+              >
+                <SelectTrigger className="h-11 bg-card rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mobile">{t("activation.success.shareMobile")}</SelectItem>
+                  <SelectItem value="email">{t("activation.success.shareEmail")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Field label={shareVia === "mobile" ? t("activation.success.shareMobile") : t("activation.success.shareEmail")}>
+                <Input
+                  value={shareValue}
+                  onChange={(e) => setShareValue(e.target.value)}
+                  placeholder={shareVia === "mobile" ? "05XXXXXXXX" : "name@email.com"}
+                  inputMode={shareVia === "mobile" ? "numeric" : "email"}
+                  className="h-11 bg-card rounded-xl"
+                />
+              </Field>
+              <Button
+                className="w-full h-11 rounded-full"
+                disabled={!shareValue.trim()}
+                onClick={() => {
+                  const text = t("activation.success.shareMessage", { orderId });
+                  if (shareVia === "mobile") window.location.href = `sms:${shareValue}?&body=${encodeURIComponent(text)}`;
+                  else window.location.href = `mailto:${shareValue}?subject=${encodeURIComponent(t("activation.success.shareSubject"))}&body=${encodeURIComponent(text)}`;
+                }}
+              >
+                <Share2 className="w-4 h-4" /> {t("activation.success.share")}
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="rounded-xl border border-border p-3 space-y-1.5">
           <Row label={t("activation.checkout.subscription")} value={`${payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} ${lineType === "mobile" ? t("activation.checkout.mobile") : t("activation.checkout.internet")}`} />
           {showEsim && <Row label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />}

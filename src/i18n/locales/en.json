@@ -300,7 +300,15 @@
       "message": "Your activation request has been submitted successfully",
       "orderId": "Order ID:",
       "goHome": "Go to Home",
-      "close": "Close"
+      "close": "Close",
+      "qrAlt": "eSIM QR code",
+      "qrHint": "Scan this QR code on the customer's device to install the eSIM, or share it below.",
+      "shareVia": "Share via",
+      "shareMobile": "Mobile Number",
+      "shareEmail": "Email",
+      "share": "Share",
+      "shareSubject": "Your eSIM QR Code",
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
     },
     "handover": {
       "title": "In-Store Device Handover",
