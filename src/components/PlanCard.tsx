@@ -161,7 +161,7 @@ const PREVIEW_COUNTRY_CODES = COUNTRIES.slice(0, PREVIEW_COUNT).map(c => c.code)
 const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grayscale?: boolean }) => {
   const { t } = useTranslation();
   return (
-  <button onClick={onClick} className="active:opacity-70 shrink-0">
+  <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
     <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none", grayscale && "bg-muted text-muted-foreground")}>
       <span className={cn("flex -space-x-1", grayscale && "grayscale opacity-60")}>
         {PREVIEW_APPS.map((app, i) => (
@@ -181,7 +181,7 @@ const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grays
 const FlagChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
-  <button onClick={onClick} className="active:opacity-70 shrink-0">
+  <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
     <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
       <span className="flex -space-x-0.5">
         {PREVIEW_COUNTRY_CODES.map((code) => (
@@ -211,7 +211,7 @@ const favicon = (domain: string) => `https://www.google.com/s2/favicons?domain=$
 const SearchChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
-    <button onClick={onClick} className="active:opacity-70 shrink-0">
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
       <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold pointer-events-none">
         <span className="flex -space-x-1 grayscale opacity-60">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
@@ -352,8 +352,13 @@ const PlanCard = ({
   return (
     <>
       <div
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
         className={cn(
-          "relative rounded-2xl overflow-hidden border border-border bg-card transition-all duration-200 flex flex-col w-full",
+          "relative rounded-2xl overflow-hidden border-2 bg-card transition-all duration-200 flex flex-col w-full cursor-pointer",
+          selected ? "border-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]" : "border-border active:border-primary/40",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
@@ -364,11 +369,18 @@ const PlanCard = ({
           </span>
         )}
 
+        {/* Selected indicator — top-start checkmark badge */}
+        {selected && (
+          <span className="absolute top-2.5 start-2.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center z-10 shadow-sm">
+            <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+          </span>
+        )}
+
         <div className="p-4 flex flex-col flex-1">
           {isDataOnly ? (
             <>
               <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
@@ -398,7 +410,7 @@ const PlanCard = ({
           ) : layout === "baqa" ? (
             <>
               <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
@@ -440,7 +452,7 @@ const PlanCard = ({
                 </span>
               </div>
               <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
@@ -481,7 +493,7 @@ const PlanCard = ({
           ) : layout === "postpaid" ? (
             <>
               <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
@@ -527,7 +539,7 @@ const PlanCard = ({
           ) : (
             <>
               <p className="text-[12px] text-muted-foreground mb-1">
-                <button onClick={onMoreDetails} className="font-medium text-primary active:opacity-70">
+                <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
                   {plan.title}
                 </button>
                 <span className="mx-1.5">•</span>
@@ -564,18 +576,18 @@ const PlanCard = ({
             </>
           )}
 
-          {/* CTA */}
-          <button
-            onClick={onSelect}
+          {/* Selection state — whole card is tappable; this is a status bar, not a separate control */}
+          <div
             className={cn(
-              "mt-auto w-full py-3 rounded-full text-sm font-semibold transition-colors",
+              "mt-auto w-full py-3 rounded-full text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors",
               selected
                 ? "bg-primary text-primary-foreground"
-                : "bg-primary/10 text-foreground hover:bg-primary/20"
+                : "bg-primary/10 text-foreground"
             )}
           >
+            {selected && <Check className="w-4 h-4" strokeWidth={3} />}
             {selected ? resolvedSelectedLabel : resolvedSelectLabel}
-          </button>
+          </div>
         </div>
       </div>
 
