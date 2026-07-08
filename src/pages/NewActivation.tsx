@@ -820,6 +820,26 @@ const NewActivation = () => {
                     {t("activation.subscription.phoneSection")} <span className="text-destructive">*</span>
                   </p>
                 </div>
+
+                {/* Vanity numbers available for this plan — eye-catching promo banner */}
+                {isPostpaidMobile && selectedPlanObj && (() => {
+                  const vanityTierNames = eligibleVanityCategories.filter(c => c.months > 0).map(c => t(`activation.vanity.tiers.${c.tier}`));
+                  if (vanityTierNames.length === 0) return null;
+                  return (
+                    <div className="mb-3 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-rose-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3.5 flex items-start gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-rose-400 flex items-center justify-center shrink-0 shadow-sm">
+                        <Sparkles className="w-4.5 h-4.5 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-bold text-foreground leading-snug">
+                          {t("activation.vanity.availableBannerTitle", { tiers: vanityTierNames.join(" & ") })}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{t("activation.vanity.availableBannerSub")}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {showMnp && (
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
@@ -1423,12 +1443,11 @@ const NewActivation = () => {
       {/* Number picker drawer */}
       {(() => {
         // Switch Postpaid: before a plan is picked, only offer tiers free on ANY postpaid plan
-        // (Rare/Silver, Value/Bronze, Standard). Once a plan is selected, offer whatever it
-        // actually qualifies for (up to Exotics/Legendary).
-        const eligibleTiers = isPostpaidMobile
-          ? new Set(selectedPlanObj
-              ? ["standard", ...eligibleVanityCategories.map(c => c.tier)]
-              : VANITY_CATEGORIES.filter(c => c.minTier === 0).map(c => c.tier))
+        // (Rare/Silver, Value/Bronze, Standard) — Gold/Diamond depend on a plan we don't know yet.
+        // Once a plan is selected, show every tier: eligible ones as "free with commitment",
+        // ineligible ones (e.g. Diamond on a plan that only unlocks Gold) as a normal paid number.
+        const eligibleTiers = isPostpaidMobile && !selectedPlanObj
+          ? new Set(VANITY_CATEGORIES.filter(c => c.minTier === 0).map(c => c.tier))
           : null;
         const availableTabs = eligibleTiers ? NUMBER_TABS.filter(tab => tab.value === "all" || eligibleTiers.has(tab.value)) : NUMBER_TABS;
         const filtered = DEMO_NUMBER_POOL
@@ -1463,12 +1482,13 @@ const NewActivation = () => {
                   {filtered.map((item, i) => {
                     const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
                     const fee = tier.fee ?? 0;
-                    // Every non-Standard tier shown here already passed the eligibleTiers filter above, so it's
-                    // free either way. Once a plan is selected, frame it as "free with commitment" (that plan's
-                    // terms). Before a plan is picked, these tiers are free on any postpaid plan — show plain "Free".
-                    const isEligibleVanity = isPostpaidMobile && fee > 0 && item.tier !== "standard";
-                    const freeWithCommitment = isEligibleVanity && !!selectedPlanObj;
-                    const freePlain = isEligibleVanity && !selectedPlanObj;
+                    const isVanityTier = isPostpaidMobile && fee > 0 && item.tier !== "standard";
+                    // Before a plan is picked, only tiers free on any plan are shown at all — plain "Free".
+                    // Once a plan is selected, only the tiers that plan actually qualifies for are "free with
+                    // commitment"; the rest (e.g. Diamond on a Gold-level plan) show their normal paid price.
+                    const isTierEligibleForPlan = eligibleVanityCategories.some(c => c.tier === item.tier);
+                    const freeWithCommitment = isVanityTier && !!selectedPlanObj && isTierEligibleForPlan;
+                    const freePlain = isVanityTier && !selectedPlanObj;
                     return (
                       <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
