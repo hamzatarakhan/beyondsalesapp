@@ -823,20 +823,22 @@ const NewActivation = () => {
                   </p>
                 </div>
 
-                {/* Vanity numbers available for this plan — eye-catching promo banner */}
+                {/* Vanity numbers available for this plan — simple promo banner */}
                 {isPostpaidMobile && selectedPlanObj && (() => {
-                  const vanityTierNames = eligibleVanityCategories.filter(c => c.months > 0).map(c => t(`activation.vanity.tiers.${c.tier}`));
-                  if (vanityTierNames.length === 0) return null;
+                  const eligibleTierCats = eligibleVanityCategories.filter(c => c.months > 0);
+                  if (eligibleTierCats.length === 0) return null;
                   return (
-                    <div className="mb-3 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-rose-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3.5 flex items-start gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-rose-400 flex items-center justify-center shrink-0 shadow-sm">
-                        <Sparkles className="w-4.5 h-4.5 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-bold text-foreground leading-snug">
-                          {t("activation.vanity.availableBannerTitle", { tiers: vanityTierNames.join(" & ") })}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{t("activation.vanity.availableBannerSub")}</p>
+                    <div className="mb-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12.5px] font-semibold text-foreground">{t("activation.vanity.availableBannerTitle")}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {eligibleTierCats.map((c) => (
+                            <span key={c.tier} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${c.color}1A`, color: c.color }}>
+                              {t(`activation.vanity.tiers.${c.tier}`)}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   );
