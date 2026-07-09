@@ -486,7 +486,7 @@ const NewActivation = () => {
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || !!deliveryAddress.trim());
+  const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
   // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
   const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
   const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
@@ -788,7 +788,7 @@ const NewActivation = () => {
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation.subscription.deviceTitle")} <span className="text-destructive">*</span>
                 </h3>
-                <div className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-primary bg-primary/5">
+                <div className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-primary/20 bg-primary/5">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground">
                     <Router className="w-5 h-5" />
                   </div>
@@ -1077,7 +1077,7 @@ const NewActivation = () => {
             {showDelivery && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
-                  <p className="text-sm font-semibold text-foreground">Location Information</p>
+                  <p className="text-sm font-semibold text-foreground">Delivery Details</p>
                   <button
                     type="button"
                     onClick={() => setMapOpen(true)}
@@ -1088,7 +1088,14 @@ const NewActivation = () => {
                   </button>
                 </div>
                 <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                  {/* National Address hidden */}
+                  <Field label="Saudi National Address *">
+                    <Input
+                      value={nationalAddress}
+                      onChange={(e) => setNationalAddress(e.target.value)}
+                      placeholder="e.g. RRRD1234"
+                      className="h-12 bg-card rounded-xl"
+                    />
+                  </Field>
                   <Field label="Region *">
                     <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
                       <SelectTrigger><SelectValue placeholder="Select the region" /></SelectTrigger>
@@ -1577,13 +1584,12 @@ const NewActivation = () => {
       <Drawer open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <DrawerHeader className="text-center px-0 pb-4">
+            <div className="mx-auto mb-3 w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
             <DrawerTitle>{t("activation.checkout.confirmPay")}</DrawerTitle>
             <DrawerDescription>{t("activation.checkout.confirmPayDesc")}</DrawerDescription>
           </DrawerHeader>
-          <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 flex flex-col items-center gap-1 mb-6">
-            <p className="text-3xl font-bold text-primary">{total} {t("activation.checkout.sar")}</p>
-            <p className="text-xs text-muted-foreground">{pay === "card" ? t("activation.checkout.dealerWallet") : t("activation.checkout.posTerminal")}</p>
-          </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
               {t("activation.checkout.confirmPayBtn")}
