@@ -541,8 +541,9 @@ const NewActivation = () => {
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
-  // Nafith promissory-note verification required when a Switch Postpaid vanity commitment is ON
-  const showNafith = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+  // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
+  // whenever a vanity commitment is ON.
+  const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
   const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
