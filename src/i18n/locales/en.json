@@ -278,7 +278,6 @@
       "customerVerification": "Customer Verification",
       "verifyCustomer": "Verify customer",
       "customerVerified": "Customer verified",
-      "otpFirst": "Complete OTP verification first.",
       "numberPickerTitle": "Choose Different Number",
       "search": "Search",
       "esimDevicesTitle": "Compatible Devices",
@@ -362,10 +361,12 @@
       "close": "Close"
     },
     "otpSheet": {
-      "title": "OTP Verification",
-      "subtitle": "Enter the 4-digit code sent to the customer's number",
-      "demo": "Demo: any 4 digits will work",
-      "verify": "Verify"
+      "title": "Enter Verification Code",
+      "subtitle": "We sent you a verification code via SMS",
+      "errorSubtitle": "The verification code you entered is incorrect. Please try again.",
+      "noCode": "Didn't receive the code?",
+      "resendLabel": "Resend the code ?",
+      "resend": "Resend"
     },
     "termsSheet": {
       "title": "Terms and Conditions",

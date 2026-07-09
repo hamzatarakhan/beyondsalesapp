@@ -357,7 +357,9 @@ const NewActivation = () => {
   const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
+  const [otpError, setOtpError] = useState(false);
+  const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
   const [customerVerified, setCustomerVerified] = useState(false);
   // Nafith promissory-note verification — required when a Switch Postpaid vanity commitment is ON
@@ -449,6 +451,51 @@ const NewActivation = () => {
       }, 1500);
     }
   }, []);
+
+  // OTP sheet: reset digits/error and start the resend countdown whenever it opens
+  useEffect(() => {
+    if (!otpOpen) return;
+    setOtpDigits(["", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const interval = setInterval(() => {
+      setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [otpOpen]);
+
+  const setOtpDigitAt = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setOtpDigits((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      if (d && i === 3) {
+        const code = next.join("");
+        setTimeout(() => {
+          if (code === "1111") {
+            setOtpError(true);
+          } else {
+            setOtpError(false);
+            setOtpVerified(true);
+            setOtpOpen(false);
+          }
+        }, 300);
+      }
+      return next;
+    });
+    if (d && i < 3) {
+      const el = document.getElementById(`checkout-otp-${i + 1}`) as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+
+  const resendOtp = () => {
+    setOtpDigits(["", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const el = document.getElementById("checkout-otp-0") as HTMLInputElement | null;
+    el?.focus();
+  };
 
   // ---------- Pricing ----------
   const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
@@ -1376,16 +1423,15 @@ const NewActivation = () => {
               </SectionCard>
             )}
 
-            {/* Customer Verification */}
-            <SectionCard title={isPostpaidInternet ? t("activation.checkout.nafath") : t("activation.checkout.customerVerification")} required>
+            {/* Customer Verification — always shown and always available, independent of OTP status */}
+            <SectionCard title={t("activation.checkout.customerVerification")} required>
               {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {isPostpaidInternet ? t("activation.checkout.nafathVerified") : t("activation.checkout.customerVerified")}</p>
+                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.customerVerified")}</p>
               ) : (
-                <Button variant="outline" className="w-full" disabled={!isPostpaidInternet && otpRequired && !otpVerified} onClick={() => setCustomerVerifyOpen(true)}>
-                  {isPostpaidInternet ? t("activation.checkout.nafathVerify") : t("activation.checkout.verifyCustomer")}
+                <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>
+                  {t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
-              {!isPostpaidInternet && otpRequired && !otpVerified && <p className="text-xs text-muted-foreground">{t("activation.checkout.otpFirst")}</p>}
             </SectionCard>
 
             {/* Nafith Verification — Switch Postpaid vanity commitment ON */}
@@ -1439,7 +1485,7 @@ const NewActivation = () => {
       </div>
 
       {/* Customer verification */}
-      <SematiVerification open={customerVerifyOpen} audience={isPostpaidInternet ? "manafath" : "customer"} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
       <SematiVerification open={nafithVerifyOpen} audience="manafath" onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Number picker drawer */}
@@ -1548,15 +1594,46 @@ const NewActivation = () => {
 
       {/* OTP drawer */}
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl">
-          <DrawerHeader>
-            <DrawerTitle className="text-center">{t("activation.otpSheet.title")}</DrawerTitle>
-            <DrawerDescription className="text-center text-xs">{t("activation.otpSheet.subtitle")}</DrawerDescription>
-          </DrawerHeader>
-          <div className="px-5 pb-6 space-y-3">
-            <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
-            <p className="text-xs text-muted-foreground text-center">{t("activation.otpSheet.demo")}</p>
-            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>{t("activation.otpSheet.verify")}</Button>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <h3 className="text-lg font-bold text-foreground">{t("activation.otpSheet.title")}</h3>
+            <p className="text-sm text-muted-foreground text-center px-4">
+              {otpError ? t("activation.otpSheet.errorSubtitle") : t("activation.otpSheet.subtitle")}
+            </p>
+            <div className="flex gap-3">
+              {otpDigits.map((d, i) => (
+                <input
+                  key={i}
+                  id={`checkout-otp-${i}`}
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => setOtpDigitAt(i, e.target.value)}
+                  className={cn(
+                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none",
+                    otpError ? "border-destructive text-destructive" : "border-border focus:border-primary text-foreground"
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {otpError ? (
+                <>
+                  {t("activation.otpSheet.resendLabel")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
+                </>
+              ) : otpSecondsLeft > 0 ? (
+                <>
+                  {t("activation.otpSheet.noCode")}{" "}
+                  <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
+                </>
+              ) : (
+                <>
+                  {t("activation.otpSheet.noCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
+                </>
+              )}
+            </p>
           </div>
         </DrawerContent>
       </Drawer>
