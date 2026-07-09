@@ -211,6 +211,13 @@ const DEVICES = [
   { id: "router-c", name: "Premium 5G Router", desc: "Up to 8 Gbps · 128 devices", price: 200 },
 ];
 
+// Each Vnet plan bundles its own device — higher-tier plans get the more capable router.
+const VNET_PLAN_DEVICE: Record<string, string> = {
+  "Vnet 100 GB": "router-b",
+  "Vnet 300 GB": "router-a",
+  "Vnet Unlimited": "router-c",
+};
+
 const ESIM_DEVICES = [
   { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+" },
   { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+" },
@@ -331,8 +338,7 @@ const NewActivation = () => {
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
-  // Device — Postpaid Internet only. Only one device offered for now.
-  const selectedDevice = "router-a";
+
 
   // Stage 3 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
@@ -471,6 +477,7 @@ const NewActivation = () => {
   const effectivePlanPrice  = isWhitelisted && payType === "postpaid" ? 0 : planPrice;
   const effectiveSimFee     = isWhitelisted && payType === "postpaid" ? 0 : simFee;
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
+  const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
   const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
