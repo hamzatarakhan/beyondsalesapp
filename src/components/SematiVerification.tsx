@@ -222,7 +222,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               <div>
                 <p className="text-[12px] font-semibold text-sky-700 dark:text-sky-300">{t("activation.verification.actionRequired")}</p>
                 <p className="text-[11px] text-sky-700/80 dark:text-sky-200/80 leading-snug">
-                  {t("activation.verification.nafathInstruction")}
+                  {audience === "dealer" ? t("activation.verification.nafathInstructionSelf") : t("activation.verification.nafathInstructionCustomer")}
                 </p>
               </div>
             </div>
