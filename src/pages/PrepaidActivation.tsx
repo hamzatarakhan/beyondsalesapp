@@ -91,7 +91,7 @@ const simPriceByTier: Record<Tier, number> = {
   "Super Gold": 300,
 };
 
-const operators = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
+const operators = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 
 const cities = [
   "Riyadh",

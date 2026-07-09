@@ -132,7 +132,7 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
 ];
 
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
-const OPERATORS = ["STC", "Mobily", "Zain", "Virgin", "Lebara"];
+const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
@@ -331,8 +331,8 @@ const NewActivation = () => {
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
-  // Device — Postpaid Internet only
-  const [selectedDevice, setSelectedDevice] = useState("router-a");
+  // Device — Postpaid Internet only. Only one device offered for now.
+  const selectedDevice = "router-a";
 
   // Stage 3 — Checkout
   const [pay, setPay] = useState<PayMethod>("card");
@@ -782,35 +782,23 @@ const NewActivation = () => {
             )}
 
 
-            {/* 6. Device — Postpaid Internet only */}
-            {showDevice && (
+            {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
+            {showDevice && deviceObj && (
               <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation.subscription.deviceTitle")} <span className="text-destructive">*</span>
                 </h3>
-                <div className="space-y-2">
-                  {DEVICES.map((device) => {
-                    const selected = selectedDevice === device.id;
-                    return (
-                      <button key={device.id} type="button" onClick={() => setSelectedDevice(device.id)}
-                        className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-start transition-colors", selected ? "border-primary bg-primary/5" : "border-border bg-card")}>
-                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                          <Router className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-foreground">{device.name}</p>
-                          <p className="text-xs text-muted-foreground">{device.desc}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          {device.price > 0
-                            ? <span className="text-sm font-bold text-foreground">{device.price} {t("activation.checkout.sar")}</span>
-                            : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation.subscription.deviceIncluded")}</span>
-                          }
-                        </div>
-                        <span className={cn("w-4 h-4 rounded-full border-2 shrink-0", selected ? "border-primary bg-primary" : "border-muted-foreground/40")} />
-                      </button>
-                    );
-                  })}
+                <div className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-primary bg-primary/5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground">
+                    <Router className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 text-sm font-semibold text-foreground">{deviceObj.name}</p>
+                  <div className="text-right shrink-0">
+                    {deviceObj.price > 0
+                      ? <span className="text-sm font-bold text-foreground">{deviceObj.price} {t("activation.checkout.sar")}</span>
+                      : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation.subscription.deviceIncluded")}</span>
+                    }
+                  </div>
                 </div>
               </section>
             )}
@@ -1495,13 +1483,16 @@ const NewActivation = () => {
                     const isTierEligibleForPlan = eligibleVanityCategories.some(c => c.tier === item.tier);
                     const freeWithCommitment = isVanityTier && !!selectedPlanObj && isTierEligibleForPlan;
                     const freePlain = isVanityTier && !selectedPlanObj;
+                    const vanityCat = VANITY_CATEGORIES.find(c => c.tier === item.tier);
                     return (
                       <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
                         <span className="flex-1 text-start text-base font-semibold text-foreground">{item.number}</span>
                         {freeWithCommitment ? (
                           <span className="flex flex-col items-end">
-                            <span className="text-xs font-semibold text-emerald-600">{t("activation.vanity.freeWithCommitment")}</span>
+                            <span className="text-xs font-semibold text-emerald-600">
+                              {vanityCat ? t("activation.vanity.commitmentOn", { months: vanityCat.months }) : t("activation.vanity.freeWithCommitment")}
+                            </span>
                             <span className="text-[11px] text-muted-foreground line-through">{fee}.00 {t("activation.checkout.sar")}</span>
                           </span>
                         ) : freePlain ? (
@@ -1673,18 +1664,6 @@ const NewActivation = () => {
             </div>
           </div>
         )}
-        <div className="rounded-xl border border-border p-3 space-y-1.5">
-          <Row label={t("activation.checkout.subscription")} value={`${payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} ${lineType === "mobile" ? t("activation.checkout.mobile") : t("activation.checkout.internet")}`} />
-          {showEsim && <Row label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />}
-          {planMode === "plan" && selectedPlanObj && <Row label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
-          {planMode === "plan" && selectedPlanObj?.validityLabel && <Row label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
-          {planMode === "topup" && <Row label={t("activation.checkout.topupValue")} value={`${topupAmount} ${t("activation.checkout.sar")}`} />}
-          {showNumber && <Row label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
-          {showNumber && subType === "sim" && phone && <Row label={t("activation.checkout.phoneNumber")} value={phone} />}
-          {showNumber && subType === "mnp" && portNumber && <Row label={t("activation.subscription.portNumber")} value={portNumber} />}
-          {showDevice && deviceObj && <Row label={t("activation.checkout.device")} value={deviceObj.name} />}
-          <Row label={t("activation.checkout.total")} value={`${total} ${t("activation.checkout.sar")}`} />
-        </div>
       </SuccessBottomSheet>
 
       {/* Cancel bottom sheet */}
@@ -1727,12 +1706,5 @@ const NewActivation = () => {
     </div>
   );
 };
-
-const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex items-center justify-between text-sm">
-    <span className="text-muted-foreground">{label}</span>
-    <span className="text-foreground font-medium text-end max-w-[60%] truncate">{value}</span>
-  </div>
-);
 
 export default NewActivation;
