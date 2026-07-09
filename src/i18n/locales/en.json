@@ -296,8 +296,7 @@
       "simNumber": "SIM Number",
       "topupValue": "Top-up Value",
       "device": "Device",
-      "confirmPayWallet": "The following amount will be deducted from your dealer wallet.",
-      "confirmPayPos": "Collect the following amount via POS terminal."
+      "confirmPayDesc": "Please confirm the payment has been completed using the selected payment method."
     },
     "success": {
       "title": "Success",

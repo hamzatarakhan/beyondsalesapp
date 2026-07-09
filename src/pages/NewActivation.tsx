@@ -803,6 +803,32 @@ const NewActivation = () => {
               </section>
             )}
 
+            {/* In-Store Device Handover / Skip Delivery — shown right under Device when dealer is whitelisted (VNet) */}
+            {showHandoverOption && (
+              <div className="space-y-2">
+                <div
+                  className={cn(
+                    "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
+                    isDealerHandover ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
+                  )}
+                  onClick={() => setIsDealerHandover(v => !v)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
+                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-emerald-600" : "text-muted-foreground")} />
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-semibold", isDealerHandover ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{t("activation.handover.title")}</p>
+                      <p className="text-[11px] text-muted-foreground">{t("activation.handover.subtitle")}</p>
+                    </div>
+                  </div>
+                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-emerald-500" : "bg-muted-foreground/30")}>
+                    <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Number — Mobile only. Shown by default; the Vanity Number overview inside appears once a plan is selected. */}
             {showNumber && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -1046,38 +1072,6 @@ const NewActivation = () => {
                 </Field>
               </div>
             </div>
-
-            {/* In-Store Device Handover / Skip Delivery — shown before delivery when dealer is whitelisted (VNet) */}
-            {showHandoverOption && (
-              <div className="space-y-2">
-                <div
-                  className={cn(
-                    "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                    isDealerHandover ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
-                  )}
-                  onClick={() => setIsDealerHandover(v => !v)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
-                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-emerald-600" : "text-muted-foreground")} />
-                    </div>
-                    <div>
-                      <p className={cn("text-sm font-semibold", isDealerHandover ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{t("activation.handover.title")}</p>
-                      <p className="text-[11px] text-muted-foreground">{t("activation.handover.subtitle")}</p>
-                    </div>
-                  </div>
-                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-emerald-500" : "bg-muted-foreground/30")}>
-                    <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
-                  </div>
-                </div>
-                {isDealerHandover && (
-                  <div className="flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-snug">{t("activation.handover.onNote")}</p>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Location Information — Vnet only */}
             {showDelivery && (
@@ -1584,9 +1578,7 @@ const NewActivation = () => {
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <DrawerHeader className="text-center px-0 pb-4">
             <DrawerTitle>{t("activation.checkout.confirmPay")}</DrawerTitle>
-            <DrawerDescription>
-              {pay === "card" ? t("activation.checkout.confirmPayWallet") : t("activation.checkout.confirmPayPos")}
-            </DrawerDescription>
+            <DrawerDescription>{t("activation.checkout.confirmPayDesc")}</DrawerDescription>
           </DrawerHeader>
           <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 flex flex-col items-center gap-1 mb-6">
             <p className="text-3xl font-bold text-primary">{total} {t("activation.checkout.sar")}</p>
