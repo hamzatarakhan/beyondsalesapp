@@ -341,12 +341,6 @@ const SubscriptionMigration = () => {
               {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
 
-            {customer && (
-              <CardSection title="Current Subscription" icon={ClipboardList}>
-                <SummaryRow label="Subscription Type" value={customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} />
-                <SummaryRow label="Current Plan" value={CATEGORY_LABEL[customer.planCategory] ? `${customer.planName}` : customer.planName} />
-              </CardSection>
-            )}
             {lookupError && (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
                 <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
@@ -383,7 +377,7 @@ const SubscriptionMigration = () => {
         {step === 1 && (
           <>
             {customer && (
-              <CardSection title="Current Subscription" icon={ClipboardList}>
+              <CardSection title="Subscription" icon={ClipboardList}>
                 <SummaryRow label="Subscription Type" value={customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} />
                 <SummaryRow label="Current Plan" value={customer.planName} />
               </CardSection>
