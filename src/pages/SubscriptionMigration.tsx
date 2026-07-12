@@ -423,7 +423,20 @@ const SubscriptionMigration = () => {
               {customer && (
                 <SummaryRow label="MSISDN" value={customer.msisdn} />
               )}
-              <SummaryRow label="New Plan" value={selectedPlanObj?.title ?? "—"} />
+              <SummaryRow
+                label="Subscription Type"
+                value={direction === "pre-to-post" ? "Postpaid" : "Prepaid"}
+              />
+              <SummaryRow
+                label="Plan Type"
+                value={
+                  selectedPlanObj?.categories?.[0]
+                    ? CATEGORY_LABEL[selectedPlanObj.categories[0]] ?? "—"
+                    : "—"
+                }
+              />
+              <SummaryRow label="Plan Name" value={selectedPlanObj?.title ?? "—"} />
+              <SummaryRow label="Plan Validity" value={selectedPlanObj?.validityLabel ?? "—"} />
               <SummaryRow label="ID Number" value={idNumber || "—"} />
             </CardSection>
 
