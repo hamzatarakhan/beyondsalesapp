@@ -604,7 +604,12 @@ const SubscriptionMigration = () => {
               </div>
             </CardSection>
 
-            <ConsentRow label="Terms and Conditions" checked={termsAccepted} onToggle={() => setTermsAccepted((v) => !v)} />
+            <ConsentRow
+              label="Terms and Conditions"
+              checked={termsAccepted}
+              onToggle={() => setTermsAccepted((v) => !v)}
+              onLabelClick={() => setTermsOpen(true)}
+            />
             {direction === "pre-to-post" && (
               <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
             )}
