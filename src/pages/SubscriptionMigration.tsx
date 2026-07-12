@@ -15,7 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -69,23 +77,38 @@ const CardSection = ({
   </section>
 );
 
-const ConsentRow = ({ label, checked, onToggle }: { label: string; checked: boolean; onToggle: () => void }) => (
+const ConsentRow = ({
+  label,
+  checked,
+  onToggle,
+  onLabelClick,
+}: {
+  label: string;
+  checked: boolean;
+  onToggle: () => void;
+  onLabelClick?: () => void;
+}) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
-    <button
-      type="button"
-      className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
-      onClick={onToggle}
-    >
-      <div
+    <div className="flex items-center gap-3 select-none">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={label}
         className={cn(
           "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
           checked ? "bg-primary border-primary" : "border-primary",
         )}
       >
         {checked && <Check className="w-3 h-3 text-primary-foreground" />}
-      </div>
-      <span className="text-sm text-foreground">{label}</span>
-    </button>
+      </button>
+      <button
+        type="button"
+        onClick={onLabelClick ?? onToggle}
+        className="text-sm text-foreground text-start flex-1"
+      >
+        {label}
+      </button>
+    </div>
   </section>
 );
 
