@@ -1012,17 +1012,18 @@ const NewActivation = () => {
                             <div className="flex items-center gap-1.5">
                               {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
                               <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
-                            </div>
-                            {showCommitted && pickedVanityCat ? (
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[11px] font-semibold text-emerald-600">
-                                  {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
-                                </span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              {showCommitted && pickedVanityCat ? (
                                 <span className="text-[11px] text-muted-foreground line-through font-normal">{pickedVanityCat.price} {t("activation.checkout.sar")}</span>
-                              </div>
-                            ) : (
-                              <span className="text-[11px] font-semibold text-foreground">
-                                {pickedVanityCat ? `${pickedVanityCat.price} ${t("activation.checkout.sar")}` : (tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free"))}
+                              ) : (
+                                <span className="text-[11px] font-semibold text-foreground">
+                                  {pickedVanityCat ? `${pickedVanityCat.price} ${t("activation.checkout.sar")}` : (tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free"))}
+                                </span>
+                              )}
+                            </div>
+                            {showCommitted && pickedVanityCat && (
+                              <span className="text-[11px] font-semibold text-emerald-600">
+                                {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
                               </span>
                             )}
                           </div>
