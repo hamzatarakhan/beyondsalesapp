@@ -29,6 +29,7 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Smartphone,
   Wifi,
@@ -59,6 +60,10 @@ import {
   ChevronRight,
   Share2,
   Info,
+  Wallet,
+  Receipt,
+  Microchip,
+  QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -133,6 +138,7 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
 
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
+const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
@@ -269,6 +275,20 @@ const SectionCard = ({ title, children, action, required }: { title: string; chi
   </div>
 );
 
+// Verified-state banner — same visual language as the amber "Whitelisted Customer" notice, in green.
+const VerifiedBanner = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
+      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+      <div>
+        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
+        <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
+      </div>
+    </div>
+  );
+};
+
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1.5">
     <label className="text-xs font-medium text-muted-foreground">{label}</label>
@@ -335,6 +355,8 @@ const NewActivation = () => {
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
   const [numberSearch, setNumberSearch] = useState("");
+  // Number awaiting a "free with commitment / pay number price" choice from the popup.
+  const [pendingVanityNumber, setPendingVanityNumber] = useState<{ number: string; tier: string } | null>(null);
   const [portNumber, setPortNumber] = useState("0512345678");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
@@ -432,11 +454,12 @@ const NewActivation = () => {
     setNumberPickerTab("all");
   }, [selectedPlan]);
 
-  // Whenever a different number is picked, default the commitment checkbox back to checked
-  // (free with commitment) for an eligible vanity number.
-  useEffect(() => {
-    setVanityCommitment(true);
-  }, [phone]);
+  // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
+  // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
+  // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
+  // useEffect(() => {
+  //   setVanityCommitment(true);
+  // }, [phone]);
 
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
@@ -513,10 +536,21 @@ const NewActivation = () => {
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
+  // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
+  // Kept commented in case we need to revert to it.
+  // const rawNumberFee = showNumber && subType === "sim" ? (() => {
+  //   const t = DEMO_NUMBER_POOL.find(n => n.number === phone);
+  //   if (!t) return 0;
+  //   return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
+  // })() : 0;
+  // NEW approach: Switch Postpaid vanity numbers are free when committed, or charge the real
+  // vanity price when the dealer chose "Pay number price" instead. Everything else (Standard,
+  // Prepaid, MNP) keeps the old flat NUMBER_TABS fee.
   const rawNumberFee = showNumber && subType === "sim" ? (() => {
-    const t = DEMO_NUMBER_POOL.find(n => n.number === phone);
-    if (!t) return 0;
-    return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
+    const flatFee = NUMBER_TABS.find(tab => tab.value === pickedTier)?.fee ?? 0;
+    if (!isPostpaidMobile || pickedTier === "standard" || !pickedVanityCat) return flatFee;
+    if (pickedCategoryEligibleFree && vanityCommitment) return 0;
+    return pickedVanityCat.price;
   })() : 0;
   const isVipNumber = rawNumberFee > 0;
 
@@ -669,8 +703,8 @@ const NewActivation = () => {
                   {t("activation.subscription.simType")} <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <SimCard active={simType === "psim"} label={t("activation.subscription.psim")} onClick={() => setSimType("psim")} />
-                  <SimCard active={simType === "esim"} label={t("activation.subscription.esim")} onClick={() => setSimType("esim")} />
+                  <SimCard active={simType === "psim"} label={t("activation.subscription.psim")} icon={Microchip} onClick={() => setSimType("psim")} />
+                  <SimCard active={simType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setSimType("esim")} />
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
@@ -739,7 +773,7 @@ const NewActivation = () => {
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
               <div className="flex gap-3">
-                {([{ value: "prepaid", label: t("activation.subscription.prepaid"), Icon: FileText }, { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: HandCoins }] as const).map(({ value, label, Icon }) => {
+                {([{ value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet }, { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: Receipt }] as const).map(({ value, label, Icon }) => {
                   const selected = payType === value;
                   return (
                     <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
@@ -862,22 +896,19 @@ const NewActivation = () => {
             {showHandoverOption && (
               <div className="space-y-2">
                 <div
-                  className={cn(
-                    "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                    isDealerHandover ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
-                  )}
+                  className="flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer bg-card border-border/60"
                   onClick={() => setIsDealerHandover(v => !v)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
-                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-emerald-600" : "text-muted-foreground")} />
+                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-primary/15" : "bg-muted")}>
+                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-primary" : "text-muted-foreground")} />
                     </div>
                     <div>
-                      <p className={cn("text-sm font-semibold", isDealerHandover ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{t("activation.handover.title")}</p>
+                      <p className="text-sm font-semibold text-foreground">{t("activation.handover.title")}</p>
                       <p className="text-[11px] text-muted-foreground">{t("activation.handover.subtitle")}</p>
                     </div>
                   </div>
-                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-emerald-500" : "bg-muted-foreground/30")}>
+                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-primary" : "bg-muted-foreground/30")}>
                     <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
                   </div>
                 </div>
@@ -931,6 +962,8 @@ const NewActivation = () => {
                   <>
                     <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
                       <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                      {/* OLD approach: flat tier fee shown here, commitment decided afterwards via the
+                          checkbox further down. Kept commented in case we need to revert.
                       {(() => {
                         const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
                         const tab = NUMBER_TABS.find(t => t.value === tier);
@@ -944,6 +977,32 @@ const NewActivation = () => {
                           </div>
                         );
                       })()}
+                      */}
+                      {/* NEW: reflects the commitment choice made in the popup — struck-through
+                          vanity price when committed, real price when the dealer chose to pay instead. */}
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                            <span className="text-[11px] text-muted-foreground">·</span>
+                            {showCommitted && pickedVanityCat ? (
+                              <span className="text-[11px] font-semibold text-emerald-600 inline-flex items-center gap-1">
+                                {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                                <span className="text-muted-foreground line-through font-normal">{pickedVanityCat.price} {t("activation.checkout.sar")}</span>
+                              </span>
+                            ) : (
+                              <span className="text-[11px] font-semibold text-foreground">
+                                {pickedVanityCat ? `${pickedVanityCat.price} ${t("activation.checkout.sar")}` : (tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free"))}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
                       {t("activation.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
@@ -952,7 +1011,9 @@ const NewActivation = () => {
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation.vanity.selectPlanFirst")}</p>
                     )}
 
-                    {/* Vanity commitment checkbox — shown once an eligible vanity number is picked (Switch Postpaid) */}
+                    {/* OLD approach: commitment checkbox shown after picking a number, letting the
+                        dealer toggle commitment on/off in place. Replaced by the popup shown at
+                        selection time in the number picker. Kept commented in case we need to revert.
                     {isPostpaidMobile && selectedPlanObj && pickedVanityCat && pickedVanityCat.months > 0 && (
                       pickedCategoryEligibleFree ? (
                         <button
@@ -983,6 +1044,7 @@ const NewActivation = () => {
                         </div>
                       )
                     )}
+                    */}
                   </>
                 ) : (
                   <div className="space-y-3">
@@ -1205,7 +1267,7 @@ const NewActivation = () => {
                   <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
                 </div>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc")} selected={pay === "card"} onClick={() => setPay("card")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={pay === "card"} onClick={() => setPay("card")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
               </section>
@@ -1417,7 +1479,7 @@ const NewActivation = () => {
             {showOtp && (
               <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
                 {otpVerified ? (
-                  <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.otpVerified")}</p>
+                  <VerifiedBanner />
                 ) : (
                   <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                 )}
@@ -1427,7 +1489,7 @@ const NewActivation = () => {
             {/* Customer Verification — always shown and always available, independent of OTP status */}
             <SectionCard title={t("activation.checkout.customerVerification")} required>
               {customerVerified ? (
-                <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.customerVerified")}</p>
+                <VerifiedBanner />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>
                   {t("activation.checkout.verifyCustomer")}
@@ -1439,7 +1501,7 @@ const NewActivation = () => {
             {showNafith && (
               <SectionCard title={t("activation.checkout.nafath")} required>
                 {nafithVerified ? (
-                  <p className="text-xs text-success inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {t("activation.checkout.nafathVerified")}</p>
+                  <VerifiedBanner />
                 ) : (
                   <Button variant="outline" className="w-full" onClick={() => setNafithVerifyOpen(true)}>
                     {t("activation.checkout.nafathVerify")}
@@ -1539,8 +1601,24 @@ const NewActivation = () => {
                     const freeWithCommitment = isVanityTier && !!selectedPlanObj && isTierEligibleForPlan;
                     const freePlain = isVanityTier && !selectedPlanObj;
                     const vanityCat = VANITY_CATEGORIES.find(c => c.tier === item.tier);
+                    // OLD approach: tapping any row selected it immediately (commitment was decided
+                    // afterwards via a checkbox on the main page). Kept commented in case we need
+                    // to revert.
+                    // onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }}
                     return (
-                      <button key={i} onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }} className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors">
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (freeWithCommitment) {
+                            setPendingVanityNumber({ number: item.number, tier: item.tier });
+                          } else {
+                            setPhone(item.number);
+                            setVanityCommitment(false);
+                            setNumberPickerOpen(false);
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors"
+                      >
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
                         <span className="flex-1 text-start text-base font-semibold text-foreground">{item.number}</span>
                         {freeWithCommitment ? (
@@ -1548,7 +1626,7 @@ const NewActivation = () => {
                             <span className="text-xs font-semibold text-emerald-600">
                               {vanityCat ? t("activation.vanity.commitmentOn", { months: vanityCat.months }) : t("activation.vanity.freeWithCommitment")}
                             </span>
-                            <span className="text-[11px] text-muted-foreground line-through">{fee}.00 {t("activation.checkout.sar")}</span>
+                            <span className="text-[11px] text-muted-foreground line-through">{vanityCat?.price ?? fee}.00 {t("activation.checkout.sar")}</span>
                           </span>
                         ) : freePlain ? (
                           <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>
@@ -1564,6 +1642,39 @@ const NewActivation = () => {
               </div>
             </DrawerContent>
           </Drawer>
+        );
+      })()}
+
+      {/* Commitment choice popup — shown when picking a vanity number eligible for free-with-commitment */}
+      {pendingVanityNumber && (() => {
+        const cat = VANITY_CATEGORIES.find(c => c.tier === pendingVanityNumber.tier);
+        if (!cat) return null;
+        return (
+          <Dialog open onOpenChange={(o) => !o && setPendingVanityNumber(null)}>
+            <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+              <h4 className="font-semibold text-foreground mb-1">
+                {t(`activation.vanity.tiers.${cat.tier}`)} · {pendingVanityNumber.number}
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">{t("activation.vanity.choosePrompt")}</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+                >
+                  {t("activation.vanity.getFreeWithCommitment", { months: cat.months })}
+                </button>
+                <button
+                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  className="w-full py-3 rounded-full bg-muted text-foreground font-semibold text-sm"
+                >
+                  {t("activation.vanity.payNumberPrice", { price: cat.price })}
+                </button>
+                <button onClick={() => setPendingVanityNumber(null)} className="text-primary text-sm font-medium mt-1">
+                  {t("activation.checkout.cancelBtn")}
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
         );
       })()}
 

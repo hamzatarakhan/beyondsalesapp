@@ -1,3 +1,4 @@
+import { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -5,9 +6,17 @@ interface Props {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  icon?: ComponentType<{ className?: string }>;
 }
 
-const SimCard = ({ active, label, onClick, disabled }: Props) => (
+const DefaultSimIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="6" y="3" width="12" height="18" rx="2" />
+    <path d="M10 8h4M10 12h4M10 16h4" />
+  </svg>
+);
+
+const SimCard = ({ active, label, onClick, disabled, icon: Icon = DefaultSimIcon }: Props) => (
   <button
     type="button"
     onClick={disabled ? undefined : onClick}
@@ -19,10 +28,7 @@ const SimCard = ({ active, label, onClick, disabled }: Props) => (
     )}
   >
     <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", active ? "bg-primary/15" : "bg-muted")}>
-      <svg viewBox="0 0 24 24" className={cn("w-4 h-4", active ? "text-primary" : "text-muted-foreground")} fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="6" y="3" width="12" height="18" rx="2" />
-        <path d="M10 8h4M10 12h4M10 16h4" />
-      </svg>
+      <Icon className={cn("w-4 h-4", active ? "text-primary" : "text-muted-foreground")} />
     </div>
     <p className={cn("text-sm font-semibold", active ? "text-foreground" : "text-muted-foreground")}>{label}</p>
     <span
