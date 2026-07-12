@@ -569,15 +569,18 @@ const NewActivation = () => {
     return pickedVanityCat.price;
   })() : 0;
   const isVipNumber = rawNumberFee > 0;
+  const isSwitchPostpaidStandardNumber = isPostpaidMobile && subType === "sim" && pickedTier === "standard";
+  const isZeroPostpaidCheckout = payType === "postpaid" && !isVipNumber && (isWhitelisted || isSwitchPostpaidStandardNumber);
 
-  // Whitelisted customer: no deposit for plan; only pays VIP number fee + VAT if applicable
-  const effectivePlanPrice  = isWhitelisted && payType === "postpaid" ? 0 : planPrice;
-  const effectiveSimFee     = isWhitelisted && payType === "postpaid" ? 0 : simFee;
+  // Whitelisted postpaid, or Switch Postpaid with a standard number: no upfront payment.
+  // VIP number fee still applies even for whitelisted customers.
+  const effectivePlanPrice  = isZeroPostpaidCheckout ? 0 : planPrice;
+  const effectiveSimFee     = isZeroPostpaidCheckout ? 0 : simFee;
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
   const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
-  const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
+  const effectiveDeviceFee  = isZeroPostpaidCheckout ? 0 : deviceFee;
 
   const subtotal = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
   const vat = Math.round(subtotal * 0.15);
@@ -585,7 +588,7 @@ const NewActivation = () => {
 
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
   // (equal to the plan price) that clears the customer's first bill.
-  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && planMode === "plan";
+  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && !isSwitchPostpaidStandardNumber && planMode === "plan";
   // Switch Postpaid: dealer app credit limit note — 20% of the selected plan's price.
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
@@ -1380,8 +1383,8 @@ const NewActivation = () => {
                 <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentSummary")}</p>
               </div>
 
-              {/* Case 1: whitelisted + postpaid + free number → show waived rows, total 0 */}
-              {isWhitelisted && payType === "postpaid" && !isVipNumber ? (
+              {/* Case 1: zero-payment postpaid checkout → show waived rows, total 0 */}
+              {isZeroPostpaidCheckout ? (
                 <>
                   <div className="space-y-2 pb-3">
                     {showEsim && (
