@@ -391,6 +391,7 @@ const NewActivation = () => {
   const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
   const [shareVia, setShareVia] = useState<"mobile" | "email">("mobile");
@@ -415,6 +416,8 @@ const NewActivation = () => {
   const isPostpaidInternet= isVnetMode;
 
   const showEsim         = true;
+  // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
+  const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
   const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
     .filter(c => !(c.value === "vnet" && simType === "esim"));
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim");
@@ -1508,6 +1511,25 @@ const NewActivation = () => {
                   </Button>
                 )}
               </SectionCard>
+            )}
+
+            {/* Allow Promotional Calls — every mobile line except 5G MBB and Vnet */}
+            {showPromoCalls && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <button
+                  type="button"
+                  className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
+                  onClick={() => setAllowPromoCalls(v => !v)}
+                >
+                  <div className={cn(
+                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    allowPromoCalls ? "bg-primary border-primary" : "border-primary"
+                  )}>
+                    {allowPromoCalls && <Check className="w-3 h-3 text-primary-foreground" />}
+                  </div>
+                  <span className="text-sm text-foreground">{t("activation.checkout.allowPromoCalls")}</span>
+                </button>
+              </section>
             )}
 
             {/* Terms & Conditions */}
