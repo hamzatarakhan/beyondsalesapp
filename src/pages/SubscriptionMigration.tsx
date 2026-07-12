@@ -421,25 +421,7 @@ const SubscriptionMigration = () => {
                 value={direction === "pre-to-post" ? "Prepaid → Postpaid" : "Postpaid → Prepaid"}
               />
               {customer && (
-                <>
-                  <SummaryRow label="MSISDN" value={customer.msisdn} />
-                  <SummaryRow
-                    label="Current Plan"
-                    value={
-                      <span className="inline-flex items-center gap-1.5">
-                        {customer.planName}
-                        <button
-                          type="button"
-                          onClick={() => setCurrentPlanOpen(true)}
-                          aria-label="View plan details"
-                          className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center active:opacity-70"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                      </span>
-                    }
-                  />
-                </>
+                <SummaryRow label="MSISDN" value={customer.msisdn} />
               )}
               <SummaryRow label="New Plan" value={selectedPlanObj?.title ?? "—"} />
               <SummaryRow label="ID Number" value={idNumber || "—"} />
