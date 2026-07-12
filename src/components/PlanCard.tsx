@@ -563,7 +563,7 @@ const PlanCard = ({
                   <FeatureRow
                     icon={Star}
                     label={t("activation.plan.freeSubscription")}
-                    chip={<FlagChip onClick={() => setOpenSheet("countries")} />}
+                    chip={<FreeSubsChip />}
                   />
                 )}
               </div>
