@@ -580,7 +580,9 @@ const NewActivation = () => {
   const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
 
   const subtotal = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
-  const vat = Math.round(subtotal * 0.15);
+  // Switch Postpaid with a Standard number: no VAT is collected (deposit-only flow).
+  const vatWaived = isPostpaidMobile && subType === "sim" && pickedTier === "standard";
+  const vat = vatWaived ? 0 : Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
