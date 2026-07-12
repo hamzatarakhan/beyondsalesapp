@@ -28,6 +28,8 @@ import {
   CheckCircle2,
   XCircle,
   Phone,
+  Eye,
+  X as XIcon,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx's page-local helpers) ----------
@@ -149,6 +151,7 @@ const SubscriptionMigration = () => {
 
   // Checkout — payment
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [currentPlanOpen, setCurrentPlanOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -379,7 +382,22 @@ const SubscriptionMigration = () => {
             {customer && (
               <CardSection title="Subscription" icon={ClipboardList}>
                 <SummaryRow label="Subscription Type" value={customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} />
-                <SummaryRow label="Current Plan" value={customer.planName} />
+                <SummaryRow
+                  label="Current Plan"
+                  value={
+                    <span className="inline-flex items-center gap-1.5">
+                      {customer.planName}
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPlanOpen(true)}
+                        aria-label="View plan details"
+                        className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center active:opacity-70"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  }
+                />
               </CardSection>
             )}
             <h3 className="text-sm font-semibold text-foreground px-1">
