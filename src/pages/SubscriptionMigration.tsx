@@ -249,9 +249,9 @@ const SubscriptionMigration = () => {
 
   // ---------- Gates ----------
   const canContinueIdentity = !!idType && !!idNumber.trim() && !!nationality && eligible;
-  const canContinuePlan =
-    selectedPlan != null && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
-  const canPay = otpVerified;
+  const canContinuePlan = selectedPlan != null;
+  const canPay =
+    otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
