@@ -4,6 +4,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
+import PlanCard from "@/components/PlanCard";
 import { PREPAID_PLANS, POSTPAID_PLANS } from "@/pages/NewActivation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -628,7 +629,7 @@ const SubscriptionMigration = () => {
               <XIcon className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
-          <div className="overflow-y-auto flex-1 min-h-0 px-5">
+          <div className="overflow-y-auto flex-1 min-h-0 px-4 pb-2">
             {(() => {
               const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
               const p = customer ? all.find((x) => x.title === customer.planName) : undefined;
@@ -639,31 +640,25 @@ const SubscriptionMigration = () => {
                   </div>
                 );
               }
-              const priceNum = parseFloat(String(p.price).replace(/[^\d.]/g, "")) || 0;
-              const tax = +(priceNum * 0.15).toFixed(2);
-              const total = +(priceNum + tax).toFixed(2);
-              const rows = [
-                { label: "Plan", value: p.title },
-                { label: "Internet", value: p.internet },
-                { label: "Local Mins", value: p.mins },
-                { label: "SMS", value: p.sms },
-                { label: "Validity", value: p.validityLabel ?? "30 days" },
-                { label: "Tax", value: `${tax} SAR` },
-                { label: "Renewal Price", value: `${priceNum} SAR` },
-              ];
+              const cats = p.categories ?? [];
+              const layout: "flex" | "postpaid" | "baqa" | "aman" = cats.includes("switch-postpaid")
+                ? "postpaid"
+                : cats.includes("aman")
+                ? "aman"
+                : cats.includes("base-plan") || cats.includes("basic")
+                ? "baqa"
+                : "flex";
               return (
-                <>
-                  {rows.map((r) => (
-                    <div key={r.label} className="flex items-center justify-between py-4 border-b border-border">
-                      <p className="text-sm text-muted-foreground">{r.label}</p>
-                      <p className="text-sm font-semibold text-foreground text-end">{r.value}</p>
-                    </div>
-                  ))}
-                  <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
-                    <p className="text-base font-bold text-primary">Total</p>
-                    <p className="text-base font-bold text-primary">{total} SAR</p>
-                  </div>
-                </>
+                <div className="pointer-events-none">
+                  <PlanCard
+                    plan={p}
+                    selected={false}
+                    active
+                    onSelect={() => {}}
+                    minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                    layout={layout}
+                  />
+                </div>
               );
             })()}
           </div>
