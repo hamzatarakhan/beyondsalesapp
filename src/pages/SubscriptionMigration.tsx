@@ -390,10 +390,6 @@ const SubscriptionMigration = () => {
               selectedPlan={selectedPlan}
               onSelect={(idx) => setSelectedPlan(idx)}
             />
-            <ConsentRow label="Terms and Conditions" checked={termsAccepted} onToggle={() => setTermsAccepted((v) => !v)} />
-            {direction === "pre-to-post" && (
-              <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
-            )}
           </>
         )}
 
@@ -451,6 +447,11 @@ const SubscriptionMigration = () => {
                 <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
               </div>
             </CardSection>
+
+            <ConsentRow label="Terms and Conditions" checked={termsAccepted} onToggle={() => setTermsAccepted((v) => !v)} />
+            {direction === "pre-to-post" && (
+              <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
+            )}
           </>
         )}
       </div>
