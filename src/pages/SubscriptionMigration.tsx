@@ -682,6 +682,47 @@ const SubscriptionMigration = () => {
         </DrawerContent>
       </Drawer>
 
+      {/* Terms & Conditions */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <XIcon className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Terms and Conditions</DrawerTitle>
+            <DrawerDescription>Please read and accept before continuing.</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>
+              By migrating this subscription, the customer agrees to switch their line to
+              the selected plan and payment type. The change becomes effective once
+              payment is confirmed.
+            </p>
+            <p>
+              Any remaining prepaid balance will be transferred as advance payment on the
+              new line. Postpaid customers must settle any outstanding balance before
+              migration. Standard tariffs, VAT, and fair-usage policies apply.
+            </p>
+            <p>
+              The customer will receive an SMS with the migration confirmation. Refunds
+              and cancellations follow the standard subscription policy.
+            </p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => setTermsAccepted(true)} className="w-full h-12 rounded-full">
+                Accept
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                Cancel
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
       {/* Confirm Payment */}
       <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
