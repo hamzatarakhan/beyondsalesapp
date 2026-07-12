@@ -230,29 +230,11 @@ const YouTubeChip = () => (
 
 // ── Free subscriptions chip (Anghami + STC TV) ─────────────────────────────
 const FreeSubsChip = () => (
-  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold shrink-0">
-    <span className="flex -space-x-1">
-      <span
-        className="w-4 h-4 rounded-full border border-white flex items-center justify-center shrink-0"
-        style={{ background: "linear-gradient(135deg,#8A2BE2,#5B21B6)" }}
-        title="Anghami"
-      >
-        <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white">
-          <path d="M9 4v10.55A3.5 3.5 0 1 0 11 17V8h6V4H9z" />
-        </svg>
-      </span>
-      <span
-        className="w-4 h-4 rounded-full border border-white flex items-center justify-center shrink-0"
-        style={{ background: "#4F008C" }}
-        title="STC TV"
-      >
-        <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </span>
-    </span>
-    Anghami · STC TV
-  </span>
+  <img
+    src={freeSubsIcons.url}
+    alt="Anghami, STC TV"
+    className="h-[18px] w-auto shrink-0"
+  />
 );
 
 // ── Select radio — same dot-in-circle pattern used by Subscription/SIM Type toggles ──
