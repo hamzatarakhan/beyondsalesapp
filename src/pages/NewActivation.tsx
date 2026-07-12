@@ -584,8 +584,8 @@ const NewActivation = () => {
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const emailRequired = payType === "postpaid" || isPrepaidInternet;
-  const cityRequired = payType === "prepaid";
+  const emailRequired = isPrepaidInternet;
+  const cityRequired = true;
   const isContactValid = (!emailRequired || !!contactEmail.trim()) && (!cityRequired || !!contactCity.trim()) && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
