@@ -466,7 +466,7 @@ const PlanCard = ({
                   />
                 )}
                 {plan.freeSub && (
-                  <FeatureRow icon={Star} label={t("activation.plan.freeSubscription")} />
+                  <FeatureRow icon={Star} label={t("activation.plan.freeSubscription")} chip={<FreeSubsChip />} />
                 )}
               </div>
             </>
