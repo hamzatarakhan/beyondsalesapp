@@ -381,7 +381,7 @@ const SubscriptionMigration = () => {
         {step === 1 && (
           <>
             {customer && (
-              <CardSection title="Subscription" icon={ClipboardList}>
+              <CardSection title="Current Subscription" icon={ClipboardList}>
                 <SummaryRow label="Subscription Type" value={customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} />
                 <SummaryRow
                   label="Current Plan"
