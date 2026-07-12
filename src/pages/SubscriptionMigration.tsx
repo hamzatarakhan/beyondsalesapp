@@ -31,6 +31,7 @@ import {
   Phone,
   Eye,
   X as XIcon,
+  Info,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx's page-local helpers) ----------
