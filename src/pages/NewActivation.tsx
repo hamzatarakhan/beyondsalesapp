@@ -584,7 +584,9 @@ const NewActivation = () => {
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
-  const isContactValid = !!contactEmail.trim() && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
+  const emailRequired = payType === "postpaid" || isPrepaidInternet;
+  const cityRequired = payType === "prepaid";
+  const isContactValid = (!emailRequired || !!contactEmail.trim()) && (!cityRequired || !!contactCity.trim()) && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
@@ -1182,16 +1184,16 @@ const NewActivation = () => {
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {/* City shown for prepaid mobile; hidden for prepaid data (5G Data) */}
-                {payType !== "postpaid" && !isPrepaidInternet && (
-                  <Field label={t("activation.subscription.city")}>
+                {/* City required for all prepaid cases */}
+                {payType !== "postpaid" && (
+                  <Field label={`${t("activation.subscription.city")} *`}>
                     <Select value={contactCity} onValueChange={setContactCity}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
                 )}
-                <Field label={t("activation.checkout.email")}>
+                <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
                   <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
