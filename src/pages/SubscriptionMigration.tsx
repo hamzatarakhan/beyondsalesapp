@@ -31,6 +31,7 @@ import {
   Phone,
   Eye,
   X as XIcon,
+  Info,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx's page-local helpers) ----------
@@ -455,35 +456,91 @@ const SubscriptionMigration = () => {
             </CardSection>
 
             <CardSection title="Payment Summary" icon={Receipt}>
-              {direction === "pre-to-post" ? (
-                <>
-                  <SummaryRow label="Package Name" value={selectedPlanObj?.title ?? "—"} />
-                  <SummaryRow label="Deposit Amount" value={isWhitelisted ? "Waived" : `${deposit} SAR`} />
-                  <div className="py-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">Out-of-Bundle / Credit Limit</span>
-                      <span className="text-xs font-semibold text-foreground">{creditLimit} SAR</span>
+              {direction === "pre-to-post" ? (() => {
+                const subtotal = deposit;
+                const vat = Math.round(subtotal * 0.15 * 100) / 100;
+                const grand = Math.round((subtotal + vat) * 100) / 100;
+                return (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Deposit</span>
+                        <span className="text-xs font-semibold text-foreground">{isWhitelisted ? "Waived" : `${deposit} SAR`}</span>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Informational only — 20% of the plan price.</p>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-border/60">
-                    <span className="text-sm font-semibold text-foreground">Total</span>
-                    <span className="text-base font-bold text-primary">{total} SAR</span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground leading-snug pt-1">
-                    The customer's prepaid wallet balance will be moved as an advance payment balance on the new line.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <SummaryRow label="Outstanding Bill" value={`${outstandingBalance} SAR`} />
-                  <div className="flex items-center justify-between pt-3 border-t border-border/60">
-                    <span className="text-sm font-semibold text-foreground">Total</span>
-                    <span className="text-base font-bold text-primary">{total} SAR</span>
-                  </div>
-                </>
-              )}
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-base font-bold text-primary">{grand} SAR</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-snug pt-2">
+                      The customer's prepaid wallet balance will be moved as an advance payment balance on the new line.
+                    </p>
+                  </>
+                );
+              })() : (() => {
+                const subtotal = planPrice;
+                const vat = Math.round(subtotal * 0.15 * 100) / 100;
+                const grand = Math.round((subtotal + vat + outstandingBalance) * 100) / 100;
+                return (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} SAR</span>
+                      </div>
+                      {outstandingBalance > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Outstanding Bill</span>
+                          <span className="text-xs font-semibold text-foreground">{outstandingBalance} SAR</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} SAR</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} SAR</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-base font-bold text-primary">{grand} SAR</span>
+                    </div>
+                  </>
+                );
+              })()}
             </CardSection>
+
+            {direction === "pre-to-post" && (
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 flex items-start gap-3">
+                <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div className="text-[12px] leading-snug">
+                  <p className="text-primary font-semibold">
+                    You are eligible for a credit limit of {creditLimit.toFixed(2)} SAR.
+                  </p>
+                  <p className="text-muted-foreground mt-0.5">
+                    You can use purchase additional services from app within this limit.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <CardSection title="Payment Method" icon={CreditCard}>
               <div className="space-y-2">
