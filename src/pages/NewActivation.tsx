@@ -1008,8 +1008,8 @@ const NewActivation = () => {
                         if (!tab || tab.value === "all") return null;
                         const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
                         return (
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-1.5">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center gap-1.5">
                               {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
                               <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
                               <span className="text-[11px] text-muted-foreground">·</span>
