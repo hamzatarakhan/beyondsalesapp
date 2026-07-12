@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
+import NafithVerificationModal from "@/components/NafithVerificationModal";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
@@ -276,15 +277,21 @@ const SectionCard = ({ title, children, action, required }: { title: string; chi
 );
 
 // Verified-state banner — same visual language as the amber "Whitelisted Customer" notice, in green.
-const VerifiedBanner = () => {
+const VerifiedBanner = ({ onRetry }: { onRetry?: () => void }) => {
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
       <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-      <div>
+      <div className="flex-1">
         <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
         <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
       </div>
+      {/* Demo-only: replay the verification flow without re-navigating the app */}
+      {onRetry && (
+        <button type="button" onClick={onRetry} className="text-emerald-600 shrink-0" aria-label="Retry verification (demo)">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 };
@@ -1450,9 +1457,6 @@ const NewActivation = () => {
                         <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
                         <span className="text-xs font-semibold text-foreground">{planPrice} {t("activation.checkout.sar")}</span>
                       </div>
-                      {isPostpaidDeposit && (
-                        <p className="text-[10px] text-muted-foreground leading-snug">{t("activation.checkout.depositNote")}</p>
-                      )}
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
@@ -1504,7 +1508,7 @@ const NewActivation = () => {
             {showNafith && (
               <SectionCard title={t("activation.checkout.nafath")} required>
                 {nafithVerified ? (
-                  <VerifiedBanner />
+                  <VerifiedBanner onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
                 ) : (
                   <Button variant="outline" className="w-full" onClick={() => setNafithVerifyOpen(true)}>
                     {t("activation.checkout.nafathVerify")}
@@ -1571,7 +1575,7 @@ const NewActivation = () => {
 
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
-      <SematiVerification open={nafithVerifyOpen} audience="manafath" onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
+      <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Number picker drawer */}
       {(() => {
