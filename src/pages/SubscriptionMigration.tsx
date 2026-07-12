@@ -415,6 +415,36 @@ const SubscriptionMigration = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 2 && (
           <>
+            <CardSection title="Subscription Details" icon={ClipboardList}>
+              <SummaryRow
+                label="Migration Type"
+                value={direction === "pre-to-post" ? "Prepaid → Postpaid" : "Postpaid → Prepaid"}
+              />
+              {customer && (
+                <>
+                  <SummaryRow label="MSISDN" value={customer.msisdn} />
+                  <SummaryRow
+                    label="Current Plan"
+                    value={
+                      <span className="inline-flex items-center gap-1.5">
+                        {customer.planName}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPlanOpen(true)}
+                          aria-label="View plan details"
+                          className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center active:opacity-70"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    }
+                  />
+                </>
+              )}
+              <SummaryRow label="New Plan" value={selectedPlanObj?.title ?? "—"} />
+              <SummaryRow label="ID Number" value={idNumber || "—"} />
+            </CardSection>
+
             <CardSection title="OTP Verification" icon={Phone}>
               {otpVerified ? (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
