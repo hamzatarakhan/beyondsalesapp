@@ -406,10 +406,38 @@ const SubscriptionMigration = () => {
             <h3 className="text-sm font-semibold text-foreground px-1">
               {direction === "pre-to-post" ? "Available Postpaid Plans" : "Available Prepaid Plans"}
             </h3>
+            {direction === "post-to-pre" && (
+              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {[
+                  { value: "all", label: "All" },
+                  { value: "aman", label: "Aman" },
+                  { value: "base-plan", label: "Baqah" },
+                  { value: "flex", label: "Baqah Flex" },
+                ].map((chip) => (
+                  <button
+                    key={chip.value}
+                    onClick={() => {
+                      setPlanTypeChip(chip.value);
+                      setSelectedPlan(null);
+                    }}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                      planTypeChip === chip.value
+                        ? "bg-primary text-white"
+                        : "bg-card text-foreground shadow-sm",
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            )}
             <PlanSelector
+              key={direction === "post-to-pre" ? planTypeChip : "pre-to-post"}
               plans={planList}
               selectedPlan={selectedPlan}
               onSelect={(idx) => setSelectedPlan(idx)}
+              categoryFilter={direction === "post-to-pre" ? planTypeChip : undefined}
             />
           </>
         )}
