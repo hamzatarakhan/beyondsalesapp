@@ -582,15 +582,15 @@ const SubscriptionMigration = () => {
             </CardSection>
 
             {direction === "pre-to-post" && (
-              <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
-                  <Info className="w-3.5 h-3.5 text-primary" />
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="w-3.5 h-3.5 text-blue-600" />
                 </div>
                 <div className="text-[12px] leading-snug">
-                  <p className="text-primary font-semibold">
+                  <p className="text-blue-600 font-semibold">
                     You are eligible for a credit limit of {creditLimit.toFixed(2)} SAR.
                   </p>
-                  <p className="text-foreground/70 mt-0.5">
+                  <p className="text-blue-900/70 mt-0.5">
                     You can use purchase additional services from app within this limit.
                   </p>
                 </div>
