@@ -614,6 +614,61 @@ const SubscriptionMigration = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Current plan details */}
+      <Drawer open={currentPlanOpen} onOpenChange={setCurrentPlanOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 pb-6 max-h-[85vh] flex flex-col">
+          <div className="relative flex items-center justify-center px-5 py-3 shrink-0">
+            <h3 className="font-semibold text-foreground text-lg">Plan Details</h3>
+            <button
+              onClick={() => setCurrentPlanOpen(false)}
+              className="absolute right-5 w-8 h-8 rounded-full border border-border flex items-center justify-center"
+              aria-label="Close"
+            >
+              <XIcon className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="overflow-y-auto flex-1 min-h-0 px-5">
+            {(() => {
+              const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
+              const p = customer ? all.find((x) => x.title === customer.planName) : undefined;
+              if (!p) {
+                return (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    {customer?.planName ?? "—"}
+                  </div>
+                );
+              }
+              const priceNum = parseFloat(String(p.price).replace(/[^\d.]/g, "")) || 0;
+              const tax = +(priceNum * 0.15).toFixed(2);
+              const total = +(priceNum + tax).toFixed(2);
+              const rows = [
+                { label: "Plan", value: p.title },
+                { label: "Internet", value: p.internet },
+                { label: "Local Mins", value: p.mins },
+                { label: "SMS", value: p.sms },
+                { label: "Validity", value: p.validityLabel ?? "30 days" },
+                { label: "Tax", value: `${tax} SAR` },
+                { label: "Renewal Price", value: `${priceNum} SAR` },
+              ];
+              return (
+                <>
+                  {rows.map((r) => (
+                    <div key={r.label} className="flex items-center justify-between py-4 border-b border-border">
+                      <p className="text-sm text-muted-foreground">{r.label}</p>
+                      <p className="text-sm font-semibold text-foreground text-end">{r.value}</p>
+                    </div>
+                  ))}
+                  <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
+                    <p className="text-base font-bold text-primary">Total</p>
+                    <p className="text-base font-bold text-primary">{total} SAR</p>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
