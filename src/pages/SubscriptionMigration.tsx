@@ -15,7 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -69,23 +77,38 @@ const CardSection = ({
   </section>
 );
 
-const ConsentRow = ({ label, checked, onToggle }: { label: string; checked: boolean; onToggle: () => void }) => (
+const ConsentRow = ({
+  label,
+  checked,
+  onToggle,
+  onLabelClick,
+}: {
+  label: string;
+  checked: boolean;
+  onToggle: () => void;
+  onLabelClick?: () => void;
+}) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
-    <button
-      type="button"
-      className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
-      onClick={onToggle}
-    >
-      <div
+    <div className="flex items-center gap-3 select-none">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={label}
         className={cn(
           "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
           checked ? "bg-primary border-primary" : "border-primary",
         )}
       >
         {checked && <Check className="w-3 h-3 text-primary-foreground" />}
-      </div>
-      <span className="text-sm text-foreground">{label}</span>
-    </button>
+      </button>
+      <button
+        type="button"
+        onClick={onLabelClick ?? onToggle}
+        className="text-sm text-foreground text-start flex-1"
+      >
+        {label}
+      </button>
+    </div>
   </section>
 );
 
@@ -143,6 +166,7 @@ const SubscriptionMigration = () => {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [planTypeChip, setPlanTypeChip] = useState<string>("all");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
 
   // Checkout — OTP
@@ -580,7 +604,12 @@ const SubscriptionMigration = () => {
               </div>
             </CardSection>
 
-            <ConsentRow label="Terms and Conditions" checked={termsAccepted} onToggle={() => setTermsAccepted((v) => !v)} />
+            <ConsentRow
+              label="Terms and Conditions"
+              checked={termsAccepted}
+              onToggle={() => setTermsAccepted((v) => !v)}
+              onLabelClick={() => setTermsOpen(true)}
+            />
             {direction === "pre-to-post" && (
               <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
             )}
@@ -650,6 +679,47 @@ const SubscriptionMigration = () => {
               )}
             </p>
           </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Terms & Conditions */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <XIcon className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Terms and Conditions</DrawerTitle>
+            <DrawerDescription>Please read and accept before continuing.</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>
+              By migrating this subscription, the customer agrees to switch their line to
+              the selected plan and payment type. The change becomes effective once
+              payment is confirmed.
+            </p>
+            <p>
+              Any remaining prepaid balance will be transferred as advance payment on the
+              new line. Postpaid customers must settle any outstanding balance before
+              migration. Standard tariffs, VAT, and fair-usage policies apply.
+            </p>
+            <p>
+              The customer will receive an SMS with the migration confirmation. Refunds
+              and cancellations follow the standard subscription policy.
+            </p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => setTermsAccepted(true)} className="w-full h-12 rounded-full">
+                Accept
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                Cancel
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
