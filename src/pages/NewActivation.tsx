@@ -451,6 +451,12 @@ const NewActivation = () => {
     setPlanMode("plan");
   }, [payType, lineType]);
 
+  // Non-Saudi/Iqama IDs are prepaid-only (no postpaid available for them)
+  const isSaudiId = idType === "national-id";
+  useEffect(() => {
+    if (!isSaudiId && payType !== "prepaid") setPayType("prepaid");
+  }, [isSaudiId, payType]);
+
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
       setPlanTypeChip("all");
@@ -781,6 +787,7 @@ const NewActivation = () => {
               </section>
 
             {/* 2. Subscription Type */}
+            {isSaudiId && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
@@ -803,6 +810,7 @@ const NewActivation = () => {
                 })}
               </div>
             </div>
+            )}
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
