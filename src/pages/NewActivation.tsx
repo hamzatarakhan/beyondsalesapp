@@ -78,7 +78,7 @@ type PlanMode = "plan" | "topup";
 type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
-const PREPAID_PLANS: typeof SHARED_PLANS = [
+export const PREPAID_PLANS: typeof SHARED_PLANS = [
   // ── Basic (prepaid) — same data as the Baqa plans ──
   { title: "Basic 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 51.75,  discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
   { title: "Basic 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 80.5,   discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
@@ -116,7 +116,7 @@ const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 4542.5, discount: null, validityLabel: "Valid 365 days", categories: ["data"], validity: ["12m"], tags: ["5G","Unlimited"], features: [], bonuses: [] },
 ];
 
-const POSTPAID_PLANS: typeof SHARED_PLANS = [
+export const POSTPAID_PLANS: typeof SHARED_PLANS = [
   // Switch Postpaid — all Unlimited social/national/roaming/SMS + Free subscription
   { title: "Switch Postpaid 120", internet: "35 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 138,    discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
   { title: "Switch Postpaid 150", internet: "55 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 172.5,  discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
