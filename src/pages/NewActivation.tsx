@@ -1184,15 +1184,13 @@ const NewActivation = () => {
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {/* City required for all prepaid cases */}
-                {payType !== "postpaid" && (
-                  <Field label={`${t("activation.subscription.city")} *`}>
-                    <Select value={contactCity} onValueChange={setContactCity}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                )}
+                {/* City required for all cases (prepaid + postpaid) */}
+                <Field label={`${t("activation.subscription.city")} *`}>
+                  <Select value={contactCity} onValueChange={setContactCity}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
                 <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
                   <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
                 </Field>
