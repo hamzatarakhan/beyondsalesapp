@@ -1008,15 +1008,18 @@ const NewActivation = () => {
                         if (!tab || tab.value === "all") return null;
                         const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
                         return (
-                          <div className="flex items-center gap-1.5">
-                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
-                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
-                            <span className="text-[11px] text-muted-foreground">·</span>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                            </div>
                             {showCommitted && pickedVanityCat ? (
-                              <span className="text-[11px] font-semibold text-emerald-600 inline-flex items-center gap-1">
-                                {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
-                                <span className="text-muted-foreground line-through font-normal">{pickedVanityCat.price} {t("activation.checkout.sar")}</span>
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] font-semibold text-emerald-600">
+                                  {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground line-through font-normal">{pickedVanityCat.price} {t("activation.checkout.sar")}</span>
+                              </div>
                             ) : (
                               <span className="text-[11px] font-semibold text-foreground">
                                 {pickedVanityCat ? `${pickedVanityCat.price} ${t("activation.checkout.sar")}` : (tab.fee ? `${tab.fee} ${t("activation.checkout.sar")}` : t("activation.checkout.free"))}
