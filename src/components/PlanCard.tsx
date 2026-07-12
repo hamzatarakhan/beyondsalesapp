@@ -3,6 +3,7 @@ import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
+import freeSubsIcons from "@/assets/free-subs-icons.svg.asset.json";
 
 export interface PlanCardData {
   title: string;
