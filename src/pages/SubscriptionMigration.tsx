@@ -4,6 +4,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
+import PlanCard from "@/components/PlanCard";
 import { PREPAID_PLANS, POSTPAID_PLANS } from "@/pages/NewActivation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
