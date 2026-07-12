@@ -166,6 +166,7 @@ const SubscriptionMigration = () => {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [planTypeChip, setPlanTypeChip] = useState<string>("all");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
 
   // Checkout — OTP
