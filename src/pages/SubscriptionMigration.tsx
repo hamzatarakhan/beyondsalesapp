@@ -141,6 +141,7 @@ const SubscriptionMigration = () => {
 
   // Plan
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [planTypeChip, setPlanTypeChip] = useState<string>("all");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
 
