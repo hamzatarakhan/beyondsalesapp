@@ -609,9 +609,9 @@ const NewActivation = () => {
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
-  // Customer Verification and OTP Verification are both enabled by default (no dependency between them).
-  // Nafith Verification only exists for Switch Postpaid (vanity + commitment) or Vnet, and depends on OTP Verification.
-  const nafithGateOk = !showOtp || otpVerified;
+  // Verifications are sequential: Customer → OTP → Nafith. Each unlocks the next.
+  const otpGateOk = customerVerified;
+  const nafithGateOk = customerVerified && (!showOtp || otpVerified);
   const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -1561,13 +1561,18 @@ const NewActivation = () => {
               )}
             </SectionCard>
 
-            {/* OTP Verification — enabled by default */}
+            {/* OTP Verification — unlocked after Customer Verification */}
             {showOtp && (
               <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
                 {otpVerified ? (
                   <VerifiedBanner />
                 ) : (
-                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                  <>
+                    <Button variant="outline" className="w-full" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                    {!otpGateOk && (
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
+                    )}
+                  </>
                 )}
               </SectionCard>
             )}
