@@ -311,6 +311,7 @@
       "esimDevicesTitle": "الأجهزة المتوافقة",
       "esimDevicesNote": "iPhone XS والإصدارات الأحدث تدعم eSIM",
       "esimUnlocked": "يجب أن يكون الجهاز غير مقفل مع اتصال إنترنت نشط.",
+      "noDevicesFound": "لا توجد أجهزة مطابقة.",
       "gotIt": "حسناً",
       "planLabel": "الخطة",
       "topupLabel": "إضافة رصيد",

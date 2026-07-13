@@ -306,6 +306,7 @@
       "esimDevicesTitle": "Compatible Devices",
       "esimDevicesNote": "Devices that support eSIM",
       "esimUnlocked": "Device must be unlocked with an active internet connection.",
+      "noDevicesFound": "No matching devices found.",
       "gotIt": "Got it",
       "planLabel": "Plan",
       "topupLabel": "Top-up",
