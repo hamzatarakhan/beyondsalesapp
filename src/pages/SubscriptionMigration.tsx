@@ -27,7 +27,6 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
-import RiyalSymbol from "@/components/RiyalSymbol";
   ClipboardList,
   CreditCard,
   Wallet,
@@ -42,6 +41,7 @@ import RiyalSymbol from "@/components/RiyalSymbol";
   X as XIcon,
   Info,
 } from "lucide-react";
+import RiyalSymbol from "@/components/RiyalSymbol";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx's page-local helpers) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
