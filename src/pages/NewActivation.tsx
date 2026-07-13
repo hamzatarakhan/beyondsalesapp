@@ -399,7 +399,6 @@ const NewActivation = () => {
   const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -607,7 +606,7 @@ const NewActivation = () => {
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
   const signatureGateOk = customerVerified && (!showOtp || otpVerified) && (!showNafith || nafithVerified);
   const dealerSigGateOk = signatureGateOk && !!customerSig;
-  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms && privacyAccepted;
+  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -1599,7 +1598,7 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* Terms & Conditions */}
+            {/* Terms & Conditions + Privacy Policy — single combined consent */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div
                 role="checkbox"
@@ -1607,50 +1606,26 @@ const NewActivation = () => {
                 tabIndex={0}
                 onClick={() => setTerms((v) => !v)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTerms((v) => !v); } }}
-                className="flex items-center gap-3 select-none cursor-pointer"
+                className="flex items-start gap-3 select-none cursor-pointer"
               >
                 <div
                   aria-hidden="true"
                   className={cn(
-                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
                     terms ? "bg-primary border-primary" : "border-primary"
                   )}
                 >
                   {terms && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
-                <p className="text-sm text-foreground text-start flex-1">
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
                   {t("activation.checkout.agreeTo")}{" "}
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setTermsOpen(true); }} className="text-foreground font-semibold">
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setTermsOpen(true); }} className="text-primary font-semibold">
                     {t("activation.checkout.terms")}
-                  </button>
-                </p>
-              </div>
-            </section>
-
-            {/* Privacy Policy */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div
-                role="checkbox"
-                aria-checked={privacyAccepted}
-                tabIndex={0}
-                onClick={() => setPrivacyAccepted((v) => !v)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPrivacyAccepted((v) => !v); } }}
-                className="flex items-center gap-3 select-none cursor-pointer"
-              >
-                <div
-                  aria-hidden="true"
-                  className={cn(
-                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
-                    privacyAccepted ? "bg-primary border-primary" : "border-primary"
-                  )}
-                >
-                  {privacyAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
-                </div>
-                <p className="text-sm text-foreground text-start flex-1">
-                  {t("activation.checkout.agreeTo")}{" "}
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setPrivacyOpen(true); }} className="text-foreground font-semibold">
+                  </button>{" "}
+                  {t("activation.checkout.consentMiddle")}{" "}
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setPrivacyOpen(true); }} className="text-primary font-semibold">
                     {t("activation.checkout.privacyPolicy")}
-                  </button>
+                  </button>.
                 </p>
               </div>
             </section>
