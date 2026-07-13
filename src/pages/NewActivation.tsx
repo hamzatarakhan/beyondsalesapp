@@ -925,9 +925,9 @@ const NewActivation = () => {
 
             {/* In-Store Device Handover / Skip Delivery — shown right under Device when dealer is whitelisted (VNet) */}
             {showHandoverOption && (
-              <div className="space-y-2">
+              <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
                 <div
-                  className="flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer bg-card border-border/60"
+                  className="flex items-center justify-between px-4 py-3 transition-colors cursor-pointer"
                   onClick={() => setIsDealerHandover(v => !v)}
                 >
                   <div className="flex items-center gap-3">
@@ -944,7 +944,7 @@ const NewActivation = () => {
                   </div>
                 </div>
                 {isDealerHandover && (
-                  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+                  <div className="px-4 pb-4 pt-1 border-t border-border/60">
                     <Field label={`${t("activation.handover.deviceSerialNumber")} *`}>
                       <Input
                         value={deviceSerialNumber}
