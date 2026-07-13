@@ -35,6 +35,14 @@
         "visitorPassport": "Visitor Passport"
       },
       "nationality": "Nationality",
+      "nationalities": {
+        "sa": "Saudi",
+        "om": "Omani",
+        "ae": "Emirati",
+        "eg": "Egyptian",
+        "in": "Indian",
+        "other": "Other"
+      },
       "idNumber": "ID Number",
       "idPlaceholder": "Enter ID number",
       "whitelisted": {

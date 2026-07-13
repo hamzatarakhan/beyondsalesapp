@@ -35,6 +35,14 @@
         "visitorPassport": "جواز الزائر"
       },
       "nationality": "الجنسية",
+      "nationalities": {
+        "sa": "سعودي",
+        "om": "عماني",
+        "ae": "إماراتي",
+        "eg": "مصري",
+        "in": "هندي",
+        "other": "أخرى"
+      },
       "idNumber": "رقم الهوية",
       "idPlaceholder": "أدخل رقم الهوية",
       "whitelisted": {

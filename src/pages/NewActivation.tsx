@@ -679,12 +679,12 @@ const NewActivation = () => {
                   <SelectValue placeholder={t("activation.identity.nationality")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
-                  <SelectItem value="sa">Saudi</SelectItem>
-                  <SelectItem value="om">Omani</SelectItem>
-                  <SelectItem value="ae">Emirati</SelectItem>
-                  <SelectItem value="eg">Egyptian</SelectItem>
-                  <SelectItem value="in">Indian</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="sa">{t("activation.identity.nationalities.sa")}</SelectItem>
+                  <SelectItem value="om">{t("activation.identity.nationalities.om")}</SelectItem>
+                  <SelectItem value="ae">{t("activation.identity.nationalities.ae")}</SelectItem>
+                  <SelectItem value="eg">{t("activation.identity.nationalities.eg")}</SelectItem>
+                  <SelectItem value="in">{t("activation.identity.nationalities.in")}</SelectItem>
+                  <SelectItem value="other">{t("activation.identity.nationalities.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -1317,8 +1317,8 @@ const NewActivation = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? "Plan") : "Top-up"}</span>
-                      <span className="text-xs font-semibold text-amber-600">Waived</span>
+                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
+                      <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
                     </div>
                   </div>
                   <div className="border-t border-border/60 space-y-2 py-3">
