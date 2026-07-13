@@ -1017,7 +1017,7 @@ const NewActivation = () => {
                             {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
                             <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
                             <span className="text-[11px] text-muted-foreground">·</span>
-                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? `${tab.fee} $<RiyalSymbol />` : t("activation.checkout.free")}</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? <>{tab.fee} <RiyalSymbol /></> : t("activation.checkout.free")}</span>
                           </div>
                         );
                       })()}
@@ -1039,7 +1039,7 @@ const NewActivation = () => {
                                 <span className="text-[11px] text-muted-foreground line-through font-normal">{pickedVanityCat.price} <RiyalSymbol /></span>
                               ) : (
                                 <span className="text-[11px] font-semibold text-foreground">
-                                  {pickedVanityCat ? `${pickedVanityCat.price} $<RiyalSymbol />` : (tab.fee ? `${tab.fee} $<RiyalSymbol />` : t("activation.checkout.free"))}
+                                  {pickedVanityCat ? <>{pickedVanityCat.price} <RiyalSymbol /></> : (tab.fee ? <>{tab.fee} <RiyalSymbol /></> : t("activation.checkout.free"))}
                                 </span>
                               )}
                             </div>
@@ -1209,7 +1209,7 @@ const NewActivation = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
-              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={`${topupAmount} $<RiyalSymbol />`} />}
+              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<>{topupAmount} <RiyalSymbol /></>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
@@ -1371,7 +1371,7 @@ const NewActivation = () => {
                       {showEsim && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
-                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? `${simFee} $<RiyalSymbol />` : t("activation.checkout.free")}</span>
+                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? <>{simFee} <RiyalSymbol /></> : t("activation.checkout.free")}</span>
                         </div>
                       )}
                       {showNumber && subType === "sim" && numberFee > 0 && (
