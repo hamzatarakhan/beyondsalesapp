@@ -893,7 +893,7 @@ const NewActivation = () => {
                       {TOPUP_DENOMS.map((d) => (
                         <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
                           className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                          {d} <RiyalSymbol />
+                          <RiyalSymbol /> {d}
                         </button>
                       ))}
                     </div>
@@ -916,7 +916,7 @@ const NewActivation = () => {
                   <p className="flex-1 text-sm font-semibold text-foreground">{deviceObj.name}</p>
                   <div className="text-right shrink-0">
                     {deviceObj.price > 0
-                      ? <span className="text-sm font-bold text-foreground">{deviceObj.price} <RiyalSymbol /></span>
+                      ? <span className="text-sm font-bold text-foreground"><RiyalSymbol /> {deviceObj.price}</span>
                       : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation.subscription.deviceIncluded")}</span>
                     }
                   </div>
@@ -1017,7 +1017,7 @@ const NewActivation = () => {
                             {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
                             <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
                             <span className="text-[11px] text-muted-foreground">·</span>
-                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? <>{tab.fee} <RiyalSymbol /></> : t("activation.checkout.free")}</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation.checkout.free")}</span>
                           </div>
                         );
                       })()}
@@ -1036,10 +1036,10 @@ const NewActivation = () => {
                               <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
                               <span className="text-[11px] text-muted-foreground">·</span>
                               {showCommitted && pickedVanityCat ? (
-                                <span className="text-[11px] text-muted-foreground line-through font-normal">{pickedVanityCat.price} <RiyalSymbol /></span>
+                                <span className="text-[11px] text-muted-foreground line-through font-normal"><RiyalSymbol /> {pickedVanityCat.price}</span>
                               ) : (
                                 <span className="text-[11px] font-semibold text-foreground">
-                                  {pickedVanityCat ? <>{pickedVanityCat.price} <RiyalSymbol /></> : (tab.fee ? <>{tab.fee} <RiyalSymbol /></> : t("activation.checkout.free"))}
+                                  {pickedVanityCat ? <><RiyalSymbol /> {pickedVanityCat.price}</> : (tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation.checkout.free"))}
                                 </span>
                               )}
                             </div>
@@ -1088,7 +1088,7 @@ const NewActivation = () => {
                         <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
                           <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
                           <p className="text-[11px] text-muted-foreground">{t("activation.vanity.notEligible")}</p>
-                          <p className="text-[13px] font-semibold text-foreground">{pickedVanityCat.price} <RiyalSymbol /></p>
+                          <p className="text-[13px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price}</p>
                         </div>
                       )
                     )}
@@ -1162,13 +1162,13 @@ const NewActivation = () => {
                           </button>
                           {vanityCommitment
                             ? <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation.vanity.nafithNote")}</p>
-                            : <p className="text-[11px] font-semibold text-foreground">{pickedVanityCat.price} <RiyalSymbol /> · {t("activation.vanity.noCommitment")}</p>}
+                            : <p className="text-[11px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price} · {t("activation.vanity.noCommitment")}</p>}
                         </div>
                       ) : (
                         <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
                           <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
                           <p className="text-[11px] text-muted-foreground">{t("activation.vanity.notEligible")}</p>
-                          <p className="text-[13px] font-semibold text-foreground">{pickedVanityCat.price} <RiyalSymbol /></p>
+                          <p className="text-[13px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price}</p>
                         </div>
                       )
                     )}
@@ -1209,7 +1209,7 @@ const NewActivation = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
-              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<>{topupAmount} <RiyalSymbol /></>} />}
+              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
@@ -1347,22 +1347,22 @@ const NewActivation = () => {
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
-                        <span className="text-xs font-semibold text-foreground">{numberFee} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground">{numberFee} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground">{Math.round(numberFee * 0.15)} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {Math.round(numberFee * 0.15)}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                      <span className="text-base font-bold text-primary">{numberFee + Math.round(numberFee * 0.15)} <RiyalSymbol /></span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {numberFee + Math.round(numberFee * 0.15)}</span>
                     </div>
                   </>
                 ) : (
@@ -1371,45 +1371,45 @@ const NewActivation = () => {
                       {showEsim && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
-                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? <>{simFee} <RiyalSymbol /></> : t("activation.checkout.free")}</span>
+                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? <><RiyalSymbol /> {simFee}</> : t("activation.checkout.free")}</span>
                         </div>
                       )}
                       {showNumber && subType === "sim" && numberFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
-                          <span className="text-xs font-semibold text-foreground">{numberFee} <RiyalSymbol /></span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                         </div>
                       )}
                       {showDevice && deviceFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
-                          <span className="text-xs font-semibold text-foreground">{deviceFee} <RiyalSymbol /></span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
-                        <span className="text-xs font-semibold text-foreground">{planPrice} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
-                          <span className="text-xs font-semibold text-green-600">−{promoDiscount} <RiyalSymbol /></span>
+                          <span className="text-xs font-semibold text-green-600">−<RiyalSymbol /> {promoDiscount}</span>
                         </div>
                       )}
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground">{subtotal} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground">{vat} <RiyalSymbol /></span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                      <span className="text-base font-bold text-primary">{total} <RiyalSymbol /></span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {total}</span>
                     </div>
                   </>
                 )}
@@ -1642,7 +1642,7 @@ const NewActivation = () => {
           {step < 2 ? (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>{t("activation.checkout.pay")} {total} <RiyalSymbol /></Button>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</Button>
           )}
         </div>
       </div>
@@ -1726,7 +1726,7 @@ const NewActivation = () => {
                             <span className="text-xs font-semibold text-emerald-600">
                               {vanityCat ? t("activation.vanity.commitmentOn", { months: vanityCat.months }) : t("activation.vanity.freeWithCommitment")}
                             </span>
-                            <span className="text-[11px] text-muted-foreground line-through">{vanityCat?.price ?? fee}.00 <RiyalSymbol /></span>
+                            <span className="text-[11px] text-muted-foreground line-through">{vanityCat?.price ?? fee}.<RiyalSymbol /> 00</span>
                           </span>
                         ) : freePlain ? (
                           <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>
