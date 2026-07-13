@@ -584,8 +584,12 @@ const NewActivation = () => {
   const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
 
   const subtotal = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
-  // Switch Postpaid with a Standard number: no VAT is collected (deposit-only flow).
-  const vatWaived = isPostpaidMobile && subType === "sim" && pickedTier === "standard";
+  // Switch Postpaid: no VAT is collected when the number is Standard, or when a
+  // Vanity number is taken free-with-commitment (deposit-only flow either way).
+  const vatWaived =
+    isPostpaidMobile &&
+    subType === "sim" &&
+    (pickedTier === "standard" || (pickedCategoryEligibleFree && vanityCommitment));
   const vat = vatWaived ? 0 : Math.round(subtotal * 0.15);
   const total = subtotal + vat;
 
