@@ -64,6 +64,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import RiyalSymbol from "@/components/RiyalSymbol";
 
 type SimType = "psim" | "esim";
 type PayMethod = "card" | "cash" | "apple";
@@ -930,7 +931,7 @@ const PrepaidActivation = () => {
               </SelectTrigger>
               <SelectContent className="bg-card">
                 {topupValues.map((v) => (
-                  <SelectItem key={v} value={v}>{v} SAR</SelectItem>
+                  <SelectItem key={v} value={v}>{v} <RiyalSymbol /></SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1954,7 +1955,7 @@ const ReviewSummary = ({
             </div>
             <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
               <span className="text-sm font-semibold text-foreground">Total</span>
-              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} SAR</span>
+              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} <RiyalSymbol /></span>
             </div>
           </>
         )}

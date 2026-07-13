@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import RiyalSymbol from "@/components/RiyalSymbol";
 
 const SimTermination = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const SimTermination = () => {
             </div>
             <div className="billing-row">
               <span className="text-foreground font-medium">Total Outstanding Amount</span>
-              <span className="font-semibold text-foreground">{totalOutstandingAmount} SAR</span>
+              <span className="font-semibold text-foreground">{totalOutstandingAmount} <RiyalSymbol /></span>
             </div>
           </div>
         </div>
