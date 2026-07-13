@@ -425,8 +425,8 @@ const PlanCard = ({
                 <div className="text-right">
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
-                    {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -449,8 +449,8 @@ const PlanCard = ({
                 <div className="text-right">
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
-                    {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -485,8 +485,8 @@ const PlanCard = ({
                 <div className="text-right">
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
-                    {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -520,8 +520,8 @@ const PlanCard = ({
                 <div className="text-right">
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
-                    {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -563,8 +563,8 @@ const PlanCard = ({
                 <div className="text-right">
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
-                    {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
                   </p>
                 </div>
               </div>
