@@ -61,6 +61,7 @@
       "subscriptionTypeTitle": "Subscription Type",
       "prepaid": "Prepaid",
       "postpaid": "Postpaid",
+      "postpaidSaudiOnly": "Postpaid is only available for Saudi ID / Iqama holders.",
       "simType": "SIM Type",
       "psim": "P-SIM",
       "esim": "E-SIM",

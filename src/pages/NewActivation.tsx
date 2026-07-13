@@ -794,30 +794,33 @@ const NewActivation = () => {
               </section>
 
             {/* 2. Subscription Type */}
-            {isSaudiId && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
               <div className="flex gap-3">
                 {([{ value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet }, { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: Receipt }] as const).map(({ value, label, Icon }) => {
                   const selected = payType === value;
+                  const isDisabled = value === "postpaid" && !isSaudiId;
                   return (
-                    <button key={value} type="button" onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
+                    <button key={value} type="button" disabled={isDisabled}
+                      onClick={() => { if (isDisabled) return; setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                       className={cn("relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all border",
-                        selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60")}>
+                        isDisabled ? "bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60")}>
                       {/* Radio indicator */}
                       <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                        selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
-                        {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        selected && !isDisabled ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                        {selected && !isDisabled && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </span>
-                      <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                      <p className={cn("text-sm font-semibold", selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
+                      <Icon className={cn("w-6 h-6", selected && !isDisabled ? "text-primary" : "text-muted-foreground")} />
+                      <p className={cn("text-sm font-semibold", selected && !isDisabled ? "text-foreground" : "text-muted-foreground")}>{label}</p>
                     </button>
                   );
                 })}
               </div>
+              {!isSaudiId && (
+                <p className="text-[11px] text-muted-foreground px-1">{t("activation.subscription.postpaidSaudiOnly")}</p>
+              )}
             </div>
-            )}
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
