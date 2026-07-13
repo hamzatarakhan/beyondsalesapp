@@ -515,6 +515,15 @@ const PlanCard = ({
           ) : layout === "postpaid" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              {plan.bonuses && plan.bonuses.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {plan.bonuses.map((bonus, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold border border-red-200 dark:border-red-500/20">
+                      <Gift className="w-3 h-3" /> {t("activation.plan.bonusPrefix")} {bonus}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">

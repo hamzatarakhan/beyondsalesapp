@@ -166,6 +166,7 @@
       "vatIncl": "Vat Incl",
       "coreData": "Core data",
       "socialData": "Social data",
+      "bonusPrefix": "Bonus",
       "nationalMins": "National minutes",
       "roaming": "Roaming (receiving calls)",
       "sms": "SMS",
