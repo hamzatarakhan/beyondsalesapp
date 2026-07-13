@@ -1103,7 +1103,6 @@ const NewActivation = () => {
                         <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
                       </Select>
                     </Field>
-                    <Field label={t("activation.subscription.contactNum")}><Input value={portContact} onChange={(e) => setPortContact(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
                     <p className="text-[11px] text-muted-foreground">{t("activation.subscription.portNote")}</p>
                   </div>
                 )}
