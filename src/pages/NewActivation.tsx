@@ -1450,7 +1450,7 @@ const NewActivation = () => {
                     <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
                 </Field>
-                <Field label={isVnetMode ? "Saudi National Address *" : "Saudi National Address"}>
+                <Field label={isVnetMode ? `${t("activation.subscription.nationalAddress")} *` : t("activation.subscription.nationalAddress")}>
                   <Input
                     value={nationalAddress}
                     onChange={(e) => setNationalAddress(e.target.value)}
@@ -1465,38 +1465,38 @@ const NewActivation = () => {
             {showDelivery && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
-                  <p className="text-sm font-semibold text-foreground">Delivery Details</p>
+                  <p className="text-sm font-semibold text-foreground">{t("activation.checkout.deliveryDetails")}</p>
                   <button
                     type="button"
                     onClick={() => setMapOpen(true)}
                     className="flex items-center gap-1 text-xs font-semibold text-primary"
                   >
-                    Map
+                    {t("activation.checkout.map")}
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </button>
                 </div>
                 <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                  <Field label="Region *">
+                  <Field label={`${t("activation.checkout.region")} *`}>
                     <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select the region" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("activation.checkout.selectRegion")} /></SelectTrigger>
                       <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
-                  <Field label="City *">
+                  <Field label={`${t("activation.subscription.city")} *`}>
                     <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select the city" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("activation.checkout.selectCity")} /></SelectTrigger>
                       <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
-                  <Field label="District *">
+                  <Field label={`${t("activation.subscription.district")} *`}>
                     <Select value={locationDistrict} onValueChange={setLocationDistrict}>
-                      <SelectTrigger><SelectValue placeholder="Select the district" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("activation.checkout.selectDistrict")} /></SelectTrigger>
                       <SelectContent>
                         {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
-                  <Field label={isVnetMode ? "Saudi National Address *" : "Saudi National Address"}>
+                  <Field label={isVnetMode ? `${t("activation.subscription.nationalAddress")} *` : t("activation.subscription.nationalAddress")}>
                     <Input
                       value={nationalAddress}
                       onChange={(e) => setNationalAddress(e.target.value)}
@@ -1504,11 +1504,11 @@ const NewActivation = () => {
                       className="h-12 bg-card rounded-xl"
                     />
                   </Field>
-                  <Field label="Address Line">
+                  <Field label={t("activation.checkout.addressLine")}>
                     <textarea
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
-                      placeholder="Building, floor, landmark or additional details…"
+                      placeholder={t("activation.subscription.addressPlaceholder")}
                       rows={3}
                       className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                     />
