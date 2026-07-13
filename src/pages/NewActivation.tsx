@@ -1838,7 +1838,8 @@ const NewActivation = () => {
                 value={esimDeviceSearch}
                 onChange={(e) => setEsimDeviceSearch(e.target.value)}
                 placeholder={t("activation.checkout.search")}
-                className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-sm outline-none border border-border/40 rtl:text-right"
+                className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-base outline-none border border-border/40 rtl:text-right"
+                style={{ fontSize: "16px" }}
               />
               <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             </div>
