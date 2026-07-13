@@ -554,7 +554,10 @@ const NewActivation = () => {
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
-  const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
+  // Plan and top-up can be combined (prepaid): sum both when top-up is active.
+  const planFeeRaw = selectedPlanObj?.price ?? 0;
+  const topupFeeRaw = planMode === "topup" ? topupAmount : 0;
+  const planPrice = planFeeRaw + topupFeeRaw;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
   // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
   // Kept commented in case we need to revert to it.
@@ -1389,10 +1392,18 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
-                      </div>
+                      {selectedPlanObj && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : selectedPlanObj.title}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
+                        </div>
+                      )}
+                      {planMode === "topup" && topupAmount > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.topupLabel")}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount}</span>
+                        </div>
+                      )}
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
