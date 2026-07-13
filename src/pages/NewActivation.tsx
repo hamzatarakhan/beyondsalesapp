@@ -1925,7 +1925,7 @@ const NewActivation = () => {
       />
 
       {/* Success */}
-      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId} showMessage={false}>
+      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
         {simType === "esim" && (
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">

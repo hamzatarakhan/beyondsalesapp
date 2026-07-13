@@ -305,7 +305,7 @@
     },
     "success": {
       "title": "Success",
-      "message": "Your activation request has been submitted successfully",
+      "message": "All done! The activation has been completed successfully.",
       "orderId": "Order ID:",
       "goHome": "Go to Home",
       "close": "Close",
