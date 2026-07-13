@@ -1392,10 +1392,18 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
-                      </div>
+                      {selectedPlanObj && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : selectedPlanObj.title}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
+                        </div>
+                      )}
+                      {planMode === "topup" && topupAmount > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.topupLabel")}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount}</span>
+                        </div>
+                      )}
                       {promoApplied && promoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation.checkout.promoLabel")} ({promoCode})</span>
