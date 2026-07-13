@@ -240,8 +240,6 @@
       "nafathVerify": "Verify with Nafith",
       "nafathLocked": "Complete the previous verification step first to unlock Nafith Verification.",
       "otpLocked": "Complete Customer Verification first to unlock OTP Verification.",
-      "signatureLocked": "Complete the verification steps above first.",
-      "dealerSigLocked": "Complete the Customer Signature first.",
       "verifiedTitle": "Verified",
       "verifiedDesc": "This step has been successfully verified.",
       "otp": "OTP Verification",

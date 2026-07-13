@@ -600,12 +600,11 @@ const NewActivation = () => {
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
-  // Verification chain: ID (Customer) Verification → OTP Verification → Nafith Verification → Customer Signature → Dealer Signature.
+  // Verification chain: ID (Customer) Verification → OTP Verification → Nafith Verification.
   // Each step only unlocks once every step before it (that's actually shown for this line) is complete.
+  // Signatures are freely accessible; Payment itself still requires every step above to be done.
   const otpGateOk = customerVerified;
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
-  const signatureGateOk = customerVerified && (!showOtp || otpVerified) && (!showNafith || nafithVerified);
-  const dealerSigGateOk = signatureGateOk && !!customerSig;
   const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -1630,21 +1629,11 @@ const NewActivation = () => {
               </div>
             </section>
 
-            {/* Customer Signature — enabled only after Nafith Verification (or the last applicable verification step) */}
-            <div className="space-y-2">
-              <SignatureBox title={t("activation.checkout.customerSig")} required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} disabled={!signatureGateOk} />
-              {!signatureGateOk && (
-                <p className="text-[11px] text-muted-foreground px-1">{t("activation.checkout.signatureLocked")}</p>
-              )}
-            </div>
+            {/* Customer Signature — freely accessible; Payment itself is still gated on all verification steps being done */}
+            <SignatureBox title={t("activation.checkout.customerSig")} required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} />
 
-            {/* Dealer Signature — enabled only after Customer Signature */}
-            <div className="space-y-2">
-              <SignatureBox title={t("activation.checkout.dealerSig")} required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} disabled={!dealerSigGateOk} />
-              {!dealerSigGateOk && signatureGateOk && (
-                <p className="text-[11px] text-muted-foreground px-1">{t("activation.checkout.dealerSigLocked")}</p>
-              )}
-            </div>
+            {/* Dealer Signature — freely accessible; Payment itself is still gated on all verification steps being done */}
+            <SignatureBox title={t("activation.checkout.dealerSig")} required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} />
           </>
         )}
       </div>
