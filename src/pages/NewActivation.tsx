@@ -1329,16 +1329,16 @@ const NewActivation = () => {
                   <div className="border-t border-border/60 space-y-2 py-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                      <span className="text-xs font-semibold text-foreground">0 <RiyalSymbol /></span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                      <span className="text-xs font-semibold text-foreground">0 <RiyalSymbol /></span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border/60 pt-3">
                     <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                    <span className="text-base font-bold text-primary">0 <RiyalSymbol /></span>
+                    <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
                   </div>
                 </>
               ) : /* Case 2: whitelisted + postpaid + VIP number → only show VIP number fee + VAT */
@@ -1726,12 +1726,12 @@ const NewActivation = () => {
                             <span className="text-xs font-semibold text-emerald-600">
                               {vanityCat ? t("activation.vanity.commitmentOn", { months: vanityCat.months }) : t("activation.vanity.freeWithCommitment")}
                             </span>
-                            <span className="text-[11px] text-muted-foreground line-through">{vanityCat?.price ?? fee}.<RiyalSymbol /> 00</span>
+                            <span className="text-[11px] text-muted-foreground line-through"><RiyalSymbol /> {vanityCat?.price ?? fee}.00</span>
                           </span>
                         ) : freePlain ? (
                           <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>
                         ) : fee > 0 ? (
-                          <span className="text-sm text-muted-foreground font-medium">{fee}.00 <span className="font-bold text-foreground"><RiyalSymbol /></span></span>
+                          <span className="text-sm text-muted-foreground font-medium"><span className="font-bold text-foreground"><RiyalSymbol /></span> {fee}.00</span>
                         ) : (
                           <span className="text-sm font-semibold text-muted-foreground">{t("activation.checkout.free")}</span>
                         )}
