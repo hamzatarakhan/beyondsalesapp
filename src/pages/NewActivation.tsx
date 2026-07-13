@@ -600,11 +600,9 @@ const NewActivation = () => {
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
-  // Verification chain: ID (Customer) Verification → OTP Verification → Nafith Verification.
-  // Each step only unlocks once every step before it (that's actually shown for this line) is complete.
-  // Signatures are freely accessible; Payment itself still requires every step above to be done.
-  const otpGateOk = customerVerified;
-  const nafithGateOk = customerVerified && (!showOtp || otpVerified);
+  // Customer Verification and OTP Verification are both enabled by default (no dependency between them).
+  // Nafith Verification only exists for Switch Postpaid (vanity + commitment) or Vnet, and depends on OTP Verification.
+  const nafithGateOk = !showOtp || otpVerified;
   const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
@@ -1544,23 +1542,18 @@ const NewActivation = () => {
               )}
             </SectionCard>
 
-            {/* OTP Verification — enabled only after Customer Verification */}
+            {/* OTP Verification — enabled by default */}
             {showOtp && (
               <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
                 {otpVerified ? (
                   <VerifiedBanner />
                 ) : (
-                  <>
-                    <Button variant="outline" className="w-full" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
-                    {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">{t("activation.checkout.otpLocked")}</p>
-                    )}
-                  </>
+                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                 )}
               </SectionCard>
             )}
 
-            {/* Nafith Verification — enabled only after OTP Verification (or Customer Verification if OTP isn't shown) */}
+            {/* Nafith Verification — Switch Postpaid (vanity + commitment) or Vnet only; enabled only after OTP Verification */}
             {showNafith && (
               <SectionCard title={t("activation.checkout.nafath")} required>
                 {nafithVerified ? (
