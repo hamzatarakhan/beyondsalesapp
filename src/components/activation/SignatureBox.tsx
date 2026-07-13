@@ -10,22 +10,24 @@ export const SignatureBox = ({
   onEdit,
   onClear,
   required = false,
+  disabled = false,
 }: {
   title: string;
   value: string | null;
   onEdit: () => void;
   onClear: () => void;
   required?: boolean;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation();
   return (
-  <section>
+  <section className={disabled ? "opacity-50" : undefined}>
     <div className="flex items-center justify-between mb-2">
       <h3 className="text-sm font-semibold text-foreground">
         {title}
         {required && <span className="text-destructive"> *</span>}
       </h3>
-      {value && (
+      {value && !disabled && (
         <button
           onClick={onEdit}
           className="text-xs text-primary font-semibold flex items-center gap-1"
@@ -37,14 +39,16 @@ export const SignatureBox = ({
     {value ? (
       <button
         onClick={onEdit}
-        className="w-full bg-card rounded-2xl p-3 border border-border shadow-sm flex items-center justify-center"
+        disabled={disabled}
+        className="w-full bg-card rounded-2xl p-3 border border-border shadow-sm flex items-center justify-center disabled:cursor-not-allowed"
       >
         <img src={value} alt={`${title} preview`} className="h-28 w-full object-contain" />
       </button>
     ) : (
       <button
         onClick={onEdit}
-        className="w-full border-2 border-dashed border-border rounded-2xl bg-card py-8 flex flex-col items-center gap-2 active:bg-primary/5 transition-colors"
+        disabled={disabled}
+        className="w-full border-2 border-dashed border-border rounded-2xl bg-card py-8 flex flex-col items-center gap-2 active:bg-primary/5 transition-colors disabled:cursor-not-allowed disabled:active:bg-transparent"
       >
         <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
           <Plus className="w-4 h-4" />

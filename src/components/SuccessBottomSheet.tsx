@@ -7,6 +7,7 @@ export interface SuccessBottomSheetProps {
   open: boolean;
   onClose: () => void;
   orderId: string;
+  showMessage?: boolean;
   children?: ReactNode;
 }
 
@@ -14,6 +15,7 @@ export function SuccessBottomSheet({
   open,
   onClose,
   orderId,
+  showMessage = true,
   children,
 }: SuccessBottomSheetProps) {
   const { t } = useTranslation();
@@ -40,9 +42,11 @@ export function SuccessBottomSheet({
               <Check className="w-8 h-8 text-success-foreground" strokeWidth={3} />
             </div>
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            {t("activation.success.message")}
-          </p>
+          {showMessage && (
+            <p className="text-sm text-muted-foreground text-center">
+              {t("activation.success.message")}
+            </p>
+          )}
           <p className="text-xs text-muted-foreground mt-1">
             {t("activation.success.orderId")} <span className="font-semibold text-foreground">{orderId}</span>
           </p>

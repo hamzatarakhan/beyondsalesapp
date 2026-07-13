@@ -230,11 +230,16 @@
       "numberType": "Number Type",
       "phoneNumber": "Phone Number",
       "contact": "Contact",
+      "verification": "Verification",
       "email": "Email",
       "contactNumber": "Contact Number",
       "nafath": "Nafith Verification",
       "nafathSub": "Customer identity verified via Nafith",
       "nafathVerify": "Verify with Nafith",
+      "nafathLocked": "Complete the previous verification step first to unlock Nafith Verification.",
+      "otpLocked": "Complete Customer Verification first to unlock OTP Verification.",
+      "signatureLocked": "Complete the verification steps above first.",
+      "dealerSigLocked": "Complete the Customer Signature first.",
       "verifiedTitle": "Verified",
       "verifiedDesc": "This step has been successfully verified.",
       "otp": "OTP Verification",
@@ -264,6 +269,9 @@
       "waived": "Waived",
       "free": "Free",
       "terms": "Terms and Conditions",
+      "agreeTo": "I agree to the",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
       "allowPromoCalls": "Allow Promotional Calls",
       "dealerSig": "Dealer Signature",
       "customerSig": "Customer Signature",
@@ -316,7 +324,8 @@
       "subtitle": "Skip delivery — hand the router to the customer in-store",
       "protoNote": "Prototype only — for demo purposes",
       "onNote": "Delivery skipped — the router will be handed over to the customer in-store.",
-      "summaryValue": "In-store handover"
+      "summaryValue": "In-store handover",
+      "deviceSerialNumber": "Device Serial Number"
     },
     "vanity": {
       "title": "Vanity Number Category",
@@ -378,6 +387,14 @@
       "p3": "Refunds, replacements, and cancellations follow the standard policy available in the merchant portal.",
       "accept": "Accept",
       "cancel": "Cancel"
+    },
+    "privacySheet": {
+      "title": "Privacy Policy",
+      "subtitle": "Please review how the customer's data is collected and used.",
+      "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
+      "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
+      "close": "Close"
     },
     "cancelSheet": {
       "title": "Cancel activation",

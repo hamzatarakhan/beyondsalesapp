@@ -332,6 +332,7 @@ const NewActivation = () => {
   const SHOW_VANITY_OVERVIEW = false;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
+  const [deviceSerialNumber, setDeviceSerialNumber] = useState("");
 
   // Stage 2 — Subscription Type
   const [payType, setPayType] = useState<PayType>("prepaid");
@@ -386,7 +387,7 @@ const NewActivation = () => {
   const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
@@ -398,6 +399,8 @@ const NewActivation = () => {
   const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
@@ -494,7 +497,7 @@ const NewActivation = () => {
   // OTP sheet: reset digits/error and start the resend countdown whenever it opens
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -508,10 +511,10 @@ const NewActivation = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 3) {
+      if (d && i === 5) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "1111") {
+          if (code === "111111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -522,14 +525,14 @@ const NewActivation = () => {
       }
       return next;
     });
-    if (d && i < 3) {
+    if (d && i < 5) {
       const el = document.getElementById(`checkout-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("checkout-otp-0") as HTMLInputElement | null;
@@ -594,11 +597,17 @@ const NewActivation = () => {
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const emailRequired = isPrepaidInternet;
   const cityRequired = true;
-  const isContactValid = (!emailRequired || !!contactEmail.trim()) && (!cityRequired || !!contactCity.trim()) && (!contactNumberRequired || !!contactNumber.trim()) && (!showDelivery || (!!nationalAddress.trim() && !!deliveryAddress.trim()));
+  const isContactValid = (!emailRequired || !!contactEmail.trim()) && (!cityRequired || !!contactCity.trim()) && (!contactNumberRequired || !!contactNumber.trim()) && (!isVnetMode || !!nationalAddress.trim()) && (!showDelivery || !!deliveryAddress.trim()) && (!(showHandoverOption && isDealerHandover) || !!deviceSerialNumber.trim());
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
-  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
+  // Verification chain: ID (Customer) Verification → OTP Verification → Nafith Verification → Customer Signature → Dealer Signature.
+  // Each step only unlocks once every step before it (that's actually shown for this line) is complete.
+  const otpGateOk = customerVerified;
+  const nafithGateOk = customerVerified && (!showOtp || otpVerified);
+  const signatureGateOk = customerVerified && (!showOtp || otpVerified) && (!showNafith || nafithVerified);
+  const dealerSigGateOk = signatureGateOk && !!customerSig;
+  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms && privacyAccepted;
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
@@ -934,6 +943,18 @@ const NewActivation = () => {
                     <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
                   </div>
                 </div>
+                {isDealerHandover && (
+                  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+                    <Field label={`${t("activation.handover.deviceSerialNumber")} *`}>
+                      <Input
+                        value={deviceSerialNumber}
+                        onChange={(e) => setDeviceSerialNumber(e.target.value)}
+                        placeholder="e.g. SN-00123456"
+                        className="h-12 bg-card rounded-xl"
+                      />
+                    </Field>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1194,109 +1215,6 @@ const NewActivation = () => {
               {showDevice && <SummaryRow label={t("activation.checkout.device")} value={deviceObj?.name ?? ""} />}
             </section>
 
-            {/* Contact */}
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
-              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {/* City required for all cases (prepaid + postpaid) */}
-                <Field label={`${t("activation.subscription.city")} *`}>
-                  <Select value={contactCity} onValueChange={setContactCity}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                  </Select>
-                </Field>
-                <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
-                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
-                </Field>
-                <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
-                </Field>
-              </div>
-            </div>
-
-            {/* Location Information — Vnet only */}
-            {showDelivery && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between px-1">
-                  <p className="text-sm font-semibold text-foreground">Delivery Details</p>
-                  <button
-                    type="button"
-                    onClick={() => setMapOpen(true)}
-                    className="flex items-center gap-1 text-xs font-semibold text-primary"
-                  >
-                    Map
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                  </button>
-                </div>
-                <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                  <Field label="Saudi National Address *">
-                    <Input
-                      value={nationalAddress}
-                      onChange={(e) => setNationalAddress(e.target.value)}
-                      placeholder="e.g. RRRD1234"
-                      className="h-12 bg-card rounded-xl"
-                    />
-                  </Field>
-                  <Field label="Region *">
-                    <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select the region" /></SelectTrigger>
-                      <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="City *">
-                    <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select the city" /></SelectTrigger>
-                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="District *">
-                    <Select value={locationDistrict} onValueChange={setLocationDistrict}>
-                      <SelectTrigger><SelectValue placeholder="Select the district" /></SelectTrigger>
-                      <SelectContent>
-                        {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="Address Line">
-                    <textarea
-                      value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
-                      placeholder="Building, floor, landmark or additional details…"
-                      rows={3}
-                      className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-                    />
-                  </Field>
-                </div>
-              </div>
-            )}
-
-            <MapPicker
-              open={mapOpen}
-              onOpenChange={setMapOpen}
-              onConfirm={(city, address) => {
-                if (city) setContactCity(city);
-                setDeliveryAddress(address);
-                setNationalAddress("");
-                setLocationDistrict("");
-              }}
-            />
-
-            {/* Payment Method — hidden for whitelisted postpaid with free number */}
-            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <CreditCard className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
-                </div>
-                <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={pay === "card"} onClick={() => setPay("card")} />
-                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
-                </div>
-              </section>
-            )}
-
             {/* Promo Code */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
@@ -1496,18 +1414,113 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* OTP Verification — shown for VNet/5G Data/Switch Postpaid; not required on E-SIM */}
-            {showOtp && (
-              <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
-                {otpVerified ? (
-                  <VerifiedBanner />
-                ) : (
-                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
-                )}
-              </SectionCard>
+            {/* Payment Method — hidden for whitelisted postpaid with free number */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <CreditCard className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
+                </div>
+                <div className="space-y-2">
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={pay === "card"} onClick={() => setPay("card")} />
+                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
+                </div>
+              </section>
             )}
 
-            {/* Customer Verification — always shown and always available, independent of OTP status */}
+            {/* Contact */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                {/* City required for all cases (prepaid + postpaid) */}
+                <Field label={`${t("activation.subscription.city")} *`}>
+                  <Select value={contactCity} onValueChange={setContactCity}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
+                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+                </Field>
+                <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+                <Field label={isVnetMode ? "Saudi National Address *" : "Saudi National Address"}>
+                  <Input
+                    value={nationalAddress}
+                    onChange={(e) => setNationalAddress(e.target.value)}
+                    placeholder="e.g. RRRD1234"
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Location Information — Vnet only */}
+            {showDelivery && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-sm font-semibold text-foreground">Delivery Details</p>
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(true)}
+                    className="flex items-center gap-1 text-xs font-semibold text-primary"
+                  >
+                    Map
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                  <Field label="Region *">
+                    <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select the region" /></SelectTrigger>
+                      <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="City *">
+                    <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select the city" /></SelectTrigger>
+                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="District *">
+                    <Select value={locationDistrict} onValueChange={setLocationDistrict}>
+                      <SelectTrigger><SelectValue placeholder="Select the district" /></SelectTrigger>
+                      <SelectContent>
+                        {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Address Line">
+                    <textarea
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Building, floor, landmark or additional details…"
+                      rows={3}
+                      className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
+            <MapPicker
+              open={mapOpen}
+              onOpenChange={setMapOpen}
+              onConfirm={(city, address) => {
+                if (city) setContactCity(city);
+                setDeliveryAddress(address);
+                setNationalAddress("");
+                setLocationDistrict("");
+              }}
+            />
+
+            {/* Verification — ID (Customer) Verification → OTP Verification → Nafith Verification → Customer Signature → Dealer Signature */}
+            <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.verification")}</p>
+
+            {/* Customer Verification (ID Verification) — first step, always available */}
             <SectionCard title={t("activation.checkout.customerVerification")} required>
               {customerVerified ? (
                 <VerifiedBanner />
@@ -1518,15 +1531,36 @@ const NewActivation = () => {
               )}
             </SectionCard>
 
-            {/* Nafith Verification — Switch Postpaid vanity commitment ON */}
+            {/* OTP Verification — enabled only after Customer Verification */}
+            {showOtp && (
+              <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
+                {otpVerified ? (
+                  <VerifiedBanner />
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                    {!otpGateOk && (
+                      <p className="text-[11px] text-muted-foreground mt-2">{t("activation.checkout.otpLocked")}</p>
+                    )}
+                  </>
+                )}
+              </SectionCard>
+            )}
+
+            {/* Nafith Verification — enabled only after OTP Verification (or Customer Verification if OTP isn't shown) */}
             {showNafith && (
               <SectionCard title={t("activation.checkout.nafath")} required>
                 {nafithVerified ? (
                   <VerifiedBanner onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
                 ) : (
-                  <Button variant="outline" className="w-full" onClick={() => setNafithVerifyOpen(true)}>
-                    {t("activation.checkout.nafathVerify")}
-                  </Button>
+                  <>
+                    <Button variant="outline" className="w-full" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
+                      {t("activation.checkout.nafathVerify")}
+                    </Button>
+                    {!nafithGateOk && (
+                      <p className="text-[11px] text-muted-foreground mt-2">{t("activation.checkout.nafathLocked")}</p>
+                    )}
+                  </>
                 )}
               </SectionCard>
             )}
@@ -1552,26 +1586,75 @@ const NewActivation = () => {
 
             {/* Terms & Conditions */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <button
-                type="button"
-                className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
-                onClick={() => setTermsOpen(true)}
+              <div
+                role="checkbox"
+                aria-checked={terms}
+                tabIndex={0}
+                onClick={() => setTerms((v) => !v)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTerms((v) => !v); } }}
+                className="flex items-center gap-3 select-none cursor-pointer"
               >
-                <div className={cn(
-                  "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
-                  terms ? "bg-primary border-primary" : "border-primary"
-                )}>
+                <div
+                  aria-hidden="true"
+                  className={cn(
+                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    terms ? "bg-primary border-primary" : "border-primary"
+                  )}
+                >
                   {terms && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
-                <span className="text-sm text-foreground">{t("activation.checkout.terms")}</span>
-              </button>
+                <p className="text-sm text-foreground text-start flex-1">
+                  {t("activation.checkout.agreeTo")}{" "}
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setTermsOpen(true); }} className="text-foreground font-semibold">
+                    {t("activation.checkout.terms")}
+                  </button>
+                </p>
+              </div>
             </section>
 
-            {/* Customer Signature */}
-            <SignatureBox title={t("activation.checkout.customerSig")} required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} />
+            {/* Privacy Policy */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div
+                role="checkbox"
+                aria-checked={privacyAccepted}
+                tabIndex={0}
+                onClick={() => setPrivacyAccepted((v) => !v)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPrivacyAccepted((v) => !v); } }}
+                className="flex items-center gap-3 select-none cursor-pointer"
+              >
+                <div
+                  aria-hidden="true"
+                  className={cn(
+                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    privacyAccepted ? "bg-primary border-primary" : "border-primary"
+                  )}
+                >
+                  {privacyAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1">
+                  {t("activation.checkout.agreeTo")}{" "}
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setPrivacyOpen(true); }} className="text-foreground font-semibold">
+                    {t("activation.checkout.privacyPolicy")}
+                  </button>
+                </p>
+              </div>
+            </section>
 
-            {/* Dealer Signature */}
-            <SignatureBox title={t("activation.checkout.dealerSig")} required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} />
+            {/* Customer Signature — enabled only after Nafith Verification (or the last applicable verification step) */}
+            <div className="space-y-2">
+              <SignatureBox title={t("activation.checkout.customerSig")} required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} disabled={!signatureGateOk} />
+              {!signatureGateOk && (
+                <p className="text-[11px] text-muted-foreground px-1">{t("activation.checkout.signatureLocked")}</p>
+              )}
+            </div>
+
+            {/* Dealer Signature — enabled only after Customer Signature */}
+            <div className="space-y-2">
+              <SignatureBox title={t("activation.checkout.dealerSig")} required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} disabled={!dealerSigGateOk} />
+              {!dealerSigGateOk && signatureGateOk && (
+                <p className="text-[11px] text-muted-foreground px-1">{t("activation.checkout.dealerSigLocked")}</p>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -1752,7 +1835,7 @@ const NewActivation = () => {
             <p className="text-sm text-muted-foreground text-center px-4">
               {otpError ? t("activation.otpSheet.errorSubtitle") : t("activation.otpSheet.subtitle")}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -1816,6 +1899,29 @@ const NewActivation = () => {
         </DrawerContent>
       </Drawer>
 
+      {/* Privacy Policy drawer */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("activation.privacySheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation.privacySheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation.privacySheet.p1")}</p>
+            <p>{t("activation.privacySheet.p2")}</p>
+            <p>{t("activation.privacySheet.p3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button className="w-full h-12 rounded-full">{t("activation.privacySheet.close")}</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
       {/* Pay confirmation */}
       <Drawer open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
@@ -1847,7 +1953,7 @@ const NewActivation = () => {
       />
 
       {/* Success */}
-      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
+      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId} showMessage={false}>
         {simType === "esim" && (
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">
