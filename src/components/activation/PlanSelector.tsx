@@ -403,7 +403,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
           ))}
           {(planFilters.price[0] !== PRICE_MIN || planFilters.price[1] !== PRICE_MAX) && (
             <span className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 rounded-full border border-primary text-primary bg-transparent text-xs font-medium shrink-0">
-              {t("activation.plan.price")}: {planFilters.price[0]}–<RiyalSymbol /> {planFilters.price[1]}
+              {t("activation.plan.price")}: <RiyalSymbol /> {planFilters.price[0]}–{planFilters.price[1]}
               <button type="button" onClick={() => setPlanFilters({ ...planFilters, price: [PRICE_MIN, PRICE_MAX] })} className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/10">
                 <X className="w-3 h-3" />
               </button>
