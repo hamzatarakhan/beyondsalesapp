@@ -1430,9 +1430,22 @@ const NewActivation = () => {
               </section>
             )}
 
-            {/* Contact */}
+            {/* Contact Details */}
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contact")}</p>
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contactDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
+                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+                </Field>
+                <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+              </div>
+            </div>
+
+            {/* Address Details */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.addressDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                 {/* City required for all cases (prepaid + postpaid) */}
                 <Field label={`${t("activation.subscription.city")} *`}>
@@ -1440,12 +1453,6 @@ const NewActivation = () => {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
-                </Field>
-                <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
-                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
-                </Field>
-                <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
                 </Field>
                 <Field label={isVnetMode ? "Saudi National Address *" : "Saudi National Address"}>
                   <Input
@@ -1458,7 +1465,7 @@ const NewActivation = () => {
               </div>
             </div>
 
-            {/* Location Information — Vnet only */}
+            {/* Delivery Details — Vnet only */}
             {showDelivery && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
@@ -1492,6 +1499,14 @@ const NewActivation = () => {
                         {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                  </Field>
+                  <Field label={isVnetMode ? "Saudi National Address *" : "Saudi National Address"}>
+                    <Input
+                      value={nationalAddress}
+                      onChange={(e) => setNationalAddress(e.target.value)}
+                      placeholder="e.g. RRRD1234"
+                      className="h-12 bg-card rounded-xl"
+                    />
                   </Field>
                   <Field label="Address Line">
                     <textarea

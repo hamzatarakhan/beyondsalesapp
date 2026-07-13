@@ -230,6 +230,8 @@
       "numberType": "Number Type",
       "phoneNumber": "Phone Number",
       "contact": "Contact",
+      "contactDetails": "Contact Details",
+      "addressDetails": "Address Details",
       "verification": "Verification",
       "email": "Email",
       "contactNumber": "Contact Number",
