@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+import RiyalSymbol from "@/components/RiyalSymbol";
   Dialog,
   DialogContent,
   DialogDescription,
@@ -79,7 +80,7 @@ const SimTermination = () => {
             </div>
             <div className="billing-row">
               <span className="text-foreground font-medium">Total Outstanding Amount</span>
-              <span className="font-semibold text-foreground">{totalOutstandingAmount} SAR</span>
+              <span className="font-semibold text-foreground">{totalOutstandingAmount} <RiyalSymbol /><</span>
             </div>
           </div>
         </div>

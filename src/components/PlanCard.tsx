@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
 import freeSubsIcons from "@/assets/free-subs-icons.svg.asset.json";
+import RiyalSymbol from "@/components/RiyalSymbol";
 
 export interface PlanCardData {
   title: string;
@@ -425,7 +426,7 @@ const PlanCard = ({
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
                   </p>
                 </div>
               </div>
@@ -449,7 +450,7 @@ const PlanCard = ({
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
                   </p>
                 </div>
               </div>
@@ -485,7 +486,7 @@ const PlanCard = ({
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
                   </p>
                 </div>
               </div>
@@ -520,7 +521,7 @@ const PlanCard = ({
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
                   </p>
                 </div>
               </div>
@@ -563,7 +564,7 @@ const PlanCard = ({
                   <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
                   <p className="text-xl font-bold text-foreground">
                     {Number(plan.price).toFixed(2)}{" "}
-                    <span className="text-muted-foreground font-normal text-sm">{t("activation.checkout.sar")}</span>
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>
                   </p>
                 </div>
               </div>
