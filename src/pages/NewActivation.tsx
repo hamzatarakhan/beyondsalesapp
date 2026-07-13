@@ -129,7 +129,7 @@ export const POSTPAID_PLANS: typeof SHARED_PLANS = [
   // Vnet (internet/data line)
   { title: "Vnet 100 GB",  internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["100 GB high-speed data"] },
   { title: "Vnet 300 GB",  internet: "300 GB", mins: "-", sms: "-", social: "-", price: 345,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["300 GB high-speed data"] },
-  { title: "Vnet Unlimited", internet: "Unlimited", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G","Unlimited"], features: [], bonuses: ["Unlimited data", "100 GB hotspot"] },
+  { title: "Vnet 500 GB", internet: "500 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["500 GB high-speed data", "100 GB hotspot"] },
 ];
 
 const INTERNET_PLANS: typeof SHARED_PLANS = [
@@ -223,7 +223,7 @@ const DEVICES = [
 const VNET_PLAN_DEVICE: Record<string, string> = {
   "Vnet 100 GB": "router-b",
   "Vnet 300 GB": "router-a",
-  "Vnet Unlimited": "router-c",
+  "Vnet 500 GB": "router-c",
 };
 
 const ESIM_DEVICES = [
