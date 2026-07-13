@@ -554,7 +554,10 @@ const NewActivation = () => {
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
-  const planPrice = planMode === "plan" ? selectedPlanObj?.price ?? 0 : topupAmount;
+  // Plan and top-up can be combined (prepaid): sum both when top-up is active.
+  const planFeeRaw = selectedPlanObj?.price ?? 0;
+  const topupFeeRaw = planMode === "topup" ? topupAmount : 0;
+  const planPrice = planFeeRaw + topupFeeRaw;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
   // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
   // Kept commented in case we need to revert to it.
