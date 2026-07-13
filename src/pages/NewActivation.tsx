@@ -153,6 +153,30 @@ const DISTRICTS: Record<string, string[]> = {
   "Medina":  ["Al Haram", "Al Aziziyah", "Quba", "Al Salam"],
 };
 
+// Region each demo city belongs to — used to auto-fill Delivery Details from a map pick.
+const CITY_TO_REGION: Record<string, string> = {
+  "Riyadh": "Riyadh Region",
+  "Jeddah": "Makkah Region",
+  "Mecca": "Makkah Region",
+  "Medina": "Madinah Region",
+  "Dammam": "Eastern Province",
+};
+
+// Snap whatever city string the map's reverse-geocoder returns to one of our demo CITIES,
+// so it always matches a valid Select option. Falls back to Riyadh (the map's default view).
+const matchDemoCity = (rawCity: string): string => {
+  const normalized = rawCity.trim().toLowerCase();
+  const found = CITIES.find((c) => normalized.includes(c.toLowerCase()) || c.toLowerCase().includes(normalized));
+  return found ?? "Riyadh";
+};
+
+// Prototype-only Saudi National Address generator (format: 4 letters + 4 digits, e.g. "RRRD1234").
+const generateNationalAddress = (): string => {
+  const letters = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("");
+  const digits = Math.floor(1000 + Math.random() * 9000);
+  return `${letters}${digits}`;
+};
+
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
   { value: "basic", label: "Basic" },
@@ -1540,10 +1564,13 @@ const NewActivation = () => {
               open={mapOpen}
               onOpenChange={setMapOpen}
               onConfirm={(city, address) => {
-                if (city) setContactCity(city);
+                const matchedCity = city ? matchDemoCity(city) : "Riyadh";
+                setContactCity(matchedCity);
+                setLocationRegion(CITY_TO_REGION[matchedCity] ?? REGIONS[0]);
+                const cityDistricts = DISTRICTS[matchedCity] ?? [];
+                setLocationDistrict(cityDistricts[Math.floor(Math.random() * cityDistricts.length)] ?? "");
+                setNationalAddress(generateNationalAddress());
                 setDeliveryAddress(address);
-                setNationalAddress("");
-                setLocationDistrict("");
               }}
             />
 
