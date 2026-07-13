@@ -519,7 +519,7 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
-                        <span className="text-xs font-semibold text-foreground">{planPrice} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} <RiyalSymbol /></span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">Deposit</span>
@@ -529,16 +529,16 @@ const SubscriptionMigration = () => {
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">Subtotal</span>
-                        <span className="text-xs font-semibold text-foreground">{subtotal} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} <RiyalSymbol /></span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
-                        <span className="text-xs font-semibold text-foreground">{vat} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} <RiyalSymbol /></span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">Total</span>
-                      <span className="text-base font-bold text-primary">{grand} <RiyalSymbol /><</span>
+                      <span className="text-base font-bold text-primary">{grand} <RiyalSymbol /></span>
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-snug pt-2">
                       The customer's prepaid wallet balance will be moved as an advance payment balance on the new line.
@@ -554,28 +554,28 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
-                        <span className="text-xs font-semibold text-foreground">{planPrice} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{planPrice} <RiyalSymbol /></span>
                       </div>
                       {outstandingBalance > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">Outstanding Bill</span>
-                          <span className="text-xs font-semibold text-foreground">{outstandingBalance} <RiyalSymbol /><</span>
+                          <span className="text-xs font-semibold text-foreground">{outstandingBalance} <RiyalSymbol /></span>
                         </div>
                       )}
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">Subtotal</span>
-                        <span className="text-xs font-semibold text-foreground">{subtotal} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{subtotal} <RiyalSymbol /></span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
-                        <span className="text-xs font-semibold text-foreground">{vat} <RiyalSymbol /><</span>
+                        <span className="text-xs font-semibold text-foreground">{vat} <RiyalSymbol /></span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">Total</span>
-                      <span className="text-base font-bold text-primary">{grand} <RiyalSymbol /><</span>
+                      <span className="text-base font-bold text-primary">{grand} <RiyalSymbol /></span>
                     </div>
                   </>
                 );
