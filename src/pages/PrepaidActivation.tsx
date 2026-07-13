@@ -931,7 +931,7 @@ const PrepaidActivation = () => {
               </SelectTrigger>
               <SelectContent className="bg-card">
                 {topupValues.map((v) => (
-                  <SelectItem key={v} value={v}>{v} <RiyalSymbol /></SelectItem>
+                  <SelectItem key={v} value={v}><RiyalSymbol /> {v}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1955,7 +1955,7 @@ const ReviewSummary = ({
             </div>
             <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/60">
               <span className="text-sm font-semibold text-foreground">Total</span>
-              <span className="text-base font-bold text-primary">{subtotal.toFixed(2)} <RiyalSymbol /></span>
+              <span className="text-base font-bold text-primary"><RiyalSymbol /> {subtotal.toFixed(2)}</span>
             </div>
           </>
         )}

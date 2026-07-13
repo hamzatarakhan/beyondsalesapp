@@ -80,7 +80,7 @@ const SimTermination = () => {
             </div>
             <div className="billing-row">
               <span className="text-foreground font-medium">Total Outstanding Amount</span>
-              <span className="font-semibold text-foreground">{totalOutstandingAmount} <RiyalSymbol /></span>
+              <span className="font-semibold text-foreground"><RiyalSymbol /> {totalOutstandingAmount}</span>
             </div>
           </div>
         </div>
