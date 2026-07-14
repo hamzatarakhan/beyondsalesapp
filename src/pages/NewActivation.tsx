@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import MapPicker from "@/components/MapPicker";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
@@ -348,6 +348,12 @@ const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWln
 const NewActivation = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isFulfilment = searchParams.get("flow") === "fulfilment";
+  // Fulfilment: the customer has already paid the activation elsewhere.
+  // When true, the checkout shows a "Payment Already Completed" info card
+  // and the payment-method section is hidden.
+  const [alreadyPaid, setAlreadyPaid] = useState(true);
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
