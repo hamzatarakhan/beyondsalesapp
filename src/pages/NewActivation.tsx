@@ -371,7 +371,7 @@ const NewActivation = () => {
   // re-collecting ID Type / Nationality / ID Number.
   const [fulfilmentEmail, setFulfilmentEmail] = useState("customer@email.com");
   const [qrScanOpen, setQrScanOpen] = useState(false);
-  const [qrScanStep, setQrScanStep] = useState<"notice" | "scanning" | "success">("notice");
+  const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
@@ -510,21 +510,18 @@ const NewActivation = () => {
     if (!isSaudiId && payType !== "prepaid") setPayType("prepaid");
   }, [isSaudiId, payType]);
 
-  // Fulfilment QR scan — show instructions first, then simulate finding the customer's
-  // completed online application once the dealer confirms they're ready to scan.
+  // Fulfilment QR scan — full-screen camera-style view opens straight into scanning,
+  // then simulates finding the customer's completed online application.
   useEffect(() => {
-    if (qrScanOpen) setQrScanStep("notice");
-  }, [qrScanOpen]);
-
-  useEffect(() => {
-    if (qrScanStep !== "scanning") return;
+    if (!qrScanOpen) return;
+    setQrScanStep("scanning");
     const scanTimer = setTimeout(() => {
       setQrScanStep("success");
       const closeTimer = setTimeout(() => setQrScanOpen(false), 1200);
       return () => clearTimeout(closeTimer);
     }, 1800);
     return () => clearTimeout(scanTimer);
-  }, [qrScanStep]);
+  }, [qrScanOpen]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
@@ -1845,55 +1842,46 @@ const NewActivation = () => {
       <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
-      {/* Fulfilment: QR scan lookup */}
-      <Dialog open={qrScanOpen} onOpenChange={setQrScanOpen}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
-          {qrScanStep === "notice" ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <QrCode className="w-7 h-7 text-primary" />
+      {/* Fulfilment: QR scan lookup — full-screen camera-style view, no hardware access */}
+      {qrScanOpen && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center px-8">
+          <button
+            onClick={() => setQrScanOpen(false)}
+            className="absolute top-6 end-6 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center"
+            aria-label={t("activation.verification.cancel")}
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+
+          {qrScanStep === "scanning" ? (
+            <>
+              <div className="relative w-64 h-64 shrink-0">
+                <div className="absolute top-0 start-0 w-10 h-10 border-t-4 border-s-4 border-primary rounded-tl-2xl" />
+                <div className="absolute top-0 end-0 w-10 h-10 border-t-4 border-e-4 border-primary rounded-tr-2xl" />
+                <div className="absolute bottom-0 start-0 w-10 h-10 border-b-4 border-s-4 border-primary rounded-bl-2xl" />
+                <div className="absolute bottom-0 end-0 w-10 h-10 border-b-4 border-e-4 border-primary rounded-br-2xl" />
+                <div className="absolute inset-x-6 top-1/2 h-0.5 bg-primary/80 animate-pulse" />
               </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrNoticeTitle")}</h4>
-                <p className="text-xs text-muted-foreground">{t("activation.identity.qrNoticeDesc")}</p>
-              </div>
-              <button
-                onClick={() => setQrScanStep("scanning")}
-                className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
-              >
-                {t("activation.identity.qrStartScan")}
-              </button>
-              <button onClick={() => setQrScanOpen(false)} className="text-primary text-sm font-medium">
-                {t("activation.verification.cancel")}
-              </button>
-            </div>
-          ) : qrScanStep === "scanning" ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative w-32 h-32 rounded-2xl bg-muted/60 border-2 border-dashed border-primary/40 flex items-center justify-center">
-                <QrCode className="w-14 h-14 text-muted-foreground/40" />
-                <Loader2 className="w-6 h-6 text-primary animate-spin absolute -bottom-2 -end-2 bg-card rounded-full p-0.5 shadow" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrScanning")}</h4>
-                <p className="text-xs text-muted-foreground">{t("activation.identity.qrScanningNote")}</p>
-              </div>
-              <button onClick={() => setQrScanOpen(false)} className="text-primary text-sm font-medium">
-                {t("activation.verification.cancel")}
-              </button>
-            </div>
+              <p className="text-white text-sm font-semibold mt-8 text-center leading-snug">
+                {t("activation.identity.qrNoticeDesc")}
+              </p>
+              <p className="text-white/50 text-xs mt-2 flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t("activation.identity.qrScanning")}
+              </p>
+            </>
           ) : (
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center">
-                <Check className="w-7 h-7 text-white" strokeWidth={3} />
+              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrFound")}</h4>
-                <p className="text-xs text-muted-foreground">{t("activation.identity.qrFoundNote")}</p>
+              <div className="text-center">
+                <h4 className="font-semibold text-white mb-1">{t("activation.identity.qrFound")}</h4>
+                <p className="text-xs text-white/70">{t("activation.identity.qrFoundNote")}</p>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* Number picker drawer */}
       {(() => {
