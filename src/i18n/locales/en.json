@@ -31,9 +31,11 @@
       "idTypes": {
         "saudi": "Saudi ID / Iqama ID",
         "gccId": "GCC ID",
+        "hajOmra": "Haj and Omra",
         "gccPassport": "GCC Passport",
         "visitorPassport": "Visitor Passport"
       },
+      "idPassport": "ID Passport",
       "nationality": "Nationality",
       "nationalities": {
         "sa": "Saudi Arabian",
