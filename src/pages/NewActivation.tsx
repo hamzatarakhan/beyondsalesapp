@@ -1729,8 +1729,8 @@ const NewActivation = () => {
                   role="checkbox"
                   aria-checked={terms}
                   tabIndex={0}
-                  onClick={() => { if (terms) { setTerms(false); } else { setTermsOpen(true); } }}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsOpen(true); } } }}
+                  onClick={() => { if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
                   className={cn(
                     "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
                     terms ? "bg-primary border-primary" : "border-primary"
@@ -2049,7 +2049,7 @@ const NewActivation = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { setTermsOpen(false); setPrivacyOpen(true); }} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTerms(true); } }} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
             </DrawerClose>
             <DrawerClose asChild>
               <button type="button" className="text-sm font-semibold text-primary">{t("activation.termsSheet.cancel")}</button>
@@ -2075,7 +2075,7 @@ const NewActivation = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">{t("activation.privacySheet.close")}</Button>
+              <Button onClick={() => { if (termsChain) { setTerms(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">{t("activation.privacySheet.close")}</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
