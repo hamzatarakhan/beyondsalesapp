@@ -2048,7 +2048,7 @@ const NewActivation = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
+              <Button onClick={() => { setTermsOpen(false); setPrivacyOpen(true); }} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
             </DrawerClose>
             <DrawerClose asChild>
               <button type="button" className="text-sm font-semibold text-primary">{t("activation.termsSheet.cancel")}</button>
@@ -2074,7 +2074,7 @@ const NewActivation = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button className="w-full h-12 rounded-full">{t("activation.privacySheet.close")}</Button>
+              <Button onClick={() => setTerms(true)} className="w-full h-12 rounded-full">{t("activation.privacySheet.close")}</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
