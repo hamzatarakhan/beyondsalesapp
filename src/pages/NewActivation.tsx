@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import MapPicker from "@/components/MapPicker";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification from "@/components/SematiVerification";
@@ -348,6 +348,12 @@ const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWln
 const NewActivation = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isFulfilment = searchParams.get("flow") === "fulfilment";
+  // Fulfilment: the customer has already paid the activation elsewhere.
+  // When true, the checkout shows a "Payment Already Completed" info card
+  // and the payment-method section is hidden.
+  const [alreadyPaid, setAlreadyPaid] = useState(true);
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
@@ -752,6 +758,31 @@ const NewActivation = () => {
                 <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isWhitelisted ? "start-5" : "start-0.5")} />
               </div>
             </div>
+            )}
+
+            {/* Fulfilment demo toggle — simulate customer already paid activation */}
+            {isFulfilment && (
+              <div
+                className={cn(
+                  "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
+                  alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
+                )}
+                onClick={() => setAlreadyPaid(v => !v)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
+                    <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-muted-foreground")} />
+                  </div>
+                  <div>
+                    <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>Payment Already Completed</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Simulate a fulfilment where the customer has already paid.</p>
+                    <p className="text-[10px] text-emerald-500 font-medium mt-0.5">Prototype toggle</p>
+                  </div>
+                </div>
+                <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", alreadyPaid ? "bg-emerald-500" : "bg-muted-foreground/30")}>
+                  <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", alreadyPaid ? "start-5" : "start-0.5")} />
+                </div>
+              </div>
             )}
           </>
         )}
@@ -1216,6 +1247,20 @@ const NewActivation = () => {
         {/* ── Step 2 — Checkout ── */}
         {step === 2 && (
           <>
+            {/* Fulfilment: payment already collected upstream */}
+            {isFulfilment && alreadyPaid && (
+              <div className="flex items-start gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-800/40 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Payment Already Completed</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                    Customer payment has already been completed. No additional payment collection is required.
+                  </p>
+                </div>
+              </div>
+            )}
             {/* Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -1466,8 +1511,8 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* Payment Method — hidden for whitelisted postpaid with free number */}
-            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && (
+            {/* Payment Method — hidden for whitelisted postpaid with free number, or fulfilment already-paid */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && !(isFulfilment && alreadyPaid) && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
