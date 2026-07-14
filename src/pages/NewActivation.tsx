@@ -13,6 +13,7 @@ import SourceTab from "@/components/activation/SourceTab";
 import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
