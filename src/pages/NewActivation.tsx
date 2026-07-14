@@ -13,6 +13,7 @@ import SourceTab from "@/components/activation/SourceTab";
 import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -399,6 +400,7 @@ const NewActivation = () => {
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
+  const [promoEnabled, setPromoEnabled] = useState(false);
   // Promo catalogue: type = "discount" | "data" | "credit"
   type PromoBenefit = { type: "discount"; value: number } | { type: "data"; value: number } | { type: "credit"; value: number };
   const PROMO_CATALOGUE: Record<string, { benefits: PromoBenefit[] }> = {
@@ -1246,16 +1248,25 @@ const NewActivation = () => {
 
             {/* Promo Code */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Tag className="w-3.5 h-3.5 text-primary" />
-                </div>
+              <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">{t("activation.checkout.promoCode")}</p>
+                <Switch
+                  checked={promoEnabled}
+                  onCheckedChange={(v) => {
+                    setPromoEnabled(v);
+                    if (!v) {
+                      setPromoApplied(false);
+                      setPromoCode("");
+                      setPromoError(false);
+                    }
+                  }}
+                  className="data-[state=checked]:bg-[#E53935]"
+                />
               </div>
-              {promoApplied && activePromo ? (
+              {promoEnabled && (promoApplied && activePromo ? (
                 <div className="space-y-2">
                   {/* Applied header row */}
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
+                  <div className="mt-3 flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-600 shrink-0" />
                       <span className="text-sm font-semibold text-green-700">{promoCode} {t("activation.checkout.promoApplied")}</span>
@@ -1286,12 +1297,12 @@ const NewActivation = () => {
                   })}
                 </div>
               ) : (
-                <div className="flex gap-2">
+                <div className="mt-3 flex gap-2">
                   <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
-                  <Button type="button" variant="outline" className="shrink-0" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
+                  <Button type="button" className="shrink-0 bg-[#FCE4E6] text-foreground border-0 rounded-xl hover:bg-[#FCE4E6]/80" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
                 </div>
-              )}
-              {promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
+              ))}
+              {promoEnabled && promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
             </section>
 
             {/* Switch Postpaid: dealer credit limit note */}
