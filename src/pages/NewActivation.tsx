@@ -1032,7 +1032,7 @@ const NewActivation = () => {
                         <button
                           type="button"
                           aria-label="Scan serial number"
-                          className="absolute end-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition"
+                          className="absolute end-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-primary"
                         >
                           <ScanLine className="w-4 h-4" />
                         </button>
