@@ -165,14 +165,14 @@ const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grays
     <span className="inline-flex items-center pointer-events-none">
       <span className={cn("flex -space-x-1.5 relative z-10", grayscale && "grayscale opacity-60")}>
         {PREVIEW_APPS.map((app, i) => (
-          <span key={i} className="w-[17px] h-[17px] rounded-full border border-white shrink-0 flex items-center justify-center overflow-hidden" style={{ background: app.bg === "url(#ig)" ? "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" : app.bg }}>
+          <span key={i} className="w-[20px] h-[20px] rounded-full border border-white shrink-0 flex items-center justify-center overflow-hidden" style={{ background: app.bg === "url(#ig)" ? "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" : app.bg }}>
             <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white">
               <path d={app.path} />
             </svg>
           </span>
         ))}
       </span>
-      <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+      <span className="-ml-2 inline-flex items-center gap-0.5 h-[20px] pl-3.5 pr-2 rounded-full bg-slate-50 border border-slate-200 text-[#3F5FE0] text-[11px] font-semibold">
         {t("activation.plan.moreCount", { count: AppIcons.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
       </span>
     </span>
@@ -187,10 +187,10 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => {
     <span className="inline-flex items-center pointer-events-none">
       <span className="flex -space-x-1.5 relative z-10">
         {PREVIEW_COUNTRY_CODES.map((code) => (
-          <img key={code} src={`https://flagcdn.com/w20/${code}.png`} alt={code} className="w-[17px] h-[17px] rounded-full object-cover border border-white shrink-0" />
+          <img key={code} src={`https://flagcdn.com/w20/${code}.png`} alt={code} className="w-[20px] h-[20px] rounded-full object-cover border border-white shrink-0" />
         ))}
       </span>
-      <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+      <span className="-ml-2 inline-flex items-center gap-0.5 h-[20px] pl-3.5 pr-2 rounded-full bg-slate-50 border border-slate-200 text-[#3F5FE0] text-[11px] font-semibold">
         {t("activation.plan.moreCount", { count: COUNTRIES.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
       </span>
     </span>
@@ -219,10 +219,10 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
       <span className="inline-flex items-center pointer-events-none">
         <span className="flex -space-x-1.5 grayscale opacity-60 relative z-10">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
-            <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-[17px] h-[17px] rounded-full border border-white shrink-0 bg-white object-contain" />
+            <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-[20px] h-[20px] rounded-full border border-white shrink-0 bg-white object-contain" />
           ))}
         </span>
-        <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+        <span className="-ml-2 inline-flex items-center gap-0.5 h-[20px] pl-3.5 pr-2 rounded-full bg-slate-50 border border-slate-200 text-[#3F5FE0] text-[11px] font-semibold">
           {t("activation.plan.moreCount", { count: SEARCH_ENGINES.length - SEARCH_PREVIEW })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
         </span>
       </span>
