@@ -162,17 +162,19 @@ const SocialChip = ({ onClick, grayscale = false }: { onClick: () => void; grays
   const { t } = useTranslation();
   return (
   <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
-    <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none", grayscale && "bg-muted text-muted-foreground")}>
-      <span className={cn("flex -space-x-1", grayscale && "grayscale opacity-60")}>
+    <span className="inline-flex items-center pointer-events-none">
+      <span className={cn("flex -space-x-1.5 relative z-10", grayscale && "grayscale opacity-60")}>
         {PREVIEW_APPS.map((app, i) => (
-          <span key={i} className="w-4 h-4 rounded-full border border-white shrink-0 flex items-center justify-center overflow-hidden" style={{ background: app.bg === "url(#ig)" ? "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" : app.bg }}>
+          <span key={i} className="w-[17px] h-[17px] rounded-full border border-white shrink-0 flex items-center justify-center overflow-hidden" style={{ background: app.bg === "url(#ig)" ? "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" : app.bg }}>
             <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white">
               <path d={app.path} />
             </svg>
           </span>
         ))}
       </span>
-      {t("activation.plan.moreCount", { count: AppIcons.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+      <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+        {t("activation.plan.moreCount", { count: AppIcons.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+      </span>
     </span>
   </button>
   );
@@ -182,13 +184,15 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
   <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
-    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-600 text-[10px] font-semibold pointer-events-none">
-      <span className="flex -space-x-0.5">
+    <span className="inline-flex items-center pointer-events-none">
+      <span className="flex -space-x-1.5 relative z-10">
         {PREVIEW_COUNTRY_CODES.map((code) => (
-          <img key={code} src={`https://flagcdn.com/w20/${code}.png`} alt={code} className="w-4 h-3 rounded-[2px] object-cover border border-white" />
+          <img key={code} src={`https://flagcdn.com/w20/${code}.png`} alt={code} className="w-[17px] h-[17px] rounded-full object-cover border border-white shrink-0" />
         ))}
       </span>
-      {t("activation.plan.moreCount", { count: COUNTRIES.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+      <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+        {t("activation.plan.moreCount", { count: COUNTRIES.length - PREVIEW_COUNT })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+      </span>
     </span>
   </button>
   );
@@ -212,13 +216,15 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
   return (
     <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
-      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold pointer-events-none">
-        <span className="flex -space-x-1 grayscale opacity-60">
+      <span className="inline-flex items-center pointer-events-none">
+        <span className="flex -space-x-1.5 grayscale opacity-60 relative z-10">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
-            <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-4 h-4 rounded-full border border-white shrink-0 bg-white object-contain" />
+            <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-[17px] h-[17px] rounded-full border border-white shrink-0 bg-white object-contain" />
           ))}
         </span>
-        {t("activation.plan.moreCount", { count: SEARCH_ENGINES.length - SEARCH_PREVIEW })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+        <span className="-ml-2 inline-flex items-center gap-0.5 h-[17px] pl-3 pr-2 rounded-full bg-white border border-slate-200 text-[#3F5FE0] text-[10px] font-semibold">
+          {t("activation.plan.moreCount", { count: SEARCH_ENGINES.length - SEARCH_PREVIEW })} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+        </span>
       </span>
     </button>
   );
