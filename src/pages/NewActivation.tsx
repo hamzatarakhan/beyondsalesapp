@@ -513,6 +513,14 @@ const NewActivation = () => {
     setNumberPickerTab("all");
   }, [selectedPlan]);
 
+  // In the fulfilment flow, auto-select the first available plan by default so the
+  // customer sees a preselected plan (matches "everything selected by default").
+  useEffect(() => {
+    if (isFulfilment && planMode === "plan" && selectedPlan == null && activePlansForType.length > 0) {
+      setSelectedPlan(0);
+    }
+  }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
+
   // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
   // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
   // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
