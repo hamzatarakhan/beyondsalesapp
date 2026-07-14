@@ -302,19 +302,17 @@ const SectionCard = ({ title, children, action, required }: { title: string; chi
 );
 
 // Verified-state banner — same visual language as the amber "Whitelisted Customer" notice, in green.
-const VerifiedBanner = ({ onRetry }: { onRetry?: () => void }) => {
+const VerifiedBanner = ({ onRetry, label }: { onRetry?: () => void; label?: string }) => {
   const { t } = useTranslation();
   return (
-    <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-      <div className="flex-1">
-        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
-        <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
-      </div>
-      {/* Demo-only: replay the verification flow without re-navigating the app */}
+    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
+      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+      <p className="flex-1 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
+        {label ?? t("activation.checkout.verifiedTitle")}
+      </p>
       {onRetry && (
         <button type="button" onClick={onRetry} className="text-emerald-600 shrink-0" aria-label="Retry verification (demo)">
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-3.5 h-3.5" />
         </button>
       )}
     </div>
