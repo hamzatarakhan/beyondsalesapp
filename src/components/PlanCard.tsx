@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, Youtube, MonitorPlay, Search } from "lucide-react";
+import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, MonitorPlay, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
@@ -43,13 +43,15 @@ const FeatureRow = ({
   icon: Icon,
   label,
   chip,
+  iconClassName,
 }: {
   icon: typeof Signal;
   label: React.ReactNode;
   chip?: React.ReactNode;
+  iconClassName?: string;
 }) => (
   <div className="flex items-start gap-3">
-    <Icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" strokeWidth={2} />
+    <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", iconClassName ?? "text-muted-foreground")} strokeWidth={2} />
     <p className="flex-1 text-[13px] text-foreground leading-snug">{label}</p>
     {chip}
   </div>
@@ -231,8 +233,8 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
 };
 
 const YouTubeChip = () => (
-  <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 grayscale opacity-60">
-    <Youtube className="w-3.5 h-3.5 text-white" fill="white" stroke="#FF0000" strokeWidth={1.5} />
+  <span className="w-6 h-6 rounded-full bg-[#FF0000] flex items-center justify-center shrink-0">
+    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
   </span>
 );
 
@@ -503,6 +505,7 @@ const PlanCard = ({
                 )}
                 <FeatureRow
                   icon={Lock}
+                  iconClassName="text-red-500"
                   label={<><span className="font-semibold">{t("activation.plan.aman.blocks")}</span> {t("activation.plan.aman.social")}</>}
                   chip={<SocialChip onClick={() => setOpenSheet("blocked")} grayscale />}
                 />
