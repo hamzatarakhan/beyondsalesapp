@@ -1027,14 +1027,14 @@ const NewActivation = () => {
                           value={deviceSerialNumber}
                           onChange={(e) => setDeviceSerialNumber(e.target.value)}
                           placeholder="e.g. SN-00123456"
-                          className="h-12 bg-card rounded-xl pe-12"
+                          className="h-12 bg-card rounded-xl pr-12"
                         />
                         <button
                           type="button"
                           aria-label="Scan serial number"
-                          className="absolute end-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-primary"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
                         >
-                          <ScanLine className="w-4 h-4" />
+                          <ScanLine className="w-5 h-5" />
                         </button>
                       </div>
                     </Field>
