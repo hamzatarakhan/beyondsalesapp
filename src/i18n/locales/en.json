@@ -286,7 +286,7 @@
       "sendOtp": "Send & verify OTP",
       "paymentMethod": "Payment Method",
       "dealerWallet": "Dealer Wallet",
-      "dealerWalletDesc": "Pay from your wallet ({{balance}} SAR balance)",
+      "dealerWalletDesc": "Your Available Balance: SAR {{balance}}",
       "posTerminal": "POS Terminal",
       "posTerminalDesc": "Collect cash from the customer",
       "promoCode": "Promo Code",
