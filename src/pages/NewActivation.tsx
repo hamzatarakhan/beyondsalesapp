@@ -60,6 +60,7 @@ import {
   CheckCircle2,
   Store,
   ChevronRight,
+  ChevronDown,
   Share2,
   Info,
   Wallet,
@@ -143,6 +144,12 @@ const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
+
+const NATIONALITY_CODES = [
+  "sa", "jo", "eg", "in", "pk", "bd", "sy", "lb", "ye", "sd",
+  "ph", "id", "lk", "np", "ae", "kw", "bh", "qa", "om", "tr",
+  "ma", "tn", "dz", "iq", "ps", "af", "us", "gb", "other",
+];
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -347,6 +354,8 @@ const NewActivation = () => {
   // Stage 1 — Identity
   const [idType, setIdType] = useState("national-id");
   const [nationality, setNationality] = useState("sa");
+  const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
+  const [nationalitySearch, setNationalitySearch] = useState("");
   const [idNumber, setIdNumber] = useState("1324567896");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
@@ -707,19 +716,14 @@ const NewActivation = () => {
               </Select>
             </Field>
             <Field label={t("activation.identity.nationality")}>
-              <Select value={nationality} onValueChange={setNationality}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("activation.identity.nationality")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  <SelectItem value="sa">{t("activation.identity.nationalities.sa")}</SelectItem>
-                  <SelectItem value="om">{t("activation.identity.nationalities.om")}</SelectItem>
-                  <SelectItem value="ae">{t("activation.identity.nationalities.ae")}</SelectItem>
-                  <SelectItem value="eg">{t("activation.identity.nationalities.eg")}</SelectItem>
-                  <SelectItem value="in">{t("activation.identity.nationalities.in")}</SelectItem>
-                  <SelectItem value="other">{t("activation.identity.nationalities.other")}</SelectItem>
-                </SelectContent>
-              </Select>
+              <button
+                type="button"
+                onClick={() => setNationalityPickerOpen(true)}
+                className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+              >
+                <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </button>
             </Field>
             <Field label={t("activation.identity.idNumber")}>
               <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
@@ -1832,6 +1836,45 @@ const NewActivation = () => {
           </Dialog>
         );
       })()}
+
+      {/* Nationality picker drawer */}
+      <Drawer open={nationalityPickerOpen} onOpenChange={(o) => { setNationalityPickerOpen(o); if (!o) setNationalitySearch(""); }}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
+          <div className="flex items-center justify-between px-5 pt-3 pb-4">
+            <h2 className="text-lg font-bold text-foreground">{t("activation.identity.selectNationality")}</h2>
+            <button onClick={() => setNationalityPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="px-5 mb-3">
+            <div className="relative">
+              <input
+                value={nationalitySearch}
+                onChange={(e) => setNationalitySearch(e.target.value)}
+                placeholder={t("activation.checkout.search")}
+                className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-sm outline-none border border-border/40 rtl:text-right"
+              />
+              <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 px-5 pb-6">
+            <div className="divide-y divide-border/40">
+              {NATIONALITY_CODES
+                .filter((code) => t(`activation.identity.nationalities.${code}`).toLowerCase().includes(nationalitySearch.trim().toLowerCase()))
+                .map((code) => (
+                  <button
+                    key={code}
+                    onClick={() => { setNationality(code); setNationalityPickerOpen(false); }}
+                    className="w-full text-start px-1 py-3.5 hover:bg-muted/30 transition-colors text-base text-foreground"
+                  >
+                    {t(`activation.identity.nationalities.${code}`)}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* eSIM devices drawer */}
       <Drawer open={esimInfoOpen} onOpenChange={(o) => { setEsimInfoOpen(o); if (!o) setEsimDeviceSearch(""); }}>
