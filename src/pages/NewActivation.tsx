@@ -1022,12 +1022,21 @@ const NewActivation = () => {
                 {isDealerHandover && (
                   <div className="px-4 pb-4 pt-1 border-t border-border/60">
                     <Field label={`${t("activation.handover.deviceSerialNumber")} *`}>
-                      <Input
-                        value={deviceSerialNumber}
-                        onChange={(e) => setDeviceSerialNumber(e.target.value)}
-                        placeholder="e.g. SN-00123456"
-                        className="h-12 bg-card rounded-xl"
-                      />
+                      <div className="relative">
+                        <Input
+                          value={deviceSerialNumber}
+                          onChange={(e) => setDeviceSerialNumber(e.target.value)}
+                          placeholder="e.g. SN-00123456"
+                          className="h-12 bg-card rounded-xl pe-12"
+                        />
+                        <button
+                          type="button"
+                          aria-label="Scan serial number"
+                          className="absolute end-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition"
+                        >
+                          <ScanLine className="w-4 h-4" />
+                        </button>
+                      </div>
                     </Field>
                   </div>
                 )}
