@@ -1511,8 +1511,8 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* Payment Method — hidden for whitelisted postpaid with free number */}
-            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && (
+            {/* Payment Method — hidden for whitelisted postpaid with free number, or fulfilment already-paid */}
+            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && !(isFulfilment && alreadyPaid) && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
