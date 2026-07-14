@@ -419,7 +419,7 @@ const PlanCard = ({
       >
         {/* Per-plan badge — floats half over the card's top-right corner */}
         {plan.badge && (
-          <span className="absolute -top-2.5 end-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm z-10">
+          <span className="absolute top-2 end-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
