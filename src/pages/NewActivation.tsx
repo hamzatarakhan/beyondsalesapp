@@ -737,9 +737,8 @@ const NewActivation = () => {
             <Field label={t("activation.identity.nationality")}>
               <button
                 type="button"
-                disabled={idType === "national-id"}
                 onClick={() => setNationalityPickerOpen(true)}
-                className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
               >
                 <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
                 <ChevronDown className="h-4 w-4 opacity-50" />
