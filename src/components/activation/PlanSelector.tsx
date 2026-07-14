@@ -438,7 +438,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
       ) : (
         <div className="-mx-4" ref={carouselContainerRef}>
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex touch-pan-y items-stretch">
+            <div className="flex touch-pan-y items-stretch pt-3">
               {filteredPlans.map((p, i) => {
                 const originalIdx = plans.indexOf(p);
                 const cats = p.categories;
