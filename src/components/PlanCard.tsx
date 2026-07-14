@@ -219,7 +219,7 @@ const SearchChip = ({ onClick }: { onClick: () => void }) => {
   return (
     <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
       <span className="inline-flex items-center pointer-events-none">
-        <span className="flex -space-x-1.5 grayscale opacity-60 relative z-10">
+        <span className="flex -space-x-1.5 relative z-10">
           {SEARCH_ENGINES.slice(0, SEARCH_PREVIEW).map((e) => (
             <img key={e.label} src={favicon(e.domain)} alt={e.label} className="w-[20px] h-[20px] rounded-full border border-white shrink-0 bg-white object-contain" />
           ))}
