@@ -1798,24 +1798,24 @@ const NewActivation = () => {
         return (
           <Dialog open onOpenChange={(o) => !o && setPendingVanityNumber(null)}>
             <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-              <h4 className="font-semibold text-foreground mb-1">
+              <h4 className="font-semibold text-[#E30613] mb-1">
                 {t(`activation.vanity.tiers.${cat.tier}`)} · {pendingVanityNumber.number}
               </h4>
               <p className="text-xs text-muted-foreground mb-4">{t("activation.vanity.choosePrompt")}</p>
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
-                  className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+                  className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
                 >
                   {t("activation.vanity.getFreeWithCommitment", { months: cat.months })}
                 </button>
                 <button
                   onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
-                  className="w-full py-3 rounded-full bg-muted text-foreground font-semibold text-sm"
+                  className="w-full py-3 rounded-full bg-[#FCE4E6] text-foreground font-semibold text-sm"
                 >
                   {t("activation.vanity.payNumberPrice", { price: cat.price })}
                 </button>
-                <button onClick={() => setPendingVanityNumber(null)} className="text-primary text-sm font-medium mt-1">
+                <button onClick={() => setPendingVanityNumber(null)} className="text-[#E30613] text-sm font-medium mt-1">
                   {t("activation.checkout.cancelBtn")}
                 </button>
               </div>
