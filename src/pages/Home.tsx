@@ -52,7 +52,7 @@ const Home = () => {
 
   const activities = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
-    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/phase-2" },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment" },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
   ];
 
