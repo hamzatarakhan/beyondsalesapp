@@ -366,6 +366,12 @@ const NewActivation = () => {
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
   const [idNumber, setIdNumber] = useState("1324567896");
+  // Fulfilment: customer already has a completed online application — looked up by
+  // email or by scanning the QR code shown on their confirmation screen, instead of
+  // re-collecting ID Type / Nationality / ID Number.
+  const [fulfilmentEmail, setFulfilmentEmail] = useState("customer@email.com");
+  const [qrScanOpen, setQrScanOpen] = useState(false);
+  const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
@@ -503,6 +509,18 @@ const NewActivation = () => {
   useEffect(() => {
     if (!isSaudiId && payType !== "prepaid") setPayType("prepaid");
   }, [isSaudiId, payType]);
+
+  // Fulfilment QR scan — simulate finding the customer's completed online application.
+  useEffect(() => {
+    if (!qrScanOpen) return;
+    setQrScanStep("scanning");
+    const scanTimer = setTimeout(() => {
+      setQrScanStep("success");
+      const closeTimer = setTimeout(() => setQrScanOpen(false), 1200);
+      return () => clearTimeout(closeTimer);
+    }, 1800);
+    return () => clearTimeout(scanTimer);
+  }, [qrScanOpen]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
@@ -720,33 +738,63 @@ const NewActivation = () => {
         {/* ── Step 0 — Identity ── */}
         {step === 0 && (
           <>
-            <Field label={t("activation.identity.idType")}>
-              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("activation.identity.idType")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                  <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                  <SelectItem value="haj-omra">{t("activation.identity.idTypes.hajOmra")}</SelectItem>
-                  <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
-                  <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label={t("activation.identity.nationality")}>
-              <button
-                type="button"
-                onClick={() => setNationalityPickerOpen(true)}
-                className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
-              >
-                <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </button>
-            </Field>
-            <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : t("activation.identity.idNumber")}>
-              <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
-            </Field>
+            {!isFulfilment ? (
+              <>
+                <Field label={t("activation.identity.idType")}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                      <SelectValue placeholder={t("activation.identity.idType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
+                      <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
+                      <SelectItem value="haj-omra">{t("activation.identity.idTypes.hajOmra")}</SelectItem>
+                      <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
+                      <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("activation.identity.nationality")}>
+                  <button
+                    type="button"
+                    onClick={() => setNationalityPickerOpen(true)}
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+                  >
+                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </button>
+                </Field>
+                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : t("activation.identity.idNumber")}>
+                  <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                </Field>
+              </>
+            ) : (
+              <>
+                <Field label={t("activation.identity.customerEmail")}>
+                  <Input
+                    type="email"
+                    value={fulfilmentEmail}
+                    onChange={(e) => setFulfilmentEmail(e.target.value)}
+                    placeholder="customer@email.com"
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+                <button
+                  type="button"
+                  onClick={() => setQrScanOpen(true)}
+                  className="w-full flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                    <QrCode className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground">{t("activation.identity.scanQr")}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.identity.scanQrNote")}</p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
+                </button>
+              </>
+            )}
 
             {/* Whitelisted customer toggle — kept in code, hidden from UI for now */}
             {SHOW_CUSTOMER_WHITELIST && (
@@ -1787,6 +1835,37 @@ const NewActivation = () => {
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
+
+      {/* Fulfilment: QR scan lookup */}
+      <Dialog open={qrScanOpen} onOpenChange={setQrScanOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
+          {qrScanStep === "scanning" ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative w-32 h-32 rounded-2xl bg-muted/60 border-2 border-dashed border-primary/40 flex items-center justify-center">
+                <QrCode className="w-14 h-14 text-muted-foreground/40" />
+                <Loader2 className="w-6 h-6 text-primary animate-spin absolute -bottom-2 -end-2 bg-card rounded-full p-0.5 shadow" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrScanning")}</h4>
+                <p className="text-xs text-muted-foreground">{t("activation.identity.qrScanningNote")}</p>
+              </div>
+              <button onClick={() => setQrScanOpen(false)} className="text-primary text-sm font-medium">
+                {t("activation.verification.cancel")}
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="w-7 h-7 text-white" strokeWidth={3} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrFound")}</h4>
+                <p className="text-xs text-muted-foreground">{t("activation.identity.qrFoundNote")}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Number picker drawer */}
       {(() => {

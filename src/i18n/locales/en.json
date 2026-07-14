@@ -36,6 +36,13 @@
         "visitorPassport": "Visitor Passport"
       },
       "idPassport": "ID Passport",
+      "customerEmail": "Customer Email",
+      "scanQr": "Scan Customer QR Code",
+      "scanQrNote": "Look up their completed online application instantly",
+      "qrScanning": "Scanning…",
+      "qrScanningNote": "Point the camera at the customer's QR code",
+      "qrFound": "Customer Found",
+      "qrFoundNote": "Their details have been retrieved from the online application.",
       "nationality": "Nationality",
       "nationalities": {
         "sa": "Saudi Arabian",
