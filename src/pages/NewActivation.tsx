@@ -440,6 +440,7 @@ const NewActivation = () => {
   const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
