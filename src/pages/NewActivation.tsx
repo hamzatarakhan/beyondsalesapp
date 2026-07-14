@@ -759,6 +759,31 @@ const NewActivation = () => {
               </div>
             </div>
             )}
+
+            {/* Fulfilment demo toggle — simulate customer already paid activation */}
+            {isFulfilment && (
+              <div
+                className={cn(
+                  "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
+                  alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
+                )}
+                onClick={() => setAlreadyPaid(v => !v)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
+                    <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-muted-foreground")} />
+                  </div>
+                  <div>
+                    <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>Payment Already Completed</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Simulate a fulfilment where the customer has already paid.</p>
+                    <p className="text-[10px] text-emerald-500 font-medium mt-0.5">Prototype toggle</p>
+                  </div>
+                </div>
+                <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", alreadyPaid ? "bg-emerald-500" : "bg-muted-foreground/30")}>
+                  <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", alreadyPaid ? "start-5" : "start-0.5")} />
+                </div>
+              </div>
+            )}
           </>
         )}
 
