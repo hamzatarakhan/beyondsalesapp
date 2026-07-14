@@ -371,7 +371,7 @@ const NewActivation = () => {
   // re-collecting ID Type / Nationality / ID Number.
   const [fulfilmentEmail, setFulfilmentEmail] = useState("customer@email.com");
   const [qrScanOpen, setQrScanOpen] = useState(false);
-  const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
+  const [qrScanStep, setQrScanStep] = useState<"notice" | "scanning" | "success">("notice");
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
@@ -510,17 +510,21 @@ const NewActivation = () => {
     if (!isSaudiId && payType !== "prepaid") setPayType("prepaid");
   }, [isSaudiId, payType]);
 
-  // Fulfilment QR scan — simulate finding the customer's completed online application.
+  // Fulfilment QR scan — show instructions first, then simulate finding the customer's
+  // completed online application once the dealer confirms they're ready to scan.
   useEffect(() => {
-    if (!qrScanOpen) return;
-    setQrScanStep("scanning");
+    if (qrScanOpen) setQrScanStep("notice");
+  }, [qrScanOpen]);
+
+  useEffect(() => {
+    if (qrScanStep !== "scanning") return;
     const scanTimer = setTimeout(() => {
       setQrScanStep("success");
       const closeTimer = setTimeout(() => setQrScanOpen(false), 1200);
       return () => clearTimeout(closeTimer);
     }, 1800);
     return () => clearTimeout(scanTimer);
-  }, [qrScanOpen]);
+  }, [qrScanStep]);
 
   useEffect(() => {
     if (simType === "esim" && planTypeChip === "vnet") {
@@ -1844,7 +1848,26 @@ const NewActivation = () => {
       {/* Fulfilment: QR scan lookup */}
       <Dialog open={qrScanOpen} onOpenChange={setQrScanOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
-          {qrScanStep === "scanning" ? (
+          {qrScanStep === "notice" ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <QrCode className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-1">{t("activation.identity.qrNoticeTitle")}</h4>
+                <p className="text-xs text-muted-foreground">{t("activation.identity.qrNoticeDesc")}</p>
+              </div>
+              <button
+                onClick={() => setQrScanStep("scanning")}
+                className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
+              >
+                {t("activation.identity.qrStartScan")}
+              </button>
+              <button onClick={() => setQrScanOpen(false)} className="text-primary text-sm font-medium">
+                {t("activation.verification.cancel")}
+              </button>
+            </div>
+          ) : qrScanStep === "scanning" ? (
             <div className="flex flex-col items-center gap-4">
               <div className="relative w-32 h-32 rounded-2xl bg-muted/60 border-2 border-dashed border-primary/40 flex items-center justify-center">
                 <QrCode className="w-14 h-14 text-muted-foreground/40" />
