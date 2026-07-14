@@ -37,6 +37,7 @@
       },
       "idPassport": "ID Passport",
       "customerEmail": "Customer Email",
+      "or": "OR",
       "scanQr": "Scan Customer QR Code",
       "scanQrNote": "Look up their completed online application instantly",
       "qrScanning": "Scanning…",
