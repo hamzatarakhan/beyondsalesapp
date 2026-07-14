@@ -288,7 +288,7 @@
       "sendOtp": "إرسال والتحقق من OTP",
       "paymentMethod": "طريقة الدفع",
       "dealerWallet": "محفظة المندوب",
-      "dealerWalletDesc": "الدفع من محفظتك (رصيد {{balance}} ر.س)",
+      "dealerWalletDesc": "رصيدك المتاح: {{balance}} ر.س",
       "posTerminal": "نقطة البيع",
       "posTerminalDesc": "تحصيل المبلغ نقداً من العميل",
       "promoCode": "كود العرض",
