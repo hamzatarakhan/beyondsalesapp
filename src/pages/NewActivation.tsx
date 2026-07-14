@@ -1723,18 +1723,15 @@ const NewActivation = () => {
 
             {/* Terms & Conditions + Privacy Policy — single combined consent */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div
-                role="checkbox"
-                aria-checked={terms}
-                tabIndex={0}
-                onClick={() => setTerms((v) => !v)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTerms((v) => !v); } }}
-                className="flex items-start gap-3 select-none cursor-pointer"
-              >
+              <div className="flex items-start gap-3 select-none">
                 <div
-                  aria-hidden="true"
+                  role="checkbox"
+                  aria-checked={terms}
+                  tabIndex={0}
+                  onClick={() => setTerms((v) => !v)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTerms((v) => !v); } }}
                   className={cn(
-                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
                     terms ? "bg-primary border-primary" : "border-primary"
                   )}
                 >
@@ -1742,11 +1739,11 @@ const NewActivation = () => {
                 </div>
                 <p className="text-sm text-foreground text-start flex-1 leading-snug">
                   {t("activation.checkout.agreeTo")}{" "}
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setTermsOpen(true); }} className="text-primary font-semibold">
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
                     {t("activation.checkout.terms")}
                   </button>{" "}
                   {t("activation.checkout.consentMiddle")}{" "}
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setPrivacyOpen(true); }} className="text-primary font-semibold">
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
                     {t("activation.checkout.privacyPolicy")}
                   </button>.
                 </p>
