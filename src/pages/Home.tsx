@@ -135,7 +135,7 @@ const Home = () => {
                 label={activity.label}
                 color="teal"
                 onClick={() =>
-                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration"
+                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
