@@ -1247,6 +1247,20 @@ const NewActivation = () => {
         {/* ── Step 2 — Checkout ── */}
         {step === 2 && (
           <>
+            {/* Fulfilment: payment already collected upstream */}
+            {isFulfilment && alreadyPaid && (
+              <div className="flex items-start gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-800/40 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Payment Already Completed</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                    Customer payment has already been completed. No additional payment collection is required.
+                  </p>
+                </div>
+              </div>
+            )}
             {/* Subscription Summary */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
