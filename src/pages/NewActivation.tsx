@@ -1853,20 +1853,20 @@ const NewActivation = () => {
                 value={nationalitySearch}
                 onChange={(e) => setNationalitySearch(e.target.value)}
                 placeholder={t("activation.checkout.search")}
-                className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-sm outline-none border border-border/40 rtl:text-right"
+                className="w-full h-11 bg-white rounded-xl ps-4 pe-10 text-sm outline-none border border-input rtl:text-right"
               />
               <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             </div>
           </div>
           <div className="overflow-y-auto flex-1 px-5 pb-6">
-            <div className="divide-y divide-border/40">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 overflow-hidden divide-y divide-border/50">
               {NATIONALITY_CODES
                 .filter((code) => t(`activation.identity.nationalities.${code}`).toLowerCase().includes(nationalitySearch.trim().toLowerCase()))
                 .map((code) => (
                   <button
                     key={code}
                     onClick={() => { setNationality(code); setNationalityPickerOpen(false); }}
-                    className="w-full text-start px-1 py-3.5 hover:bg-muted/30 transition-colors text-base text-foreground"
+                    className="w-full text-start px-4 py-3.5 hover:bg-muted/30 transition-colors text-base text-foreground"
                   >
                     {t(`activation.identity.nationalities.${code}`)}
                   </button>
