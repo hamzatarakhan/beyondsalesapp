@@ -400,6 +400,7 @@ const NewActivation = () => {
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
+  const [promoEnabled, setPromoEnabled] = useState(false);
   // Promo catalogue: type = "discount" | "data" | "credit"
   type PromoBenefit = { type: "discount"; value: number } | { type: "data"; value: number } | { type: "credit"; value: number };
   const PROMO_CATALOGUE: Record<string, { benefits: PromoBenefit[] }> = {
