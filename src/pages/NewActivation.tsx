@@ -1890,7 +1890,7 @@ const NewActivation = () => {
                 value={esimDeviceSearch}
                 onChange={(e) => setEsimDeviceSearch(e.target.value)}
                 placeholder={t("activation.checkout.search")}
-                className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-base outline-none border border-border/40 rtl:text-right"
+                className="w-full h-11 bg-white rounded-xl ps-4 pe-10 text-base outline-none border border-input rtl:text-right"
                 style={{ fontSize: "16px" }}
               />
               <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1900,7 +1900,7 @@ const NewActivation = () => {
             {(() => {
               const filteredDevices = ESIM_DEVICES.filter((d) => d.model.toLowerCase().includes(esimDeviceSearch.trim().toLowerCase()));
               return filteredDevices.length > 0 ? (
-                <div className="rounded-2xl bg-muted/40 overflow-hidden divide-y divide-border/50">
+                <div className="rounded-2xl bg-muted/40 border border-border/50 overflow-hidden divide-y divide-border/50">
                   {filteredDevices.map((d, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3">
                       <Check className="w-3.5 h-3.5 text-primary shrink-0" />
