@@ -1295,7 +1295,8 @@ const NewActivation = () => {
               {showDevice && <SummaryRow label={t("activation.checkout.device")} value={deviceObj?.name ?? ""} />}
             </section>
 
-            {/* Promo Code */}
+            {/* Promo Code — hidden when payment already completed (fulfilment) */}
+            {!(isFulfilment && alreadyPaid) && (
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">{t("activation.checkout.promoCode")}</p>
@@ -1353,6 +1354,7 @@ const NewActivation = () => {
               ))}
               {promoEnabled && promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
             </section>
+            )}
 
             {/* Switch Postpaid: dealer credit limit note */}
             {isPostpaidMobile && selectedPlanObj && (
