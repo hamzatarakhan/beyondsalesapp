@@ -436,7 +436,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
           {t("activation.plan.noPlans")}
         </div>
       ) : (
-        <div className="-mx-4" ref={carouselContainerRef}>
+        <div className="-mx-4 -mt-3" ref={carouselContainerRef}>
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y items-stretch pt-3">
               {filteredPlans.map((p, i) => {
