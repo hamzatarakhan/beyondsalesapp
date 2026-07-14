@@ -1728,8 +1728,8 @@ const NewActivation = () => {
                   role="checkbox"
                   aria-checked={terms}
                   tabIndex={0}
-                  onClick={() => setTerms((v) => !v)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTerms((v) => !v); } }}
+                  onClick={() => { if (terms) { setTerms(false); } else { setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsOpen(true); } } }}
                   className={cn(
                     "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
                     terms ? "bg-primary border-primary" : "border-primary"
