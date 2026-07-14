@@ -1578,7 +1578,7 @@ const NewActivation = () => {
             {/* Customer Verification (ID Verification) — first step, always available */}
             <SectionCard title={t("activation.checkout.customerVerification")} required>
               {customerVerified ? (
-                <VerifiedBanner />
+                <VerifiedBanner label="Customer Verified" />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>
                   {t("activation.checkout.verifyCustomer")}
@@ -1590,7 +1590,7 @@ const NewActivation = () => {
             {showOtp && (
               <SectionCard title={t("activation.checkout.otp")} required={otpRequired}>
                 {otpVerified ? (
-                  <VerifiedBanner />
+                  <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
                     <Button variant="outline" className="w-full" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
@@ -1606,7 +1606,7 @@ const NewActivation = () => {
             {showNafith && (
               <SectionCard title={t("activation.checkout.nafath")} required>
                 {nafithVerified ? (
-                  <VerifiedBanner onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
+                  <VerifiedBanner label="Nafith Verified" onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
                 ) : (
                   <>
                     <Button variant="outline" className="w-full" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
