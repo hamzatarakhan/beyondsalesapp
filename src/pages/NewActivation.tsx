@@ -1542,7 +1542,14 @@ const NewActivation = () => {
               <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contactDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                 <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
-                  <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="example@email.com" inputMode="email" className="h-12 bg-card rounded-xl" />
+                  <Input
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="example@email.com"
+                    inputMode="email"
+                    readOnly={isFulfilment}
+                    className={cn("h-12 bg-card rounded-xl", isFulfilment && "bg-muted/40 text-muted-foreground cursor-not-allowed")}
+                  />
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
                   <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
