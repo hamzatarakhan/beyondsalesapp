@@ -31,11 +31,13 @@
       "idTypes": {
         "saudi": "Saudi ID / Iqama ID",
         "gccId": "GCC ID",
-        "hajOmra": "Haj and Omra",
+        "hajj": "Hajj",
+        "umrah": "Umrah",
         "gccPassport": "GCC Passport",
         "visitorPassport": "Visitor Passport"
       },
       "idPassport": "ID Passport",
+      "borderIdNumber": "Border ID Number",
       "customerEmail": "Customer Email",
       "or": "OR",
       "scanQr": "Scan Customer QR Code",

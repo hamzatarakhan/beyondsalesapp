@@ -153,6 +153,8 @@ const NATIONALITY_CODES = [
 
 // ID types whose field is labeled "ID Passport" instead of "ID Number".
 const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
+// ID types whose field is labeled "Border ID Number" instead of "ID Number".
+const BORDER_ID_TYPES = ["hajj", "umrah"];
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -749,7 +751,8 @@ const NewActivation = () => {
                     <SelectContent className="bg-card">
                       <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
                       <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                      <SelectItem value="haj-omra">{t("activation.identity.idTypes.hajOmra")}</SelectItem>
+                      <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
+                      <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
                       <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
                       <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
                     </SelectContent>
@@ -765,7 +768,7 @@ const NewActivation = () => {
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </button>
                 </Field>
-                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : t("activation.identity.idNumber")}>
+                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
                   <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
                 </Field>
               </>
