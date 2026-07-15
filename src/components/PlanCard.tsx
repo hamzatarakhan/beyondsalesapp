@@ -283,7 +283,7 @@ const PlanTitleRow = ({
             {title}
           </button>
         ) : (
-          <span className="font-medium text-foreground">{title}</span>
+          <span className="font-medium text-primary">{title}</span>
         )}
         <span className="mx-1.5">•</span>
         {validity} {t("activation.plan.planSuffix")}
