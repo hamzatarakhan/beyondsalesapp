@@ -718,7 +718,7 @@ const NewActivation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [successOpen]);
 
-  const pageTitle = t("activation.title");
+  const pageTitle = isFulfilment ? "Fulfillment" : t("activation.title");
 
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
