@@ -260,51 +260,56 @@ const SimReplacement = () => {
               </div>
             </Field>
 
-            <Field label={t("activation.identity.idType")}>
-              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("activation.identity.idType")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                  <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                  <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
-                  <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
-                  <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
-                  <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label={t("activation.identity.nationality")}>
-              <button
-                type="button"
-                onClick={() => setNationalityPickerOpen(true)}
-                className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
-              >
-                <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </button>
-            </Field>
-            <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
-              <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
-            </Field>
-
-            {newSimType === "psim" && (
-              <Field label="KIT Code">
-                <div className="relative">
-                  <Input
-                    value={kit}
-                    onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="KIT Code (10 Digits)"
-                    inputMode="numeric"
-                    className="h-12 bg-card rounded-xl pe-10"
-                  />
-                  <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
-                    <ScanLine className="w-5 h-5" />
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">Identity Details</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                <Field label={t("activation.identity.idType")}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                      <SelectValue placeholder={t("activation.identity.idType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
+                      <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
+                      <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
+                      <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
+                      <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
+                      <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("activation.identity.nationality")}>
+                  <button
+                    type="button"
+                    onClick={() => setNationalityPickerOpen(true)}
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+                  >
+                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
                   </button>
-                </div>
-              </Field>
-            )}
+                </Field>
+                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
+                  <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                </Field>
+
+                {newSimType === "psim" && (
+                  <Field label="KIT Code">
+                    <div className="relative">
+                      <Input
+                        value={kit}
+                        onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="KIT Code (10 Digits)"
+                        inputMode="numeric"
+                        className="h-12 bg-card rounded-xl pe-10"
+                      />
+                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                        <ScanLine className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </Field>
+                )}
+              </div>
+            </div>
 
             <CardSection title="Replacement Summary" icon={RefreshCw}>
               <SummaryRow label="Replacement Type" value={replacementTypeLabel} />
