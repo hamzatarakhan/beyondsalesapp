@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
 import {
   Phone,
   TrendingUp,
@@ -79,6 +81,7 @@ const DELTA_MAX = 200;
 
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -367,8 +370,8 @@ const CreditLimitAdjustment = () => {
             {direction === "increase" && (
               <CardSection title="Payment Method" icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={Wallet} label="Dealer Wallet" description="Pay from your wallet (550 SAR balance)" selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
-                  <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
               </CardSection>
             )}

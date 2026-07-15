@@ -142,7 +142,7 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
 
 const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
-const DEALER_WALLET_BALANCE = 550;
+export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const NATIONALITY_CODES = [
