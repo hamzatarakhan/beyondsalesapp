@@ -20,6 +20,7 @@ import CustomerTermination from "./pages/CustomerTermination";
 import NewOwnerDetails from "./pages/NewOwnerDetails";
 import ChangeOfOwnership from "./pages/ChangeOfOwnership";
 import CreditLimitAdjustment from "./pages/CreditLimitAdjustment";
+import SimReplacement from "./pages/SimReplacement";
 import SearchBundleActivation from "./pages/SearchBundleActivation";
 import BundlePlans from "./pages/BundlePlans";
 import EWallet from "./pages/EWallet";
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/new-owner-details" element={<NewOwnerDetails />} />
           <Route path="/change-of-ownership" element={<ChangeOfOwnership />} />
           <Route path="/credit-limit-adjustment" element={<CreditLimitAdjustment />} />
+          <Route path="/sim-replacement" element={<SimReplacement />} />
           <Route path="/search-bundle" element={<SearchBundleActivation />} />
           <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="/ewallet" element={<EWallet />} />

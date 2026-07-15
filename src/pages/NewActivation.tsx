@@ -145,16 +145,16 @@ const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
-const NATIONALITY_CODES = [
+export const NATIONALITY_CODES = [
   "sa", "jo", "eg", "in", "pk", "bd", "sy", "lb", "ye", "sd",
   "ph", "id", "lk", "np", "ae", "kw", "bh", "qa", "om", "tr",
   "ma", "tn", "dz", "iq", "ps", "af", "us", "gb", "other",
 ];
 
 // ID types whose field is labeled "ID Passport" instead of "ID Number".
-const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
+export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 // ID types whose field is labeled "Border ID Number" instead of "ID Number".
-const BORDER_ID_TYPES = ["hajj", "umrah"];
+export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 

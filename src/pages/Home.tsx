@@ -55,6 +55,7 @@ const Home = () => {
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment" },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
     { id: "credit-limit", icon: CreditCard, label: "Adjust Credit Limit", path: "/credit-limit-adjustment" },
+    { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement" },
   ];
 
   const handleActivityClick = (path: string) => {
@@ -136,7 +137,7 @@ const Home = () => {
                 label={activity.label}
                 color="teal"
                 onClick={() =>
-                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit"
+                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
