@@ -278,9 +278,13 @@ const PlanTitleRow = ({
   return (
     <div className="flex items-center justify-between gap-2 mb-1">
       <p className="text-[12px] text-muted-foreground">
-        <button onClick={(e) => { e.stopPropagation(); onMoreDetails?.(); }} className="font-medium text-primary active:opacity-70">
-          {title}
-        </button>
+        {onMoreDetails ? (
+          <button onClick={(e) => { e.stopPropagation(); onMoreDetails(); }} className="font-medium text-primary active:opacity-70">
+            {title}
+          </button>
+        ) : (
+          <span className="font-medium text-foreground">{title}</span>
+        )}
         <span className="mx-1.5">•</span>
         {validity} {t("activation.plan.planSuffix")}
       </p>

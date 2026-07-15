@@ -204,54 +204,6 @@ const PlanFilterSheet = ({
   );
 };
 
-// ---------- Plan details sheet ----------
-const PlanDetailsSheet = ({
-  plan,
-  onClose,
-}: {
-  plan: Plan | null;
-  onClose: () => void;
-}) => {
-  const { t } = useTranslation();
-  if (!plan) return null;
-  const priceNum = parseFloat(String(plan.price).replace(/[^\d.]/g, "")) || 0;
-  const tax = +(priceNum * 0.15).toFixed(2);
-  const total = +(priceNum + tax).toFixed(2);
-  const sar = t("activation.checkout.sar");
-  const rows = [
-    { label: t("activation.plan.internet"), value: plan.internet },
-    { label: t("activation.plan.tax"), value: `${tax} ${sar}` },
-    { label: t("activation.plan.localMins"), value: plan.mins },
-    { label: t("activation.plan.sms"), value: plan.sms },
-    { label: t("activation.plan.validity"), value: plan.validityLabel ?? "30 days" },
-    { label: t("activation.plan.renewalPrice"), value: `${priceNum} ${sar}` },
-  ];
-  return (
-    <Drawer open={!!plan} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 pb-6 max-h-[85vh] flex flex-col">
-        <div className="relative flex items-center justify-center px-5 py-3 shrink-0">
-          <h3 className="font-semibold text-foreground text-lg">{t("activation.plan.details")}</h3>
-          <button onClick={onClose} className="absolute right-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </div>
-        <div className="overflow-y-auto flex-1 min-h-0 px-5">
-          {rows.map((r) => (
-            <div key={r.label} className="flex items-center justify-between py-4 border-b border-border">
-              <p className="text-sm text-muted-foreground">{r.label}</p>
-              <p className="text-sm font-semibold text-foreground">{r.value}</p>
-            </div>
-          ))}
-          <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
-            <p className="text-base font-bold text-primary">{t("activation.checkout.total")}</p>
-            <p className="text-base font-bold text-primary">{total} {sar}</p>
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
 // ---------- Main selector ----------
 interface PlanSelectorProps {
   selectedPlan: number | null;
@@ -267,7 +219,6 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
   const activePlanType = categoryFilter ?? planType;
   const [planFilters, setPlanFilters] = useState<PlanFilters>(DEFAULT_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [detailsPlan, setDetailsPlan] = useState<number | null>(null);
 
   const activeFilterCount = useMemo(() => {
     let n = 0;
@@ -453,7 +404,6 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                       selected={selectedPlan === originalIdx}
                       active={activeSnap === i}
                       onSelect={() => onSelect(originalIdx, p)}
-                      onMoreDetails={() => setDetailsPlan(originalIdx)}
                       minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
                       layout={layout}
                     />
@@ -499,7 +449,6 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
           setFilterOpen(false);
         }}
       />
-      <PlanDetailsSheet plan={detailsPlan !== null ? plans[detailsPlan] : null} onClose={() => setDetailsPlan(null)} />
     </section>
   );
 };
