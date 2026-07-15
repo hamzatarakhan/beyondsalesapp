@@ -102,10 +102,9 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
   };
 
   const runConnecting = () => {
-    // Skip success/failed result screens — always mark verified and return to caller.
-    setStep("connecting");
+    // Skip connecting/success/failed screens — return immediately to caller.
     markSematiVerified();
-    setTimeout(() => onVerified(), 800);
+    onVerified();
   };
 
   const retry = () => {
