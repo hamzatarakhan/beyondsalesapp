@@ -84,12 +84,15 @@ interface DemoReplacementCustomer {
   currentSimType: "esim" | "psim";
   subscriptionType: string;
   freeReplacementUsed: boolean;
+  idType: string;
+  nationality: string;
+  idNumber: string;
 }
 
 const DEMO_REPLACEMENT_CUSTOMERS: DemoReplacementCustomer[] = [
-  { msisdn: "0503333311", name: "Mohammed Al-Qahtani", currentSimType: "psim", subscriptionType: "Postpaid", freeReplacementUsed: false },
-  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true },
-  { msisdn: "0503333333", name: "Khalid Al-Dossari", currentSimType: "psim", subscriptionType: "Data SIM", freeReplacementUsed: true },
+  { msisdn: "0503333311", name: "Mohammed Al-Qahtani", currentSimType: "psim", subscriptionType: "Postpaid", freeReplacementUsed: false, idType: "national-id", nationality: "sa", idNumber: "1029384756" },
+  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true, idType: "national-id", nationality: "sa", idNumber: "1098765432" },
+  { msisdn: "0503333333", name: "Khalid Al-Dossari", currentSimType: "psim", subscriptionType: "Data SIM", freeReplacementUsed: true, idType: "gcc-id", nationality: "ae", idNumber: "2233445566" },
 ];
 
 const PHYSICAL_FEE = 15;
@@ -141,6 +144,12 @@ const SimReplacement = () => {
       }
       setCustomer(found);
       setNewSimType(found.currentSimType);
+      // Identity is already on file for an existing subscriber — pre-fill it
+      // from the lookup instead of making the dealer retype it from scratch.
+      setIdType(found.idType);
+      setNationality(found.nationality);
+      setIdNumber(found.idNumber);
+      setKit("");
     }, 800);
     return () => clearTimeout(timer);
   }, [msisdn]);
@@ -152,14 +161,6 @@ const SimReplacement = () => {
   const fee = newSimType === "psim" ? PHYSICAL_FEE : ESIM_FEE;
 
   const isKitValid = newSimType === "esim" || /^\d{10}$/.test(kit);
-
-  // Reset the identity/KIT fields whenever a new customer is looked up.
-  useEffect(() => {
-    setIdType("national-id");
-    setNationality("sa");
-    setIdNumber("");
-    setKit("");
-  }, [customer]);
 
   // ---------- Gates ----------
   const canContinueLookup = eligible;
@@ -261,7 +262,10 @@ const SimReplacement = () => {
             </Field>
 
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">Identity Details</p>
+              <div className="px-1">
+                <p className="text-sm font-semibold text-foreground">Identity Details</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Pre-filled from the customer's record — update if anything has changed.</p>
+              </div>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                 <Field label={t("activation.identity.idType")}>
                   <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
