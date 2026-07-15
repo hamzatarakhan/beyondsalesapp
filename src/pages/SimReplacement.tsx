@@ -193,7 +193,7 @@ const SimReplacement = () => {
     { label: "Checkout", Icon: Wallet },
   ];
 
-  const simTypeLabel = (v: "esim" | "psim") => (v === "esim" ? "eSIM" : "Physical SIM");
+  const simTypeLabel = (v: "esim" | "psim") => t(`activation.subscription.${v}`);
   const replacementTypeLabel = customer ? `${simTypeLabel(customer.currentSimType)} → ${simTypeLabel(newSimType)}` : "";
 
   return (
@@ -255,8 +255,8 @@ const SimReplacement = () => {
 
             <Field label="Change To">
               <div className="flex gap-3">
-                <SimCard active={newSimType === "psim"} label="Physical SIM" icon={Smartphone} onClick={() => setNewSimType("psim")} />
-                <SimCard active={newSimType === "esim"} label="eSIM" icon={QrCode} onClick={() => setNewSimType("esim")} />
+                <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
+                <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
               </div>
             </Field>
 
