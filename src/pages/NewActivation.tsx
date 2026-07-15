@@ -313,7 +313,7 @@ const SectionCard = ({ title, children, action, required }: { title: string; chi
 );
 
 // Verified-state banner — same visual language as the amber "Whitelisted Customer" notice, in green.
-const VerifiedBanner = ({ onRetry, label }: { onRetry?: () => void; label?: string }) => {
+export const VerifiedBanner = ({ onRetry, label }: { onRetry?: () => void; label?: string }) => {
   const { t } = useTranslation();
   return (
     <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">

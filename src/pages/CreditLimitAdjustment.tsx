@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
+import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
 import {
   Phone,
   TrendingUp,
@@ -20,7 +20,6 @@ import {
   ClipboardList,
   AlertCircle,
   Check,
-  CheckCircle2,
   XCircle,
   Minus,
   Plus,
@@ -355,13 +354,7 @@ const CreditLimitAdjustment = () => {
 
             <CardSection title="OTP Verification" icon={Phone}>
               {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Verified</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
-                  </div>
-                </div>
+                <VerifiedBanner label="OTP Verified" />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
               )}
