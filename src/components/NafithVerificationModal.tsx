@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Check, X } from "lucide-react";
 import nafithLogo from "@/assets/nafith-logo.svg";
 
 type Step = "notice" | "waiting";
