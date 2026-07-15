@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Check, X } from "lucide-react";
 import nafithLogo from "@/assets/nafith-logo.svg";
 
-type Step = "notice" | "waiting" | "success" | "failed";
+type Step = "notice" | "waiting";
 
 interface Props {
   open: boolean;
@@ -19,10 +19,8 @@ const NafithVerificationModal = ({ open, onClose, onVerified }: Props) => {
   const runValidation = () => {
     setStep("waiting");
     setTimeout(() => {
-      const ok = Math.random() < 0.85;
-      setStep(ok ? "success" : "failed");
-      if (ok) setTimeout(onVerified, 1200);
-    }, 5000);
+      onVerified();
+    }, 3000);
   };
 
   useEffect(() => {
@@ -62,39 +60,6 @@ const NafithVerificationModal = ({ open, onClose, onVerified }: Props) => {
                 We're validating your information with Nafith. You'll be redirected automatically once it's complete.
               </p>
             </div>
-          </div>
-        )}
-
-        {step === "success" && (
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center">
-              <Check className="w-7 h-7 text-white" strokeWidth={3} />
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-1">Verified Successfully!</h4>
-              <p className="text-xs text-muted-foreground">Your identity has been verified successfully via Nafith.</p>
-            </div>
-          </div>
-        )}
-
-        {step === "failed" && (
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-              <X className="w-7 h-7 text-white" strokeWidth={3} />
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-1">Verification Failed!</h4>
-              <p className="text-xs text-muted-foreground">The Nafith verification could not be completed. Please try again.</p>
-            </div>
-            <button
-              onClick={runValidation}
-              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm mt-2"
-            >
-              Again
-            </button>
-            <button onClick={onClose} className="text-primary text-sm font-medium">
-              Cancel
-            </button>
           </div>
         )}
       </DialogContent>
