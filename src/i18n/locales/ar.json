@@ -115,9 +115,7 @@
       "selectPlan": "اختر خطة",
       "selectPlanSub": "اختر من الخطط المتاحة أدناه",
       "numberType": "نوع الرقم",
-      "newNumber": "رقم جديد",
       "existingNumber": "رقم موجود",
-      "mnp": "نقل الرقم",
       "searchNumber": "ابحث عن رقم",
       "numberTabs": {
         "all": "الكل",

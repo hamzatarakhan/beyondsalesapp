@@ -115,9 +115,7 @@
       "selectPlan": "Select a Plan",
       "selectPlanSub": "Choose from available plans below",
       "numberType": "Number Type",
-      "newNumber": "New Number",
       "existingNumber": "Existing Number",
-      "mnp": "MNP",
       "searchNumber": "Search for a number",
       "numberTabs": {
         "all": "All",
