@@ -878,9 +878,17 @@ const NewActivation = () => {
                     <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's application.</p>
                   </div>
                 </div>
-                <p className="text-[10px] text-amber-500 font-medium px-1 leading-snug">
-                  Prototype only — try {FULFILMENT_PAID_EMAIL}, {FULFILMENT_PAID_WHITELISTED_EMAIL}, {FULFILMENT_UNPAID_EMAIL} or {FULFILMENT_UNPAID_WHITELISTED_EMAIL}
-                </p>
+                <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Info className="w-3 h-3 text-amber-500 shrink-0" />
+                    <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test emails</p>
+                  </div>
+                  <div className="space-y-1">
+                    {[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL].map((email) => (
+                      <p key={email} className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">{email}</p>
+                    ))}
+                  </div>
+                </div>
               </>
             )}
           </>
