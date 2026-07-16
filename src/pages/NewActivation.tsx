@@ -717,7 +717,7 @@ const NewActivation = () => {
       return !!idType && !!nationality && idNumber.trim().length > 0;
     }
     if (step === 1) {
-      if (isFulfilment && alreadyPaid) return true;
+      if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
       if (simType === "psim" && (!kitChecked || !!kitError)) return false;
       if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
@@ -903,7 +903,7 @@ const NewActivation = () => {
             {fulfilmentLocked && (
               <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
                 <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
-                  This customer already chose everything and paid online — nothing to change here except SIM Type, if needed.
+                  This customer already chose everything and paid online — just enter the KIT code (or change SIM Type, if needed) and hand over the SIM.
                 </p>
               </div>
             )}
@@ -929,7 +929,7 @@ const NewActivation = () => {
                   </button>
                 )}
                 {simType === "psim" && (
-                  <div className={cn("mt-3 space-y-2", fulfilmentLocked && "opacity-50 pointer-events-none")}>
+                  <div className="mt-3 space-y-2">
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Input
@@ -1044,8 +1044,8 @@ const NewActivation = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
-            {/* Top-up toggle */}
-            {showTopupTab && (
+            {/* Top-up toggle — not offered on a paid fulfilment request */}
+            {showTopupTab && !fulfilmentLocked && (
               <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
                 <button
                   type="button"
@@ -1185,7 +1185,7 @@ const NewActivation = () => {
                   );
                 })()}
 
-                {showMnp && (
+                {showMnp && !fulfilmentLocked && (
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
                       <Sparkles className="w-4 h-4" /> {t("activation.subscription.newNumberBtn")}
