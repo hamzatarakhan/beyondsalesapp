@@ -886,6 +886,9 @@ const NewActivation = () => {
                     <Info className="w-3 h-3 text-amber-500 shrink-0" />
                     <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test emails</p>
                   </div>
+                  <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">
+                    Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation.
+                  </p>
                   <div className="space-y-1">
                     {[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL].map((email) => (
                       <p key={email} className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">{email}</p>
