@@ -157,12 +157,17 @@ export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
 // Fulfilment demo emails — stand in for the real backend already knowing the
-// application's payment status once we look it up, instead of a manual toggle.
+// application's payment and whitelist status once we look it up, instead of
+// manual toggles. Covers all 4 combinations for testing.
 const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
+const FULFILMENT_PAID_WHITELISTED_EMAIL = "paid.whitelisted@email.com";
 const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
-const FULFILMENT_DEMO_EMAILS: Record<string, boolean> = {
-  [FULFILMENT_PAID_EMAIL]: true,
-  [FULFILMENT_UNPAID_EMAIL]: false,
+const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
+const FULFILMENT_DEMO_EMAILS: Record<string, { paid: boolean; whitelisted: boolean }> = {
+  [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
+  [FULFILMENT_PAID_WHITELISTED_EMAIL]: { paid: true, whitelisted: true },
+  [FULFILMENT_UNPAID_EMAIL]: { paid: false, whitelisted: false },
+  [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
 };
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
@@ -381,11 +386,14 @@ const NewActivation = () => {
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
-  // Payment status comes back automatically once we look up the application by email —
-  // no manual toggle. Demo data only recognizes the two seeded addresses above.
-  const alreadyPaid = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()] ?? true;
-  const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
-  // Customer-whitelist toggle visibility.
+  // Payment & whitelist status come back automatically once we look up the fulfilment
+  // application by email — no manual toggles. Demo data only recognizes the 4 seeded
+  // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
+  const fulfilmentRecord = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()];
+  const alreadyPaid = fulfilmentRecord?.paid ?? true;
+  const [manualWhitelisted, setManualWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
+  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : manualWhitelisted;
+  // Customer-whitelist toggle visibility (non-fulfilment flow only — fulfilment derives it from email).
   const SHOW_CUSTOMER_WHITELIST = true;
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
@@ -825,32 +833,32 @@ const NewActivation = () => {
               </>
             )}
 
-            {/* Whitelisted customer toggle — kept in code, hidden from UI for now */}
-            {SHOW_CUSTOMER_WHITELIST && (
+            {/* Whitelisted customer toggle — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
+            {SHOW_CUSTOMER_WHITELIST && !isFulfilment && (
             <div
               className={cn(
                 "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                isWhitelisted ? "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700" : "bg-card border-border/60"
+                manualWhitelisted ? "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700" : "bg-card border-border/60"
               )}
-              onClick={() => setIsWhitelisted(v => !v)}
+              onClick={() => setManualWhitelisted(v => !v)}
             >
               <div className="flex items-center gap-3">
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isWhitelisted ? "bg-amber-100 dark:bg-amber-800/40" : "bg-muted")}>
-                  <Lock className={cn("w-4 h-4", isWhitelisted ? "text-amber-600" : "text-muted-foreground")} />
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", manualWhitelisted ? "bg-amber-100 dark:bg-amber-800/40" : "bg-muted")}>
+                  <Lock className={cn("w-4 h-4", manualWhitelisted ? "text-amber-600" : "text-muted-foreground")} />
                 </div>
                 <div>
-                  <p className={cn("text-sm font-semibold", isWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>{t("activation.identity.whitelisted.label")}</p>
+                  <p className={cn("text-sm font-semibold", manualWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>{t("activation.identity.whitelisted.label")}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{t("activation.identity.whitelisted.demoDesc")}</p>
                   <p className="text-[10px] text-amber-500 font-medium mt-0.5">{t("activation.identity.whitelisted.protoNote")}</p>
                 </div>
               </div>
-              <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
-                <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isWhitelisted ? "start-5" : "start-0.5")} />
+              <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", manualWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
+                <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", manualWhitelisted ? "start-5" : "start-0.5")} />
               </div>
             </div>
             )}
 
-            {/* Fulfilment: payment status comes back automatically from the application lookup */}
+            {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
             {isFulfilment && (
               <div
                 className={cn(
@@ -864,9 +872,15 @@ const NewActivation = () => {
                 <div>
                   <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
                     {alreadyPaid ? "Payment Already Completed" : "Payment Not Yet Completed"}
+                    {isWhitelisted && " · Whitelisted Customer"}
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's online application.</p>
-                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Demo emails: {FULFILMENT_PAID_EMAIL} (paid) · {FULFILMENT_UNPAID_EMAIL} (unpaid)</p>
+                  <div className="text-[10px] text-muted-foreground/70 mt-1 space-y-0.5">
+                    <p>{FULFILMENT_PAID_EMAIL} — paid, not whitelisted</p>
+                    <p>{FULFILMENT_PAID_WHITELISTED_EMAIL} — paid, whitelisted</p>
+                    <p>{FULFILMENT_UNPAID_EMAIL} — unpaid, not whitelisted</p>
+                    <p>{FULFILMENT_UNPAID_WHITELISTED_EMAIL} — unpaid, whitelisted</p>
+                  </div>
                 </div>
               </div>
             )}
