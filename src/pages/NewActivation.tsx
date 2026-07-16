@@ -391,6 +391,9 @@ const NewActivation = () => {
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
   const fulfilmentRecord = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()];
   const alreadyPaid = fulfilmentRecord?.paid ?? true;
+  // Paid fulfilment requests already chose everything online — the Subscription step shows
+  // the same sections as usual but disabled, except SIM Type which can always be changed.
+  const fulfilmentLocked = isFulfilment && alreadyPaid;
   const [manualWhitelisted, setManualWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : manualWhitelisted;
   // Customer-whitelist toggle visibility (non-fulfilment flow only — fulfilment derives it from email).
@@ -896,18 +899,15 @@ const NewActivation = () => {
 
         {/* ── Step 1 — Subscription Type ── */}
         {step === 1 && (
-          isFulfilment && alreadyPaid ? (
-            <SectionCard title="Selections Made Online">
-              <p className="text-[11px] text-muted-foreground -mt-1 mb-1">
-                This customer already chose everything and paid online — nothing to change here, just confirm and hand over the SIM.
-              </p>
-              <SummaryRow label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />
-              {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
-              <SummaryRow label="Number" value={phone} />
-            </SectionCard>
-          ) : (
           <>
-            {/* 1. SIM Type */}
+            {fulfilmentLocked && (
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
+                <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
+                  This customer already chose everything and paid online — nothing to change here except SIM Type, if needed.
+                </p>
+              </div>
+            )}
+            {/* 1. SIM Type — always changeable, even on a paid fulfilment request */}
             <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation.subscription.simType")} <span className="text-destructive">*</span>
@@ -929,7 +929,7 @@ const NewActivation = () => {
                   </button>
                 )}
                 {simType === "psim" && (
-                  <div className="mt-3 space-y-2">
+                  <div className={cn("mt-3 space-y-2", fulfilmentLocked && "opacity-50 pointer-events-none")}>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Input
@@ -978,7 +978,8 @@ const NewActivation = () => {
                 )}
               </section>
 
-            {/* 2. Subscription Type */}
+            {/* 2. Subscription Type — through to Number section below, disabled for a paid fulfilment request */}
+            <div className={cn("space-y-4", fulfilmentLocked && "opacity-50 pointer-events-none")}>
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
@@ -1367,8 +1368,8 @@ const NewActivation = () => {
                 )}
               </section>
             )}
+          </div>
           </>
-          )
         )}
 
         {/* ── Step 2 — Checkout ── */}
