@@ -462,7 +462,7 @@ const SimReplacement = () => {
             <h3 className="font-semibold text-foreground text-base mb-1">SIM Replacement Complete</h3>
             <p className="text-sm text-muted-foreground text-center">
               {newSimType === "psim"
-                ? "The new physical SIM should be active within 30 minutes."
+                ? "The new physical SIM should be active within 30 minutes. A confirmation has also been sent to the customer via SMS and Email."
                 : "A new eSIM QR code has been generated below, and also sent to the customer via SMS and Email."}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
