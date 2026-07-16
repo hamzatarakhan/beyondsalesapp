@@ -25,7 +25,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatValidity } from "@/lib/utils";
 import {
   ClipboardList,
   CreditCard,
@@ -491,7 +491,7 @@ const SubscriptionMigration = () => {
                 }
               />
               <SummaryRow label="Plan Name" value={selectedPlanObj?.title ?? "—"} />
-              <SummaryRow label="Plan Validity" value={selectedPlanObj?.validityLabel ?? "—"} />
+              <SummaryRow label="Plan Validity" value={selectedPlanObj?.validityLabel ? formatValidity(selectedPlanObj.validityLabel) : "—"} />
               <SummaryRow label="ID Number" value={idNumber || "—"} />
             </CardSection>
 

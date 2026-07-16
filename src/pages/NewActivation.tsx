@@ -68,7 +68,7 @@ import {
   Microchip,
   QrCode,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import RiyalSymbol from "@/components/RiyalSymbol";
 
@@ -1418,7 +1418,7 @@ const NewActivation = () => {
                 return planTypeLabel ? <SummaryRow label={t("activation.checkout.planType")} value={planTypeLabel} /> : null;
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
-              {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={selectedPlanObj.validityLabel} />}
+              {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
               {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumber") : t("activation.subscription.mnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}

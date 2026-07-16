@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, MonitorPlay, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatValidity } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
 import freeSubsIcons from "@/assets/free-subs-icons.svg.asset.json";
@@ -274,7 +274,6 @@ const PlanTitleRow = ({
   onSelect: () => void;
   onMoreDetails?: () => void;
 }) => {
-  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between gap-2 mb-1">
       <p className="text-[12px] text-muted-foreground">
@@ -286,7 +285,7 @@ const PlanTitleRow = ({
           <span className="font-medium text-primary">{title}</span>
         )}
         <span className="mx-1.5">•</span>
-        {validity} {t("activation.plan.planSuffix")}
+        {validity}
       </p>
       <SelectRadio selected={selected} onSelect={onSelect} />
     </div>
@@ -403,8 +402,7 @@ const PlanCard = ({
   const { t } = useTranslation();
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
-  const validityRaw = (plan.validityLabel ?? "Valid 30 days").replace(/^valid\s*/i, "").trim();
-  const validity = t(`activation.plan.validityText.${validityRaw.toLowerCase()}`, validityRaw);
+  const validity = formatValidity(plan.validityLabel);
   const isDataOnly = !plan.mins || plan.mins === "-";
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries" | "blocked" | "search">(null);
 
