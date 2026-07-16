@@ -221,7 +221,7 @@ const CreditLimitAdjustment = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="Adjust Credit Limit" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title="Credit Limit Adjustment" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">

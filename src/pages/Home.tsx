@@ -54,7 +54,7 @@ const Home = () => {
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment" },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
-    { id: "credit-limit", icon: CreditCard, label: "Adjust Credit Limit", path: "/credit-limit-adjustment" },
+    { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment" },
     { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement" },
   ];
 
