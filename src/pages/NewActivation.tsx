@@ -156,6 +156,16 @@ export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 // ID types whose field is labeled "Border ID Number" instead of "ID Number".
 export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
+// Fulfilment demo emails — stand in for the real backend already knowing the
+// application's payment status once we look it up, instead of a manual toggle.
+const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
+const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
+const FULFILMENT_DEMO_EMAILS: Record<string, boolean> = {
+  [FULFILMENT_PAID_EMAIL]: true,
+  [FULFILMENT_UNPAID_EMAIL]: false,
+};
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
 const DISTRICTS: Record<string, string[]> = {
@@ -355,10 +365,6 @@ const NewActivation = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
-  // Fulfilment: the customer has already paid the activation elsewhere.
-  // When true, the checkout shows a "Payment Already Completed" info card
-  // and the payment-method section is hidden.
-  const [alreadyPaid, setAlreadyPaid] = useState(true);
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
@@ -371,9 +377,13 @@ const NewActivation = () => {
   // Fulfilment: customer already has a completed online application — looked up by
   // email or by scanning the QR code shown on their confirmation screen, instead of
   // re-collecting ID Type / Nationality / ID Number.
-  const [fulfilmentEmail, setFulfilmentEmail] = useState("customer@email.com");
+  const [fulfilmentEmail, setFulfilmentEmail] = useState(FULFILMENT_PAID_EMAIL);
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
+  const [qrVerified, setQrVerified] = useState(false);
+  // Payment status comes back automatically once we look up the application by email —
+  // no manual toggle. Demo data only recognizes the two seeded addresses above.
+  const alreadyPaid = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()] ?? true;
   const [isWhitelisted, setIsWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
   // Customer-whitelist toggle visibility.
   const SHOW_CUSTOMER_WHITELIST = true;
@@ -519,6 +529,9 @@ const NewActivation = () => {
     setQrScanStep("scanning");
     const scanTimer = setTimeout(() => {
       setQrScanStep("success");
+      // The QR resolves to the customer's email, same as if the dealer had typed it in.
+      setFulfilmentEmail(FULFILMENT_PAID_EMAIL);
+      setQrVerified(true);
       const closeTimer = setTimeout(() => setQrScanOpen(false), 1200);
       return () => clearTimeout(closeTimer);
     }, 1800);
@@ -688,8 +701,12 @@ const NewActivation = () => {
 
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
-    if (step === 0) return !!idType && !!nationality && idNumber.trim().length > 0;
+    if (step === 0) {
+      if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
+      return !!idType && !!nationality && idNumber.trim().length > 0;
+    }
     if (step === 1) {
+      if (isFulfilment && alreadyPaid) return true;
       if (simType === "psim" && (!kitChecked || !!kitError)) return false;
       if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
@@ -697,7 +714,7 @@ const NewActivation = () => {
       return true;
     }
     return true;
-  }, [step, idType, nationality, idNumber, showEsim, isKitValid, planMode, selectedPlan, topupDenom, topupManual, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, planMode, selectedPlan, topupDenom, topupManual, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -778,10 +795,13 @@ const NewActivation = () => {
                   <Input
                     type="email"
                     value={fulfilmentEmail}
-                    onChange={(e) => setFulfilmentEmail(e.target.value)}
+                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
                     placeholder="customer@email.com"
-                    className="h-12 bg-card rounded-xl"
+                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
+                    <p className="text-xs text-destructive">Enter a valid email address.</p>
+                  )}
                 </Field>
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-border" />
@@ -830,27 +850,23 @@ const NewActivation = () => {
             </div>
             )}
 
-            {/* Fulfilment demo toggle — simulate customer already paid activation */}
+            {/* Fulfilment: payment status comes back automatically from the application lookup */}
             {isFulfilment && (
               <div
                 className={cn(
-                  "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                  alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-card border-border/60"
+                  "flex items-center gap-3 rounded-2xl border px-4 py-3",
+                  alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700"
                 )}
-                onClick={() => setAlreadyPaid(v => !v)}
               >
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-muted")}>
-                    <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-muted-foreground")} />
-                  </div>
-                  <div>
-                    <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>Payment Already Completed</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Simulate a fulfilment where the customer has already paid.</p>
-                    <p className="text-[10px] text-emerald-500 font-medium mt-0.5">Prototype toggle</p>
-                  </div>
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-amber-100 dark:bg-amber-800/40")}>
+                  <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-amber-600")} />
                 </div>
-                <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", alreadyPaid ? "bg-emerald-500" : "bg-muted-foreground/30")}>
-                  <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", alreadyPaid ? "start-5" : "start-0.5")} />
+                <div>
+                  <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
+                    {alreadyPaid ? "Payment Already Completed" : "Payment Not Yet Completed"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's online application.</p>
+                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Demo emails: {FULFILMENT_PAID_EMAIL} (paid) · {FULFILMENT_UNPAID_EMAIL} (unpaid)</p>
                 </div>
               </div>
             )}
@@ -859,6 +875,16 @@ const NewActivation = () => {
 
         {/* ── Step 1 — Subscription Type ── */}
         {step === 1 && (
+          isFulfilment && alreadyPaid ? (
+            <SectionCard title="Selections Made Online">
+              <p className="text-[11px] text-muted-foreground -mt-1 mb-1">
+                This customer already chose everything and paid online — nothing to change here, just confirm and hand over the SIM.
+              </p>
+              <SummaryRow label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />
+              {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
+              <SummaryRow label="Number" value={phone} />
+            </SectionCard>
+          ) : (
           <>
             {/* 1. SIM Type */}
             <section>
@@ -1321,6 +1347,7 @@ const NewActivation = () => {
               </section>
             )}
           </>
+          )
         )}
 
         {/* ── Step 2 — Checkout ── */}
