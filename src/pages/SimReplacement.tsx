@@ -315,8 +315,16 @@ const SimReplacement = () => {
               </div>
             </div>
 
-            <CardSection title="Replacement Summary" icon={RefreshCw}>
+          </>
+        )}
+
+        {/* ── Step 2: Checkout ── */}
+        {step === 2 && customer && (
+          <>
+            <CardSection title="Replacement Summary" icon={ClipboardList}>
+              <SummaryRow label="Customer Name" value={customer.name} />
               <SummaryRow label="Replacement Type" value={replacementTypeLabel} />
+              {newSimType === "psim" && <SummaryRow label="KIT Code" value={kit} />}
               <SummaryRow label="Fee" value={isChargeable ? <>{fee} <RiyalSymbol /></> : <span className="text-emerald-600">Free</span>} />
             </CardSection>
 
@@ -335,18 +343,6 @@ const SimReplacement = () => {
                 </p>
               </div>
             )}
-          </>
-        )}
-
-        {/* ── Step 2: Checkout ── */}
-        {step === 2 && customer && (
-          <>
-            <CardSection title="Replacement Summary" icon={ClipboardList}>
-              <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Replacement Type" value={replacementTypeLabel} />
-              {newSimType === "psim" && <SummaryRow label="KIT Code" value={kit} />}
-              <SummaryRow label="Fee" value={isChargeable ? <>{fee} <RiyalSymbol /></> : <span className="text-emerald-600">Free</span>} />
-            </CardSection>
 
             <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
               {verified ? (
