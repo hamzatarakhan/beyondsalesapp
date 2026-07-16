@@ -221,21 +221,6 @@ const SimReplacement = () => {
               {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
 
-            <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Info className="w-3 h-3 text-amber-500 shrink-0" />
-                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test numbers</p>
-              </div>
-              <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">
-                Use these to try every case. This box won't appear in the real implementation.
-              </p>
-              <div className="space-y-1">
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333311 — P-SIM, free replacement available</p>
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333322 — E-SIM, free replacement already used</p>
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333333 — P-SIM, free replacement already used</p>
-              </div>
-            </div>
-
             {customer && (
               <CardSection title="Customer Details" icon={ClipboardList}>
                 <SummaryRow label="Customer Name" value={customer.name} />
@@ -253,6 +238,22 @@ const SimReplacement = () => {
                 />
               </CardSection>
             )}
+
+            <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Info className="w-3 h-3 text-amber-500 shrink-0" />
+                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test numbers</p>
+              </div>
+              <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">
+                Use these to try every case. This box won't appear in the real implementation.
+              </p>
+              <div className="space-y-1">
+                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333311 — P-SIM, free replacement available</p>
+                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333322 — E-SIM, free replacement already used</p>
+                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333333 — P-SIM, free replacement already used</p>
+              </div>
+            </div>
+
             {lookupError && (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
                 <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
