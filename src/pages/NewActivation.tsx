@@ -10,6 +10,7 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import SourceTab from "@/components/activation/SourceTab";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
 import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,6 @@ import {
   ArrowRightLeft,
   ArrowRight,
   ScanLine,
-  Copy,
   Tag,
   Database,
   FileText,
@@ -387,7 +387,6 @@ const NewActivation = () => {
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
-  const [copiedDemoEmail, setCopiedDemoEmail] = useState<string | null>(null);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -884,34 +883,11 @@ const NewActivation = () => {
                     <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's application.</p>
                   </div>
                 </div>
-                <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Info className="w-3 h-3 text-amber-500 shrink-0" />
-                    <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test emails</p>
-                  </div>
-                  <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">
-                    Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation.
-                  </p>
-                  <div className="space-y-1">
-                    {[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL].map((email) => (
-                      <div key={email} className="flex items-center justify-between gap-2">
-                        <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">{email}</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(email);
-                            setCopiedDemoEmail(email);
-                            setTimeout(() => setCopiedDemoEmail((cur) => (cur === email ? null : cur)), 1500);
-                          }}
-                          className="text-amber-500 shrink-0"
-                          aria-label={`Copy ${email}`}
-                        >
-                          {copiedDemoEmail === email ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <PrototypeTestBox
+                  heading="test emails"
+                  description="Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation."
+                  items={[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL]}
+                />
               </>
             )}
           </>

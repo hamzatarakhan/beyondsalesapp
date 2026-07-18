@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +40,6 @@ import {
   HandCoins,
   ChevronDown,
   ScanLine,
-  Info,
   X,
 } from "lucide-react";
 
@@ -239,20 +239,15 @@ const SimReplacement = () => {
               </CardSection>
             )}
 
-            <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Info className="w-3 h-3 text-amber-500 shrink-0" />
-                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — test numbers</p>
-              </div>
-              <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">
-                Use these to try every case. This box won't appear in the real implementation.
-              </p>
-              <div className="space-y-1">
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333311 — P-SIM, free replacement available</p>
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333322 — E-SIM, free replacement already used</p>
-                <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">0503333333 — P-SIM, free replacement already used</p>
-              </div>
-            </div>
+            <PrototypeTestBox
+              heading="test numbers"
+              description="Use these to try every case. This box won't appear in the real implementation."
+              items={[
+                { value: "0503333311", note: "P-SIM, free replacement available" },
+                { value: "0503333322", note: "E-SIM, free replacement already used" },
+                { value: "0503333333", note: "P-SIM, free replacement already used" },
+              ]}
+            />
 
             {lookupError && (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
