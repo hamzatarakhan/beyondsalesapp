@@ -56,7 +56,6 @@ import {
   AlertCircle,
   RotateCcw,
   PlusCircle,
-  Lock,
   Loader2,
   CheckCircle2,
   Store,
@@ -171,6 +170,11 @@ const FULFILMENT_DEMO_EMAILS: Record<string, { paid: boolean; whitelisted: boole
   [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
 };
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+// Normal (non-fulfilment) flow demo ID numbers — whitelist status is derived from
+// which one is entered, instead of a manual toggle.
+const NORMAL_TEST_ID_NUMBER = "1324567896";
+const WHITELISTED_TEST_ID_NUMBER = "9876543210";
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -395,10 +399,9 @@ const NewActivation = () => {
   // Paid fulfilment requests already chose everything online — the Subscription step shows
   // the same sections as usual but disabled, except SIM Type which can always be changed.
   const fulfilmentLocked = isFulfilment && alreadyPaid;
-  const [manualWhitelisted, setManualWhitelisted] = useState(false); // VPPR class 5→6 whitelisted customer
-  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : manualWhitelisted;
-  // Customer-whitelist toggle visibility (non-fulfilment flow only — fulfilment derives it from email).
-  const SHOW_CUSTOMER_WHITELIST = true;
+  // Whitelist status (VPPR class 5→6) is derived from which demo ID number is entered,
+  // same pattern as fulfilment deriving it from email — no manual toggle.
+  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim() === WHITELISTED_TEST_ID_NUMBER;
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
   const SHOW_VANITY_OVERVIEW = false;
@@ -838,29 +841,17 @@ const NewActivation = () => {
               </>
             )}
 
-            {/* Whitelisted customer toggle — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
-            {SHOW_CUSTOMER_WHITELIST && !isFulfilment && (
-            <div
-              className={cn(
-                "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                manualWhitelisted ? "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700" : "bg-card border-border/60"
-              )}
-              onClick={() => setManualWhitelisted(v => !v)}
-            >
-              <div className="flex items-center gap-3">
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", manualWhitelisted ? "bg-amber-100 dark:bg-amber-800/40" : "bg-muted")}>
-                  <Lock className={cn("w-4 h-4", manualWhitelisted ? "text-amber-600" : "text-muted-foreground")} />
-                </div>
-                <div>
-                  <p className={cn("text-sm font-semibold", manualWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>{t("activation.identity.whitelisted.label")}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{t("activation.identity.whitelisted.demoDesc")}</p>
-                  <p className="text-[10px] text-amber-500 font-medium mt-0.5">{t("activation.identity.whitelisted.protoNote")}</p>
-                </div>
-              </div>
-              <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", manualWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
-                <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", manualWhitelisted ? "start-5" : "start-0.5")} />
-              </div>
-            </div>
+            {/* Whitelist status — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
+            {!isFulfilment && (
+              <PrototypeTestBox
+                heading="test ID numbers"
+                description="Use these to try both cases. This box won't appear in the real implementation."
+                items={[
+                  { value: NORMAL_TEST_ID_NUMBER, note: "Normal customer" },
+                  { value: WHITELISTED_TEST_ID_NUMBER, note: "Whitelisted customer" },
+                ]}
+                onSelect={setIdNumber}
+              />
             )}
 
             {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
