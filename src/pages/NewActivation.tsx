@@ -759,7 +759,7 @@ const NewActivation = () => {
         showBack
         onBackClick={onBack}
         rightElement={
-          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 flex items-center justify-center -mr-2">
+          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
             <X className="w-5 h-5 text-foreground" />
           </button>
         }
