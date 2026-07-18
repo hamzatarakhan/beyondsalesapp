@@ -45,6 +45,7 @@ import {
   ArrowRightLeft,
   ArrowRight,
   ScanLine,
+  Copy,
   Tag,
   Database,
   FileText,
@@ -386,6 +387,7 @@ const NewActivation = () => {
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
+  const [copiedDemoEmail, setCopiedDemoEmail] = useState<string | null>(null);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -891,7 +893,21 @@ const NewActivation = () => {
                   </p>
                   <div className="space-y-1">
                     {[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL].map((email) => (
-                      <p key={email} className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">{email}</p>
+                      <div key={email} className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-mono text-amber-600/80 dark:text-amber-400/80">{email}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(email);
+                            setCopiedDemoEmail(email);
+                            setTimeout(() => setCopiedDemoEmail((cur) => (cur === email ? null : cur)), 1500);
+                          }}
+                          className="text-amber-500 shrink-0"
+                          aria-label={`Copy ${email}`}
+                        >
+                          {copiedDemoEmail === email ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -1531,8 +1547,46 @@ const NewActivation = () => {
                 <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentSummary")}</p>
               </div>
 
-              {/* Case 1: whitelisted + postpaid + free number → show waived rows, total 0 */}
-              {isWhitelisted && payType === "postpaid" && !isVipNumber ? (
+              {/* Case 0: fulfilment already paid online → everything already settled, total 0 */}
+              {isFulfilment && alreadyPaid ? (
+                <>
+                  <div className="space-y-2 pb-3">
+                    {showEsim && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
+                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                      </div>
+                    )}
+                    {showNumber && subType === "sim" && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                      </div>
+                    )}
+                    {selectedPlanObj && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj.title}</span>
+                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t border-border/60 space-y-2 py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                    <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
+                    <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
+                  </div>
+                </>
+              ) : /* Case 1: whitelisted + postpaid + free number → show waived rows, total 0 */
+              isWhitelisted && payType === "postpaid" && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
                     {showEsim && (

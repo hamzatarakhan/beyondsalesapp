@@ -317,6 +317,7 @@
       "total": "Total",
       "waived": "Waived",
       "free": "Free",
+      "alreadyPaidLabel": "Paid",
       "terms": "Terms and Conditions",
       "agreeTo": "I agree to the",
       "consentMiddle": "and acknowledge that my information will be processed in accordance with the",
