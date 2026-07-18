@@ -684,14 +684,15 @@ const NewActivation = () => {
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
   const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
 
-  const subtotal = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
+  // Fulfilment: everything was already paid for online, so nothing is owed here.
+  const subtotal = isFulfilment && alreadyPaid ? 0 : effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
   // Switch Postpaid: no VAT is collected when the number is Standard, or when a
   // Vanity number is taken free-with-commitment (deposit-only flow either way).
   const vatWaived =
     isPostpaidMobile &&
     subType === "sim" &&
     (pickedTier === "standard" || (pickedCategoryEligibleFree && vanityCommitment));
-  const vat = vatWaived ? 0 : Math.round(subtotal * 0.15);
+  const vat = isFulfilment && alreadyPaid ? 0 : (vatWaived ? 0 : Math.round(subtotal * 0.15));
   const total = subtotal + vat;
 
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
@@ -1942,7 +1943,9 @@ const NewActivation = () => {
           {step < 2 ? (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</Button>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>
+              {isFulfilment && alreadyPaid ? t("activation.checkout.confirmFulfilment") : <>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</>}
+            </Button>
           )}
         </div>
       </div>

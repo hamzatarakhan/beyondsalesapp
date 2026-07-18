@@ -328,6 +328,7 @@
       "dealerSig": "توقيع المندوب",
       "customerSig": "توقيع العميل",
       "pay": "ادفع",
+      "confirmFulfilment": "تأكيد",
       "confirmPay": "تأكيد الدفع",
       "confirmPaySub": "هل تريد الخصم من محفظة المندوب؟",
       "confirmPayBtn": "نعم، تأكيد",

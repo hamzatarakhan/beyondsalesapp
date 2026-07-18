@@ -326,6 +326,7 @@
       "dealerSig": "Dealer Signature",
       "customerSig": "Customer Signature",
       "pay": "Pay",
+      "confirmFulfilment": "Confirm",
       "confirmPay": "Confirm Payment",
       "confirmPaySub": "Deduct from dealer wallet?",
       "confirmPayBtn": "Yes, Confirm",
