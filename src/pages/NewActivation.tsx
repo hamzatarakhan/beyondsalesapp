@@ -887,6 +887,7 @@ const NewActivation = () => {
                   heading="test emails"
                   description="Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation."
                   items={[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL]}
+                  onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
                 />
               </>
             )}

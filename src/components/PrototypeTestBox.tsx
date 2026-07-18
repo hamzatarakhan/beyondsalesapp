@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Info, Copy, CheckCircle2 } from "lucide-react";
+import { Info, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 export interface PrototypeTestItem {
-  /** The value copied to the clipboard — keep this just the raw test value (email, MSISDN, etc). */
+  /** The value used to fill the field — keep this just the raw test value (email, MSISDN, etc). */
   value: string;
   /** Optional trailing description shown after the value, e.g. "P-SIM, free replacement available". */
   note?: string;
@@ -13,23 +13,25 @@ interface PrototypeTestBoxProps {
   heading: string;
   description: string;
   items: (string | PrototypeTestItem)[];
+  /** Called with the raw value when its button is tapped — fill the relevant field with it. */
+  onSelect: (value: string) => void;
 }
 
 /**
  * Dashed-border "prototype only" callout listing demo values (emails, MSISDNs, etc.)
- * a tester can use to exercise every case of a feature, with a one-tap copy button per
- * value. Shared so every new prototype feature gets the same box instead of a
- * hand-rolled copy each time.
+ * a tester can use to exercise every case of a feature, with a one-tap button per value
+ * that fills the field above instead of requiring manual retyping. Shared so every
+ * current and future prototype feature gets the same box instead of a hand-rolled copy.
  */
-const PrototypeTestBox = ({ heading, description, items }: PrototypeTestBoxProps) => {
-  const [copiedValue, setCopiedValue] = useState<string | null>(null);
+const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTestBoxProps) => {
+  const [filledValue, setFilledValue] = useState<string | null>(null);
 
   const normalized = items.map((item) => (typeof item === "string" ? { value: item } : item));
 
-  const handleCopy = (value: string) => {
-    navigator.clipboard.writeText(value);
-    setCopiedValue(value);
-    setTimeout(() => setCopiedValue((cur) => (cur === value ? null : cur)), 1500);
+  const handleSelect = (value: string) => {
+    onSelect(value);
+    setFilledValue(value);
+    setTimeout(() => setFilledValue((cur) => (cur === value ? null : cur)), 1500);
   };
 
   return (
@@ -48,11 +50,11 @@ const PrototypeTestBox = ({ heading, description, items }: PrototypeTestBoxProps
             </p>
             <button
               type="button"
-              onClick={() => handleCopy(value)}
+              onClick={() => handleSelect(value)}
               className="text-amber-500 shrink-0"
-              aria-label={`Copy ${value}`}
+              aria-label={`Use ${value}`}
             >
-              {copiedValue === value ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {filledValue === value ? <CheckCircle2 className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
             </button>
           </div>
         ))}

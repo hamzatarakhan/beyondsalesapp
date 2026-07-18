@@ -247,6 +247,7 @@ const SimReplacement = () => {
                 { value: "0503333322", note: "E-SIM, free replacement already used" },
                 { value: "0503333333", note: "P-SIM, free replacement already used" },
               ]}
+              onSelect={setMsisdn}
             />
 
             {lookupError && (
