@@ -527,9 +527,9 @@ const PlanCard = ({
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
               {plan.bonuses && plan.bonuses.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
                   {plan.bonuses.map((bonus, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold border border-red-200 dark:border-red-500/20">
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold border border-red-200 dark:border-red-500/20 whitespace-nowrap shrink-0">
                       <Gift className="w-3 h-3" /> {t("activation.plan.bonusPrefix")} {bonus}
                     </span>
                   ))}
