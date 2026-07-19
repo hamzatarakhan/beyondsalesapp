@@ -703,10 +703,10 @@ const EWalletReports = () => {
                         setSelectedWallet(wallet.id);
                       }}
                       className={cn(
-                        "px-4 py-3 rounded-xl border-2 transition-all text-center",
+                        "px-4 py-3 rounded-xl transition-all text-center",
                         selectedWallet === wallet.id
-                          ? "bg-primary/10 border-primary"
-                          : "bg-muted/50 border-transparent"
+                          ? "border-[0.5px] bg-primary/10 border-primary/10"
+                          : "border-2 bg-muted/50 border-transparent"
                       )}
                     >
                       <p className="text-sm font-medium text-foreground">{wallet.name}</p>
