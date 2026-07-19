@@ -1449,17 +1449,17 @@ const NewActivation = () => {
                   <div className="flex flex-wrap gap-1.5">
                     {activePromo.benefits.map((b, i) => {
                       if (b.type === "discount") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
                           <RiyalSymbol className="w-3 h-3" /> {b.value} {t("activation.checkout.promoDiscount")}
                         </span>
                       );
                       if (b.type === "data") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
                           <Gift className="w-3 h-3" /> +{b.value} {t("activation.checkout.promoData")}
                         </span>
                       );
                       if (b.type === "credit") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
                           <Gift className="w-3 h-3" /> {t("activation.checkout.promoCredit")}
                         </span>
                       );
