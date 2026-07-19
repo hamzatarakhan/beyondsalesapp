@@ -43,6 +43,7 @@ import {
   Check,
   Phone,
   Sparkles,
+  Gift,
   ArrowRightLeft,
   ArrowRight,
   ScanLine,
@@ -1444,33 +1445,43 @@ const NewActivation = () => {
                     </div>
                     <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium shrink-0">{t("activation.checkout.removePromo")}</button>
                   </div>
-                  {/* One banner per benefit */}
-                  {activePromo.benefits.map((b, i) => {
-                    if (b.type === "discount") return (
-                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200">
-                        <Tag className="w-4 h-4 text-green-600 shrink-0" />
-                        <span className="text-xs font-semibold text-green-700">{b.value} {t("activation.checkout.promoDiscount")}</span>
-                      </div>
-                    );
-                    if (b.type === "data") return (
-                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
-                        <Database className="w-4 h-4 text-blue-600 shrink-0" />
-                        <span className="text-xs font-semibold text-blue-700">+{b.value} {t("activation.checkout.promoData")}</span>
-                      </div>
-                    );
-                    if (b.type === "credit") return (
-                      <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-purple-50 border border-purple-200">
-                        <HandCoins className="w-4 h-4 text-purple-600 shrink-0" />
-                        <span className="text-xs font-semibold text-purple-700">{b.value} {t("activation.checkout.promoCredit")}</span>
-                      </div>
-                    );
-                    return null;
-                  })}
+                  {/* Benefit tags — all shown the same way regardless of type, matching the confirmed applied-promo look */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {activePromo.benefits.map((b, i) => {
+                      if (b.type === "discount") return (
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                          <RiyalSymbol className="w-3 h-3" /> {b.value} {t("activation.checkout.promoDiscount")}
+                        </span>
+                      );
+                      if (b.type === "data") return (
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                          <Gift className="w-3 h-3" /> +{b.value} {t("activation.checkout.promoData")}
+                        </span>
+                      );
+                      if (b.type === "credit") return (
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
+                          <Gift className="w-3 h-3" /> {t("activation.checkout.promoCredit")}
+                        </span>
+                      );
+                      return null;
+                    })}
+                  </div>
                 </div>
               ) : (
-                <div className="mt-3 flex gap-2">
-                  <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
-                  <Button type="button" className="shrink-0 bg-[#FCE4E6] text-foreground border-0 rounded-xl hover:bg-[#FCE4E6]/80" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
+                <div className="mt-3 space-y-3">
+                  <div className="flex gap-2">
+                    <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
+                    <Button type="button" className="shrink-0 bg-[#FCE4E6] text-foreground border-0 rounded-xl hover:bg-[#FCE4E6]/80" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
+                  </div>
+                  <PrototypeTestBox
+                    heading="test promo codes"
+                    description="Use these to try a single-benefit vs. a multi-benefit promo. This box won't appear in the real implementation."
+                    items={[
+                      { value: "SAVE10", note: "1 benefit — discount only" },
+                      { value: "MEGA", note: "3 benefits — discount, data & credit" },
+                    ]}
+                    onSelect={(code) => { setPromoCode(code); setPromoError(false); }}
+                  />
                 </div>
               ))}
               {promoEnabled && promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
