@@ -980,7 +980,7 @@ const NewActivation = () => {
                     <button key={value} type="button" disabled={isDisabled}
                       onClick={() => { if (isDisabled) return; setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                       className={cn("relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all border",
-                        isDisabled ? "bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60")}>
+                        isDisabled ? "bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "bg-primary/10 border-primary/50" : "bg-card border-border/60")}>
                       {/* Radio indicator */}
                       <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
                         selected && !isDisabled ? "border-primary bg-primary" : "border-muted-foreground/30")}>
@@ -1417,8 +1417,8 @@ const NewActivation = () => {
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#FCE4E6] flex items-center justify-center shrink-0">
-                    <Tag className="w-4 h-4 text-[#E53935]" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Tag className="w-4 h-4 text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-foreground">{t("activation.checkout.promoCode")}</p>
                 </div>
@@ -1432,7 +1432,6 @@ const NewActivation = () => {
                       setPromoError(false);
                     }
                   }}
-                  className="data-[state=checked]:bg-[#E53935]"
                 />
               </div>
               {promoEnabled && (promoApplied && activePromo ? (
@@ -1471,7 +1470,7 @@ const NewActivation = () => {
                 <div className="mt-3 space-y-1.5">
                   <div className="flex gap-2">
                     <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
-                    <Button type="button" className="shrink-0 bg-[#FCE4E6] text-foreground border-0 rounded-xl hover:bg-[#FCE4E6]/80" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
+                    <Button type="button" className="shrink-0 bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-xl" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
                   </div>
                   <p className="text-[11px] text-muted-foreground">Prototype: try SAVE10 (single discount) or MEGA (discount + data + credit).</p>
                 </div>
@@ -1811,7 +1810,7 @@ const NewActivation = () => {
               {customerVerified ? (
                 <VerifiedBanner label="Customer Verified" />
               ) : (
-                <Button variant="outline" className="w-full bg-[#FCE4E6] hover:bg-[#FCE4E6]/80 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
+                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
                   {t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
@@ -1824,7 +1823,7 @@ const NewActivation = () => {
                   <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full bg-[#FCE4E6] hover:bg-[#FCE4E6]/80 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
                       <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
                     )}
@@ -1840,7 +1839,7 @@ const NewActivation = () => {
                   <VerifiedBanner label="Nafith Verified" onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full bg-[#FCE4E6] hover:bg-[#FCE4E6]/80 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
                       {t("activation.checkout.nafathVerify")}
                     </Button>
                     {!nafithGateOk && (
@@ -2067,24 +2066,24 @@ const NewActivation = () => {
         return (
           <Dialog open onOpenChange={(o) => !o && setPendingVanityNumber(null)}>
             <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-              <h4 className="font-semibold text-[#E30613] mb-1">
+              <h4 className="font-semibold text-primary mb-1">
                 {t(`activation.vanity.tiers.${cat.tier}`)} · {pendingVanityNumber.number}
               </h4>
               <p className="text-xs text-muted-foreground mb-4">{t("activation.vanity.choosePrompt")}</p>
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
-                  className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+                  className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
                 >
                   {t("activation.vanity.getFreeWithCommitment", { months: cat.months })}
                 </button>
                 <button
                   onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
-                  className="w-full py-3 rounded-full bg-[#FCE4E6] text-foreground font-semibold text-sm"
+                  className="w-full py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
                 >
                   {t("activation.vanity.payNumberPrice", { price: cat.price })}
                 </button>
-                <button onClick={() => setPendingVanityNumber(null)} className="text-[#E30613] text-sm font-medium mt-1">
+                <button onClick={() => setPendingVanityNumber(null)} className="text-primary text-sm font-medium mt-1">
                   {t("activation.checkout.cancelBtn")}
                 </button>
               </div>

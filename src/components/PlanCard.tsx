@@ -415,7 +415,7 @@ const PlanCard = ({
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
         className={cn(
           "relative rounded-2xl border transition-all duration-200 flex flex-col w-full cursor-pointer",
-          selected ? "bg-primary/10 border-primary/20" : "bg-card border-border/60",
+          selected ? "bg-primary/10 border-primary/50" : "bg-card border-border/60",
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >

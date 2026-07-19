@@ -23,7 +23,7 @@ const SimCard = ({ active, label, onClick, disabled, icon: Icon = DefaultSimIcon
     disabled={disabled}
     className={cn(
       "relative flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all border",
-      active ? "bg-primary/10 border-primary/30" : "bg-card border-border/60",
+      active ? "bg-primary/10 border-primary/50" : "bg-card border-border/60",
       disabled && "opacity-50 cursor-not-allowed",
     )}
   >
