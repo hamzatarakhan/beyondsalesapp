@@ -1446,21 +1446,21 @@ const NewActivation = () => {
                     <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium shrink-0">{t("activation.checkout.removePromo")}</button>
                   </div>
                   {/* Benefit tags — all shown the same way regardless of type, matching the confirmed applied-promo look */}
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {activePromo.benefits.map((b, i) => {
                       if (b.type === "discount") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
-                          <RiyalSymbol className="w-3 h-3" /> {b.value} {t("activation.checkout.promoDiscount")}
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <RiyalSymbol className="w-2.5 h-2.5" /> {b.value} {t("activation.checkout.promoDiscount")}
                         </span>
                       );
                       if (b.type === "data") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
-                          <Gift className="w-3 h-3" /> +{b.value} {t("activation.checkout.promoData")}
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <Gift className="w-2.5 h-2.5" /> +{b.value} {t("activation.checkout.promoData")}
                         </span>
                       );
                       if (b.type === "credit") return (
-                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold">
-                          <Gift className="w-3 h-3" /> {t("activation.checkout.promoCredit")}
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <Gift className="w-2.5 h-2.5" /> {t("activation.checkout.promoCredit")}
                         </span>
                       );
                       return null;
@@ -1468,20 +1468,12 @@ const NewActivation = () => {
                   </div>
                 </div>
               ) : (
-                <div className="mt-3 space-y-3">
+                <div className="mt-3 space-y-1.5">
                   <div className="flex gap-2">
                     <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
                     <Button type="button" className="shrink-0 bg-[#FCE4E6] text-foreground border-0 rounded-xl hover:bg-[#FCE4E6]/80" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation.checkout.applyPromo")}</Button>
                   </div>
-                  <PrototypeTestBox
-                    heading="test promo codes"
-                    description="Use these to try a single-benefit vs. a multi-benefit promo. This box won't appear in the real implementation."
-                    items={[
-                      { value: "SAVE10", note: "1 benefit — discount only" },
-                      { value: "MEGA", note: "3 benefits — discount, data & credit" },
-                    ]}
-                    onSelect={(code) => { setPromoCode(code); setPromoError(false); }}
-                  />
+                  <p className="text-[11px] text-muted-foreground">Prototype: try SAVE10 (single discount) or MEGA (discount + data + credit).</p>
                 </div>
               ))}
               {promoEnabled && promoError && <p className="text-xs text-destructive mt-1.5">{t("activation.checkout.promoError")}</p>}
