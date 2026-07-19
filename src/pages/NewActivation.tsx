@@ -969,8 +969,25 @@ const NewActivation = () => {
                 )}
               </section>
 
-            {/* 2. Subscription Type — through to Number section below, disabled for a paid fulfilment request */}
-            <div className={cn("space-y-4", fulfilmentLocked && "opacity-50 pointer-events-none")}>
+            {/* 2. Subscription Type — through to Number section below. Read-only summary for a paid
+                fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
+            {fulfilmentLocked ? (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">Selections Made Online</p>
+                </div>
+                <SummaryRow label={t("activation.subscription.subscriptionTypeTitle")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
+                {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
+                {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
+                {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
+                {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
+                {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
+              </section>
+            ) : (
+            <div className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
@@ -1360,6 +1377,7 @@ const NewActivation = () => {
               </section>
             )}
           </div>
+          )}
           </>
         )}
 
