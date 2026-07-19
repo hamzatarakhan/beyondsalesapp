@@ -858,23 +858,25 @@ const NewActivation = () => {
             {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
             {isFulfilment && (
               <>
-                <div
-                  className={cn(
-                    "flex items-center gap-3 rounded-2xl border px-4 py-3",
-                    alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700"
-                  )}
-                >
-                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-amber-100 dark:bg-amber-800/40")}>
-                    <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-amber-600")} />
+                {fulfilmentRecord && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border px-4 py-3",
+                      alreadyPaid ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-700" : "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700"
+                    )}
+                  >
+                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", alreadyPaid ? "bg-emerald-100 dark:bg-emerald-800/40" : "bg-amber-100 dark:bg-amber-800/40")}>
+                      <CheckCircle2 className={cn("w-4 h-4", alreadyPaid ? "text-emerald-600" : "text-amber-600")} />
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
+                        {alreadyPaid ? "Payment Completed" : "Payment Not Completed"}
+                        {isWhitelisted && " · Whitelisted Customer"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's application.</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className={cn("text-sm font-semibold", alreadyPaid ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
-                      {alreadyPaid ? "Payment Completed" : "Payment Not Completed"}
-                      {isWhitelisted && " · Whitelisted Customer"}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's application.</p>
-                  </div>
-                </div>
+                )}
                 <PrototypeTestBox
                   heading="test emails"
                   description="Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation."
