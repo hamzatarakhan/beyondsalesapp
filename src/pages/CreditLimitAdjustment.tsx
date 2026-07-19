@@ -279,7 +279,7 @@ const CreditLimitAdjustment = () => {
                     onClick={() => setDirection(value)}
                     className={cn(
                       "relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all",
-                      selected ? "border-[0.5px] bg-primary/10 border-primary/10" : "border bg-card border-border/60"
+                      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
                     )}
                   >
                     <span className={cn(

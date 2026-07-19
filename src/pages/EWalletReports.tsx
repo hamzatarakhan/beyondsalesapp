@@ -705,7 +705,7 @@ const EWalletReports = () => {
                       className={cn(
                         "px-4 py-3 rounded-xl transition-all text-center",
                         selectedWallet === wallet.id
-                          ? "border-[0.5px] bg-primary/10 border-primary/10"
+                          ? "border-[0.5px] bg-primary/10 border-primary/20"
                           : "border-2 bg-muted/50 border-transparent"
                       )}
                     >

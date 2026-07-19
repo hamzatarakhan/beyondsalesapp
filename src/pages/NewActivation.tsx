@@ -980,7 +980,7 @@ const NewActivation = () => {
                     <button key={value} type="button" disabled={isDisabled}
                       onClick={() => { if (isDisabled) return; setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                       className={cn("relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all",
-                        isDisabled ? "border bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "border-[0.5px] bg-primary/10 border-primary/10" : "border bg-card border-border/60")}>
+                        isDisabled ? "border bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
                       {/* Radio indicator */}
                       <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
                         selected && !isDisabled ? "border-primary bg-primary" : "border-muted-foreground/30")}>

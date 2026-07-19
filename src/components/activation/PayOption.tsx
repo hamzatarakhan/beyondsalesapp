@@ -15,7 +15,7 @@ const PayOption = ({ icon: Icon, label, description, selected, onClick }: Props)
     onClick={onClick}
     className={cn(
       "w-full flex items-center gap-3 p-3 rounded-xl transition-colors",
-      selected ? "border-[0.5px] bg-primary/10 border-primary/10" : "border bg-card border-border",
+      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border",
     )}
   >
     <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
