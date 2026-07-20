@@ -388,7 +388,7 @@ const NewActivation = () => {
   // Fulfilment: customer already has a completed online application — looked up by
   // email or by scanning the QR code shown on their confirmation screen, instead of
   // re-collecting ID Type / Nationality / ID Number.
-  const [fulfilmentEmail, setFulfilmentEmail] = useState(FULFILMENT_PAID_EMAIL);
+  const [fulfilmentEmail, setFulfilmentEmail] = useState("");
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
@@ -678,14 +678,14 @@ const NewActivation = () => {
   })() : 0;
   const isVipNumber = rawNumberFee > 0;
 
-  // Whitelisted customer: no deposit for plan; only pays VIP number fee + VAT if applicable
-  const effectivePlanPrice  = isWhitelisted && payType === "postpaid" ? 0 : planPrice;
-  const effectiveSimFee     = isWhitelisted && payType === "postpaid" ? 0 : simFee;
+  // Whitelisted customer: nothing to pay (prepaid or postpaid); only pays VIP number fee + VAT if applicable
+  const effectivePlanPrice  = isWhitelisted ? 0 : planPrice;
+  const effectiveSimFee     = isWhitelisted ? 0 : simFee;
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
   const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
-  const effectiveDeviceFee  = isWhitelisted && payType === "postpaid" ? 0 : deviceFee;
+  const effectiveDeviceFee  = isWhitelisted ? 0 : deviceFee;
 
   // Fulfilment: everything was already paid for online, so nothing is owed here.
   const subtotal = isFulfilment && alreadyPaid ? 0 : effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
@@ -1511,7 +1511,7 @@ const NewActivation = () => {
             )}
 
             {/* Whitelisted customer notice */}
-            {isWhitelisted && payType === "postpaid" && (
+            {isWhitelisted && (
               <div className="rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3 flex items-start gap-3">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
@@ -1576,8 +1576,8 @@ const NewActivation = () => {
                     <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
                   </div>
                 </>
-              ) : /* Case 1: whitelisted + postpaid + free number → show waived rows, total 0 */
-              isWhitelisted && payType === "postpaid" && !isVipNumber ? (
+              ) : /* Case 1: whitelisted + free number → show waived rows, total 0 */
+              isWhitelisted && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
                     {showEsim && (
@@ -1612,8 +1612,8 @@ const NewActivation = () => {
                     <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
                   </div>
                 </>
-              ) : /* Case 2: whitelisted + postpaid + VIP number → only show VIP number fee + VAT */
-                isWhitelisted && payType === "postpaid" && isVipNumber ? (
+              ) : /* Case 2: whitelisted + VIP number → only show VIP number fee + VAT */
+                isWhitelisted && isVipNumber ? (
                   <>
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
@@ -1694,8 +1694,8 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* Payment Method — hidden for whitelisted postpaid with free number, or fulfilment already-paid */}
-            {!(isWhitelisted && payType === "postpaid" && !isVipNumber) && !(isFulfilment && alreadyPaid) && (
+            {/* Payment Method — hidden for whitelisted with free number, or fulfilment already-paid */}
+            {!(isWhitelisted && !isVipNumber) && !(isFulfilment && alreadyPaid) && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
