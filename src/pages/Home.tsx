@@ -32,7 +32,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { ListChecks, LayoutList, X as XIcon, Check } from "lucide-react";
+import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
 // labels resolved dynamically inside component via t()
 
@@ -43,13 +43,11 @@ const memberOnboarding = [
   { icon: ClipboardList, label: "Onboarding Requests", path: "/", badge: 3 },
 ];
 
-// Dealer-facing operator badge (top-left of header) — the swap icon next to it
-// opens a picker so a dealer working multiple brands can switch context.
+// Dealer-facing brand badge (top-left of header) — the swap icon next to it
+// opens a picker so a dealer selling for multiple brands can switch context.
 const OPERATORS = [
-  { id: "virgin", name: "Virgin Mobile", initials: "V", color: "#E10A0A" },
-  { id: "stc", name: "STC", initials: "S", color: "#4B286D" },
-  { id: "mobily", name: "Mobily", initials: "M", color: "#00A651" },
-  { id: "zain", name: "Zain", initials: "Z", color: "#742282" },
+  { id: "virgin", name: "Virgin", brandLabel: "Virgin", color: "#E10A0A" },
+  { id: "friendi", name: "Friendi", brandLabel: "friendi", color: "#00AEB0" },
 ];
 
 const Home = () => {
@@ -99,11 +97,12 @@ const Home = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setOperatorSheetOpen(true)}
-            aria-label={`Active operator: ${activeOp.name}`}
-            className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm text-white text-xs font-bold shrink-0"
+            aria-label={`Active brand: ${activeOp.name}`}
+            className="w-10 h-10 rounded-full flex flex-col items-center justify-center shadow-sm text-white shrink-0 leading-none"
             style={{ backgroundColor: activeOp.color }}
           >
-            {activeOp.initials}
+            <span className="italic font-serif text-[9px] leading-none">{activeOp.brandLabel}</span>
+            <span className="text-[5px] tracking-wide leading-none mt-0.5">mobile</span>
           </button>
           <button
             onClick={() => setOperatorSheetOpen(true)}
@@ -352,10 +351,17 @@ const Home = () => {
 
       <Drawer open={operatorSheetOpen} onOpenChange={setOperatorSheetOpen}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setOperatorSheetOpen(false)}
+            aria-label="Close"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">Switch Operator</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">Switch Brands</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
-              Choose which operator you're working under
+              Choose the operator you're selling for
             </DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-8 space-y-2">
@@ -368,13 +374,18 @@ const Home = () => {
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
                 >
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                    className="w-10 h-10 rounded-full flex flex-col items-center justify-center shrink-0 text-white leading-none"
                     style={{ backgroundColor: op.color }}
                   >
-                    {op.initials}
+                    <span className="italic font-serif text-[9px] leading-none">{op.brandLabel}</span>
+                    <span className="text-[5px] tracking-wide leading-none mt-0.5">mobile</span>
                   </div>
                   <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
-                  {selected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  {selected && (
+                    <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
+                      Selected
+                    </span>
+                  )}
                 </button>
               );
             })}
