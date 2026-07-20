@@ -697,6 +697,9 @@ const NewActivation = () => {
     (pickedTier === "standard" || (pickedCategoryEligibleFree && vanityCommitment));
   const vat = isFulfilment && alreadyPaid ? 0 : (vatWaived ? 0 : Math.round(subtotal * 0.15));
   const total = subtotal + vat;
+  // Checkout confirm sheet copy: fulfilment already paid online, nothing owed for another
+  // reason (e.g. whitelisted with a free/free-with-commitment number), or an actual payment.
+  const confirmCopyKey = isFulfilment && alreadyPaid ? "confirmActivation" : total === 0 ? "confirmSubmission" : "confirmPay";
 
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
   // (equal to the plan price) that clears the customer's first bill.
@@ -1934,7 +1937,7 @@ const NewActivation = () => {
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>
-              {isFulfilment && alreadyPaid ? t("activation.checkout.confirmFulfilment") : <>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</>}
+              {total === 0 ? t("activation.checkout.submit") : <>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</>}
             </Button>
           )}
         </div>
@@ -2298,12 +2301,12 @@ const NewActivation = () => {
             <div className="mx-auto mb-3 w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
-            <DrawerTitle>{isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivation") : t("activation.checkout.confirmPay")}</DrawerTitle>
-            <DrawerDescription>{isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivationDesc") : t("activation.checkout.confirmPayDesc")}</DrawerDescription>
+            <DrawerTitle>{t(`activation.checkout.${confirmCopyKey}`)}</DrawerTitle>
+            <DrawerDescription>{t(`activation.checkout.${confirmCopyKey}Desc`)}</DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
-              {isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivationBtn") : t("activation.checkout.confirmPayBtn")}
+              {t(`activation.checkout.${confirmCopyKey}Btn`)}
             </Button>
             <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPayConfirmOpen(false)}>
               {t("activation.checkout.cancelBtn")}
