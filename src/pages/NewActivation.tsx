@@ -2298,12 +2298,12 @@ const NewActivation = () => {
             <div className="mx-auto mb-3 w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
-            <DrawerTitle>{t("activation.checkout.confirmPay")}</DrawerTitle>
-            <DrawerDescription>{t("activation.checkout.confirmPayDesc")}</DrawerDescription>
+            <DrawerTitle>{isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivation") : t("activation.checkout.confirmPay")}</DrawerTitle>
+            <DrawerDescription>{isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivationDesc") : t("activation.checkout.confirmPayDesc")}</DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
-              {t("activation.checkout.confirmPayBtn")}
+              {isFulfilment && alreadyPaid ? t("activation.checkout.confirmActivationBtn") : t("activation.checkout.confirmPayBtn")}
             </Button>
             <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPayConfirmOpen(false)}>
               {t("activation.checkout.cancelBtn")}
