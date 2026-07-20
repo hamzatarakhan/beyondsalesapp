@@ -32,7 +32,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
+import { ListChecks, LayoutList, X as XIcon, Check } from "lucide-react";
 
 // labels resolved dynamically inside component via t()
 
@@ -43,11 +43,23 @@ const memberOnboarding = [
   { icon: ClipboardList, label: "Onboarding Requests", path: "/", badge: 3 },
 ];
 
+// Dealer-facing operator badge (top-left of header) — the swap icon next to it
+// opens a picker so a dealer working multiple brands can switch context.
+const OPERATORS = [
+  { id: "virgin", name: "Virgin Mobile", initials: "V", color: "#E10A0A" },
+  { id: "stc", name: "STC", initials: "S", color: "#4B286D" },
+  { id: "mobily", name: "Mobily", initials: "M", color: "#00A651" },
+  { id: "zain", name: "Zain", initials: "Z", color: "#742282" },
+];
+
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const [activeOperator, setActiveOperator] = useState(OPERATORS[0].id);
+  const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
+  const activeOp = OPERATORS.find((o) => o.id === activeOperator) ?? OPERATORS[0];
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
 
   const activities = [
@@ -85,6 +97,21 @@ const Home = () => {
         </div>
         
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setOperatorSheetOpen(true)}
+            aria-label={`Active operator: ${activeOp.name}`}
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm text-white text-xs font-bold shrink-0"
+            style={{ backgroundColor: activeOp.color }}
+          >
+            {activeOp.initials}
+          </button>
+          <button
+            onClick={() => setOperatorSheetOpen(true)}
+            aria-label="Switch operator"
+            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
+          >
+            <ArrowLeftRight className="w-4 h-4 text-foreground" />
+          </button>
           <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
             <QrCode className="w-4 h-4 text-foreground" />
           </button>
@@ -319,6 +346,38 @@ const Home = () => {
                 </p>
               </div>
             </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={operatorSheetOpen} onOpenChange={setOperatorSheetOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">Switch Operator</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">
+              Choose which operator you're working under
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-8 space-y-2">
+            {OPERATORS.map((op) => {
+              const selected = op.id === activeOperator;
+              return (
+                <button
+                  key={op.id}
+                  onClick={() => { setActiveOperator(op.id); setOperatorSheetOpen(false); }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                    style={{ backgroundColor: op.color }}
+                  >
+                    {op.initials}
+                  </div>
+                  <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
+                  {selected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                </button>
+              );
+            })}
           </div>
         </DrawerContent>
       </Drawer>
