@@ -70,6 +70,7 @@ import {
   Microchip,
   QrCode,
   UserX,
+ Mail,
 } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
