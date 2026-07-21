@@ -2025,12 +2025,12 @@ const NewActivation = () => {
       <Dialog open={customerNotFoundOpen} onOpenChange={setCustomerNotFoundOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
           <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#1E90FF" strokeWidth="6" strokeLinejoin="round">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
               <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
             </svg>
-            <Mail className="w-7 h-7 text-primary relative" strokeWidth={2} />
+            <Mail className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-primary mb-2 text-lg">Email Not Registered</h4>
+          <h4 className="font-semibold text-[#E30613] mb-2 text-lg">Email Not Registered</h4>
           <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
             This email isn't linked to any online application. Please double-check the address, or ask the customer to submit their application first.
           </p>
