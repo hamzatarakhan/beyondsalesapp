@@ -952,6 +952,12 @@ const NewActivation = () => {
                     { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
                     { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL, note: "Switch Postpaid — Standard number, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Switch Postpaid — Standard number, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL, note: "Switch Postpaid — Vanity, no commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity, no commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
                     { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered", group: "Other" },
                   ]}
                   onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
