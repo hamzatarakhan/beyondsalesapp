@@ -775,7 +775,7 @@ const NewActivation = () => {
   const vatWaived =
     isPostpaidMobile &&
     subType === "sim" &&
-    (pickedTier === "standard" || (pickedCategoryEligibleFree && vanityCommitment));
+    (pickedTier === "standard" || (isWhitelisted && pickedCategoryEligibleFree && vanityCommitment));
   const vat = isFulfilment && alreadyPaid ? 0 : (vatWaived ? 0 : Math.round(subtotal * 0.15));
   const total = subtotal + vat;
   // Checkout confirm sheet copy: fulfilment already paid online, nothing owed for another
