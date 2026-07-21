@@ -928,17 +928,17 @@ const NewActivation = () => {
                   heading="test emails"
                   description="Use these to try every case (paid/unpaid × prepaid/postpaid × vanity/standard × whitelisted/not). This box won't appear in the real implementation."
                   items={[
-                    { value: FULFILMENT_PAID_EMAIL, note: "Prepaid, standard number" },
-                    { value: FULFILMENT_PAID_WHITELISTED_EMAIL, note: "Prepaid, standard number, whitelisted" },
-                    { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Postpaid, standard number" },
-                    { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Postpaid, standard number, whitelisted" },
-                    { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Postpaid, vanity number paid (no commitment)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Postpaid, vanity number paid (no commitment), whitelisted" },
-                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Postpaid, vanity number free (18-mo commitment, Nafith verified)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Postpaid, vanity free (commitment), whitelisted" },
-                    { value: FULFILMENT_UNPAID_EMAIL, note: "Unpaid" },
-                    { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Unpaid, whitelisted" },
-                    { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered" },
+                    { value: FULFILMENT_PAID_EMAIL, note: "Standard number, normal", group: "Prepaid (paid)" },
+                    { value: FULFILMENT_PAID_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Prepaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Standard number, normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Vanity paid, no commitment, normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Vanity paid, no commitment, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Vanity free w/ 18-mo commitment (Nafith verified), normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
+                    { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered", group: "Other" },
                   ]}
                   onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
                 />

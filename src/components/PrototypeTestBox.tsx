@@ -6,6 +6,8 @@ export interface PrototypeTestItem {
   value: string;
   /** Optional trailing description shown after the value, e.g. "P-SIM, free replacement available". */
   note?: string;
+  /** Optional section label (e.g. "Prepaid" / "Postpaid") — items sharing a group render under one heading. */
+  group?: string;
 }
 
 interface PrototypeTestBoxProps {
@@ -27,12 +29,39 @@ const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTe
   const [filledValue, setFilledValue] = useState<string | null>(null);
 
   const normalized = items.map((item) => (typeof item === "string" ? { value: item } : item));
+  const hasGroups = normalized.some((item) => item.group);
+  // Preserve first-appearance order of groups; ungrouped items (if any) form their own
+  // trailing "Other" bucket so nothing silently disappears when only some items are grouped.
+  const groupOrder: string[] = [];
+  if (hasGroups) {
+    for (const item of normalized) {
+      const g = item.group ?? "Other";
+      if (!groupOrder.includes(g)) groupOrder.push(g);
+    }
+  }
 
   const handleSelect = (value: string) => {
     onSelect(value);
     setFilledValue(value);
     setTimeout(() => setFilledValue((cur) => (cur === value ? null : cur)), 1500);
   };
+
+  const renderItem = ({ value, note }: PrototypeTestItem) => (
+    <div key={value} className="flex items-center justify-between gap-2">
+      <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">
+        <span className="font-mono">{value}</span>
+        {note && <span> — {note}</span>}
+      </p>
+      <button
+        type="button"
+        onClick={() => handleSelect(value)}
+        className="text-amber-500 shrink-0"
+        aria-label={`Use ${value}`}
+      >
+        {filledValue === value ? <CheckCircle2 className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
+      </button>
+    </div>
+  );
 
   return (
     <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5">
@@ -41,24 +70,22 @@ const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTe
         <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Prototype only — {heading}</p>
       </div>
       <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">{description}</p>
-      <div className="space-y-1">
-        {normalized.map(({ value, note }) => (
-          <div key={value} className="flex items-center justify-between gap-2">
-            <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">
-              <span className="font-mono">{value}</span>
-              {note && <span> — {note}</span>}
-            </p>
-            <button
-              type="button"
-              onClick={() => handleSelect(value)}
-              className="text-amber-500 shrink-0"
-              aria-label={`Use ${value}`}
-            >
-              {filledValue === value ? <CheckCircle2 className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-            </button>
-          </div>
-        ))}
-      </div>
+      {hasGroups ? (
+        <div className="space-y-2">
+          {groupOrder.map((group) => (
+            <div key={group}>
+              <p className="text-[9px] font-semibold uppercase tracking-wide text-amber-700/70 dark:text-amber-400/70 mb-1">{group}</p>
+              <div className="space-y-1">
+                {normalized.filter((item) => (item.group ?? "Other") === group).map(renderItem)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {normalized.map(renderItem)}
+        </div>
+      )}
     </div>
   );
 };
