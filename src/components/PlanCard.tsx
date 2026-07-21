@@ -37,6 +37,8 @@ interface Props {
   layout?: "flex" | "postpaid" | "baqa" | "aman";
   onSelect: () => void;
   onMoreDetails?: () => void;
+  /** Hide the select radio — for read-only views where the plan can't be changed. */
+  hideRadio?: boolean;
 }
 
 const FeatureRow = ({
@@ -267,12 +269,14 @@ const PlanTitleRow = ({
   selected,
   onSelect,
   onMoreDetails,
+  hideRadio,
 }: {
   title: string;
   validity: string;
   selected: boolean;
   onSelect: () => void;
   onMoreDetails?: () => void;
+  hideRadio?: boolean;
 }) => {
   return (
     <div className="flex items-center justify-between gap-2 mb-1">
@@ -287,7 +291,7 @@ const PlanTitleRow = ({
         <span className="mx-1.5">•</span>
         {validity}
       </p>
-      <SelectRadio selected={selected} onSelect={onSelect} />
+      {!hideRadio && <SelectRadio selected={selected} onSelect={onSelect} />}
     </div>
   );
 };
@@ -398,6 +402,7 @@ const PlanCard = ({
   layout = "flex",
   onSelect,
   onMoreDetails,
+  hideRadio,
 }: Props) => {
   const { t } = useTranslation();
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
@@ -429,7 +434,7 @@ const PlanCard = ({
         <div className={cn("p-4 flex flex-col flex-1", plan.badge && "pt-6")}>
           {isDataOnly ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -453,7 +458,7 @@ const PlanCard = ({
             </>
           ) : layout === "baqa" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -483,7 +488,7 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               {/* Trusted for Kids pill */}
               <div className="mb-2">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold">
@@ -525,7 +530,7 @@ const PlanCard = ({
             </>
           ) : layout === "postpaid" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               {plan.bonuses && plan.bonuses.length > 0 && (
                 <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
                   {plan.bonuses.map((bonus, i) => (
@@ -574,7 +579,7 @@ const PlanCard = ({
             </>
           ) : (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}

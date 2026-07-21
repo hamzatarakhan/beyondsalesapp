@@ -420,6 +420,7 @@ const SubscriptionMigration = () => {
                     selected
                     active
                     onSelect={() => {}}
+                    hideRadio
                     minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
                     layout={layout}
                   />
