@@ -755,8 +755,12 @@ const NewActivation = () => {
   })() : 0;
   const isVipNumber = rawNumberFee > 0;
 
-  // Whitelisted customer: nothing to pay (prepaid or postpaid); only pays VIP number fee + VAT if applicable
-  const effectivePlanPrice  = isWhitelisted ? 0 : planPrice;
+  // Whitelisted customer: nothing to pay (prepaid or postpaid); only pays VIP number fee + VAT if applicable.
+  // Exception: Switch Postpaid + Vanity number taken free-with-commitment still collects the plan price
+  // (deposit clears the first bill), even for whitelisted customers.
+  const whitelistedVanityCommitmentDeposit =
+    isWhitelisted && isPostpaidMobile && !!pickedVanityCat && pickedCategoryEligibleFree && vanityCommitment;
+  const effectivePlanPrice  = isWhitelisted && !whitelistedVanityCommitmentDeposit ? 0 : planPrice;
   const effectiveSimFee     = isWhitelisted ? 0 : simFee;
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
   const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
