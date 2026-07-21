@@ -69,6 +69,7 @@ import {
   Receipt,
   Microchip,
   QrCode,
+  UserX,
 } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -395,6 +396,7 @@ const NewActivation = () => {
   const [qrScanOpen, setQrScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
+  const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -728,7 +730,7 @@ const NewActivation = () => {
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
     if (step === 0) {
-      if (isFulfilment) return qrVerified || (isValidEmail(fulfilmentEmail) && !!fulfilmentRecord);
+      if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
       return !!idType && !!nationality && idNumber.trim().length > 0;
     }
     if (step === 1) {
@@ -748,6 +750,10 @@ const NewActivation = () => {
   };
 
   const onContinue = () => {
+    if (step === 0 && isFulfilment && fulfilmentEmailNotFound) {
+      setCustomerNotFoundOpen(true);
+      return;
+    }
     if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
   };
 
@@ -883,17 +889,6 @@ const NewActivation = () => {
                         {isWhitelisted && " · Whitelisted Customer"}
                       </p>
                       <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">Detected automatically from the customer's application.</p>
-                    </div>
-                  </div>
-                )}
-                {fulfilmentEmailNotFound && (
-                  <div className="flex items-center gap-3 rounded-2xl border px-4 py-3 bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-red-100 dark:bg-red-800/40">
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-red-700 dark:text-red-400">Customer Not Found</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">We couldn't find an online application for this email. Double-check it, or ask the customer to complete their application first.</p>
                     </div>
                   </div>
                 )}
@@ -2024,6 +2019,25 @@ const NewActivation = () => {
           )}
         </div>
       )}
+
+      {/* Fulfilment: shown when Continue is pressed with a well-formed email that matches no application */}
+      <Dialog open={customerNotFoundOpen} onOpenChange={setCustomerNotFoundOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="w-14 h-14 rounded-full border-2 border-destructive flex items-center justify-center mx-auto mb-3">
+            <UserX className="w-6 h-6 text-destructive" />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1">No Matching Application Found</h4>
+          <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+            We couldn't find an online application for this email. Check for typos, or ask the customer to complete their application before continuing.
+          </p>
+          <button
+            onClick={() => setCustomerNotFoundOpen(false)}
+            className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+          >
+            Try Again
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Number picker drawer */}
       {(() => {
