@@ -175,7 +175,6 @@ interface FulfilmentRecord {
   vanityCommitment?: boolean;
 }
 const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
-const FULFILMENT_PAID_WHITELISTED_EMAIL = "paid.whitelisted@email.com";
 const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
 const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
 const FULFILMENT_POSTPAID_STANDARD_EMAIL = "paid.postpaid.standard@email.com";
@@ -187,8 +186,9 @@ const FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "paid.postpaid.va
 // Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
 const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
 const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
+  // Whitelisting doesn't change anything for a paid fulfilment request — it's already fully
+  // settled either way — so there's no separate "prepaid whitelisted" paid case to test.
   [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
-  [FULFILMENT_PAID_WHITELISTED_EMAIL]: { paid: true, whitelisted: true },
   [FULFILMENT_UNPAID_EMAIL]: { paid: false, whitelisted: false },
   [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
   // Postpaid + standard number — no vanity fee, no Nafith.
@@ -928,8 +928,7 @@ const NewActivation = () => {
                   heading="test emails"
                   description="Use these to try every case (paid/unpaid × prepaid/postpaid × vanity/standard × whitelisted/not). This box won't appear in the real implementation."
                   items={[
-                    { value: FULFILMENT_PAID_EMAIL, note: "Standard number, normal", group: "Prepaid (paid)" },
-                    { value: FULFILMENT_PAID_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Prepaid (paid)" },
+                    { value: FULFILMENT_PAID_EMAIL, note: "Standard number", group: "Prepaid (paid)" },
                     { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Standard number, normal", group: "Postpaid (paid)" },
                     { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Postpaid (paid)" },
                     { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Vanity paid, no commitment, normal", group: "Postpaid (paid)" },

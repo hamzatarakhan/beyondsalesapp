@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Info, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Info, ArrowUpRight, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface PrototypeTestItem {
   /** The value used to fill the field — keep this just the raw test value (email, MSISDN, etc). */
@@ -39,6 +39,15 @@ const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTe
       if (!groupOrder.includes(g)) groupOrder.push(g);
     }
   }
+  // Groups start collapsed so a long grouped list doesn't dominate the page by default.
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set(groupOrder));
+  const toggleGroup = (group: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group); else next.add(group);
+      return next;
+    });
+  };
 
   const handleSelect = (value: string) => {
     onSelect(value);
@@ -71,15 +80,31 @@ const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTe
       </div>
       <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mb-1.5 leading-snug">{description}</p>
       {hasGroups ? (
-        <div className="space-y-2">
-          {groupOrder.map((group) => (
-            <div key={group}>
-              <p className="text-[9px] font-semibold uppercase tracking-wide text-amber-700/70 dark:text-amber-400/70 mb-1">{group}</p>
-              <div className="space-y-1">
-                {normalized.filter((item) => (item.group ?? "Other") === group).map(renderItem)}
+        <div className="space-y-1.5">
+          {groupOrder.map((group) => {
+            const isCollapsed = collapsedGroups.has(group);
+            return (
+              <div key={group}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group)}
+                  className="w-full flex items-center justify-between gap-2 rounded-md bg-amber-100/70 dark:bg-amber-800/25 px-2 py-1"
+                >
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">{group}</span>
+                  {isCollapsed ? (
+                    <ChevronRight className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <div className="space-y-1 mt-1">
+                    {normalized.filter((item) => (item.group ?? "Other") === group).map(renderItem)}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="space-y-1">
