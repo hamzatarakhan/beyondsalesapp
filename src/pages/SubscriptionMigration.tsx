@@ -132,6 +132,7 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 245.5 },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300", outstandingBalance: 0 },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
+  { msisdn: "0502222244", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 0, isWhitelisted: true },
 ];
 
 const ELIGIBLE_PREPAID_CATEGORIES = ["aman", "base-plan", "flex"];
@@ -377,17 +378,17 @@ const SubscriptionMigration = () => {
               </div>
             )}
 
-            {direction === "pre-to-post" && (
-              <PrototypeTestBox
-                heading="test MSISDNs"
-                description="Use these to try both cases (normal vs. whitelisted). This box won't appear in the real implementation."
-                items={[
-                  { value: "0501111133", note: "Normal customer" },
-                  { value: "0501111122", note: "Whitelisted customer" },
-                ]}
-                onSelect={setMsisdn}
-              />
-            )}
+            <PrototypeTestBox
+              heading="test MSISDNs"
+              description="Use these to try every case (pre-to-post/post-to-pre × whitelisted/not). This box won't appear in the real implementation."
+              items={[
+                { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
+                { value: "0501111122", note: "Whitelisted customer", group: "Prepaid → Postpaid" },
+                { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
+                { value: "0502222244", note: "Whitelisted customer", group: "Postpaid → Prepaid" },
+              ]}
+              onSelect={setMsisdn}
+            />
           </>
         )}
 
@@ -690,22 +691,19 @@ const SubscriptionMigration = () => {
           </DrawerClose>
           <DrawerHeader className="text-center">
             <DrawerTitle>Terms and Conditions</DrawerTitle>
-            <DrawerDescription>Please read and accept before continuing.</DrawerDescription>
+            <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>
-              By migrating this subscription, the customer agrees to switch their line to
-              the selected plan and payment type. The change becomes effective once
-              payment is confirmed.
+              By proceeding, the customer agrees to the service agreement, billing terms,
+              and acceptable use policy.
             </p>
             <p>
-              Any remaining prepaid balance will be transferred as advance payment on the
-              new line. Postpaid customers must settle any outstanding balance before
-              migration. Standard tariffs, VAT, and fair-usage policies apply.
+              All activations are subject to identity verification and regulatory approval.
             </p>
             <p>
-              The customer will receive an SMS with the migration confirmation. Refunds
-              and cancellations follow the standard subscription policy.
+              Refunds, replacements, and cancellations follow the standard policy available
+              in the merchant portal.
             </p>
           </div>
           <DrawerFooter className="flex-col gap-3">
