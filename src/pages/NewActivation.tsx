@@ -1055,20 +1055,61 @@ const NewActivation = () => {
                 fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
             {fulfilmentLocked ? (
               <div className="space-y-4">
-                <section className="bg-card rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                {/* Read-only Number card — mirrors the SIM Activation number section,
+                    but only shows the selected number and its vanity tier/commitment. */}
+                {showNumber && subType === "sim" && phone && (
+                  <section className="bg-card rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t("activation.subscription.phoneSection")}</p>
                     </div>
-                    <p className="text-sm font-semibold text-foreground">Selections Made Online</p>
-                  </div>
-                  <SummaryRow label={t("activation.subscription.subscriptionTypeTitle")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
-                  {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
-                  {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
-                  {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
-                  {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
-                  {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
-                </section>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        return (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              {showCommitted && pickedVanityCat ? (
+                                <span className="text-[11px] text-muted-foreground line-through font-normal"><RiyalSymbol /> {pickedVanityCat.price}</span>
+                              ) : (
+                                <span className="text-[11px] font-semibold text-foreground">
+                                  {pickedVanityCat ? <><RiyalSymbol /> {pickedVanityCat.price}</> : (tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation.checkout.free"))}
+                                </span>
+                              )}
+                            </div>
+                            {showCommitted && pickedVanityCat && (
+                              <span className="text-[11px] font-semibold text-emerald-600">
+                                {t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </section>
+                )}
+                {showNumber && subType === "mnp" && portNumber && (
+                  <section className="bg-card rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t("activation.subscription.portMnp")}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{portNumber}</span>
+                    </div>
+                  </section>
+                )}
                 {selectedPlanObj && (
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
