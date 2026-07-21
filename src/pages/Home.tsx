@@ -45,6 +45,8 @@ const memberOnboarding = [
 
 // Dealer-facing brand badge (top-left of header) — the swap icon next to it
 // opens a picker so a dealer selling for multiple brands can switch context.
+// Hidden for now — flip back on when the feature is ready to ship.
+const SHOW_BRAND_SWITCHER = false;
 const OPERATORS = [
   { id: "virgin", name: "Virgin", brandLabel: "Virgin", color: "#E10A0A" },
   { id: "friendi", name: "Friendi", brandLabel: "friendi", color: "#00AEB0" },
@@ -95,20 +97,22 @@ const Home = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setOperatorSheetOpen(true)}
-            aria-label={`Switch brand — currently ${activeOp.name}`}
-            className="h-10 pl-1 pr-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
-          >
-            <span
-              className="w-8 h-8 rounded-xl flex flex-col items-center justify-center text-white shrink-0 leading-none"
-              style={{ backgroundColor: activeOp.color }}
+          {SHOW_BRAND_SWITCHER && (
+            <button
+              onClick={() => setOperatorSheetOpen(true)}
+              aria-label={`Switch brand — currently ${activeOp.name}`}
+              className="h-10 pl-1 pr-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
             >
-              <span className="italic font-serif text-[8px] leading-none">{activeOp.brandLabel}</span>
-              <span className="text-[4.5px] tracking-wide leading-none mt-0.5">mobile</span>
-            </span>
-            <ArrowLeftRight className="w-4 h-4 text-foreground" />
-          </button>
+              <span
+                className="w-8 h-8 rounded-xl flex flex-col items-center justify-center text-white shrink-0 leading-none"
+                style={{ backgroundColor: activeOp.color }}
+              >
+                <span className="italic font-serif text-[8px] leading-none">{activeOp.brandLabel}</span>
+                <span className="text-[4.5px] tracking-wide leading-none mt-0.5">mobile</span>
+              </span>
+              <ArrowLeftRight className="w-4 h-4 text-foreground" />
+            </button>
+          )}
           <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
             <QrCode className="w-4 h-4 text-foreground" />
           </button>
