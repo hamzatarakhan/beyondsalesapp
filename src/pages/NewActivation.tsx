@@ -874,7 +874,7 @@ const NewActivation = () => {
             {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
             {isFulfilment && (
               <>
-                {fulfilmentRecord && (
+                {fulfilmentRecord && !alreadyPaid && (
                   <div
                     className={cn(
                       "flex items-center gap-3 rounded-2xl border px-4 py-3",
