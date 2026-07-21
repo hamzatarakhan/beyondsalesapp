@@ -183,6 +183,14 @@ const FULFILMENT_POSTPAID_VANITY_EMAIL = "paid.postpaid.vanity@email.com";
 const FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL = "paid.postpaid.vanity.whitelisted@email.com";
 const FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL = "paid.postpaid.vanitycommitted@email.com";
 const FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "paid.postpaid.vanitycommitted.whitelisted@email.com";
+// Unpaid Switch Postpaid variants — dealer still needs to collect payment, but the
+// scenario (number tier / commitment) is pre-seeded so the tester lands directly on it.
+const FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL = "unpaid.postpaid.standard@email.com";
+const FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL = "unpaid.postpaid.standard.whitelisted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL = "unpaid.postpaid.vanity@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL = "unpaid.postpaid.vanity.whitelisted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL = "unpaid.postpaid.vanitycommitted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "unpaid.postpaid.vanitycommitted.whitelisted@email.com";
 // Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
 const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
 const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
@@ -201,6 +209,13 @@ const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   // comes back already verified instead of asking the dealer to redo it.
   [FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
   [FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  // Unpaid Switch Postpaid — dealer collects payment; scenario pre-seeded.
+  [FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
 };
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
@@ -615,7 +630,10 @@ const NewActivation = () => {
   // already chose online (per the demo record), so the locked view — and pricing — actually
   // reflect that scenario instead of always defaulting to prepaid + a standard number.
   useEffect(() => {
-    if (!isFulfilment || !fulfilmentRecord?.paid) return;
+    // Seed for any fulfilment record that specifies a scenario (payType). Paid records
+    // additionally lock the view elsewhere; unpaid seeded records stay editable so the
+    // dealer can still collect payment and change details, but land on the intended case.
+    if (!isFulfilment || !fulfilmentRecord || !fulfilmentRecord.payType) return;
     const record = fulfilmentRecord;
     const type = record.payType ?? "prepaid";
     setPayType(type);
@@ -937,6 +955,12 @@ const NewActivation = () => {
                     { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
                     { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL, note: "Switch Postpaid — Standard number, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Switch Postpaid — Standard number, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL, note: "Switch Postpaid — Vanity, no commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity, no commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
                     { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered", group: "Other" },
                   ]}
                   onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
