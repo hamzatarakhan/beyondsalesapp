@@ -160,20 +160,47 @@ export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 // ID types whose field is labeled "Border ID Number" instead of "ID Number".
 export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
-// Fulfilment demo emails — stand in for the real backend already knowing the
-// application's payment and whitelist status once we look it up, instead of
-// manual toggles. Covers all 4 combinations for testing.
+// Fulfilment demo emails — stand in for the real backend already knowing everything
+// the customer chose online once we look it up, instead of manual toggles. A paid
+// record seeds the subscription/number/commitment state so the locked view actually
+// reflects that scenario; unpaid records stay on the normal interactive defaults
+// since the dealer picks everything live for those.
+interface FulfilmentRecord {
+  paid: boolean;
+  whitelisted: boolean;
+  payType?: PayType;
+  planTitle?: string;
+  numberTier?: "standard" | "bronze" | "silver" | "gold" | "diamond";
+  /** Only meaningful when numberTier isn't "standard". */
+  vanityCommitment?: boolean;
+}
 const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
 const FULFILMENT_PAID_WHITELISTED_EMAIL = "paid.whitelisted@email.com";
 const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
 const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
+const FULFILMENT_POSTPAID_STANDARD_EMAIL = "paid.postpaid.standard@email.com";
+const FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL = "paid.postpaid.standard.whitelisted@email.com";
+const FULFILMENT_POSTPAID_VANITY_EMAIL = "paid.postpaid.vanity@email.com";
+const FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL = "paid.postpaid.vanity.whitelisted@email.com";
+const FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL = "paid.postpaid.vanitycommitted@email.com";
+const FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "paid.postpaid.vanitycommitted.whitelisted@email.com";
 // Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
 const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
-const FULFILMENT_DEMO_EMAILS: Record<string, { paid: boolean; whitelisted: boolean }> = {
+const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
   [FULFILMENT_PAID_WHITELISTED_EMAIL]: { paid: true, whitelisted: true },
   [FULFILMENT_UNPAID_EMAIL]: { paid: false, whitelisted: false },
   [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
+  // Postpaid + standard number — no vanity fee, no Nafith.
+  [FULFILMENT_POSTPAID_STANDARD_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  // Postpaid + vanity number, paid outright (no commitment) — Nafith not required.
+  [FULFILMENT_POSTPAID_VANITY_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  // Postpaid + vanity number, free with commitment — Nafith was completed online, so it
+  // comes back already verified instead of asking the dealer to redo it.
+  [FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  [FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
 };
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
@@ -584,6 +611,29 @@ const NewActivation = () => {
     }
   }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
 
+  // Paid fulfilment: seed the subscription/number/commitment state from what the customer
+  // already chose online (per the demo record), so the locked view — and pricing — actually
+  // reflect that scenario instead of always defaulting to prepaid + a standard number.
+  useEffect(() => {
+    if (!isFulfilment || !fulfilmentRecord?.paid) return;
+    const record = fulfilmentRecord;
+    const type = record.payType ?? "prepaid";
+    setPayType(type);
+    const plans = type === "postpaid" ? POSTPAID_PLANS : PREPAID_PLANS;
+    const planIdx = record.planTitle ? plans.findIndex((p) => p.title === record.planTitle) : 0;
+    setSelectedPlan(planIdx >= 0 ? planIdx : 0);
+    const tier = record.numberTier ?? "standard";
+    setSubType("sim");
+    setPhone(DEMO_NUMBER_POOL.find((n) => n.tier === tier)?.number ?? "0785599574");
+    const commitment = record.vanityCommitment ?? true;
+    setVanityCommitment(commitment);
+    // Nafith is required online whenever a vanity commitment is picked — already verified there.
+    setNafithVerified(type === "postpaid" && tier !== "standard" && commitment);
+    // Re-asserts after the generic "reset selectedPlan on payType change" effect (declared
+    // above) clears it out from switching payType as part of this same seeding — payType and
+    // selectedPlan are deliberately included so this effect re-fires and wins that race.
+  }, [isFulfilment, fulfilmentEmail, payType, selectedPlan]);
+
   // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
   // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
   // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
@@ -876,8 +926,20 @@ const NewActivation = () => {
               <>
                 <PrototypeTestBox
                   heading="test emails"
-                  description="Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation."
-                  items={[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL, { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered" }]}
+                  description="Use these to try every case (paid/unpaid × prepaid/postpaid × vanity/standard × whitelisted/not). This box won't appear in the real implementation."
+                  items={[
+                    { value: FULFILMENT_PAID_EMAIL, note: "Prepaid, standard number" },
+                    { value: FULFILMENT_PAID_WHITELISTED_EMAIL, note: "Prepaid, standard number, whitelisted" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Postpaid, standard number" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Postpaid, standard number, whitelisted" },
+                    { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Postpaid, vanity number paid (no commitment)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Postpaid, vanity number paid (no commitment), whitelisted" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Postpaid, vanity number free (18-mo commitment, Nafith verified)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Postpaid, vanity free (commitment), whitelisted" },
+                    { value: FULFILMENT_UNPAID_EMAIL, note: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Unpaid, whitelisted" },
+                    { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered" },
+                  ]}
                   onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
                 />
               </>
