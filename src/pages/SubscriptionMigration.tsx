@@ -37,7 +37,6 @@ import {
   CheckCircle2,
   XCircle,
   Phone,
-  Eye,
   X as XIcon,
   Info,
 } from "lucide-react";
@@ -179,7 +178,6 @@ const SubscriptionMigration = () => {
 
   // Checkout — payment
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
-  const [currentPlanOpen, setCurrentPlanOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -410,24 +408,35 @@ const SubscriptionMigration = () => {
             {customer && (
               <CardSection title="Current Subscription" icon={ClipboardList}>
                 <SummaryRow label="Subscription Type" value={customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} />
-                <SummaryRow
-                  label="Current Plan"
-                  value={
-                    <span className="inline-flex items-center gap-1.5">
-                      {customer.planName}
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPlanOpen(true)}
-                        aria-label="View plan details"
-                        className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center active:opacity-70"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  }
-                />
+                <SummaryRow label="Current Plan" value={customer.planName} />
               </CardSection>
             )}
+            {customer && (() => {
+              const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
+              const p = all.find((x) => x.title === customer.planName);
+              if (!p) return null;
+              const cats = p.categories ?? [];
+              const layout: "flex" | "postpaid" | "baqa" | "aman" = cats.includes("switch-postpaid")
+                ? "postpaid"
+                : cats.includes("aman")
+                ? "aman"
+                : cats.includes("base-plan") || cats.includes("basic")
+                ? "baqa"
+                : "flex";
+              return (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 px-1">Current Plan</h3>
+                  <PlanCard
+                    plan={p}
+                    selected
+                    active
+                    onSelect={() => {}}
+                    minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                    layout={layout}
+                  />
+                </div>
+              );
+            })()}
             <h3 className="text-sm font-semibold text-foreground px-1">
               {direction === "pre-to-post" ? "Available Postpaid Plans" : "Available Prepaid Plans"}
             </h3>
@@ -796,55 +805,6 @@ const SubscriptionMigration = () => {
             >
               Cancel
             </button>
-          </div>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Current plan details */}
-      <Drawer open={currentPlanOpen} onOpenChange={setCurrentPlanOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 pt-2 pb-6 max-h-[85vh] flex flex-col">
-          <div className="relative flex items-center justify-center px-5 py-3 shrink-0">
-            <h3 className="font-semibold text-foreground text-lg">Plan Details</h3>
-            <button
-              onClick={() => setCurrentPlanOpen(false)}
-              className="absolute right-5 w-8 h-8 rounded-full border border-border flex items-center justify-center"
-              aria-label="Close"
-            >
-              <XIcon className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-          <div className="overflow-y-auto flex-1 min-h-0 px-4 pb-2">
-            {(() => {
-              const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
-              const p = customer ? all.find((x) => x.title === customer.planName) : undefined;
-              if (!p) {
-                return (
-                  <div className="py-6 text-center text-sm text-muted-foreground">
-                    {customer?.planName ?? "—"}
-                  </div>
-                );
-              }
-              const cats = p.categories ?? [];
-              const layout: "flex" | "postpaid" | "baqa" | "aman" = cats.includes("switch-postpaid")
-                ? "postpaid"
-                : cats.includes("aman")
-                ? "aman"
-                : cats.includes("base-plan") || cats.includes("basic")
-                ? "baqa"
-                : "flex";
-              return (
-                <div className="pointer-events-none">
-                  <PlanCard
-                    plan={p}
-                    selected={false}
-                    active
-                    onSelect={() => {}}
-                    minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
-                    layout={layout}
-                  />
-                </div>
-              );
-            })()}
           </div>
         </DrawerContent>
       </Drawer>
