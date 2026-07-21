@@ -1781,30 +1781,38 @@ const NewActivation = () => {
                   </div>
                 </>
               ) : /* Case 2: whitelisted + VIP number → only show VIP number fee + VAT */
-                isWhitelisted && isVipNumber ? (
+                isWhitelisted && isVipNumber ? (() => {
+                  // Whitelisted + Switch Postpaid vanity without commitment → number price
+                  // and VAT rows are always shown but held at 0.
+                  const zeroVanityNoCommit = isPostpaidMobile && !!pickedVanityCat && pickedCategoryEligibleFree && !vanityCommitment;
+                  const displayNumberFee = zeroVanityNoCommit ? 0 : numberFee;
+                  const displayVat = zeroVanityNoCommit ? 0 : Math.round(numberFee * 0.15);
+                  const displayTotal = displayNumberFee + displayVat;
+                  return (
                   <>
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayNumberFee}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayNumberFee}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {Math.round(numberFee * 0.15)}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayVat}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {numberFee + Math.round(numberFee * 0.15)}</span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {displayTotal}</span>
                     </div>
                   </>
-                ) : (
+                  );
+                })() : (
                   <>
                     <div className="space-y-2 pb-3">
                       {showEsim && (
