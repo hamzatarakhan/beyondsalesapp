@@ -419,9 +419,9 @@ const PlanCard = ({
           active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
-        {/* Per-plan badge — floats half over the card's top-right corner */}
+        {/* Per-plan badge — pinned flush to the card's top-right corner */}
         {plan.badge && (
-          <span className="absolute -top-2 end-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-sm z-10">
+          <span className="absolute top-0 end-0 bg-green-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-tr-2xl rounded-bl-lg z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
