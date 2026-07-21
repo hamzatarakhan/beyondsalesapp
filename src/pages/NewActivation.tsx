@@ -1730,13 +1730,13 @@ const NewActivation = () => {
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                    <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-muted-foreground line-through"><RiyalSymbol /> {paidTotal}</span>
+                      <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
                       <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
                         {t("activation.checkout.alreadyPaidLabel")}
                       </span>
                     </div>
+                    <span className="text-base font-bold text-muted-foreground line-through"><RiyalSymbol /> {paidTotal}</span>
                   </div>
                 </>
                 );
