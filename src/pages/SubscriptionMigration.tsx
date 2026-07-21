@@ -5,6 +5,7 @@ import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { PREPAID_PLANS, POSTPAID_PLANS } from "@/pages/NewActivation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,6 @@ import {
   CreditCard,
   Wallet,
   Receipt,
-  Lock,
   AlertCircle,
   Check,
   CheckCircle2,
@@ -378,26 +378,15 @@ const SubscriptionMigration = () => {
             )}
 
             {direction === "pre-to-post" && (
-              <div
-                className={cn(
-                  "flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors cursor-pointer",
-                  isWhitelisted ? "bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700" : "bg-card border-border/60",
-                )}
-                onClick={() => setIsWhitelisted((v) => !v)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isWhitelisted ? "bg-amber-100 dark:bg-amber-800/40" : "bg-muted")}>
-                    <Lock className={cn("w-4 h-4", isWhitelisted ? "text-amber-600" : "text-muted-foreground")} />
-                  </div>
-                  <div>
-                    <p className={cn("text-sm font-semibold", isWhitelisted ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>Whitelisted Customer</p>
-                    <p className="text-[11px] text-muted-foreground">No deposit required for this migration</p>
-                  </div>
-                </div>
-                <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isWhitelisted ? "bg-amber-500" : "bg-muted-foreground/30")}>
-                  <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isWhitelisted ? "start-5" : "start-0.5")} />
-                </div>
-              </div>
+              <PrototypeTestBox
+                heading="test MSISDNs"
+                description="Use these to try both cases (normal vs. whitelisted). This box won't appear in the real implementation."
+                items={[
+                  { value: "0501111133", note: "Normal customer" },
+                  { value: "0501111122", note: "Whitelisted customer" },
+                ]}
+                onSelect={setMsisdn}
+              />
             )}
           </>
         )}
