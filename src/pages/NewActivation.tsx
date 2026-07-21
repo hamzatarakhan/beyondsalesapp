@@ -1782,11 +1782,10 @@ const NewActivation = () => {
                 </>
               ) : /* Case 2: whitelisted + VIP number → only show VIP number fee + VAT */
                 isWhitelisted && isVipNumber ? (() => {
-                  // Whitelisted + Switch Postpaid vanity without commitment → number price
-                  // and VAT rows are always shown but held at 0.
-                  const zeroVanityNoCommit = isPostpaidMobile && !!pickedVanityCat && pickedCategoryEligibleFree && !vanityCommitment;
-                  const displayNumberFee = zeroVanityNoCommit ? 0 : numberFee;
-                  const displayVat = zeroVanityNoCommit ? 0 : Math.round(numberFee * 0.15);
+                  // Whitelisted + Switch Postpaid vanity: without commitment the dealer pays
+                  // the real number price + 15% VAT; with commitment the deposit path handles it.
+                  const displayNumberFee = numberFee;
+                  const displayVat = Math.round(numberFee * 0.15);
                   const displayTotal = displayNumberFee + displayVat;
                   return (
                   <>
