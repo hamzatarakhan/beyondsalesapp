@@ -97,18 +97,16 @@ const Home = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setOperatorSheetOpen(true)}
-            aria-label={`Active brand: ${activeOp.name}`}
-            className="w-10 h-10 rounded-full flex flex-col items-center justify-center shadow-sm text-white shrink-0 leading-none"
-            style={{ backgroundColor: activeOp.color }}
+            aria-label={`Switch brand — currently ${activeOp.name}`}
+            className="h-10 pl-1 pr-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
           >
-            <span className="italic font-serif text-[9px] leading-none">{activeOp.brandLabel}</span>
-            <span className="text-[5px] tracking-wide leading-none mt-0.5">mobile</span>
-          </button>
-          <button
-            onClick={() => setOperatorSheetOpen(true)}
-            aria-label="Switch operator"
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
-          >
+            <span
+              className="w-8 h-8 rounded-xl flex flex-col items-center justify-center text-white shrink-0 leading-none"
+              style={{ backgroundColor: activeOp.color }}
+            >
+              <span className="italic font-serif text-[8px] leading-none">{activeOp.brandLabel}</span>
+              <span className="text-[4.5px] tracking-wide leading-none mt-0.5">mobile</span>
+            </span>
             <ArrowLeftRight className="w-4 h-4 text-foreground" />
           </button>
           <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
