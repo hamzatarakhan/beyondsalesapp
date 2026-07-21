@@ -1687,44 +1687,60 @@ const NewActivation = () => {
               </div>
 
               {/* Case 0: fulfilment already paid online → everything already settled, total 0 */}
-              {isFulfilment && alreadyPaid ? (
+              {isFulfilment && alreadyPaid ? (() => {
+                const paidSubtotal = planPrice + simFee + numberFee + deviceFee;
+                const paidVat = vatWaived ? 0 : Math.round(paidSubtotal * 0.15);
+                const paidTotal = paidSubtotal + paidVat;
+                return (
                 <>
                   <div className="space-y-2 pb-3">
-                    {showEsim && (
+                    {showEsim && simFee > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
-                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {simFee}</span>
                       </div>
                     )}
-                    {showNumber && subType === "sim" && (
+                    {showNumber && subType === "sim" && numberFee > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
-                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
+                      </div>
+                    )}
+                    {showDevice && deviceFee > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
                       </div>
                     )}
                     {selectedPlanObj && (
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{selectedPlanObj.title}</span>
-                        <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                     )}
                   </div>
                   <div className="border-t border-border/60 space-y-2 py-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.subtotal")}</span>
-                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidSubtotal}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-muted-foreground">{t("activation.checkout.vat")}</span>
-                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidVat}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border/60 pt-3">
                     <span className="text-sm font-semibold text-foreground">{t("activation.checkout.total")}</span>
-                    <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-bold text-muted-foreground line-through"><RiyalSymbol /> {paidTotal}</span>
+                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
+                        {t("activation.checkout.alreadyPaidLabel")}
+                      </span>
+                    </div>
                   </div>
                 </>
-              ) : /* Case 1: whitelisted + free number → show waived rows, total 0 */
+                );
+              })() : /* Case 1: whitelisted + free number → show waived rows, total 0 */
               isWhitelisted && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
