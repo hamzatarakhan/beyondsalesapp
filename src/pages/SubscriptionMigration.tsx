@@ -427,7 +427,7 @@ const SubscriptionMigration = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3 px-1">Current Plan</h3>
                   <PlanCard
-                    plan={p}
+                    plan={{ ...p, badge: undefined }}
                     selected
                     active
                     onSelect={() => {}}
