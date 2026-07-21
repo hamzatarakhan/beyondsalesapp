@@ -242,13 +242,6 @@ const CreditLimitAdjustment = () => {
               {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
 
-            {customer && (
-              <CardSection title="Customer Details" icon={ClipboardList}>
-                <SummaryRow label="Customer Name" value={customer.name} />
-                <SummaryRow label="Subscription Type" value="Switch Postpaid" />
-                <SummaryRow label="Current Credit Limit" value={<>{customer.currentLimit} <RiyalSymbol /></>} />
-              </CardSection>
-            )}
             {lookupError && (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
                 <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
