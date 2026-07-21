@@ -209,7 +209,9 @@ const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   // comes back already verified instead of asking the dealer to redo it.
   [FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
   [FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
-  // Unpaid Switch Postpaid — dealer collects payment; scenario pre-seeded.
+  // Same postpaid/vanity/commitment matrix, but unpaid — the online selections still seed the
+  // interactive Subscription step as a starting point, and the dealer can still adjust them
+  // before collecting payment.
   [FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
   [FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
   [FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
