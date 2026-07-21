@@ -1464,6 +1464,9 @@ const NewActivation = () => {
               {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
+              {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
+                <SummaryRow label={t("activation.checkout.vanityLevel")} value={t(`activation.vanity.tiers.${pickedTier}`, NUMBER_TABS.find(tb => tb.value === pickedTier)?.label ?? "")} />
+              )}
               {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
               {showDevice && <SummaryRow label={t("activation.checkout.device")} value={deviceObj?.name ?? ""} />}
             </section>
@@ -1580,13 +1583,13 @@ const NewActivation = () => {
                   <div className="space-y-2 pb-3">
                     {showEsim && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
                         <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
                       </div>
                     )}
                     {showNumber && subType === "sim" && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
                         <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.alreadyPaidLabel")}</span>
                       </div>
                     )}
@@ -1618,7 +1621,7 @@ const NewActivation = () => {
                   <div className="space-y-2 pb-3">
                     {showEsim && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
                         <span className="text-xs font-semibold text-amber-600">{simType === "psim" ? t("activation.checkout.free") : t("activation.checkout.waived")}</span>
                       </div>
                     )}
@@ -1653,7 +1656,7 @@ const NewActivation = () => {
                   <>
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                       </div>
                     </div>
@@ -1677,13 +1680,13 @@ const NewActivation = () => {
                     <div className="space-y-2 pb-3">
                       {showEsim && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{simType === "psim" ? t("activation.checkout.simCard") : t("activation.checkout.esim")}</span>
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
                           <span className="text-xs font-semibold text-foreground">{simFee > 0 ? <><RiyalSymbol /> {simFee}</> : t("activation.checkout.free")}</span>
                         </div>
                       )}
                       {showNumber && subType === "sim" && numberFee > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{t(`activation.subscription.numberTabs.${DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier ?? ""}`, NUMBER_TABS.find(tb => tb.value === DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier)?.label ?? "")} {t("activation.subscription.numberTierSuffix")}</span>
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                         </div>
                       )}
