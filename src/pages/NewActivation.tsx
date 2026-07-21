@@ -12,6 +12,7 @@ import PayOption from "@/components/activation/PayOption";
 import SourceTab from "@/components/activation/SourceTab";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
+import PlanCard from "@/components/PlanCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -975,20 +976,40 @@ const NewActivation = () => {
             {/* 2. Subscription Type — through to Number section below. Read-only summary for a paid
                 fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
             {fulfilmentLocked ? (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+              <div className="space-y-4">
+                <section className="bg-card rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">Selections Made Online</p>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">Selections Made Online</p>
-                </div>
-                <SummaryRow label={t("activation.subscription.subscriptionTypeTitle")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
-                {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
-                {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
-                {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
-                {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
-                {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
-              </section>
+                  <SummaryRow label={t("activation.subscription.subscriptionTypeTitle")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
+                  {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
+                  {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
+                  {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
+                  {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
+                  {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation.subscription.portNumber")} value={portNumber} />}
+                </section>
+                {selectedPlanObj && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
+                    <PlanCard
+                      plan={selectedPlanObj}
+                      selected
+                      active
+                      onSelect={() => {}}
+                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      layout={
+                        selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
+                        : selectedPlanObj.categories?.includes("aman") ? "aman"
+                        : selectedPlanObj.categories?.includes("base-plan") || selectedPlanObj.categories?.includes("basic") ? "baqa"
+                        : "flex"
+                      }
+                    />
+                  </div>
+                )}
+              </div>
             ) : (
             <div className="space-y-4">
             <div className="space-y-3">
