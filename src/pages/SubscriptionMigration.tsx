@@ -494,19 +494,21 @@ const SubscriptionMigration = () => {
               <SummaryRow label="ID Number" value={idNumber || "—"} />
             </CardSection>
 
-            <CardSection title="OTP Verification" icon={Phone}>
-              {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Verified</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
-                  </div>
+            {direction === "pre-to-post" && (
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="w-3.5 h-3.5 text-blue-600" />
                 </div>
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
-              )}
-            </CardSection>
+                <div className="text-[12px] leading-snug">
+                  <p className="text-blue-600 font-semibold">
+                    You are eligible for a credit limit of {creditLimit.toFixed(2)} SAR.
+                  </p>
+                  <p className="text-blue-900/70 mt-0.5">
+                    You can use purchase additional services from app within this limit.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <CardSection title="Payment Summary" icon={Receipt}>
               {direction === "pre-to-post" ? (() => {
@@ -581,27 +583,25 @@ const SubscriptionMigration = () => {
               })()}
             </CardSection>
 
-            {direction === "pre-to-post" && (
-              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
-                  <Info className="w-3.5 h-3.5 text-blue-600" />
-                </div>
-                <div className="text-[12px] leading-snug">
-                  <p className="text-blue-600 font-semibold">
-                    You are eligible for a credit limit of {creditLimit.toFixed(2)} SAR.
-                  </p>
-                  <p className="text-blue-900/70 mt-0.5">
-                    You can use purchase additional services from app within this limit.
-                  </p>
-                </div>
-              </div>
-            )}
-
             <CardSection title="Payment Method" icon={CreditCard}>
               <div className="space-y-2">
                 <PayOption icon={Wallet} label="Dealer Wallet" description="Pay from your wallet (550 SAR balance)" selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                 <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
               </div>
+            </CardSection>
+
+            <CardSection title="OTP Verification" icon={Phone}>
+              {otpVerified ? (
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Verified</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+              )}
             </CardSection>
 
             <ConsentRow
