@@ -630,7 +630,10 @@ const NewActivation = () => {
   // already chose online (per the demo record), so the locked view — and pricing — actually
   // reflect that scenario instead of always defaulting to prepaid + a standard number.
   useEffect(() => {
-    if (!isFulfilment || !fulfilmentRecord?.paid) return;
+    // Seed for any fulfilment record that specifies a scenario (payType). Paid records
+    // additionally lock the view elsewhere; unpaid seeded records stay editable so the
+    // dealer can still collect payment and change details, but land on the intended case.
+    if (!isFulfilment || !fulfilmentRecord || !fulfilmentRecord.payType) return;
     const record = fulfilmentRecord;
     const type = record.payType ?? "prepaid";
     setPayType(type);
