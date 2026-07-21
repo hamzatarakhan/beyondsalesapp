@@ -1055,8 +1055,28 @@ const NewActivation = () => {
                 fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
             {fulfilmentLocked ? (
               <div className="space-y-4">
-                {/* Read-only Number card — mirrors the SIM Activation number section,
-                    but only shows the selected number and its vanity tier/commitment. */}
+                {selectedPlanObj && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
+                    <PlanCard
+                      plan={selectedPlanObj}
+                      selected
+                      active
+                      onSelect={() => {}}
+                      hideRadio
+                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      layout={
+                        selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
+                        : selectedPlanObj.categories?.includes("aman") ? "aman"
+                        : selectedPlanObj.categories?.includes("base-plan") || selectedPlanObj.categories?.includes("basic") ? "baqa"
+                        : "flex"
+                      }
+                    />
+                  </div>
+                )}
+                {/* Read-only Number card — shown under the Selected Plan section.
+                    Mirrors the SIM Activation number section but only shows the selected
+                    number and its vanity tier / commitment details. */}
                 {showNumber && subType === "sim" && phone && (
                   <section className="bg-card rounded-2xl p-4 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
@@ -1109,25 +1129,6 @@ const NewActivation = () => {
                       <span className="text-lg font-semibold tracking-wide text-foreground">{portNumber}</span>
                     </div>
                   </section>
-                )}
-                {selectedPlanObj && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
-                    <PlanCard
-                      plan={selectedPlanObj}
-                      selected
-                      active
-                      onSelect={() => {}}
-                      hideRadio
-                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
-                      layout={
-                        selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
-                        : selectedPlanObj.categories?.includes("aman") ? "aman"
-                        : selectedPlanObj.categories?.includes("base-plan") || selectedPlanObj.categories?.includes("basic") ? "baqa"
-                        : "flex"
-                      }
-                    />
-                  </div>
                 )}
               </div>
             ) : (
