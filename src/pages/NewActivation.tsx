@@ -165,6 +165,8 @@ const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
 const FULFILMENT_PAID_WHITELISTED_EMAIL = "paid.whitelisted@email.com";
 const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
 const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
+// Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
+const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
 const FULFILMENT_DEMO_EMAILS: Record<string, { paid: boolean; whitelisted: boolean }> = {
   [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
   [FULFILMENT_PAID_WHITELISTED_EMAIL]: { paid: true, whitelisted: true },
@@ -398,6 +400,9 @@ const NewActivation = () => {
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
   const fulfilmentRecord = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()];
   const alreadyPaid = fulfilmentRecord?.paid ?? true;
+  // A well-formed email that doesn't match any online application — surfaced as an
+  // error instead of silently falling back to "already paid".
+  const fulfilmentEmailNotFound = !qrVerified && isValidEmail(fulfilmentEmail) && !fulfilmentRecord;
   // Paid fulfilment requests already chose everything online — the Subscription step shows
   // the same sections as usual but disabled, except SIM Type which can always be changed.
   const fulfilmentLocked = isFulfilment && alreadyPaid;
@@ -723,7 +728,7 @@ const NewActivation = () => {
   // ---------- Stage gating ----------
   const canContinue = useMemo(() => {
     if (step === 0) {
-      if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
+      if (isFulfilment) return qrVerified || (isValidEmail(fulfilmentEmail) && !!fulfilmentRecord);
       return !!idType && !!nationality && idNumber.trim().length > 0;
     }
     if (step === 1) {
@@ -881,10 +886,21 @@ const NewActivation = () => {
                     </div>
                   </div>
                 )}
+                {fulfilmentEmailNotFound && (
+                  <div className="flex items-center gap-3 rounded-2xl border px-4 py-3 bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-red-100 dark:bg-red-800/40">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-red-700 dark:text-red-400">Customer Not Found</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">We couldn't find an online application for this email. Double-check it, or ask the customer to complete their application first.</p>
+                    </div>
+                  </div>
+                )}
                 <PrototypeTestBox
                   heading="test emails"
                   description="Use these to try every case (paid/unpaid × whitelisted/not). This box won't appear in the real implementation."
-                  items={[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL]}
+                  items={[FULFILMENT_PAID_EMAIL, FULFILMENT_PAID_WHITELISTED_EMAIL, FULFILMENT_UNPAID_EMAIL, FULFILMENT_UNPAID_WHITELISTED_EMAIL, { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered" }]}
                   onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
                 />
               </>
