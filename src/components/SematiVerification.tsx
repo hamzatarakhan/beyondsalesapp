@@ -3,6 +3,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Fingerprint, CheckCircle2, XCircle, Scan } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import absherIcon from "@/assets/absher-icon.svg";
 
 const STORAGE_KEY = "semati_last_verified_at";
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
@@ -191,8 +192,8 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
                 />
                 <MethodCard
                   onClick={() => pickMethod("absher")}
-                  iconBg="bg-emerald-100 dark:bg-emerald-500/15"
-                  iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
+                  iconBg=""
+                  iconContent={<img src={absherIcon} alt="Absher" className="w-10 h-10" />}
                   title={t("activation.verification.absher")}
                   desc={t("activation.verification.absherMethodDesc")}
                 />
@@ -271,9 +272,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
 
         {step === "absher_otp" && (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
-              <Scan className="w-6 h-6 text-emerald-600" />
-            </div>
+            <img src={absherIcon} alt="Absher" className="w-12 h-12" />
             <h4 className="font-semibold text-foreground">{t("activation.verification.absherVerification")}</h4>
             <div className="w-full rounded-xl bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 px-3 py-2 text-start flex gap-2">
               <span className="text-sky-500 text-sm">ⓘ</span>
