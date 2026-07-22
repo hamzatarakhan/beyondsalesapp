@@ -1139,6 +1139,15 @@ const NewActivation = () => {
               </div>
             ) : (
             <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-2xl bg-card border border-border/60 px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Wallet className="w-4 h-4 text-primary" />
+                </div>
+                <p className="text-xs font-medium text-muted-foreground">{t("activation.subscription.walletBalanceLabel")}</p>
+              </div>
+              <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</p>
+            </div>
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}

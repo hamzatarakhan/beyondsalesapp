@@ -95,6 +95,7 @@
       "title": "Subscription",
       "type": "Subscription Type",
       "subscriptionTypeTitle": "Subscription Type",
+      "walletBalanceLabel": "Dealer Wallet Balance",
       "prepaid": "Prepaid",
       "postpaid": "Postpaid",
       "postpaidSaudiOnly": "Postpaid is only available for Saudi ID / Iqama holders.",

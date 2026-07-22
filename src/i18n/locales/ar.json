@@ -95,6 +95,7 @@
       "title": "الاشتراك",
       "type": "نوع الاشتراك",
       "subscriptionTypeTitle": "نوع الاشتراك",
+      "walletBalanceLabel": "رصيد محفظة المندوب",
       "prepaid": "دفع مسبق",
       "postpaid": "دفع لاحقا",
       "postpaidSaudiOnly": "الدفع الآجل متاح فقط لحاملي الهوية الوطنية / الإقامة.",
