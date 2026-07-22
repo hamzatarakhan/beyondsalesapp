@@ -438,7 +438,9 @@ const PlanCard = ({
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  {!plan.categories?.includes("vnet") && (
+                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  )}
                   <p className="text-xl font-bold text-foreground">
                     <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
                     {Number(plan.price).toFixed(2)}

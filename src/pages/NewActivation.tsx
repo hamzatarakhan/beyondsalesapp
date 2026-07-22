@@ -45,11 +45,9 @@ import {
   Phone,
   Sparkles,
   Gift,
-  ArrowRightLeft,
   ArrowRight,
   ScanLine,
   Tag,
-  Database,
   FileText,
   HandCoins,
   Router,
@@ -144,7 +142,6 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
   { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
-const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
@@ -1206,49 +1203,6 @@ const NewActivation = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
-            {/* Top-up toggle — not offered on a paid fulfilment request */}
-            {showTopupTab && !fulfilmentLocked && (
-              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setPlanMode(planMode === "topup" ? "plan" : "topup")}
-                  className="w-full flex items-center gap-3 px-4 py-3.5"
-                >
-                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", planMode === "topup" ? "bg-primary/15" : "bg-muted")}>
-                    <Database className={cn("w-4 h-4", planMode === "topup" ? "text-primary" : "text-muted-foreground")} />
-                  </div>
-                  <div className="flex-1 text-start">
-                    <p className={cn("text-sm font-semibold", planMode === "topup" ? "text-foreground" : "text-muted-foreground")}>{t("activation.subscription.topupTitle")}</p>
-                    <p className="text-xs text-muted-foreground">{t("activation.subscription.topupSub")}</p>
-                  </div>
-                  {/* Toggle switch */}
-                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", planMode === "topup" ? "bg-primary" : "bg-muted")}>
-                    <span className={cn("absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all", planMode === "topup" ? "start-6" : "start-1")} />
-                  </div>
-                </button>
-                {planMode === "topup" && (
-                  <div className="px-4 pb-4 space-y-3 border-t border-border/60 pt-3">
-                    <p className="text-xs text-muted-foreground">{t("activation.subscription.topupHint")}</p>
-                    <Input
-                      value={topupManual}
-                      onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                      placeholder={t("activation.subscription.topupPlaceholder")}
-                      inputMode="numeric"
-                    />
-                    <div className="grid grid-cols-5 gap-2">
-                      {TOPUP_DENOMS.map((d) => (
-                        <button key={d} onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
-                          className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                          <RiyalSymbol /> {d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
               <section>
@@ -1347,16 +1301,6 @@ const NewActivation = () => {
                   );
                 })()}
 
-                {showMnp && !fulfilmentLocked && (
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <button onClick={() => setSubType("sim")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "sim" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <Sparkles className="w-4 h-4" /> {t("activation.subscription.newNumberBtn")}
-                    </button>
-                    <button onClick={() => setSubType("mnp")} className={cn("flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-xl transition-colors", subType === "mnp" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
-                      <ArrowRightLeft className="w-4 h-4" /> {t("activation.subscription.portMnp")}
-                    </button>
-                  </div>
-                )}
                 {subType === "sim" ? (
                   <>
                     <div className="bg-primary/5 rounded-xl py-3 px-4 mb-3 flex flex-col items-center gap-1">
@@ -1703,12 +1647,6 @@ const NewActivation = () => {
                 return (
                 <>
                   <div className="space-y-2 pb-3">
-                    {showEsim && simFee > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {simFee}</span>
-                      </div>
-                    )}
                     {showNumber && subType === "sim" && numberFee > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
@@ -1753,12 +1691,6 @@ const NewActivation = () => {
               isWhitelisted && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
-                    {showEsim && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
-                        <span className="text-xs font-semibold text-amber-600">{simType === "psim" ? t("activation.checkout.free") : t("activation.checkout.waived")}</span>
-                      </div>
-                    )}
                     {showDevice && deviceFee > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
@@ -1819,12 +1751,6 @@ const NewActivation = () => {
                 })() : (
                   <>
                     <div className="space-y-2 pb-3">
-                      {showEsim && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.simCard")}</span>
-                          <span className="text-xs font-semibold text-foreground">{simFee > 0 ? <><RiyalSymbol /> {simFee}</> : t("activation.checkout.free")}</span>
-                        </div>
-                      )}
                       {showNumber && subType === "sim" && numberFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>

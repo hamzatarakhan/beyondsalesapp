@@ -189,13 +189,6 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
                   title={t("activation.verification.fingerprint")}
                   desc={t("activation.verification.fingerprintMethodDesc")}
                 />
-                <MethodCard
-                  onClick={() => pickMethod("absher")}
-                  iconBg="bg-emerald-100 dark:bg-emerald-500/15"
-                  iconContent={<Scan className="w-5 h-5 text-emerald-600" />}
-                  title={t("activation.verification.absher")}
-                  desc={t("activation.verification.absherMethodDesc")}
-                />
               </>
             )}
           </div>
