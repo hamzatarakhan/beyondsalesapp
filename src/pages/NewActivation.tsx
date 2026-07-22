@@ -1139,15 +1139,6 @@ const NewActivation = () => {
               </div>
             ) : (
             <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl bg-card border border-border/60 px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Wallet className="w-4 h-4 text-primary" />
-                </div>
-                <p className="text-xs font-medium text-muted-foreground">{t("activation.subscription.walletBalanceLabel")}</p>
-              </div>
-              <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</p>
-            </div>
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
@@ -2046,7 +2037,14 @@ const NewActivation = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step < 2 ? (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
+            <>
+              {step === 1 && (
+                <p className="text-[11px] text-muted-foreground text-center mb-2">
+                  {t("activation.subscription.walletBalanceHint", { balance: DEALER_WALLET_BALANCE })}
+                </p>
+              )}
+              <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
+            </>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>
               {total === 0 ? t("activation.checkout.submit") : <>{t("activation.checkout.pay")} <RiyalSymbol /> {total}</>}
