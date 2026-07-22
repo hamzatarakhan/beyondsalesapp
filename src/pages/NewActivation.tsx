@@ -2039,9 +2039,11 @@ const NewActivation = () => {
           {step < 2 ? (
             <>
               {step === 1 && (
-                <p className="text-[11px] text-muted-foreground text-center mb-2">
-                  {t("activation.subscription.walletBalanceHint", { balance: DEALER_WALLET_BALANCE })}
-                </p>
+                <div className="flex items-center justify-center gap-1.5 mb-2.5 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto">
+                  <Wallet className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="text-[11px] text-muted-foreground">{t("activation.subscription.walletBalanceLabel")}</span>
+                  <span className="text-[11px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</span>
+                </div>
               )}
               <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation.continue")}</Button>
             </>
