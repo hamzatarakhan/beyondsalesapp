@@ -221,24 +221,6 @@ const SimReplacement = () => {
               {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
 
-            {customer && (
-              <CardSection title="Customer Details" icon={ClipboardList}>
-                <SummaryRow label="Customer Name" value={customer.name} />
-                <SummaryRow label="Subscription Type" value={customer.subscriptionType} />
-                <SummaryRow label="Current SIM Type" value={simTypeLabel(customer.currentSimType)} />
-                <SummaryRow
-                  label="Free Replacement"
-                  value={
-                    customer.freeReplacementUsed ? (
-                      <span className="text-destructive">Already used</span>
-                    ) : (
-                      <span className="text-emerald-600">Available</span>
-                    )
-                  }
-                />
-              </CardSection>
-            )}
-
             <PrototypeTestBox
               heading="test numbers"
               description="Use these to try every case. This box won't appear in the real implementation."
