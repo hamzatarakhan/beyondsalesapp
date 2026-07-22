@@ -13,6 +13,7 @@ import {
   PackageCheck,
   MapPin,
   ArrowLeftRight,
+  ArrowRightLeft,
   UserPlus,
   ClipboardList,
   ChevronRight,
@@ -64,6 +65,7 @@ const Home = () => {
 
   const activities = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
+    { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp" },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment" },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
     { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment" },

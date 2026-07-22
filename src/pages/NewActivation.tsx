@@ -422,6 +422,7 @@ const NewActivation = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
+  const isMnp = searchParams.get("flow") === "mnp";
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
@@ -485,7 +486,7 @@ const NewActivation = () => {
   const [locationDistrict, setLocationDistrict] = useState("");
   const [mapOpen, setMapOpen] = useState(false);
   // Number — Mobile only
-  const [subType, setSubType] = useState<SubType>("sim");
+  const [subType, setSubType] = useState<SubType>(isMnp ? "mnp" : "sim");
   const [phone, setPhone] = useState("0785599574");
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
@@ -1280,8 +1281,8 @@ const NewActivation = () => {
                   </p>
                 </div>
 
-                {/* Vanity numbers available for this plan — simple promo banner */}
-                {isPostpaidMobile && selectedPlanObj && (() => {
+                {/* Vanity numbers available for this plan — simple promo banner. Not relevant when porting an existing number. */}
+                {subType === "sim" && isPostpaidMobile && selectedPlanObj && (() => {
                   const eligibleTierCats = eligibleVanityCategories.filter(c => c.months > 0);
                   if (eligibleTierCats.length === 0) return null;
                   return (
