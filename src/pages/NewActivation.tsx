@@ -170,6 +170,8 @@ const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 50, 100, 150, 180, 200, 250];
 const FM_TOPUP_PRESETS_REQUIRED = [10, 20, 50, 100, 150, 180, 200, 250];
 // Identity test ID that forces the "top-up required" case (must pick ≥ 10).
 const FM_TOPUP_REQUIRED_ID = "1234512345";
+// Identity test ID that hides the PAYG plan type entirely (some customers don't get PAYG offered).
+const FM_NO_PAYG_ID = "5555544444";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
