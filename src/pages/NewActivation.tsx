@@ -558,8 +558,7 @@ const NewActivation = () => {
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
   const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
-    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment)))
-    .filter(c => !(c.value === "data" && isFulfilment));
+    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment)));
   // Fulfilment only offers Switch Postpaid (no Vnet), so the postpaid chip row — which would
   // otherwise just be a single redundant "Switch Postpaid" filter — is hidden entirely there.
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim") && !(isFulfilment && payType === "postpaid");
@@ -1201,7 +1200,7 @@ const NewActivation = () => {
               key={`${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
-              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS.filter(p => !(isFulfilment && p.categories?.includes("data"))) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")))}
+              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
