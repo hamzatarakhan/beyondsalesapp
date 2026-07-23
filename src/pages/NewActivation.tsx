@@ -587,7 +587,7 @@ const NewActivation = () => {
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
   const activePlansForType = isFriendi ? FRIENDI_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
-  const isPaygPlan        = isFriendi && (planTypeChip === "payg" || selectedPlanCategories.includes("payg"));
+  const isPaygPlan        = isFriendi && planTypeChip === "payg";
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
   // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
   const topupRequired     = isFriendi && idNumber.trim() === FM_TOPUP_REQUIRED_ID;
