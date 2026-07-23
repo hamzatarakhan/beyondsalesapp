@@ -558,10 +558,12 @@ const NewActivation = () => {
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
   const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
-    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment)));
+    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment || isMnp)))
+    // MNP (Port In): no 5G Data (MBB) for prepaid, no Vnet for postpaid.
+    .filter(c => !(isMnp && c.value === "data"));
   // Fulfilment only offers Switch Postpaid (no Vnet), so the postpaid chip row — which would
   // otherwise just be a single redundant "Switch Postpaid" filter — is hidden entirely there.
-  const showPlanTypeChips= !(payType === "postpaid" && simType === "esim") && !(isFulfilment && payType === "postpaid");
+  const showPlanTypeChips= !(payType === "postpaid" && simType === "esim") && !(isFulfilment && payType === "postpaid") && !(isMnp && payType === "postpaid");
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   // Contact number field is always shown; mandatory for VNet, 5G Data, and Switch Postpaid — optional otherwise.
   // For E-SIM, it stays visible but is never required, even on those three cases.
@@ -1200,7 +1202,7 @@ const NewActivation = () => {
               key={`${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
-              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")))}
+              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? (isMnp ? PREPAID_PLANS.filter(p => !p.categories?.includes("data")) : PREPAID_PLANS) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")) && !(isMnp && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
