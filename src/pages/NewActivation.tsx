@@ -1924,8 +1924,9 @@ const NewActivation = () => {
                 )}
             </section>
 
-            {/* Payment Method — hidden for whitelisted with free number, or fulfilment already-paid */}
-            {!(isWhitelisted && !isVipNumber) && !(isFulfilment && alreadyPaid) && (
+            {/* Payment Method — hidden for whitelisted with free number, fulfilment already-paid,
+                or when the total is 0 (e.g. Friendi PAYG with no top-up selected). */}
+            {!(isWhitelisted && !isVipNumber) && !(isFulfilment && alreadyPaid) && total > 0 && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">

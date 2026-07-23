@@ -231,7 +231,10 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
 
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
-      const matchesType = activePlanType === "all" || p.categories.includes(activePlanType as any);
+      // In the "All" tab, hide PAYG plans — PAYG is only reachable via its own chip.
+      const matchesType = activePlanType === "all"
+        ? !p.categories.includes("payg" as any)
+        : p.categories.includes(activePlanType as any);
       const matchesValidity = planFilters.validity.length === 0 || planFilters.validity.some((v) => p.validity.includes(v));
       const matchesPrice = p.price >= planFilters.price[0] && p.price <= planFilters.price[1];
       const pData = parsePlanData(p.internet);
