@@ -433,13 +433,13 @@ const PlanCard = ({
         )}
       >
         {/* Per-plan badge — pinned flush to the card's top-right corner */}
-        {plan.badge && (
+        {plan.badge && layout !== "payg" && (
           <span className="absolute top-0 end-0 bg-green-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tr-2xl rounded-bl-md z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
 
-        <div className={cn("p-4 flex flex-col flex-1", plan.badge && "pt-6")}>
+        <div className={cn("p-4 flex flex-col flex-1", plan.badge && layout !== "payg" && "pt-6")}>
           {layout === "payg" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
