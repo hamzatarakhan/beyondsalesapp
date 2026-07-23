@@ -47,7 +47,7 @@ const memberOnboarding = [
 // Dealer-facing brand badge (top-left of header) — the swap icon next to it
 // opens a picker so a dealer selling for multiple brands can switch context.
 // Hidden for now — flip back on when the feature is ready to ship.
-const SHOW_BRAND_SWITCHER = false;
+const SHOW_BRAND_SWITCHER = true;
 const OPERATORS = [
   { id: "virgin", name: "Virgin", brandLabel: "Virgin", color: "#E10A0A" },
   { id: "friendi", name: "Friendi", brandLabel: "friendi", color: "#00AEB0" },
