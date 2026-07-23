@@ -400,8 +400,11 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                   : cats.includes("aman") ? "aman"
                   : cats.includes("base-plan") || cats.includes("basic") ? "baqa"
                   : "flex";
+                // When only one plan is available (e.g. Friendi's PAYG-only view) let the
+                // card span the full width instead of the 85% carousel peek.
+                const singlePlan = filteredPlans.length === 1;
                 return (
-                  <div key={`${p.title}-${p.price}`} className="shrink-0 grow-0 basis-[85%] pl-3 first:pl-4 last:pr-4 flex">
+                  <div key={`${p.title}-${p.price}`} className={cn("shrink-0 grow-0 flex", singlePlan ? "basis-full px-4" : "basis-[85%] pl-3 first:pl-4 last:pr-4")}>
                     <PlanCard
                       plan={p}
                       selected={selectedPlan === originalIdx}

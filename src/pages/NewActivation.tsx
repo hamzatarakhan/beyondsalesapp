@@ -50,6 +50,7 @@ import {
   Tag,
   FileText,
   HandCoins,
+  Coins,
   Router,
   MapPin,
   Globe,
@@ -163,8 +164,12 @@ export const FRIENDI_PLANS: typeof SHARED_PLANS = [
 ];
 
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
-// Friendi PAYG top-up preset amounts (SAR).
-const FRIENDI_TOPUP_DENOMS = [10, 20, 50, 100, 200];
+// Friendi PAYG top-up presets (SAR). "Optional" case includes 0 (skip allowed) with nothing
+// preselected; "required" case starts at 10 (minimum) with 10 preselected by default.
+const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 50, 100, 150, 180, 200, 250];
+const FM_TOPUP_PRESETS_REQUIRED = [10, 20, 50, 100, 150, 180, 200, 250];
+// Identity test ID that forces the "top-up required" case (must pick ≥ 10).
+const FM_TOPUP_REQUIRED_ID = "1234512345";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
@@ -583,6 +588,9 @@ const NewActivation = () => {
   const activePlansForType = isFriendi ? FRIENDI_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
   const isPaygPlan        = isFriendi && (planTypeChip === "payg" || selectedPlanCategories.includes("payg"));
+  // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
+  // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
+  const topupRequired     = isFriendi && idNumber.trim() === FM_TOPUP_REQUIRED_ID;
   const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
   // so the 5G-MBB internet behaviour only applies to Virgin.
@@ -669,6 +677,23 @@ const NewActivation = () => {
       setSelectedPlan(0);
     }
   }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
+
+  // Friendi: PAYG is the assumed default — if the dealer hasn't picked a plan, select PAYG.
+  useEffect(() => {
+    if (isFriendi && selectedPlan == null) {
+      const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+      if (paygIdx >= 0) setSelectedPlan(paygIdx);
+    }
+  }, [isFriendi, selectedPlan]);
+
+  // Friendi PAYG "required" top-up: preselect 10 (the minimum) by default. The "optional"
+  // case starts with nothing selected so the dealer can proceed without a top-up.
+  useEffect(() => {
+    if (isFriendi && isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) {
+      setTopupDenom(10);
+      setTopupManual("10");
+    }
+  }, [isFriendi, isPaygPlan, topupRequired, topupDenom]);
 
   // Paid fulfilment: seed the subscription/number/commitment state from what the customer
   // already chose online (per the demo record), so the locked view — and pricing — actually
@@ -857,11 +882,13 @@ const NewActivation = () => {
       if (simType === "psim" && (!kitChecked || !!kitError)) return false;
       if (planMode === "plan" && selectedPlan == null) return false;
       if (planMode === "topup" && !topupDenom && !topupManual) return false;
+      // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
+      if (isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) return false;
       if (showMnp && subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
       return true;
     }
     return true;
-  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -981,7 +1008,10 @@ const NewActivation = () => {
               <PrototypeTestBox
                 heading="test ID numbers"
                 description="Use these to try both cases. This box won't appear in the real implementation."
-                items={[
+                items={isFriendi ? [
+                  { value: NORMAL_TEST_ID_NUMBER, note: "PAYG top-up optional (can skip)" },
+                  { value: FM_TOPUP_REQUIRED_ID, note: "PAYG top-up required (min 10)" },
+                ] : [
                   { value: NORMAL_TEST_ID_NUMBER, note: "Normal customer" },
                   { value: WHITELISTED_TEST_ID_NUMBER, note: "Whitelisted customer" },
                 ]}
@@ -1253,35 +1283,46 @@ const NewActivation = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
-            {/* Friendi PAYG top-up — only offered when a PAYG plan is selected. */}
-            {isPaygPlan && selectedPlanObj && (
+            {/* Friendi PAYG top-up — only offered when a PAYG plan is selected. Two cases:
+                "optional" (0 allowed, nothing preselected) and "required" (min 10, 10 preselected). */}
+            {isPaygPlan && selectedPlanObj && (() => {
+              const presets = topupRequired ? FM_TOPUP_PRESETS_REQUIRED : FM_TOPUP_PRESETS_OPTIONAL;
+              const hasSelection = topupDenom != null;
+              const inclVat = (topupDenom ?? 0) * 1.15;
+              const fmt = (n: number) => n.toFixed(2).padStart(5, "0");
+              return (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <HandCoins className="w-3.5 h-3.5 text-primary" />
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Coins className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{t("activation.subscription.topupTitle")}</p>
-                    <p className="text-[11px] text-muted-foreground">{t("activation.subscription.topupHint")}</p>
+                    <p className="text-sm font-semibold text-foreground">{t("activation.subscription.topupSectionTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activation.subscription.topupChooseSub")}</p>
                   </div>
                 </div>
-                <Input
-                  value={topupManual}
-                  onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                  placeholder={t("activation.subscription.topupPlaceholder")}
-                  inputMode="numeric"
-                  className="mb-3"
-                />
-                <div className="flex flex-wrap gap-2">
-                  {FRIENDI_TOPUP_DENOMS.map((d) => (
+                <div className="h-12 rounded-xl border border-border/60 flex items-center justify-center mb-2">
+                  {hasSelection
+                    ? <span className="text-base font-bold text-foreground"><RiyalSymbol /> {fmt(topupDenom!)}</span>
+                    : <span className="text-sm text-muted-foreground">{t("activation.subscription.topupSelectAmount")}</span>}
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  {hasSelection
+                    ? <><RiyalSymbol /> {inclVat.toFixed(1)} {t("activation.subscription.topupInclVat")}</>
+                    : t("activation.subscription.topupVatNote")}
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {presets.map((d) => (
                     <button key={d} type="button" onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
-                      className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                      <RiyalSymbol /> {d}
+                      className={cn("py-2 rounded-full text-[11px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                        topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                      <RiyalSymbol /> {fmt(d)}
                     </button>
                   ))}
                 </div>
               </section>
-            )}
+              );
+            })()}
 
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
