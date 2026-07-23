@@ -21,6 +21,14 @@ export interface PlanCardData {
   categories?: string[];
   tags?: string[];
   bonuses?: string[];
+  /** Friendi Combo: core-data value shown as its own row, distinct from the headline total. */
+  coreData?: string;
+  /** Friendi Combo/Calls: international minutes value. */
+  intlMins?: string;
+  /** Friendi Calls: local minutes value shown as a feature row. */
+  localMins?: string;
+  /** Friendi PAYG: per-unit pay-as-you-go rates. */
+  payg?: { perMb: number; perSms: number; perMin: number };
   /** Badge key rendered top-right (e.g. "mostFamous", "recommended", "trustedForKids"). */
   badge?: string;
   /** Postpaid: show the "Unlimited Roaming" row (default true). */
@@ -34,7 +42,7 @@ interface Props {
   selected: boolean;
   active?: boolean;
   minsLabel?: string;
-  layout?: "flex" | "postpaid" | "baqa" | "aman";
+  layout?: "flex" | "postpaid" | "baqa" | "aman" | "combo" | "calls" | "payg";
   onSelect: () => void;
   onMoreDetails?: () => void;
   /** Hide the select radio — for read-only views where the plan can't be changed. */
@@ -432,7 +440,75 @@ const PlanCard = ({
         )}
 
         <div className={cn("p-4 flex flex-col flex-1", plan.badge && "pt-6")}>
-          {isDataOnly ? (
+          {layout === "payg" ? (
+            <>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <div className="flex items-end justify-between mb-4">
+                <p className="text-3xl font-bold leading-none text-primary">{t("activation.plan.payg.title")}</p>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  <p className="text-xl font-bold text-foreground">
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 mb-4">
+                <FeatureRow icon={Signal} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perMb}</span> {t("activation.plan.payg.perMb")}</>} />
+                <FeatureRow icon={MessageSquare} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perSms}</span> {t("activation.plan.payg.perSms")}</>} />
+                <FeatureRow icon={Phone} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perMin}</span> {t("activation.plan.payg.perMin")}</>} />
+              </div>
+            </>
+          ) : layout === "combo" ? (
+            <>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <div className="flex items-end justify-between mb-4">
+                <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  <p className="text-xl font-bold text-foreground">
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 mb-4">
+                <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.coreData ?? plan.internet}</span> {t("activation.plan.coreData")}</>} />
+                {plan.social && plan.social !== "-" && (
+                  <FeatureRow
+                    icon={Globe}
+                    label={<><span className="font-semibold">{plan.social === "Unlimited" ? unlimited : plan.social}</span> {t("activation.plan.socialData")}</>}
+                    chip={<SocialChip onClick={() => setOpenSheet("apps")} />}
+                  />
+                )}
+                {plan.intlMins && plan.intlMins !== "-" && (
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.intlMins === "Unlimited" ? unlimited : plan.intlMins}</span> {t("activation.plan.internationalMins")}</>} />
+                )}
+              </div>
+            </>
+          ) : layout === "calls" ? (
+            <>
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <div className="flex items-end justify-between mb-4">
+                <p className="text-3xl font-bold leading-none text-primary">
+                  {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
+                </p>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
+                  <p className="text-xl font-bold text-foreground">
+                    <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+                    {Number(plan.price).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 mb-4">
+                <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.localMins === "Unlimited" ? unlimited : plan.localMins}</span> {t("activation.plan.localMinsLabel")}</>} />
+                {plan.intlMins && plan.intlMins !== "-" && (
+                  <FeatureRow icon={Globe} label={<><span className="font-semibold">{plan.intlMins === "Unlimited" ? unlimited : plan.intlMins}</span> {t("activation.plan.internationalMins")}</>} />
+                )}
+              </div>
+            </>
+          ) : isDataOnly ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
               <div className="flex items-end justify-between mb-4">

@@ -112,7 +112,11 @@
         "baqa": "Baqa",
         "data": "5G Data",
         "switchPostpaid": "Switch Postpaid",
-        "vnet": "Vnet"
+        "vnet": "Vnet",
+        "combo": "Combo Plans",
+        "calls": "Calls",
+        "payg": "PAYG",
+        "dataPlans": "Data Plans"
       },
       "selectPlan": "Select a Plan",
       "selectPlanSub": "Choose from available plans below",
@@ -203,6 +207,15 @@
       "socialData": "Social data",
       "bonusPrefix": "Bonus",
       "nationalMins": "National minutes",
+      "internationalMins": "International Min",
+      "localMinsLabel": "local Min",
+      "minsUnit": "Min",
+      "payg": {
+        "title": "PAYG",
+        "perMb": "Per MB",
+        "perSms": "Per National SMS",
+        "perMin": "Per National Minutes"
+      },
       "roaming": "Roaming (receiving calls)",
       "sms": "SMS",
       "freeSubscription": "Free subscription upon activation",

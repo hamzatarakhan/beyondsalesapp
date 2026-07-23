@@ -73,6 +73,7 @@ import {
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import { useBrand } from "@/contexts/BrandContext";
 
 // ---------- Types ----------
 type SimType = "psim" | "esim";
@@ -142,7 +143,28 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
   { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
+// ── Friendi (FM) prepaid-only catalog. Representative demo data — refine prices/sizes later.
+// Categories: combo (data + social + intl mins), data (data-only), calls (minutes), payg (per-unit).
+export const FRIENDI_PLANS: typeof SHARED_PLANS = [
+  // Combo — total data headline, with a core/social breakdown + international minutes
+  { title: "Combo 49",  internet: "10 GB", coreData: "8 GB",  social: "2 GB",  intlMins: "50",  mins: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [] },
+  { title: "Combo 99",  internet: "35 GB", coreData: "25 GB", social: "10 GB", intlMins: "75",  mins: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [], badge: "recommended" },
+  { title: "Combo 172", internet: "75 GB", coreData: "55 GB", social: "20 GB", intlMins: "100", mins: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [], badge: "mostFamous" },
+  // Data — data-only bundles
+  { title: "Data 49",   internet: "20 GB", coreData: "20 GB", social: "-", mins: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [] },
+  { title: "Data 99",   internet: "50 GB", coreData: "50 GB", social: "-", mins: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [], badge: "recommended" },
+  { title: "Data 172",  internet: "80 GB", coreData: "80 GB", social: "-", mins: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [], badge: "mostFamous" },
+  // Calls — minutes bundles
+  { title: "Calls 49",  internet: "-", mins: "500",       localMins: "500",       social: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [] },
+  { title: "Calls 99",  internet: "-", mins: "1500",      localMins: "1500",      social: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
+  { title: "Calls 172", internet: "-", mins: "Unlimited", localMins: "Unlimited", social: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: [], badge: "mostFamous" },
+  // PAYG — pay-as-you-go per-unit rates, top-up added on top
+  { title: "Pay As You Go", internet: "-", mins: "-", social: "-", sms: "-", price: 0, payg: { perMb: 0.2, perSms: 0.25, perMin: 0.45 }, discount: null, validityLabel: "", categories: ["payg"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
+];
+
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
+// Friendi PAYG top-up preset amounts (SAR).
+const FRIENDI_TOPUP_DENOMS = [10, 20, 50, 100, 200];
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
@@ -270,6 +292,15 @@ const POSTPAID_CHIPS = [
   { value: "all", label: "All" },
   { value: "switch-postpaid", label: "Switch Postpaid" },
   { value: "vnet", label: "Vnet" },
+];
+
+// Friendi (FM) prepaid chip row — Combo / Data / Calls / PAYG.
+const FRIENDI_CHIPS = [
+  { value: "all", label: "All" },
+  { value: "combo", label: "Combo Plans" },
+  { value: "data", label: "Data Plans" },
+  { value: "calls", label: "Calls" },
+  { value: "payg", label: "PAYG" },
 ];
 
 const NUMBER_TABS = [
@@ -423,6 +454,10 @@ const NewActivation = () => {
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
+  // Friendi (FM) brand divergence — prepaid only, its own plan catalog & chips,
+  // standard numbers only, top-up on PAYG only. Everything else matches Virgin.
+  const { brand } = useBrand();
+  const isFriendi = brand === "friendi";
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
@@ -545,10 +580,13 @@ const NewActivation = () => {
 
   // ---------- Derived flags ----------
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
-  const activePlansForType = payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
+  const activePlansForType = isFriendi ? FRIENDI_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
+  const isPaygPlan        = isFriendi && (planTypeChip === "payg" || selectedPlanCategories.includes("payg"));
   const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
-  const is5GDataMode      = payType === "prepaid"  && (planTypeChip === "data" || selectedPlanCategories.includes("data"));
+  // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
+  // so the 5G-MBB internet behaviour only applies to Virgin.
+  const is5GDataMode      = !isFriendi && payType === "prepaid"  && (planTypeChip === "data" || selectedPlanCategories.includes("data"));
   const isPrepaidMobile   = payType === "prepaid"  && !is5GDataMode;
   const isPrepaidInternet = is5GDataMode;
   const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
@@ -557,10 +595,12 @@ const NewActivation = () => {
   const showEsim         = true;
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
-  const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
-    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment || isMnp)))
-    // MNP (Port In): no 5G Data (MBB) for prepaid, no Vnet for postpaid.
-    .filter(c => !(isMnp && c.value === "data"));
+  const activePlanChips  = isFriendi
+    ? FRIENDI_CHIPS
+    : (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
+        .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment || isMnp)))
+        // MNP (Port In): no 5G Data (MBB) for prepaid, no Vnet for postpaid.
+        .filter(c => !(isMnp && c.value === "data"));
   // Fulfilment only offers Switch Postpaid (no Vnet), so the postpaid chip row — which would
   // otherwise just be a single redundant "Switch Postpaid" filter — is hidden entirely there.
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim") && !(isFulfilment && payType === "postpaid") && !(isMnp && payType === "postpaid");
@@ -738,8 +778,9 @@ const NewActivation = () => {
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
+  // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
   const planFeeRaw = selectedPlanObj?.price ?? 0;
-  const topupFeeRaw = planMode === "topup" ? topupAmount : 0;
+  const topupFeeRaw = (planMode === "topup" || isPaygPlan) ? topupAmount : 0;
   const planPrice = planFeeRaw + topupFeeRaw;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
   // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
@@ -1142,6 +1183,8 @@ const NewActivation = () => {
               </div>
             ) : (
             <div className="space-y-4">
+            {/* Subscription Type toggle — Friendi is prepaid-only, so this is hidden there. */}
+            {!isFriendi && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
@@ -1169,6 +1212,7 @@ const NewActivation = () => {
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation.subscription.postpaidSaudiOnly")}</p>
               )}
             </div>
+            )}
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
@@ -1189,9 +1233,12 @@ const NewActivation = () => {
                       "flex": t("activation.subscription.chips.flex"),
                       "aman": t("activation.subscription.chips.aman"),
                       "base-plan": t("activation.subscription.chips.baqa"),
-                      "data": t("activation.subscription.chips.data"),
+                      "data": isFriendi ? t("activation.subscription.chips.dataPlans") : t("activation.subscription.chips.data"),
                       "switch-postpaid": t("activation.subscription.chips.switchPostpaid"),
                       "vnet": t("activation.subscription.chips.vnet"),
+                      "combo": t("activation.subscription.chips.combo"),
+                      "calls": t("activation.subscription.chips.calls"),
+                      "payg": t("activation.subscription.chips.payg"),
                     } as Record<string,string>)[chip.value] ?? chip.label}
                   </button>
                 ))}
@@ -1199,12 +1246,42 @@ const NewActivation = () => {
             )}
 
             <PlanSelector
-              key={`${payType}-${lineType}`}
+              key={`${brand}-${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
-              plans={lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? (isMnp ? PREPAID_PLANS.filter(p => !p.categories?.includes("data")) : PREPAID_PLANS) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")) && !(isMnp && p.categories?.includes("vnet")))}
+              plans={isFriendi ? FRIENDI_PLANS : lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? (isMnp ? PREPAID_PLANS.filter(p => !p.categories?.includes("data")) : PREPAID_PLANS) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")) && !(isMnp && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
+
+            {/* Friendi PAYG top-up — only offered when a PAYG plan is selected. */}
+            {isPaygPlan && selectedPlanObj && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <HandCoins className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t("activation.subscription.topupTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activation.subscription.topupHint")}</p>
+                  </div>
+                </div>
+                <Input
+                  value={topupManual}
+                  onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
+                  placeholder={t("activation.subscription.topupPlaceholder")}
+                  inputMode="numeric"
+                  className="mb-3"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {FRIENDI_TOPUP_DENOMS.map((d) => (
+                    <button key={d} type="button" onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
+                      className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                      <RiyalSymbol /> {d}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
@@ -1517,7 +1594,10 @@ const NewActivation = () => {
                 const planTypeLabel =
                   cats.includes("switch-postpaid") ? t("activation.subscription.chips.switchPostpaid") :
                   cats.includes("vnet") ? t("activation.subscription.chips.vnet") :
-                  cats.includes("data") ? t("activation.subscription.chips.data") :
+                  cats.includes("payg") ? t("activation.subscription.chips.payg") :
+                  cats.includes("combo") ? t("activation.subscription.chips.combo") :
+                  cats.includes("calls") ? t("activation.subscription.chips.calls") :
+                  cats.includes("data") ? (isFriendi ? t("activation.subscription.chips.dataPlans") : t("activation.subscription.chips.data")) :
                   cats.includes("aman") ? t("activation.subscription.chips.aman") :
                   cats.includes("base-plan") ? t("activation.subscription.chips.baqa") :
                   cats.includes("basic") ? t("activation.subscription.chips.basic") :
@@ -2136,6 +2216,8 @@ const NewActivation = () => {
           : null;
         const availableTabs = eligibleTiers ? NUMBER_TABS.filter(tab => tab.value === "all" || eligibleTiers.has(tab.value)) : NUMBER_TABS;
         const filtered = DEMO_NUMBER_POOL
+          // Friendi only offers standard numbers — no vanity tiers.
+          .filter(n => !isFriendi || n.tier === "standard")
           .filter(n => !eligibleTiers || eligibleTiers.has(n.tier))
           .filter(n => numberPickerTab === "all" || n.tier === numberPickerTab)
           .filter(n => n.number.includes(numberSearch));
@@ -2154,6 +2236,8 @@ const NewActivation = () => {
                   <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </div>
               </div>
+              {/* Tier tabs — hidden for Friendi (standard numbers only). */}
+              {!isFriendi && (
               <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {availableTabs.map(tab => (
                   <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
@@ -2162,6 +2246,7 @@ const NewActivation = () => {
                   </button>
                 ))}
               </div>
+              )}
               <div className="overflow-y-auto flex-1 px-5 pb-6">
                 <div className="divide-y divide-border/40">
                   {filtered.map((item, i) => {

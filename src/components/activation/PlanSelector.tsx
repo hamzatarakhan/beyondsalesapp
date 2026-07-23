@@ -22,7 +22,7 @@ import RiyalSymbol from "@/components/RiyalSymbol";
 
 // ---------- Types & constants (shared with PrepaidActivation) ----------
 export type Plan = PlanCardData & {
-  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman" | "basic" | "switch-postpaid" | "vnet")[];
+  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman" | "basic" | "switch-postpaid" | "vnet" | "combo" | "calls" | "payg")[];
   validity: string[];
   tags: string[];
 };
@@ -34,9 +34,9 @@ type PlanFilters = {
   mins: [number, number];
 };
 
-const PRICE_MIN = 10;
+const PRICE_MIN = 0;
 const PRICE_MAX = 4600;
-const DATA_MIN = 1;
+const DATA_MIN = 0;
 const DATA_MAX = 1000;
 const MINS_MIN = 0;
 const MINS_MAX = 1500;
@@ -49,7 +49,7 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Family display order in the "All" view: richest service mix first, data-only last.
-const FAMILY_ORDER = ["aman", "base-plan", "basic", "flex", "data", "switch-postpaid", "vnet"];
+const FAMILY_ORDER = ["combo", "calls", "aman", "base-plan", "basic", "flex", "data", "payg", "switch-postpaid", "vnet"];
 const familyRank = (p: Plan) => {
   const i = FAMILY_ORDER.findIndex((c) => p.categories.includes(c as any));
   return i === -1 ? FAMILY_ORDER.length : i;
@@ -394,6 +394,9 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                 const originalIdx = plans.indexOf(p);
                 const cats = p.categories;
                 const layout = cats.includes("switch-postpaid") ? "postpaid"
+                  : cats.includes("payg") ? "payg"
+                  : cats.includes("calls") ? "calls"
+                  : cats.includes("combo") ? "combo"
                   : cats.includes("aman") ? "aman"
                   : cats.includes("base-plan") || cats.includes("basic") ? "baqa"
                   : "flex";
