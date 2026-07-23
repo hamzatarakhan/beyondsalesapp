@@ -686,6 +686,14 @@ const NewActivation = () => {
     }
   }, [isFriendi, selectedPlan]);
 
+  // When the top-up case flips (optional ⇄ required, via the Identity test ID), clear the
+  // selection so the optional case always starts on "Select Top-up Amount" (nothing selected)
+  // and the required case re-applies its 10 default below.
+  useEffect(() => {
+    setTopupDenom(null);
+    setTopupManual("");
+  }, [topupRequired]);
+
   // Friendi PAYG "required" top-up: preselect 10 (the minimum) by default. The "optional"
   // case starts with nothing selected so the dealer can proceed without a top-up.
   useEffect(() => {
