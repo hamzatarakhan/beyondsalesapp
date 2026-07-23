@@ -26,6 +26,8 @@ import SematiVerification from "@/components/SematiVerification";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
+import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
+import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
 import {
   Drawer,
   DrawerContent,
@@ -49,8 +51,8 @@ const memberOnboarding = [
 // Hidden for now — flip back on when the feature is ready to ship.
 const SHOW_BRAND_SWITCHER = true;
 const OPERATORS = [
-  { id: "virgin", name: "Virgin", brandLabel: "Virgin", color: "#E10A0A" },
-  { id: "friendi", name: "Friendi", brandLabel: "friendi", color: "#00AEB0" },
+  { id: "virgin", name: "Virgin", logo: virginMobileLogo },
+  { id: "friendi", name: "Friendi", logo: friendiMobileLogo },
 ];
 
 const Home = () => {
@@ -105,13 +107,7 @@ const Home = () => {
               aria-label={`Switch brand — currently ${activeOp.name}`}
               className="h-10 pl-1 pr-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
             >
-              <span
-                className="w-8 h-8 rounded-xl flex flex-col items-center justify-center text-white shrink-0 leading-none"
-                style={{ backgroundColor: activeOp.color }}
-              >
-                <span className="italic font-serif text-[8px] leading-none">{activeOp.brandLabel}</span>
-                <span className="text-[4.5px] tracking-wide leading-none mt-0.5">mobile</span>
-              </span>
+              <img src={activeOp.logo} alt={activeOp.name} className="w-8 h-8 rounded-full shrink-0" />
               <ArrowLeftRight className="w-4 h-4 text-foreground" />
             </button>
           )}
@@ -377,13 +373,7 @@ const Home = () => {
                   onClick={() => { setActiveOperator(op.id); setOperatorSheetOpen(false); }}
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
                 >
-                  <div
-                    className="w-10 h-10 rounded-full flex flex-col items-center justify-center shrink-0 text-white leading-none"
-                    style={{ backgroundColor: op.color }}
-                  >
-                    <span className="italic font-serif text-[9px] leading-none">{op.brandLabel}</span>
-                    <span className="text-[5px] tracking-wide leading-none mt-0.5">mobile</span>
-                  </div>
+                  <img src={op.logo} alt={op.name} className="w-10 h-10 rounded-full shrink-0" />
                   <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
                   {selected && (
                     <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
