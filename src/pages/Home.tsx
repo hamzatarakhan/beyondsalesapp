@@ -23,6 +23,7 @@ import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 
 import SematiVerification from "@/components/SematiVerification";
+import { useBrand, Brand } from "@/contexts/BrandContext";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -60,7 +61,7 @@ const Home = () => {
   const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-  const [activeOperator, setActiveOperator] = useState(OPERATORS[0].id);
+  const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
   const activeOp = OPERATORS.find((o) => o.id === activeOperator) ?? OPERATORS[0];
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
@@ -370,7 +371,7 @@ const Home = () => {
               return (
                 <button
                   key={op.id}
-                  onClick={() => { setActiveOperator(op.id); setOperatorSheetOpen(false); }}
+                  onClick={() => { setActiveOperator(op.id as Brand); setOperatorSheetOpen(false); }}
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
                 >
                   <img src={op.logo} alt={op.name} className="w-10 h-10 rounded-full shrink-0" />

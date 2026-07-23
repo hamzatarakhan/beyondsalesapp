@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { BrandProvider } from "./contexts/BrandContext";
 import SplashScreen from "./components/SplashScreen";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
@@ -41,6 +42,7 @@ const App = () => {
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
     <LanguageProvider>
+    <BrandProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         <Toaster />
@@ -75,6 +77,7 @@ const App = () => {
         </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </BrandProvider>
     </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
