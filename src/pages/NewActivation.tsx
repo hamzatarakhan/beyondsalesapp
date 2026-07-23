@@ -558,7 +558,8 @@ const NewActivation = () => {
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
   const activePlanChips  = (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
-    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment)));
+    .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment)))
+    .filter(c => !(c.value === "data" && isFulfilment));
   // Fulfilment only offers Switch Postpaid (no Vnet), so the postpaid chip row — which would
   // otherwise just be a single redundant "Switch Postpaid" filter — is hidden entirely there.
   const showPlanTypeChips= !(payType === "postpaid" && simType === "esim") && !(isFulfilment && payType === "postpaid");
