@@ -1023,6 +1023,7 @@ const NewActivation = () => {
                 items={isFriendi ? [
                   { value: NORMAL_TEST_ID_NUMBER, note: "PAYG top-up optional (can skip)" },
                   { value: FM_TOPUP_REQUIRED_ID, note: "PAYG top-up required (min 10)" },
+                  { value: FM_NO_PAYG_ID, note: "No PAYG plan type offered" },
                 ] : [
                   { value: NORMAL_TEST_ID_NUMBER, note: "Normal customer" },
                   { value: WHITELISTED_TEST_ID_NUMBER, note: "Whitelisted customer" },
