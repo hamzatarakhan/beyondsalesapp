@@ -69,7 +69,6 @@ import {
   QrCode,
   UserX,
  Mail,
-  Database,
 } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -80,6 +79,7 @@ type SimType = "psim" | "esim";
 type SubType = "sim" | "mnp";
 type PayType = "prepaid" | "postpaid";
 type LineType = "mobile" | "internet";
+type PlanMode = "plan" | "topup";
 type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
@@ -142,7 +142,6 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
   { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
-const TOPUP_DENOMS = [10, 20, 50, 100, 200];
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
@@ -473,6 +472,7 @@ const NewActivation = () => {
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
   const [esimDeviceSearch, setEsimDeviceSearch] = useState("");
   const [planTypeChip, setPlanTypeChip] = useState("all");
+  const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
@@ -582,14 +582,8 @@ const NewActivation = () => {
   useEffect(() => {
     setSelectedPlan(null);
     setPlanTypeChip("all");
+    setPlanMode("plan");
   }, [payType, lineType]);
-
-  // Top-up amount is tied to the selected plan's category — clear it whenever the plan changes
-  // so a stale value can't carry over between plans (e.g. Basic → Baqa).
-  useEffect(() => {
-    setTopupDenom(null);
-    setTopupManual("");
-  }, [selectedPlan]);
 
   // Non-Saudi/Iqama IDs are prepaid-only (no postpaid available for them)
   const isSaudiId = idType === "national-id";
@@ -629,10 +623,10 @@ const NewActivation = () => {
   // In the fulfilment flow, auto-select the first available plan by default so the
   // customer sees a preselected plan (matches "everything selected by default").
   useEffect(() => {
-    if (isFulfilment && selectedPlan == null && activePlansForType.length > 0) {
+    if (isFulfilment && planMode === "plan" && selectedPlan == null && activePlansForType.length > 0) {
       setSelectedPlan(0);
     }
-  }, [isFulfilment, selectedPlan, activePlansForType]);
+  }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
 
   // Paid fulfilment: seed the subscription/number/commitment state from what the customer
   // already chose online (per the demo record), so the locked view — and pricing — actually
@@ -729,11 +723,6 @@ const NewActivation = () => {
 
   // ---------- Pricing ----------
   const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
-  // Top-up is tied to the selected prepaid plan's category: optional add-on for Basic,
-  // required (no zero option) for Baqa. Not offered for any other category.
-  const isBasicPlan = payType === "prepaid" && !!selectedPlanObj?.categories?.includes("basic");
-  const isBaqaPlan = payType === "prepaid" && !!selectedPlanObj?.categories?.includes("base-plan");
-  const showTopup = isBasicPlan || isBaqaPlan;
   // Vanity Number eligibility for the selected Switch Postpaid plan (Req 1).
   const selectedPlanTier = isPostpaidMobile && selectedPlanObj
     ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
@@ -748,7 +737,7 @@ const NewActivation = () => {
   const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
   const planFeeRaw = selectedPlanObj?.price ?? 0;
-  const topupFeeRaw = showTopup ? topupAmount : 0;
+  const topupFeeRaw = planMode === "topup" ? topupAmount : 0;
   const planPrice = planFeeRaw + topupFeeRaw;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
   // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
@@ -798,7 +787,7 @@ const NewActivation = () => {
 
   // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
   // (equal to the plan price) that clears the customer's first bill.
-  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted;
+  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && planMode === "plan";
   // Switch Postpaid: dealer app credit limit note — 20% of the selected plan's price.
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
@@ -823,13 +812,13 @@ const NewActivation = () => {
     if (step === 1) {
       if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
       if (simType === "psim" && (!kitChecked || !!kitError)) return false;
-      if (selectedPlan == null) return false;
-      if (isBaqaPlan && !topupDenom) return false;
+      if (planMode === "plan" && selectedPlan == null) return false;
+      if (planMode === "topup" && !topupDenom && !topupManual) return false;
       if (showMnp && subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
       return true;
     }
     return true;
-  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, selectedPlan, isBaqaPlan, topupDenom, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -1215,43 +1204,6 @@ const NewActivation = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
-            {/* Top-up — tied to the selected plan's category. Basic: optional add-on.
-                Baqa: required, presets only (no zero/skip option). */}
-            {showTopup && (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Database className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {t("activation.subscription.topupTitle")} {isBaqaPlan && <span className="text-destructive">*</span>}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {isBaqaPlan ? t("activation.subscription.topupRequiredSub") : t("activation.subscription.topupSub")}
-                    </p>
-                  </div>
-                </div>
-                {isBasicPlan && (
-                  <Input
-                    value={topupManual}
-                    onChange={(e) => { setTopupManual(e.target.value.replace(/\D/g, "")); setTopupDenom(null); }}
-                    placeholder={t("activation.subscription.topupPlaceholder")}
-                    inputMode="numeric"
-                    className="mb-3"
-                  />
-                )}
-                <div className="grid grid-cols-5 gap-2">
-                  {TOPUP_DENOMS.map((d) => (
-                    <button key={d} type="button" onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
-                      className={cn("py-1.5 rounded-full text-xs font-medium border transition-colors text-center", topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                      <RiyalSymbol /> {d}
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
               <section>
@@ -1572,7 +1524,7 @@ const NewActivation = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
-              {topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
+              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
@@ -1747,15 +1699,9 @@ const NewActivation = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? t("activation.checkout.planLabel")}</span>
+                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
                       <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
                     </div>
-                    {topupAmount > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("activation.checkout.topupLabel")}</span>
-                        <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
-                      </div>
-                    )}
                   </div>
                   <div className="border-t border-border/60 space-y-2 py-3">
                     <div className="flex items-center justify-between">
@@ -1824,7 +1770,7 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
                         </div>
                       )}
-                      {topupAmount > 0 && (
+                      {planMode === "topup" && topupAmount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t("activation.checkout.topupLabel")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount}</span>

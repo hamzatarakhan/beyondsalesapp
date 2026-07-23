@@ -144,7 +144,6 @@
       "confirmLocation": "Confirm Location",
       "topupTitle": "Add Top-up",
       "topupSub": "Optional balance added to the line",
-      "topupRequiredSub": "Required for this plan — select a top-up amount",
       "topupHint": "Enter or select an amount",
       "topupPlaceholder": "Amount in SAR",
       "deviceTitle": "Device",
