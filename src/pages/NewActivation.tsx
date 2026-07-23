@@ -170,6 +170,8 @@ const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 50, 100, 150, 180, 200, 250];
 const FM_TOPUP_PRESETS_REQUIRED = [10, 20, 50, 100, 150, 180, 200, 250];
 // Identity test ID that forces the "top-up required" case (must pick ≥ 10).
 const FM_TOPUP_REQUIRED_ID = "1234512345";
+// Identity test ID that hides the PAYG plan type entirely (some customers don't get PAYG offered).
+const FM_NO_PAYG_ID = "5555544444";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
@@ -591,6 +593,8 @@ const NewActivation = () => {
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
   // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
   const topupRequired     = isFriendi && idNumber.trim() === FM_TOPUP_REQUIRED_ID;
+  // Some Friendi customers don't get PAYG offered at all — hide the chip and skip the auto-select.
+  const paygHidden        = isFriendi && idNumber.trim() === FM_NO_PAYG_ID;
   const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
   // so the 5G-MBB internet behaviour only applies to Virgin.
@@ -604,7 +608,7 @@ const NewActivation = () => {
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
   const activePlanChips  = isFriendi
-    ? FRIENDI_CHIPS
+    ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     : (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
         .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment || isMnp)))
         // MNP (Port In): no 5G Data (MBB) for prepaid, no Vnet for postpaid.
@@ -680,11 +684,11 @@ const NewActivation = () => {
 
   // Friendi: PAYG is the assumed default — if the dealer hasn't picked a plan, select PAYG.
   useEffect(() => {
-    if (isFriendi && selectedPlan == null) {
+    if (isFriendi && !paygHidden && selectedPlan == null) {
       const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
       if (paygIdx >= 0) setSelectedPlan(paygIdx);
     }
-  }, [isFriendi, selectedPlan]);
+  }, [isFriendi, selectedPlan, paygHidden]);
 
   // When the top-up case flips (optional ⇄ required, via the Identity test ID), clear the
   // selection so the optional case always starts on "Select Top-up Amount" (nothing selected)
@@ -1019,6 +1023,7 @@ const NewActivation = () => {
                 items={isFriendi ? [
                   { value: NORMAL_TEST_ID_NUMBER, note: "PAYG top-up optional (can skip)" },
                   { value: FM_TOPUP_REQUIRED_ID, note: "PAYG top-up required (min 10)" },
+                  { value: FM_NO_PAYG_ID, note: "No PAYG plan type offered" },
                 ] : [
                   { value: NORMAL_TEST_ID_NUMBER, note: "Normal customer" },
                   { value: WHITELISTED_TEST_ID_NUMBER, note: "Whitelisted customer" },
