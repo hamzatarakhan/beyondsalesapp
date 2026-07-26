@@ -1,5 +1,6 @@
 import Lottie from "lottie-react";
 import { useBrand } from "@/contexts/BrandContext";
+import SplashScreen from "@/components/SplashScreen";
 import friendiLoaderAnimation from "@/assets/friendi-loader.json";
 import virginLoaderAnimation from "@/assets/virgin-loader.json";
 
@@ -12,9 +13,15 @@ const LOADER_BOX_CLASS: Record<"virgin" | "friendi", string> = {
 };
 
 const BrandSwitchLoader = () => {
-  const { switchingTo } = useBrand();
+  const { switchingTo, switchPhase, finishBrandSwitch } = useBrand();
 
-  if (!switchingTo) return null;
+  if (!switchingTo || !switchPhase) return null;
+
+  // Second phase: hand off to the app's own splash screen so switching brands feels like
+  // the app is rebuilding itself, same as a cold start.
+  if (switchPhase === "splash") {
+    return <SplashScreen onFinish={finishBrandSwitch} />;
+  }
 
   const animationData = switchingTo === "friendi" ? friendiLoaderAnimation : virginLoaderAnimation;
 
