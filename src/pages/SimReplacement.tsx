@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerClose, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import {
@@ -130,6 +130,10 @@ const SimReplacement = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
+  const [terms, setTerms] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -217,7 +221,7 @@ const SimReplacement = () => {
   // ---------- Gates ----------
   const canContinueLookup = eligible;
   const canContinueDetails = idNumber.trim().length > 0 && isKitValid;
-  const canConfirm = verified && otpVerified;
+  const canConfirm = verified && otpVerified && terms;
 
   const resolveReplacement = () => {
     setConfirmOpen(false);
@@ -238,6 +242,7 @@ const SimReplacement = () => {
     setNewSimType("psim");
     setVerified(false);
     setOtpVerified(false);
+    setTerms(false);
     setPayMethod("wallet");
   };
 
@@ -414,6 +419,35 @@ const SimReplacement = () => {
               )}
             </CardSection>
 
+            {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start gap-3 select-none">
+                <div
+                  role="checkbox"
+                  aria-checked={terms}
+                  tabIndex={0}
+                  onClick={() => { if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                    terms ? "bg-primary border-primary" : "border-primary",
+                  )}
+                >
+                  {terms && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                  {t("activation.checkout.agreeTo")}{" "}
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                    {t("activation.checkout.terms")}
+                  </button>{" "}
+                  {t("activation.checkout.consentMiddle")}{" "}
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                    {t("activation.checkout.privacyPolicy")}
+                  </button>.
+                </p>
+              </div>
+            </section>
+
             {isChargeable && (
               <CardSection title="Payment Method" icon={CreditCard}>
                 <div className="space-y-2">
@@ -493,6 +527,61 @@ const SimReplacement = () => {
               )}
             </p>
           </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Terms drawer */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("activation.termsSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation.termsSheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation.termsSheet.p1")}</p>
+            <p>{t("activation.termsSheet.p2")}</p>
+            <p>{t("activation.termsSheet.p3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTerms(true); } }} className="w-full h-12 rounded-full">
+                {t("activation.termsSheet.accept")}
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                {t("activation.termsSheet.cancel")}
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Privacy Policy drawer */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("activation.privacySheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation.privacySheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation.privacySheet.p1")}</p>
+            <p>{t("activation.privacySheet.p2")}</p>
+            <p>{t("activation.privacySheet.p3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { if (termsChain) { setTerms(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
+                {t("activation.privacySheet.close")}
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
