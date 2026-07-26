@@ -33,6 +33,7 @@ import {
   ClipboardList,
   AlertCircle,
   Check,
+  CheckCircle2,
   XCircle,
   Smartphone,
   QrCode,
@@ -124,6 +125,11 @@ const SimReplacement = () => {
   // Step 2 — Checkout
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
+  const [otpError, setOtpError] = useState(false);
+  const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -163,10 +169,55 @@ const SimReplacement = () => {
 
   const isKitValid = newSimType === "esim" || /^\d{10}$/.test(kit);
 
+  // ---------- OTP handlers (same behavior as SIM Activation / Subscription Migration checkout OTP) ----------
+  useEffect(() => {
+    if (!otpOpen) return;
+    setOtpDigits(["", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const interval = setInterval(() => {
+      setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [otpOpen]);
+
+  const setOtpDigitAt = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setOtpDigits((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      if (d && i === 3) {
+        const code = next.join("");
+        setTimeout(() => {
+          if (code === "1111") {
+            setOtpError(true);
+          } else {
+            setOtpError(false);
+            setOtpVerified(true);
+            setOtpOpen(false);
+          }
+        }, 300);
+      }
+      return next;
+    });
+    if (d && i < 3) {
+      const el = document.getElementById(`sim-replacement-otp-${i + 1}`) as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+
+  const resendOtp = () => {
+    setOtpDigits(["", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const el = document.getElementById("sim-replacement-otp-0") as HTMLInputElement | null;
+    el?.focus();
+  };
+
   // ---------- Gates ----------
   const canContinueLookup = eligible;
   const canContinueDetails = idNumber.trim().length > 0 && isKitValid;
-  const canConfirm = verified;
+  const canConfirm = verified && otpVerified;
 
   const resolveReplacement = () => {
     setConfirmOpen(false);
@@ -186,6 +237,7 @@ const SimReplacement = () => {
     setLookupError(null);
     setNewSimType("psim");
     setVerified(false);
+    setOtpVerified(false);
     setPayMethod("wallet");
   };
 
@@ -348,6 +400,20 @@ const SimReplacement = () => {
               )}
             </CardSection>
 
+            <CardSection title={t("activation.checkout.otp")} icon={Phone}>
+              {otpVerified ? (
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+              )}
+            </CardSection>
+
             {isChargeable && (
               <CardSection title="Payment Method" icon={CreditCard}>
                 <div className="space-y-2">
@@ -383,6 +449,52 @@ const SimReplacement = () => {
 
       {/* Customer verification */}
       <SematiVerification open={verifyOpen} audience="customer" onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
+
+      {/* OTP verification */}
+      <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <h3 className="text-lg font-bold text-foreground">{t("activation.otpSheet.title")}</h3>
+            <p className="text-sm text-muted-foreground text-center px-4">
+              {otpError ? t("activation.otpSheet.errorSubtitle") : t("activation.otpSheet.subtitle")}
+            </p>
+            <div className="flex gap-3">
+              {otpDigits.map((d, i) => (
+                <input
+                  key={i}
+                  id={`sim-replacement-otp-${i}`}
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => setOtpDigitAt(i, e.target.value)}
+                  className={cn(
+                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none",
+                    otpError ? "border-destructive text-destructive" : "border-border focus:border-primary text-foreground",
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {otpError ? (
+                <>
+                  {t("activation.otpSheet.resendLabel")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
+                </>
+              ) : otpSecondsLeft > 0 ? (
+                <>
+                  {t("activation.otpSheet.noCode")}{" "}
+                  <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
+                </>
+              ) : (
+                <>
+                  {t("activation.otpSheet.noCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
+                </>
+              )}
+            </p>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* Nationality picker drawer */}
       <Drawer open={nationalityPickerOpen} onOpenChange={(o) => { setNationalityPickerOpen(o); if (!o) setNationalitySearch(""); }}>
