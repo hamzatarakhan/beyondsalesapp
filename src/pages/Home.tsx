@@ -24,7 +24,8 @@ import ActivityIcon from "@/components/ActivityIcon";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
 import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
@@ -47,6 +48,10 @@ const memberOnboarding = [
   { icon: ClipboardList, label: "Onboarding Requests", path: "/", badge: 3 },
 ];
 
+// Hero banner slides — same content repeated for now, swap in real variations later.
+const HERO_SLIDES = [0, 1, 2];
+const HERO_AUTOPLAY_MS = 4000;
+
 // Dealer-facing brand badge (top-left of header) — the swap icon next to it
 // opens a picker so a dealer selling for multiple brands can switch context.
 // Hidden for now — flip back on when the feature is ready to ship.
@@ -63,8 +68,38 @@ const Home = () => {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
+  const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true });
+  const [heroActiveSnap, setHeroActiveSnap] = useState(0);
+  const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
   const activeOp = OPERATORS.find((o) => o.id === activeOperator) ?? OPERATORS[0];
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
+
+  // Hero banner: track the active dot, and auto-advance on a timer — paused while the
+  // dealer is dragging the slide with their finger, resumed once they let go.
+  useEffect(() => {
+    if (!heroEmblaApi) return;
+    const onSelect = () => setHeroActiveSnap(heroEmblaApi.selectedScrollSnap());
+    heroEmblaApi.on("select", onSelect);
+    onSelect();
+    return () => { heroEmblaApi.off("select", onSelect); };
+  }, [heroEmblaApi]);
+
+  useEffect(() => {
+    if (!heroEmblaApi) return;
+    const startAutoplay = () => {
+      clearInterval(heroAutoplayRef.current);
+      heroAutoplayRef.current = setInterval(() => heroEmblaApi.scrollNext(), HERO_AUTOPLAY_MS);
+    };
+    const stopAutoplay = () => clearInterval(heroAutoplayRef.current);
+    startAutoplay();
+    heroEmblaApi.on("pointerDown", stopAutoplay);
+    heroEmblaApi.on("pointerUp", startAutoplay);
+    return () => {
+      stopAutoplay();
+      heroEmblaApi.off("pointerDown", stopAutoplay);
+      heroEmblaApi.off("pointerUp", startAutoplay);
+    };
+  }, [heroEmblaApi]);
 
   const activities = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
@@ -122,29 +157,40 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Hero Banner */}
+      {/* Hero Banner — auto-advances on a timer, swipeable with a finger */}
       <div className="px-4 pb-4">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-primary/80 h-[140px]">
-          <div className="absolute inset-0 p-5 flex flex-col justify-center z-10">
-            <h2 className="text-xl font-bold text-primary-foreground mb-1">
-              {t("home.hero.title")}
-            </h2>
-            <p className="text-sm text-primary-foreground/90 leading-snug">
-              {t("home.hero.subtitle").split("\n").map((line, i) => (
-                <span key={i}>{line}{i === 0 && <br />}</span>
+        <div className="relative rounded-2xl overflow-hidden h-[140px]">
+          <div className="overflow-hidden h-full" ref={heroEmblaRef}>
+            <div className="flex h-full">
+              {HERO_SLIDES.map((slide) => (
+                <div key={slide} className="relative shrink-0 grow-0 basis-full h-full bg-gradient-to-r from-primary to-primary/80">
+                  <div className="absolute inset-0 p-5 flex flex-col justify-center z-10">
+                    <h2 className="text-xl font-bold text-primary-foreground mb-1">
+                      {t("home.hero.title")}
+                    </h2>
+                    <p className="text-sm text-primary-foreground/90 leading-snug">
+                      {t("home.hero.subtitle").split("\n").map((line, i) => (
+                        <span key={i}>{line}{i === 0 && <br />}</span>
+                      ))}
+                    </p>
+                  </div>
+                  <img
+                    src={heroBanner}
+                    alt="Sales professional"
+                    className="absolute right-0 top-0 h-full w-1/2 object-cover object-left opacity-90"
+                  />
+                </div>
               ))}
-            </p>
+            </div>
           </div>
-          <img 
-            src={heroBanner} 
-            alt="Sales professional" 
-            className="absolute right-0 top-0 h-full w-1/2 object-cover object-left opacity-90"
-          />
           {/* Carousel dots */}
-          <div className="absolute bottom-3 left-5 flex gap-1.5">
-            <span className="w-5 h-1.5 rounded-full bg-primary-foreground" />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/50" />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/50" />
+          <div className="absolute bottom-3 left-5 flex gap-1.5 z-20">
+            {HERO_SLIDES.map((slide, i) => (
+              <span
+                key={slide}
+                className={i === heroActiveSnap ? "w-5 h-1.5 rounded-full bg-primary-foreground transition-all" : "w-1.5 h-1.5 rounded-full bg-primary-foreground/50 transition-all"}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -372,7 +418,7 @@ const Home = () => {
                 <button
                   key={op.id}
                   onClick={() => { setActiveOperator(op.id as Brand); setOperatorSheetOpen(false); }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-muted"}`}
                 >
                   <img src={op.logo} alt={op.name} className="w-10 h-10 rounded-full shrink-0" />
                   <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
