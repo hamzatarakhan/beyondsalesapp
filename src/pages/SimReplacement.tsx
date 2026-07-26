@@ -228,6 +228,7 @@ const SimReplacement = () => {
                 { value: "0503333311", note: "P-SIM, free replacement available" },
                 { value: "0503333322", note: "E-SIM, free replacement already used" },
                 { value: "0503333333", note: "P-SIM, free replacement already used" },
+                { value: "0503333399", note: "Number not found" },
               ]}
               onSelect={setMsisdn}
             />
