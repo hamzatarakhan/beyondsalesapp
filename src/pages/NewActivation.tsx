@@ -683,10 +683,23 @@ const NewActivation = () => {
   }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
 
   // Friendi: PAYG is the assumed default — if the dealer hasn't picked a plan, select PAYG.
+  // PAYG is filtered out of the "All" chip, so also switch to the PAYG chip here — otherwise
+  // the plan would be selected invisibly (not shown in "All") and the top-up section (which
+  // keys off the PAYG chip) would never appear.
   useEffect(() => {
-    if (isFriendi && !paygHidden && selectedPlan == null) {
-      const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
-      if (paygIdx >= 0) setSelectedPlan(paygIdx);
+    if (!isFriendi) return;
+    const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+    // If the test ID switches to "no PAYG offered" after PAYG was already auto-selected
+    // (e.g. the dealer picks it after landing on the default ID), drop that stale selection
+    // so the dealer has to pick a real plan instead.
+    if (paygHidden && selectedPlan === paygIdx) {
+      setSelectedPlan(null);
+      setPlanTypeChip("all");
+      return;
+    }
+    if (!paygHidden && selectedPlan == null && paygIdx >= 0) {
+      setSelectedPlan(paygIdx);
+      setPlanTypeChip("payg");
     }
   }, [isFriendi, selectedPlan, paygHidden]);
 
@@ -1660,7 +1673,7 @@ const NewActivation = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
-              {planMode === "topup" && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
+              {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && <SummaryRow label={t("activation.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
               {showNumber && <SummaryRow label={t("activation.checkout.numberType")} value={subType === "sim" ? t("activation.subscription.newNumberBtn") : t("activation.subscription.portMnp")} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
@@ -1906,7 +1919,7 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
                         </div>
                       )}
-                      {planMode === "topup" && topupAmount > 0 && (
+                      {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t("activation.checkout.topupLabel")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount}</span>
