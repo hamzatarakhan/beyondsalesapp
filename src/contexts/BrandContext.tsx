@@ -1,15 +1,19 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 
 export type Brand = "virgin" | "friendi";
 
 interface BrandContextValue {
   brand: Brand;
   setBrand: (b: Brand) => void;
+  /** Brand currently being switched to — non-null while the switch loader is showing. */
+  switchingTo: Brand | null;
 }
 
 const BrandContext = createContext<BrandContextValue | undefined>(undefined);
 
 const STORAGE_KEY = "app-brand";
+// How long the brand-switch loader shows before the new theme is applied.
+const SWITCH_DURATION_MS = 1100;
 
 function getInitialBrand(): Brand {
   if (typeof window === "undefined") return "virgin";
@@ -20,16 +24,28 @@ function getInitialBrand(): Brand {
 
 export const BrandProvider = ({ children }: { children: ReactNode }) => {
   const [brand, setBrandState] = useState<Brand>(getInitialBrand);
+  const [switchingTo, setSwitchingTo] = useState<Brand | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-brand", brand);
     localStorage.setItem(STORAGE_KEY, brand);
   }, [brand]);
 
-  const setBrand = (b: Brand) => setBrandState(b);
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  const setBrand = (b: Brand) => {
+    if (b === brand) return;
+    clearTimeout(timeoutRef.current);
+    setSwitchingTo(b);
+    timeoutRef.current = setTimeout(() => {
+      setBrandState(b);
+      setSwitchingTo(null);
+    }, SWITCH_DURATION_MS);
+  };
 
   return (
-    <BrandContext.Provider value={{ brand, setBrand }}>
+    <BrandContext.Provider value={{ brand, setBrand, switchingTo }}>
       {children}
     </BrandContext.Provider>
   );

@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { BrandProvider } from "./contexts/BrandContext";
 import SplashScreen from "./components/SplashScreen";
+import BrandSwitchLoader from "./components/BrandSwitchLoader";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Settings from "./pages/Settings";
@@ -45,6 +46,7 @@ const App = () => {
     <BrandProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+        <BrandSwitchLoader />
         <Toaster />
         <Sonner />
         <BrowserRouter>
