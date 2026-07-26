@@ -418,7 +418,7 @@ const Home = () => {
                 <button
                   key={op.id}
                   onClick={() => { setActiveOperator(op.id as Brand); setOperatorSheetOpen(false); }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-muted"}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
                 >
                   <img src={op.logo} alt={op.name} className="w-10 h-10 rounded-full shrink-0" />
                   <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
