@@ -168,6 +168,8 @@ const SubscriptionMigration = () => {
   const [planTypeChip, setPlanTypeChip] = useState<string>("all");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
 
   // Checkout — OTP
@@ -605,12 +607,34 @@ const SubscriptionMigration = () => {
               )}
             </CardSection>
 
-            <ConsentRow
-              label="Terms and Conditions"
-              checked={termsAccepted}
-              onToggle={() => setTermsAccepted((v) => !v)}
-              onLabelClick={() => setTermsOpen(true)}
-            />
+            {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start gap-3 select-none">
+                <div
+                  role="checkbox"
+                  aria-checked={termsAccepted}
+                  tabIndex={0}
+                  onClick={() => { if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                    termsAccepted ? "bg-primary border-primary" : "border-primary",
+                  )}
+                >
+                  {termsAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                  I agree to the{" "}
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                    Terms and Conditions
+                  </button>{" "}
+                  and acknowledge that my information will be processed in accordance with the{" "}
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                    Privacy Policy
+                  </button>.
+                </p>
+              </div>
+            </section>
             {direction === "pre-to-post" && (
               <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
             )}
@@ -708,7 +732,7 @@ const SubscriptionMigration = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => setTermsAccepted(true)} className="w-full h-12 rounded-full">
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTermsAccepted(true); } }} className="w-full h-12 rounded-full">
                 Accept
               </Button>
             </DrawerClose>
@@ -716,6 +740,40 @@ const SubscriptionMigration = () => {
               <button type="button" className="text-sm font-semibold text-primary">
                 Cancel
               </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Privacy Policy */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <XIcon className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Privacy Policy</DrawerTitle>
+            <DrawerDescription>Please review how the customer's data is collected and used.</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>
+              Personal and identity data collected during activation is used solely to process
+              the service request and meet regulatory requirements.
+            </p>
+            <p>
+              Data is stored securely and shared only with parties required to complete
+              activation, billing, or number portability.
+            </p>
+            <p>
+              The customer may request access to, correction of, or deletion of their data in
+              line with the applicable privacy regulations.
+            </p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
+                Close
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
