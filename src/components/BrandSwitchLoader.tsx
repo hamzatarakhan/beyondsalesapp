@@ -19,7 +19,7 @@ const BrandSwitchLoader = () => {
   const animationData = switchingTo === "friendi" ? friendiLoaderAnimation : virginLoaderAnimation;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80">
       <div className={LOADER_BOX_CLASS[switchingTo]}>
         <Lottie
           animationData={animationData}
