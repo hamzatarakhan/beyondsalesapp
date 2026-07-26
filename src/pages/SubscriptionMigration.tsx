@@ -122,6 +122,8 @@ interface DemoCustomer {
   planName: string;
   outstandingBalance?: number;
   isWhitelisted?: boolean;
+  /** 100% deposit fee waived — only set for specific whitelisted customers. */
+  depositWaiver?: boolean;
 }
 
 const DEMO_CUSTOMERS: DemoCustomer[] = [
@@ -129,10 +131,10 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111122", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true },
   { msisdn: "0501111133", subscriptionType: "prepaid", planCategory: "flex", planName: "Baqah Flex 100" },
   { msisdn: "0501111144", subscriptionType: "prepaid", planCategory: "data", planName: "300 GB (5G MBB)" },
+  { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
   { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 245.5 },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300", outstandingBalance: 0 },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
-  { msisdn: "0502222244", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 0, isWhitelisted: true },
 ];
 
 const ELIGIBLE_PREPAID_CATEGORIES = ["aman", "base-plan", "flex"];
@@ -162,6 +164,7 @@ const SubscriptionMigration = () => {
   const [customer, setCustomer] = useState<DemoCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
+  const [depositWaiver, setDepositWaiver] = useState(false);
 
   // Plan
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
@@ -171,6 +174,7 @@ const SubscriptionMigration = () => {
   const [termsChain, setTermsChain] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
+  const [creditScoreOpen, setCreditScoreOpen] = useState(false);
 
   // Checkout — OTP
   const [otpOpen, setOtpOpen] = useState(false);
@@ -214,6 +218,7 @@ const SubscriptionMigration = () => {
       }
       setCustomer(found);
       setIsWhitelisted(!!found.isWhitelisted);
+      setDepositWaiver(!!found.depositWaiver);
     }, 800);
     return () => clearTimeout(timer);
   }, [msisdn]);
@@ -229,7 +234,9 @@ const SubscriptionMigration = () => {
 
   // ---------- Pricing ----------
   const planPrice = selectedPlanObj?.price ?? 0;
-  const deposit = isWhitelisted ? 0 : planPrice;
+  // Whitelisted postpaid migration: no VAT, customer pays the deposit fee (= plan price) —
+  // unless the specific customer also has a 100% deposit waiver, in which case it's free.
+  const deposit = depositWaiver ? 0 : planPrice;
   const creditLimit = Math.round(planPrice * 0.2 * 100) / 100;
   const outstandingBalance = customer?.outstandingBalance ?? 0;
   const total = direction === "pre-to-post" ? deposit : outstandingBalance;
@@ -306,6 +313,7 @@ const SubscriptionMigration = () => {
     setCustomer(null);
     setLookupError(null);
     setIsWhitelisted(false);
+    setDepositWaiver(false);
     setSelectedPlan(null);
     setTermsAccepted(false);
     setCreditCheckAccepted(false);
@@ -385,9 +393,9 @@ const SubscriptionMigration = () => {
               description="Use these to try every case (pre-to-post/post-to-pre × whitelisted/not). This box won't appear in the real implementation."
               items={[
                 { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
-                { value: "0501111122", note: "Whitelisted customer", group: "Prepaid → Postpaid" },
+                { value: "0501111122", note: "Whitelisted — pays deposit fee, no VAT", group: "Prepaid → Postpaid" },
+                { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
-                { value: "0502222244", note: "Whitelisted customer", group: "Postpaid → Prepaid" },
               ]}
               onSelect={setMsisdn}
             />
@@ -516,18 +524,21 @@ const SubscriptionMigration = () => {
             <CardSection title="Payment Summary" icon={Receipt}>
               {direction === "pre-to-post" ? (() => {
                 const subtotal = deposit;
-                const vat = Math.round(subtotal * 0.15 * 100) / 100;
+                // Whitelisted: no VAT on the deposit fee, matching SIM Activation's postpaid-whitelisted rule.
+                const vat = isWhitelisted ? 0 : Math.round(subtotal * 0.15 * 100) / 100;
                 const grand = Math.round((subtotal + vat) * 100) / 100;
                 return (
                   <>
                     <div className="space-y-2 pb-3">
+                      {!isWhitelisted && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">Deposit</span>
-                        <span className="text-xs font-semibold text-foreground">{isWhitelisted ? "Waived" : `${deposit} SAR`}</span>
+                        <span className="text-[11px] text-muted-foreground">Deposit Fee</span>
+                        <span className="text-xs font-semibold text-foreground">{depositWaiver ? "Waived" : `${deposit} SAR`}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
@@ -636,7 +647,12 @@ const SubscriptionMigration = () => {
               </div>
             </section>
             {direction === "pre-to-post" && (
-              <ConsentRow label="Credit Score Check" checked={creditCheckAccepted} onToggle={() => setCreditCheckAccepted((v) => !v)} />
+              <ConsentRow
+                label="Credit Score Check"
+                checked={creditCheckAccepted}
+                onToggle={() => setCreditCheckAccepted((v) => !v)}
+                onLabelClick={() => setCreditScoreOpen(true)}
+              />
             )}
           </>
         )}
@@ -772,6 +788,40 @@ const SubscriptionMigration = () => {
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
               <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
+                Close
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Credit Score Check */}
+      <Drawer open={creditScoreOpen} onOpenChange={setCreditScoreOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <XIcon className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>Credit Score Check</DrawerTitle>
+            <DrawerDescription>Why we run a credit score check before moving the customer to postpaid.</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>
+              Moving to a postpaid plan requires a credit assessment to determine the customer's
+              eligible credit limit and confirm they qualify for postpaid billing.
+            </p>
+            <p>
+              The check is performed with a licensed credit bureau and does not affect the
+              customer's personal credit score.
+            </p>
+            <p>
+              Results are used only to set the account's credit limit and are not shared outside
+              the migration process.
+            </p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button className="w-full h-12 rounded-full">
                 Close
               </Button>
             </DrawerClose>
