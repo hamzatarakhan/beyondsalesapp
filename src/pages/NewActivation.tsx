@@ -682,24 +682,15 @@ const NewActivation = () => {
     }
   }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
 
-  // Friendi: PAYG is the assumed default — if the dealer hasn't picked a plan, select PAYG.
-  // PAYG is filtered out of the "All" chip, so also switch to the PAYG chip here — otherwise
-  // the plan would be selected invisibly (not shown in "All") and the top-up section (which
-  // keys off the PAYG chip) would never appear.
+  // Friendi: default the plan-type chip to "All" and let the dealer pick freely.
+  // If the test ID switches to "no PAYG offered" while PAYG happened to be selected,
+  // drop that stale selection so the dealer has to pick a real plan instead.
   useEffect(() => {
     if (!isFriendi) return;
     const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
-    // If the test ID switches to "no PAYG offered" after PAYG was already auto-selected
-    // (e.g. the dealer picks it after landing on the default ID), drop that stale selection
-    // so the dealer has to pick a real plan instead.
     if (paygHidden && selectedPlan === paygIdx) {
       setSelectedPlan(null);
       setPlanTypeChip("all");
-      return;
-    }
-    if (!paygHidden && selectedPlan == null && paygIdx >= 0) {
-      setSelectedPlan(paygIdx);
-      setPlanTypeChip("payg");
     }
   }, [isFriendi, selectedPlan, paygHidden]);
 
