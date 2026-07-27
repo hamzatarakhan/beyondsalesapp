@@ -1029,8 +1029,13 @@ const NewActivation = () => {
                     value={idNumber}
                     onChange={(e) => setIdNumber(e.target.value)}
                     placeholder={t("activation.identity.idPlaceholder")}
+                    className="h-12 bg-card rounded-xl"
+                    /* Validation still runs (see idNumberValid / canContinue) — just hiding the
+                       red-border + inline error hint for now. Revert to show them again:
                     className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                    */
                   />
+                  {/*
                   {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
                     <p className="text-xs text-destructive">
                       {idNumberRule.startDigits
@@ -1038,6 +1043,7 @@ const NewActivation = () => {
                         : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
                     </p>
                   )}
+                  */}
                 </Field>
               </>
             ) : (
