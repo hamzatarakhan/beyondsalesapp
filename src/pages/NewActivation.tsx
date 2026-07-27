@@ -1909,6 +1909,12 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                         </div>
                       )}
+                      {showNumber && subType === "sim" && numberFee === 0 && isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
+                          <span className="text-xs font-semibold text-emerald-600">{t("activation.checkout.free")}</span>
+                        </div>
+                      )}
                       {showDevice && deviceFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
