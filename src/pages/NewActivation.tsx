@@ -672,13 +672,10 @@ const NewActivation = () => {
   }, [idTypeAllowsPostpaid, payType]);
 
   // ID Number validation per the selected ID Type's rule (start digit(s) + exact length).
-  // The prototype's test ID numbers are exempt so the normal/whitelisted demo flows
-  // keep working regardless of which ID Type is selected.
   const idNumberRule = ID_TYPE_RULES[idType];
   const idNumberValid = useMemo(() => {
     const v = idNumber.trim();
     if (v.length === 0) return false;
-    if (v === NORMAL_TEST_ID_NUMBER || v === WHITELISTED_TEST_ID_NUMBER) return true;
     if (!idNumberRule) return true;
     if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
     if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
