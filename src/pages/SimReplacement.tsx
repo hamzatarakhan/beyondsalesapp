@@ -140,13 +140,13 @@ const SimReplacement = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  // ---------- MSISDN auto-lookup ----------
-  useEffect(() => {
+  // ---------- MSISDN lookup — triggered by the Search button, not on every keystroke ----------
+  const handleSearch = () => {
+    if (!/^\d{10}$/.test(msisdn)) return;
     setCustomer(null);
     setLookupError(null);
-    if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       setChecking(false);
       const found = DEMO_REPLACEMENT_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
@@ -162,8 +162,7 @@ const SimReplacement = () => {
       setIdNumber(found.idNumber);
       setKit("");
     }, 800);
-    return () => clearTimeout(timer);
-  }, [msisdn]);
+  };
 
   const eligible = !!customer && !lookupError;
 
@@ -219,8 +218,7 @@ const SimReplacement = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueLookup = eligible;
-  const canContinueDetails = idNumber.trim().length > 0 && isKitValid;
+  const canContinueDetails = eligible && idNumber.trim().length > 0 && isKitValid;
   const canConfirm = verified && otpVerified && terms;
 
   const resolveReplacement = () => {
@@ -247,7 +245,6 @@ const SimReplacement = () => {
   };
 
   const steps = [
-    { label: "Lookup", Icon: Phone },
     { label: "Replacement", Icon: RefreshCw },
     { label: "Checkout", Icon: Wallet },
   ];
@@ -261,21 +258,30 @@ const SimReplacement = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
-        {/* ── Step 0: Lookup ── */}
+        {/* ── Step 0: Lookup + Replacement details (merged) ── */}
         {step === 0 && (
           <>
             <Field label="MSISDN">
-              <div className="relative">
-                <Input
-                  value={msisdn}
-                  onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder="05XXXXXXXX"
-                  inputMode="numeric"
-                  className="h-12 bg-card rounded-xl pe-10"
-                />
-                <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    value={msisdn}
+                    onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
+                    placeholder="05XXXXXXXX"
+                    inputMode="numeric"
+                    className="h-12 bg-card rounded-xl pe-10"
+                  />
+                  <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                </div>
+                <Button
+                  type="button"
+                  className="h-12 px-5 rounded-xl shrink-0"
+                  disabled={!/^\d{10}$/.test(msisdn) || checking}
+                  onClick={handleSearch}
+                >
+                  {checking ? "Searching…" : "Search"}
+                </Button>
               </div>
-              {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
 
             <PrototypeTestBox
@@ -287,7 +293,7 @@ const SimReplacement = () => {
                 { value: "0503333333", note: "P-SIM, free replacement already used" },
                 { value: "0503333399", note: "Number not found" },
               ]}
-              onSelect={setMsisdn}
+              onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
             />
 
             {lookupError && (
@@ -296,83 +302,81 @@ const SimReplacement = () => {
                 <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
               </div>
             )}
-          </>
-        )}
 
-        {/* ── Step 1: Replacement details ── */}
-        {step === 1 && customer && (
-          <>
-            <CardSection title="Customer Details" icon={ClipboardList}>
-              <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Current SIM Type" value={simTypeLabel(customer.currentSimType)} />
-            </CardSection>
+            {customer && (
+              <>
+                <CardSection title="Customer Details" icon={ClipboardList}>
+                  <SummaryRow label="Customer Name" value={customer.name} />
+                  <SummaryRow label="Current SIM Type" value={simTypeLabel(customer.currentSimType)} />
+                </CardSection>
 
-            <Field label="Change To">
-              <div className="flex gap-3">
-                <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
-                <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
-              </div>
-            </Field>
-
-            <div className="space-y-2">
-              <div className="px-1">
-                <p className="text-sm font-semibold text-foreground">Identity Details</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Pre-filled from the customer's record — update if anything has changed.</p>
-              </div>
-              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                <Field label={t("activation.identity.idType")}>
-                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
-                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                      <SelectValue placeholder={t("activation.identity.idType")} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card">
-                      <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                      <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                      <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
-                      <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
-                      <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
-                      <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field label={t("activation.identity.nationality")}>
-                  <button
-                    type="button"
-                    onClick={() => setNationalityPickerOpen(true)}
-                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
-                  >
-                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </button>
-                </Field>
-                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
-                  <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                <Field label="Change To">
+                  <div className="flex gap-3">
+                    <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
+                    <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
+                  </div>
                 </Field>
 
-                {newSimType === "psim" && (
-                  <Field label="KIT Code">
-                    <div className="relative">
-                      <Input
-                        value={kit}
-                        onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder="KIT Code (10 Digits)"
-                        inputMode="numeric"
-                        className="h-12 bg-card rounded-xl pe-10"
-                      />
-                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
-                        <ScanLine className="w-5 h-5" />
+                <div className="space-y-2">
+                  <div className="px-1">
+                    <p className="text-sm font-semibold text-foreground">Identity Details</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Pre-filled from the customer's record — update if anything has changed.</p>
+                  </div>
+                  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                    <Field label={t("activation.identity.idType")}>
+                      <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                        <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                          <SelectValue placeholder={t("activation.identity.idType")} />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card">
+                          <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
+                          <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
+                          <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
+                          <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
+                          <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
+                          <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label={t("activation.identity.nationality")}>
+                      <button
+                        type="button"
+                        onClick={() => setNationalityPickerOpen(true)}
+                        className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+                      >
+                        <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                        <ChevronDown className="h-4 w-4 opacity-50" />
                       </button>
-                    </div>
-                  </Field>
-                )}
-              </div>
-            </div>
+                    </Field>
+                    <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
+                      <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                    </Field>
 
+                    {newSimType === "psim" && (
+                      <Field label="KIT Code">
+                        <div className="relative">
+                          <Input
+                            value={kit}
+                            onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                            placeholder="KIT Code (10 Digits)"
+                            inputMode="numeric"
+                            className="h-12 bg-card rounded-xl pe-10"
+                          />
+                          <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                            <ScanLine className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </Field>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
 
-        {/* ── Step 2: Checkout ── */}
-        {step === 2 && customer && (
+        {/* ── Step 1: Checkout ── */}
+        {step === 1 && customer && (
           <>
             <CardSection title="Replacement Summary" icon={ClipboardList}>
               <SummaryRow label="Customer Name" value={customer.name} />
@@ -464,16 +468,11 @@ const SimReplacement = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueLookup} onClick={() => setStep(1)}>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(1)}>
               Continue
             </Button>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(2)}>
-              Continue
-            </Button>
-          )}
-          {step === 2 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
               {isChargeable ? `Pay ${fee} SAR` : "Confirm Replacement"}
             </Button>
