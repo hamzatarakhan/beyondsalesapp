@@ -694,6 +694,17 @@ const NewActivation = () => {
     }
   }, [isFriendi, selectedPlan, paygHidden]);
 
+  // Friendi: when the dealer picks the PAYG chip, auto-select the PAYG plan so pricing
+  // and the top-up section appear immediately without an extra tap.
+  useEffect(() => {
+    if (!isFriendi || paygHidden) return;
+    if (planTypeChip !== "payg") return;
+    const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+    if (paygIdx >= 0 && selectedPlan !== paygIdx) {
+      setSelectedPlan(paygIdx);
+    }
+  }, [isFriendi, paygHidden, planTypeChip, selectedPlan]);
+
   // When the top-up case flips (optional ⇄ required, via the Identity test ID), clear the
   // selection so the optional case always starts on "Select Top-up Amount" (nothing selected)
   // and the required case re-applies its 10 default below.
