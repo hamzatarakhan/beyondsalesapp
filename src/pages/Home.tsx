@@ -209,6 +209,7 @@ const Home = () => {
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
+                badge={activity.id === "sim" ? undefined : "In Progress"}
                 onClick={() =>
                   activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement"
                     ? handleActivityClick(activity.path)
