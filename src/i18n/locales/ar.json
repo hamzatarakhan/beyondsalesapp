@@ -35,7 +35,25 @@
         "hajj": "الحج",
         "umrah": "العمرة",
         "gccPassport": "جواز دول الخليج",
-        "visitorPassport": "جواز الزائر"
+        "visitorPassport": "جواز الزائر",
+        "saudiId": "الهوية الوطنية السعودية",
+        "iqamaId": "الإقامة",
+        "borderVisa": "تأشيرة زيارة (رقم الحدود)",
+        "visitorVisa": "تأشيرة زائر",
+        "umrahVisa": "تأشيرة عمرة",
+        "hajVisa": "تأشيرة حج",
+        "premiumResidency": "الإقامة المميزة"
+      },
+      "idFieldLabels": {
+        "idNumber": "رقم الهوية",
+        "borderNumber": "رقم الحدود",
+        "gccIdNumber": "رقم هوية دول الخليج",
+        "visaNumber": "رقم التأشيرة",
+        "gccPassportNumber": "رقم جواز دول الخليج"
+      },
+      "idNumberErrors": {
+        "startAndLength": "يجب أن يبدأ بـ {{digits}} ويتكون من {{length}} أرقام بالضبط",
+        "lengthOnly": "يجب أن يتكون من {{length}} أرقام بالضبط"
       },
       "idPassport": "رقم الجواز",
       "borderIdNumber": "رقم هوية الحدود",
@@ -99,7 +117,7 @@
       "walletBalanceLabel": "رصيد محفظة المندوب",
       "prepaid": "دفع مسبق",
       "postpaid": "دفع لاحقا",
-      "postpaidSaudiOnly": "الدفع الآجل متاح فقط لحاملي الهوية الوطنية / الإقامة.",
+      "postpaidSaudiOnly": "الدفع الآجل متاح فقط لحاملي الهوية الوطنية السعودية أو الإقامة أو الإقامة المميزة.",
       "simType": "نوع الشريحة",
       "psim": "شريحة فعلية",
       "esim": "شريحة إلكترونية",

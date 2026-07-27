@@ -186,6 +186,30 @@ export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 // ID types whose field is labeled "Border ID Number" instead of "ID Number".
 export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
+// ID Type rules — order here drives the dropdown order (per the ID Type rules table).
+interface IdTypeRule {
+  labelKey: string;
+  fieldLabelKey: string;
+  startDigits?: string[];
+  length?: number;
+  postpaidAllowed: boolean;
+}
+const ID_TYPE_ORDER = [
+  "saudi-id", "iqama-id", "border-visa", "gcc-id", "visitor-visa",
+  "umrah-visa", "haj-visa", "gcc-passport", "premium-residency",
+] as const;
+const ID_TYPE_RULES: Record<string, IdTypeRule> = {
+  "saudi-id":          { labelKey: "saudiId",          fieldLabelKey: "idNumber",          startDigits: ["1"],             length: 10, postpaidAllowed: true },
+  "iqama-id":          { labelKey: "iqamaId",           fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
+  "border-visa":       { labelKey: "borderVisa",        fieldLabelKey: "borderNumber",      startDigits: ["3", "4", "5", "6"], length: 10, postpaidAllowed: false },
+  "gcc-id":            { labelKey: "gccId",             fieldLabelKey: "gccIdNumber",       postpaidAllowed: false },
+  "visitor-visa":      { labelKey: "visitorVisa",       fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "umrah-visa":        { labelKey: "umrahVisa",         fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "haj-visa":          { labelKey: "hajVisa",           fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "gcc-passport":      { labelKey: "gccPassport",       fieldLabelKey: "gccPassportNumber", postpaidAllowed: false },
+  "premium-residency": { labelKey: "premiumResidency",  fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
+};
+
 // Fulfilment demo emails — stand in for the real backend already knowing everything
 // the customer chose online once we look it up, instead of manual toggles. A paid
 // record seeds the subscription/number/commitment state so the locked view actually
@@ -469,7 +493,7 @@ const NewActivation = () => {
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
   // Stage 1 — Identity
-  const [idType, setIdType] = useState("national-id");
+  const [idType, setIdType] = useState("saudi-id");
   const [nationality, setNationality] = useState("sa");
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
@@ -639,11 +663,27 @@ const NewActivation = () => {
     setPlanMode("plan");
   }, [payType, lineType]);
 
-  // Non-Saudi/Iqama IDs are prepaid-only (no postpaid available for them)
-  const isSaudiId = idType === "national-id";
+  // Allowed Products per ID Type — only Saudi National ID, Iqama ID and Premium
+  // Residency support postpaid; every other ID type is prepaid-only.
+  const idTypeAllowsPostpaid = ID_TYPE_RULES[idType]?.postpaidAllowed ?? false;
+  const isSaudiId = idTypeAllowsPostpaid;
   useEffect(() => {
-    if (!isSaudiId && payType !== "prepaid") setPayType("prepaid");
-  }, [isSaudiId, payType]);
+    if (!idTypeAllowsPostpaid && payType !== "prepaid") setPayType("prepaid");
+  }, [idTypeAllowsPostpaid, payType]);
+
+  // ID Number validation per the selected ID Type's rule (start digit(s) + exact length).
+  // The prototype's test ID numbers are exempt so the normal/whitelisted demo flows
+  // keep working regardless of which ID Type is selected.
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberValid = useMemo(() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (v === NORMAL_TEST_ID_NUMBER || v === WHITELISTED_TEST_ID_NUMBER) return true;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  }, [idNumber, idNumberRule]);
 
   // Fulfilment QR scan — full-screen camera-style view opens straight into scanning,
   // then simulates finding the customer's completed online application.
@@ -902,7 +942,7 @@ const NewActivation = () => {
   const canContinue = useMemo(() => {
     if (step === 0) {
       if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
-      return !!idType && !!nationality && idNumber.trim().length > 0;
+      return !!idType && !!nationality && idNumberValid;
     }
     if (step === 1) {
       if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
@@ -915,7 +955,7 @@ const NewActivation = () => {
       return true;
     }
     return true;
-  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumberValid, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -966,17 +1006,14 @@ const NewActivation = () => {
             {!isFulfilment ? (
               <>
                 <Field label={t("activation.identity.idType")}>
-                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); }}>
                     <SelectTrigger className="w-full bg-card rounded-xl h-12">
                       <SelectValue placeholder={t("activation.identity.idType")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
-                      <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                      <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                      <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
-                      <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
-                      <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
-                      <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
+                      {ID_TYPE_ORDER.map((key) => (
+                        <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </Field>
@@ -990,8 +1027,20 @@ const NewActivation = () => {
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </button>
                 </Field>
-                <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
-                  <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                  <Input
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder={t("activation.identity.idPlaceholder")}
+                    className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                    <p className="text-xs text-destructive">
+                      {idNumberRule.startDigits
+                        ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                        : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                    </p>
+                  )}
                 </Field>
               </>
             ) : (

@@ -35,7 +35,25 @@
         "hajj": "Hajj",
         "umrah": "Umrah",
         "gccPassport": "GCC Passport",
-        "visitorPassport": "Visitor Passport"
+        "visitorPassport": "Visitor Passport",
+        "saudiId": "Saudi National ID",
+        "iqamaId": "Iqama ID",
+        "borderVisa": "Visit Visa (Border Number)",
+        "visitorVisa": "Visitor Visa",
+        "umrahVisa": "Umrah Visa",
+        "hajVisa": "Haj Visa",
+        "premiumResidency": "Premium Residency"
+      },
+      "idFieldLabels": {
+        "idNumber": "ID Number",
+        "borderNumber": "Border Number",
+        "gccIdNumber": "GCC ID Number",
+        "visaNumber": "Visa Number",
+        "gccPassportNumber": "GCC Passport Number"
+      },
+      "idNumberErrors": {
+        "startAndLength": "Must start with {{digits}} and be exactly {{length}} digits",
+        "lengthOnly": "Must be exactly {{length}} digits"
       },
       "idPassport": "ID Passport",
       "borderIdNumber": "Border ID Number",
@@ -99,7 +117,7 @@
       "walletBalanceLabel": "Dealer Wallet Balance",
       "prepaid": "Prepaid",
       "postpaid": "Postpaid",
-      "postpaidSaudiOnly": "Postpaid is only available for Saudi ID / Iqama holders.",
+      "postpaidSaudiOnly": "Postpaid is only available for Saudi National ID, Iqama ID or Premium Residency holders.",
       "simType": "SIM Type",
       "psim": "P-SIM",
       "esim": "E-SIM",
