@@ -168,10 +168,10 @@ const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"
 // preselected; "required" case starts at 10 (minimum) with 10 preselected by default.
 const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 15, 20, 30, 50, 100];
 const FM_TOPUP_PRESETS_REQUIRED = [10, 15, 20, 30, 50, 100];
-// Identity test ID that forces the "top-up required" case (must pick ≥ 10).
-const FM_TOPUP_REQUIRED_ID = "1234512345";
-// Identity test ID that hides the PAYG plan type entirely (some customers don't get PAYG offered).
-const FM_NO_PAYG_ID = "5555544444";
+// Identity test ID suffix that forces the "top-up required" case (must pick ≥ 10).
+const FM_TOPUP_REQUIRED_ID_SUFFIX = "234512345";
+// Identity test ID suffix that hides the PAYG plan type entirely (some customers don't get PAYG offered).
+const FM_NO_PAYG_ID_SUFFIX = "555544444";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
@@ -211,6 +211,10 @@ export const ID_TYPE_RULES: Record<string, IdTypeRule> = {
   "gcc-passport":      { labelKey: "gccPassport",       fieldLabelKey: "gccPassportNumber", postpaidAllowed: false },
   "premium-residency": { labelKey: "premiumResidency",  fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
 };
+// Builds a demo ID number that's valid for the given ID Type: leading digit from the
+// type's start-digit rule (first one, arbitrarily) plus a fixed 9-digit suffix that
+// identifies which demo case it is (normal, whitelisted, PAYG top-up required, etc.).
+const demoIdFor = (rule: IdTypeRule | undefined, suffix: string) => (rule?.startDigits?.[0] ?? "1") + suffix;
 
 // Fulfilment demo emails — stand in for the real backend already knowing everything
 // the customer chose online once we look it up, instead of manual toggles. A paid
@@ -274,9 +278,11 @@ const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 // Normal (non-fulfilment) flow demo ID numbers — whitelist status is derived from
-// which one is entered, instead of a manual toggle.
-const NORMAL_TEST_ID_NUMBER = "1324567896";
-const WHITELISTED_TEST_ID_NUMBER = "9876543210";
+// which one is entered, instead of a manual toggle. Stored as the trailing 9 digits;
+// the leading digit is filled in per the selected ID Type's start-digit rule (see
+// demoIdFor below) so the demo numbers stay valid no matter which ID Type is picked.
+const NORMAL_TEST_ID_SUFFIX = "324567896";
+const WHITELISTED_TEST_ID_SUFFIX = "876543210";
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -521,7 +527,7 @@ const NewActivation = () => {
   const fulfilmentLocked = isFulfilment && alreadyPaid;
   // Whitelist status (VPPR class 5→6) is derived from which demo ID number is entered,
   // same pattern as fulfilment deriving it from email — no manual toggle.
-  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim() === WHITELISTED_TEST_ID_NUMBER;
+  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim().length === 10 && idNumber.trim().endsWith(WHITELISTED_TEST_ID_SUFFIX);
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
   const SHOW_VANITY_OVERVIEW = false;
@@ -618,9 +624,9 @@ const NewActivation = () => {
   const isPaygPlan        = isFriendi && planTypeChip === "payg";
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
   // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
-  const topupRequired     = isFriendi && idNumber.trim() === FM_TOPUP_REQUIRED_ID;
+  const topupRequired     = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_TOPUP_REQUIRED_ID_SUFFIX);
   // Some Friendi customers don't get PAYG offered at all — hide the chip and skip the auto-select.
-  const paygHidden        = isFriendi && idNumber.trim() === FM_NO_PAYG_ID;
+  const paygHidden        = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_NO_PAYG_ID_SUFFIX);
   const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
   // so the 5G-MBB internet behaviour only applies to Virgin.
@@ -1085,12 +1091,12 @@ const NewActivation = () => {
                 heading="test ID numbers"
                 description="Use these to try both cases. This box won't appear in the real implementation."
                 items={isFriendi ? [
-                  { value: NORMAL_TEST_ID_NUMBER, note: "PAYG top-up optional (can skip)" },
-                  { value: FM_TOPUP_REQUIRED_ID, note: "PAYG top-up required (min 10)" },
-                  { value: FM_NO_PAYG_ID, note: "No PAYG plan type offered" },
+                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
+                  { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
+                  { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
                 ] : [
-                  { value: NORMAL_TEST_ID_NUMBER, note: "Normal customer" },
-                  { value: WHITELISTED_TEST_ID_NUMBER, note: "Whitelisted customer" },
+                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
+                  { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
                 ]}
                 onSelect={setIdNumber}
               />
