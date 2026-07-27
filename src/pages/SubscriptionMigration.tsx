@@ -308,11 +308,18 @@ const SubscriptionMigration = () => {
   };
 
   // ---------- Gates ----------
-  // ID Number must at least meet the selected ID Type's required length (start-digit
-  // strictness stays silent, matching SIM Activation's Identity step).
+  // ID Number must match the selected ID Type's full rule (start digit(s) + exact length),
+  // enforced silently — no visible hint, matching SIM Activation's Identity step.
   const idNumberRule = ID_TYPE_RULES[idType];
-  const idNumberLengthOk = idNumberRule?.length == null || idNumber.trim().length >= idNumberRule.length;
-  const canContinueIdentity = !!idType && !!idNumber.trim() && !!nationality && eligible && idNumberLengthOk;
+  const idNumberValid = (() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
+  const canContinueIdentity = !!idType && !!nationality && eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
   const canPay =
     otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
