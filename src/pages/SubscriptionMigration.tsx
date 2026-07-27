@@ -381,7 +381,19 @@ const SubscriptionMigration = () => {
               </Select>
             </Field>
             <Field label={ID_FIELD_LABELS[idNumberRule?.fieldLabelKey ?? "idNumber"]}>
-              <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="Enter ID number" className="h-12 bg-card rounded-xl" />
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                placeholder="Enter ID number"
+                className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+              />
+              {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                <p className="text-xs text-destructive">
+                  {idNumberRule.startDigits
+                    ? `Must start with ${idNumberRule.startDigits.join(", ")} and be exactly ${idNumberRule.length} digits`
+                    : `Must be exactly ${idNumberRule.length} digits`}
+                </p>
+              )}
             </Field>
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
