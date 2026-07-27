@@ -821,7 +821,11 @@ const NewActivation = () => {
   const selectedPlanTier = isPostpaidMobile && selectedPlanObj
     ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
     : 0;
-  const eligibleVanityCategories = VANITY_CATEGORIES.filter((c) => selectedPlanTier >= c.minTier);
+  // Prepaid has no elite-plan-tier structure like postpaid's "250+" — any prepaid plan
+  // unlocks every vanity tier for the free-with-commitment offer once a plan is selected.
+  const eligibleVanityCategories = isPrepaidMobile && selectedPlanObj
+    ? VANITY_CATEGORIES
+    : VANITY_CATEGORIES.filter((c) => selectedPlanTier >= c.minTier);
   // Map the picked number's tier to its vanity category (commitment toggle applies to it).
   const TIER_TO_VANITY: Record<string, string> = { diamond: "exotics", gold: "legendary", silver: "rare", bronze: "value", standard: "standard" };
   const pickedTier = DEMO_NUMBER_POOL.find((n) => n.number === phone)?.tier ?? "";
@@ -842,12 +846,12 @@ const NewActivation = () => {
   //   if (!t) return 0;
   //   return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
   // })() : 0;
-  // NEW approach: Switch Postpaid vanity numbers are free when committed, or charge the real
-  // vanity price when the dealer chose "Pay number price" instead. Everything else (Standard,
-  // Prepaid, MNP) keeps the old flat NUMBER_TABS fee.
+  // NEW approach: vanity numbers (postpaid or prepaid) are free when committed, or charge the
+  // real vanity price when the dealer chose "Pay number price" instead. Standard numbers and
+  // MNP keep the old flat NUMBER_TABS fee.
   const rawNumberFee = showNumber && subType === "sim" ? (() => {
     const flatFee = NUMBER_TABS.find(tab => tab.value === pickedTier)?.fee ?? 0;
-    if (!isPostpaidMobile || pickedTier === "standard" || !pickedVanityCat) return flatFee;
+    if (pickedTier === "standard" || !pickedVanityCat) return flatFee;
     if (pickedCategoryEligibleFree && vanityCommitment) return 0;
     return pickedVanityCat.price;
   })() : 0;
@@ -1199,7 +1203,7 @@ const NewActivation = () => {
                         const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
                         const tab = NUMBER_TABS.find(t => t.value === tier);
                         if (!tab || tab.value === "all") return null;
-                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        const showCommitted = (isPostpaidMobile || isPrepaidMobile) && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
                         return (
                           <div className="flex flex-col items-center gap-0.5">
                             <div className="flex items-center justify-center gap-1.5">
@@ -1476,7 +1480,7 @@ const NewActivation = () => {
                         const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
                         const tab = NUMBER_TABS.find(t => t.value === tier);
                         if (!tab || tab.value === "all") return null;
-                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        const showCommitted = (isPostpaidMobile || isPrepaidMobile) && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
                         return (
                           <div className="flex flex-col items-center gap-0.5">
                             <div className="flex items-center justify-center gap-1.5">
@@ -1909,6 +1913,12 @@ const NewActivation = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
                         </div>
                       )}
+                      {showNumber && subType === "sim" && numberFee === 0 && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation.checkout.numberPrice")}</span>
+                          <span className="text-xs font-semibold text-emerald-600">{t("activation.vanity.commitmentOn", { months: pickedVanityCat.months })}</span>
+                        </div>
+                      )}
                       {showDevice && deviceFee > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
@@ -2322,7 +2332,7 @@ const NewActivation = () => {
                   {filtered.map((item, i) => {
                     const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
                     const fee = tier.fee ?? 0;
-                    const isVanityTier = isPostpaidMobile && fee > 0 && item.tier !== "standard";
+                    const isVanityTier = (isPostpaidMobile || isPrepaidMobile) && fee > 0 && item.tier !== "standard";
                     // Before a plan is picked, only tiers free on any plan are shown at all — plain "Free".
                     // Once a plan is selected, only the tiers that plan actually qualifies for are "free with
                     // commitment"; the rest (e.g. Diamond on a Gold-level plan) show their normal paid price.
