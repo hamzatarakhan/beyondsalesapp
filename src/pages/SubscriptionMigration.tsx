@@ -6,7 +6,7 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES } from "@/pages/NewActivation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -148,6 +148,27 @@ const CATEGORY_LABEL: Record<string, string> = {
   vnet: "Vnet",
 };
 
+// Plain-English labels for the shared ID_TYPE_RULES keys (mirrors NewActivation.tsx's
+// i18n copy) — this page doesn't use i18n yet, so these stay local string constants.
+const ID_TYPE_LABELS: Record<string, string> = {
+  saudiId: "Saudi National ID",
+  iqamaId: "Iqama ID",
+  borderVisa: "Visit Visa (Border Number)",
+  gccId: "GCC ID",
+  visitorVisa: "Visitor Visa",
+  umrahVisa: "Umrah Visa",
+  hajVisa: "Haj Visa",
+  gccPassport: "GCC Passport",
+  premiumResidency: "Premium Residency",
+};
+const ID_FIELD_LABELS: Record<string, string> = {
+  idNumber: "ID Number",
+  borderNumber: "Border Number",
+  gccIdNumber: "GCC ID Number",
+  visaNumber: "Visa Number",
+  gccPassportNumber: "GCC Passport Number",
+};
+
 const SubscriptionMigration = () => {
   const navigate = useNavigate();
 
@@ -156,7 +177,7 @@ const SubscriptionMigration = () => {
   const [step, setStep] = useState(0);
 
   // Identity
-  const [idType, setIdType] = useState("national-id");
+  const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("1324567896");
   const [nationality, setNationality] = useState("sa");
   const [msisdn, setMsisdn] = useState("0501111133");
@@ -287,7 +308,11 @@ const SubscriptionMigration = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueIdentity = !!idType && !!idNumber.trim() && !!nationality && eligible;
+  // ID Number must at least meet the selected ID Type's required length (start-digit
+  // strictness stays silent, matching SIM Activation's Identity step).
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberLengthOk = idNumberRule?.length == null || idNumber.trim().length >= idNumberRule.length;
+  const canContinueIdentity = !!idType && !!idNumber.trim() && !!nationality && eligible && idNumberLengthOk;
   const canContinuePlan = selectedPlan != null;
   const canPay =
     otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
@@ -306,7 +331,7 @@ const SubscriptionMigration = () => {
   const resetAll = () => {
     setDirection(null);
     setStep(0);
-    setIdType("national-id");
+    setIdType("saudi-id");
     setIdNumber("1324567896");
     setNationality("sa");
     setMsisdn("0501111133");
@@ -337,19 +362,18 @@ const SubscriptionMigration = () => {
         {step === 0 && (
           <>
             <Field label="ID Type">
-              <Select value={idType} onValueChange={setIdType}>
+              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); }}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue placeholder="Select ID type" />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
-                  <SelectItem value="national-id">Saudi ID / Iqama ID</SelectItem>
-                  <SelectItem value="gcc-id">GCC ID</SelectItem>
-                  <SelectItem value="gcc-passport">GCC Passport</SelectItem>
-                  <SelectItem value="visitor-passport">Visitor Passport</SelectItem>
+                  {ID_TYPE_ORDER.map((key) => (
+                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="ID Number">
+            <Field label={ID_FIELD_LABELS[idNumberRule?.fieldLabelKey ?? "idNumber"]}>
               <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="Enter ID number" className="h-12 bg-card rounded-xl" />
             </Field>
             <Field label="Nationality">

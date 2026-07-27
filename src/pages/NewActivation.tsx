@@ -187,18 +187,20 @@ export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
 export const BORDER_ID_TYPES = ["hajj", "umrah"];
 
 // ID Type rules — order here drives the dropdown order (per the ID Type rules table).
-interface IdTypeRule {
+// Exported so other Identity-capturing flows (Subscription Migration, SIM Replacement, etc.)
+// can reuse the same types, field labels, and validation rules.
+export interface IdTypeRule {
   labelKey: string;
   fieldLabelKey: string;
   startDigits?: string[];
   length?: number;
   postpaidAllowed: boolean;
 }
-const ID_TYPE_ORDER = [
+export const ID_TYPE_ORDER = [
   "saudi-id", "iqama-id", "border-visa", "gcc-id", "visitor-visa",
   "umrah-visa", "haj-visa", "gcc-passport", "premium-residency",
 ] as const;
-const ID_TYPE_RULES: Record<string, IdTypeRule> = {
+export const ID_TYPE_RULES: Record<string, IdTypeRule> = {
   "saudi-id":          { labelKey: "saudiId",          fieldLabelKey: "idNumber",          startDigits: ["1"],             length: 10, postpaidAllowed: true },
   "iqama-id":          { labelKey: "iqamaId",           fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
   "border-visa":       { labelKey: "borderVisa",        fieldLabelKey: "borderNumber",      startDigits: ["3", "4", "5", "6"], length: 10, postpaidAllowed: false },
