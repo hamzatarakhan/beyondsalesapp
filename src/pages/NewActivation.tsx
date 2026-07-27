@@ -166,8 +166,8 @@ export const FRIENDI_PLANS: typeof SHARED_PLANS = [
 const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
 // Friendi PAYG top-up presets (SAR). "Optional" case includes 0 (skip allowed) with nothing
 // preselected; "required" case starts at 10 (minimum) with 10 preselected by default.
-const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 50, 100, 150, 180, 200, 250];
-const FM_TOPUP_PRESETS_REQUIRED = [10, 20, 50, 100, 150, 180, 200, 250];
+const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 15, 20, 30, 50, 100];
+const FM_TOPUP_PRESETS_REQUIRED = [10, 15, 20, 30, 50, 100];
 // Identity test ID that forces the "top-up required" case (must pick ≥ 10).
 const FM_TOPUP_REQUIRED_ID = "1234512345";
 // Identity test ID that hides the PAYG plan type entirely (some customers don't get PAYG offered).
