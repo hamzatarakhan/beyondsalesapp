@@ -315,6 +315,20 @@ const SimReplacement = () => {
                     <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
                     <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
                   </div>
+                  {newSimType === "psim" && (
+                    <div className="relative mt-3">
+                      <Input
+                        value={kit}
+                        onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="KIT Code (10 Digits)"
+                        inputMode="numeric"
+                        className="h-12 bg-card rounded-xl pe-10"
+                      />
+                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                        <ScanLine className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
                 </Field>
 
                 <div className="space-y-2">
@@ -351,23 +365,6 @@ const SimReplacement = () => {
                     <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
                       <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
                     </Field>
-
-                    {newSimType === "psim" && (
-                      <Field label="KIT Code">
-                        <div className="relative">
-                          <Input
-                            value={kit}
-                            onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                            placeholder="KIT Code (10 Digits)"
-                            inputMode="numeric"
-                            className="h-12 bg-card rounded-xl pe-10"
-                          />
-                          <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
-                            <ScanLine className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </Field>
-                    )}
                   </div>
                 </div>
               </>
