@@ -939,7 +939,9 @@ const NewActivation = () => {
   const canContinue = useMemo(() => {
     if (step === 0) {
       if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
-      return !!idType && !!nationality && idNumberValid;
+      // idNumberValid is computed but not enforced yet — Continue only needs a non-empty
+      // number for now. Swap back to `idNumberValid` once the format rule should block.
+      return !!idType && !!nationality && idNumber.trim().length > 0;
     }
     if (step === 1) {
       if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
@@ -952,7 +954,7 @@ const NewActivation = () => {
       return true;
     }
     return true;
-  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumberValid, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -1030,8 +1032,8 @@ const NewActivation = () => {
                     onChange={(e) => setIdNumber(e.target.value)}
                     placeholder={t("activation.identity.idPlaceholder")}
                     className="h-12 bg-card rounded-xl"
-                    /* Validation still runs (see idNumberValid / canContinue) — just hiding the
-                       red-border + inline error hint for now. Revert to show them again:
+                    /* idNumberValid is computed but not enforced (see canContinue) and its
+                       red-border + inline error hint are hidden for now. Revert to show them:
                     className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
                     */
                   />
