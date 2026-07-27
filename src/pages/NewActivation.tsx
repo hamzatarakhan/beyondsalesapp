@@ -939,9 +939,10 @@ const NewActivation = () => {
   const canContinue = useMemo(() => {
     if (step === 0) {
       if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
-      // idNumberValid is computed but not enforced yet — Continue only needs a non-empty
-      // number for now. Swap back to `idNumberValid` once the format rule should block.
-      return !!idType && !!nationality && idNumber.trim().length > 0;
+      // Full idNumberValid (start digit + exact length) isn't enforced yet — but a number
+      // shorter than the selected ID Type's required length still blocks Continue.
+      const idLengthOk = idNumberRule?.length == null || idNumber.trim().length >= idNumberRule.length;
+      return !!idType && !!nationality && idNumber.trim().length > 0 && idLengthOk;
     }
     if (step === 1) {
       if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
