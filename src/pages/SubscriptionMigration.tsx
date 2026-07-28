@@ -598,7 +598,7 @@ const SubscriptionMigration = () => {
                 const subtotal = deposit;
                 // Whitelisted: no VAT on the deposit fee, matching SIM Activation's postpaid-whitelisted rule.
                 const vat = isWhitelisted ? 0 : Math.round(subtotal * 0.15 * 100) / 100;
-                const grand = Math.round((subtotal + vat) * 100) / 100;
+                const grand = Math.round((subtotal + vat + outstandingBalance) * 100) / 100;
                 return (
                   <>
                     <div className="space-y-2 pb-3">
@@ -612,6 +612,35 @@ const SubscriptionMigration = () => {
                         <span className="text-[11px] text-muted-foreground">Deposit Fee</span>
                         <span className="text-xs font-semibold text-foreground">{depositWaiver ? "Waived" : `${deposit} SAR`}</span>
                       </div>
+                      {outstandingBalance > 0 && (() => {
+                        const currentBalance = 0;
+                        const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
+                        const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
+                        return (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Status</span>
+                              <span className="text-xs font-semibold text-red-600">Not paid</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Current Balance</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Total Outstanding Amount</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
