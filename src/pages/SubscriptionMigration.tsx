@@ -478,7 +478,13 @@ const SubscriptionMigration = () => {
                 : "flex";
               return (
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 px-1">Current Plan</h3>
+                  <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
+                    <h3 className="text-sm font-semibold text-foreground">Current Plan</h3>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+                      <ClipboardList className="w-3 h-3" />
+                      {customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} · {customer.planName}
+                    </span>
+                  </div>
                   <PlanCard
                     plan={{ ...p, badge: undefined }}
                     selected
@@ -491,17 +497,9 @@ const SubscriptionMigration = () => {
                 </div>
               );
             })()}
-            <div className="flex items-center justify-between gap-2 px-1 flex-wrap">
-              <h3 className="text-sm font-semibold text-foreground">
-                {direction === "pre-to-post" ? "Available Postpaid Plans" : "Available Prepaid Plans"}
-              </h3>
-              {customer && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
-                  <ClipboardList className="w-3 h-3" />
-                  {customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} · {customer.planName}
-                </span>
-              )}
-            </div>
+            <h3 className="text-sm font-semibold text-foreground px-1">
+              {direction === "pre-to-post" ? "Available Postpaid Plans" : "Available Prepaid Plans"}
+            </h3>
             {direction === "post-to-pre" && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {[
