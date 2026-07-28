@@ -333,7 +333,10 @@ const SubscriptionMigration = () => {
   const canContinueIdentity = !!idType && !!nationality && eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
   const canPay =
-    customerVerified && otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
+    (direction === "post-to-pre" || customerVerified) &&
+    otpVerified &&
+    termsAccepted &&
+    (direction === "post-to-pre" || creditCheckAccepted);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
