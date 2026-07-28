@@ -35,9 +35,11 @@ interface Props {
   onMethodSelected?: (method: Method) => void;
   onVerified: () => void;
   audience?: "dealer" | "customer" | "manafath";
+  allowedMethods?: Method[];
 }
 
-const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audience = "customer" }: Props) => {
+const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audience = "customer", allowedMethods }: Props) => {
+  const methodAllowed = (m: Method) => !allowedMethods || allowedMethods.includes(m);
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
@@ -170,7 +172,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
           </p>
 
           <div className="space-y-3">
-            <MethodCard
+            {methodAllowed("nafath") && <MethodCard
               onClick={() => pickMethod("nafath")}
               iconBg="bg-teal-500"
               iconContent={
@@ -180,23 +182,23 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               }
               title={audience === "manafath" ? t("activation.verification.manafath") : t("activation.verification.nafath")}
               desc={audience === "manafath" ? t("activation.verification.manafathMethodDesc") : t("activation.verification.nafathMethodDesc")}
-            />
+            />}
             {audience !== "manafath" && (
               <>
-                <MethodCard
+                {methodAllowed("fingerprint") && <MethodCard
                   onClick={() => pickMethod("fingerprint")}
                   iconBg="bg-rose-100 dark:bg-rose-500/15"
                   iconContent={<Fingerprint className="w-5 h-5 text-rose-500" />}
                   title={t("activation.verification.fingerprint")}
                   desc={t("activation.verification.fingerprintMethodDesc")}
-                />
-                <MethodCard
+                />}
+                {methodAllowed("absher") && <MethodCard
                   onClick={() => pickMethod("absher")}
                   iconBg=""
                   iconContent={<img src={absherIcon} alt="Absher" className="w-10 h-10" />}
                   title={t("activation.verification.absher")}
                   desc={t("activation.verification.absherMethodDesc")}
-                />
+                />}
               </>
             )}
           </div>
