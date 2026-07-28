@@ -39,8 +39,10 @@ import {
   Phone,
   X as XIcon,
   Info,
+  UserCheck,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import SematiVerification from "@/components/SematiVerification";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx's page-local helpers) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -209,6 +211,10 @@ const SubscriptionMigration = () => {
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
+  // Checkout — Customer Verification (ID via Semati) — gates OTP + Pay
+  const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
+  const [customerVerified, setCustomerVerified] = useState(false);
+
   // Checkout — payment
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -327,7 +333,7 @@ const SubscriptionMigration = () => {
   const canContinueIdentity = !!idType && !!nationality && eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
   const canPay =
-    otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
+    customerVerified && otpVerified && termsAccepted && (direction === "post-to-pre" || creditCheckAccepted);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -356,6 +362,7 @@ const SubscriptionMigration = () => {
     setCreditCheckAccepted(false);
     setOtpVerified(false);
     setPayMethod("wallet");
+    setCustomerVerified(false);
   };
 
   const steps = [
@@ -663,6 +670,20 @@ const SubscriptionMigration = () => {
               </div>
             </CardSection>
 
+            <CardSection title="Customer Verification" icon={UserCheck}>
+              {customerVerified ? (
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Customer Verified</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>Verify Customer</Button>
+              )}
+            </CardSection>
+
             <CardSection title="OTP Verification" icon={Phone}>
               {otpVerified ? (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
@@ -673,7 +694,12 @@ const SubscriptionMigration = () => {
                   </div>
                 </div>
               ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                <>
+                  <Button variant="outline" className="w-full" disabled={!customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                  {!customerVerified && (
+                    <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
+                  )}
+                </>
               )}
             </CardSection>
 
@@ -963,6 +989,13 @@ const SubscriptionMigration = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <SematiVerification
+        open={customerVerifyOpen}
+        audience="customer"
+        onClose={() => setCustomerVerifyOpen(false)}
+        onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
+      />
     </div>
   );
 };
