@@ -400,6 +400,12 @@ const SubscriptionMigration = () => {
                 </p>
               )}
             </Field>
+            <PrototypeTestBox
+              heading="test ID numbers"
+              description="A valid demo ID number for the selected ID Type."
+              items={[{ value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}` }]}
+              onSelect={setIdNumber}
+            />
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
