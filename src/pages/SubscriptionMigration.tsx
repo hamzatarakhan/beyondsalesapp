@@ -400,12 +400,6 @@ const SubscriptionMigration = () => {
                 </p>
               )}
             </Field>
-            <PrototypeTestBox
-              heading="test ID numbers"
-              description="A valid demo ID number for the selected ID Type."
-              items={[{ value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}` }]}
-              onSelect={setIdNumber}
-            />
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -443,15 +437,22 @@ const SubscriptionMigration = () => {
             )}
 
             <PrototypeTestBox
-              heading="test MSISDNs"
-              description="Use these to try every case (pre-to-post/post-to-pre × whitelisted/not). This box won't appear in the real implementation."
+              heading="test numbers"
+              description="Use these to try every case (pre-to-post/post-to-pre × whitelisted/not), plus a demo ID Number valid for whichever ID Type is currently selected. This box won't appear in the real implementation."
               items={[
+                { value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}`, group: "ID Number" },
                 { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
                 { value: "0501111122", note: "Whitelisted — pays deposit fee, no VAT", group: "Prepaid → Postpaid" },
                 { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
               ]}
               onSelect={(v) => {
+                // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
+                // Number field only, leaving MSISDN and the rest of the form untouched.
+                if (!/^05\d{8}$/.test(v)) {
+                  setIdNumber(v);
+                  return;
+                }
                 setMsisdn(v);
                 // Fill in the rest of the Identity step with a known-valid pair too, so
                 // picking a demo MSISDN gets the whole step ready in one tap.
