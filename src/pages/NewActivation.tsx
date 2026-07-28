@@ -1017,7 +1017,7 @@ const NewActivation = () => {
             {!isFulfilment ? (
               <>
                 <Field label={t("activation.identity.idType")}>
-                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); }}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v], NORMAL_TEST_ID_SUFFIX)); }}>
                     <SelectTrigger className="w-full bg-card rounded-xl h-12">
                       <SelectValue placeholder={t("activation.identity.idType")} />
                     </SelectTrigger>

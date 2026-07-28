@@ -374,7 +374,7 @@ const SubscriptionMigration = () => {
         {step === 0 && (
           <>
             <Field label="ID Type">
-              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); }}>
+              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue placeholder="Select ID type" />
                 </SelectTrigger>
