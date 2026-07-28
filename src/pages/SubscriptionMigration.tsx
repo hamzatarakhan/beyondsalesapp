@@ -703,8 +703,8 @@ const SubscriptionMigration = () => {
                 </div>
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" disabled={direction !== "post-to-pre" && !customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
-                  {direction !== "post-to-pre" && !customerVerified && (
+                  <Button variant="outline" className="w-full" disabled={!customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                  {!customerVerified && (
                     <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
                   )}
                 </>
