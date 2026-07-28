@@ -23,9 +23,10 @@ import {
   DEALER_WALLET_BALANCE,
   VerifiedBanner,
   NATIONALITY_CODES,
-  PASSPORT_ID_TYPES,
-  BORDER_ID_TYPES,
   ESIM_DEVICES,
+  ID_TYPE_ORDER,
+  ID_TYPE_RULES,
+  type IdTypeRule,
 } from "@/pages/NewActivation";
 import {
   Phone,
@@ -94,10 +95,15 @@ interface DemoReplacementCustomer {
 }
 
 const DEMO_REPLACEMENT_CUSTOMERS: DemoReplacementCustomer[] = [
-  { msisdn: "0503333311", name: "Mohammed Al-Qahtani", currentSimType: "psim", subscriptionType: "Postpaid", freeReplacementUsed: false, idType: "national-id", nationality: "sa", idNumber: "1029384756" },
-  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true, idType: "national-id", nationality: "sa", idNumber: "1098765432" },
+  { msisdn: "0503333311", name: "Mohammed Al-Qahtani", currentSimType: "psim", subscriptionType: "Postpaid", freeReplacementUsed: false, idType: "saudi-id", nationality: "sa", idNumber: "1029384756" },
+  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true, idType: "iqama-id", nationality: "sa", idNumber: "2098765432" },
   { msisdn: "0503333333", name: "Khalid Al-Dossari", currentSimType: "psim", subscriptionType: "Data SIM", freeReplacementUsed: true, idType: "gcc-id", nationality: "ae", idNumber: "2233445566" },
 ];
+
+// Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
+// (mirrors NewActivation.tsx's demoIdFor) so switching type keeps the field valid.
+const DEMO_ID_SUFFIX = "029384756";
+const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "1") + DEMO_ID_SUFFIX;
 
 const PHYSICAL_FEE = 15;
 const ESIM_FEE = 10;
@@ -117,7 +123,7 @@ const SimReplacement = () => {
 
   // Step 1 — Replacement details
   const [newSimType, setNewSimType] = useState<"esim" | "psim">("psim");
-  const [idType, setIdType] = useState("national-id");
+  const [idType, setIdType] = useState("saudi-id");
   const [nationality, setNationality] = useState("sa");
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
@@ -223,7 +229,18 @@ const SimReplacement = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueDetails = eligible && idNumber.trim().length > 0 && isKitValid;
+  // ID Number must match the selected ID Type's full rule (start digit(s) + exact length),
+  // same as SIM Activation's Identity step.
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberValid = (() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
+  const canContinueDetails = eligible && idNumberValid && isKitValid;
   const canConfirm = verified && otpVerified && terms;
 
   const resolveReplacement = () => {
@@ -355,17 +372,14 @@ const SimReplacement = () => {
                   </div>
                   <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                     <Field label={t("activation.identity.idType")}>
-                      <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "national-id") setNationality("sa"); }}>
+                      <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                         <SelectTrigger className="w-full bg-card rounded-xl h-12">
                           <SelectValue placeholder={t("activation.identity.idType")} />
                         </SelectTrigger>
                         <SelectContent className="bg-card">
-                          <SelectItem value="national-id">{t("activation.identity.idTypes.saudi")}</SelectItem>
-                          <SelectItem value="gcc-id">{t("activation.identity.idTypes.gccId")}</SelectItem>
-                          <SelectItem value="hajj">{t("activation.identity.idTypes.hajj")}</SelectItem>
-                          <SelectItem value="umrah">{t("activation.identity.idTypes.umrah")}</SelectItem>
-                          <SelectItem value="gcc-passport">{t("activation.identity.idTypes.gccPassport")}</SelectItem>
-                          <SelectItem value="visitor-passport">{t("activation.identity.idTypes.visitorPassport")}</SelectItem>
+                          {ID_TYPE_ORDER.map((key) => (
+                            <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </Field>
@@ -379,8 +393,20 @@ const SimReplacement = () => {
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </button>
                     </Field>
-                    <Field label={PASSPORT_ID_TYPES.includes(idType) ? t("activation.identity.idPassport") : BORDER_ID_TYPES.includes(idType) ? t("activation.identity.borderIdNumber") : t("activation.identity.idNumber")}>
-                      <Input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder={t("activation.identity.idPlaceholder")} className="h-12 bg-card rounded-xl" />
+                    <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                      <Input
+                        value={idNumber}
+                        onChange={(e) => setIdNumber(e.target.value)}
+                        placeholder={t("activation.identity.idPlaceholder")}
+                        className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                      />
+                      {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                        <p className="text-xs text-destructive">
+                          {idNumberRule.startDigits
+                            ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                            : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                        </p>
+                      )}
                     </Field>
                   </div>
                 </div>
