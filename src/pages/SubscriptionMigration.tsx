@@ -400,12 +400,6 @@ const SubscriptionMigration = () => {
                 </p>
               )}
             </Field>
-            <PrototypeTestBox
-              heading="test ID numbers"
-              description="A valid demo ID number for the selected ID Type."
-              items={[{ value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}` }]}
-              onSelect={setIdNumber}
-            />
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -451,7 +445,13 @@ const SubscriptionMigration = () => {
                 { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
               ]}
-              onSelect={setMsisdn}
+              onSelect={(v) => {
+                setMsisdn(v);
+                // Fill in the rest of the Identity step with a known-valid pair too, so
+                // picking a demo MSISDN gets the whole step ready in one tap.
+                setIdType("saudi-id");
+                setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
+              }}
             />
           </>
         )}
