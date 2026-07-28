@@ -480,7 +480,7 @@ const SubscriptionMigration = () => {
                 <div>
                   <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
                     <h3 className="text-sm font-semibold text-foreground">Current Plan</h3>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold">
                       <ClipboardList className="w-3 h-3" />
                       {customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} · {customer.planName}
                     </span>
