@@ -442,7 +442,6 @@ const SubscriptionMigration = () => {
               items={[
                 { value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}`, group: "ID Number" },
                 { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
-                { value: "0501111122", note: "Whitelisted — pays deposit fee, no VAT", group: "Prepaid → Postpaid" },
                 { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
               ]}
