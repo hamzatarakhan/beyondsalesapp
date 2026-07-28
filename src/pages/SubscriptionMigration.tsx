@@ -643,22 +643,30 @@ const SubscriptionMigration = () => {
                       </div>
                       {outstandingBalance > 0 && (
                         (() => {
-                          const previous = Math.round(outstandingBalance * 0.6 * 100) / 100;
-                          const current = Math.round(outstandingBalance * 0.3 * 100) / 100;
-                          const lateFee = Math.round((outstandingBalance - previous - current) * 100) / 100;
+                          const currentBalance = 0;
+                          const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
+                          const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
                           return (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Previous Unpaid Bills</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {previous}</span>
+                                <span className="text-[11px] text-muted-foreground">Status</span>
+                                <span className="text-xs font-semibold text-red-600">Not paid</span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Current Cycle Charges</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {current}</span>
+                                <span className="text-[11px] text-muted-foreground">Current Balance</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Late Payment Fee</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {lateFee}</span>
+                                <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] text-muted-foreground">Total Outstanding Amount</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
                               </div>
                             </>
                           );
