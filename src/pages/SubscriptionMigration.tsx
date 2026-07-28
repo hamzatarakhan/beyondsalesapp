@@ -454,10 +454,9 @@ const SubscriptionMigration = () => {
                   return;
                 }
                 setMsisdn(v);
-                // Fill in the rest of the Identity step with a known-valid pair too, so
-                // picking a demo MSISDN gets the whole step ready in one tap.
-                setIdType("saudi-id");
-                setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
+                // Refresh the ID Number to a valid demo value for whichever ID Type is
+                // currently selected — don't override the dealer's ID Type choice.
+                setIdNumber(demoIdFor(idNumberRule));
               }}
             />
           </>
