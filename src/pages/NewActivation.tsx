@@ -401,7 +401,7 @@ const VNET_PLAN_DEVICE: Record<string, string> = {
   "Vnet 500 GB": "router-c",
 };
 
-const ESIM_DEVICES = [
+export const ESIM_DEVICES = [
   { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+" },
   { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+" },
   { model: "iPhone 12 / Mini / Pro / Pro Max", ios: "iOS 14+" },

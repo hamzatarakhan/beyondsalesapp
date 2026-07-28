@@ -25,6 +25,7 @@ import {
   NATIONALITY_CODES,
   PASSPORT_ID_TYPES,
   BORDER_ID_TYPES,
+  ESIM_DEVICES,
 } from "@/pages/NewActivation";
 import {
   Phone,
@@ -41,6 +42,7 @@ import {
   HandCoins,
   ChevronDown,
   ScanLine,
+  ArrowRight,
   X,
 } from "lucide-react";
 
@@ -121,6 +123,9 @@ const SimReplacement = () => {
   const [nationalitySearch, setNationalitySearch] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [kit, setKit] = useState("");
+  // eSIM supported-devices sheet (same as SIM Activation's).
+  const [esimInfoOpen, setEsimInfoOpen] = useState(false);
+  const [esimDeviceSearch, setEsimDeviceSearch] = useState("");
 
   // Step 2 — Checkout
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -315,6 +320,18 @@ const SimReplacement = () => {
                     <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
                     <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
                   </div>
+                  {newSimType === "esim" && (
+                    <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                        <Smartphone className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">{t("activation.subscription.esimSupportedDevices")}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.subscription.esimSupportedNote")}</p>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
+                    </button>
+                  )}
                   {newSimType === "psim" && (
                     <div className="relative mt-3">
                       <Input
@@ -578,6 +595,51 @@ const SimReplacement = () => {
               </Button>
             </DrawerClose>
           </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* eSIM devices drawer — same content as SIM Activation's */}
+      <Drawer open={esimInfoOpen} onOpenChange={(o) => { setEsimInfoOpen(o); if (!o) setEsimDeviceSearch(""); }}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
+          <div className="px-5 pt-3 pb-4">
+            <h2 className="text-lg font-bold text-foreground">{t("activation.checkout.esimDevicesTitle")}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("activation.checkout.esimDevicesNote")}</p>
+          </div>
+          <div className="px-5 mb-1">
+            <div className="relative">
+              <input
+                value={esimDeviceSearch}
+                onChange={(e) => setEsimDeviceSearch(e.target.value)}
+                placeholder={t("activation.checkout.search")}
+                className="w-full h-11 bg-white rounded-xl ps-4 pe-10 text-base outline-none border border-input rtl:text-right"
+                style={{ fontSize: "16px" }}
+              />
+              <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 px-5 pb-6 pt-3 space-y-4">
+            {(() => {
+              const filteredDevices = ESIM_DEVICES.filter((d) => d.model.toLowerCase().includes(esimDeviceSearch.trim().toLowerCase()));
+              return filteredDevices.length > 0 ? (
+                <div className="rounded-2xl bg-muted/40 border border-border/50 overflow-hidden divide-y divide-border/50">
+                  {filteredDevices.map((d, i) => (
+                    <div key={i} className="flex items-center gap-3 px-4 py-3">
+                      <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <span className="text-sm text-foreground flex-1">{d.model}</span>
+                      <span className="text-[10px] text-muted-foreground">{d.ios}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-6">{t("activation.checkout.noDevicesFound")}</p>
+              );
+            })()}
+            <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation.checkout.esimUnlocked")}</p>
+          </div>
+          <div className="px-5 pb-6 pt-2">
+            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>{t("activation.checkout.gotIt")}</Button>
+          </div>
         </DrawerContent>
       </Drawer>
 
