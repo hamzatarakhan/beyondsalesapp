@@ -647,26 +647,20 @@ const SubscriptionMigration = () => {
                           const current = Math.round(outstandingBalance * 0.3 * 100) / 100;
                           const lateFee = Math.round((outstandingBalance - previous - current) * 100) / 100;
                           return (
-                            <div className="rounded-xl border border-border/60 bg-muted/30 p-3 space-y-2">
+                            <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-semibold text-foreground">Outstanding Bill</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
+                                <span className="text-[11px] text-muted-foreground">Previous Unpaid Bills</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {previous}</span>
                               </div>
-                              <div className="pl-2 space-y-1.5 border-l-2 border-border/60">
-                                <div className="flex items-center justify-between pl-2">
-                                  <span className="text-[10px] text-muted-foreground">Previous Unpaid Bills</span>
-                                  <span className="text-[11px] text-foreground"><RiyalSymbol /> {previous}</span>
-                                </div>
-                                <div className="flex items-center justify-between pl-2">
-                                  <span className="text-[10px] text-muted-foreground">Current Cycle Charges</span>
-                                  <span className="text-[11px] text-foreground"><RiyalSymbol /> {current}</span>
-                                </div>
-                                <div className="flex items-center justify-between pl-2">
-                                  <span className="text-[10px] text-muted-foreground">Late Payment Fee</span>
-                                  <span className="text-[11px] text-foreground"><RiyalSymbol /> {lateFee}</span>
-                                </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] text-muted-foreground">Current Cycle Charges</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {current}</span>
                               </div>
-                            </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] text-muted-foreground">Late Payment Fee</span>
+                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {lateFee}</span>
+                              </div>
+                            </>
                           );
                         })()
                       )}
