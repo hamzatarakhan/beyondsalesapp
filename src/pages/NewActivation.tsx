@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import MapPicker from "@/components/MapPicker";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
@@ -564,6 +565,10 @@ const NewActivation = () => {
   const [phone, setPhone] = useState("0785599574");
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
+  // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
+  // makes them usable as a slider on desktop instead of requiring the wheel/trackpad.
+  const planChipsDragScroll = useDragScroll<HTMLDivElement>();
+  const numberTabsDragScroll = useDragScroll<HTMLDivElement>();
   const [numberSearch, setNumberSearch] = useState("");
   // Number awaiting a "free with commitment / pay number price" choice from the popup.
   const [pendingVanityNumber, setPendingVanityNumber] = useState<{ number: string; tier: string } | null>(null);
@@ -1330,7 +1335,10 @@ const NewActivation = () => {
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
-              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div
+                {...planChipsDragScroll}
+                className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", planChipsDragScroll.className)}
+              >
                 {activePlanChips.map(chip => (
                   <button
                     key={chip.value}
@@ -2369,7 +2377,10 @@ const NewActivation = () => {
               </div>
               {/* Tier tabs — hidden for Friendi (standard numbers only). */}
               {!isFriendi && (
-              <div className="flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div
+                {...numberTabsDragScroll}
+                className={cn("flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", numberTabsDragScroll.className)}
+              >
                 {availableTabs.map(tab => (
                   <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
                     className={cn("px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0", numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground")}>
