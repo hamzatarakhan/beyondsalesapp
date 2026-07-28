@@ -387,7 +387,7 @@ const CreditLimitAdjustment = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueAdjust} onClick={() => setStep(2)}>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueAdjust} onClick={() => setStep(1)}>
               Continue
             </Button>
           )}
