@@ -134,7 +134,7 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111133", subscriptionType: "prepaid", planCategory: "flex", planName: "Baqah Flex 100" },
   { msisdn: "0501111144", subscriptionType: "prepaid", planCategory: "data", planName: "300 GB (5G MBB)" },
   { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
-  { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 245.5 },
+  { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 170 },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300", outstandingBalance: 0 },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
 ];
@@ -454,7 +454,7 @@ const SubscriptionMigration = () => {
                 { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
                 { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
-                { value: "0502222211", note: "With outstanding bill (245.5 SAR)", group: "Postpaid → Prepaid" },
+                { value: "0502222211", note: "With outstanding bills (170 SAR)", group: "Postpaid → Prepaid" },
               ]}
               onSelect={(v) => {
                 // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
