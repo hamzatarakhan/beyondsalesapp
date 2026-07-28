@@ -334,7 +334,7 @@ const SubscriptionMigration = () => {
   const canContinuePlan = selectedPlan != null;
   const canPay =
     (direction === "post-to-pre" || customerVerified) &&
-    otpVerified &&
+    (direction === "post-to-pre" || otpVerified) &&
     termsAccepted &&
     (direction === "post-to-pre" || creditCheckAccepted);
 
@@ -691,6 +691,7 @@ const SubscriptionMigration = () => {
             </CardSection>
             )}
 
+            {direction !== "post-to-pre" && (
             <CardSection title="OTP Verification" icon={Phone}>
               {otpVerified ? (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
@@ -702,13 +703,14 @@ const SubscriptionMigration = () => {
                 </div>
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" disabled={direction !== "post-to-pre" && !customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
-                  {direction !== "post-to-pre" && !customerVerified && (
+                  <Button variant="outline" className="w-full" disabled={!customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                  {!customerVerified && (
                     <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
                   )}
                 </>
               )}
             </CardSection>
+            )}
 
             {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
