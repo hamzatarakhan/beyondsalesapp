@@ -989,6 +989,13 @@ const SubscriptionMigration = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <SematiVerification
+        open={customerVerifyOpen}
+        audience="customer"
+        onClose={() => setCustomerVerifyOpen(false)}
+        onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
+      />
     </div>
   );
 };
