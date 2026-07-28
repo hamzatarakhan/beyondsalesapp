@@ -334,7 +334,7 @@ const SubscriptionMigration = () => {
   const canContinuePlan = selectedPlan != null;
   const canPay =
     (direction === "post-to-pre" || customerVerified) &&
-    otpVerified &&
+    (direction === "post-to-pre" || otpVerified) &&
     termsAccepted &&
     (direction === "post-to-pre" || creditCheckAccepted);
 
