@@ -663,12 +663,14 @@ const SubscriptionMigration = () => {
               })()}
             </CardSection>
 
-            <CardSection title="Payment Method" icon={CreditCard}>
-              <div className="space-y-2">
-                <PayOption icon={Wallet} label="Dealer Wallet" description="Pay from your wallet (550 SAR balance)" selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
-                <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-              </div>
-            </CardSection>
+            {!(direction === "pre-to-post" && isWhitelisted) && (
+              <CardSection title="Payment Method" icon={CreditCard}>
+                <div className="space-y-2">
+                  <PayOption icon={Wallet} label="Dealer Wallet" description="Pay from your wallet (550 SAR balance)" selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                </div>
+              </CardSection>
+            )}
 
             <CardSection title="Customer Verification" icon={UserCheck}>
               {customerVerified ? (
@@ -756,7 +758,7 @@ const SubscriptionMigration = () => {
             </Button>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              Pay {total} SAR
+              {direction === "pre-to-post" && isWhitelisted ? "Submit" : `Pay ${total} SAR`}
             </Button>
           )}
         </div>
