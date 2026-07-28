@@ -7,6 +7,7 @@ import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
@@ -107,13 +108,13 @@ const CreditLimitAdjustment = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  // ---------- MSISDN auto-lookup ----------
-  useEffect(() => {
-    setCustomer(null);
-    setLookupError(null);
+  // ---------- MSISDN lookup — triggered by the Search button, not on every keystroke ----------
+  const handleSearch = () => {
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
-    const timer = setTimeout(() => {
+    setLookupError(null);
+    setCustomer(null);
+    setTimeout(() => {
       setChecking(false);
       const found = DEMO_CREDIT_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
@@ -126,8 +127,7 @@ const CreditLimitAdjustment = () => {
       }
       setCustomer(found);
     }, 800);
-    return () => clearTimeout(timer);
-  }, [msisdn]);
+  };
 
   const eligible = !!customer && !lookupError;
 
@@ -187,8 +187,7 @@ const CreditLimitAdjustment = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueLookup = eligible;
-  const canContinueAdjust = delta > 0 && newLimit >= 0;
+  const canContinueAdjust = eligible && delta > 0 && newLimit >= 0;
   const canConfirm = otpVerified;
 
   const resolvePayment = () => {
@@ -214,7 +213,6 @@ const CreditLimitAdjustment = () => {
   };
 
   const steps = [
-    { label: "Lookup", Icon: Phone },
     { label: "Adjust", Icon: TrendingUp },
     { label: "Checkout", Icon: Wallet },
   ];
@@ -225,22 +223,43 @@ const CreditLimitAdjustment = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
-        {/* ── Step 0: Lookup ── */}
+        {/* ── Step 0: Lookup + Adjust (merged) ── */}
         {step === 0 && (
           <>
             <Field label="MSISDN">
-              <div className="relative">
-                <Input
-                  value={msisdn}
-                  onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder="05XXXXXXXX"
-                  inputMode="numeric"
-                  className="h-12 bg-card rounded-xl pe-10"
-                />
-                <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    value={msisdn}
+                    onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
+                    placeholder="05XXXXXXXX"
+                    inputMode="numeric"
+                    className="h-12 bg-card rounded-xl pe-10"
+                  />
+                  <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                </div>
+                <Button
+                  type="button"
+                  className="h-12 px-5 rounded-xl shrink-0"
+                  disabled={!/^\d{10}$/.test(msisdn) || checking}
+                  onClick={handleSearch}
+                >
+                  {checking ? "Searching…" : "Search"}
+                </Button>
               </div>
-              {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
             </Field>
+
+            <PrototypeTestBox
+              heading="test numbers"
+              description="Use these to try every case. This box won't appear in the real implementation."
+              items={[
+                { value: "0502222211", note: "Switch Postpaid, current limit 200 SAR" },
+                { value: "0502222222", note: "Switch Postpaid, current limit 500 SAR" },
+                { value: "0501111133", note: "Not a Switch Postpaid line" },
+                { value: "0500000099", note: "Number not found" },
+              ]}
+              onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+            />
 
             {lookupError && (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
@@ -248,13 +267,10 @@ const CreditLimitAdjustment = () => {
                 <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
               </div>
             )}
-          </>
-        )}
 
-        {/* ── Step 1: Adjust ── */}
-        {step === 1 && customer && (
-          <>
-            <CardSection title="Customer Details" icon={ClipboardList}>
+            {customer && (
+              <>
+                <CardSection title="Customer Details" icon={ClipboardList}>
               <SummaryRow label="Customer Name" value={customer.name} />
               <SummaryRow label="Current Credit Limit" value={<>{currentLimit} <RiyalSymbol /></>} />
             </CardSection>
@@ -332,11 +348,13 @@ const CreditLimitAdjustment = () => {
                 </p>
               </div>
             )}
+              </>
+            )}
           </>
         )}
 
         {/* ── Step 2: Checkout ── */}
-        {step === 2 && customer && (
+        {step === 1 && customer && (
           <>
             <CardSection title="Adjustment Summary" icon={ClipboardList}>
               <SummaryRow label="Customer Name" value={customer.name} />
@@ -369,16 +387,11 @@ const CreditLimitAdjustment = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueLookup} onClick={() => setStep(1)}>
-              Continue
-            </Button>
-          )}
-          {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueAdjust} onClick={() => setStep(2)}>
               Continue
             </Button>
           )}
-          {step === 2 && (
+          {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
               {direction === "increase" ? `Pay ${delta} SAR` : "Confirm Adjustment"}
             </Button>
