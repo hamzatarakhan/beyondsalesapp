@@ -6,7 +6,7 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, type IdTypeRule } from "@/pages/NewActivation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -168,6 +168,11 @@ const ID_FIELD_LABELS: Record<string, string> = {
   visaNumber: "Visa Number",
   gccPassportNumber: "GCC Passport Number",
 };
+
+// Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
+// (mirrors NewActivation.tsx's demoIdFor) so the prototype hint is always valid.
+const DEMO_ID_SUFFIX = "324567896";
+const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "1") + DEMO_ID_SUFFIX;
 
 const SubscriptionMigration = () => {
   const navigate = useNavigate();
@@ -395,6 +400,12 @@ const SubscriptionMigration = () => {
                 </p>
               )}
             </Field>
+            <PrototypeTestBox
+              heading="test ID numbers"
+              description="A valid demo ID number for the selected ID Type."
+              items={[{ value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}` }]}
+              onSelect={setIdNumber}
+            />
             <Field label="Nationality">
               <Select value={nationality} onValueChange={setNationality}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
