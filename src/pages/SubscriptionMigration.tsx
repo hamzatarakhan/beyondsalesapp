@@ -457,6 +457,8 @@ const SubscriptionMigration = () => {
                 { value: "0501111166", note: "With outstanding bills (170 SAR)", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
                 { value: "0502222211", note: "With outstanding bills (170 SAR)", group: "Postpaid → Prepaid" },
+                { value: "0501111144", note: "5G MBB plan — can't migrate", group: "Not eligible" },
+                { value: "0502222233", note: "Vnet line — can't migrate", group: "Not eligible" },
               ]}
               onSelect={(v) => {
                 // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
