@@ -100,7 +100,7 @@ const MemberRow = ({
   <div
     className={cn(
       "w-full flex items-center gap-2 p-3 transition-colors duration-300",
-      bare ? "bg-transparent" : cn("rounded-2xl bg-card shadow-sm", highlighted ? "!border !border-primary/20" : "border border-border/60"),
+      bare ? "bg-transparent" : cn("rounded-2xl bg-card shadow-sm", highlighted ? "!border !border-primary/80" : "border border-border/60"),
     )}
   >
     <button type="button" onClick={onSelect} className="flex items-center gap-3 flex-1 min-w-0 text-start">
