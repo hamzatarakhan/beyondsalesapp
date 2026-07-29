@@ -233,6 +233,7 @@
       "nationalMins": "National minutes",
       "internationalMins": "International Min",
       "localMinsLabel": "local Min",
+      "countriesSupported": "Countries Supported",
       "minsUnit": "Min",
       "payg": {
         "title": "PAYG",

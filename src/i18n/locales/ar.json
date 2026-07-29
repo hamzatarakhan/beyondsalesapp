@@ -233,6 +233,7 @@
       "nationalMins": "دقائق محلية",
       "internationalMins": "دقائق دولية",
       "localMinsLabel": "دقائق محلية",
+      "countriesSupported": "الدول المدعومة",
       "minsUnit": "دقيقة",
       "payg": {
         "title": "الدفع حسب الاستخدام",

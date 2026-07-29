@@ -27,8 +27,8 @@ export interface PlanCardData {
   intlMins?: string;
   /** Friendi Calls: local minutes value shown as a feature row. */
   localMins?: string;
-  /** Friendi Calls (International Bundles): destination country. */
-  countries?: string;
+  /** Friendi Calls (International Bundles) / Flexi: supported destination countries. */
+  countries?: string[];
   /** Friendi Combo/Flexi: raw social app list from the catalogue (not yet rendered per-plan). */
   socialChannels?: string[];
   /** Friendi: raw "BlockedSocialMedia" catalogue field, carried through for completeness. */
@@ -164,6 +164,15 @@ const COUNTRIES: { label: string; code: string }[] = [
   { label: "Turkey", code: "tr" },
 ];
 
+// ── Friendi Flexi/Calls "Countries" column — real per-plan destination list from the
+// catalogue, distinct from the generic roaming COUNTRIES list above. Name → ISO code.
+const FM_COUNTRY_CODES: Record<string, string> = {
+  "Oman": "om", "India": "in", "Pakistan": "pk", "Bangladesh": "bd", "Sudan": "sd",
+  "Egypt": "eg", "Kuwait": "kw", "Qatar": "qa", "United Arab Emirates": "ae",
+  "Lebanon": "lb", "Nepal": "np", "Philippines": "ph", "Indonesia": "id", "Jordan": "jo",
+  "People's Republic of China": "cn", "Bahrain": "bh", "Yemen": "ye",
+};
+
 const SHOW_INITIALLY = 8;
 
 const PREVIEW_COUNT = 3;
@@ -215,6 +224,32 @@ const FlagChip = ({ onClick }: { onClick: () => void }) => {
       </span>
     </span>
   </button>
+  );
+};
+
+// Same preview-chip pattern as FlagChip, but driven by a real per-plan country list
+// (Friendi Flexi/Calls) instead of the generic static roaming COUNTRIES.
+const PlanFlagChip = ({ countries, onClick }: { countries: string[]; onClick: () => void }) => {
+  const preview = countries.slice(0, PREVIEW_COUNT);
+  const remaining = countries.length - preview.length;
+  return (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="active:opacity-70 shrink-0">
+      <span className="inline-flex items-center pointer-events-none">
+        <span className="flex -space-x-1.5 relative z-10">
+          {preview.map((name) => {
+            const code = FM_COUNTRY_CODES[name];
+            return code ? (
+              <img key={name} src={`https://flagcdn.com/w20/${code}.png`} alt={name} className="w-[20px] h-[20px] rounded-full object-cover border border-white shrink-0" />
+            ) : null;
+          })}
+        </span>
+        {remaining > 0 && (
+          <span className="-ml-2 inline-flex items-center gap-0.5 h-[20px] pl-3.5 pr-2 rounded-full bg-slate-50 border border-slate-200 text-[#3F5FE0] text-[11px] font-semibold">
+            +{remaining} <ChevronRight className="w-2.5 h-2.5 rtl:rotate-180" />
+          </span>
+        )}
+      </span>
+    </button>
   );
 };
 
@@ -376,6 +411,24 @@ const CountriesSheet = ({ open, onClose }: { open: boolean; onClose: () => void 
   );
 };
 
+// Same sheet pattern as CountriesSheet, but for a real per-plan country list (Friendi Flexi/Calls).
+const PlanCountriesSheet = ({ open, onClose, countries }: { open: boolean; onClose: () => void; countries: string[] }) => {
+  const { t } = useTranslation();
+  return (
+    <InfoSheet open={open} onClose={onClose} title={t("activation.plan.availableCountries")} description={t("activation.plan.roamingCountries")}>
+      {countries.map((name) => {
+        const code = FM_COUNTRY_CODES[name];
+        return (
+          <div key={name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-border">
+            {code && <img src={`https://flagcdn.com/w40/${code}.png`} alt={name} className="w-9 h-6 rounded object-cover border border-border/40" />}
+            <span className="text-sm font-medium text-foreground">{name}</span>
+          </div>
+        );
+      })}
+    </InfoSheet>
+  );
+};
+
 const BlockedAppsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const { t } = useTranslation();
   return (
@@ -425,7 +478,7 @@ const PlanCard = ({
   const unlimited = t("activation.plan.unlimited");
   const validity = formatValidity(plan.validityLabel);
   const isDataOnly = !plan.mins || plan.mins === "-";
-  const [openSheet, setOpenSheet] = useState<null | "apps" | "countries" | "blocked" | "search">(null);
+  const [openSheet, setOpenSheet] = useState<null | "apps" | "countries" | "blocked" | "search" | "planCountries">(null);
 
   return (
     <>
@@ -492,6 +545,17 @@ const PlanCard = ({
                 {plan.intlMins && plan.intlMins !== "-" && (
                   <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.intlMins === "Unlimited" ? unlimited : plan.intlMins}</span> {t("activation.plan.internationalMins")}</>} />
                 )}
+                {plan.countries && plan.countries.length > 0 && (
+                  plan.countries.length > 1 ? (
+                    <FeatureRow
+                      icon={MapPin}
+                      label={<><span className="font-semibold">{plan.countries.length}</span> {t("activation.plan.countriesSupported")}</>}
+                      chip={<PlanFlagChip countries={plan.countries} onClick={() => setOpenSheet("planCountries")} />}
+                    />
+                  ) : (
+                    <FeatureRow icon={MapPin} label={<span className="font-semibold">{plan.countries[0]}</span>} />
+                  )
+                )}
               </div>
             </>
           ) : layout === "calls" ? (
@@ -513,8 +577,8 @@ const PlanCard = ({
                 {/* Friendi Calls is exclusively international minute bundles (no standalone
                     local-minutes product exists) — labeled accordingly, not "local". */}
                 <FeatureRow icon={Globe} label={<><span className="font-semibold">{plan.localMins === "Unlimited" ? unlimited : plan.localMins}</span> {t("activation.plan.internationalMins")}</>} />
-                {plan.countries && (
-                  <FeatureRow icon={MapPin} label={<span className="font-semibold">{plan.countries}</span>} />
+                {plan.countries && plan.countries.length > 0 && (
+                  <FeatureRow icon={MapPin} label={<span className="font-semibold">{plan.countries.join(", ")}</span>} />
                 )}
               </div>
             </>
@@ -702,6 +766,7 @@ const PlanCard = ({
 
       <AppsSheet open={openSheet === "apps"} onClose={() => setOpenSheet(null)} />
       <CountriesSheet open={openSheet === "countries"} onClose={() => setOpenSheet(null)} />
+      <PlanCountriesSheet open={openSheet === "planCountries"} onClose={() => setOpenSheet(null)} countries={plan.countries ?? []} />
       <BlockedAppsSheet open={openSheet === "blocked"} onClose={() => setOpenSheet(null)} />
       <SearchEnginesSheet open={openSheet === "search"} onClose={() => setOpenSheet(null)} />
     </>
