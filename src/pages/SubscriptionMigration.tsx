@@ -661,38 +661,43 @@ const SubscriptionMigration = () => {
                         <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
-                      {outstandingBalance > 0 && (
-                        (() => {
-                          const currentBalance = 0;
-                          const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
-                          const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
-                          return (
-                            <>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Status</span>
-                                <span className="text-xs font-semibold text-red-600">Not paid</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Current Balance</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground">Total Outstanding Amount</span>
-                                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
-                              </div>
-                            </>
-                          );
-                        })()
-                      )}
                     </div>
+                    {outstandingBalance > 0 && (() => {
+                      const currentBalance = 0;
+                      const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
+                      const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
+                      return (
+                        <div className="rounded-xl border border-red-200 dark:border-red-500/25 bg-red-50/70 dark:bg-red-500/10 p-3 mb-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                              <p className="text-xs font-semibold text-foreground">Outstanding Bill (Old Line)</p>
+                            </div>
+                            <span className="text-[10px] font-semibold text-red-600 bg-red-100 dark:bg-red-500/20 rounded-full px-2 py-0.5 uppercase tracking-wide">
+                              Not paid
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Current Balance</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between border-t border-red-200 dark:border-red-500/25 mt-2 pt-2">
+                            <span className="text-[11px] font-semibold text-foreground">Total Outstanding</span>
+                            <span className="text-xs font-bold text-red-600"><RiyalSymbol /> {outstandingBalance}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">Subtotal</span>
@@ -702,6 +707,12 @@ const SubscriptionMigration = () => {
                         <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
                       </div>
+                      {outstandingBalance > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Outstanding Bill</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">Total</span>
