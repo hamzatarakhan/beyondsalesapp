@@ -192,6 +192,9 @@ const SubscriptionMigration = () => {
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  // Ineligible line type (5G MBB / Vnet) — surfaced in a modal on Continue, not inline.
+  const [ineligibleReason, setIneligibleReason] = useState<string | null>(null);
+  const [ineligibleModalOpen, setIneligibleModalOpen] = useState(false);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [depositWaiver, setDepositWaiver] = useState(false);
 
@@ -227,6 +230,7 @@ const SubscriptionMigration = () => {
   useEffect(() => {
     setCustomer(null);
     setLookupError(null);
+    setIneligibleReason(null);
     setDirection(null);
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
@@ -239,13 +243,16 @@ const SubscriptionMigration = () => {
       }
       const dir: Direction = found.subscriptionType === "prepaid" ? "pre-to-post" : "post-to-pre";
       setDirection(dir);
+      // Ineligible line types don't get an inline banner — the reason is surfaced in a
+      // modal when the dealer presses Continue (same pattern as SIM Activation's
+      // "Email Not Registered" dialog).
       if (dir === "pre-to-post" && found.planCategory === "data") {
-        setLookupError("This number can't migrate — 5G MBB plans aren't eligible for this service.");
+        setIneligibleReason("This number can't migrate — 5G MBB plans aren't eligible for this service.");
         setCustomer(found);
         return;
       }
       if (dir === "post-to-pre" && found.planCategory === "vnet") {
-        setLookupError("This number can't migrate — Vnet lines aren't eligible for this service.");
+        setIneligibleReason("This number can't migrate — Vnet lines aren't eligible for this service.");
         setCustomer(found);
         return;
       }
@@ -333,6 +340,14 @@ const SubscriptionMigration = () => {
   })();
   const canContinueIdentity = !!idType && !!nationality && eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
+
+  const onContinueStep0 = () => {
+    if (ineligibleReason) {
+      setIneligibleModalOpen(true);
+      return;
+    }
+    setStep((s) => s + 1);
+  };
   const canPay =
     (direction === "post-to-pre" || customerVerified) &&
     otpVerified &&
@@ -359,6 +374,7 @@ const SubscriptionMigration = () => {
     setMsisdn("0501111133");
     setCustomer(null);
     setLookupError(null);
+    setIneligibleReason(null);
     setIsWhitelisted(false);
     setDepositWaiver(false);
     setSelectedPlan(null);
@@ -816,7 +832,7 @@ const SubscriptionMigration = () => {
             <Button
               className="w-full h-12 text-sm font-semibold rounded-full"
               disabled={step === 0 ? !canContinueIdentity : !canContinuePlan}
-              onClick={() => setStep((s) => s + 1)}
+              onClick={step === 0 ? onContinueStep0 : () => setStep((s) => s + 1)}
             >
               Continue
             </Button>
@@ -979,6 +995,24 @@ const SubscriptionMigration = () => {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Ineligible line type — shown when Continue is pressed, not inline (mirrors SIM
+          Activation's "Email Not Registered" dialog pattern) */}
+      <Dialog open={ineligibleModalOpen} onOpenChange={setIneligibleModalOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertCircle className="w-7 h-7 text-destructive" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-2 text-lg">Not Eligible</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{ineligibleReason}</p>
+          <button
+            onClick={() => setIneligibleModalOpen(false)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            Got It
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Payment */}
       <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
