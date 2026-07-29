@@ -80,41 +80,6 @@ const CardSection = ({
   </section>
 );
 
-const ConsentRow = ({
-  label,
-  checked,
-  onToggle,
-  onLabelClick,
-}: {
-  label: string;
-  checked: boolean;
-  onToggle: () => void;
-  onLabelClick?: () => void;
-}) => (
-  <section className="bg-card rounded-2xl p-4 shadow-sm">
-    <div className="flex items-center gap-3 select-none">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-label={label}
-        className={cn(
-          "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
-          checked ? "bg-primary border-primary" : "border-primary",
-        )}
-      >
-        {checked && <Check className="w-3 h-3 text-primary-foreground" />}
-      </button>
-      <button
-        type="button"
-        onClick={onLabelClick ?? onToggle}
-        className="text-sm text-foreground text-start flex-1"
-      >
-        {label}
-      </button>
-    </div>
-  </section>
-);
-
 // ---------- Demo data ----------
 type Direction = "pre-to-post" | "post-to-pre";
 
@@ -217,8 +182,6 @@ const SubscriptionMigration = () => {
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsChain, setTermsChain] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [creditCheckAccepted, setCreditCheckAccepted] = useState(false);
-  const [creditScoreOpen, setCreditScoreOpen] = useState(false);
 
   // Checkout — OTP
   const [otpOpen, setOtpOpen] = useState(false);
@@ -365,8 +328,7 @@ const SubscriptionMigration = () => {
   const canPay =
     (direction === "post-to-pre" || customerVerified) &&
     otpVerified &&
-    termsAccepted &&
-    (direction === "post-to-pre" || creditCheckAccepted);
+    termsAccepted;
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -393,7 +355,6 @@ const SubscriptionMigration = () => {
     setDepositWaiver(false);
     setSelectedPlan(null);
     setTermsAccepted(false);
-    setCreditCheckAccepted(false);
     setOtpVerified(false);
     setPayMethod("wallet");
     setCustomerVerified(false);
@@ -815,14 +776,6 @@ const SubscriptionMigration = () => {
                 </p>
               </div>
             </section>
-            {direction === "pre-to-post" && (
-              <ConsentRow
-                label="Credit Score Check"
-                checked={creditCheckAccepted}
-                onToggle={() => setCreditCheckAccepted((v) => !v)}
-                onLabelClick={() => setCreditScoreOpen(true)}
-              />
-            )}
           </>
         )}
       </div>
@@ -964,39 +917,6 @@ const SubscriptionMigration = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Credit Score Check */}
-      <Drawer open={creditScoreOpen} onOpenChange={setCreditScoreOpen}>
-        <DrawerContent className="max-h-[85vh]">
-          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
-            <XIcon className="h-5 w-5 text-foreground" />
-          </DrawerClose>
-          <DrawerHeader className="text-center">
-            <DrawerTitle>Credit Score Check</DrawerTitle>
-            <DrawerDescription>Why we run a credit score check before moving the customer to postpaid.</DrawerDescription>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
-            <p>
-              Moving to a postpaid plan requires a credit assessment to determine the customer's
-              eligible credit limit and confirm they qualify for postpaid billing.
-            </p>
-            <p>
-              The check is performed with a licensed credit bureau and does not affect the
-              customer's personal credit score.
-            </p>
-            <p>
-              Results are used only to set the account's credit limit and are not shared outside
-              the migration process.
-            </p>
-          </div>
-          <DrawerFooter className="flex-col gap-3">
-            <DrawerClose asChild>
-              <Button className="w-full h-12 rounded-full">
-                Close
-              </Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
 
       {/* Ineligible line type — shown when Continue is pressed, not inline (mirrors SIM
           Activation's "Email Not Registered" dialog pattern) */}
