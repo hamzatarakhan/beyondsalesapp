@@ -145,24 +145,68 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
   { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
-// ── Friendi (FM) prepaid-only catalog. Sourced from FM_Plans_Dealer_app(FM_Plan_Prepaid).csv.
-// Categories: combo (Bundleha — data + social breakdown), data (Internet Bundles, data-only),
-// calls (International Bundles — Friendi prepaid has no standalone local-minutes product),
-// payg (per-unit rates).
+// ── Friendi (FM) prepaid-only catalog. Sourced from FM_Plans_Dealer_app(FM_Plan_Prepaid).csv,
+// grouped by the CSV's own "New Category" column:
+//   Bundleha/Combo  → combo  (data + social breakdown)
+//   Bundleha/Flexi  → flexi  (social-benefit-only bundles; CSV has no separate core-data figure
+//                             for these, so coreData is left unset and falls back to the total)
+//   Internet Bundles → data  (data-only, no social breakdown)
+//   International Bundles → calls (destination-specific minute bundles). Only the rows with an
+//     explicit minute count in the Name are included (Yemen/Pakistan/Nepal) — the "NNSR"-named
+//     rows (Philippine/Indonesia/India/Ethiopia/Egypt/Bangladesh) are priced tiers with no
+//     disclosed minute count in this export, so they're left out rather than guessed at.
+// BlockedSocialMedia is blank for every row in the source file (nothing to carry). Event ID is
+// an internal catalogue code, not customer-facing, but kept on each entry for completeness.
+const FM_CHANNELS = ["WhatsApp", "Facebook", "YouTube", "Instagram", "TikTok", "Twitter", "Snapchat"];
+const FM_CHANNELS_NO_TIKTOK = ["WhatsApp", "Facebook", "YouTube", "Instagram", "Twitter", "Snapchat"];
 export const FRIENDI_PLANS: typeof SHARED_PLANS = [
   // Combo (Bundleha) — total data headline = coreData + social, per the CSV's Social Benefits column
-  { title: "Bandelha 5GB",   internet: "10 GB",     coreData: "5 GB",  social: "5 GB",       mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: [] },
-  { title: "Bundleha 30GB",  internet: "70 GB",     coreData: "30 GB", social: "40 GB",      mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: [], badge: "recommended" },
-  { title: "Bundleha 45GB",  internet: "Unlimited", coreData: "45 GB", social: "Unlimited",  mins: "-", sms: "-", price: 126.5,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Combo 300",      internet: "Unlimited", coreData: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 345,    discount: null, validityLabel: "Valid 90 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1738" },
+  { title: "Bundleha 55GB",  internet: "Unlimited", coreData: "55 GB",     social: "Unlimited", mins: "-", sms: "-", price: 171.35, discount: null, validityLabel: "Valid 30 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous",  socialChannels: FM_CHANNELS, eventId: "1698" },
+  { title: "Bundleha 45GB",  internet: "Unlimited", coreData: "45 GB",     social: "Unlimited", mins: "-", sms: "-", price: 126.5,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1714" },
+  { title: "Bundleha 40GB",  internet: "Unlimited", coreData: "40 GB",     social: "Unlimited", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1713" },
+  { title: "Bundleha 30GB",  internet: "70 GB",     coreData: "30 GB",     social: "40 GB",     mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], badge: "recommended", socialChannels: FM_CHANNELS, eventId: "1712" },
+  { title: "Bundleha 20GB",  internet: "50 GB",     coreData: "20 GB",     social: "30 GB",     mins: "-", sms: "-", price: 80.5,   discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1711" },
+  { title: "Bandelha 5GB",   internet: "10 GB",     coreData: "5 GB",      social: "5 GB",      mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1695" },
+  { title: "Bandelha 5GB",   internet: "8 GB",      coreData: "5 GB",      social: "3 GB",      mins: "-", sms: "-", price: 50.03,  discount: null, validityLabel: "Valid 21 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1684" },
+  { title: "Bandelha 3GB",   internet: "6 GB",      coreData: "3 GB",      social: "3 GB",      mins: "-", sms: "-", price: 34.5,   discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1683" },
+  { title: "Bandelha 3GB",   internet: "3 GB",      coreData: "3 GB",      social: "-",         mins: "-", sms: "-", price: 49.45,  discount: null, validityLabel: "Valid 30 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1604" },
+  { title: "Bandelha 1GB",   internet: "1 GB",      coreData: "1 GB",      social: "-",         mins: "-", sms: "-", price: 19.55,  discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1661" },
+  { title: "Bandelha 1GB",   internet: "1 GB",      coreData: "1 GB",      social: "-",         mins: "-", sms: "-", price: 14.94,  discount: null, validityLabel: "Valid 7 days",  categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1682" },
+  { title: "Bandelha 100GB", internet: "100 GB",    coreData: "100 GB",    social: "-",         mins: "-", sms: "-", price: 366.85, discount: null, validityLabel: "Valid 90 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1635" },
+  // Flexi (Bundleha) — the CSV only discloses a Social Benefits figure for these, no separate
+  // core-data amount, so coreData is left unset (the card falls back to showing the total twice).
+  { title: "FAFLEXI300",           internet: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 345,   discount: null, validityLabel: "Valid 90 days", categories: ["flexi"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous", socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1717" },
+  { title: "FAFLEXI100",           internet: "35 GB",     social: "35 GB",     mins: "-", sms: "-", price: 115,   discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], badge: "recommended", socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1716" },
+  { title: "Bundleha Flexi 110",   internet: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 126.5, discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1729" },
+  { title: "FAFLEXI60",            internet: "25 GB",     social: "25 GB",     mins: "-", sms: "-", price: 69,    discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1715" },
+  { title: "25GB Nepal Flex",      internet: "25 GB",     social: "25 GB",     mins: "-", sms: "-", price: 97.75, discount: null, validityLabel: "Valid 30 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, countries: "Nepal", eventId: "1705" },
+  { title: "Bundleha Flexi 20",    internet: "3 GB",      social: "3 GB",      mins: "-", sms: "-", price: 23,    discount: null, validityLabel: "Valid 7 days",  categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1731" },
+  { title: "Bundleha Flexi 40",    internet: "2 GB",      social: "2 GB",      mins: "-", sms: "-", price: 48,    discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1730" },
   // Data (Internet Bundles) — data-only, no social breakdown
-  { title: "13 GB",  internet: "13 GB", coreData: "13 GB", social: "-", mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [] },
-  { title: "40 GB",  internet: "40 GB", coreData: "40 GB", social: "-", mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
-  { title: "60 GB",  internet: "60 GB", coreData: "60 GB", social: "-", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
-  // Calls (International Bundles) — Friendi prepaid only sells destination-specific international
-  // minute bundles, no standalone local-minutes product exists in the real catalogue.
-  { title: "Pakistan 55 Min",  internet: "-", mins: "55",  localMins: "55",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [] },
-  { title: "Pakistan 130 Min", internet: "-", mins: "130", localMins: "130", social: "-", sms: "-", price: 19.55, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
-  { title: "Pakistan 360 Min", internet: "-", mins: "360", localMins: "360", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Unlimited",         internet: "Unlimited", coreData: "Unlimited", social: "-", mins: "-", sms: "-", price: 373.75, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: [], eventId: "1676" },
+  { title: "300 GB",            internet: "300 GB",    coreData: "300 GB",    social: "-", mins: "-", sms: "-", price: 517.5,  discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1668" },
+  { title: "200 GB",            internet: "200 GB",    coreData: "200 GB",    social: "-", mins: "-", sms: "-", price: 379.5,  discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1737" },
+  { title: "75 GB",             internet: "75 GB",     coreData: "75 GB",     social: "-", mins: "-", sms: "-", price: 299,    discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1733" },
+  { title: "60 GB",             internet: "60 GB",     coreData: "60 GB",     social: "-", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous", eventId: "1735" },
+  { title: "50 GB",             internet: "50 GB",     coreData: "50 GB",     social: "-", mins: "-", sms: "-", price: 201.25, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1736" },
+  { title: "40 GB",             internet: "40 GB",     coreData: "40 GB",     social: "-", mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended", eventId: "1681" },
+  { title: "1GB Daily 30days",  internet: "1 GB/day",  coreData: "1 GB/day",  social: "-", mins: "-", sms: "-", price: 86.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1631" },
+  { title: "13 GB",             internet: "13 GB",     coreData: "13 GB",     social: "-", mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1680" },
+  { title: "1.9 GB",            internet: "1.9 GB",    coreData: "1.9 GB",    social: "-", mins: "-", sms: "-", price: 29.89,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1734" },
+  { title: "1.2 GB",            internet: "1.2 GB",    coreData: "1.2 GB",    social: "-", mins: "-", sms: "-", price: 19.55,  discount: null, validityLabel: "Valid 21 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1679" },
+  { title: "1 GB",              internet: "1 GB",      coreData: "1 GB",      social: "-", mins: "-", sms: "-", price: 14.9,   discount: null, validityLabel: "Valid 10 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1618" },
+  { title: "500MB",             internet: "500 MB",    coreData: "500 MB",    social: "-", mins: "-", sms: "-", price: 9.78,   discount: null, validityLabel: "Valid 7 days",  categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1677" },
+  // Calls (International Bundles) — destination-specific minute bundles. Only rows with a real
+  // disclosed minute count are included (see note above); "NNSR"-priced-tier rows are excluded.
+  { title: "Pakistan 360 Min", internet: "-", mins: "360", localMins: "360", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous",  countries: "Pakistan", eventId: "1720" },
+  { title: "Pakistan 130 Min", internet: "-", mins: "130", localMins: "130", social: "-", sms: "-", price: 19.55, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended", countries: "Pakistan", eventId: "1719" },
+  { title: "Pakistan 55 Min",  internet: "-", mins: "55",  localMins: "55",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Pakistan", eventId: "1718" },
+  { title: "Nepal 730 Min",    internet: "-", mins: "730", localMins: "730", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Nepal", eventId: "1675" },
+  { title: "Nepal 500 Min",    internet: "-", mins: "500", localMins: "500", social: "-", sms: "-", price: 34.5,  discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Nepal", eventId: "1703" },
+  { title: "Yemen 210 Min",    internet: "-", mins: "210", localMins: "210", social: "-", sms: "-", price: 69,    discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Yemen", eventId: "1690" },
+  { title: "Yemen 82 Min",     internet: "-", mins: "82",  localMins: "82",  social: "-", sms: "-", price: 28.75, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Yemen", eventId: "1689" },
+  { title: "Yemen 26 Min",     internet: "-", mins: "26",  localMins: "26",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: "Yemen", eventId: "1688" },
   // PAYG — pay-as-you-go per-unit rates, top-up added on top
   { title: "Pay As You Go", internet: "-", mins: "-", social: "-", sms: "-", price: 0, payg: { perMb: 0.2, perSms: 0.25, perMin: 0.45 }, discount: null, validityLabel: "", categories: ["payg"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
 ];
@@ -337,10 +381,11 @@ const POSTPAID_CHIPS = [
   { value: "vnet", label: "Vnet" },
 ];
 
-// Friendi (FM) prepaid chip row — Combo / Data / Calls / PAYG.
+// Friendi (FM) prepaid chip row — Combo / Flexi / Data / Calls / PAYG.
 const FRIENDI_CHIPS = [
   { value: "all", label: "All" },
   { value: "combo", label: "Combo Plans" },
+  { value: "flexi", label: "Flexi Plans" },
   { value: "data", label: "Data Plans" },
   { value: "calls", label: "Calls" },
   { value: "payg", label: "PAYG" },
@@ -1359,6 +1404,7 @@ const NewActivation = () => {
                       "switch-postpaid": t("activation.subscription.chips.switchPostpaid"),
                       "vnet": t("activation.subscription.chips.vnet"),
                       "combo": t("activation.subscription.chips.combo"),
+                      "flexi": t("activation.subscription.chips.flexiPlans"),
                       "calls": t("activation.subscription.chips.calls"),
                       "payg": t("activation.subscription.chips.payg"),
                     } as Record<string,string>)[chip.value] ?? chip.label}
@@ -1729,6 +1775,7 @@ const NewActivation = () => {
                   cats.includes("vnet") ? t("activation.subscription.chips.vnet") :
                   cats.includes("payg") ? t("activation.subscription.chips.payg") :
                   cats.includes("combo") ? t("activation.subscription.chips.combo") :
+                  cats.includes("flexi") ? t("activation.subscription.chips.flexiPlans") :
                   cats.includes("calls") ? t("activation.subscription.chips.calls") :
                   cats.includes("data") ? (isFriendi ? t("activation.subscription.chips.dataPlans") : t("activation.subscription.chips.data")) :
                   cats.includes("aman") ? t("activation.subscription.chips.aman") :

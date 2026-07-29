@@ -22,7 +22,7 @@ import RiyalSymbol from "@/components/RiyalSymbol";
 
 // ---------- Types & constants (shared with PrepaidActivation) ----------
 export type Plan = PlanCardData & {
-  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman" | "basic" | "switch-postpaid" | "vnet" | "combo" | "calls" | "payg")[];
+  categories: ("base-plan" | "minutes" | "data" | "flex" | "aman" | "basic" | "switch-postpaid" | "vnet" | "combo" | "flexi" | "calls" | "payg")[];
   validity: string[];
   tags: string[];
 };
@@ -49,7 +49,7 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Family display order in the "All" view: richest service mix first, data-only last.
-const FAMILY_ORDER = ["combo", "calls", "aman", "base-plan", "basic", "flex", "data", "payg", "switch-postpaid", "vnet"];
+const FAMILY_ORDER = ["combo", "flexi", "calls", "aman", "base-plan", "basic", "flex", "data", "payg", "switch-postpaid", "vnet"];
 const familyRank = (p: Plan) => {
   const i = FAMILY_ORDER.findIndex((c) => p.categories.includes(c as any));
   return i === -1 ? FAMILY_ORDER.length : i;
@@ -400,6 +400,8 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                   : cats.includes("payg") ? "payg"
                   : cats.includes("calls") ? "calls"
                   : cats.includes("combo") ? "combo"
+                  // Flexi (Bundleha) has the same core-data + social breakdown as Combo — reuse its layout.
+                  : cats.includes("flexi") ? "combo"
                   : cats.includes("aman") ? "aman"
                   : cats.includes("base-plan") || cats.includes("basic") ? "baqa"
                   : "flex";

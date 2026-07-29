@@ -134,7 +134,8 @@
         "combo": "Combo Plans",
         "calls": "Calls",
         "payg": "PAYG",
-        "dataPlans": "Data Plans"
+        "dataPlans": "Data Plans",
+        "flexiPlans": "Flexi Plans"
       },
       "selectPlan": "Select a Plan",
       "selectPlanSub": "Choose from available plans below",

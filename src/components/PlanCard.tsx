@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, MonitorPlay, Search } from "lucide-react";
+import { Gift, Signal, Globe, Phone, MessageSquare, Star, ChevronRight, X, Check, ChevronDown, Lock, ShieldCheck, MonitorPlay, Search, MapPin } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useTranslation } from "react-i18next";
@@ -27,6 +27,14 @@ export interface PlanCardData {
   intlMins?: string;
   /** Friendi Calls: local minutes value shown as a feature row. */
   localMins?: string;
+  /** Friendi Calls (International Bundles): destination country. */
+  countries?: string;
+  /** Friendi Combo/Flexi: raw social app list from the catalogue (not yet rendered per-plan). */
+  socialChannels?: string[];
+  /** Friendi: raw "BlockedSocialMedia" catalogue field, carried through for completeness. */
+  blockedSocialMedia?: string;
+  /** Friendi: catalogue Event ID — internal product code, not customer-facing. */
+  eventId?: string;
   /** Friendi PAYG: per-unit pay-as-you-go rates. */
   payg?: { perMb: number; perSms: number; perMin: number };
   /** Badge key rendered top-right (e.g. "mostFamous", "recommended", "trustedForKids"). */
@@ -505,6 +513,9 @@ const PlanCard = ({
                 {/* Friendi Calls is exclusively international minute bundles (no standalone
                     local-minutes product exists) — labeled accordingly, not "local". */}
                 <FeatureRow icon={Globe} label={<><span className="font-semibold">{plan.localMins === "Unlimited" ? unlimited : plan.localMins}</span> {t("activation.plan.internationalMins")}</>} />
+                {plan.countries && (
+                  <FeatureRow icon={MapPin} label={<span className="font-semibold">{plan.countries}</span>} />
+                )}
               </div>
             </>
           ) : isDataOnly ? (
