@@ -3,6 +3,8 @@ import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { useBrand, Brand } from "@/contexts/BrandContext";
 import { cn } from "@/lib/utils";
+import virginBadge from "@/assets/virgin-mobile-badge.svg";
+import friendiBadge from "@/assets/friendi-mobile-badge.svg";
 
 // Prototype-only static profile — no employee backend to source this from yet.
 const EMPLOYEE = {
@@ -14,18 +16,14 @@ const EMPLOYEE = {
   email: "Email",
 };
 
-const BrandBadge = ({ brand, className }: { brand: Brand; className?: string }) => (
-  <div className={cn("bg-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground", className)}>
-    {brand === "virgin" ? (
-      <>
-        <span className="italic font-serif leading-none">Virgin</span>
-        <span className="text-[9px] tracking-wide leading-none mt-0.5">mobile</span>
-      </>
-    ) : (
-      <span className="text-xs font-semibold lowercase">friendi</span>
-    )}
-  </div>
-);
+const BrandBadge = ({ brand, className }: { brand: Brand; className?: string }) =>
+  brand === "virgin" ? (
+    <img src={virginBadge} alt="Virgin Mobile" className={cn("object-contain", className)} />
+  ) : (
+    <div className={cn("bg-card rounded-xl flex items-center justify-center p-1.5", className)}>
+      <img src={friendiBadge} alt="friendi" className="w-full h-full object-contain" />
+    </div>
+  );
 
 const Profile = () => {
   const { brand } = useBrand();
@@ -59,7 +57,7 @@ const Profile = () => {
                 <p className="text-xs text-muted-foreground">{EMPLOYEE.hierarchy}</p>
               </div>
             </div>
-            <BrandBadge brand={brand} className="w-14 h-11 text-sm shrink-0" />
+            <BrandBadge brand={brand} className="w-14 h-11 shrink-0" />
           </div>
 
           <div className="space-y-3 pt-1">
@@ -102,7 +100,7 @@ const Profile = () => {
                 className="w-full h-full"
               />
               <div className="absolute w-11 h-11 rounded-lg bg-card p-1 flex items-center justify-center">
-                <BrandBadge brand={brand} className="w-full h-full rounded-md text-[8px]" />
+                <BrandBadge brand={brand} className="w-full h-full rounded-md" />
               </div>
             </div>
           </div>
