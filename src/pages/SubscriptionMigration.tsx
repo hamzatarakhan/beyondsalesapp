@@ -134,7 +134,6 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111133", subscriptionType: "prepaid", planCategory: "flex", planName: "Baqah Flex 100" },
   { msisdn: "0501111144", subscriptionType: "prepaid", planCategory: "data", planName: "300 GB (5G MBB)" },
   { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
-  { msisdn: "0501111166", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", outstandingBalance: 170 },
   { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 170 },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300", outstandingBalance: 0 },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
@@ -470,7 +469,6 @@ const SubscriptionMigration = () => {
                 { value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}`, group: "ID Number" },
                 { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
                 { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
-                { value: "0501111166", note: "With outstanding bills (170 SAR)", group: "Prepaid → Postpaid" },
                 { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
                 { value: "0502222211", note: "With outstanding bills (170 SAR)", group: "Postpaid → Prepaid" },
                 { value: "0501111144", note: "5G MBB plan — can't migrate", group: "Not eligible" },
@@ -613,10 +611,12 @@ const SubscriptionMigration = () => {
 
             <CardSection title="Payment Summary" icon={Receipt}>
               {direction === "pre-to-post" ? (() => {
+                // Prepaid accounts don't carry a postpaid-style outstanding bill — that concept
+                // only applies when migrating away from postpaid (see the post-to-pre branch).
                 const subtotal = deposit;
                 // Whitelisted: no VAT on the deposit fee, matching SIM Activation's postpaid-whitelisted rule.
                 const vat = isWhitelisted ? 0 : Math.round(subtotal * 0.15 * 100) / 100;
-                const grand = Math.round((subtotal + vat + outstandingBalance) * 100) / 100;
+                const grand = Math.round((subtotal + vat) * 100) / 100;
                 return (
                   <>
                     <div className="space-y-2 pb-3">
@@ -630,35 +630,6 @@ const SubscriptionMigration = () => {
                         <span className="text-[11px] text-muted-foreground">Deposit Fee</span>
                         <span className="text-xs font-semibold text-foreground">{depositWaiver ? "Waived" : `${deposit} SAR`}</span>
                       </div>
-                      {outstandingBalance > 0 && (() => {
-                        const currentBalance = 0;
-                        const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
-                        const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
-                        return (
-                          <>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Status</span>
-                              <span className="text-xs font-semibold text-red-600">Not paid</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Current Balance</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Total Outstanding Amount</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
-                            </div>
-                          </>
-                        );
-                      })()}
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
