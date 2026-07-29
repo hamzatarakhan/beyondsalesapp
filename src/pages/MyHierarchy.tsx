@@ -41,38 +41,38 @@ const makeMember = (overrides: Partial<Member> & Pick<Member, "id" | "name" | "i
 
 const ROOT: Member = makeMember({
   id: "rm",
-  name: "Regional Manager Name",
-  initials: "RM",
+  name: "Faisal Al-Otaibi",
+  initials: "FA",
   roleKey: "regionalManager",
   isMe: true,
   children: [
     makeMember({
       id: "tl",
-      name: "Team Leader Name",
-      initials: "TL",
+      name: "Abdullah Al-Harbi",
+      initials: "AH",
       roleKey: "teamLeader",
       children: [
-        makeMember({ id: "sc1", name: "Sales Champion 1", initials: "SC", roleKey: "salesPartner" }),
-        makeMember({ id: "sc2", name: "Sales Champion 2", initials: "SC", roleKey: "salesPartner" }),
+        makeMember({ id: "sc1", name: "Yousef Al-Qahtani", initials: "YQ", roleKey: "salesPartner" }),
+        makeMember({ id: "sc2", name: "Khalid Al-Zahrani", initials: "KZ", roleKey: "salesPartner" }),
       ],
     }),
     makeMember({
       id: "am",
-      name: "Account Manager 1",
-      initials: "AM",
+      name: "Nasser Al-Dosari",
+      initials: "ND",
       roleKey: "accountManager",
       children: [
         makeMember({
           id: "sp1",
-          name: "Sales Partner 1",
-          initials: "SP",
+          name: "Omar Al-Ghamdi",
+          initials: "OG",
           roleKey: "salesPartner",
           children: [
-            makeMember({ id: "spr1", name: "Sales Promoter 1", initials: "SP", roleKey: "salesPromoter" }),
-            makeMember({ id: "spr2", name: "Sales Promoter 2", initials: "SP", roleKey: "salesPromoter" }),
+            makeMember({ id: "spr1", name: "Saad Al-Mutairi", initials: "SM", roleKey: "salesPromoter" }),
+            makeMember({ id: "spr2", name: "Bandar Al-Shehri", initials: "BS", roleKey: "salesPromoter" }),
           ],
         }),
-        makeMember({ id: "sp2", name: "Sales Partner 2", initials: "SP", roleKey: "salesPartner" }),
+        makeMember({ id: "sp2", name: "Turki Al-Anazi", initials: "TA", roleKey: "salesPartner" }),
       ],
     }),
   ],
@@ -133,7 +133,7 @@ const MemberRow = ({
 );
 
 const Connector = () => (
-  <div className="pl-8">
+  <div className="flex justify-center">
     <span className="block w-px h-3 bg-border" />
   </div>
 );
