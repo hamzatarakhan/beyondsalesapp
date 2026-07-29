@@ -109,8 +109,8 @@ const MemberRow = ({
           {member.initials}
         </div>
         {member.children && member.children.length > 0 && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center ring-2 ring-card">
-            <Network className="w-2.5 h-2.5 text-primary-foreground" />
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center ring-2 ring-card">
+            <Network className="w-2.5 h-2.5 text-primary" />
           </div>
         )}
       </div>
