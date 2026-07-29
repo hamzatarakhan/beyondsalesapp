@@ -99,8 +99,8 @@ const MemberRow = ({
 }) => (
   <div
     className={cn(
-      "w-full flex items-center gap-2 p-3",
-      bare ? "bg-transparent" : cn("rounded-2xl bg-card shadow-sm", highlighted ? "!border-2 !border-primary" : "border border-border/60"),
+      "w-full flex items-center gap-2 p-3 transition-colors duration-300",
+      bare ? "bg-transparent" : cn("rounded-2xl bg-card shadow-sm", highlighted ? "!border !border-primary/20" : "border border-border/60"),
     )}
   >
     <button type="button" onClick={onSelect} className="flex items-center gap-3 flex-1 min-w-0 text-start">
@@ -213,10 +213,10 @@ const MyHierarchy = () => {
       {view === "tree" ? (
         <div className="px-4 mt-2">
           {path.map((member, i) => (
-            <div key={member.id}>
+            <div key={member.id} className="animate-in fade-in slide-in-from-top-1 duration-300">
               <MemberRow
                 member={member}
-                highlighted
+                highlighted={i === path.length - 1}
                 roleLabel={t(`profile.hierarchy.roles.${member.roleKey}`)}
                 meLabel={t("profile.hierarchy.me")}
                 viewDetailsLabel={t("profile.hierarchy.viewDetails")}
@@ -227,7 +227,10 @@ const MyHierarchy = () => {
             </div>
           ))}
           {focused.children && focused.children.length > 0 && (
-            <div className="rounded-2xl bg-card shadow-sm border border-border/60 divide-y divide-border">
+            <div
+              key={focused.id}
+              className="rounded-2xl bg-card shadow-sm border border-border/60 divide-y divide-border animate-in fade-in slide-in-from-top-1 duration-300"
+            >
               {focused.children.map((child) => (
                 <MemberRow
                   key={child.id}
