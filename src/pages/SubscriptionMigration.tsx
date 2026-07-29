@@ -656,12 +656,6 @@ const SubscriptionMigration = () => {
                 const grand = Math.round((subtotal + vat + outstandingBalance) * 100) / 100;
                 return (
                   <>
-                    <div className="space-y-2 pb-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
-                      </div>
-                    </div>
                     {outstandingBalance > 0 && (() => {
                       const currentBalance = 0;
                       const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
@@ -698,6 +692,12 @@ const SubscriptionMigration = () => {
                         </div>
                       );
                     })()}
+                    <div className="space-y-2 pb-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
+                      </div>
+                    </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">Subtotal</span>
