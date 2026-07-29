@@ -1,4 +1,6 @@
-import { Hash, Smartphone, Mail, Share2, LogOut } from "lucide-react";
+import { Hash, Smartphone, Mail, Share2, LogOut, Network, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { useBrand, Brand } from "@/contexts/BrandContext";
@@ -27,6 +29,8 @@ const BrandBadge = ({ brand, className }: { brand: Brand; className?: string }) 
 
 const Profile = () => {
   const { brand } = useBrand();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const qrData = encodeURIComponent(`EMPLOYEE:${EMPLOYEE.code}`);
 
   return (
@@ -82,6 +86,21 @@ const Profile = () => {
             </div>
           </div>
         </section>
+
+        <button
+          type="button"
+          onClick={() => navigate("/profile/hierarchy")}
+          className="w-full bg-card rounded-2xl shadow-sm p-4 flex items-center gap-3 text-start"
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Network className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">{t("profile.myHierarchy")}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("profile.myHierarchySub")}</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
+        </button>
 
         <section className="bg-card rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
           <h2 className="text-base font-semibold text-foreground">Scan QR Code</h2>

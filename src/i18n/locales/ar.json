@@ -572,5 +572,28 @@
     "arabic": "العربية",
     "comingSoon": "قريباً",
     "comingSoonDesc": "المزيد من إعدادات التفضيلات قادمة."
+  },
+  "profile": {
+    "myHierarchy": "التسلسل الإداري",
+    "myHierarchySub": "استعرض هيكل فريقك",
+    "hierarchy": {
+      "title": "التسلسل الإداري",
+      "me": "أنا",
+      "viewDetails": "عرض التفاصيل",
+      "detailsTitle": "صفحة التفاصيل",
+      "memberCode": "رمز العضو",
+      "channelType": "نوع القناة",
+      "userType": "نوع المستخدم",
+      "email": "البريد الإلكتروني",
+      "location": "الموقع",
+      "phoneNumber": "رقم الهاتف",
+      "roles": {
+        "regionalManager": "مدير المنطقة",
+        "teamLeader": "قائد الفريق",
+        "accountManager": "مدير الحساب",
+        "salesPartner": "شريك المبيعات",
+        "salesPromoter": "مروّج المبيعات"
+      }
+    }
   }
 }

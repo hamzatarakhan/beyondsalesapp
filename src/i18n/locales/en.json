@@ -565,5 +565,28 @@
     "arabic": "Arabic",
     "comingSoon": "Coming Soon",
     "comingSoonDesc": "More settings preferences are on the way."
+  },
+  "profile": {
+    "myHierarchy": "My Hierarchy",
+    "myHierarchySub": "Browse your team structure",
+    "hierarchy": {
+      "title": "My Hierarchy",
+      "me": "Me",
+      "viewDetails": "View details",
+      "detailsTitle": "Details Page",
+      "memberCode": "Member code",
+      "channelType": "Channel Type",
+      "userType": "User Type",
+      "email": "Email",
+      "location": "Location",
+      "phoneNumber": "Phone Number",
+      "roles": {
+        "regionalManager": "Regional Manager",
+        "teamLeader": "Team Leader",
+        "accountManager": "Account Manager",
+        "salesPartner": "Sales Partner",
+        "salesPromoter": "Sales Promoter"
+      }
+    }
   }
 }
