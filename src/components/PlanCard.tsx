@@ -502,10 +502,9 @@ const PlanCard = ({
                 </div>
               </div>
               <div className="space-y-2.5 mb-4">
-                <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.localMins === "Unlimited" ? unlimited : plan.localMins}</span> {t("activation.plan.localMinsLabel")}</>} />
-                {plan.intlMins && plan.intlMins !== "-" && (
-                  <FeatureRow icon={Globe} label={<><span className="font-semibold">{plan.intlMins === "Unlimited" ? unlimited : plan.intlMins}</span> {t("activation.plan.internationalMins")}</>} />
-                )}
+                {/* Friendi Calls is exclusively international minute bundles (no standalone
+                    local-minutes product exists) — labeled accordingly, not "local". */}
+                <FeatureRow icon={Globe} label={<><span className="font-semibold">{plan.localMins === "Unlimited" ? unlimited : plan.localMins}</span> {t("activation.plan.internationalMins")}</>} />
               </div>
             </>
           ) : isDataOnly ? (

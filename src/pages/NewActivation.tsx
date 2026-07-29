@@ -145,21 +145,24 @@ const INTERNET_PLANS: typeof SHARED_PLANS = [
   { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
 ];
 
-// ── Friendi (FM) prepaid-only catalog. Representative demo data — refine prices/sizes later.
-// Categories: combo (data + social + intl mins), data (data-only), calls (minutes), payg (per-unit).
+// ── Friendi (FM) prepaid-only catalog. Sourced from FM_Plans_Dealer_app(FM_Plan_Prepaid).csv.
+// Categories: combo (Bundleha — data + social breakdown), data (Internet Bundles, data-only),
+// calls (International Bundles — Friendi prepaid has no standalone local-minutes product),
+// payg (per-unit rates).
 export const FRIENDI_PLANS: typeof SHARED_PLANS = [
-  // Combo — total data headline, with a core/social breakdown + international minutes
-  { title: "Combo 49",  internet: "10 GB", coreData: "8 GB",  social: "2 GB",  intlMins: "50",  mins: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [] },
-  { title: "Combo 99",  internet: "35 GB", coreData: "25 GB", social: "10 GB", intlMins: "75",  mins: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [], badge: "recommended" },
-  { title: "Combo 172", internet: "75 GB", coreData: "55 GB", social: "20 GB", intlMins: "100", mins: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["5G","Social"], features: [], bonuses: [], badge: "mostFamous" },
-  // Data — data-only bundles
-  { title: "Data 49",   internet: "20 GB", coreData: "20 GB", social: "-", mins: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [] },
-  { title: "Data 99",   internet: "50 GB", coreData: "50 GB", social: "-", mins: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [], badge: "recommended" },
-  { title: "Data 172",  internet: "80 GB", coreData: "80 GB", social: "-", mins: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["data"], validity: ["1m"], tags: ["5G"], features: [], bonuses: [], badge: "mostFamous" },
-  // Calls — minutes bundles
-  { title: "Calls 49",  internet: "-", mins: "500",       localMins: "500",       social: "-", sms: "-", price: 49.75, discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [] },
-  { title: "Calls 99",  internet: "-", mins: "1500",      localMins: "1500",      social: "-", sms: "-", price: 99,    discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
-  { title: "Calls 172", internet: "-", mins: "Unlimited", localMins: "Unlimited", social: "-", sms: "-", price: 172,   discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: [], badge: "mostFamous" },
+  // Combo (Bundleha) — total data headline = coreData + social, per the CSV's Social Benefits column
+  { title: "Bandelha 5GB",   internet: "10 GB",     coreData: "5 GB",  social: "5 GB",       mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: [] },
+  { title: "Bundleha 30GB",  internet: "70 GB",     coreData: "30 GB", social: "40 GB",      mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"],    features: [], bonuses: [], badge: "recommended" },
+  { title: "Bundleha 45GB",  internet: "Unlimited", coreData: "45 GB", social: "Unlimited",  mins: "-", sms: "-", price: 126.5,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous" },
+  // Data (Internet Bundles) — data-only, no social breakdown
+  { title: "13 GB",  internet: "13 GB", coreData: "13 GB", social: "-", mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [] },
+  { title: "40 GB",  internet: "40 GB", coreData: "40 GB", social: "-", mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
+  { title: "60 GB",  internet: "60 GB", coreData: "60 GB", social: "-", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
+  // Calls (International Bundles) — Friendi prepaid only sells destination-specific international
+  // minute bundles, no standalone local-minutes product exists in the real catalogue.
+  { title: "Pakistan 55 Min",  internet: "-", mins: "55",  localMins: "55",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [] },
+  { title: "Pakistan 130 Min", internet: "-", mins: "130", localMins: "130", social: "-", sms: "-", price: 19.55, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended" },
+  { title: "Pakistan 360 Min", internet: "-", mins: "360", localMins: "360", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
   // PAYG — pay-as-you-go per-unit rates, top-up added on top
   { title: "Pay As You Go", internet: "-", mins: "-", social: "-", sms: "-", price: 0, payg: { perMb: 0.2, perSms: 0.25, perMin: 0.45 }, discount: null, validityLabel: "", categories: ["payg"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
 ];
