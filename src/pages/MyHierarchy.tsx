@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IdCard, Store, UserCog, Mail, MapPin, Phone, Eye, X } from "lucide-react";
+import { IdCard, Store, UserCog, Mail, MapPin, Phone, Eye, X, Network } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
@@ -104,8 +104,15 @@ const MemberRow = ({
     )}
   >
     <button type="button" onClick={onSelect} className="flex items-center gap-3 flex-1 min-w-0 text-start">
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
-        {member.initials}
+      <div className="relative w-10 h-10 shrink-0">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+          {member.initials}
+        </div>
+        {member.children && member.children.length > 0 && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center ring-2 ring-card">
+            <Network className="w-2.5 h-2.5 text-primary-foreground" />
+          </div>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
