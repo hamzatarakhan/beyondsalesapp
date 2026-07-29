@@ -6,7 +6,8 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, type IdTypeRule } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, type IdTypeRule } from "@/pages/NewActivation";
+import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -140,6 +141,9 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
 ];
 
 const ELIGIBLE_PREPAID_CATEGORIES = ["aman", "base-plan", "flex"];
+// Friendi has no postpaid product — post-to-pre is the only direction its catalog can ever
+// appear in. Calls (international minutes) and PAYG aren't plan-swap targets, so excluded.
+const FM_MIGRATION_CATEGORIES = ["combo", "flexi", "data"];
 
 const CATEGORY_LABEL: Record<string, string> = {
   aman: "Aman",
@@ -148,6 +152,13 @@ const CATEGORY_LABEL: Record<string, string> = {
   data: "5G MBB",
   "switch-postpaid": "Switch Postpaid",
   vnet: "Vnet",
+};
+// Friendi's own category labels — "data" collides with Virgin's "5G MBB" meaning above,
+// so this is looked up separately when the active brand is Friendi.
+const FM_CATEGORY_LABEL: Record<string, string> = {
+  combo: "Combo Plans",
+  flexi: "Flexi Plans",
+  data: "Data Plans",
 };
 
 // Plain-English labels for the shared ID_TYPE_RULES keys (mirrors NewActivation.tsx's
@@ -178,6 +189,8 @@ const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "
 
 const SubscriptionMigration = () => {
   const navigate = useNavigate();
+  const { brand } = useBrand();
+  const isFriendi = brand === "friendi";
 
   // ---------- Flow state ----------
   const [direction, setDirection] = useState<Direction | null>(null);
@@ -268,6 +281,8 @@ const SubscriptionMigration = () => {
   const planList: Plan[] =
     direction === "pre-to-post"
       ? POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"))
+      : isFriendi
+      ? FRIENDI_PLANS.filter((p) => p.categories.some((c) => FM_MIGRATION_CATEGORIES.includes(c)))
       : PREPAID_PLANS.filter((p) => p.categories.some((c) => ELIGIBLE_PREPAID_CATEGORIES.includes(c)));
   const selectedPlanObj = selectedPlan != null ? planList[selectedPlan] : undefined;
 
@@ -531,12 +546,17 @@ const SubscriptionMigration = () => {
             </h3>
             {direction === "post-to-pre" && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {[
+                {(isFriendi ? [
+                  { value: "all", label: "All" },
+                  { value: "combo", label: "Combo Plans" },
+                  { value: "flexi", label: "Flexi Plans" },
+                  { value: "data", label: "Data Plans" },
+                ] : [
                   { value: "all", label: "All" },
                   { value: "aman", label: "Aman" },
                   { value: "base-plan", label: "Baqah" },
                   { value: "flex", label: "Baqah Flex" },
-                ].map((chip) => (
+                ]).map((chip) => (
                   <button
                     key={chip.value}
                     onClick={() => {
@@ -584,7 +604,7 @@ const SubscriptionMigration = () => {
                 label="Plan Type"
                 value={
                   selectedPlanObj?.categories?.[0]
-                    ? CATEGORY_LABEL[selectedPlanObj.categories[0]] ?? "—"
+                    ? (isFriendi ? FM_CATEGORY_LABEL : CATEGORY_LABEL)[selectedPlanObj.categories[0]] ?? "—"
                     : "—"
                 }
               />
