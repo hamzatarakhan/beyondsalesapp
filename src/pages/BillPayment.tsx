@@ -436,7 +436,7 @@ const BillPayment = () => {
           </div>
           <div className="text-end shrink-0">
             <p className="text-sm font-bold text-foreground">
-              {money(bill.amount)} <RiyalSymbol />
+              <RiyalSymbol /> {money(bill.amount)}
             </p>
             <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", BILL_STATUS_STYLE[bill.status])}>
               {bill.status}
@@ -453,10 +453,10 @@ const BillPayment = () => {
         </button>
         {open && (
           <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-            <SummaryRow label="Current Balance" value={<>{money(bill.currentBalance)} <RiyalSymbol /></>} />
-            <SummaryRow label="Unbilled Amount" value={<>{money(bill.unbilled)} <RiyalSymbol /></>} />
-            <SummaryRow label="Out of Bundle Usage" value={<>{money(bill.outOfBundle)} <RiyalSymbol /></>} />
-            <SummaryRow label="Total (VAT incl.)" value={<>{money(bill.amount)} <RiyalSymbol /></>} />
+            <SummaryRow label="Current Balance" value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
+            <SummaryRow label="Unbilled Amount" value={<><RiyalSymbol /> {money(bill.unbilled)}</>} />
+            <SummaryRow label="Out of Bundle Usage" value={<><RiyalSymbol /> {money(bill.outOfBundle)}</>} />
+            <SummaryRow label="Total (VAT incl.)" value={<><RiyalSymbol /> {money(bill.amount)}</>} />
           </div>
         )}
       </div>
@@ -481,9 +481,9 @@ const BillPayment = () => {
                 setAmounts((prev) => ({ ...prev, [a.msisdn]: cleaned }));
               }}
               inputMode="decimal"
-              className={cn("h-12 bg-card rounded-xl pe-12", err && "border-destructive focus-visible:ring-destructive")}
+              className={cn("h-12 bg-card rounded-xl ps-10", err && "border-destructive focus-visible:ring-destructive")}
             />
-            <span className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+            <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
               <RiyalSymbol />
             </span>
           </div>
@@ -647,7 +647,7 @@ const BillPayment = () => {
                     <div className="text-end shrink-0">
                       <p className="text-[10px] text-muted-foreground">Total Due</p>
                       <p className="text-base font-bold text-primary">
-                        {money(totalDueOf(a))} <RiyalSymbol />
+                        <RiyalSymbol /> {money(totalDueOf(a))}
                       </p>
                     </div>
                   </div>
@@ -676,13 +676,13 @@ const BillPayment = () => {
                 <SummaryRow
                   key={a.msisdn}
                   label={`${a.msisdn} · ${ACCOUNT_TYPE_LABEL[a.type]}`}
-                  value={<>{money(Number(amounts[a.msisdn]) || 0)} <RiyalSymbol /></>}
+                  value={<><RiyalSymbol /> {money(Number(amounts[a.msisdn]) || 0)}</>}
                 />
               ))}
               <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
                 <span className="text-sm font-semibold text-foreground">Total</span>
                 <span className="text-base font-bold text-primary">
-                  {money(totalToPay)} <RiyalSymbol />
+                  <RiyalSymbol /> {money(totalToPay)}
                 </span>
               </div>
             </CardSection>

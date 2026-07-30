@@ -272,7 +272,7 @@ const CreditLimitAdjustment = () => {
               <>
                 <CardSection title="Customer Details" icon={ClipboardList}>
               <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Current Credit Limit" value={<>{currentLimit} <RiyalSymbol /></>} />
+              <SummaryRow label="Current Credit Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
             </CardSection>
 
             <div className="flex gap-3">
@@ -315,7 +315,7 @@ const CreditLimitAdjustment = () => {
                   <Minus className="w-4 h-4 text-foreground" />
                 </button>
                 <span className="text-2xl font-bold text-foreground">
-                  {delta} <RiyalSymbol className="text-lg" />
+                  <RiyalSymbol className="text-lg" /> {delta}
                 </span>
                 <button
                   type="button"
@@ -329,8 +329,8 @@ const CreditLimitAdjustment = () => {
             </CardSection>
 
             <CardSection title="Preview" icon={ClipboardList}>
-              <SummaryRow label="Current Limit" value={<>{currentLimit} <RiyalSymbol /></>} />
-              <SummaryRow label="New Limit" value={<span className="text-primary">{newLimit} <RiyalSymbol /></span>} />
+              <SummaryRow label="Current Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
+              <SummaryRow label="New Limit" value={<span className="text-primary"><RiyalSymbol /> {newLimit}</span>} />
             </CardSection>
 
             {direction === "increase" ? (
@@ -359,8 +359,8 @@ const CreditLimitAdjustment = () => {
             <CardSection title="Adjustment Summary" icon={ClipboardList}>
               <SummaryRow label="Customer Name" value={customer.name} />
               <SummaryRow label="Direction" value={direction === "increase" ? "Increase" : "Decrease"} />
-              <SummaryRow label="Current Limit" value={<>{currentLimit} <RiyalSymbol /></>} />
-              <SummaryRow label="New Limit" value={<>{newLimit} <RiyalSymbol /></>} />
+              <SummaryRow label="Current Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
+              <SummaryRow label="New Limit" value={<><RiyalSymbol /> {newLimit}</>} />
             </CardSection>
 
             <CardSection title="OTP Verification" icon={Phone}>

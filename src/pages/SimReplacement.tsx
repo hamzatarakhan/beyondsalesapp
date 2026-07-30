@@ -422,7 +422,7 @@ const SimReplacement = () => {
               <SummaryRow label="Customer Name" value={customer.name} />
               <SummaryRow label="Replacement Type" value={replacementTypeLabel} />
               {newSimType === "psim" && <SummaryRow label="KIT Code" value={kit} />}
-              <SummaryRow label="Fee" value={isChargeable ? <>{fee} <RiyalSymbol /></> : <span className="text-emerald-600">Free</span>} />
+              <SummaryRow label="Fee" value={isChargeable ? <><RiyalSymbol /> {fee}</> : <span className="text-emerald-600">Free</span>} />
             </CardSection>
 
             {isChargeable ? (
