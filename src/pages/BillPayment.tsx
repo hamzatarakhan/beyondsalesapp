@@ -623,20 +623,16 @@ const BillPayment = () => {
             />
 
             {lookupError && <ErrorBanner message={lookupError} />}
-          </>
-        )}
 
-        {/* ── Step 1: Bills ── */}
-        {step === 1 && accounts && (
-          <>
-            {isMulti && (
+            {/* Results land inline, right under the search — no page hop to review bills. */}
+            {isMulti && accounts && (
               <p className="text-xs text-muted-foreground px-1">
                 {accounts.length} accounts with outstanding bills are registered to this ID. Select the
                 ones to pay for and set each amount.
               </p>
             )}
 
-            {accounts.map((a) => {
+            {(accounts ?? []).map((a) => {
               const isOn = !!selected[a.msisdn];
               return (
                 <section key={a.msisdn} className={cn(
@@ -694,8 +690,8 @@ const BillPayment = () => {
           </>
         )}
 
-        {/* ── Step 2: Checkout ── */}
-        {step === 2 && accounts && (
+        {/* ── Step 1: Checkout ── */}
+        {step === 1 && accounts && (
           <>
             <CardSection title="Payment Summary" icon={ReceiptText}>
               {payingAccounts.map((a) => (
@@ -761,16 +757,11 @@ const BillPayment = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!accounts} onClick={() => setStep(1)}>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueBills} onClick={() => setStep(1)}>
               Continue
             </Button>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueBills} onClick={() => setStep(2)}>
-              Continue
-            </Button>
-          )}
-          {step === 2 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
               Pay {money(totalToPay)} SAR
             </Button>
