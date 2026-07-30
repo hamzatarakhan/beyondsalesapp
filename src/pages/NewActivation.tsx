@@ -1374,7 +1374,7 @@ const NewActivation = () => {
                         <button key={value} type="button"
                           onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                           className={cn("relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl transition-all",
-                            compact ? "py-3 px-1" : "py-4 px-2",
+                            compact ? "py-3.5 px-1.5" : "py-4 px-2",
                             selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
                           <span className={cn("absolute top-2 right-2 rounded-full border-2 flex items-center justify-center",
                             compact ? "w-3.5 h-3.5" : "w-4 h-4",
@@ -1382,7 +1382,7 @@ const NewActivation = () => {
                             {selected && <span className={cn("rounded-full bg-primary-foreground", compact ? "w-1 h-1" : "w-1.5 h-1.5")} />}
                           </span>
                           <Icon className={cn(compact ? "w-5 h-5" : "w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                          <p className={cn("font-semibold text-center leading-tight", compact ? "text-[11px]" : "text-sm",
+                          <p className={cn("font-semibold text-center leading-snug", compact ? "text-xs" : "text-sm",
                             selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
                         </button>
                       );
