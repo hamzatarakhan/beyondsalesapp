@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
+import SimCard from "@/components/activation/SimCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -515,37 +516,14 @@ const BillPayment = () => {
         {/* ── Step 0: Lookup ── */}
         {step === 0 && (
           <>
-            <div className="space-y-3">
+            <section className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Search Bills By</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { value: "msisdn" as const, label: "MSISDN", Icon: Phone },
-                  { value: "civil-id" as const, label: "Civil ID", Icon: IdCard },
-                ]).map(({ value, label, Icon }) => {
-                  const isOn = method === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => { setMethod(value); resetLookup(); }}
-                      className={cn(
-                        "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 transition-all",
-                        isOn ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
-                      )}
-                    >
-                      <span className={cn(
-                        "absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                        isOn ? "border-primary bg-primary" : "border-muted-foreground/30",
-                      )}>
-                        {isOn && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                      </span>
-                      <Icon className={cn("w-6 h-6", isOn ? "text-primary" : "text-muted-foreground")} />
-                      <p className={cn("text-sm font-semibold", isOn ? "text-foreground" : "text-muted-foreground")}>{label}</p>
-                    </button>
-                  );
-                })}
+              {/* Same selector card as SIM Activation's SIM Type toggle. */}
+              <div className="grid grid-cols-2 gap-3">
+                <SimCard active={method === "msisdn"} label="MSISDN" icon={Phone} onClick={() => { setMethod("msisdn"); resetLookup(); }} />
+                <SimCard active={method === "civil-id"} label="Civil ID" icon={IdCard} onClick={() => { setMethod("civil-id"); resetLookup(); }} />
               </div>
-            </div>
+            </section>
 
             {method === "msisdn" ? (
               <Field label="MSISDN">
