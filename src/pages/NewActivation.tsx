@@ -1383,17 +1383,23 @@ const NewActivation = () => {
                   })}
                 </div>
               ) : (
-                <div className="flex gap-1 p-1 rounded-2xl bg-muted/60 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {payTypeOptions.map(({ value, label, Icon }) => {
+                <div className="relative flex rounded-full bg-muted/60 p-1">
+                  {/* Sliding active indicator keeps the control to a single 36px row */}
+                  <span
+                    className="absolute top-1 bottom-1 rounded-full bg-card shadow-sm transition-all duration-300 ease-out"
+                    style={{
+                      width: `calc((100% - 0.5rem) / ${payTypeOptions.length})`,
+                      left: `calc(0.25rem + (100% - 0.5rem) / ${payTypeOptions.length} * ${Math.max(0, payTypeOptions.findIndex(o => o.value === payType))})`,
+                    }}
+                  />
+                  {payTypeOptions.map(({ value, label }) => {
                     const selected = payType === value;
                     return (
                       <button key={value} type="button"
                         onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("flex-1 min-w-fit flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl whitespace-nowrap transition-all",
-                          selected ? "bg-card shadow-sm" : "bg-transparent")}>
-                        <Icon className={cn("w-4 h-4 shrink-0", selected ? "text-primary" : "text-muted-foreground")} />
-                        <span className={cn("text-[13px] font-semibold leading-none",
-                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+                        className={cn("relative z-10 flex-1 min-w-0 py-1.5 px-1 rounded-full text-center transition-colors")}>
+                        <span className={cn("block truncate text-[12px] font-semibold leading-5",
+                          selected ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </button>
                     );
                   })}
