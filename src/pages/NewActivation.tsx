@@ -1360,9 +1360,8 @@ const NewActivation = () => {
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type selector.
                   • 1–2 options  → the familiar icon tiles side by side.
-                  • 3+ options   → full-width stacked rows (icon + label left, radio right).
-                    Rows never truncate or shrink text, and scale to any number of options,
-                    so adding a 4th subscription type later needs no layout change. */}
+                  • 3+ options   → single-row segmented control that scrolls horizontally.
+                    Keeps vertical height to one compact row no matter how many options exist. */}
               {payTypeOptions.length <= 2 ? (
                 <div className="grid grid-cols-2 gap-3">
                   {payTypeOptions.map(({ value, label, Icon }) => {
@@ -1384,24 +1383,17 @@ const NewActivation = () => {
                   })}
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="flex gap-1 p-1 rounded-2xl bg-muted/60 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {payTypeOptions.map(({ value, label, Icon }) => {
                     const selected = payType === value;
                     return (
                       <button key={value} type="button"
                         onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("w-full flex items-center gap-3 py-3 px-3 rounded-2xl transition-all text-start",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
-                        <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                          selected ? "bg-primary/15" : "bg-muted")}>
-                          <Icon className={cn("w-5 h-5", selected ? "text-primary" : "text-muted-foreground")} />
-                        </span>
-                        <p className={cn("flex-1 min-w-0 text-sm font-semibold leading-tight",
-                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
-                        <span className={cn("w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center",
-                          selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
-                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                        </span>
+                        className={cn("flex-1 min-w-fit flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl whitespace-nowrap transition-all",
+                          selected ? "bg-card shadow-sm" : "bg-transparent")}>
+                        <Icon className={cn("w-4 h-4 shrink-0", selected ? "text-primary" : "text-muted-foreground")} />
+                        <span className={cn("text-[13px] font-semibold leading-none",
+                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</span>
                       </button>
                     );
                   })}
