@@ -1360,8 +1360,8 @@ const NewActivation = () => {
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type selector.
                   • 1–2 options  → the familiar icon tiles side by side.
-                  • 3+ options   → single-row segmented control that scrolls horizontally.
-                    Keeps vertical height to one compact row no matter how many options exist. */}
+                  • 3+ options   → compact single-row chips that keep the app's standard
+                    selected treatment (primary tint + border + radio dot), just shorter. */}
               {payTypeOptions.length <= 2 ? (
                 <div className="grid grid-cols-2 gap-3">
                   {payTypeOptions.map(({ value, label, Icon }) => {
@@ -1383,23 +1383,23 @@ const NewActivation = () => {
                   })}
                 </div>
               ) : (
-                <div className="relative flex rounded-full bg-muted/60 p-1">
-                  {/* Sliding active indicator keeps the control to a single 36px row */}
-                  <span
-                    className="absolute top-1 bottom-1 rounded-full bg-card shadow-sm transition-all duration-300 ease-out"
-                    style={{
-                      width: `calc((100% - 0.5rem) / ${payTypeOptions.length})`,
-                      left: `calc(0.25rem + (100% - 0.5rem) / ${payTypeOptions.length} * ${Math.max(0, payTypeOptions.findIndex(o => o.value === payType))})`,
-                    }}
-                  />
-                  {payTypeOptions.map(({ value, label }) => {
+                <div className="flex gap-2">
+                  {payTypeOptions.map(({ value, label, Icon }) => {
                     const selected = payType === value;
                     return (
                       <button key={value} type="button"
                         onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("relative z-10 flex-1 min-w-0 py-1.5 px-1 rounded-full text-center transition-colors")}>
-                        <span className={cn("block truncate text-[12px] font-semibold leading-5",
-                          selected ? "text-primary" : "text-muted-foreground")}>{label}</span>
+                        className={cn("flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl transition-all",
+                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
+                        {selected ? (
+                          <span className="w-4 h-4 shrink-0 rounded-full bg-primary flex items-center justify-center">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                          </span>
+                        ) : (
+                          <Icon className="w-4 h-4 shrink-0 text-muted-foreground" />
+                        )}
+                        <span className={cn("min-w-0 truncate text-[12px] font-semibold leading-tight",
+                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</span>
                       </button>
                     );
                   })}
