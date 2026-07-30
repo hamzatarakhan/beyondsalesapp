@@ -67,6 +67,7 @@ import {
   Info,
   Wallet,
   Receipt,
+  ReceiptText,
   Microchip,
   QrCode,
   UserX,
@@ -80,21 +81,13 @@ import { useBrand } from "@/contexts/BrandContext";
 // ---------- Types ----------
 type SimType = "psim" | "esim";
 type SubType = "sim" | "mnp";
-type PayType = "prepaid" | "postpaid";
+type PayType = "prepaid" | "postpaid" | "basic-postpaid";
 type LineType = "mobile" | "internet";
 type PlanMode = "plan" | "topup";
 type PayMethod = "card" | "pos";
 
 // ---------- Constants ----------
 export const PREPAID_PLANS: typeof SHARED_PLANS = [
-  // ── Basic (prepaid) — same data as the Baqa plans ──
-  { title: "Basic 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 45,  discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
-  { title: "Basic 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 70,  discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
-  { title: "Basic 100", internet: "40 GB",     mins: "750",       sms: "-", social: "Unlimited", price: 100, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: false },
-  { title: "Basic 110", internet: "45 GB",     mins: "745",       sms: "-", social: "Unlimited", price: 110, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: true },
-  { title: "Basic 150", internet: "55 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 150, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true },
-  { title: "Basic 185", internet: "80 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 185, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true },
-  { title: "Basic 365", internet: "150 GB",    mins: "Unlimited", sms: "-", social: "Unlimited", price: 365, discount: null, validityLabel: "Valid 28 days", categories: ["basic"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: true },
   // ── Baqah (base-plan) — 28 days ──
   { title: "Baqah 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 45,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
   { title: "Baqah 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 70,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false },
@@ -371,26 +364,25 @@ const generateNationalAddress = (): string => {
 
 const PREPAID_CHIPS = [
   { value: "all", label: "All" },
-  { value: "basic", label: "Basic" },
-  { value: "base-plan", label: "Baqa" },
+  { value: "base-plan", label: "Baqah" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
-  { value: "data", label: "5G Data" },
+  { value: "data", label: "5G MBB" },
 ];
 
 const POSTPAID_CHIPS = [
   { value: "all", label: "All" },
-  { value: "switch-postpaid", label: "Switch Postpaid" },
   { value: "vnet", label: "Vnet" },
+  { value: "switch-postpaid", label: "Switch Postpaid" },
 ];
 
-// Friendi (FM) prepaid chip row — Combo / Flexi / Data / Calls / PAYG.
+// Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
 const FRIENDI_CHIPS = [
   { value: "all", label: "All" },
   { value: "combo", label: "Combo Plans" },
   { value: "flexi", label: "Flexi Plans" },
-  { value: "data", label: "Data Plans" },
-  { value: "calls", label: "Calls" },
+  { value: "data", label: "Internet" },
+  { value: "calls", label: "International" },
   { value: "payg", label: "PAYG" },
 ];
 
@@ -675,7 +667,7 @@ const NewActivation = () => {
 
   // ---------- Derived flags ----------
   // lineType is no longer shown as a toggle; "internet mode" is inferred from chip or selected plan category
-  const activePlansForType = isFriendi ? FRIENDI_PLANS : payType === "prepaid" ? PREPAID_PLANS : POSTPAID_PLANS;
+  const activePlansForType = isFriendi ? FRIENDI_PLANS : payType !== "postpaid" ? PREPAID_PLANS : POSTPAID_PLANS;
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
   const isPaygPlan        = isFriendi && planTypeChip === "payg";
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
@@ -686,8 +678,8 @@ const NewActivation = () => {
   const isVnetMode        = payType === "postpaid" && (planTypeChip === "vnet" || selectedPlanCategories.includes("vnet"));
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
   // so the 5G-MBB internet behaviour only applies to Virgin.
-  const is5GDataMode      = !isFriendi && payType === "prepaid"  && (planTypeChip === "data" || selectedPlanCategories.includes("data"));
-  const isPrepaidMobile   = payType === "prepaid"  && !is5GDataMode;
+  const is5GDataMode      = !isFriendi && payType !== "postpaid" && (planTypeChip === "data" || selectedPlanCategories.includes("data"));
+  const isPrepaidMobile   = payType !== "postpaid" && !is5GDataMode;
   const isPrepaidInternet = is5GDataMode;
   const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
   const isPostpaidInternet= isVnetMode;
@@ -695,9 +687,20 @@ const NewActivation = () => {
   const showEsim         = true;
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
+  // Friendi has no separate Postpaid tier — just Prepaid and Basic Postpaid.
+  const payTypeOptions: { value: PayType; label: string; Icon: typeof Wallet }[] = isFriendi
+    ? [
+        { value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet },
+        { value: "basic-postpaid", label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
+      ]
+    : [
+        { value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet },
+        { value: "basic-postpaid", label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
+        { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: Receipt },
+      ];
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
-    : (payType === "prepaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
+    : (payType !== "postpaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
         .filter(c => !(c.value === "vnet" && (simType === "esim" || isFulfilment || isMnp)))
         // MNP (Port In): no 5G Data (MBB) for prepaid, no Vnet for postpaid.
         .filter(c => !(isMnp && c.value === "data"));
@@ -1285,7 +1288,7 @@ const NewActivation = () => {
                       layout={
                         selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
                         : selectedPlanObj.categories?.includes("aman") ? "aman"
-                        : selectedPlanObj.categories?.includes("base-plan") || selectedPlanObj.categories?.includes("basic") ? "baqa"
+                        : selectedPlanObj.categories?.includes("base-plan") ? "baqa"
                         : "flex"
                       }
                     />
@@ -1350,15 +1353,14 @@ const NewActivation = () => {
               </div>
             ) : (
             <div className="space-y-4">
-            {/* Subscription Type toggle — Friendi is prepaid-only, so this is hidden there. */}
-            {!isFriendi && (
+            {/* Subscription Type toggle — Virgin gets Prepaid/Postpaid/Basic Postpaid, Friendi gets Prepaid/Basic Postpaid. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type toggle */}
               <div className="flex gap-3">
-                {([{ value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet }, { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: Receipt }] as const).map(({ value, label, Icon }) => {
+                {payTypeOptions.map(({ value, label, Icon }) => {
                   const selected = payType === value;
-                  const isDisabled = value === "postpaid" && !isSaudiId;
+                  const isDisabled = (value === "postpaid" || value === "basic-postpaid") && !isSaudiId;
                   return (
                     <button key={value} type="button" disabled={isDisabled}
                       onClick={() => { if (isDisabled) return; setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
@@ -1379,7 +1381,6 @@ const NewActivation = () => {
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation.subscription.postpaidSaudiOnly")}</p>
               )}
             </div>
-            )}
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
@@ -1399,16 +1400,15 @@ const NewActivation = () => {
                   >
                     {({
                       "all": t("activation.subscription.chips.all"),
-                      "basic": t("activation.subscription.chips.basic"),
                       "flex": t("activation.subscription.chips.flex"),
                       "aman": t("activation.subscription.chips.aman"),
                       "base-plan": t("activation.subscription.chips.baqa"),
-                      "data": isFriendi ? t("activation.subscription.chips.dataPlans") : t("activation.subscription.chips.data"),
+                      "data": isFriendi ? t("activation.subscription.chips.internet") : t("activation.subscription.chips.data"),
                       "switch-postpaid": t("activation.subscription.chips.switchPostpaid"),
                       "vnet": t("activation.subscription.chips.vnet"),
                       "combo": t("activation.subscription.chips.combo"),
                       "flexi": t("activation.subscription.chips.flexiPlans"),
-                      "calls": t("activation.subscription.chips.calls"),
+                      "calls": t("activation.subscription.chips.international"),
                       "payg": t("activation.subscription.chips.payg"),
                     } as Record<string,string>)[chip.value] ?? chip.label}
                   </button>
@@ -1420,7 +1420,7 @@ const NewActivation = () => {
               key={`${brand}-${payType}-${lineType}`}
               selectedPlan={selectedPlan}
               onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
-              plans={isFriendi ? FRIENDI_PLANS : lineType === "internet" ? INTERNET_PLANS : payType === "prepaid" ? (isMnp ? PREPAID_PLANS.filter(p => !p.categories?.includes("data")) : PREPAID_PLANS) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")) && !(isMnp && p.categories?.includes("vnet")))}
+              plans={isFriendi ? FRIENDI_PLANS : lineType === "internet" ? INTERNET_PLANS : payType !== "postpaid" ? (isMnp ? PREPAID_PLANS.filter(p => !p.categories?.includes("data")) : PREPAID_PLANS) : POSTPAID_PLANS.filter(p => p.categories?.some(c => c === "switch-postpaid" || c === "vnet") && !(simType === "esim" && p.categories?.includes("vnet")) && !(isFulfilment && p.categories?.includes("vnet")) && !(isMnp && p.categories?.includes("vnet")))}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
             />
 
@@ -1770,7 +1770,7 @@ const NewActivation = () => {
               </div>
               {showEsim && <SummaryRow label={t("activation.subscription.simType")} value={simType === "psim" ? t("activation.subscription.psim") : t("activation.subscription.esim")} />}
               {showEsim && simType === "psim" && kit && <SummaryRow label={t("activation.checkout.simNumber")} value={kit} />}
-              <SummaryRow label={t("activation.subscription.type")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : t("activation.subscription.postpaid")} />
+              <SummaryRow label={t("activation.subscription.type")} value={payType === "prepaid" ? t("activation.subscription.prepaid") : payType === "postpaid" ? t("activation.subscription.postpaid") : t("activation.subscription.basicPostpaid")} />
               {selectedPlanObj && (() => {
                 const cats = selectedPlanObj.categories ?? [];
                 const planTypeLabel =
@@ -1779,11 +1779,10 @@ const NewActivation = () => {
                   cats.includes("payg") ? t("activation.subscription.chips.payg") :
                   cats.includes("combo") ? t("activation.subscription.chips.combo") :
                   cats.includes("flexi") ? t("activation.subscription.chips.flexiPlans") :
-                  cats.includes("calls") ? t("activation.subscription.chips.calls") :
-                  cats.includes("data") ? (isFriendi ? t("activation.subscription.chips.dataPlans") : t("activation.subscription.chips.data")) :
+                  cats.includes("calls") ? t("activation.subscription.chips.international") :
+                  cats.includes("data") ? (isFriendi ? t("activation.subscription.chips.internet") : t("activation.subscription.chips.data")) :
                   cats.includes("aman") ? t("activation.subscription.chips.aman") :
                   cats.includes("base-plan") ? t("activation.subscription.chips.baqa") :
-                  cats.includes("basic") ? t("activation.subscription.chips.basic") :
                   cats.includes("flex") ? t("activation.subscription.chips.flex") : "";
                 return planTypeLabel ? <SummaryRow label={t("activation.checkout.planType")} value={planTypeLabel} /> : null;
               })()}

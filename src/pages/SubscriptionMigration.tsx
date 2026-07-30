@@ -478,7 +478,7 @@ const SubscriptionMigration = () => {
                 ? "postpaid"
                 : cats.includes("aman")
                 ? "aman"
-                : cats.includes("base-plan") || cats.includes("basic")
+                : cats.includes("base-plan")
                 ? "baqa"
                 : "flex";
               return (
