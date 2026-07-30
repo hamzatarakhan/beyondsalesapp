@@ -687,17 +687,23 @@ const NewActivation = () => {
   const showEsim         = true;
   // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
   const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
-  // Friendi has no separate Postpaid tier — just Prepaid and Basic Postpaid.
-  const payTypeOptions: { value: PayType; label: string; Icon: typeof Wallet }[] = isFriendi
+  // Allowed Products per ID Type — only Saudi National ID, Iqama ID and Premium
+  // Residency support postpaid; every other ID type is prepaid-only.
+  const idTypeAllowsPostpaid = ID_TYPE_RULES[idType]?.postpaidAllowed ?? false;
+  const isSaudiId = idTypeAllowsPostpaid;
+  // Friendi has no separate Postpaid tier — just Prepaid and Basic Postpaid. Postpaid and
+  // Basic Postpaid are omitted entirely (not shown disabled) for ID types that don't allow them.
+  const payTypeOptions: { value: PayType; label: string; Icon: typeof Wallet }[] = (isFriendi
     ? [
-        { value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet },
-        { value: "basic-postpaid", label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
+        { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
+        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
       ]
     : [
-        { value: "prepaid", label: t("activation.subscription.prepaid"), Icon: Wallet },
-        { value: "basic-postpaid", label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
-        { value: "postpaid", label: t("activation.subscription.postpaid"), Icon: Receipt },
-      ];
+        { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
+        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
+        { value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt },
+      ]
+  ).filter(o => o.value === "prepaid" || isSaudiId);
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     : (payType !== "postpaid" ? PREPAID_CHIPS : POSTPAID_CHIPS)
@@ -730,10 +736,6 @@ const NewActivation = () => {
     setPlanMode("plan");
   }, [payType, lineType]);
 
-  // Allowed Products per ID Type — only Saudi National ID, Iqama ID and Premium
-  // Residency support postpaid; every other ID type is prepaid-only.
-  const idTypeAllowsPostpaid = ID_TYPE_RULES[idType]?.postpaidAllowed ?? false;
-  const isSaudiId = idTypeAllowsPostpaid;
   useEffect(() => {
     if (!idTypeAllowsPostpaid && payType !== "prepaid") setPayType("prepaid");
   }, [idTypeAllowsPostpaid, payType]);
@@ -1360,19 +1362,18 @@ const NewActivation = () => {
               <div className="flex gap-3">
                 {payTypeOptions.map(({ value, label, Icon }) => {
                   const selected = payType === value;
-                  const isDisabled = (value === "postpaid" || value === "basic-postpaid") && !isSaudiId;
                   return (
-                    <button key={value} type="button" disabled={isDisabled}
-                      onClick={() => { if (isDisabled) return; setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
+                    <button key={value} type="button"
+                      onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
                       className={cn("relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all",
-                        isDisabled ? "border bg-muted/40 border-border/60 opacity-50 cursor-not-allowed" : selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
+                        selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
                       {/* Radio indicator */}
                       <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                        selected && !isDisabled ? "border-primary bg-primary" : "border-muted-foreground/30")}>
-                        {selected && !isDisabled && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                        {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </span>
-                      <Icon className={cn("w-6 h-6", selected && !isDisabled ? "text-primary" : "text-muted-foreground")} />
-                      <p className={cn("text-sm font-semibold", selected && !isDisabled ? "text-foreground" : "text-muted-foreground")}>{label}</p>
+                      <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                      <p className={cn("text-sm font-semibold", selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
                     </button>
                   );
                 })}
