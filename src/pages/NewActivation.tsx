@@ -1358,53 +1358,38 @@ const NewActivation = () => {
             {/* Subscription Type toggle — Virgin gets Prepaid/Postpaid/Basic Postpaid, Friendi gets Prepaid/Basic Postpaid. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
-              {/* Payment type selector.
-                  • 1–2 options  → the familiar icon tiles side by side.
-                  • 3+ options   → compact single-row chips that keep the app's standard
-                    selected treatment (primary tint + border + radio dot), just shorter. */}
-              {payTypeOptions.length <= 2 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {payTypeOptions.map(({ value, label, Icon }) => {
-                    const selected = payType === value;
-                    return (
-                      <button key={value} type="button"
-                        onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("relative min-w-0 flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl transition-all",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
-                        <span className={cn("absolute top-2.5 right-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                          selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
-                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                        </span>
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-sm font-semibold text-center leading-tight",
-                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  {payTypeOptions.map(({ value, label, Icon }) => {
-                    const selected = payType === value;
-                    return (
-                      <button key={value} type="button"
-                        onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
-                        className={cn("flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl transition-all",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
-                        {selected ? (
-                          <span className="w-4 h-4 shrink-0 rounded-full bg-primary flex items-center justify-center">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+              {/* Payment type selector — same icon-tile card at every count, just scaled down
+                  (icon, font, padding) as more options are added so it keeps fitting in one row
+                  instead of switching to a visually different compact-chip style. */}
+              {(() => {
+                const compact = payTypeOptions.length >= 3;
+                return (
+                  <div className={cn("grid gap-2",
+                    payTypeOptions.length === 1 ? "grid-cols-1" :
+                    payTypeOptions.length === 2 ? "grid-cols-2" :
+                    payTypeOptions.length === 3 ? "grid-cols-3" : "grid-cols-4")}>
+                    {payTypeOptions.map(({ value, label, Icon }) => {
+                      const selected = payType === value;
+                      return (
+                        <button key={value} type="button"
+                          onClick={() => { setPayType(value); if (value === "postpaid" && simType === "esim") setLineType("mobile"); }}
+                          className={cn("relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl transition-all",
+                            compact ? "py-3 px-1" : "py-4 px-2",
+                            selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60")}>
+                          <span className={cn("absolute top-2 right-2 rounded-full border-2 flex items-center justify-center",
+                            compact ? "w-3.5 h-3.5" : "w-4 h-4",
+                            selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+                            {selected && <span className={cn("rounded-full bg-primary-foreground", compact ? "w-1 h-1" : "w-1.5 h-1.5")} />}
                           </span>
-                        ) : (
-                          <Icon className="w-4 h-4 shrink-0 text-muted-foreground" />
-                        )}
-                        <span className={cn("min-w-0 truncate text-[12px] font-semibold leading-tight",
-                          selected ? "text-foreground" : "text-muted-foreground")}>{label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+                          <Icon className={cn(compact ? "w-5 h-5" : "w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                          <p className={cn("font-semibold text-center leading-tight", compact ? "text-[11px]" : "text-sm",
+                            selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
               {!isSaudiId && (
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation.subscription.postpaidSaudiOnly")}</p>
               )}
