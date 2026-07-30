@@ -18,6 +18,7 @@ import {
   ClipboardList,
   ChevronRight,
   Sparkles,
+  Receipt,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -108,6 +109,10 @@ const Home = () => {
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
     { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment" },
     { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement" },
+    // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
+    ...(activeOperator === "friendi"
+      ? []
+      : [{ id: "bill-payment", icon: Receipt, label: "Bill Payment", path: "/bill-payment" }]),
   ];
 
   const handleActivityClick = (path: string) => {
