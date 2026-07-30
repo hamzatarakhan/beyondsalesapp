@@ -49,7 +49,8 @@ const DEFAULT_FILTERS: PlanFilters = {
 };
 
 // Family display order in the "All" view: richest service mix first, data-only last.
-const FAMILY_ORDER = ["combo", "flexi", "calls", "aman", "base-plan", "basic", "flex", "data", "payg", "switch-postpaid", "vnet"];
+// Friendi's Flexi leads its lineup, so it's ranked ahead of Combo.
+const FAMILY_ORDER = ["flexi", "combo", "calls", "aman", "base-plan", "basic", "flex", "data", "payg", "switch-postpaid", "vnet"];
 const familyRank = (p: Plan) => {
   const i = FAMILY_ORDER.findIndex((c) => p.categories.includes(c as any));
   return i === -1 ? FAMILY_ORDER.length : i;
