@@ -4,7 +4,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
 import SimCard from "@/components/activation/SimCard";
-import BrandLoader from "@/components/BrandLoader";
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -540,8 +540,8 @@ const BillPayment = () => {
                     <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   </div>
                   {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
-                  <Button type="button" className="h-12 w-28 rounded-xl shrink-0" disabled={!msisdnValid || checking} onClick={handleSearch}>
-                    {checking ? <BrandLoader onPrimary /> : "Search"}
+                  <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!msisdnValid || checking} onClick={handleSearch}>
+                    Search
                   </Button>
                 </div>
                 {msisdn.length > 0 && !msisdnValid && (
@@ -563,8 +563,8 @@ const BillPayment = () => {
                     />
                     <IdCard className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   </div>
-                  <Button type="button" className="h-12 w-28 rounded-xl shrink-0" disabled={!civilIdValid || checking} onClick={handleSearch}>
-                    {checking ? <BrandLoader onPrimary /> : "Search"}
+                  <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!civilIdValid || checking} onClick={handleSearch}>
+                    Search
                   </Button>
                 </div>
                 {civilId.length > 0 && !civilIdValid && (
@@ -892,6 +892,8 @@ const BillPayment = () => {
           </Button>
         </DrawerContent>
       </Drawer>
+
+      <BrandLoadingOverlay open={checking} />
     </div>
   );
 };

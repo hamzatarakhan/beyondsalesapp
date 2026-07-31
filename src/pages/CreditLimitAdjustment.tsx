@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import BrandLoader from "@/components/BrandLoader";
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
@@ -242,11 +242,11 @@ const CreditLimitAdjustment = () => {
                 {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
                 <Button
                   type="button"
-                  className="h-12 w-28 rounded-xl shrink-0"
+                  className="h-12 w-20 rounded-xl shrink-0"
                   disabled={!/^\d{10}$/.test(msisdn) || checking}
                   onClick={handleSearch}
                 >
-                  {checking ? <BrandLoader onPrimary /> : "Search"}
+                  Search
                 </Button>
               </div>
             </Field>
@@ -526,6 +526,8 @@ const CreditLimitAdjustment = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <BrandLoadingOverlay open={checking} />
     </div>
   );
 };

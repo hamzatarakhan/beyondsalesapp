@@ -1,16 +1,6 @@
-import Lottie from "lottie-react";
 import { useBrand } from "@/contexts/BrandContext";
 import SplashScreen from "@/components/SplashScreen";
-import friendiLoaderAnimation from "@/assets/friendi-loader.json";
-import virginLoaderAnimation from "@/assets/virgin-loader.json";
-
-// Each brand's Lottie has its own native aspect ratio (Friendi: wide/short title-bounce,
-// Virgin: tall/narrow logo reveal) — size each within its own box so neither gets stretched
-// or squashed to match the other.
-const LOADER_BOX_CLASS: Record<"virgin" | "friendi", string> = {
-  friendi: "w-40 h-auto",
-  virgin: "w-28 h-56",
-};
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 
 const BrandSwitchLoader = () => {
   const { switchingTo, switchPhase, finishBrandSwitch } = useBrand();
@@ -23,20 +13,8 @@ const BrandSwitchLoader = () => {
     return <SplashScreen onFinish={finishBrandSwitch} />;
   }
 
-  const animationData = switchingTo === "friendi" ? friendiLoaderAnimation : virginLoaderAnimation;
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80">
-      <div className={LOADER_BOX_CLASS[switchingTo]}>
-        <Lottie
-          animationData={animationData}
-          loop
-          rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
-          className="w-full h-full"
-        />
-      </div>
-    </div>
-  );
+  // First phase plays the brand animation the incoming brand, not the one still active.
+  return <BrandLoadingOverlay open brand={switchingTo} />;
 };
 
 export default BrandSwitchLoader;
