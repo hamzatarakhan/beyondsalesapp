@@ -7,6 +7,7 @@ import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
+import BrandLoader from "@/components/BrandLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -295,13 +296,14 @@ const SimReplacement = () => {
                   />
                   <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 </div>
+                {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
                 <Button
                   type="button"
-                  className="h-12 px-5 rounded-xl shrink-0"
+                  className="h-12 w-28 rounded-xl shrink-0"
                   disabled={!/^\d{10}$/.test(msisdn) || checking}
                   onClick={handleSearch}
                 >
-                  {checking ? "Searching…" : "Search"}
+                  {checking ? <BrandLoader onPrimary /> : "Search"}
                 </Button>
               </div>
             </Field>

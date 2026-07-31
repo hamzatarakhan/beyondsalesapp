@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import BrandLoader from "@/components/BrandLoader";
 import { AlertCircle } from "lucide-react";
 
 // Mock list of numbers that have bundles (in real app, this would come from API)
@@ -80,7 +81,7 @@ const SearchBundleActivation = () => {
           className="w-full h-12 rounded-xl text-base font-medium"
           variant="outline"
         >
-          {isChecking ? "Checking..." : "Continue"}
+          {isChecking ? <BrandLoader /> : "Continue"}
         </Button>
       </div>
     </div>
