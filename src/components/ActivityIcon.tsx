@@ -1,12 +1,22 @@
 import { LucideIcon } from "lucide-react";
 
+/** Where a service sits in its rollout: still being built, awaiting sign-off, or signed off. */
+export type BadgeTone = "progress" | "confirm" | "approved";
+
 interface ActivityIconProps {
   icon: LucideIcon;
   label: string;
   onClick?: () => void;
   color?: "teal" | "amber" | "primary";
   badge?: string;
+  badgeTone?: BadgeTone;
 }
+
+const badgeToneMap: Record<BadgeTone, string> = {
+  progress: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30",
+  confirm: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30",
+  approved: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30",
+};
 
 const colorMap = {
   teal: {
@@ -26,7 +36,7 @@ const colorMap = {
   },
 };
 
-const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge }: ActivityIconProps) => {
+const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badgeTone = "progress" }: ActivityIconProps) => {
   const c = colorMap[color];
   return (
     <button
@@ -38,7 +48,7 @@ const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge }: Act
           <Icon className={`w-6 h-6 ${c.icon}`} strokeWidth={1.75} />
         </div>
         {badge && (
-          <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 text-[8px] font-semibold leading-none whitespace-nowrap border border-amber-200 dark:border-amber-500/30 shadow-sm">
+          <span className={`absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-semibold leading-none whitespace-nowrap border shadow-sm ${badgeToneMap[badgeTone]}`}>
             {badge}
           </span>
         )}

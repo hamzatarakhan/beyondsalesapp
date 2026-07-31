@@ -102,17 +102,19 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
+  // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
+  // "progress" is still being built.
   const activities = [
-    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation" },
-    { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp" },
-    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment" },
-    { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration" },
-    { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment" },
-    { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement" },
+    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Approved", badgeTone: "approved" as const },
+    { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement", badge: "Needs Confirm", badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
     ...(activeOperator === "friendi"
       ? []
-      : [{ id: "bill-payment", icon: Receipt, label: "Bill Payment", path: "/bill-payment" }]),
+      : [{ id: "bill-payment", icon: Receipt, label: "Bill Payment", path: "/bill-payment", badge: "In Progress", badgeTone: "progress" as const }]),
   ];
 
   const handleActivityClick = (path: string) => {
@@ -214,7 +216,8 @@ const Home = () => {
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
-                badge={activity.id === "sim" ? undefined : "In Progress"}
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
                 onClick={() =>
                   activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement"
                     ? handleActivityClick(activity.path)
