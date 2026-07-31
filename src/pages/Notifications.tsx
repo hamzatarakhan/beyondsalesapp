@@ -151,7 +151,13 @@ const Notifications = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
-      <AppHeader title={t("notifications.title")} showBack onBackClick={handleBack} rightElement={headerMenu} />
+      {/* Select/Read-all only act on the list, so the menu is hidden while reading one notification. */}
+      <AppHeader
+        title={t("notifications.title")}
+        showBack
+        onBackClick={handleBack}
+        rightElement={view === "detail" ? undefined : headerMenu}
+      />
 
       {view === "detail" && activeNotification ? (
         <div className="px-4 space-y-4">
