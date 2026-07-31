@@ -186,7 +186,9 @@
       "contactNum": "رقم التواصل",
       "portNote": "سيتم نقل الرقم من المشغّل المحدد بعد التحقق.",
       "selectOperator": "اختر المشغّل",
+      "kitLabel": "رمز KIT",
       "kitPlaceholder": "رمز KIT (10 أرقام)",
+      "kitVerified": "تم التحقق من رمز KIT",
       "kitDigitsError": "يجب أن يتكوّن رمز KIT من 10 أرقام",
       "kitErrors": {
         "registered": "رمز KIT مسجّل بالفعل لشريحة أخرى.",
@@ -595,5 +597,23 @@
         "salesPromoter": "مروّج المبيعات"
       }
     }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "searchPlaceholder": "بحث",
+    "chips": {
+      "all": "الكل",
+      "unread": "غير مقروء",
+      "payment": "الدفع",
+      "orders": "الطلبات",
+      "unpaid": "غير مدفوع"
+    },
+    "emptyTitle": "لا توجد إشعارات",
+    "emptyDesc": "سنُعلمك عند وصول أي جديد!",
+    "noResults": "لا توجد إشعارات مطابقة",
+    "selectInbox": "تحديد الوارد",
+    "readAll": "تعليم الكل كمقروء",
+    "read": "مقروء",
+    "delete": "حذف"
   }
 }

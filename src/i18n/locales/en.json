@@ -186,7 +186,9 @@
       "contactNum": "Contact number",
       "portNote": "The number will be transferred from the selected operator after verification.",
       "selectOperator": "Select operator",
+      "kitLabel": "KIT Code",
       "kitPlaceholder": "KIT Code (10 Digits)",
+      "kitVerified": "KIT Code Verified",
       "kitDigitsError": "KIT must be 10 digits",
       "kitErrors": {
         "registered": "This KIT Code is already registered to another SIM.",
@@ -588,5 +590,23 @@
         "salesPromoter": "Sales Promoter"
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "searchPlaceholder": "Search",
+    "chips": {
+      "all": "All",
+      "unread": "Unread",
+      "payment": "Payment",
+      "orders": "Orders",
+      "unpaid": "Unpaid"
+    },
+    "emptyTitle": "Notification is Empty",
+    "emptyDesc": "We'll notify you when something arrives!",
+    "noResults": "No notifications found",
+    "selectInbox": "Select Inbox",
+    "readAll": "Read All",
+    "read": "Read",
+    "delete": "Delete"
   }
 }

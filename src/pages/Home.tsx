@@ -155,10 +155,14 @@ const Home = () => {
             </button>
           )}
           <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
-            <QrCode className="w-4 h-4 text-foreground" />
+            <QrCode className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
           </button>
-          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative">
-            <Bell className="w-4 h-4 text-foreground" />
+          <button
+            onClick={() => navigate("/notifications")}
+            aria-label="Notifications"
+            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative"
+          >
+            <Bell className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
             <span className="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full" />
           </button>
         </div>

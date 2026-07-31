@@ -1225,6 +1225,9 @@ const NewActivation = () => {
                 )}
                 {simType === "psim" && (
                   <div className="mt-3 space-y-2">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {t("activation.subscription.kitLabel")} <span className="text-destructive">*</span>
+                    </h4>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Input
@@ -1246,7 +1249,9 @@ const NewActivation = () => {
                             }
                           }}
                           placeholder={t("activation.subscription.kitPlaceholder")}
-                          className={cn("h-12 bg-card rounded-xl pr-12", kitError && "border-destructive focus-visible:ring-destructive")}
+                          className={cn("h-12 bg-card rounded-xl pr-12",
+                            kitError && "border-destructive focus-visible:ring-destructive",
+                            kitChecked && !kitError && "border-emerald-500 focus-visible:ring-emerald-500")}
                           inputMode="numeric"
                         />
                         {kitChecking ? (
@@ -1267,6 +1272,12 @@ const NewActivation = () => {
                       <p className="text-xs text-destructive flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                         {t(`activation.subscription.kitErrors.${kitError}`, "Invalid KIT Code. Please try again.")}
+                      </p>
+                    )}
+                    {kitChecked && !kitError && !kitChecking && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        {t("activation.subscription.kitVerified")}
                       </p>
                     )}
                   </div>
