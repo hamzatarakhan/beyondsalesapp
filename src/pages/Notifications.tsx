@@ -177,53 +177,58 @@ const Notifications = () => {
         </div>
       ) : (
         <div className="px-4 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("notifications.searchPlaceholder")}
-              className="pl-10 pr-9 h-11 rounded-xl bg-card border-border"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
-          </div>
+          {/* Search + chips stay pinned under the 72px-tall AppHeader while the list scrolls
+              beneath them. The negative margin lets the background span the full width so
+              items don't show through at the edges. */}
+          <div className="sticky top-[72px] z-[9] -mx-4 px-4 pb-3 space-y-3 bg-background">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("notifications.searchPlaceholder")}
+                className="pl-10 pr-9 h-11 rounded-xl bg-card border-border"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
 
-          <div
-            {...chipsDragScroll}
-            className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", chipsDragScroll.className)}
-          >
-            {CHIPS.map((chip) => (
-              <button
-                key={chip.value}
-                type="button"
-                onClick={() => setActiveChip(chip.value)}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors flex items-center gap-1.5",
-                  activeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm",
-                )}
-              >
-                {chip.label}
-                {!!chip.count && (
-                  <span
-                    className={cn(
-                      "min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center",
-                      activeChip === chip.value ? "bg-white/25 text-white" : "bg-primary text-primary-foreground",
-                    )}
-                  >
-                    {chip.count}
-                  </span>
-                )}
-              </button>
-            ))}
+            <div
+              {...chipsDragScroll}
+              className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", chipsDragScroll.className)}
+            >
+              {CHIPS.map((chip) => (
+                <button
+                  key={chip.value}
+                  type="button"
+                  onClick={() => setActiveChip(chip.value)}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors flex items-center gap-1.5",
+                    activeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm",
+                  )}
+                >
+                  {chip.label}
+                  {!!chip.count && (
+                    <span
+                      className={cn(
+                        "min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center",
+                        activeChip === chip.value ? "bg-white/25 text-white" : "bg-primary text-primary-foreground",
+                      )}
+                    >
+                      {chip.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
 
           {filtered.length === 0 ? (
