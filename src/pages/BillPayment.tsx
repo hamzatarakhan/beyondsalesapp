@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
+import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
 import {
   Phone,
   IdCard,
@@ -20,6 +20,7 @@ import {
   Wallet,
   CreditCard,
   AlertCircle,
+  CheckCircle2,
   Check,
   XCircle,
   ChevronDown,
@@ -68,6 +69,15 @@ const ErrorBanner = ({ message }: { message: string }) => (
   <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
     <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
     <p className="text-[13px] text-destructive leading-snug">{message}</p>
+  </div>
+);
+
+// Nothing owed is a good outcome, not a failure — kept visually distinct from ErrorBanner
+// (emerald/checkmark instead of red/alert) so it doesn't read as something having gone wrong.
+const NoBillsBanner = ({ message }: { message: string }) => (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
+    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+    <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">{message}</p>
   </div>
 );
 
@@ -227,6 +237,8 @@ const BillPayment = () => {
   const [civilId, setCivilId] = useState("1876543210");
   const [checking, setChecking] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  // Separate from lookupError: "nothing owed" is a good outcome, not a failed lookup.
+  const [noBillsMessage, setNoBillsMessage] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<BillAccount[] | null>(null);
 
   // Step 1 — Bills. Amounts are kept as strings so the dealer can clear/retype freely.
@@ -258,6 +270,7 @@ const BillPayment = () => {
   const resetLookup = () => {
     setAccounts(null);
     setLookupError(null);
+    setNoBillsMessage(null);
     setAmounts({});
     setSelected({});
     setExpandedBill(null);
@@ -287,7 +300,7 @@ const BillPayment = () => {
           return;
         }
         if (found.bills.length === 0) {
-          setLookupError("No outstanding bills for this number.");
+          setNoBillsMessage("No outstanding bills for this number — the account is fully settled.");
           return;
         }
         setAccounts([found]);
@@ -300,7 +313,11 @@ const BillPayment = () => {
       const found = DEMO_ACCOUNTS.filter((a) => a.civilId === civilId && a.bills.length > 0);
       if (found.length === 0) {
         const idExists = DEMO_ACCOUNTS.some((a) => a.civilId === civilId);
-        setLookupError(idExists ? "No outstanding bills for this ID." : "No postpaid accounts found for this ID.");
+        if (idExists) {
+          setNoBillsMessage("No outstanding bills for this ID — every account is fully settled.");
+        } else {
+          setLookupError("No postpaid accounts found for this ID.");
+        }
         return;
       }
       setAccounts(found);
@@ -544,9 +561,13 @@ const BillPayment = () => {
                     Search
                   </Button>
                 </div>
-                {msisdn.length > 0 && !msisdnValid && (
+                {msisdn.length > 0 && !msisdnValid ? (
                   <p className="text-[11px] text-destructive mt-1.5">
                     Enter a 10-digit Switch Postpaid number or a 13-digit Vnet number.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Customer should enter a Vnet or Switch Postpaid number.
                   </p>
                 )}
               </Field>
@@ -567,9 +588,13 @@ const BillPayment = () => {
                     Search
                   </Button>
                 </div>
-                {civilId.length > 0 && !civilIdValid && (
+                {civilId.length > 0 && !civilIdValid ? (
                   <p className="text-[11px] text-destructive mt-1.5">
                     Enter a 10-digit ID. Saudi National IDs start with 1, Iqama IDs start with 2.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Enter a Saudi or Iqama ID — 10 digits. Saudi starts with 1, Iqama starts with 2.
                   </p>
                 )}
               </Field>
@@ -603,6 +628,7 @@ const BillPayment = () => {
             />
 
             {lookupError && <ErrorBanner message={lookupError} />}
+            {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
             {/* Results land inline, right under the search — no page hop to review bills. */}
             {isMulti && accounts && (
@@ -715,13 +741,7 @@ const BillPayment = () => {
 
             <CardSection title="OTP Verification" icon={ShieldCheck}>
               {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <Check className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Verified</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
-                  </div>
-                </div>
+                <VerifiedBanner label="OTP Verified" />
               ) : (
                 <>
                   <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
