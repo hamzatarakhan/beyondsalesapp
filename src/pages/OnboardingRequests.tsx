@@ -183,6 +183,19 @@ const ACTION_STYLE: Record<string, string> = {
 const CHANNEL_TYPES = ["Retailer", "Distributor", "Franchise"];
 const REJECT_REASONS = ["Missing or expired documents", "Invalid information", "Duplicate request", "Other"];
 
+// Stretches the date-picker grid to the full width of its drawer instead of the default's
+// intrinsic (centered) sizing — the day columns become flexible instead of fixed w-9 cells.
+const FULL_WIDTH_CALENDAR_CLASSNAMES = {
+  caption_label: "text-sm font-bold text-primary",
+  months: "w-full",
+  month: "w-full space-y-4",
+  table: "w-full border-collapse space-y-1",
+  head_row: "flex w-full",
+  head_cell: "text-muted-foreground flex-1 text-center font-normal text-[0.8rem]",
+  row: "flex w-full mt-2",
+  cell: "flex-1 flex items-center justify-center h-9 text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+};
+
 const makeDocuments = (): OnboardingRequest["documents"] => [
   { category: "Commercial Registration", files: [{ title: "CR_Certificate.pdf" }, { title: "CR_Photo.jpg" }] },
   { category: "VAT Certificate", files: [{ title: "VAT_Certificate.pdf" }, { title: "VAT_Photo.jpg" }] },
@@ -670,7 +683,7 @@ const OnboardingRequests = () => {
             <div
               key={item.id}
               onClick={() => openDetail(item)}
-              className="bg-card rounded-xl p-3.5 shadow-sm border-l-4 border-l-primary cursor-pointer"
+              className="bg-card rounded-xl p-3.5 shadow-sm border-l-2 border-l-primary cursor-pointer"
             >
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <p className="text-sm font-semibold text-foreground">{item.channelName}</p>
@@ -796,17 +809,15 @@ const OnboardingRequests = () => {
             </DrawerClose>
           </div>
 
-          <div className="flex justify-center">
-            <Calendar
-              mode="range"
-              selected={draftDateRange}
-              onSelect={setDraftDateRange}
-              defaultMonth={draftDateRange?.from}
-              numberOfMonths={1}
-              className="p-0"
-              classNames={{ caption_label: "text-sm font-bold text-primary" }}
-            />
-          </div>
+          <Calendar
+            mode="range"
+            selected={draftDateRange}
+            onSelect={setDraftDateRange}
+            defaultMonth={draftDateRange?.from}
+            numberOfMonths={1}
+            className="w-full p-0"
+            classNames={FULL_WIDTH_CALENDAR_CLASSNAMES}
+          />
 
           <div className="rounded-xl bg-muted/40 divide-y divide-border mb-4 mt-2">
             <div className="px-3 py-2.5 flex items-center justify-between text-sm">

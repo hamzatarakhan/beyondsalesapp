@@ -46,8 +46,8 @@ import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
 
 const memberOnboarding = [
-  { icon: UserPlus, label: "Channel Onboarding", path: "/channel-onboarding", badge: 0 },
-  { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests", badge: 3 },
+  { icon: UserPlus, label: "Channel Onboarding", path: "/channel-onboarding", badge: "Approved", badgeTone: "approved" as const },
+  { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests", badge: "Approved", badgeTone: "approved" as const },
 ];
 
 // Hero banner slides — same content repeated for now, swap in real variations later.
@@ -249,8 +249,8 @@ const Home = () => {
                 icon={item.icon}
                 label={item.label}
                 color="amber"
-                badge={item.badge > 0 ? String(item.badge) : undefined}
-                badgeTone="confirm"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
                 onClick={() => navigate(item.path)}
               />
             ))}

@@ -48,6 +48,19 @@ const CITY_TO_REGION: Record<string, string> = {
 const PARTNER_CODES = ["PTR-1001 — Al Rajhi Trading", "PTR-1042 — Noor Mobile Trading", "PTR-1077 — Gulf Connect Est."];
 const PARTNER_STORE_NAMES = ["Al Rajhi Mobile Store — Al Olaya", "Al Rajhi Downtown Branch — Al Malaz"];
 
+// Stretches the date-picker grid to the full width of its drawer instead of the default's
+// intrinsic (centered) sizing — the day columns become flexible instead of fixed w-9 cells.
+const FULL_WIDTH_CALENDAR_CLASSNAMES = {
+  caption_label: "text-sm font-bold text-primary",
+  months: "w-full",
+  month: "w-full space-y-4",
+  table: "w-full border-collapse space-y-1",
+  head_row: "flex w-full",
+  head_cell: "text-muted-foreground flex-1 text-center font-normal text-[0.8rem]",
+  row: "flex w-full mt-2",
+  cell: "flex-1 flex items-center justify-center h-9 text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+};
+
 const generateNationalAddress = () => {
   const letters = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("");
   const digits = Array.from({ length: 4 }, () => Math.floor(Math.random() * 10)).join("");
@@ -627,16 +640,14 @@ const ChannelOnboarding = () => {
               <X className="w-4 h-4 text-muted-foreground" />
             </DrawerClose>
           </div>
-          <div className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={dateDrawerKey ? dates[dateDrawerKey] : undefined}
-              onSelect={(d) => dateDrawerKey && setDates((prev) => ({ ...prev, [dateDrawerKey]: d }))}
-              numberOfMonths={1}
-              className="p-0"
-              classNames={{ caption_label: "text-sm font-bold text-primary" }}
-            />
-          </div>
+          <Calendar
+            mode="single"
+            selected={dateDrawerKey ? dates[dateDrawerKey] : undefined}
+            onSelect={(d) => dateDrawerKey && setDates((prev) => ({ ...prev, [dateDrawerKey]: d }))}
+            numberOfMonths={1}
+            className="w-full p-0"
+            classNames={FULL_WIDTH_CALENDAR_CLASSNAMES}
+          />
           <Button className="w-full h-12 rounded-full font-semibold mt-2" onClick={() => setDateDrawerKey(null)}>Apply</Button>
         </DrawerContent>
       </Drawer>
