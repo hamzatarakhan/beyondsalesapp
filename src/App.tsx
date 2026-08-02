@@ -35,6 +35,8 @@ import ExistingCustomerFound from "./pages/ExistingCustomerFound";
 import NewActivation from "./pages/NewActivation";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
 import PhaseTwo from "./pages/PhaseTwo";
+import ChannelOnboarding from "./pages/ChannelOnboarding";
+import OnboardingRequests from "./pages/OnboardingRequests";
 import NotFound from "./pages/NotFound";
 
 
@@ -80,6 +82,8 @@ const App = () => {
           <Route path="/new-activation" element={<NewActivation />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
+          <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
+          <Route path="/onboarding-requests" element={<OnboardingRequests />} />
           <Route path="*" element={<NotFound />} />
 
         </Routes>

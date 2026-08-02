@@ -338,6 +338,10 @@ const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   [FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
 };
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+// Natural-language list join for the "what's still missing" hint, e.g. ["A","B","C"] -> "A, B and C"
+// — `and` is translated so the joined sentence still reads correctly in Arabic.
+const joinList = (items: string[], and: string) =>
+  items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} ${and} ${items[items.length - 1]}`;
 
 // Normal (non-fulfilment) flow demo ID numbers — whitelist status is derived from
 // which one is entered, instead of a manual toggle. Stored as the trailing 9 digits;
@@ -593,6 +597,8 @@ const NewActivation = () => {
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
   const SHOW_VANITY_OVERVIEW = false;
+  // "What's still missing" hint above Continue/Pay — hidden for now, may come back to it.
+  const SHOW_MISSING_HINT = false;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
   const [deviceSerialNumber, setDeviceSerialNumber] = useState("");
@@ -1010,34 +1016,67 @@ const NewActivation = () => {
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const emailRequired = isPrepaidInternet;
   const cityRequired = true;
-  const isContactValid = (!emailRequired || !!contactEmail.trim()) && (!cityRequired || !!contactCity.trim()) && (!contactNumberRequired || !!contactNumber.trim()) && (!isVnetMode || !!nationalAddress.trim()) && (!showDelivery || !!deliveryAddress.trim()) && (!(showHandoverOption && isDealerHandover) || !!deviceSerialNumber.trim());
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
   // Verifications are sequential: Customer → OTP → Nafith. Each unlocks the next.
   const otpGateOk = customerVerified;
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
-  const canPay = isContactValid && (!otpRequired || otpVerified) && customerVerified && (!showNafith || nafithVerified) && !!customerSig && !!dealerSig && terms;
 
   // ---------- Stage gating ----------
-  const canContinue = useMemo(() => {
-    if (step === 0) {
-      if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail);
-      // Full rule (start digit + exact length) blocks Continue silently — no visible hint.
-      return !!idType && !!nationality && idNumberValid;
+  // Each step's Continue/Pay button is driven by a list of what's still missing, rather than a
+  // plain boolean — so the sticky bottom bar can tell the dealer exactly what's left to fill in
+  // as they scroll, instead of leaving a disabled button with no explanation.
+  const step0Missing = useMemo(() => {
+    if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail) ? [] : [t("activation.missing.qrOrEmail")];
+    const missing: string[] = [];
+    if (!idType) missing.push(t("activation.identity.idType"));
+    if (!nationality) missing.push(t("activation.identity.nationality"));
+    // Full rule (start digit + exact length) already has its own inline error under the field
+    // itself, so this just names the field rather than repeating the exact rule.
+    if (idType && !idNumberValid) missing.push(t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`));
+    return missing;
+  }, [isFulfilment, qrVerified, fulfilmentEmail, idType, nationality, idNumberValid, idNumberRule, t]);
+
+  const step1Missing = useMemo(() => {
+    const missing: string[] = [];
+    if (isFulfilment && alreadyPaid) {
+      if (simType === "psim" && !(kitChecked && !kitError)) missing.push(t("activation.missing.verifiedKit"));
+      return missing;
     }
-    if (step === 1) {
-      if (isFulfilment && alreadyPaid) return simType !== "psim" || (kitChecked && !kitError);
-      if (simType === "psim" && (!kitChecked || !!kitError)) return false;
-      if (planMode === "plan" && selectedPlan == null) return false;
-      if (planMode === "topup" && !topupDenom && !topupManual) return false;
-      // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
-      if (isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) return false;
-      if (showMnp && subType === "mnp" && (!portNumber || !portOperator || !portContact)) return false;
-      return true;
+    if (simType === "psim" && (!kitChecked || !!kitError)) missing.push(t("activation.missing.verifiedKit"));
+    if (planMode === "plan" && selectedPlan == null) missing.push(t("activation.missing.aPlan"));
+    if (planMode === "topup" && !topupDenom && !topupManual) missing.push(t("activation.missing.topupAmount"));
+    // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
+    if (isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) missing.push(t("activation.missing.topupMin"));
+    if (showMnp && subType === "mnp") {
+      if (!portNumber) missing.push(t("activation.subscription.portNumber"));
+      if (!portOperator) missing.push(t("activation.subscription.currentOperator"));
+      if (!portContact) missing.push(t("activation.missing.portContact"));
     }
-    return true;
-  }, [step, isFulfilment, qrVerified, fulfilmentEmail, alreadyPaid, idType, nationality, idNumber, showEsim, isKitValid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, contactNumberRequired, contactNumber, showMnp, subType, portNumber, portOperator, portContact, showDelivery, deliveryAddress]);
+    return missing;
+  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, t]);
+
+  const step2Missing = useMemo(() => {
+    const missing: string[] = [];
+    if (emailRequired && !contactEmail.trim()) missing.push(t("activation.checkout.email"));
+    if (cityRequired && !contactCity.trim()) missing.push(t("activation.subscription.city"));
+    if (contactNumberRequired && !contactNumber.trim()) missing.push(t("activation.checkout.contactNumber"));
+    if (isVnetMode && !nationalAddress.trim()) missing.push(t("activation.subscription.nationalAddress"));
+    if (showDelivery && !deliveryAddress.trim()) missing.push(t("activation.checkout.addressLine"));
+    if (showHandoverOption && isDealerHandover && !deviceSerialNumber.trim()) missing.push(t("activation.handover.deviceSerialNumber"));
+    if (!customerVerified) missing.push(t("activation.checkout.customerVerification"));
+    if (otpRequired && !otpVerified) missing.push(t("activation.checkout.otp"));
+    if (showNafith && !nafithVerified) missing.push(t("activation.checkout.nafath"));
+    if (!customerSig) missing.push(t("activation.checkout.customerSig"));
+    if (!dealerSig) missing.push(t("activation.checkout.dealerSig"));
+    if (!terms) missing.push(t("activation.checkout.terms"));
+    return missing;
+  }, [emailRequired, contactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, t]);
+
+  const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
+  const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
+  const canPay = step2Missing.length === 0;
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -2349,6 +2388,13 @@ const NewActivation = () => {
       {/* Sticky bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
+          {/* Names exactly what's still missing so a dealer scrolling a long form isn't left
+              staring at a disabled button with no idea what's left to fill in. */}
+          {SHOW_MISSING_HINT && stepMissing.length > 0 && (
+            <p className="text-[11px] text-muted-foreground text-center mb-2 px-2">
+              {t("activation.missing.prefix", { items: joinList(stepMissing, t("activation.missing.and")) })}
+            </p>
+          )}
           {step < 2 ? (
             <>
               {step === 1 && (

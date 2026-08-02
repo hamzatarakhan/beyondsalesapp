@@ -700,19 +700,28 @@ const BillPayment = () => {
         {step === 1 && accounts && (
           <>
             <CardSection title="Payment Summary" icon={ReceiptText}>
-              {payingAccounts.map((a) => (
-                <SummaryRow
-                  key={a.msisdn}
-                  label={`${a.msisdn} · ${ACCOUNT_TYPE_LABEL[a.type]}`}
-                  value={<><RiyalSymbol /> {money(Number(amounts[a.msisdn]) || 0)}</>}
-                />
-              ))}
-              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
-                <span className="text-sm font-semibold text-foreground">Total</span>
-                <span className="text-base font-bold text-primary">
-                  <RiyalSymbol /> {money(totalToPay)}
-                </span>
+              {/* Wrapped so SummaryRow's `last:border-0` scopes to these rows only — otherwise
+                  the Total div right after it is the true last child, and the last row's own
+                  bottom border stacks with Total's top border into a visible double line. */}
+              <div>
+                {payingAccounts.map((a) => (
+                  <SummaryRow
+                    key={a.msisdn}
+                    label={`${a.msisdn} · ${ACCOUNT_TYPE_LABEL[a.type]}`}
+                    value={<><RiyalSymbol /> {money(Number(amounts[a.msisdn]) || 0)}</>}
+                  />
+                ))}
               </div>
+              {/* A "Total" row would just repeat the single line above it — only show it
+                  when it's actually summing more than one account. */}
+              {payingAccounts.length > 1 && (
+                <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
+                  <span className="text-sm font-semibold text-foreground">Total</span>
+                  <span className="text-base font-bold text-primary">
+                    <RiyalSymbol /> {money(totalToPay)}
+                  </span>
+                </div>
+              )}
             </CardSection>
 
             <CardSection title="Payment Method" icon={CreditCard}>

@@ -26,6 +26,16 @@
     },
     "continue": "Continue",
     "back": "Back",
+    "missing": {
+      "prefix": "Complete {{items}} to continue.",
+      "and": "and",
+      "qrOrEmail": "QR verification or a valid email",
+      "verifiedKit": "a verified KIT Code",
+      "aPlan": "a plan",
+      "topupAmount": "a top-up amount",
+      "topupMin": "a top-up of at least 10 SAR",
+      "portContact": "a contact number for the port request"
+    },
     "identity": {
       "title": "Identity",
       "idType": "ID Type",

@@ -46,8 +46,8 @@ import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 
 
 const memberOnboarding = [
-  { icon: UserPlus, label: "Channel Onboarding", path: "/", badge: 0 },
-  { icon: ClipboardList, label: "Onboarding Requests", path: "/", badge: 3 },
+  { icon: UserPlus, label: "Channel Onboarding", path: "/channel-onboarding", badge: 0 },
+  { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests", badge: 3 },
 ];
 
 // Hero banner slides — same content repeated for now, swap in real variations later.
@@ -236,9 +236,31 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Member Onboarding */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {memberOnboarding.map((item) => (
+              <ActivityIcon
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                color="amber"
+                badge={item.badge > 0 ? String(item.badge) : undefined}
+                badgeTone="confirm"
+                onClick={() => navigate(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/*
         NOTE: Hidden per request — keep these widgets in source for future use.
-        To restore, uncomment the Working Shift, Tickets, and Member Onboarding sections below.
+        To restore, uncomment the Working Shift and Tickets sections below.
 
       // Working Shift
       <div className="px-4 mb-4">
@@ -312,32 +334,6 @@ const Home = () => {
           <button className="w-full py-3 rounded-full bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
             + New Ticket
           </button>
-        </div>
-      </div>
-
-      // Member Onboarding
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {memberOnboarding.map((item) => (
-              <div key={item.label} className="relative">
-                {item.badge > 0 && (
-                  <span className="absolute -top-1 right-2 z-10 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
-                <ActivityIcon
-                  icon={item.icon}
-                  label={item.label}
-                  color="amber"
-                  onClick={() => navigate(item.path)}
-                />
-              </div>
-            ))}
-          </div>
         </div>
       </div>
       */}
