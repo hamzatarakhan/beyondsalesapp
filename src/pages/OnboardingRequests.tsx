@@ -22,6 +22,8 @@ import {
   X,
   Inbox,
   Phone,
+  User,
+  CalendarDays,
   Eye,
   Trash2,
   Plus,
@@ -35,6 +37,13 @@ import {
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors SimTermination.tsx / BillPayment.tsx) ----------
+/** Small muted rounded-square icon chip used on request/task card meta rows. */
+const IconChip = ({ icon: Icon }: { icon: typeof User }) => (
+  <span className="w-6 h-6 rounded-md bg-muted flex items-center justify-center shrink-0">
+    <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+  </span>
+);
+
 const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
     <span className="text-[11px] text-muted-foreground">{label}</span>
@@ -156,7 +165,9 @@ const ACTION_LABEL: Record<HistoryStage, string> = {
   "activation-pending": "Approve",
   activated: "Approve",
   rejected: "Reject",
-  resubmitted: "Resubmit",
+  // Resubmitting is still a submission, from the requester's point of view — same action bucket
+  // as the initial submit, just a later stage badge.
+  resubmitted: "Submit",
   "in-completed": "Pending",
 };
 
@@ -166,7 +177,6 @@ const ACTION_STYLE: Record<string, string> = {
   Approve: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
   Reject: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
   Submit: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
-  Resubmit: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
   Pending: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
 };
 
@@ -606,14 +616,14 @@ const OnboardingRequests = () => {
   // ---------- List view render ----------
   const renderList = () => (
     <div className="px-4 space-y-4">
-      <div className="flex gap-6 border-b border-border">
+      <div className="flex border-b border-border">
         {(["requests", "tasks"] as const).map((v) => (
           <button
             key={v}
             type="button"
             onClick={() => { setTab(v); setSearch(""); }}
             className={cn(
-              "pb-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
+              "flex-1 text-center pb-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
               tab === v ? "text-primary border-primary" : "text-muted-foreground border-transparent",
             )}
           >
@@ -634,7 +644,7 @@ const OnboardingRequests = () => {
 
       {hasActiveFilter && activeFilterLabel && (
         <div className="flex">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-destructive text-destructive text-xs font-semibold">
             {activeFilterLabel}
             <button type="button" onClick={clearActiveFilter} aria-label="Clear filter">
               <X className="w-3 h-3" />
@@ -668,14 +678,20 @@ const OnboardingRequests = () => {
                   {STATUS_LABEL[item.status]}
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">{item.channelType} · {item.memberCode}</p>
-              {!isMyRequest && item.requesterName && (
-                <p className="text-[11px] text-muted-foreground mt-0.5">Requester: {item.requesterName}</p>
-              )}
-              <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-                <Phone className="w-3 h-3" /> {item.phone}
+              <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
+                <IconChip icon={User} /> {item.channelType} | {item.memberCode}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">{item.date}</p>
+              {!isMyRequest && item.requesterName && (
+                <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
+                  <IconChip icon={User} /> Requester: {item.requesterName}
+                </div>
+              )}
+              <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
+                <IconChip icon={Phone} /> {item.phone}
+              </div>
+              <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
+                <IconChip icon={CalendarDays} /> {item.date}
+              </div>
             </div>
           ))}
         </div>
@@ -717,7 +733,7 @@ const OnboardingRequests = () => {
                       draftStatus === value ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
                     )}
                   >
-                    {draftStatus === value && "+ "}{label}
+                    {value !== "all" && "+ "}{label}
                   </button>
                 ))}
               </div>
@@ -736,7 +752,7 @@ const OnboardingRequests = () => {
                       draftChannelType === value ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
                     )}
                   >
-                    {draftChannelType === value && "+ "}{value === "all" ? "All" : value}
+                    {value !== "all" && "+ "}{value === "all" ? "All" : value}
                   </button>
                 ))}
               </div>
@@ -788,16 +804,19 @@ const OnboardingRequests = () => {
               defaultMonth={draftDateRange?.from}
               numberOfMonths={1}
               className="p-0"
+              classNames={{ caption_label: "text-sm font-bold text-primary" }}
             />
           </div>
 
-          <div className="rounded-xl bg-muted/40 px-3 py-2.5 flex items-center justify-between text-sm mb-4 mt-2">
-            <span className="text-muted-foreground">Date From</span>
-            <span className="font-semibold text-foreground">{draftDateRange?.from ? format(draftDateRange.from, "d MMM yyyy") : "—"}</span>
-          </div>
-          <div className="rounded-xl bg-muted/40 px-3 py-2.5 flex items-center justify-between text-sm mb-4">
-            <span className="text-muted-foreground">Date To</span>
-            <span className="font-semibold text-foreground">{draftDateRange?.to ? format(draftDateRange.to, "d MMM yyyy") : "—"}</span>
+          <div className="rounded-xl bg-muted/40 divide-y divide-border mb-4 mt-2">
+            <div className="px-3 py-2.5 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Date From</span>
+              <span className="font-semibold text-foreground">{draftDateRange?.from ? format(draftDateRange.from, "d MMM yyyy") : "—"}</span>
+            </div>
+            <div className="px-3 py-2.5 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Date To</span>
+              <span className="font-semibold text-foreground">{draftDateRange?.to ? format(draftDateRange.to, "d MMM yyyy") : "—"}</span>
+            </div>
           </div>
 
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setDateOpen(false); setFilterOpen(true); }}>Apply</Button>

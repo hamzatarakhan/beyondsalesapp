@@ -245,6 +245,8 @@ const BillPayment = () => {
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
+  // Account cards are only collapsible once there are more than 2 — otherwise always expanded.
+  const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
 
   // Step 2 — Checkout
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
@@ -274,6 +276,13 @@ const BillPayment = () => {
     setAmounts({});
     setSelected({});
     setExpandedBill(null);
+    setExpandedAccounts(new Set());
+  };
+
+  // Account cards start expanded when there are 2 or fewer; beyond that they default closed
+  // so a long list of accounts isn't an overwhelming wall of bills on first load.
+  const initExpandedAccounts = (found: BillAccount[]) => {
+    setExpandedAccounts(found.length <= 2 ? new Set(found.map((a) => a.msisdn)) : new Set());
   };
 
   // ---------- Lookup ----------
@@ -306,6 +315,7 @@ const BillPayment = () => {
         setAccounts([found]);
         setAmounts({ [found.msisdn]: money(totalDueOf(found)) });
         setSelected({ [found.msisdn]: true });
+        initExpandedAccounts([found]);
         return;
       }
 
@@ -324,6 +334,7 @@ const BillPayment = () => {
       setAmounts(Object.fromEntries(found.map((a) => [a.msisdn, money(totalDueOf(a))])));
       // Pre-select everything so a dealer settling the whole ID can just continue.
       setSelected(Object.fromEntries(found.map((a) => [a.msisdn, true])));
+      initExpandedAccounts(found);
     }, 800);
   };
 
@@ -441,6 +452,14 @@ const BillPayment = () => {
     { label: "Bills", Icon: Receipt },
     { label: "Checkout", Icon: Wallet },
   ];
+
+  const toggleAccountExpanded = (msisdn: string) => {
+    setExpandedAccounts((prev) => {
+      const next = new Set(prev);
+      if (next.has(msisdn)) next.delete(msisdn); else next.add(msisdn);
+      return next;
+    });
+  };
 
   // ---------- Renderers ----------
   const renderBill = (bill: Bill) => {
@@ -638,23 +657,30 @@ const BillPayment = () => {
               </p>
             )}
 
+            {/* Beyond 2 accounts, cards collapse to just their header by default; the expand/
+                collapse arrow is always shown (both MSISDN and Civil ID lookups) so a dealer can
+                tuck any card away, not only when there happen to be more than 2. */}
             {(accounts ?? []).map((a) => {
               const isOn = !!selected[a.msisdn];
+              const isExpanded = expandedAccounts.has(a.msisdn);
               return (
                 <section key={a.msisdn} className={cn(
                   "bg-card rounded-2xl p-4 shadow-sm space-y-3 transition-colors",
-                  isMulti && (isOn ? "!border !border-primary/80" : "border border-border/60"),
+                  isMulti && (isOn ? "!border !border-primary/20" : "border border-border/60"),
                 )}>
-                  <div className="flex items-start gap-3">
+                  <div
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => toggleAccountExpanded(a.msisdn)}
+                  >
                     {isMulti && (
                       <button
                         type="button"
                         role="checkbox"
                         aria-checked={isOn}
                         aria-label={`Pay for ${a.msisdn}`}
-                        onClick={() => setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] }))}
+                        onClick={(e) => { e.stopPropagation(); setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] })); }}
                         className={cn(
-                          "w-5 h-5 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                          "w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
                           isOn ? "bg-primary border-primary" : "border-primary/40",
                         )}
                       >
@@ -678,18 +704,25 @@ const BillPayment = () => {
                         <RiyalSymbol /> {money(totalDueOf(a))}
                       </p>
                     </div>
+                    <div className="shrink-0 text-muted-foreground">
+                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rtl:rotate-180" />}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">{a.bills.map(renderBill)}</div>
+                  {isExpanded && (
+                    <>
+                      <div className="space-y-2">{a.bills.map(renderBill)}</div>
 
-                  {a.bills.length > 1 && (
-                    <p className="text-[11px] text-muted-foreground leading-snug">
-                      The latest bill already includes the earlier unpaid cycles, so the total due is
-                      {" "}{money(totalDueOf(a))} SAR — not the sum of both bills.
-                    </p>
+                      {a.bills.length > 1 && (
+                        <p className="text-[11px] text-muted-foreground leading-snug">
+                          The latest bill already includes the earlier unpaid cycles, so the total due is
+                          {" "}{money(totalDueOf(a))} SAR — not the sum of both bills.
+                        </p>
+                      )}
+
+                      {(!isMulti || isOn) && renderAmountInput(a)}
+                    </>
                   )}
-
-                  {(!isMulti || isOn) && renderAmountInput(a)}
                 </section>
               );
             })}
