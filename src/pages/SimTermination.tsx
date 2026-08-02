@@ -25,6 +25,7 @@ import {
   NATIONALITY_CODES,
   ID_TYPE_ORDER,
   ID_TYPE_RULES,
+  ID_TYPE_VERIFICATION_METHODS,
   type IdTypeRule,
 } from "@/pages/NewActivation";
 import {
@@ -560,7 +561,7 @@ const SimTermination = () => {
       </div>
 
       {/* Customer verification */}
-      <SematiVerification open={verifyOpen} audience="customer" onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
+      <SematiVerification open={verifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
 
       {/* OTP verification */}
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>

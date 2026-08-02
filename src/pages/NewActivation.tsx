@@ -5,7 +5,7 @@ import { useDragScroll } from "@/hooks/useDragScroll";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
-import SematiVerification from "@/components/SematiVerification";
+import SematiVerification, { type Method as VerificationMethod } from "@/components/SematiVerification";
 import NafithVerificationModal from "@/components/NafithVerificationModal";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import SimCard from "@/components/activation/SimCard";
@@ -272,6 +272,19 @@ export const ID_TYPE_RULES: Record<string, IdTypeRule> = {
   "haj-visa":          { labelKey: "hajVisa",           fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
   "gcc-passport":      { labelKey: "gccPassport",       fieldLabelKey: "gccPassportNumber", postpaidAllowed: false },
   "premium-residency": { labelKey: "premiumResidency",  fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
+};
+// Which Semati customer-verification methods are offered, per ID Type — brand-agnostic (same for
+// VM and FM), per the "Required Customer Verification for Activation" business rule table.
+export const ID_TYPE_VERIFICATION_METHODS: Record<string, VerificationMethod[]> = {
+  "saudi-id": ["nafath", "fingerprint"],
+  "iqama-id": ["nafath", "fingerprint"],
+  "border-visa": ["nafath", "fingerprint", "absher"],
+  "gcc-id": ["fingerprint"],
+  "visitor-visa": ["nafath", "fingerprint", "absher"],
+  "umrah-visa": ["nafath", "fingerprint", "absher"],
+  "haj-visa": ["nafath", "fingerprint", "absher"],
+  "gcc-passport": ["fingerprint"],
+  "premium-residency": ["nafath", "fingerprint"],
 };
 // Builds a demo ID number that's valid for the given ID Type: leading digit from the
 // type's start-digit rule (first one, arbitrarily) plus a fixed 9-digit suffix that
@@ -2415,7 +2428,7 @@ const NewActivation = () => {
       </div>
 
       {/* Customer verification */}
-      <SematiVerification open={customerVerifyOpen} audience="customer" onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <SematiVerification open={customerVerifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Fulfilment: QR scan lookup — full-screen camera-style view, no hardware access */}

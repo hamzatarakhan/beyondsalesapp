@@ -56,6 +56,10 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
         // Dealer verification always uses Nafath — skip the method-select screen.
         setMethod("nafath");
         setStep("nafath_code");
+      } else if (allowedMethods && allowedMethods.length === 1) {
+        // Only one method is offered (e.g. GCC ID/Passport → Fingerprint only) — nothing to
+        // choose, so jump straight into it instead of showing a one-option select screen.
+        pickMethod(allowedMethods[0]);
       } else {
         setStep("select");
         setMethod(null);

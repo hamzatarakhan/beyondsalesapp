@@ -6,7 +6,7 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, type IdTypeRule } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, type IdTypeRule } from "@/pages/NewActivation";
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1015,7 +1015,7 @@ const SubscriptionMigration = () => {
       <SematiVerification
         open={customerVerifyOpen}
         audience="customer"
-        allowedMethods={["nafath", "fingerprint"]}
+        allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]}
         onClose={() => setCustomerVerifyOpen(false)}
         onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
       />
