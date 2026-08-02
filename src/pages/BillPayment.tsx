@@ -448,11 +448,6 @@ const BillPayment = () => {
     setStep((s) => s - 1);
   };
 
-  const steps = [
-    { label: "Bills", Icon: Receipt },
-    { label: "Checkout", Icon: Wallet },
-  ];
-
   const toggleAccountExpanded = (msisdn: string) => {
     setExpandedAccounts((prev) => {
       const next = new Set(prev);
@@ -544,10 +539,17 @@ const BillPayment = () => {
     );
   };
 
+  // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
+  // Kept in source in case we want it back — just uncomment the FlowStepper line below.
+  const steps = [
+    { label: "Bills", Icon: Receipt },
+    { label: "Checkout", Icon: Wallet },
+  ];
+
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader title="Bill Payment" showBack onBackClick={handleBack} />
-      <FlowStepper current={step} steps={steps} />
+      {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup ── */}

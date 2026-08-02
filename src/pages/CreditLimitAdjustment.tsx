@@ -213,6 +213,8 @@ const CreditLimitAdjustment = () => {
     setPayMethod("wallet");
   };
 
+  // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
+  // Kept in source in case we want it back — just uncomment the FlowStepper line below.
   const steps = [
     { label: "Adjust", Icon: TrendingUp },
     { label: "Checkout", Icon: Wallet },
@@ -221,7 +223,7 @@ const CreditLimitAdjustment = () => {
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader title="Credit Limit Adjustment" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
-      <FlowStepper current={step} steps={steps} />
+      {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup + Adjust (merged) ── */}
