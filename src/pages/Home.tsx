@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Sparkles,
   Receipt,
+  PhoneOff,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -111,6 +112,7 @@ const Home = () => {
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "sim-termination", icon: PhoneOff, label: "SIM Termination", path: "/sim-termination", badge: "Needs Confirm", badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
     ...(activeOperator === "friendi"
       ? []
@@ -223,7 +225,7 @@ const Home = () => {
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
                 onClick={() =>
-                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement"
+                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement" || activity.id === "sim-termination"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
