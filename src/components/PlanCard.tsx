@@ -29,11 +29,11 @@ export interface PlanCardData {
   localMins?: string;
   /** Friendi Calls (International Bundles) / Flexi: supported destination countries. */
   countries?: string[];
-  /** Friendi Combo/Flexi: raw social app list from the catalogue (not yet rendered per-plan). */
+  /** Raw social app list from the catalogue (not yet rendered per-plan). */
   socialChannels?: string[];
-  /** Friendi: raw "BlockedSocialMedia" catalogue field, carried through for completeness. */
+  /** Raw "BlockedSocialMedia" catalogue field, carried through for completeness. */
   blockedSocialMedia?: string;
-  /** Friendi: catalogue Event ID — internal product code, not customer-facing. */
+  /** Catalogue Event ID(s) — internal product code, not customer-facing. */
   eventId?: string;
   /** Friendi PAYG: per-unit pay-as-you-go rates. */
   payg?: { perMb: number; perSms: number; perMin: number };
