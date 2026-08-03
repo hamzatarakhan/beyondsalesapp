@@ -67,6 +67,7 @@ import {
   ArrowRightLeft,
   Info,
   Wallet,
+  Receipt,
   ReceiptText,
   Microchip,
   QrCode,
@@ -405,22 +406,6 @@ const PREPAID_CHIPS = [
   { value: "data", label: "5G MBB" },
 ];
 
-// Plans catalogue — top-level selector replacing the old Prepaid/Postpaid/Basic-Postpaid
-// tiles + nested chip row. Each entry pins a payType and (where the catalogue already
-// narrows to one plan family) a forced planTypeChip, so Mobile vs Data lines are picked
-// directly instead of via a secondary chip. VM only — Friendi keeps its own 2-tab row.
-// Order is row-major for a 2-col grid: [Mobile Prepaid, Mobile Postpaid, Data Prepaid,
-// Data Postpaid] lays out as a Prepaid/Postpaid × Mobile/Data 2×2 — Basic Postpaid doesn't
-// fit either axis, so it's rendered separately as a full-width row underneath.
-type CatalogueKey = "mobile-prepaid" | "data-prepaid" | "mobile-postpaid" | "data-postpaid" | "basic-postpaid";
-const VM_CATALOGUE_TABS: { key: CatalogueKey; payType: PayType; chip: string | null; Icon: typeof Wallet; labelKey: string }[] = [
-  { key: "mobile-prepaid",  payType: "prepaid",        chip: null,               Icon: Smartphone,  labelKey: "lineMobile" },
-  { key: "mobile-postpaid", payType: "postpaid",       chip: "switch-postpaid", Icon: Smartphone,  labelKey: "lineMobile" },
-  { key: "data-prepaid",    payType: "prepaid",        chip: "data",             Icon: Wifi,        labelKey: "lineData" },
-  { key: "data-postpaid",   payType: "postpaid",       chip: "vnet",             Icon: Wifi,        labelKey: "lineData" },
-  { key: "basic-postpaid",  payType: "basic-postpaid", chip: null,               Icon: ReceiptText, labelKey: "basicPostpaid" },
-];
-
 // Single source of truth for "which plans does this catalogue tab show" — used both to
 // build the list handed to PlanSelector and to resolve `selectedPlan` (an index into that
 // same list) back to a plan object, so the two stay index-aligned by construction.
@@ -438,6 +423,12 @@ const getVmCatalogPlans = (
     ? PREPAID_PLANS.filter(p => p.categories?.includes("data"))
     : PREPAID_PLANS.filter(p => !p.categories?.includes("data"));
 };
+
+// MNP port-in requires a minimum-value plan on Mobile lines — a real telco rule (prevents
+// porting onto a throwaway low-value plan), distinct from Data-only lines being categorically
+// unportable. Baqah 45 (45 SAR) and Switch Postpaid 120 (120 SAR) are the only demo plans
+// under their family's threshold, so they're the concrete, testable "select a higher plan" case.
+const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 50, postpaid: 150 };
 
 // Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
 const FRIENDI_CHIPS = [
@@ -766,32 +757,32 @@ const NewActivationV2 = () => {
     : payType === "prepaid" ? (planTypeChip === "data" ? "data-prepaid" : "mobile-prepaid")
     : payType === "postpaid" ? (planTypeChip === "vnet" ? "data-postpaid" : "mobile-postpaid")
     : "basic-postpaid";
-  const catalogueTiles: { key: string; label: string; Icon: typeof Wallet; selected: boolean; onClick: () => void }[] = isFriendi
-    ? ([
-        { key: "prepaid", payType: "prepaid", label: t("activationV2.subscription.prepaid"), Icon: Wallet },
-        { key: "basic-postpaid", payType: "basic-postpaid", label: t("activationV2.subscription.basicPostpaid"), Icon: ReceiptText },
-      ] as { key: string; payType: PayType; label: string; Icon: typeof Wallet }[])
-        .filter(o => o.payType === "prepaid" || isSaudiId)
-        .map(o => ({
-          key: o.key, label: o.label, Icon: o.Icon,
-          selected: payType === o.payType,
-          onClick: () => { setPayType(o.payType); setPlanTypeChip("all"); setSelectedPlan(null); setPlanMode("plan"); },
-        }))
-    : VM_CATALOGUE_TABS
-        .filter(o => o.payType === "prepaid" || isSaudiId)
+  // Single-row compact chip picker: all catalogue options stay on screen at once, so a
+  // single click both sets the billing type and (where relevant) the line — no intermediate
+  // "which axis am I on" step. Mobile/Data chips only exist for Prepaid/Postpaid; Basic
+  // Postpaid stands alone (same as Friendi's two options, which don't split by line at all).
+  const selectCatalogue = (newPayType: PayType, chip: string) => {
+    setPayType(newPayType);
+    setPlanTypeChip(chip);
+    setSelectedPlan(null);
+    setPlanMode("plan");
+    if (newPayType === "postpaid" && simType === "esim") setLineType("mobile");
+  };
+  const catalogueOptions: { key: string; label: string; Icon: typeof Wallet; selected: boolean; onClick: () => void }[] = isFriendi
+    ? [
+        { key: "prepaid", label: t("activationV2.subscription.prepaid"), Icon: Wallet, selected: payType === "prepaid", onClick: () => selectCatalogue("prepaid", "all") },
+        { key: "basic-postpaid", label: t("activationV2.subscription.basicPostpaid"), Icon: ReceiptText, selected: payType === "basic-postpaid", onClick: () => selectCatalogue("basic-postpaid", "all") },
+      ].filter(o => o.key === "prepaid" || isSaudiId)
+    : [
+        { key: "mobile-prepaid", label: `${t("activationV2.subscription.lineMobile")} ${t("activationV2.subscription.prepaid")}`, Icon: Smartphone, selected: payType === "prepaid" && planTypeChip !== "data", onClick: () => selectCatalogue("prepaid", "all") },
+        { key: "data-prepaid", label: `${t("activationV2.subscription.lineData")} ${t("activationV2.subscription.prepaid")}`, Icon: Wifi, selected: payType === "prepaid" && planTypeChip === "data", onClick: () => selectCatalogue("prepaid", "data") },
+        { key: "basic-postpaid", label: t("activationV2.subscription.basicPostpaid"), Icon: ReceiptText, selected: payType === "basic-postpaid", onClick: () => selectCatalogue("basic-postpaid", "all") },
+        { key: "mobile-postpaid", label: `${t("activationV2.subscription.lineMobile")} ${t("activationV2.subscription.postpaid")}`, Icon: Smartphone, selected: payType === "postpaid" && planTypeChip !== "vnet", onClick: () => selectCatalogue("postpaid", "switch-postpaid") },
+        { key: "data-postpaid", label: `${t("activationV2.subscription.lineData")} ${t("activationV2.subscription.postpaid")}`, Icon: Wifi, selected: payType === "postpaid" && planTypeChip === "vnet", onClick: () => selectCatalogue("postpaid", "vnet") },
+      ]
+        .filter(o => o.key === "mobile-prepaid" || o.key === "data-prepaid" || isSaudiId)
         // Vnet isn't offered on E-SIM or in the Fulfilment flow — hide Data Postpaid there.
-        .filter(o => !(o.key === "data-postpaid" && (simType === "esim" || isFulfilment)))
-        .map(o => ({
-          key: o.key, label: t(`activationV2.subscription.${o.labelKey}`), Icon: o.Icon,
-          selected: activeCatalogueKey === o.key,
-          onClick: () => {
-            setPayType(o.payType);
-            setPlanTypeChip(o.chip ?? "all");
-            setSelectedPlan(null);
-            setPlanMode("plan");
-            if (o.payType === "postpaid" && simType === "esim") setLineType("mobile");
-          },
-        }));
+        .filter(o => !(o.key === "data-postpaid" && (simType === "esim" || isFulfilment)));
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data now has its own top-level catalogue tab, so the chip row underneath
@@ -801,9 +792,16 @@ const NewActivationV2 = () => {
   // pins one plan family (Data Prepaid, Mobile Postpaid, Data Postpaid), so there's
   // nothing left to filter by chip.
   const showPlanTypeChips = isFriendi ? true : (activeCatalogueKey === "mobile-prepaid" || activeCatalogueKey === "basic-postpaid");
-  // MNP can't port a data-only line — Data Prepaid (5G) and Data Postpaid (Vnet) plans
-  // aren't eligible; picking one is flagged under the plan and disables the MNP tab.
-  const isMnpIneligiblePlan = selectedPlan != null && (is5GDataMode || isVnetMode);
+  // MNP eligibility: a Data-only line (5G Prepaid / Vnet) can never port a number; a Mobile
+  // line can, but only above its family's minimum plan value. Each reason gets its own hint
+  // copy — reading activePlansForType[selectedPlan] directly here (not selectedPlanObj, which
+  // isn't declared until later) avoids a use-before-declaration issue.
+  const mnpIneligibleReason: "data" | "lowTier" | null =
+    selectedPlan == null ? null
+    : (is5GDataMode || isVnetMode) ? "data"
+    : (activePlansForType[selectedPlan]?.price ?? 0) < MNP_MIN_PLAN_PRICE[payType === "postpaid" ? "postpaid" : "prepaid"] ? "lowTier"
+    : null;
+  const isMnpIneligiblePlan = mnpIneligibleReason !== null;
   const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
   // Contact number field is always shown; mandatory for VNet, 5G Data, and Switch Postpaid — optional otherwise.
   // For E-SIM, it stays visible but is never required, even on those three cases.
@@ -1506,63 +1504,32 @@ const NewActivationV2 = () => {
               </div>
             ) : (
             <div className="space-y-4">
-            {/* Plans catalogue — Virgin gets a Prepaid/Postpaid × Mobile/Data 2×2 grid with Basic
-                Postpaid as its own row below (it doesn't sit on either axis); Friendi keeps its
-                simple Prepaid/Basic Postpaid pair since its catalogue doesn't split this way. */}
+            {/* Plans catalogue — a single row of compact chips, every option visible and
+                reachable in one tap. Icon on top, short label beneath (wraps to two lines
+                in the narrow column instead of truncating). */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activationV2.subscription.subscriptionTypeTitle")}</h3>
-              {(() => {
-                const renderTile = (tile: (typeof catalogueTiles)[number], full = false) => (
+              <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${catalogueOptions.length}, minmax(0, 1fr))` }}>
+                {catalogueOptions.map(({ key, label, Icon, selected, onClick }) => (
                   <button
-                    key={tile.key}
+                    key={key}
                     type="button"
-                    onClick={tile.onClick}
+                    onClick={onClick}
                     className={cn(
-                      "relative flex items-center gap-2 rounded-2xl border transition-all",
-                      full ? "justify-center py-3.5 px-3" : "flex-col justify-center py-3.5 px-2",
-                      tile.selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-card border-border/60",
+                      "relative flex flex-col items-center justify-center gap-1 rounded-xl border py-2.5 px-1 transition-all",
+                      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-card border-border/60",
                     )}
                   >
-                    <span className={cn(
-                      "absolute top-2 right-2 w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center",
-                      tile.selected ? "border-primary bg-primary" : "border-muted-foreground/30",
-                    )}>
-                      {tile.selected && <span className="w-1 h-1 rounded-full bg-primary-foreground" />}
-                    </span>
-                    <tile.Icon className={cn("w-5 h-5", tile.selected ? "text-primary" : "text-muted-foreground")} />
+                    <Icon className={cn("w-4 h-4", selected ? "text-primary" : "text-muted-foreground")} />
                     <p className={cn(
-                      "font-semibold leading-snug",
-                      full ? "text-sm" : "text-xs text-center",
-                      tile.selected ? "text-foreground" : "text-muted-foreground",
+                      "text-[9.5px] font-semibold leading-tight text-center",
+                      selected ? "text-foreground" : "text-muted-foreground",
                     )}>
-                      {tile.label}
+                      {label}
                     </p>
                   </button>
-                );
-
-                if (isFriendi) {
-                  return <div className="grid grid-cols-2 gap-2">{catalogueTiles.map((tile) => renderTile(tile))}</div>;
-                }
-
-                // Row-major order from VM_CATALOGUE_TABS ([Mobile Prepaid, Mobile Postpaid,
-                // Data Prepaid, Data Postpaid]) already lays out correctly in a 2-col grid —
-                // if Postpaid is filtered out entirely (non-Saudi ID), the remaining two
-                // (Mobile/Data Prepaid) still fill one row cleanly on their own.
-                const lineTiles = catalogueTiles.filter((tile) => tile.key !== "basic-postpaid");
-                const basicPostpaidTile = catalogueTiles.find((tile) => tile.key === "basic-postpaid");
-                return (
-                  <div className="space-y-2">
-                    {isSaudiId && (
-                      <div className="grid grid-cols-2 gap-2 px-1">
-                        <p className="text-[11px] font-semibold text-muted-foreground text-center uppercase tracking-wide">{t("activationV2.subscription.prepaid")}</p>
-                        <p className="text-[11px] font-semibold text-muted-foreground text-center uppercase tracking-wide">{t("activationV2.subscription.postpaid")}</p>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-2">{lineTiles.map((tile) => renderTile(tile))}</div>
-                    {basicPostpaidTile && renderTile(basicPostpaidTile, true)}
-                  </div>
-                );
-              })()}
+                ))}
+              </div>
               {!isSaudiId && (
                 <p className="text-[11px] text-muted-foreground px-1">{t("activationV2.subscription.postpaidSaudiOnly")}</p>
               )}
@@ -1616,7 +1583,9 @@ const NewActivationV2 = () => {
             {isMnpIneligiblePlan && (
               <div className="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-[12.5px] font-medium text-foreground">{t("activationV2.subscription.mnpNotEligible")}</p>
+                <p className="text-[12.5px] font-medium text-foreground">
+                  {t(mnpIneligibleReason === "lowTier" ? "activationV2.subscription.mnpNotEligibleLowTier" : "activationV2.subscription.mnpNotEligible")}
+                </p>
               </div>
             )}
 

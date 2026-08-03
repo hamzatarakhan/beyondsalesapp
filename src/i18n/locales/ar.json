@@ -681,7 +681,7 @@
     "subscription": {
       "title": "الاشتراك",
       "type": "نوع الاشتراك",
-      "subscriptionTypeTitle": "نوع الاشتراك",
+      "subscriptionTypeTitle": "كتالوج الباقات",
       "walletBalanceLabel": "رصيد محفظة المندوب",
       "prepaid": "دفع مسبق",
       "postpaid": "دفع لاحقا",
@@ -729,6 +729,7 @@
       "portContact": "رقم التواصل",
       "mnpConsent": "أؤكد أن العميل قد وافق على نقل رقمه.",
       "mnpNotEligible": "هذه الخطة غير مؤهلة لنقل الرقم (MNP). اختر رقماً جديداً أو خطة أخرى.",
+      "mnpNotEligibleLowTier": "هذه الخطة غير مؤهلة لنقل الرقم (MNP) — يرجى اختيار باقة أعلى لتفعيل نقل الرقم.",
       "mnpTabDisabledHint": "نقل الرقم غير متاح لهذه الخطة",
       "deliveryAddress": "عنوان التوصيل",
       "addressPlaceholder": "المبنى، الطابق، المعلم أو تفاصيل إضافية…",

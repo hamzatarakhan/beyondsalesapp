@@ -674,7 +674,7 @@
     "subscription": {
       "title": "Subscription",
       "type": "Subscription Type",
-      "subscriptionTypeTitle": "Subscription Type",
+      "subscriptionTypeTitle": "Plans Catalogue",
       "walletBalanceLabel": "Dealer Wallet Balance",
       "prepaid": "Prepaid",
       "postpaid": "Postpaid",
@@ -722,6 +722,7 @@
       "portContact": "Contact Number",
       "mnpConsent": "I confirm the customer has provided consent to port their number.",
       "mnpNotEligible": "This plan is not eligible for MNP (Port In). Choose New Number instead, or pick a different plan.",
+      "mnpNotEligibleLowTier": "This plan is not eligible for MNP (Port In) — select a higher plan to enable number porting.",
       "mnpTabDisabledHint": "MNP unavailable for the selected plan",
       "deliveryAddress": "Delivery Address",
       "addressPlaceholder": "Building, floor, landmark or additional details…",
