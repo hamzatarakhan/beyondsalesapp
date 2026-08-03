@@ -50,6 +50,11 @@ const memberOnboarding = [
   { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests", badge: "Approved", badgeTone: "approved" as const },
 ];
 
+const simServices = [
+  { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement", badge: "Needs Confirm", badgeTone: "confirm" as const },
+  { id: "sim-termination", icon: PhoneOff, label: "SIM Termination", path: "/sim-termination", badge: "Needs Confirm", badgeTone: "confirm" as const },
+];
+
 // Hero banner slides — same content repeated for now, swap in real variations later.
 const HERO_SLIDES = [0, 1, 2];
 const HERO_AUTOPLAY_MS = 4000;
@@ -112,8 +117,6 @@ const Home = () => {
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment", badge: "Needs Confirm", badgeTone: "confirm" as const },
-    { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement", badge: "Needs Confirm", badgeTone: "confirm" as const },
-    { id: "sim-termination", icon: PhoneOff, label: "SIM Termination", path: "/sim-termination", badge: "Needs Confirm", badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
     ...(activeOperator === "friendi"
       ? []
@@ -226,7 +229,7 @@ const Home = () => {
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
                 onClick={() =>
-                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit" || activity.id === "sim-replacement" || activity.id === "sim-termination"
+                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
@@ -234,6 +237,28 @@ const Home = () => {
             ))}
           </div>
 
+        </div>
+      </div>
+
+      {/* SIM Services */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">SIM Services</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {simServices.map((item) => (
+              <ActivityIcon
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

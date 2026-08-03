@@ -10,7 +10,7 @@
     "simActivation": "تفعيل الشريحة",
     "simActivationV2": "تفعيل الشريحة نسخة 0.2",
     "mnp": "نقل الرقم (MNP)",
-    "fulfilment": "التوصيل"
+    "fulfilment": "متابعة التفعيل"
   },
   "nav": {
     "home": "الرئيسية",
@@ -681,7 +681,7 @@
     "subscription": {
       "title": "الاشتراك",
       "type": "نوع الاشتراك",
-      "subscriptionTypeTitle": "كتالوج الباقات",
+      "subscriptionTypeTitle": "نوع الاشتراك",
       "walletBalanceLabel": "رصيد محفظة المندوب",
       "prepaid": "دفع مسبق",
       "postpaid": "دفع لاحقا",
@@ -733,7 +733,7 @@
       "portContact": "رقم التواصل",
       "mnpConsent": "أؤكد أن العميل قد وافق على نقل رقمه.",
       "mnpNotEligible": "هذه الخطة غير مؤهلة لنقل الرقم (MNP). اختر رقماً جديداً أو خطة أخرى.",
-      "mnpNotEligibleLowTier": "هذه الخطة غير مؤهلة لنقل الرقم (MNP) — يرجى اختيار باقة أعلى لتفعيل نقل الرقم.",
+      "mnpNotEligibleLowTier": "هذه الخطة غير مؤهلة لنقل الرقم (MNP) — يرجى اختيار باقة بقيمة {{minPrice}} ريال أو أعلى لتفعيل نقل الرقم.",
       "mnpTabDisabledHint": "نقل الرقم غير متاح لهذه الخطة",
       "deliveryAddress": "عنوان التوصيل",
       "addressPlaceholder": "المبنى، الطابق، المعلم أو تفاصيل إضافية…",

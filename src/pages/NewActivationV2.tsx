@@ -425,9 +425,9 @@ const getVmCatalogPlans = (
 
 // MNP port-in requires a minimum-value plan on Mobile lines — a real telco rule (prevents
 // porting onto a throwaway low-value plan), distinct from Data-only lines being categorically
-// unportable. Baqah 45 (45 SAR) and Switch Postpaid 120 (120 SAR) are the only demo plans
-// under their family's threshold, so they're the concrete, testable "select a higher plan" case.
-const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 50, postpaid: 150 };
+// unportable. E.g. on Prepaid: Baqah 45/70, Aman 60 and Flex 60 fall below the threshold
+// (Baqah 100+ / Flex 100+ clear it) — the concrete, testable "select a higher plan" case.
+const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 100, postpaid: 200 };
 
 // Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
 const FRIENDI_CHIPS = [
@@ -1582,7 +1582,9 @@ const NewActivationV2 = () => {
               <div className="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="text-[12.5px] font-medium text-foreground">
-                  {t(mnpIneligibleReason === "lowTier" ? "activationV2.subscription.mnpNotEligibleLowTier" : "activationV2.subscription.mnpNotEligible")}
+                  {mnpIneligibleReason === "lowTier"
+                    ? t("activationV2.subscription.mnpNotEligibleLowTier", { minPrice: MNP_MIN_PLAN_PRICE[payType === "postpaid" ? "postpaid" : "prepaid"] })
+                    : t("activationV2.subscription.mnpNotEligible")}
                 </p>
               </div>
             )}

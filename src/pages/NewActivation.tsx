@@ -1116,7 +1116,7 @@ const NewActivation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [successOpen]);
 
-  const pageTitle = isFulfilment ? "Fulfillment" : isMnp ? "MNP (Port In)" : t("activation.title");
+  const pageTitle = isFulfilment ? "Continue Activation" : isMnp ? "MNP (Port In)" : t("activation.title");
 
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
@@ -1179,23 +1179,6 @@ const NewActivation = () => {
               </>
             ) : (
               <>
-                <Field label={t("activation.identity.customerEmail")}>
-                  <Input
-                    type="email"
-                    value={fulfilmentEmail}
-                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
-                    placeholder="customer@email.com"
-                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
-                  />
-                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
-                    <p className="text-xs text-destructive">Enter a valid email address.</p>
-                  )}
-                </Field>
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium text-muted-foreground shrink-0">{t("activation.identity.or")}</span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
                 <button
                   type="button"
                   onClick={() => setQrScanOpen(true)}
@@ -1210,6 +1193,23 @@ const NewActivation = () => {
                   </div>
                   <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
                 </button>
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">{t("activation.identity.or")}</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <Field label={t("activation.identity.customerEmail")}>
+                  <Input
+                    type="email"
+                    value={fulfilmentEmail}
+                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
+                    placeholder="customer@email.com"
+                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
+                    <p className="text-xs text-destructive">Enter a valid email address.</p>
+                  )}
+                </Field>
               </>
             )}
 
