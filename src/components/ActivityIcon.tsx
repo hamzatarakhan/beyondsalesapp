@@ -1,7 +1,8 @@
 import { LucideIcon } from "lucide-react";
 
-/** Where a service sits in its rollout: still being built, awaiting sign-off, or signed off. */
-export type BadgeTone = "progress" | "confirm" | "approved";
+/** Where a service sits in its rollout: still being built, awaiting sign-off, or signed off.
+ * "special" is a standalone highlight tone (e.g. flagging alternate options), not a rollout stage. */
+export type BadgeTone = "progress" | "confirm" | "approved" | "special";
 
 interface ActivityIconProps {
   icon: LucideIcon;
@@ -16,6 +17,7 @@ const badgeToneMap: Record<BadgeTone, string> = {
   progress: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30",
   confirm: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30",
   approved: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30",
+  special: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/30",
 };
 
 const colorMap = {

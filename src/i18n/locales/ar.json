@@ -8,7 +8,7 @@
     },
     "customerActivities": "أنشطة العملاء",
     "simActivation": "تفعيل الشريحة",
-    "simActivationV2": "تفعيل الشريحة نسخة 0.2",
+    "simActivationV2": "تفعيل الشريحة 2",
     "mnp": "نقل الرقم (MNP)",
     "fulfilment": "متابعة التفعيل"
   },
@@ -576,7 +576,7 @@
     }
   },
   "activationV2": {
-    "title": "تفعيل الشريحة نسخة 0.2",
+    "title": "تفعيل الشريحة 2",
     "steps": {
       "identity": "الهوية",
       "subscription": "الاشتراك",

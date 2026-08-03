@@ -111,8 +111,8 @@ const Home = () => {
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
-    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Approved", badgeTone: "approved" as const },
-    { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
+    { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
     { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },

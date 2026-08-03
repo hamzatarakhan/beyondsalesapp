@@ -8,7 +8,7 @@
     },
     "customerActivities": "Customer Activities",
     "simActivation": "SIM Activation",
-    "simActivationV2": "SIM Activation V 0.2",
+    "simActivationV2": "SIM Activation 2",
     "mnp": "MNP",
     "fulfilment": "Continue Activation"
   },
@@ -569,7 +569,7 @@
     }
   },
   "activationV2": {
-    "title": "SIM Activation V 0.2",
+    "title": "SIM Activation 2",
     "steps": {
       "identity": "Identity",
       "subscription": "Subscription",
