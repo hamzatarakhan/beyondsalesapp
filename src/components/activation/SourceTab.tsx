@@ -7,6 +7,7 @@ interface SourceTabProps {
   label: string;
   onClick: () => void;
   variant?: "filled" | "underline";
+  disabled?: boolean;
 }
 
 export const SourceTab = ({
@@ -15,9 +16,11 @@ export const SourceTab = ({
   label,
   onClick,
   variant = "underline",
+  disabled = false,
 }: SourceTabProps) => (
   <button
     type="button"
+    disabled={disabled}
     onClick={onClick}
     className={cn(
       "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
@@ -30,7 +33,8 @@ export const SourceTab = ({
         active
           ? "relative text-primary"
           : "relative text-muted-foreground hover:text-foreground"
-      )
+      ),
+      disabled && "opacity-40 cursor-not-allowed"
     )}
   >
     <Icon className="w-4 h-4" />

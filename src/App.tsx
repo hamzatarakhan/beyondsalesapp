@@ -33,6 +33,7 @@ import PrepaidSearchCustomer from "./pages/PrepaidSearchCustomer";
 import PrepaidActivation from "./pages/PrepaidActivation";
 import ExistingCustomerFound from "./pages/ExistingCustomerFound";
 import NewActivation from "./pages/NewActivation";
+import NewActivationV2 from "./pages/NewActivationV2";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="/prepaid-existing-customer" element={<ExistingCustomerFound />} />
           <Route path="/new-activation" element={<NewActivation />} />
+          <Route path="/new-activation-v2" element={<NewActivationV2 />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
