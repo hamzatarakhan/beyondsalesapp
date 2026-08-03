@@ -67,7 +67,6 @@ import {
   ArrowRightLeft,
   Info,
   Wallet,
-  Receipt,
   ReceiptText,
   Microchip,
   QrCode,
@@ -1504,26 +1503,25 @@ const NewActivationV2 = () => {
               </div>
             ) : (
             <div className="space-y-4">
-            {/* Plans catalogue — a single row of compact chips, every option visible and
-                reachable in one tap. Icon on top, short label beneath (wraps to two lines
-                in the narrow column instead of truncating). */}
+            {/* Plans catalogue — one row of bordered icon tiles, all options visible and
+                reachable in a single tap. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activationV2.subscription.subscriptionTypeTitle")}</h3>
-              <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${catalogueOptions.length}, minmax(0, 1fr))` }}>
+              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${catalogueOptions.length}, minmax(0, 1fr))` }}>
                 {catalogueOptions.map(({ key, label, Icon, selected, onClick }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={onClick}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-1 rounded-xl border py-2.5 px-1 transition-all",
-                      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-card border-border/60",
+                      "flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors",
+                      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
                     )}
                   >
                     <Icon className={cn("w-4 h-4", selected ? "text-primary" : "text-muted-foreground")} />
                     <p className={cn(
-                      "text-[9.5px] font-semibold leading-tight text-center",
-                      selected ? "text-foreground" : "text-muted-foreground",
+                      "text-[11px] font-medium leading-tight text-center",
+                      selected ? "text-primary" : "text-foreground",
                     )}>
                       {label}
                     </p>
