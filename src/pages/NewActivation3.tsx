@@ -752,8 +752,9 @@ const NewActivation3 = () => {
   const paygHidden        = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_NO_PAYG_ID_SUFFIX);
   const isVnetMode        = !isFriendi && payType === "postpaid" && lineType === "data";
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
-  // so the 5G-MBB internet behaviour only applies to Virgin.
-  const is5GDataMode      = !isFriendi && payType !== "postpaid" && lineType === "data";
+  // so the 5G-MBB internet behaviour only applies to Virgin. Basic Postpaid never gets a
+  // Data line at all — same Baqah/Flex/Aman-only catalogue as Mobile Prepaid.
+  const is5GDataMode      = !isFriendi && payType === "prepaid" && lineType === "data";
   const isPrepaidMobile   = payType !== "postpaid" && !is5GDataMode;
   const isPrepaidInternet = is5GDataMode;
   const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
@@ -780,7 +781,12 @@ const NewActivation3 = () => {
     setPlanTypeChip("all");
     setSelectedPlan(null);
     setPlanMode("plan");
-    if (newPayType === "postpaid" && simType === "esim" && lineType === "data") setLineType("mobile");
+    // Basic Postpaid has no Data line at all; Postpaid's Data line (Vnet) just isn't
+    // offered on E-SIM. Either way, fall back to Mobile so lineType never carries a
+    // stale "data" value into a combination that doesn't support it.
+    if (newPayType === "basic-postpaid" || (newPayType === "postpaid" && simType === "esim")) {
+      if (lineType === "data") setLineType("mobile");
+    }
   };
   const lineTypeOptions: { key: LineType; label: string; Icon: typeof Wallet; disabled?: boolean }[] = [
     { key: "mobile", label: t("activation3.subscription.lineMobile"), Icon: Smartphone },
@@ -795,6 +801,7 @@ const NewActivation3 = () => {
       ]
     : [
         { key: "prepaid" as const, label: t("activation3.subscription.prepaid"), Icon: Wallet },
+        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
         { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
       ]
   ).filter(o => o.key === "prepaid" || isSaudiId);
@@ -805,7 +812,7 @@ const NewActivation3 = () => {
     : PREPAID_CHIPS.filter(c => c.value !== "data");
   // Chips only sub-filter within Mobile+Prepaid — every other combination already pins
   // one plan family, so there's nothing left to filter by chip.
-  const showPlanTypeChips = isFriendi ? true : (lineType === "mobile" && payType === "prepaid");
+  const showPlanTypeChips = isFriendi ? true : (payType === "basic-postpaid" || (lineType === "mobile" && payType === "prepaid"));
   // MNP eligibility: a Data-only line (5G Prepaid / Vnet) can never port a number; a Mobile
   // line can, but only above its family's minimum plan value. Each reason gets its own hint
   // copy — reading activePlansForType[selectedPlan] directly here (not selectedPlanObj, which
@@ -1519,10 +1526,10 @@ const NewActivation3 = () => {
             ) : (
             <div className="space-y-4">
             {/* Plans catalogue — two independent selectors. Line Type (Mobile/Data) only
-                applies to Virgin, whose catalogue actually splits that way; Friendi goes
-                straight to its Prepaid/Basic Postpaid pair. */}
+                applies to Virgin Prepaid/Postpaid, whose catalogue actually splits that way;
+                Basic Postpaid (like Friendi) goes straight to its Baqah/Flex/Aman chips. */}
             <div className="space-y-4">
-              {!isFriendi && (
+              {!isFriendi && payType !== "basic-postpaid" && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.lineTypeTitle")}</h3>
                   <div className="grid grid-cols-2 gap-2">
