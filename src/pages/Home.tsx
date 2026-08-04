@@ -110,14 +110,19 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
-  // "progress" is still being built.
-  const activities = [
+  // SIM Activation family — the three activation options plus their MNP / Continue
+  // Activation (fulfilment) variants, all served by the same underlying flow(s).
+  const simActivationOptions = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation3"), path: "/new-activation-3", badge: "Option 3", badgeTone: "special" as const },
     { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
+  ];
+
+  // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
+  // "progress" is still being built.
+  const activities = [
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment", badge: "Needs Confirm", badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
@@ -219,6 +224,33 @@ const Home = () => {
         </div>
       </div>
 
+      {/* SIM Activation options */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">SIM Activation Options</h3>
+          </div>
+
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {simActivationOptions.map((activity) => (
+              <ActivityIcon
+                key={activity.label}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
+                onClick={() =>
+                  activity.id === "sim" || activity.id === "fulfilment"
+                    ? handleActivityClick(activity.path)
+                    : navigate(activity.path)
+                }
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Customer Activities */}
       <div className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -236,7 +268,7 @@ const Home = () => {
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
                 onClick={() =>
-                  activity.id === "prepaid" || activity.id === "sim" || activity.id === "migration" || activity.id === "fulfilment" || activity.id === "credit-limit"
+                  activity.id === "migration" || activity.id === "credit-limit"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
