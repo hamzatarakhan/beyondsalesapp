@@ -1507,20 +1507,20 @@ const NewActivationV2 = () => {
                 reachable in a single tap. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activationV2.subscription.subscriptionTypeTitle")}</h3>
-              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${catalogueOptions.length}, minmax(0, 1fr))` }}>
+              <div className="flex flex-wrap gap-2">
                 {catalogueOptions.map(({ key, label, Icon, selected, onClick }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={onClick}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors",
+                      "flex items-center gap-1.5 rounded-full py-2 px-3 transition-colors",
                       selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
                     )}
                   >
-                    <Icon className={cn("w-4 h-4", selected ? "text-primary" : "text-muted-foreground")} />
+                    <Icon className={cn("w-3.5 h-3.5 shrink-0", selected ? "text-primary" : "text-muted-foreground")} />
                     <p className={cn(
-                      "text-[11px] font-medium leading-tight text-center",
+                      "text-[12px] font-medium leading-tight whitespace-nowrap",
                       selected ? "text-primary" : "text-foreground",
                     )}>
                       {label}
@@ -1536,7 +1536,9 @@ const NewActivationV2 = () => {
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
-              <div
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">Plan Types</h3>
+                <div
                 {...planChipsDragScroll}
                 className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", planChipsDragScroll.className)}
               >
@@ -1564,6 +1566,7 @@ const NewActivationV2 = () => {
                     } as Record<string,string>)[chip.value] ?? chip.label}
                   </button>
                 ))}
+                </div>
               </div>
             )}
 
