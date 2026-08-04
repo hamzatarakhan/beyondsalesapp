@@ -55,6 +55,9 @@ interface Props {
   onMoreDetails?: () => void;
   /** Hide the select radio — for read-only views where the plan can't be changed. */
   hideRadio?: boolean;
+  /** Hide the whole title/validity/radio row — for embedded views (e.g. an expandable
+   * row) where the title, validity and selection are already shown outside the card. */
+  hideTitleRow?: boolean;
   /** Shows a small "MNP Eligible" tag at the top-left corner (mirrors to top-right in RTL),
    * on the same line as the top-right badge. Only passed by flows that have MNP eligibility
    * rules (SIM Activation 2 / 3) — omitted elsewhere, so the tag never renders by default. */
@@ -325,6 +328,7 @@ const PlanTitleRow = ({
   onSelect,
   onMoreDetails,
   hideRadio,
+  hidden,
 }: {
   title: string;
   validity: string;
@@ -332,7 +336,9 @@ const PlanTitleRow = ({
   onSelect: () => void;
   onMoreDetails?: () => void;
   hideRadio?: boolean;
+  hidden?: boolean;
 }) => {
+  if (hidden) return null;
   return (
     <div className="flex items-center justify-between gap-2 mb-1">
       <p className="text-[12px] text-muted-foreground">
@@ -476,6 +482,7 @@ const PlanCard = ({
   onSelect,
   onMoreDetails,
   hideRadio,
+  hideTitleRow,
   mnpEligible,
 }: Props) => {
   const { t } = useTranslation();
@@ -514,7 +521,7 @@ const PlanCard = ({
         <div className={cn("p-4 flex flex-col flex-1", (plan.badge || mnpEligible) && layout !== "payg" && "pt-6")}>
           {layout === "payg" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{t("activation.plan.payg.title")}</p>
                 <div className="text-right">
@@ -533,7 +540,7 @@ const PlanCard = ({
             </>
           ) : layout === "combo" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -571,7 +578,7 @@ const PlanCard = ({
             </>
           ) : layout === "calls" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
@@ -595,7 +602,7 @@ const PlanCard = ({
             </>
           ) : isDataOnly ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -621,7 +628,7 @@ const PlanCard = ({
             </>
           ) : layout === "baqa" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 <div className="text-right">
@@ -651,7 +658,7 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {/* Trusted for Kids pill */}
               <div className="mb-2">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold">
@@ -693,7 +700,7 @@ const PlanCard = ({
             </>
           ) : layout === "postpaid" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {plan.bonuses && plan.bonuses.length > 0 && (
                 <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
                   {plan.bonuses.map((bonus, i) => (
@@ -741,7 +748,7 @@ const PlanCard = ({
             </>
           ) : (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
