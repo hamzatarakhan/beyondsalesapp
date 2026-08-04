@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn, formatValidity } from "@/lib/utils";
 import PlanCard from "@/components/PlanCard";
@@ -113,7 +113,21 @@ const PlanExpandableSelector = ({ selectedPlan, onSelect, plans = PLANS, categor
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{p.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{validity}</p>
+                    {/* Badge/pill moved here from the card body (hidden there via hideTitleRow)
+                        so they add width, not height, when the row expands. */}
+                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <p className="text-[11px] text-muted-foreground">{validity}</p>
+                      {p.badge && (
+                        <span className="px-1.5 py-[1px] rounded-full bg-green-600 text-white text-[9px] font-semibold whitespace-nowrap">
+                          {t(`activation.plan.badges.${p.badge}`, p.badge)}
+                        </span>
+                      )}
+                      {p.categories.includes("aman") && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[9px] font-semibold whitespace-nowrap">
+                          <ShieldCheck className="w-2.5 h-2.5" /> {t("activation.plan.aman.trustedPill")}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-end shrink-0">
                     <p className="text-[10px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
