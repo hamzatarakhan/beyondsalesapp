@@ -666,6 +666,7 @@ const NewActivationV2 = () => {
   // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
   // makes them usable as a slider on desktop instead of requiring the wheel/trackpad.
   const planChipsDragScroll = useDragScroll<HTMLDivElement>();
+  const catalogueDragScroll = useDragScroll<HTMLDivElement>();
   const numberTabsDragScroll = useDragScroll<HTMLDivElement>();
   const [numberSearch, setNumberSearch] = useState("");
   // Number awaiting a "free with commitment / pay number price" choice from the popup.
@@ -1507,7 +1508,10 @@ const NewActivationV2 = () => {
                 reachable in a single tap. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activationV2.subscription.subscriptionTypeTitle")}</h3>
-              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div
+                {...catalogueDragScroll}
+                className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", catalogueDragScroll.className)}
+              >
                 {catalogueOptions.map(({ key, label, Icon, selected, onClick }) => (
                   <button
                     key={key}
