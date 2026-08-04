@@ -40,6 +40,7 @@ import {
   DrawerDescription,
 } from "@/components/ui/drawer";
 import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
+import QRCode from "react-qr-code";
 
 // labels resolved dynamically inside component via t()
 
@@ -75,6 +76,7 @@ const Home = () => {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
+  const [qrSheetOpen, setQrSheetOpen] = useState(false);
   const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true });
   const [heroActiveSnap, setHeroActiveSnap] = useState(0);
   const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
@@ -113,6 +115,7 @@ const Home = () => {
   const activities = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
+    { id: "sim-3", icon: Sparkles, label: t("home.simActivation3"), path: "/new-activation-3", badge: "Option 3", badgeTone: "special" as const },
     { id: "mnp", icon: ArrowRightLeft, label: t("home.mnp"), path: "/new-activation?flow=mnp", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
     { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
@@ -160,7 +163,11 @@ const Home = () => {
               <ArrowLeftRight className="w-4 h-4 text-foreground" />
             </button>
           )}
-          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm">
+          <button
+            onClick={() => setQrSheetOpen(true)}
+            aria-label="Show QR code"
+            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
+          >
             <QrCode className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
           </button>
           <button
@@ -467,6 +474,34 @@ const Home = () => {
                 </button>
               );
             })}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={qrSheetOpen} onOpenChange={setQrSheetOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setQrSheetOpen(false)}
+            aria-label="Close"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">QR Code</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-8 pb-6 flex items-center justify-center">
+            <div className="bg-white p-4 rounded-2xl">
+              <QRCode value={t("home.dealerId")} size={200} />
+            </div>
+          </div>
+          <div className="px-4 pb-8">
+            <button
+              onClick={() => setQrSheetOpen(false)}
+              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              Done
+            </button>
           </div>
         </DrawerContent>
       </Drawer>
