@@ -1554,22 +1554,40 @@ const NewActivation3 = () => {
               )}
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.subscriptionTypeTitle")}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {subscriptionOptions.map(({ key, label, Icon }) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => selectPayType(key)}
-                      className={cn(
-                        "flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors",
-                        payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
-                      )}
-                    >
-                      <Icon className={cn("w-5 h-5", payType === key ? "text-primary" : "text-muted-foreground")} />
-                      <p className={cn("text-xs font-medium", payType === key ? "text-primary" : "text-foreground")}>{label}</p>
-                    </button>
-                  ))}
-                </div>
+                {/* Same row at every count — scaled down (icon, font, padding) once there
+                    are 3+ options, matching the compact tile treatment from SIM Activation 1,
+                    so Prepaid / Basic Postpaid / Postpaid all fit on one row. */}
+                {(() => {
+                  const compact = subscriptionOptions.length >= 3;
+                  return (
+                    <div className={cn("grid gap-2",
+                      subscriptionOptions.length === 1 ? "grid-cols-1" :
+                      subscriptionOptions.length === 2 ? "grid-cols-2" :
+                      subscriptionOptions.length === 3 ? "grid-cols-3" : "grid-cols-4")}>
+                      {subscriptionOptions.map(({ key, label, Icon }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => selectPayType(key)}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors",
+                            compact ? "py-2.5 px-1" : "py-3 px-1.5",
+                            payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+                          )}
+                        >
+                          <Icon className={cn(compact ? "w-4 h-4" : "w-5 h-5", payType === key ? "text-primary" : "text-muted-foreground")} />
+                          <p className={cn(
+                            "font-medium text-center leading-tight",
+                            compact ? "text-[10.5px]" : "text-xs",
+                            payType === key ? "text-primary" : "text-foreground",
+                          )}>
+                            {label}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
               {!isSaudiId && (
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation3.subscription.postpaidSaudiOnly")}</p>
