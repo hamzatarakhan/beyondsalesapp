@@ -790,7 +790,9 @@ const NewActivationV2 = () => {
       ]
         .filter(o => o.key === "mobile-prepaid" || o.key === "data-prepaid" || isSaudiId)
         // Vnet isn't offered on E-SIM or in the Fulfilment flow — hide Data Postpaid there.
-        .filter(o => !(o.key === "data-postpaid" && (simType === "esim" || isFulfilment)));
+        .filter(o => !(o.key === "data-postpaid" && (simType === "esim" || isFulfilment)))
+        // Basic Postpaid isn't offered in this flow.
+        .filter(o => o.key !== "basic-postpaid");
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data now has its own top-level catalogue tab, so the chip row underneath
