@@ -1,0 +1,3151 @@
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import MapPicker from "@/components/MapPicker";
+import { useDragScroll } from "@/hooks/useDragScroll";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import AppHeader from "@/components/AppHeader";
+import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
+import SematiVerification, { type Method as VerificationMethod } from "@/components/SematiVerification";
+import NafithVerificationModal from "@/components/NafithVerificationModal";
+import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import SimCard from "@/components/activation/SimCard";
+import PayOption from "@/components/activation/PayOption";
+import SourceTab from "@/components/activation/SourceTab";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
+import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/PlanSelector";
+import PlanCompactSelector from "@/components/activation/PlanCompactSelector";
+import PlanCard from "@/components/PlanCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+  DrawerFooter,
+} from "@/components/ui/drawer";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Smartphone,
+  Wifi,
+  CreditCard,
+  Pencil,
+  X,
+  ClipboardList,
+  Check,
+  Phone,
+  Sparkles,
+  Gift,
+  ArrowRight,
+  ScanLine,
+  Tag,
+  FileText,
+  HandCoins,
+  Coins,
+  Router,
+  MapPin,
+  Globe,
+  AlertCircle,
+  RotateCcw,
+  PlusCircle,
+  Loader2,
+  CheckCircle2,
+  Store,
+  ChevronRight,
+  ChevronDown,
+  Share2,
+  ArrowRightLeft,
+  Info,
+  Wallet,
+  Receipt,
+  ReceiptText,
+  Microchip,
+  QrCode,
+  UserX,
+ Mail,
+  Search,
+} from "lucide-react";
+import { cn, formatValidity } from "@/lib/utils";
+import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
+import RiyalSymbol from "@/components/RiyalSymbol";
+import { useBrand } from "@/contexts/BrandContext";
+
+// ---------- Types ----------
+type SimType = "psim" | "esim";
+type SubType = "sim" | "mnp";
+export type PayType = "prepaid" | "postpaid" | "basic-postpaid";
+export type LineType = "mobile" | "data";
+type PlanMode = "plan" | "topup";
+type PayMethod = "card" | "pos";
+
+// ---------- Constants ----------
+// VM (Virgin) prepaid catalog — sourced from VM_Plan_Prepaid CSV. Its own columns only disclose
+// price, the Social Benfits figure (data allowance for social apps), channel lists and Event IDs —
+// not core data/minutes — so those are kept from the existing catalog wherever a CSV row matches
+// an existing plan by name/price, or decoded from the row's own PredefinedPlanName where it encodes
+// them directly (e.g. "100GB5G3Month"). Two plans the CSV prices but discloses no core data/minutes
+// for at all (Baqah 90, Virgin 200) are left out rather than guessed at.
+const VM_CHANNELS = ["WhatsApp", "Facebook", "YouTube", "Instagram", "Twitter", "Snapchat"];
+const VM_CHANNELS_JACO = ["WhatsApp", "Facebook", "YouTube", "Instagram", "Twitter", "Snapchat", "Jaco"];
+export const PREPAID_PLANS: typeof SHARED_PLANS = [
+  // ── Baqah (base-plan) — 28 days ──
+  { title: "Baqah 45",  internet: "3 GB",      mins: "250",       sms: "-", social: "1 GB",      price: 45,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false, socialChannels: VM_CHANNELS_JACO, eventId: "1443, 1456, 1460" },
+  { title: "Baqah 70",  internet: "20 GB",     mins: "350",       sms: "-", social: "20 GB",     price: 70,  discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], roaming: false, freeSub: false, socialChannels: VM_CHANNELS_JACO, eventId: "1448, 1444" },
+  { title: "Baqah 100", internet: "40 GB",     mins: "750",       sms: "-", social: "Unlimited", price: 100, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: false, socialChannels: VM_CHANNELS, eventId: "1446, 1449" },
+  { title: "Baqah 110", internet: "45 GB",     mins: "745",       sms: "-", social: "Unlimited", price: 110, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: true,  socialChannels: VM_CHANNELS, eventId: "1426, 1430" },
+  { title: "Baqah 150", internet: "55 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 150, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true,  socialChannels: VM_CHANNELS, eventId: "1431, 1450" },
+  { title: "Baqah 185", internet: "80 GB",     mins: "Unlimited", sms: "-", social: "Unlimited", price: 185, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], roaming: false, freeSub: true,  socialChannels: VM_CHANNELS, eventId: "1427, 1431" },
+  { title: "Baqah 365", internet: "150 GB",    mins: "Unlimited", sms: "-", social: "Unlimited", price: 365, discount: null, validityLabel: "Valid 28 days", categories: ["base-plan"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], roaming: false, freeSub: true,  socialChannels: VM_CHANNELS, eventId: "1431, 1428" },
+  // ── Baqah Flex (flex) — flex minutes to 13+ countries ──
+  { title: "Baqah Flex 60",  internet: "6 GB",   mins: "300",  sms: "-", social: "6 GB",      price: 60,  discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["Social"],                 features: [], bonuses: [], badge: "mostFamous",  socialChannels: VM_CHANNELS_JACO, eventId: "1479" },
+  { title: "Baqah Flex 100", internet: "35 GB",  mins: "1000", sms: "-", social: "35 GB",     price: 100, discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["5G","Social"],            features: [], bonuses: [], badge: "recommended", socialChannels: VM_CHANNELS_JACO, eventId: "1480" },
+  { title: "Baqah Flex 300", internet: "100 GB", mins: "1500", sms: "-", social: "Unlimited", price: 300, discount: null, validityLabel: "Valid 90 days", categories: ["flex"], validity: ["3m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], socialChannels: VM_CHANNELS_JACO, eventId: "1481" },
+  // Egypt Flex — roaming-oriented flex plan; internet/mins decoded from the CSV's own
+  // PredefinedPlanName (VMEgyptFlex45GB1500MinULSocialMTRoam), since the sheet's columns don't
+  // disclose them directly. Validity defaults to the same 28-day cycle as its Flex siblings.
+  { title: "Egypt Flex", internet: "45 GB", mins: "1500", sms: "-", social: "Unlimited", price: 130, discount: null, validityLabel: "Valid 28 days", categories: ["flex"], validity: ["1m"], tags: ["5G","Social","Unlimited"], features: [], bonuses: [], socialChannels: ["Facebook Messenger", "WhatsApp", "Facebook", "YouTube", "Instagram", "Twitter", "Snapchat", "Jaco"], eventId: "1812" },
+  // ── Aman (kids / safe) ──
+  { title: "Virgin Mobile Aman 60", internet: "10 GB", mins: "100", sms: "-", social: "-", price: 59, discount: null, validityLabel: "Valid 28 days", categories: ["aman"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "inDemand", blockedSocialMedia: "TIKTOK,SNAPCHAT,INSTA,X,FACEBOOK,DIVINE,THREADS,DISCORD", eventId: "1810" },
+  // ── Prepaid 5G Data (data-only, by size × validity). Every tier below matches a CSV row by
+  // GB + validity; "Multi-Month" tiers are a distinct product line from the CSV (same GB as some
+  // single-cycle tiers but a different price/PredefinedPlanName), kept as separate entries. ──
+  { title: "50 GB",     internet: "50 GB",    mins: "-", sms: "-", social: "-",      price: 85,     discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G"],             features: [], bonuses: [], eventId: "2510" },
+  { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 150,    discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous", eventId: "2500" },
+  { title: "100 GB",    internet: "100 GB",   mins: "-", sms: "-", social: "-",      price: 220,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G"],             features: [], bonuses: [], badge: "mostFamous", eventId: "2501" },
+  { title: "75 GB",     internet: "75 GB",    mins: "-", sms: "-", social: "75 GB",  price: 200,    discount: null, validityLabel: "Valid 60 days",  categories: ["data"], validity: ["2m"],  tags: ["5G","Social"],    features: [], bonuses: [], eventId: "2511" },
+  { title: "125 GB",    internet: "125 GB",   mins: "-", sms: "-", social: "100 GB", price: 300,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G","Social"],    features: [], bonuses: [], eventId: "2512" },
+  { title: "300 GB",    internet: "300 GB",   mins: "-", sms: "-", social: "-",      price: 450,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G"],             features: [], bonuses: [], eventId: "2502" },
+  { title: "300 GB",    internet: "300 GB",   mins: "-", sms: "-", social: "-",      price: 475,    discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G"],             features: [], bonuses: [], eventId: "2503" },
+  { title: "600 GB",    internet: "600 GB",   mins: "-", sms: "-", social: "-",      price: 900,    discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G"],             features: [], bonuses: [], eventId: "2504" },
+  { title: "600 GB",    internet: "600 GB",   mins: "-", sms: "-", social: "-",      price: 950,    discount: null, validityLabel: "Valid 365 days", categories: ["data"], validity: ["12m"], tags: ["5G"],             features: [], bonuses: [], eventId: "2505" },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 325,    discount: null, validityLabel: "Valid 30 days",  categories: ["data"], validity: ["1m"],  tags: ["5G","Unlimited"], features: [], bonuses: [], eventId: "2506" },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 975,    discount: null, validityLabel: "Valid 90 days",  categories: ["data"], validity: ["3m"],  tags: ["5G","Unlimited"], features: [], bonuses: [], eventId: "2507" },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 1950,   discount: null, validityLabel: "Valid 180 days", categories: ["data"], validity: ["6m"],  tags: ["5G","Unlimited"], features: [], bonuses: [], eventId: "2508" },
+  { title: "Unlimited", internet: "Unlimited",mins: "-", sms: "-", social: "-",      price: 3950,   discount: null, validityLabel: "Valid 365 days", categories: ["data"], validity: ["12m"], tags: ["5G","Unlimited"], features: [], bonuses: [], eventId: "2509" },
+  { title: "Multi-Month 10 GB",  internet: "10 GB",  mins: "-", sms: "-", social: "-", price: 214.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"], tags: ["5G"], features: [], bonuses: [], eventId: "962" },
+  { title: "Multi-Month 50 GB",  internet: "50 GB",  mins: "-", sms: "-", social: "-", price: 264.5, discount: null, validityLabel: "Valid 60 days", categories: ["data"], validity: ["2m"], tags: ["5G"], features: [], bonuses: [], eventId: "963" },
+  { title: "Multi-Month 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 402.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"], tags: ["5G"], features: [], bonuses: [], eventId: "964" },
+];
+
+export const POSTPAID_PLANS: typeof SHARED_PLANS = [
+  // Switch Postpaid — all Unlimited social/national/roaming/SMS + Free subscription
+  { title: "Switch Postpaid 120", internet: "35 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 120, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: ["20 GB data"], badge: "mostFamous" },
+  { title: "Switch Postpaid 150", internet: "55 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 150, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [], badge: "mostFamous" },
+  { title: "Switch Postpaid 180", internet: "75 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 180, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 200", internet: "90 GB",    mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 200, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 250", internet: "120 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 250, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 300", internet: "155 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 300, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  { title: "Switch Postpaid 365", internet: "200 GB",   mins: "Unlimited", sms: "Unlimited", social: "Unlimited", price: 365, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["switch-postpaid"], validity: ["1m"], tags: ["5G","Social","Roaming"], features: [], bonuses: [] },
+  // Vnet (internet/data line)
+  { title: "Vnet 100 GB",  internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["100 GB high-speed data"] },
+  { title: "Vnet 300 GB",  internet: "300 GB", mins: "-", sms: "-", social: "-", price: 345,   discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["300 GB high-speed data"] },
+  { title: "Vnet 500 GB", internet: "500 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Monthly", priceSuffix: "/mo", categories: ["vnet"], validity: ["1m"], tags: ["5G"], features: [], bonuses: ["500 GB high-speed data", "100 GB hotspot"] },
+];
+
+const INTERNET_PLANS: typeof SHARED_PLANS = [
+  { title: "Internet 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 172.5, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"],  tags: ["5G"], features: [], bonuses: [] },
+  { title: "Internet 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 253,   discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
+  { title: "Internet 300 GB", internet: "300 GB", mins: "-", sms: "-", social: "-", price: 517.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"],  tags: ["5G"], features: [], bonuses: [] },
+];
+
+// ── Friendi (FM) prepaid-only catalog. Sourced from FM_Plans_Dealer_app(FM_Plan_Prepaid).csv,
+// grouped by the CSV's own "New Category" column:
+//   Bundleha/Combo  → combo  (data + social breakdown)
+//   Bundleha/Flexi  → flexi  (social-benefit-only bundles; CSV has no separate core-data figure
+//                             for these, so coreData is left unset and falls back to the total)
+//   Internet Bundles → data  (data-only, no social breakdown)
+//   International Bundles → calls (destination-specific minute bundles). Only the rows with an
+//     explicit minute count in the Name are included (Yemen/Pakistan/Nepal) — the "NNSR"-named
+//     rows (Philippine/Indonesia/India/Ethiopia/Egypt/Bangladesh) are priced tiers with no
+//     disclosed minute count in this export, so they're left out rather than guessed at.
+// BlockedSocialMedia is blank for every row in the source file (nothing to carry). Event ID is
+// an internal catalogue code, not customer-facing, but kept on each entry for completeness.
+const FM_CHANNELS = ["WhatsApp", "Facebook", "YouTube", "Instagram", "TikTok", "Twitter", "Snapchat"];
+const FM_CHANNELS_NO_TIKTOK = ["WhatsApp", "Facebook", "YouTube", "Instagram", "Twitter", "Snapchat"];
+// Flexi "Countries" column — the wide 16-country list shared by FAFLEXI60/100/300 and Bundleha Flexi 110.
+const FM_FLEXI_COUNTRIES_WIDE = ["Oman", "India", "Pakistan", "Bangladesh", "Sudan", "Egypt", "Kuwait", "Qatar", "United Arab Emirates", "Lebanon", "Nepal", "Philippines", "Indonesia", "Jordan", "People's Republic of China", "Bahrain"];
+const FM_FLEXI_COUNTRIES_NARROW = ["India", "Pakistan", "Bangladesh"];
+export const FRIENDI_PLANS: typeof SHARED_PLANS = [
+  // Combo (Bundleha) — total data headline = coreData + social, per the CSV's Social Benefits column
+  { title: "Combo 300",      internet: "Unlimited", coreData: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 345,    discount: null, validityLabel: "Valid 90 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, eventId: "1738" },
+  { title: "Bundleha 55GB",  internet: "Unlimited", coreData: "55 GB",     social: "Unlimited", mins: "-", sms: "-", price: 171.35, discount: null, validityLabel: "Valid 30 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous",  socialChannels: FM_CHANNELS, eventId: "1698" },
+  { title: "Bundleha 45GB",  internet: "Unlimited", coreData: "45 GB",     social: "Unlimited", mins: "-", sms: "-", price: 126.5,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1714" },
+  { title: "Bundleha 40GB",  internet: "Unlimited", coreData: "40 GB",     social: "Unlimited", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1713" },
+  { title: "Bundleha 30GB",  internet: "70 GB",     coreData: "30 GB",     social: "40 GB",     mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], badge: "recommended", socialChannels: FM_CHANNELS, eventId: "1712" },
+  { title: "Bundleha 20GB",  internet: "50 GB",     coreData: "20 GB",     social: "30 GB",     mins: "-", sms: "-", price: 80.5,   discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1711" },
+  { title: "Bandelha 5GB",   internet: "10 GB",     coreData: "5 GB",      social: "5 GB",      mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 28 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1695" },
+  { title: "Bandelha 5GB",   internet: "8 GB",      coreData: "5 GB",      social: "3 GB",      mins: "-", sms: "-", price: 50.03,  discount: null, validityLabel: "Valid 21 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1684" },
+  { title: "Bandelha 3GB",   internet: "6 GB",      coreData: "3 GB",      social: "3 GB",      mins: "-", sms: "-", price: 34.5,   discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, eventId: "1683" },
+  { title: "Bandelha 3GB",   internet: "3 GB",      coreData: "3 GB",      social: "-",         mins: "-", sms: "-", price: 49.45,  discount: null, validityLabel: "Valid 30 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1604" },
+  { title: "Bandelha 1GB",   internet: "1 GB",      coreData: "1 GB",      social: "-",         mins: "-", sms: "-", price: 19.55,  discount: null, validityLabel: "Valid 14 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1661" },
+  { title: "Bandelha 1GB",   internet: "1 GB",      coreData: "1 GB",      social: "-",         mins: "-", sms: "-", price: 14.94,  discount: null, validityLabel: "Valid 7 days",  categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1682" },
+  { title: "Bandelha 100GB", internet: "100 GB",    coreData: "100 GB",    social: "-",         mins: "-", sms: "-", price: 366.85, discount: null, validityLabel: "Valid 90 days", categories: ["combo"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1635" },
+  // Flexi (Bundleha) — the CSV only discloses a Social Benefits figure for these, no separate
+  // core-data amount, so coreData is left unset (the card falls back to showing the total twice).
+  { title: "FAFLEXI300",           internet: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 345,   discount: null, validityLabel: "Valid 90 days", categories: ["flexi"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], badge: "mostFamous", socialChannels: FM_CHANNELS_NO_TIKTOK, countries: FM_FLEXI_COUNTRIES_WIDE, eventId: "1717" },
+  { title: "FAFLEXI100",           internet: "35 GB",     social: "35 GB",     mins: "-", sms: "-", price: 115,   discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], badge: "recommended", socialChannels: FM_CHANNELS_NO_TIKTOK, countries: FM_FLEXI_COUNTRIES_WIDE, eventId: "1716" },
+  { title: "Bundleha Flexi 110",   internet: "Unlimited", social: "Unlimited", mins: "-", sms: "-", price: 126.5, discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social","Unlimited"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, countries: FM_FLEXI_COUNTRIES_WIDE, eventId: "1729" },
+  { title: "FAFLEXI60",            internet: "25 GB",     social: "25 GB",     mins: "-", sms: "-", price: 69,    discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, countries: FM_FLEXI_COUNTRIES_WIDE, eventId: "1715" },
+  { title: "25GB Nepal Flex",      internet: "25 GB",     social: "25 GB",     mins: "-", sms: "-", price: 97.75, discount: null, validityLabel: "Valid 30 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS, countries: ["Nepal"], eventId: "1705" },
+  { title: "Bundleha Flexi 20",    internet: "3 GB",      social: "3 GB",      mins: "-", sms: "-", price: 23,    discount: null, validityLabel: "Valid 7 days",  categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, countries: FM_FLEXI_COUNTRIES_NARROW, eventId: "1731" },
+  { title: "Bundleha Flexi 40",    internet: "2 GB",      social: "2 GB",      mins: "-", sms: "-", price: 48,    discount: null, validityLabel: "Valid 28 days", categories: ["flexi"], validity: ["1m"], tags: ["Social"], features: [], bonuses: [], socialChannels: FM_CHANNELS_NO_TIKTOK, countries: FM_FLEXI_COUNTRIES_NARROW, eventId: "1730" },
+  // Data (Internet Bundles) — data-only, no social breakdown
+  { title: "Unlimited",         internet: "Unlimited", coreData: "Unlimited", social: "-", mins: "-", sms: "-", price: 373.75, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: ["Unlimited"], features: [], bonuses: [], eventId: "1676" },
+  { title: "300 GB",            internet: "300 GB",    coreData: "300 GB",    social: "-", mins: "-", sms: "-", price: 517.5,  discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1668" },
+  { title: "200 GB",            internet: "200 GB",    coreData: "200 GB",    social: "-", mins: "-", sms: "-", price: 379.5,  discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1737" },
+  { title: "75 GB",             internet: "75 GB",     coreData: "75 GB",     social: "-", mins: "-", sms: "-", price: 299,    discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1733" },
+  { title: "60 GB",             internet: "60 GB",     coreData: "60 GB",     social: "-", mins: "-", sms: "-", price: 113.85, discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous", eventId: "1735" },
+  { title: "50 GB",             internet: "50 GB",     coreData: "50 GB",     social: "-", mins: "-", sms: "-", price: 201.25, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1736" },
+  { title: "40 GB",             internet: "40 GB",     coreData: "40 GB",     social: "-", mins: "-", sms: "-", price: 97.75,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended", eventId: "1681" },
+  { title: "1GB Daily 30days",  internet: "1 GB/day",  coreData: "1 GB/day",  social: "-", mins: "-", sms: "-", price: 86.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1631" },
+  { title: "13 GB",             internet: "13 GB",     coreData: "13 GB",     social: "-", mins: "-", sms: "-", price: 63.25,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1680" },
+  { title: "1.9 GB",            internet: "1.9 GB",    coreData: "1.9 GB",    social: "-", mins: "-", sms: "-", price: 29.89,  discount: null, validityLabel: "Valid 30 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1734" },
+  { title: "1.2 GB",            internet: "1.2 GB",    coreData: "1.2 GB",    social: "-", mins: "-", sms: "-", price: 19.55,  discount: null, validityLabel: "Valid 21 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1679" },
+  { title: "1 GB",              internet: "1 GB",      coreData: "1 GB",      social: "-", mins: "-", sms: "-", price: 14.9,   discount: null, validityLabel: "Valid 10 days", categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1618" },
+  { title: "500MB",             internet: "500 MB",    coreData: "500 MB",    social: "-", mins: "-", sms: "-", price: 9.78,   discount: null, validityLabel: "Valid 7 days",  categories: ["data"], validity: ["1m"], tags: [], features: [], bonuses: [], eventId: "1677" },
+  // Calls (International Bundles) — destination-specific minute bundles. Only rows with a real
+  // disclosed minute count are included (see note above); "NNSR"-priced-tier rows are excluded.
+  { title: "Pakistan 360 Min", internet: "-", mins: "360", localMins: "360", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous",  countries: ["Pakistan"], eventId: "1720" },
+  { title: "Pakistan 130 Min", internet: "-", mins: "130", localMins: "130", social: "-", sms: "-", price: 19.55, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "recommended", countries: ["Pakistan"], eventId: "1719" },
+  { title: "Pakistan 55 Min",  internet: "-", mins: "55",  localMins: "55",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Pakistan"], eventId: "1718" },
+  { title: "Nepal 730 Min",    internet: "-", mins: "730", localMins: "730", social: "-", sms: "-", price: 49.45, discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Nepal"], eventId: "1675" },
+  { title: "Nepal 500 Min",    internet: "-", mins: "500", localMins: "500", social: "-", sms: "-", price: 34.5,  discount: null, validityLabel: "Valid 14 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Nepal"], eventId: "1703" },
+  { title: "Yemen 210 Min",    internet: "-", mins: "210", localMins: "210", social: "-", sms: "-", price: 69,    discount: null, validityLabel: "Valid 30 days", categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Yemen"], eventId: "1690" },
+  { title: "Yemen 82 Min",     internet: "-", mins: "82",  localMins: "82",  social: "-", sms: "-", price: 28.75, discount: null, validityLabel: "Valid 7 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Yemen"], eventId: "1689" },
+  { title: "Yemen 26 Min",     internet: "-", mins: "26",  localMins: "26",  social: "-", sms: "-", price: 9.2,   discount: null, validityLabel: "Valid 2 days",  categories: ["calls"], validity: ["1m"], tags: [], features: [], bonuses: [], countries: ["Yemen"], eventId: "1688" },
+  // PAYG — pay-as-you-go per-unit rates, top-up added on top
+  { title: "Pay As You Go", internet: "-", mins: "-", social: "-", sms: "-", price: 0, payg: { perMb: 0.2, perSms: 0.25, perMin: 0.45 }, discount: null, validityLabel: "", categories: ["payg"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
+];
+
+const OPERATORS = ["STC", "Mobily", "Lebara", "Zain", "Salam", "Red Bull Mobile"];
+// Friendi PAYG top-up presets (SAR). "Optional" case includes 0 (skip allowed) with nothing
+// preselected; "required" case starts at 10 (minimum) with 10 preselected by default.
+const FM_TOPUP_PRESETS_OPTIONAL = [0, 10, 15, 20, 30, 50, 100];
+const FM_TOPUP_PRESETS_REQUIRED = [10, 15, 20, 30, 50, 100];
+// Identity test ID suffix that forces the "top-up required" case (must pick ≥ 10).
+const FM_TOPUP_REQUIRED_ID_SUFFIX = "234512345";
+// Identity test ID suffix that hides the PAYG plan type entirely (some customers don't get PAYG offered).
+const FM_NO_PAYG_ID_SUFFIX = "555544444";
+export const DEALER_WALLET_BALANCE = 550;
+const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
+
+export const NATIONALITY_CODES = [
+  "sa", "jo", "eg", "in", "pk", "bd", "sy", "lb", "ye", "sd",
+  "ph", "id", "lk", "np", "ae", "kw", "bh", "qa", "om", "tr",
+  "ma", "tn", "dz", "iq", "ps", "af", "us", "gb", "other",
+];
+
+// ID types whose field is labeled "ID Passport" instead of "ID Number".
+export const PASSPORT_ID_TYPES = ["gcc-passport", "visitor-passport"];
+// ID types whose field is labeled "Border ID Number" instead of "ID Number".
+export const BORDER_ID_TYPES = ["hajj", "umrah"];
+
+// ID Type rules — order here drives the dropdown order (per the ID Type rules table).
+// Exported so other Identity-capturing flows (Subscription Migration, SIM Replacement, etc.)
+// can reuse the same types, field labels, and validation rules.
+export interface IdTypeRule {
+  labelKey: string;
+  fieldLabelKey: string;
+  startDigits?: string[];
+  length?: number;
+  postpaidAllowed: boolean;
+}
+export const ID_TYPE_ORDER = [
+  "saudi-id", "iqama-id", "border-visa", "gcc-id", "visitor-visa",
+  "umrah-visa", "haj-visa", "gcc-passport", "premium-residency",
+] as const;
+export const ID_TYPE_RULES: Record<string, IdTypeRule> = {
+  "saudi-id":          { labelKey: "saudiId",          fieldLabelKey: "idNumber",          startDigits: ["1"],             length: 10, postpaidAllowed: true },
+  "iqama-id":          { labelKey: "iqamaId",           fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
+  "border-visa":       { labelKey: "borderVisa",        fieldLabelKey: "borderNumber",      startDigits: ["3", "4", "5", "6"], length: 10, postpaidAllowed: false },
+  "gcc-id":            { labelKey: "gccId",             fieldLabelKey: "gccIdNumber",       postpaidAllowed: false },
+  "visitor-visa":      { labelKey: "visitorVisa",       fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "umrah-visa":        { labelKey: "umrahVisa",         fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "haj-visa":          { labelKey: "hajVisa",           fieldLabelKey: "visaNumber",        length: 10, postpaidAllowed: false },
+  "gcc-passport":      { labelKey: "gccPassport",       fieldLabelKey: "gccPassportNumber", postpaidAllowed: false },
+  "premium-residency": { labelKey: "premiumResidency",  fieldLabelKey: "idNumber",          startDigits: ["2"],             length: 10, postpaidAllowed: true },
+};
+// Which Semati customer-verification methods are offered, per ID Type — brand-agnostic (same for
+// VM and FM), per the "Required Customer Verification for Activation" business rule table.
+export const ID_TYPE_VERIFICATION_METHODS: Record<string, VerificationMethod[]> = {
+  "saudi-id": ["nafath", "fingerprint"],
+  "iqama-id": ["nafath", "fingerprint"],
+  "border-visa": ["nafath", "fingerprint", "absher"],
+  "gcc-id": ["fingerprint"],
+  "visitor-visa": ["nafath", "fingerprint", "absher"],
+  "umrah-visa": ["nafath", "fingerprint", "absher"],
+  "haj-visa": ["nafath", "fingerprint", "absher"],
+  "gcc-passport": ["fingerprint"],
+  "premium-residency": ["nafath", "fingerprint"],
+};
+// Builds a demo ID number that's valid for the given ID Type: leading digit from the
+// type's start-digit rule (first one, arbitrarily) plus a fixed 9-digit suffix that
+// identifies which demo case it is (normal, whitelisted, PAYG top-up required, etc.).
+const demoIdFor = (rule: IdTypeRule | undefined, suffix: string) => (rule?.startDigits?.[0] ?? "1") + suffix;
+
+// Fulfilment demo emails — stand in for the real backend already knowing everything
+// the customer chose online once we look it up, instead of manual toggles. A paid
+// record seeds the subscription/number/commitment state so the locked view actually
+// reflects that scenario; unpaid records stay on the normal interactive defaults
+// since the dealer picks everything live for those.
+interface FulfilmentRecord {
+  paid: boolean;
+  whitelisted: boolean;
+  payType?: PayType;
+  planTitle?: string;
+  numberTier?: "standard" | "bronze" | "silver" | "gold" | "diamond";
+  /** Only meaningful when numberTier isn't "standard". */
+  vanityCommitment?: boolean;
+}
+const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
+const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
+const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
+const FULFILMENT_POSTPAID_STANDARD_EMAIL = "paid.postpaid.standard@email.com";
+const FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL = "paid.postpaid.standard.whitelisted@email.com";
+const FULFILMENT_POSTPAID_VANITY_EMAIL = "paid.postpaid.vanity@email.com";
+const FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL = "paid.postpaid.vanity.whitelisted@email.com";
+const FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL = "paid.postpaid.vanitycommitted@email.com";
+const FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "paid.postpaid.vanitycommitted.whitelisted@email.com";
+// Unpaid Switch Postpaid variants — dealer still needs to collect payment, but the
+// scenario (number tier / commitment) is pre-seeded so the tester lands directly on it.
+const FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL = "unpaid.postpaid.standard@email.com";
+const FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL = "unpaid.postpaid.standard.whitelisted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL = "unpaid.postpaid.vanity@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL = "unpaid.postpaid.vanity.whitelisted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL = "unpaid.postpaid.vanitycommitted@email.com";
+const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "unpaid.postpaid.vanitycommitted.whitelisted@email.com";
+// Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
+const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
+const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
+  // Whitelisting doesn't change anything for a paid fulfilment request — it's already fully
+  // settled either way — so there's no separate "prepaid whitelisted" paid case to test.
+  [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
+  [FULFILMENT_UNPAID_EMAIL]: { paid: false, whitelisted: false },
+  [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
+  // Postpaid + standard number — no vanity fee, no Nafith.
+  [FULFILMENT_POSTPAID_STANDARD_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  // Postpaid + vanity number, paid outright (no commitment) — Nafith not required.
+  [FULFILMENT_POSTPAID_VANITY_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  // Postpaid + vanity number, free with commitment — Nafith was completed online, so it
+  // comes back already verified instead of asking the dealer to redo it.
+  [FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  [FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  // Same postpaid/vanity/commitment matrix, but unpaid — the online selections still seed the
+  // interactive Subscription step as a starting point, and the dealer can still adjust them
+  // before collecting payment.
+  [FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: false },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL]: { paid: false, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+  [FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL]: { paid: false, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 300", numberTier: "gold", vanityCommitment: true },
+};
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+// Natural-language list join for the "what's still missing" hint, e.g. ["A","B","C"] -> "A, B and C"
+// — `and` is translated so the joined sentence still reads correctly in Arabic.
+const joinList = (items: string[], and: string) =>
+  items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} ${and} ${items[items.length - 1]}`;
+
+// Normal (non-fulfilment) flow demo ID numbers — whitelist status is derived from
+// which one is entered, instead of a manual toggle. Stored as the trailing 9 digits;
+// the leading digit is filled in per the selected ID Type's start-digit rule (see
+// demoIdFor below) so the demo numbers stay valid no matter which ID Type is picked.
+const NORMAL_TEST_ID_SUFFIX = "324567896";
+const WHITELISTED_TEST_ID_SUFFIX = "876543210";
+
+const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
+
+const DISTRICTS: Record<string, string[]> = {
+  "Riyadh":  ["Al Olaya", "Al Malaz", "Al Muruj", "Al Nakheel", "Al Rawdah", "Al Qirawan", "Al Yasmin"],
+  "Jeddah":  ["Al Hamra", "Al Rawdah", "Al Sharafeyah", "Al Balad", "Al Safa", "Al Zahraa"],
+  "Dammam":  ["Al Faisaliyah", "Al Nuzha", "Al Shatea", "Al Adamah", "Al Badiyah"],
+  "Mecca":   ["Al Aziziyah", "Al Shisha", "Al Zaher", "Al Rusaifa"],
+  "Medina":  ["Al Haram", "Al Aziziyah", "Quba", "Al Salam"],
+};
+
+// Region each demo city belongs to — used to auto-fill Delivery Details from a map pick.
+const CITY_TO_REGION: Record<string, string> = {
+  "Riyadh": "Riyadh Region",
+  "Jeddah": "Makkah Region",
+  "Mecca": "Makkah Region",
+  "Medina": "Madinah Region",
+  "Dammam": "Eastern Province",
+};
+
+// Snap whatever city string the map's reverse-geocoder returns to one of our demo CITIES,
+// so it always matches a valid Select option. Falls back to Riyadh (the map's default view).
+const matchDemoCity = (rawCity: string): string => {
+  const normalized = rawCity.trim().toLowerCase();
+  const found = CITIES.find((c) => normalized.includes(c.toLowerCase()) || c.toLowerCase().includes(normalized));
+  return found ?? "Riyadh";
+};
+
+// Prototype-only Saudi National Address generator (format: 4 letters + 4 digits, e.g. "RRRD1234").
+const generateNationalAddress = (): string => {
+  const letters = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("");
+  const digits = Math.floor(1000 + Math.random() * 9000);
+  return `${letters}${digits}`;
+};
+
+export const PREPAID_CHIPS = [
+  { value: "all", label: "All" },
+  { value: "base-plan", label: "Baqah" },
+  { value: "flex", label: "Flex" },
+  { value: "aman", label: "Aman" },
+  { value: "data", label: "5G MBB" },
+];
+
+// Single source of truth for "which plans does this catalogue tab show" — used both to
+// build the list handed to PlanSelector and to resolve `selectedPlan` (an index into that
+// same list) back to a plan object, so the two stay index-aligned by construction.
+export const getVmCatalogPlans = (
+  pType: PayType,
+  chip: string,
+  opts: { esim?: boolean; fulfilment?: boolean } = {},
+): typeof PREPAID_PLANS => {
+  if (pType === "postpaid") {
+    return chip === "vnet"
+      ? POSTPAID_PLANS.filter(p => p.categories?.includes("vnet") && !opts.esim && !opts.fulfilment)
+      : POSTPAID_PLANS.filter(p => p.categories?.includes("switch-postpaid"));
+  }
+  return chip === "data"
+    ? PREPAID_PLANS.filter(p => p.categories?.includes("data"))
+    : PREPAID_PLANS.filter(p => !p.categories?.includes("data"));
+};
+
+// MNP port-in requires a minimum-value plan on Mobile lines — a real telco rule (prevents
+// porting onto a throwaway low-value plan), distinct from Data-only lines being categorically
+// unportable. E.g. on Prepaid: Baqah 45/70, Aman 60 and Flex 60 fall below the threshold
+// (Baqah 100+ / Flex 100+ clear it) — the concrete, testable "select a higher plan" case.
+export const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 100, postpaid: 200 };
+// Per-plan MNP eligibility, independent of whatever catalogue selection is currently active —
+// used to show the "MNP Eligible" tag on plan cards. Data-only lines (5G/Vnet) can never
+// port; Mobile lines need to clear their family's minimum value.
+export const isPlanMnpEligible = (p: { categories?: string[]; price: number }) => {
+  if (p.categories?.includes("data") || p.categories?.includes("vnet")) return false;
+  const threshold = p.categories?.includes("switch-postpaid") ? MNP_MIN_PLAN_PRICE.postpaid : MNP_MIN_PLAN_PRICE.prepaid;
+  return p.price >= threshold;
+};
+
+// Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
+export const FRIENDI_CHIPS = [
+  { value: "all", label: "All" },
+  { value: "combo", label: "Combo Plans" },
+  { value: "flexi", label: "Flexi Plans" },
+  { value: "data", label: "Internet" },
+  { value: "calls", label: "International" },
+  { value: "payg", label: "PAYG" },
+];
+
+const NUMBER_TABS = [
+  { value: "all",      label: "All",      fee: null, color: null },
+  { value: "standard", label: "Standard", fee: 0,    color: "#0EA5E9" },
+  { value: "bronze",   label: "Bronze",   fee: 10,   color: "#B45309" },
+  { value: "silver",   label: "Silver",   fee: 10,   color: "#94A3B8" },
+  { value: "gold",     label: "Gold",     fee: 10,   color: "#EAB308" },
+  { value: "diamond",  label: "Diamond",  fee: 10,   color: "#3B82F6" },
+];
+
+const DEMO_NUMBER_POOL = [
+  { number: "0785599574", tier: "standard" },
+  { number: "0547896324", tier: "gold" },
+  { number: "0547896325", tier: "diamond" },
+  { number: "0547896326", tier: "silver" },
+  { number: "0547896327", tier: "standard" },
+  { number: "0547896328", tier: "silver" },
+  { number: "0547896329", tier: "standard" },
+  { number: "0547896330", tier: "gold" },
+  { number: "0547896331", tier: "standard" },
+  { number: "0547896332", tier: "silver" },
+  { number: "0547896333", tier: "standard" },
+  { number: "0547896334", tier: "diamond" },
+  { number: "0547896335", tier: "standard" },
+  { number: "0547896336", tier: "gold" },
+  { number: "0547896337", tier: "standard" },
+  { number: "0547896338", tier: "silver" },
+  { number: "0547896339", tier: "bronze" },
+  { number: "0547896340", tier: "bronze" },
+];
+
+const SIM_FEES: Record<SimType, number> = { psim: 0, esim: 0 };
+
+// Vanity Number categories — highest → lowest. A category is eligible when the
+// selected Switch Postpaid plan tier (the number in its name) ≥ minTier.
+// price = vanity number price paid when commitment is OFF (placeholders — pending client confirmation).
+// Gold/Diamond (free-with-commitment) are only unlocked by Postpaid 250/300/365.
+// Silver/Bronze/Standard are free-with-commitment (or always-free) on every Switch Postpaid plan.
+const VANITY_CATEGORIES = [
+  { key: "exotics",   tier: "diamond",  months: 24, minTier: 250, color: "#3B82F6", price: 500 },
+  { key: "legendary", tier: "gold",     months: 18, minTier: 250, color: "#EAB308", price: 300 },
+  { key: "rare",      tier: "silver",   months: 12, minTier: 0,   color: "#94A3B8", price: 150 },
+  { key: "value",     tier: "bronze",   months: 6,  minTier: 0,   color: "#B45309", price: 75  },
+  { key: "standard",  tier: "standard", months: 0,  minTier: 0,   color: "#0EA5E9", price: 0   },
+];
+
+const DEVICES = [
+  { id: "router-a", name: "5G Home Router", desc: "Up to 4 Gbps · 64 devices", price: 0 },
+  { id: "router-b", name: "5G Gateway Pro", desc: "Up to 2 Gbps · 32 devices", price: 0 },
+  { id: "router-c", name: "Premium 5G Router", desc: "Up to 8 Gbps · 128 devices", price: 200 },
+];
+
+// Each Vnet plan bundles its own device — higher-tier plans get the more capable router.
+const VNET_PLAN_DEVICE: Record<string, string> = {
+  "Vnet 100 GB": "router-b",
+  "Vnet 300 GB": "router-a",
+  "Vnet 500 GB": "router-c",
+};
+
+export const ESIM_DEVICES = [
+  { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+" },
+  { model: "iPhone 11 / Pro / Pro Max", ios: "iOS 13+" },
+  { model: "iPhone 12 / Mini / Pro / Pro Max", ios: "iOS 14+" },
+  { model: "iPhone 13 series", ios: "iOS 15+" },
+  { model: "iPhone 14 series", ios: "iOS 16+" },
+  { model: "iPhone 15 series", ios: "iOS 17+" },
+  { model: "iPhone 16 series", ios: "iOS 18+" },
+  { model: "iPad Pro (2018+)", ios: "iPadOS 12.1+" },
+  { model: "iPad Air (3rd gen+)", ios: "iPadOS 13+" },
+  { model: "iPad Mini (5th gen+)", ios: "iPadOS 13+" },
+];
+
+// ---------- Small UI helpers ----------
+const SegmentedTabs = ({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string; disabled?: boolean }[];
+}) => (
+  <div className="grid gap-1 bg-muted/60 rounded-xl p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+    {options.map((opt) => (
+      <button
+        key={opt.value}
+        disabled={opt.disabled}
+        onClick={() => onChange(opt.value)}
+        className={cn(
+          "h-9 rounded-lg text-xs font-medium transition-colors",
+          value === opt.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
+          opt.disabled && "opacity-50 cursor-not-allowed",
+        )}
+      >
+        {opt.label}
+      </button>
+    ))}
+  </div>
+);
+
+const SectionCard = ({ title, children, action, required }: { title: string; children: React.ReactNode; action?: React.ReactNode; required?: boolean }) => (
+  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+    <div className="flex items-center justify-between">
+      <h3 className="font-semibold text-foreground text-sm">{title}{required && <span className="text-destructive"> *</span>}</h3>
+      {action}
+    </div>
+    {children}
+  </div>
+);
+
+// Verified-state banner — same visual language as the amber "Whitelisted Customer" notice, in green.
+export const VerifiedBanner = ({ onRetry, label }: { onRetry?: () => void; label?: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
+      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+      <p className="flex-1 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
+        {label ?? t("activation4.checkout.verifiedTitle")}
+      </p>
+      {onRetry && (
+        <button type="button" onClick={onRetry} className="text-emerald-600 shrink-0" aria-label="Retry verification (demo)">
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="space-y-1.5">
+    <label className="text-xs font-medium text-muted-foreground">{label}</label>
+    {children}
+  </div>
+);
+
+const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
+    <span className="text-[11px] text-muted-foreground">{label}</span>
+    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
+  </div>
+);
+
+// Dealer's saved signature — pre-loaded into dealer signature box
+const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNjUgQzMwIDQwIDQ1IDc1IDU1IDU1IEM2MiA0MCA3MCA3MCA4MCA1NSBDODggNDIgOTUgNjAgMTA1IDUwIEMxMTUgMzggMTIyIDYyIDEzNSA1MiBDMTQ1IDQ0IDE1MCA1OCAxNjIgNDggQzE3MiAzOCAxNzggNTUgMTkwIDQ2IEMyMDAgMzcgMjA1IDUyIDIxNSA0NCBDMjI1IDM2IDIyOCA1MCAyMzggNDQgQzI0NSA0MCAyNDggNTIgMjU1IDQ2IiBzdHJva2U9IiMxMTE4MjciIHN0cm9rZS13aWR0aD0iMi41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMzAgNzIgQzUwIDY4IDkwIDcyIDEzMCA3MCBDMTYwIDY4IDIwMCA3MSAyNDAgNjkiIHN0cm9rZT0iIzExMTgyNyIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC40Ii8+PC9zdmc+";
+
+// ---------- Page ----------
+const NewActivation4 = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isFulfilment = searchParams.get("flow") === "fulfilment";
+  const isMnp = searchParams.get("flow") === "mnp";
+  // Friendi (FM) brand divergence — prepaid only, its own plan catalog & chips,
+  // standard numbers only, top-up on PAYG only. Everything else matches Virgin.
+  const { brand } = useBrand();
+  const isFriendi = brand === "friendi";
+
+  const [step, setStep] = useState<0 | 1 | 2>(0);
+
+  // Stage 1 — Identity
+  const [idType, setIdType] = useState("saudi-id");
+  const [nationality, setNationality] = useState("sa");
+  const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
+  const [nationalitySearch, setNationalitySearch] = useState("");
+  const [idNumber, setIdNumber] = useState("1324567896");
+  // Fulfilment: customer already has a completed online application — looked up by
+  // email or by scanning the QR code shown on their confirmation screen, instead of
+  // re-collecting ID Type / Nationality / ID Number.
+  const [fulfilmentEmail, setFulfilmentEmail] = useState("");
+  const [qrScanOpen, setQrScanOpen] = useState(false);
+  const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
+  const [qrVerified, setQrVerified] = useState(false);
+  const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
+  // Payment & whitelist status come back automatically once we look up the fulfilment
+  // application by email — no manual toggles. Demo data only recognizes the 4 seeded
+  // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
+  const fulfilmentRecord = FULFILMENT_DEMO_EMAILS[fulfilmentEmail.trim().toLowerCase()];
+  const alreadyPaid = fulfilmentRecord?.paid ?? true;
+  // A well-formed email that doesn't match any online application — surfaced as an
+  // error instead of silently falling back to "already paid".
+  const fulfilmentEmailNotFound = !qrVerified && isValidEmail(fulfilmentEmail) && !fulfilmentRecord;
+  // Paid fulfilment requests already chose everything online — the Subscription step shows
+  // the same sections as usual but disabled, except SIM Type which can always be changed.
+  const fulfilmentLocked = isFulfilment && alreadyPaid;
+  // Whitelist status (VPPR class 5→6) is derived from which demo ID number is entered,
+  // same pattern as fulfilment deriving it from email — no manual toggle.
+  const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim().length === 10 && idNumber.trim().endsWith(WHITELISTED_TEST_ID_SUFFIX);
+  // Vanity Number Category overview list (informational) hidden for now — the commitment
+  // checkbox on the picked number remains active. May be reverted.
+  const SHOW_VANITY_OVERVIEW = false;
+  // "What's still missing" hint above Continue/Pay — hidden for now, may come back to it.
+  const SHOW_MISSING_HINT = false;
+  // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
+  const [isDealerHandover, setIsDealerHandover] = useState(false);
+  const [deviceSerialNumber, setDeviceSerialNumber] = useState("");
+
+  // Stage 2 — Subscription Type
+  const [payType, setPayType] = useState<PayType>("prepaid");
+  const [lineType, setLineType] = useState<LineType>("mobile");
+  const [simType, setSimType] = useState<SimType>("psim");
+  const [kit, setKit] = useState("1234567890");
+  const [kitError, setKitError] = useState<string | null>(null);
+  const [kitChecking, setKitChecking] = useState(false);
+  const [kitChecked, setKitChecked] = useState(false);
+  const [esimInfoOpen, setEsimInfoOpen] = useState(false);
+  const [esimDeviceSearch, setEsimDeviceSearch] = useState("");
+  const [planTypeChip, setPlanTypeChip] = useState("all");
+  const [planSearch, setPlanSearch] = useState("");
+  const [planMode, setPlanMode] = useState<PlanMode>("plan");
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [topupDenom, setTopupDenom] = useState<number | null>(null);
+  const [topupManual, setTopupManual] = useState("");
+  // Contact & Delivery
+  const [contactCity, setContactCity] = useState("Riyadh");
+  const [contactEmail, setContactEmail] = useState("test@beyondsales.com");
+  const [contactNumber, setContactNumber] = useState("0512345678");
+  const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
+  const [nationalAddress, setNationalAddress] = useState("");
+  const [locationRegion, setLocationRegion] = useState("");
+  const [locationDistrict, setLocationDistrict] = useState("");
+  const [mapOpen, setMapOpen] = useState(false);
+  // Number — Mobile only
+  const [subType, setSubType] = useState<SubType>(isMnp ? "mnp" : "sim");
+  const [phone, setPhone] = useState("0785599574");
+  const [numberPickerOpen, setNumberPickerOpen] = useState(false);
+  const [numberPickerTab, setNumberPickerTab] = useState("all");
+  // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
+  // makes them usable as a slider on desktop instead of requiring the wheel/trackpad.
+  const planChipsDragScroll = useDragScroll<HTMLDivElement>();
+  const numberTabsDragScroll = useDragScroll<HTMLDivElement>();
+  const [numberSearch, setNumberSearch] = useState("");
+  // Number awaiting a "free with commitment / pay number price" choice from the popup.
+  const [pendingVanityNumber, setPendingVanityNumber] = useState<{ number: string; tier: string } | null>(null);
+  const [portNumber, setPortNumber] = useState("0512345678");
+  const [portOperator, setPortOperator] = useState("STC");
+  const [portContact, setPortContact] = useState("0598765432");
+
+
+  // Stage 3 — Checkout
+  const [pay, setPay] = useState<PayMethod>("card");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
+  const [promoEnabled, setPromoEnabled] = useState(false);
+  // Promo catalogue: type = "discount" | "data" | "credit"
+  type PromoBenefit = { type: "discount"; value: number } | { type: "data"; value: number } | { type: "credit"; value: number };
+  const PROMO_CATALOGUE: Record<string, { benefits: PromoBenefit[] }> = {
+    SAVE10:   { benefits: [{ type: "discount", value: 10 }] },
+    DATA5GB:  { benefits: [{ type: "data", value: 5 }] },
+    CREDIT20: { benefits: [{ type: "credit", value: 20 }] },
+    MEGA:     { benefits: [{ type: "discount", value: 15 }, { type: "data", value: 10 }, { type: "credit", value: 25 }] },
+  };
+  const activePromo = promoApplied ? PROMO_CATALOGUE[promoCode] : null;
+  const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState(false);
+  const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
+  const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
+  const [customerVerified, setCustomerVerified] = useState(false);
+  // Nafith promissory-note verification — required when a Switch Postpaid vanity commitment is ON
+  const [nafithVerifyOpen, setNafithVerifyOpen] = useState(false);
+  const [nafithVerified, setNafithVerified] = useState(false);
+  const [customerSig, setCustomerSig] = useState<string | null>(null);
+  const [dealerSig, setDealerSig] = useState<string | null>(DEALER_SAVED_SIG);
+  const [terms, setTerms] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [allowPromoCalls, setAllowPromoCalls] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
+  const [shareVia, setShareVia] = useState<"mobile" | "email">("mobile");
+  const [shareValue, setShareValue] = useState("");
+  const [sigEditor, setSigEditor] = useState<"customer" | "dealer" | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelOtherText, setCancelOtherText] = useState("");
+  const [payConfirmOpen, setPayConfirmOpen] = useState(false);
+  // Vanity commitment for the picked number: ON = free + Nafith; OFF = pay the vanity price.
+  const [vanityCommitment, setVanityCommitment] = useState(true);
+
+  // ---------- Derived flags ----------
+  // Plans catalogue — Line Type (Mobile/Data) and Subscription (Prepaid/Postpaid) are two
+  // independent selectors; their combination picks the plan family shown below. Only
+  // Mobile+Prepaid breaks out further, via chips, into Baqah/Flex/Aman — every other
+  // combination (Data+Prepaid = 5G, Mobile+Postpaid = Switch Postpaid, Data+Postpaid =
+  // Vnet) is already a single plan family. Friendi keeps its own Prepaid/Basic Postpaid
+  // pair, unchanged — its catalogue (Combo/Flexi/Internet/International/PAYG) doesn't
+  // split along a Line Type axis at all.
+  const effectiveChip = isFriendi
+    ? planTypeChip
+    : payType === "postpaid"
+      ? (lineType === "data" ? "vnet" : "switch-postpaid")
+      : (lineType === "data" ? "data" : planTypeChip);
+  const activePlansForType = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(payType, effectiveChip, { esim: simType === "esim", fulfilment: isFulfilment });
+  const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
+  const isPaygPlan        = isFriendi && planTypeChip === "payg";
+  // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
+  // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
+  const topupRequired     = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_TOPUP_REQUIRED_ID_SUFFIX);
+  // Some Friendi customers don't get PAYG offered at all — hide the chip and skip the auto-select.
+  const paygHidden        = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_NO_PAYG_ID_SUFFIX);
+  const isVnetMode        = !isFriendi && payType === "postpaid" && lineType === "data";
+  // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
+  // so the 5G-MBB internet behaviour only applies to Virgin. Basic Postpaid shares the same
+  // Data line treatment as Prepaid (both resolve to the 5G MBB catalogue).
+  const is5GDataMode      = !isFriendi && payType !== "postpaid" && lineType === "data";
+  const isPrepaidMobile   = payType !== "postpaid" && !is5GDataMode;
+  const isPrepaidInternet = is5GDataMode;
+  const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
+  const isPostpaidInternet= isVnetMode;
+
+  const showEsim         = true;
+  // Allow Promotional Calls consent — every mobile line, but not the data-only 5G MBB or Vnet lines.
+  const showPromoCalls   = !isPrepaidInternet && !isPostpaidInternet;
+  // Allowed Products per ID Type — only Saudi National ID, Iqama ID and Premium
+  // Residency support postpaid; every other ID type is prepaid-only.
+  const idTypeAllowsPostpaid = ID_TYPE_RULES[idType]?.postpaidAllowed ?? false;
+  const isSaudiId = idTypeAllowsPostpaid;
+  // Vnet isn't offered on E-SIM or in the Fulfilment flow — the Data line gets disabled
+  // (not hidden) whenever Postpaid + one of those is active.
+  const dataLineUnavailable = payType === "postpaid" && (simType === "esim" || isFulfilment);
+  const selectLineType = (newLine: LineType) => {
+    setLineType(newLine);
+    setPlanTypeChip("all");
+    setSelectedPlan(null);
+    setPlanMode("plan");
+  };
+  const selectPayType = (newPayType: PayType) => {
+    setPayType(newPayType);
+    setPlanTypeChip("all");
+    setSelectedPlan(null);
+    setPlanMode("plan");
+    // Postpaid's Data line (Vnet) isn't offered on E-SIM — fall back to Mobile so lineType
+    // never carries a stale "data" value into a combination that doesn't support it.
+    if (newPayType === "postpaid" && simType === "esim") {
+      if (lineType === "data") setLineType("mobile");
+    }
+  };
+  const lineTypeOptions: { key: LineType; label: string; Icon: typeof Wallet; disabled?: boolean }[] = [
+    { key: "mobile", label: t("activation4.subscription.lineMobile"), Icon: Smartphone },
+    { key: "data", label: t("activation4.subscription.lineData"), Icon: Wifi, disabled: dataLineUnavailable },
+  ];
+  // Friendi has no separate Postpaid tier — just Prepaid and Basic Postpaid. Postpaid is
+  // omitted entirely (not shown disabled) for ID types that don't allow it.
+  const subscriptionOptions: { key: PayType; label: string; Icon: typeof Wallet }[] = (isFriendi
+    ? [
+        { key: "prepaid" as const, label: t("activation4.subscription.prepaid"), Icon: Wallet },
+        { key: "basic-postpaid" as const, label: t("activation4.subscription.basicPostpaid"), Icon: ReceiptText },
+      ]
+    : [
+        { key: "prepaid" as const, label: t("activation4.subscription.prepaid"), Icon: Wallet },
+        { key: "basic-postpaid" as const, label: t("activation4.subscription.basicPostpaid"), Icon: ReceiptText },
+        { key: "postpaid" as const, label: t("activation4.subscription.postpaid"), Icon: Receipt },
+      ]
+  ).filter(o => o.key === "prepaid" || isSaudiId);
+  const activePlanChips  = isFriendi
+    ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
+    // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
+    // only ever needs Baqah / Flex / Aman.
+    : PREPAID_CHIPS.filter(c => c.value !== "data");
+  // Chips only sub-filter within Mobile+Prepaid — every other combination already pins
+  // one plan family, so there's nothing left to filter by chip.
+  const showPlanTypeChips = isFriendi ? true : (lineType === "mobile" && payType !== "postpaid");
+  // MNP eligibility: a Data-only line (5G Prepaid / Vnet) can never port a number; a Mobile
+  // line can, but only above its family's minimum plan value. Each reason gets its own hint
+  // copy — reading activePlansForType[selectedPlan] directly here (not selectedPlanObj, which
+  // isn't declared until later) avoids a use-before-declaration issue.
+  const mnpIneligibleReason: "data" | "lowTier" | null =
+    selectedPlan == null ? null
+    : (is5GDataMode || isVnetMode) ? "data"
+    : (activePlansForType[selectedPlan]?.price ?? 0) < MNP_MIN_PLAN_PRICE[payType === "postpaid" ? "postpaid" : "prepaid"] ? "lowTier"
+    : null;
+  const isMnpIneligiblePlan = mnpIneligibleReason !== null;
+  const showTopupTab     = isPrepaidMobile || isPrepaidInternet;
+  // Contact number field is always shown; mandatory for VNet, 5G Data, and Switch Postpaid — optional otherwise.
+  // For E-SIM, it stays visible but is never required, even on those three cases.
+  const contactNumberRequired = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
+  // OTP verification is mandatory for every activation case, regardless of plan type or SIM type.
+  const showOtp           = true;
+  const otpRequired       = true;
+  const showNumber       = isPrepaidMobile || isPostpaidMobile;
+  const showMnp          = isPrepaidMobile || isPostpaidMobile;
+  const showDevice       = isPostpaidInternet;
+  // Dealer whitelisted for in-store handover → offer the Skip Delivery option (VNet only).
+  const showHandoverOption = isPostpaidInternet;
+  // Delivery step is skipped when the dealer opts for in-store handover.
+  const showDelivery     = isPostpaidInternet && !(showHandoverOption && isDealerHandover);
+
+  // Reset the plan selection when lineType or payType changes. planTypeChip is deliberately
+  // NOT reset here — the catalogue tile click already sets it (together with payType) to the
+  // value that tile pins, and resetting it here as well would race that and stomp it back to
+  // "all" right after.
+  useEffect(() => {
+    setSelectedPlan(null);
+    setPlanMode("plan");
+    setPlanSearch("");
+  }, [payType, lineType]);
+
+  useEffect(() => {
+    if (!idTypeAllowsPostpaid && payType !== "prepaid") {
+      setPayType("prepaid");
+      setPlanTypeChip("all");
+    }
+  }, [idTypeAllowsPostpaid, payType]);
+
+  // A plan that isn't MNP-eligible can't stay ported — drop back to New Number instead of
+  // leaving the dealer stuck on a Port (MNP) tab that no longer applies to the selection.
+  useEffect(() => {
+    if (isMnpIneligiblePlan && subType === "mnp") setSubType("sim");
+  }, [isMnpIneligiblePlan, subType]);
+
+  // Picking up a selection made on the "View all plans" page: it navigates back here with
+  // the chosen catalogue (payType/lineType/chip) and plan title in navigation state, since
+  // that's a separate route/page rather than a modal. Apply it once, then clear the state so
+  // it doesn't re-apply on a later back/forward navigation.
+  useEffect(() => {
+    const state = location.state as {
+      pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string };
+    } | null;
+    const pick = state?.pickPlan;
+    if (!pick) return;
+    if (state?.resume) {
+      setIdType(state.resume.idType);
+      setNationality(state.resume.nationality);
+      setIdNumber(state.resume.idNumber);
+      setSimType(state.resume.simType);
+      setKit(state.resume.kit);
+    }
+    setPayType(pick.payType);
+    setLineType(pick.lineType);
+    setPlanTypeChip(pick.chip);
+    const list = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(pick.payType, pick.chip, { esim: state?.resume?.simType === "esim", fulfilment: isFulfilment });
+    const idx = list.findIndex((p) => p.title === pick.title);
+    setSelectedPlan(idx >= 0 ? idx : null);
+    setPlanMode("plan");
+    setStep(1);
+    navigate(location.pathname + location.search, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
+  // ID Number validation per the selected ID Type's rule (start digit(s) + exact length).
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberValid = useMemo(() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  }, [idNumber, idNumberRule]);
+
+  // Fulfilment QR scan — full-screen camera-style view opens straight into scanning,
+  // then simulates finding the customer's completed online application.
+  useEffect(() => {
+    if (!qrScanOpen) return;
+    setQrScanStep("scanning");
+    const scanTimer = setTimeout(() => {
+      setQrScanStep("success");
+      // The QR resolves to the customer's email, same as if the dealer had typed it in.
+      setFulfilmentEmail(FULFILMENT_PAID_EMAIL);
+      setQrVerified(true);
+      const closeTimer = setTimeout(() => setQrScanOpen(false), 1200);
+      return () => clearTimeout(closeTimer);
+    }, 1800);
+    return () => clearTimeout(scanTimer);
+  }, [qrScanOpen]);
+
+  useEffect(() => {
+    if (simType === "esim" && payType === "postpaid" && lineType === "data") {
+      // Data Postpaid (Vnet) isn't offered on E-SIM — fall back to the Mobile line.
+      setLineType("mobile");
+      setSelectedPlan(null);
+    }
+  }, [simType, payType, lineType]);
+
+  // Reset the number-picker tab when the selected plan changes, so it doesn't stay on a
+  // vanity tier the new plan no longer qualifies for.
+  useEffect(() => {
+    setNumberPickerTab("all");
+  }, [selectedPlan]);
+
+  // In the fulfilment flow, auto-select the first available plan by default so the
+  // customer sees a preselected plan (matches "everything selected by default").
+  useEffect(() => {
+    if (isFulfilment && planMode === "plan" && selectedPlan == null && activePlansForType.length > 0) {
+      setSelectedPlan(0);
+    }
+  }, [isFulfilment, planMode, selectedPlan, activePlansForType]);
+
+  // Friendi: default the plan-type chip to "All" and let the dealer pick freely.
+  // If the test ID switches to "no PAYG offered" while PAYG happened to be selected,
+  // drop that stale selection so the dealer has to pick a real plan instead.
+  useEffect(() => {
+    if (!isFriendi) return;
+    const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+    if (paygHidden && selectedPlan === paygIdx) {
+      setSelectedPlan(null);
+      setPlanTypeChip("all");
+    }
+  }, [isFriendi, selectedPlan, paygHidden]);
+
+  // Friendi: when the dealer picks the PAYG chip, auto-select the PAYG plan so pricing
+  // and the top-up section appear immediately without an extra tap.
+  useEffect(() => {
+    if (!isFriendi || paygHidden) return;
+    if (planTypeChip !== "payg") return;
+    const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+    if (paygIdx >= 0 && selectedPlan !== paygIdx) {
+      setSelectedPlan(paygIdx);
+    }
+  }, [isFriendi, paygHidden, planTypeChip, selectedPlan]);
+
+  // When the top-up case flips (optional ⇄ required, via the Identity test ID), clear the
+  // selection so the optional case always starts on "Select Top-up Amount" (nothing selected)
+  // and the required case re-applies its 10 default below.
+  useEffect(() => {
+    setTopupDenom(null);
+    setTopupManual("");
+  }, [topupRequired]);
+
+  // Friendi PAYG "required" top-up: preselect 10 (the minimum) by default. The "optional"
+  // case starts with nothing selected so the dealer can proceed without a top-up.
+  useEffect(() => {
+    if (isFriendi && isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) {
+      setTopupDenom(10);
+      setTopupManual("10");
+    }
+  }, [isFriendi, isPaygPlan, topupRequired, topupDenom]);
+
+  // Paid fulfilment: seed the subscription/number/commitment state from what the customer
+  // already chose online (per the demo record), so the locked view — and pricing — actually
+  // reflect that scenario instead of always defaulting to prepaid + a standard number.
+  useEffect(() => {
+    // Seed for any fulfilment record that specifies a scenario (payType). Paid records
+    // additionally lock the view elsewhere; unpaid seeded records stay editable so the
+    // dealer can still collect payment and change details, but land on the intended case.
+    if (!isFulfilment || !fulfilmentRecord || !fulfilmentRecord.payType) return;
+    const record = fulfilmentRecord;
+    const type = record.payType ?? "prepaid";
+    setPayType(type);
+    setLineType("mobile");
+    setPlanTypeChip("all");
+    // Every fulfilment demo record is either Mobile Prepaid or Switch Postpaid — matches
+    // the same catalogue slice getVmCatalogPlans/activePlansForType resolves to, so this
+    // index lines up with the one PlanSelector renders for the seeded tab.
+    const plans = getVmCatalogPlans(type, type === "postpaid" ? "switch-postpaid" : "all");
+    const planIdx = record.planTitle ? plans.findIndex((p) => p.title === record.planTitle) : 0;
+    setSelectedPlan(planIdx >= 0 ? planIdx : 0);
+    const tier = record.numberTier ?? "standard";
+    setSubType("sim");
+    setPhone(DEMO_NUMBER_POOL.find((n) => n.tier === tier)?.number ?? "0785599574");
+    const commitment = record.vanityCommitment ?? true;
+    setVanityCommitment(commitment);
+    // Any paid postpaid fulfilment request already completed Nafith online (wherever it's
+    // required), so it comes back verified instead of asking the dealer to redo it.
+    setNafithVerified(record.paid && type === "postpaid");
+    // Re-asserts after the generic "reset selectedPlan on payType change" effect (declared
+    // above) clears it out from switching payType as part of this same seeding — payType and
+    // selectedPlan are deliberately included so this effect re-fires and wins that race.
+  }, [isFulfilment, fulfilmentEmail, payType, selectedPlan]);
+
+  // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
+  // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
+  // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
+  // useEffect(() => {
+  //   setVanityCommitment(true);
+  // }, [phone]);
+
+  // Auto-verify KIT on mount if already 10 digits
+  useEffect(() => {
+    if (/^\d{10}$/.test(kit)) {
+      setKitChecking(true);
+      setTimeout(() => {
+        setKitChecking(false);
+        if (kit === "0000000000") setKitError("registered");
+        else if (kit === "1111111111") setKitError("invalid");
+        else if (kit === "2222222222") setKitError("used");
+        else setKitChecked(true);
+      }, 1500);
+    }
+  }, []);
+
+  // OTP sheet: reset digits/error and start the resend countdown whenever it opens
+  useEffect(() => {
+    if (!otpOpen) return;
+    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const interval = setInterval(() => {
+      setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [otpOpen]);
+
+  const setOtpDigitAt = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setOtpDigits((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      if (d && i === 5) {
+        const code = next.join("");
+        setTimeout(() => {
+          if (code === "111111") {
+            setOtpError(true);
+          } else {
+            setOtpError(false);
+            setOtpVerified(true);
+            setOtpOpen(false);
+          }
+        }, 300);
+      }
+      return next;
+    });
+    if (d && i < 5) {
+      const el = document.getElementById(`checkout-otp-${i + 1}`) as HTMLInputElement | null;
+      el?.focus();
+    }
+  };
+
+  const resendOtp = () => {
+    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpError(false);
+    setOtpSecondsLeft(30);
+    const el = document.getElementById("checkout-otp-0") as HTMLInputElement | null;
+    el?.focus();
+  };
+
+  // ---------- Pricing ----------
+  const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
+  // Vanity Number eligibility for the selected Switch Postpaid plan (Req 1).
+  const selectedPlanTier = isPostpaidMobile && selectedPlanObj
+    ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
+    : 0;
+  const eligibleVanityCategories = VANITY_CATEGORIES.filter((c) => selectedPlanTier >= c.minTier);
+  // Map the picked number's tier to its vanity category (commitment toggle applies to it).
+  const TIER_TO_VANITY: Record<string, string> = { diamond: "exotics", gold: "legendary", silver: "rare", bronze: "value", standard: "standard" };
+  const pickedTier = DEMO_NUMBER_POOL.find((n) => n.number === phone)?.tier ?? "";
+  const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
+  // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
+  const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
+  const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
+  // Plan and top-up can be combined (prepaid): sum both when top-up is active.
+  // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
+  const planFeeRaw = selectedPlanObj?.price ?? 0;
+  const topupFeeRaw = (planMode === "topup" || isPaygPlan) ? topupAmount : 0;
+  const planPrice = planFeeRaw + topupFeeRaw;
+  const simFee = showEsim ? SIM_FEES[simType] : 0;
+  // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
+  // Kept commented in case we need to revert to it.
+  // const rawNumberFee = showNumber && subType === "sim" ? (() => {
+  //   const t = DEMO_NUMBER_POOL.find(n => n.number === phone);
+  //   if (!t) return 0;
+  //   return NUMBER_TABS.find(tab => tab.value === t.tier)?.fee ?? 0;
+  // })() : 0;
+  // NEW approach: Switch Postpaid vanity numbers are free when committed, or charge the real
+  // vanity price when the dealer chose "Pay number price" instead. Everything else (Standard,
+  // Prepaid, MNP) keeps the old flat NUMBER_TABS fee.
+  const rawNumberFee = showNumber && subType === "sim" ? (() => {
+    const flatFee = NUMBER_TABS.find(tab => tab.value === pickedTier)?.fee ?? 0;
+    if (!isPostpaidMobile || pickedTier === "standard" || !pickedVanityCat) return flatFee;
+    if (pickedCategoryEligibleFree && vanityCommitment) return 0;
+    return pickedVanityCat.price;
+  })() : 0;
+  const isVipNumber = rawNumberFee > 0;
+
+  // Whitelisted customer: nothing to pay (prepaid or postpaid) — including the plan price for a
+  // Switch Postpaid vanity number taken free-with-commitment; only a VIP number fee (if the
+  // dealer chose to pay for the number instead of committing) still applies.
+  const effectivePlanPrice  = isWhitelisted ? 0 : planPrice;
+  const effectiveSimFee     = isWhitelisted ? 0 : simFee;
+  const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
+  const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
+  const deviceObj = DEVICES.find(d => d.id === selectedDevice);
+  const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
+  const effectiveDeviceFee  = isWhitelisted ? 0 : deviceFee;
+
+  // Fulfilment: everything was already paid for online, so nothing is owed here.
+  const subtotal = isFulfilment && alreadyPaid ? 0 : effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
+  // Switch Postpaid: no VAT is collected when the number is Standard, or when a
+  // Vanity number is taken free-with-commitment (deposit-only flow either way).
+  const vatWaived =
+    isPostpaidMobile &&
+    subType === "sim" &&
+    (pickedTier === "standard" || (isWhitelisted && pickedCategoryEligibleFree && vanityCommitment));
+  const vat = isFulfilment && alreadyPaid ? 0 : (vatWaived ? 0 : Math.round(subtotal * 0.15));
+  const total = subtotal + vat;
+  // Checkout confirm sheet copy: fulfilment already paid online, nothing owed for another
+  // reason (e.g. whitelisted with a free/free-with-commitment number), or an actual payment.
+  const confirmCopyKey = isFulfilment && alreadyPaid ? "confirmActivation" : total === 0 ? "confirmSubmission" : "confirmPay";
+
+  // Non-whitelisted postpaid: the plan-price amount is collected as a deposit
+  // (equal to the plan price) that clears the customer's first bill.
+  const isPostpaidDeposit = payType === "postpaid" && !isWhitelisted && planMode === "plan";
+  // Switch Postpaid: dealer app credit limit note — 20% of the selected plan's price.
+  const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
+
+  const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
+  const emailRequired = isPrepaidInternet;
+  const cityRequired = true;
+  // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
+  // whenever a vanity commitment is ON.
+  const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
+  // Verifications are sequential: Customer → OTP → Nafith. Each unlocks the next.
+  const otpGateOk = customerVerified;
+  const nafithGateOk = customerVerified && (!showOtp || otpVerified);
+
+  // ---------- Stage gating ----------
+  // Each step's Continue/Pay button is driven by a list of what's still missing, rather than a
+  // plain boolean — so the sticky bottom bar can tell the dealer exactly what's left to fill in
+  // as they scroll, instead of leaving a disabled button with no explanation.
+  const step0Missing = useMemo(() => {
+    if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail) ? [] : [t("activation4.missing.qrOrEmail")];
+    const missing: string[] = [];
+    if (!idType) missing.push(t("activation4.identity.idType"));
+    if (!nationality) missing.push(t("activation4.identity.nationality"));
+    // Full rule (start digit + exact length) already has its own inline error under the field
+    // itself, so this just names the field rather than repeating the exact rule.
+    if (idType && !idNumberValid) missing.push(t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`));
+    return missing;
+  }, [isFulfilment, qrVerified, fulfilmentEmail, idType, nationality, idNumberValid, idNumberRule, t]);
+
+  const step1Missing = useMemo(() => {
+    const missing: string[] = [];
+    if (isFulfilment && alreadyPaid) {
+      if (simType === "psim" && !(kitChecked && !kitError)) missing.push(t("activation4.missing.verifiedKit"));
+      return missing;
+    }
+    if (simType === "psim" && (!kitChecked || !!kitError)) missing.push(t("activation4.missing.verifiedKit"));
+    if (planMode === "plan" && selectedPlan == null) missing.push(t("activation4.missing.aPlan"));
+    if (planMode === "topup" && !topupDenom && !topupManual) missing.push(t("activation4.missing.topupAmount"));
+    // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
+    if (isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) missing.push(t("activation4.missing.topupMin"));
+    if (showMnp && subType === "mnp") {
+      if (!portNumber) missing.push(t("activation4.subscription.portNumber"));
+      if (!portOperator) missing.push(t("activation4.subscription.currentOperator"));
+      if (!portContact) missing.push(t("activation4.missing.portContact"));
+    }
+    return missing;
+  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, t]);
+
+  const step2Missing = useMemo(() => {
+    const missing: string[] = [];
+    if (emailRequired && !contactEmail.trim()) missing.push(t("activation4.checkout.email"));
+    if (cityRequired && !contactCity.trim()) missing.push(t("activation4.subscription.city"));
+    if (contactNumberRequired && !contactNumber.trim()) missing.push(t("activation4.checkout.contactNumber"));
+    if (isVnetMode && !nationalAddress.trim()) missing.push(t("activation4.subscription.nationalAddress"));
+    if (showDelivery && !deliveryAddress.trim()) missing.push(t("activation4.checkout.addressLine"));
+    if (showHandoverOption && isDealerHandover && !deviceSerialNumber.trim()) missing.push(t("activation4.handover.deviceSerialNumber"));
+    if (!customerVerified) missing.push(t("activation4.checkout.customerVerification"));
+    if (otpRequired && !otpVerified) missing.push(t("activation4.checkout.otp"));
+    if (showNafith && !nafithVerified) missing.push(t("activation4.checkout.nafath"));
+    if (!customerSig) missing.push(t("activation4.checkout.customerSig"));
+    if (!dealerSig) missing.push(t("activation4.checkout.dealerSig"));
+    if (!terms) missing.push(t("activation4.checkout.terms"));
+    return missing;
+  }, [emailRequired, contactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, t]);
+
+  const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
+  const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
+  const canPay = step2Missing.length === 0;
+
+  const onBack = () => {
+    if (step === 0) navigate("/");
+    else setStep((s) => (s - 1) as 0 | 1 | 2);
+  };
+
+  const onContinue = () => {
+    if (step === 0 && isFulfilment && fulfilmentEmailNotFound) {
+      setCustomerNotFoundOpen(true);
+      return;
+    }
+    if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
+  };
+
+  const orderId = useMemo(() => "NA-" + Math.floor(Math.random() * 900000 + 100000), [successOpen]);
+
+  // When the success sheet opens for an E-SIM activation, default the share method to
+  // Mobile Number and pre-fill it from what was entered on the checkout page.
+  useEffect(() => {
+    if (successOpen && simType === "esim") {
+      setShareVia("mobile");
+      setShareValue(contactNumber || "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [successOpen]);
+
+  const pageTitle = isFulfilment ? "Fulfillment" : isMnp ? "MNP (Port In)" : t("activation4.title");
+
+  return (
+    <div className="mobile-container bg-background min-h-screen pb-32">
+      <AppHeader
+        title={pageTitle}
+        showBack
+        onBackClick={onBack}
+        rightElement={
+          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        }
+      />
+      <FlowStepper current={step} steps={NEW_ACTIVATION_STEPS} />
+
+      <div className="px-4 space-y-4">
+
+        {/* ── Step 0 — Identity ── */}
+        {step === 0 && (
+          <>
+            {!isFulfilment ? (
+              <>
+                <Field label={t("activation4.identity.idType")}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v], NORMAL_TEST_ID_SUFFIX)); }}>
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                      <SelectValue placeholder={t("activation4.identity.idType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {ID_TYPE_ORDER.map((key) => (
+                        <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("activation4.identity.nationality")}>
+                  <button
+                    type="button"
+                    onClick={() => setNationalityPickerOpen(true)}
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+                  >
+                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </button>
+                </Field>
+                <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                  <Input
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder={t("activation4.identity.idPlaceholder")}
+                    className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                    <p className="text-xs text-destructive">
+                      {idNumberRule.startDigits
+                        ? t("activation4.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                        : t("activation4.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                    </p>
+                  )}
+                </Field>
+              </>
+            ) : (
+              <>
+                <Field label={t("activation4.identity.customerEmail")}>
+                  <Input
+                    type="email"
+                    value={fulfilmentEmail}
+                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
+                    placeholder="customer@email.com"
+                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
+                    <p className="text-xs text-destructive">Enter a valid email address.</p>
+                  )}
+                </Field>
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">{t("activation4.identity.or")}</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setQrScanOpen(true)}
+                  className="w-full flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                    <QrCode className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground">{t("activation4.identity.scanQr")}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation4.identity.scanQrNote")}</p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
+                </button>
+              </>
+            )}
+
+            {/* Whitelist status — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
+            {!isFulfilment && (
+              <PrototypeTestBox
+                heading="test ID numbers"
+                description="Use these to try both cases. This box won't appear in the real implementation."
+                items={isFriendi ? [
+                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
+                  { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
+                  { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
+                ] : [
+                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
+                  { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
+                ]}
+                onSelect={setIdNumber}
+              />
+            )}
+
+            {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
+            {isFulfilment && (
+              <>
+                <PrototypeTestBox
+                  heading="test emails"
+                  description="Use these to try every case (paid/unpaid × prepaid/postpaid × vanity/standard × whitelisted/not). This box won't appear in the real implementation."
+                  items={[
+                    { value: FULFILMENT_PAID_EMAIL, note: "Standard number", group: "Prepaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Standard number, normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Vanity paid, no commitment, normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Vanity paid, no commitment, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Vanity free w/ 18-mo commitment (Nafith verified), normal", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
+                    { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL, note: "Switch Postpaid — Standard number, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Switch Postpaid — Standard number, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL, note: "Switch Postpaid — Vanity, no commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity, no commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, normal", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Switch Postpaid — Vanity free w/ commitment, whitelisted", group: "Unpaid (Switch Postpaid)" },
+                    { value: FULFILMENT_UNKNOWN_EMAIL, note: "Not registered", group: "Other" },
+                  ]}
+                  onSelect={(email) => { setFulfilmentEmail(email); setQrVerified(false); }}
+                />
+              </>
+            )}
+          </>
+        )}
+
+        {/* ── Step 1 — Subscription Type ── */}
+        {step === 1 && (
+          <>
+            {fulfilmentLocked && (
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
+                <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
+                  This customer already chose everything and paid online — just enter the KIT code (or change SIM Type, if needed) and hand over the SIM.
+                </p>
+              </div>
+            )}
+            {/* 1. SIM Type — always changeable, even on a paid fulfilment request */}
+            <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  {t("activation4.subscription.simType")} <span className="text-destructive">*</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <SimCard active={simType === "psim"} label={t("activation4.subscription.psim")} icon={Microchip} onClick={() => setSimType("psim")} />
+                  <SimCard active={simType === "esim"} label={t("activation4.subscription.esim")} icon={QrCode} onClick={() => setSimType("esim")} />
+                </div>
+                {simType === "esim" && (
+                  <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
+                    <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                      <Smartphone className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">{t("activation4.subscription.esimSupportedDevices")}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation4.subscription.esimSupportedNote")}</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
+                  </button>
+                )}
+                {simType === "psim" && (
+                  <div className="mt-3 space-y-2">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {t("activation4.subscription.kitLabel")} <span className="text-destructive">*</span>
+                    </h4>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          value={kit}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setKit(val);
+                            setKitError(null);
+                            setKitChecked(false);
+                            if (val.length === 10) {
+                              setKitChecking(true);
+                              setTimeout(() => {
+                                setKitChecking(false);
+                                    if (val === "0000000000") setKitError("registered");
+                                else if (val === "1111111111") setKitError("invalid");
+                                else if (val === "2222222222") setKitError("used");
+                                else setKitChecked(true);
+                              }, 1500);
+                            }
+                          }}
+                          placeholder={t("activation4.subscription.kitPlaceholder")}
+                          className={cn("h-12 bg-card rounded-xl pr-12",
+                            kitError && "border-destructive focus-visible:ring-destructive",
+                            kitChecked && !kitError && "border-emerald-500 focus-visible:ring-emerald-500")}
+                          inputMode="numeric"
+                        />
+                        {kitChecking ? (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Checking KIT">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          </span>
+                        ) : (
+                          <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); setKitChecking(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                            <ScanLine className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {kit && !isKitValid && !kitError && (
+                      <p className="text-xs text-destructive">{t("activation4.subscription.kitDigitsError")}</p>
+                    )}
+                    {kitError && (
+                      <p className="text-xs text-destructive flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        {t(`activation.subscription.kitErrors.${kitError}`, "Invalid KIT Code. Please try again.")}
+                      </p>
+                    )}
+                    {kitChecked && !kitError && !kitChecking && (
+                      <p className="text-xs text-emerald-600 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        {t("activation4.subscription.kitVerified")}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </section>
+
+            {/* 2. Subscription Type — through to Number section below. Read-only summary for a paid
+                fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
+            {fulfilmentLocked ? (
+              <div className="space-y-4">
+                {selectedPlanObj && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
+                    <PlanCard
+                      plan={selectedPlanObj}
+                      selected
+                      active
+                      onSelect={() => {}}
+                      hideRadio
+                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      layout={
+                        selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
+                        : selectedPlanObj.categories?.includes("aman") ? "aman"
+                        : selectedPlanObj.categories?.includes("base-plan") ? "baqa"
+                        : "flex"
+                      }
+                    />
+                  </div>
+                )}
+                {/* Read-only Number card — shown under the Selected Plan section.
+                    Mirrors the SIM Activation number section but only shows the selected
+                    number and its vanity tier / commitment details. */}
+                {showNumber && subType === "sim" && phone && (
+                  <section className="bg-card rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t("activation4.subscription.phoneSection")}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{phone}</span>
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        return (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              {showCommitted && pickedVanityCat ? (
+                                <span className="text-[11px] text-muted-foreground line-through font-normal"><RiyalSymbol /> {pickedVanityCat.price}</span>
+                              ) : (
+                                <span className="text-[11px] font-semibold text-foreground">
+                                  {pickedVanityCat ? <><RiyalSymbol /> {pickedVanityCat.price}</> : (tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation4.checkout.free"))}
+                                </span>
+                              )}
+                            </div>
+                            {showCommitted && pickedVanityCat && (
+                              <span className="text-[11px] font-semibold text-emerald-600">
+                                {t("activation4.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </section>
+                )}
+                {showNumber && subType === "mnp" && portNumber && (
+                  <section className="bg-card rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t("activation4.subscription.portMnp")}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl py-3 px-4 flex flex-col items-center gap-1">
+                      <span className="text-lg font-semibold tracking-wide text-foreground">{portNumber}</span>
+                    </div>
+                  </section>
+                )}
+              </div>
+            ) : (
+            <div className="space-y-4">
+            {/* Plans catalogue — two independent selectors. Line Type (Mobile/Data) applies to
+                every Virgin subscription type the same way — Basic Postpaid shares Prepaid's
+                catalogue split (Mobile → Baqah/Flex/Aman chips, Data → 5G MBB). */}
+            <div className="space-y-4">
+              {!isFriendi && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-foreground">{t("activation4.subscription.lineTypeTitle")}</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {lineTypeOptions.map(({ key, label, Icon, disabled }) => (
+                      <SimCard key={key} active={lineType === key} label={label} icon={Icon} disabled={disabled} onClick={() => selectLineType(key)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">{t("activation4.subscription.subscriptionTypeTitle")}</h3>
+                {/* Same row at every count — scaled down (icon, font, padding) once there
+                    are 3+ options, matching the compact tile treatment from SIM Activation 1,
+                    so Prepaid / Basic Postpaid / Postpaid all fit on one row. */}
+                {(() => {
+                  const compact = subscriptionOptions.length >= 3;
+                  return (
+                    <div className={cn("grid gap-2",
+                      subscriptionOptions.length === 1 ? "grid-cols-1" :
+                      subscriptionOptions.length === 2 ? "grid-cols-2" :
+                      subscriptionOptions.length === 3 ? "grid-cols-3" : "grid-cols-4")}>
+                      {subscriptionOptions.map(({ key, label, Icon }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => selectPayType(key)}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors",
+                            compact ? "py-2.5 px-1" : "py-3 px-1.5",
+                            payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+                          )}
+                        >
+                          <Icon className={cn(compact ? "w-4 h-4" : "w-5 h-5", payType === key ? "text-primary" : "text-muted-foreground")} />
+                          <p className={cn(
+                            "font-medium text-center leading-tight",
+                            compact ? "text-[10.5px]" : "text-xs",
+                            payType === key ? "text-primary" : "text-foreground",
+                          )}>
+                            {label}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+              {!isSaudiId && (
+                <p className="text-[11px] text-muted-foreground px-1">{t("activation4.subscription.postpaidSaudiOnly")}</p>
+              )}
+            </div>
+
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
+            {/* Plan type filter chips */}
+            {showPlanTypeChips && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">Plan Types</h3>
+                <div
+                {...planChipsDragScroll}
+                className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", planChipsDragScroll.className)}
+              >
+                {activePlanChips.map(chip => (
+                  <button
+                    key={chip.value}
+                    onClick={() => { setPlanTypeChip(chip.value); setSelectedPlan(null); }}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                      planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
+                    )}
+                  >
+                    {({
+                      "all": t("activation4.subscription.chips.all"),
+                      "flex": t("activation4.subscription.chips.flex"),
+                      "aman": t("activation4.subscription.chips.aman"),
+                      "base-plan": t("activation4.subscription.chips.baqa"),
+                      "data": isFriendi ? t("activation4.subscription.chips.internet") : t("activation4.subscription.chips.data"),
+                      "switch-postpaid": t("activation4.subscription.chips.switchPostpaid"),
+                      "vnet": t("activation4.subscription.chips.vnet"),
+                      "combo": t("activation4.subscription.chips.combo"),
+                      "flexi": t("activation4.subscription.chips.flexiPlans"),
+                      "calls": t("activation4.subscription.chips.international"),
+                      "payg": t("activation4.subscription.chips.payg"),
+                    } as Record<string,string>)[chip.value] ?? chip.label}
+                  </button>
+                ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search + View all plans, side by side — search narrows the plan cards
+                below (PlanSelector shows its own "no plans match" state); View all plans
+                (secondary button) opens the full vertical browser with its own search + filters. */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder="Search plans"
+                  className="h-11 bg-card rounded-xl ps-9"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/new-activation-4/plans", {
+                  // Identity fields are forwarded so the round trip back can restore them too —
+                  // /plans is a separate route, so returning here remounts this page from
+                  // scratch otherwise, losing anything the dealer had already filled in.
+                  state: {
+                    payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
+                    selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
+                    resume: { idType, nationality, idNumber, simType, kit },
+                  },
+                })}
+                className="h-11 px-4 rounded-xl bg-primary/10 text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+              >
+                All plans
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <PlanCompactSelector
+              key={`${brand}-${payType}-${planTypeChip}-${lineType}`}
+              selectedPlan={selectedPlan}
+              onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
+              plans={activePlansForType}
+              categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
+              isMnpEligible={isFriendi ? undefined : isPlanMnpEligible}
+              searchQuery={planSearch}
+            />
+
+            {/* MNP can't port a data-only line — flag it right under the plan and steer the
+                dealer to New Number (or a different plan) instead of letting them hit a dead
+                end down in the Number section. */}
+            {isMnpIneligiblePlan && (
+              <div className="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-[12.5px] font-medium text-foreground">
+                  {mnpIneligibleReason === "lowTier"
+                    ? t("activation4.subscription.mnpNotEligibleLowTier", { minPrice: MNP_MIN_PLAN_PRICE[payType === "postpaid" ? "postpaid" : "prepaid"] })
+                    : t("activation4.subscription.mnpNotEligible")}
+                </p>
+              </div>
+            )}
+
+            {/* Friendi PAYG top-up — only offered when a PAYG plan is selected. Two cases:
+                "optional" (0 allowed, nothing preselected) and "required" (min 10, 10 preselected). */}
+            {isPaygPlan && selectedPlanObj && (() => {
+              const presets = topupRequired ? FM_TOPUP_PRESETS_REQUIRED : FM_TOPUP_PRESETS_OPTIONAL;
+              const hasSelection = topupDenom != null;
+              const inclVat = (topupDenom ?? 0) * 1.15;
+              const fmt = (n: number) => n.toFixed(2).padStart(5, "0");
+              return (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Coins className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t("activation4.subscription.topupSectionTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activation4.subscription.topupChooseSub")}</p>
+                  </div>
+                </div>
+                <div className="h-12 rounded-xl border border-border/60 flex items-center justify-center mb-2">
+                  {hasSelection
+                    ? <span className="text-base font-bold text-foreground"><RiyalSymbol /> {fmt(topupDenom!)}</span>
+                    : <span className="text-sm text-muted-foreground">{t("activation4.subscription.topupSelectAmount")}</span>}
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  {hasSelection
+                    ? <><RiyalSymbol /> {inclVat.toFixed(1)} {t("activation4.subscription.topupInclVat")}</>
+                    : t("activation4.subscription.topupVatNote")}
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {presets.map((d) => (
+                    <button key={d} type="button" onClick={() => { setTopupDenom(d); setTopupManual(String(d)); }}
+                      className={cn("py-2 rounded-full text-[11px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                        topupDenom === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                      <RiyalSymbol /> {fmt(d)}
+                    </button>
+                  ))}
+                </div>
+              </section>
+              );
+            })()}
+
+            {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
+            {showDevice && deviceObj && (
+              <section>
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  {t("activation4.subscription.deviceTitle")} <span className="text-destructive">*</span>
+                </h3>
+                <div className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-primary/20 bg-primary/5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground">
+                    <Router className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 text-sm font-semibold text-foreground">{deviceObj.name}</p>
+                  <div className="text-right shrink-0">
+                    {deviceObj.price > 0
+                      ? <span className="text-sm font-bold text-foreground"><RiyalSymbol /> {deviceObj.price}</span>
+                      : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation4.subscription.deviceIncluded")}</span>
+                    }
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* In-Store Device Handover / Skip Delivery — shown right under Device when dealer is whitelisted (VNet) */}
+            {showHandoverOption && (
+              <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-4 py-3 transition-colors cursor-pointer"
+                  onClick={() => setIsDealerHandover(v => !v)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", isDealerHandover ? "bg-primary/15" : "bg-muted")}>
+                      <Store className={cn("w-4 h-4", isDealerHandover ? "text-primary" : "text-muted-foreground")} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t("activation4.handover.title")}</p>
+                      <p className="text-[11px] text-muted-foreground">{t("activation4.handover.subtitle")}</p>
+                    </div>
+                  </div>
+                  <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", isDealerHandover ? "bg-primary" : "bg-muted-foreground/30")}>
+                    <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", isDealerHandover ? "start-5" : "start-0.5")} />
+                  </div>
+                </div>
+                {isDealerHandover && (
+                  <div className="px-4 pb-4 pt-1 border-t border-border/60">
+                    <Field label={`${t("activation4.handover.deviceSerialNumber")} *`}>
+                      <div className="relative">
+                        <Input
+                          value={deviceSerialNumber}
+                          onChange={(e) => setDeviceSerialNumber(e.target.value)}
+                          placeholder="e.g. SN-00123456"
+                          className="h-12 bg-card rounded-xl pr-12"
+                        />
+                        <button
+                          type="button"
+                          aria-label="Scan serial number"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
+                        >
+                          <ScanLine className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Field>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Number — Mobile only. Shown by default; the Vanity Number overview inside appears once a plan is selected. */}
+            {showNumber && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-base font-bold text-foreground">
+                    {t("activation4.subscription.phoneSection")} <span className="text-destructive">*</span>
+                  </p>
+                </div>
+
+                {/* New Number vs MNP (Port In) — disabled when the selected plan can't be ported. */}
+                <div className="mb-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <SourceTab
+                      active={subType === "sim"}
+                      icon={Sparkles}
+                      label={t("activation4.subscription.newNumberBtn")}
+                      variant="filled"
+                      onClick={() => setSubType("sim")}
+                    />
+                    <SourceTab
+                      active={subType === "mnp"}
+                      icon={ArrowRightLeft}
+                      label={t("activation4.subscription.portMnp")}
+                      variant="filled"
+                      disabled={isMnpIneligiblePlan}
+                      onClick={() => setSubType("mnp")}
+                    />
+                  </div>
+                  {isMnpIneligiblePlan && (
+                    <p className="text-[11px] text-muted-foreground mt-1.5 px-1">{t("activation4.subscription.mnpTabDisabledHint")}</p>
+                  )}
+                </div>
+
+                {/* Vanity numbers available for this plan — simple promo banner. Not relevant when porting an existing number. */}
+                {subType === "sim" && isPostpaidMobile && selectedPlanObj && (() => {
+                  const eligibleTierCats = eligibleVanityCategories.filter(c => c.months > 0);
+                  if (eligibleTierCats.length === 0) return null;
+                  return (
+                    <div className="mb-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12.5px] font-semibold text-foreground">{t("activation4.vanity.availableBannerTitle")}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {eligibleTierCats.map((c) => (
+                            <span key={c.tier} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${c.color}1A`, color: c.color }}>
+                              {t(`activation.vanity.tiers.${c.tier}`)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {subType === "sim" ? (
+                  <>
+                    <div className="bg-primary/5 rounded-2xl border-2 border-dashed border-primary/20 py-4 px-4 mb-3 flex flex-col items-center gap-1">
+                      <span className="text-xl font-bold tracking-wide text-foreground">{phone}</span>
+                      {/* OLD approach: flat tier fee shown here, commitment decided afterwards via the
+                          checkbox further down. Kept commented in case we need to revert.
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                            <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                            <span className="text-[11px] text-muted-foreground">·</span>
+                            <span className="text-[11px] font-semibold text-foreground">{tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation4.checkout.free")}</span>
+                          </div>
+                        );
+                      })()}
+                      */}
+                      {/* NEW: reflects the commitment choice made in the popup — struck-through
+                          vanity price when committed, real price when the dealer chose to pay instead. */}
+                      {(() => {
+                        const tier = DEMO_NUMBER_POOL.find(n => n.number === phone)?.tier;
+                        const tab = NUMBER_TABS.find(t => t.value === tier);
+                        if (!tab || tab.value === "all") return null;
+                        const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        return (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                              <span className="text-[11px] text-muted-foreground">·</span>
+                              {showCommitted && pickedVanityCat ? (
+                                <span className="text-[11px] text-muted-foreground line-through font-normal"><RiyalSymbol /> {pickedVanityCat.price}</span>
+                              ) : (
+                                <span className="text-[11px] font-semibold text-foreground">
+                                  {pickedVanityCat ? <><RiyalSymbol /> {pickedVanityCat.price}</> : (tab.fee ? <><RiyalSymbol /> {tab.fee}</> : t("activation4.checkout.free"))}
+                                </span>
+                              )}
+                            </div>
+                            {showCommitted && pickedVanityCat && (
+                              <span className="text-[11px] font-semibold text-emerald-600">
+                                {t("activation4.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                      {t("activation4.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                    </button>
+                    {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
+                      <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation4.vanity.selectPlanFirst")}</p>
+                    )}
+
+                    {/* OLD approach: commitment checkbox shown after picking a number, letting the
+                        dealer toggle commitment on/off in place. Replaced by the popup shown at
+                        selection time in the number picker. Kept commented in case we need to revert.
+                    {isPostpaidMobile && selectedPlanObj && pickedVanityCat && pickedVanityCat.months > 0 && (
+                      pickedCategoryEligibleFree ? (
+                        <button
+                          type="button"
+                          onClick={() => setVanityCommitment((v) => !v)}
+                          className="w-full flex items-start gap-2.5 rounded-xl border border-border/60 p-3 mt-3 text-start"
+                        >
+                          <span className={cn("mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors", vanityCommitment ? "bg-primary border-primary" : "border-muted-foreground/40")}>
+                            {vanityCommitment && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <p className="text-[13px] font-semibold text-foreground">{t("activation4.vanity.commitmentLabel")}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {vanityCommitment
+                                ? t("activation4.vanity.commitmentOn", { months: pickedVanityCat.months })
+                                : t("activation4.vanity.commitmentOff", { price: pickedVanityCat.price })}
+                            </p>
+                          </span>
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 rounded-full px-2 py-1 shrink-0">
+                            {t("activation4.vanity.monthsPill", { months: pickedVanityCat.months })}
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
+                          <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
+                          <p className="text-[11px] text-muted-foreground">{t("activation4.vanity.notEligible")}</p>
+                          <p className="text-[13px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price}</p>
+                        </div>
+                      )
+                    )}
+                    */}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <Field label={t("activation4.subscription.portNumber")}><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <Field label={t("activation4.subscription.currentOperator")}>
+                      <Select value={portOperator} onValueChange={setPortOperator}>
+                        <SelectTrigger><SelectValue placeholder={t("activation4.subscription.selectOperator")} /></SelectTrigger>
+                        <SelectContent>{OPERATORS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </Field>
+                    <p className="text-[11px] text-muted-foreground">{t("activation4.subscription.portNote")}</p>
+                  </div>
+                )}
+
+                {/* Vanity Number categories — informational overview of what's eligible for the plan — hidden for now */}
+                {SHOW_VANITY_OVERVIEW && isPostpaidMobile && subType === "sim" && selectedPlanObj && (
+                  <div className="mt-4 pt-3 border-t border-border/60">
+                    <p className="text-xs font-semibold text-foreground">{t("activation4.vanity.title")}</p>
+                    <p className="text-[11px] text-muted-foreground mb-2.5">{t("activation4.vanity.subtitle")}</p>
+                    <div className="space-y-2">
+                      {eligibleVanityCategories.map((c) => (
+                        <button
+                          key={c.key}
+                          type="button"
+                          onClick={() => { setNumberPickerTab(c.tier); setNumberPickerOpen(true); }}
+                          className="w-full flex items-center justify-between rounded-xl border border-border/60 px-3 py-2.5 text-start hover:bg-muted/40 active:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-foreground truncate">
+                                {t(`activation.vanity.categories.${c.key}`)}
+                                <span className="text-muted-foreground font-normal"> · {t(`activation.vanity.tiers.${c.tier}`)}</span>
+                              </p>
+                              <p className="text-[11px] text-muted-foreground">
+                                {c.months > 0 ? t("activation4.vanity.commitment", { months: c.months }) : t("activation4.vanity.noCommitment")}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="flex items-center gap-1 shrink-0 ms-2">
+                            <span className="text-[11px] font-semibold text-emerald-600">
+                              {c.months > 0 ? t("activation4.vanity.freeWithCommitment") : t("activation4.vanity.alwaysFree")}
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground rtl:rotate-180" />
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Commitment toggle — applies to the picked vanity number (from the sheet) — hidden for now */}
+                    {SHOW_VANITY_OVERVIEW && pickedVanityCat && pickedVanityCat.months > 0 && (
+                      pickedCategoryEligibleFree ? (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-2.5">
+                          <button type="button" onClick={() => setVanityCommitment((v) => !v)} className="w-full flex items-center justify-between">
+                            <div className="text-start">
+                              <p className="text-[13px] font-semibold text-foreground">{t("activation4.vanity.commitmentLabel")}</p>
+                              <p className="text-[11px] text-muted-foreground">
+                                {vanityCommitment
+                                  ? t("activation4.vanity.commitmentOn", { months: pickedVanityCat.months })
+                                  : t("activation4.vanity.commitmentOff", { price: pickedVanityCat.price })}
+                              </p>
+                            </div>
+                            <div className={cn("w-11 h-6 rounded-full transition-colors relative shrink-0", vanityCommitment ? "bg-primary" : "bg-muted-foreground/30")}>
+                              <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", vanityCommitment ? "start-5" : "start-0.5")} />
+                            </div>
+                          </button>
+                          {vanityCommitment
+                            ? <p className="text-[11px] text-primary flex items-start gap-1.5"><FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {t("activation4.vanity.nafithNote")}</p>
+                            : <p className="text-[11px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price} · {t("activation4.vanity.noCommitment")}</p>}
+                        </div>
+                      ) : (
+                        <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 p-3 space-y-1">
+                          <p className="text-[13px] font-semibold text-foreground">{t(`activation.vanity.categories.${pickedVanityCat.key}`)} · {t(`activation.vanity.tiers.${pickedVanityCat.tier}`)}</p>
+                          <p className="text-[11px] text-muted-foreground">{t("activation4.vanity.notEligible")}</p>
+                          <p className="text-[13px] font-semibold text-foreground"><RiyalSymbol /> {pickedVanityCat.price}</p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
+          )}
+          </>
+        )}
+
+        {/* ── Step 2 — Checkout ── */}
+        {step === 2 && (
+          <>
+            {/* Fulfilment: payment already collected upstream */}
+            {isFulfilment && alreadyPaid && (
+              <div className="flex items-start gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-800/40 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Payment Already Completed</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                    Customer payment has already been completed. No additional payment collection is required.
+                  </p>
+                </div>
+              </div>
+            )}
+            {/* Subscription Summary */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{t("activation4.checkout.summary")}</p>
+                </div>
+              </div>
+              {showEsim && <SummaryRow label={t("activation4.subscription.simType")} value={simType === "psim" ? t("activation4.subscription.psim") : t("activation4.subscription.esim")} />}
+              {showEsim && simType === "psim" && kit && <SummaryRow label={t("activation4.checkout.simNumber")} value={kit} />}
+              <SummaryRow label={t("activation4.subscription.type")} value={payType === "prepaid" ? t("activation4.subscription.prepaid") : payType === "postpaid" ? t("activation4.subscription.postpaid") : t("activation4.subscription.basicPostpaid")} />
+              {selectedPlanObj && (() => {
+                const cats = selectedPlanObj.categories ?? [];
+                const planTypeLabel =
+                  cats.includes("switch-postpaid") ? t("activation4.subscription.chips.switchPostpaid") :
+                  cats.includes("vnet") ? t("activation4.subscription.chips.vnet") :
+                  cats.includes("payg") ? t("activation4.subscription.chips.payg") :
+                  cats.includes("combo") ? t("activation4.subscription.chips.combo") :
+                  cats.includes("flexi") ? t("activation4.subscription.chips.flexiPlans") :
+                  cats.includes("calls") ? t("activation4.subscription.chips.international") :
+                  cats.includes("data") ? (isFriendi ? t("activation4.subscription.chips.internet") : t("activation4.subscription.chips.data")) :
+                  cats.includes("aman") ? t("activation4.subscription.chips.aman") :
+                  cats.includes("base-plan") ? t("activation4.subscription.chips.baqa") :
+                  cats.includes("flex") ? t("activation4.subscription.chips.flex") : "";
+                return planTypeLabel ? <SummaryRow label={t("activation4.checkout.planType")} value={planTypeLabel} /> : null;
+              })()}
+              {selectedPlanObj && <SummaryRow label={t("activation4.checkout.planName")} value={selectedPlanObj.title} />}
+              {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation4.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
+              {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && <SummaryRow label={t("activation4.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount}</>} />}
+              {showNumber && <SummaryRow label={t("activation4.checkout.numberType")} value={subType === "sim" ? t("activation4.subscription.newNumberBtn") : t("activation4.subscription.portMnp")} />}
+              {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation4.checkout.phoneNumber")} value={phone} />}
+              {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
+                <SummaryRow label={t("activation4.checkout.vanityLevel")} value={t(`activation.vanity.tiers.${pickedTier}`, NUMBER_TABS.find(tb => tb.value === pickedTier)?.label ?? "")} />
+              )}
+              {showNumber && subType === "mnp" && portNumber && <SummaryRow label={t("activation4.subscription.portNumber")} value={portNumber} />}
+              {showDevice && <SummaryRow label={t("activation4.checkout.device")} value={deviceObj?.name ?? ""} />}
+            </section>
+
+            {/* Promo Code — hidden when payment already completed (fulfilment) */}
+            {!(isFulfilment && alreadyPaid) && (
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Tag className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{t("activation4.checkout.promoCode")}</p>
+                </div>
+                <Switch
+                  checked={promoEnabled}
+                  onCheckedChange={(v) => {
+                    setPromoEnabled(v);
+                    if (!v) {
+                      setPromoApplied(false);
+                      setPromoCode("");
+                      setPromoError(false);
+                    }
+                  }}
+                />
+              </div>
+              {promoEnabled && (promoApplied && activePromo ? (
+                <div className="space-y-2">
+                  {/* Applied header row */}
+                  <div className="mt-3 flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600 shrink-0" />
+                      <span className="text-sm font-semibold text-green-700">{promoCode} {t("activation4.checkout.promoApplied")}</span>
+                    </div>
+                    <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(""); setPromoError(false); }} className="text-xs text-muted-foreground hover:text-destructive font-medium shrink-0">{t("activation4.checkout.removePromo")}</button>
+                  </div>
+                  {/* Benefit tags — all shown the same way regardless of type, matching the confirmed applied-promo look */}
+                  <div className="flex flex-wrap gap-1">
+                    {activePromo.benefits.map((b, i) => {
+                      if (b.type === "discount") return (
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <RiyalSymbol className="w-2.5 h-2.5" /> {b.value} {t("activation4.checkout.promoDiscount")}
+                        </span>
+                      );
+                      if (b.type === "data") return (
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <Gift className="w-2.5 h-2.5" /> +{b.value} {t("activation4.checkout.promoData")}
+                        </span>
+                      );
+                      if (b.type === "credit") return (
+                        <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-700/40 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium">
+                          <Gift className="w-2.5 h-2.5" /> {t("activation4.checkout.promoCredit")}
+                        </span>
+                      );
+                      return null;
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex gap-2">
+                    <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation4.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
+                    <Button type="button" className="shrink-0 bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-xl" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation4.checkout.applyPromo")}</Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Prototype: try SAVE10 (single discount) or MEGA (discount + data + credit).</p>
+                </div>
+              ))}
+              {promoEnabled && promoError && <p className="text-xs text-destructive mt-1.5">{t("activation4.checkout.promoError")}</p>}
+            </section>
+            )}
+
+            {/* Switch Postpaid: dealer credit limit note */}
+            {isPostpaidMobile && selectedPlanObj && (
+              <div className="flex items-start gap-2.5 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 p-3.5">
+                <Info className="w-4 h-4 text-sky-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-sky-700 dark:text-sky-300 leading-snug">
+                  <span className="font-semibold">{t("activation4.checkout.creditLimitNote", { amount: switchPostpaidCreditLimit.toFixed(2) })}</span>{" "}
+                  {t("activation4.checkout.creditLimitSub")}
+                </p>
+              </div>
+            )}
+
+            {/* Whitelisted customer notice */}
+            {isWhitelisted && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3 flex items-start gap-3">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">{t("activation4.identity.whitelisted.noDeposit")}</p>
+                  {isVipNumber ? (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-500 mt-0.5">
+                      {t("activation4.identity.whitelisted.vipNotice")}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-500 mt-0.5">
+                      {t("activation4.identity.whitelisted.freeNotice")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Payment Summary */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">{t("activation4.checkout.paymentSummary")}</p>
+              </div>
+
+              {/* Case 0: fulfilment already paid online → everything already settled, total 0 */}
+              {isFulfilment && alreadyPaid ? (() => {
+                const paidSubtotal = planPrice + simFee + numberFee + deviceFee;
+                const paidVat = vatWaived ? 0 : Math.round(paidSubtotal * 0.15);
+                const paidTotal = paidSubtotal + paidVat;
+                return (
+                <>
+                  <div className="space-y-2 pb-3">
+                    {showNumber && subType === "sim" && numberFee > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.numberPrice")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
+                      </div>
+                    )}
+                    {showDevice && deviceFee > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
+                      </div>
+                    )}
+                    {selectedPlanObj && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj.title}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t border-border/60 space-y-2 py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.subtotal")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidSubtotal}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.vat")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidVat}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                    <span className="text-sm font-semibold text-foreground">{t("activation4.checkout.total")}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
+                        {t("activation4.checkout.alreadyPaidLabel")}
+                      </span>
+                      <span className="text-base font-bold text-muted-foreground line-through"><RiyalSymbol /> {paidTotal}</span>
+                    </div>
+                  </div>
+                </>
+                );
+              })() : /* Case 1: whitelisted + free number → show waived rows, total 0 */
+              isWhitelisted && !isVipNumber ? (
+                <>
+                  <div className="space-y-2 pb-3">
+                    {showDevice && deviceFee > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                        <span className="text-xs font-semibold text-amber-600">{t("activation4.checkout.waived")}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation4.checkout.planLabel")) : t("activation4.checkout.topupLabel")}</span>
+                      <span className="text-xs font-semibold text-amber-600">{t("activation4.checkout.waived")}</span>
+                    </div>
+                  </div>
+                  <div className="border-t border-border/60 space-y-2 py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.subtotal")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.vat")}</span>
+                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> 0</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                    <span className="text-sm font-semibold text-foreground">{t("activation4.checkout.total")}</span>
+                    <span className="text-base font-bold text-primary"><RiyalSymbol /> 0</span>
+                  </div>
+                </>
+              ) : /* Case 2: whitelisted + VIP number → only show VIP number fee + VAT */
+                isWhitelisted && isVipNumber ? (() => {
+                  // Whitelisted + Switch Postpaid vanity: without commitment the dealer pays
+                  // the real number price + 15% VAT; with commitment the deposit path handles it.
+                  const displayNumberFee = numberFee;
+                  const displayVat = Math.round(numberFee * 0.15);
+                  const displayTotal = displayNumberFee + displayVat;
+                  return (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.numberPrice")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayNumberFee}</span>
+                      </div>
+                    </div>
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.subtotal")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayNumberFee}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.vat")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {displayVat}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">{t("activation4.checkout.total")}</span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {displayTotal}</span>
+                    </div>
+                  </>
+                  );
+                })() : (
+                  <>
+                    <div className="space-y-2 pb-3">
+                      {showNumber && subType === "sim" && numberFee > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.numberPrice")}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee}</span>
+                        </div>
+                      )}
+                      {showNumber && subType === "sim" && numberFee === 0 && isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.numberPrice")}</span>
+                          <span className="text-xs font-semibold text-emerald-600">{t("activation4.checkout.free")}</span>
+                        </div>
+                      )}
+                      {showDevice && deviceFee > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee}</span>
+                        </div>
+                      )}
+                      {selectedPlanObj && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation4.checkout.deposit") : selectedPlanObj.title}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
+                        </div>
+                      )}
+                      {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.topupLabel")}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount}</span>
+                        </div>
+                      )}
+                      {promoApplied && promoDiscount > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-green-600">{t("activation4.checkout.promoLabel")} ({promoCode})</span>
+                          <span className="text-xs font-semibold text-green-600">−<RiyalSymbol /> {promoDiscount}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="border-t border-border/60 space-y-2 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.subtotal")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">{t("activation4.checkout.vat")}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                      <span className="text-sm font-semibold text-foreground">{t("activation4.checkout.total")}</span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {total}</span>
+                    </div>
+                  </>
+                )}
+            </section>
+
+            {/* Payment Method — hidden for whitelisted with free number, fulfilment already-paid,
+                or when the total is 0 (e.g. Friendi PAYG with no top-up selected). */}
+            {!(isWhitelisted && !isVipNumber) && !(isFulfilment && alreadyPaid) && total > 0 && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <CreditCard className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{t("activation4.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
+                </div>
+                <div className="space-y-2">
+                  <PayOption icon={CreditCard} label={t("activation4.checkout.dealerWallet")} description={t("activation4.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={pay === "card"} onClick={() => setPay("card")} />
+                  <PayOption icon={HandCoins} label={t("activation4.checkout.posTerminal")} description={t("activation4.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
+                </div>
+              </section>
+            )}
+
+            {/* Contact Details */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation4.checkout.contactDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                <Field label={emailRequired ? `${t("activation4.checkout.email")} *` : t("activation4.checkout.email")}>
+                  <Input
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="example@email.com"
+                    inputMode="email"
+                    readOnly={isFulfilment}
+                    className={cn("h-12 bg-card rounded-xl", isFulfilment && "bg-muted/40 text-muted-foreground cursor-not-allowed")}
+                  />
+                </Field>
+                <Field label={contactNumberRequired ? `${t("activation4.checkout.contactNumber")} *` : t("activation4.checkout.contactNumber")}>
+                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                </Field>
+              </div>
+            </div>
+
+            {/* Address Details */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation4.checkout.addressDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                {/* City required for all cases (prepaid + postpaid) */}
+                <Field label={`${t("activation4.subscription.city")} *`}>
+                  <Select value={contactCity} onValueChange={setContactCity}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label={isVnetMode ? `${t("activation4.subscription.nationalAddress")} *` : t("activation4.subscription.nationalAddress")}>
+                  <Input
+                    value={nationalAddress}
+                    onChange={(e) => setNationalAddress(e.target.value)}
+                    placeholder="e.g. RRRD1234"
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Delivery Details — Vnet only */}
+            {showDelivery && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-sm font-semibold text-foreground">{t("activation4.checkout.deliveryDetails")}</p>
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(true)}
+                    className="flex items-center gap-1 text-xs font-semibold text-primary"
+                  >
+                    {t("activation4.checkout.map")}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                  <Field label={`${t("activation4.checkout.region")} *`}>
+                    <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder={t("activation4.checkout.selectRegion")} /></SelectTrigger>
+                      <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label={`${t("activation4.subscription.city")} *`}>
+                    <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
+                      <SelectTrigger><SelectValue placeholder={t("activation4.checkout.selectCity")} /></SelectTrigger>
+                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label={`${t("activation4.subscription.district")} *`}>
+                    <Select value={locationDistrict} onValueChange={setLocationDistrict}>
+                      <SelectTrigger><SelectValue placeholder={t("activation4.checkout.selectDistrict")} /></SelectTrigger>
+                      <SelectContent>
+                        {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label={isVnetMode ? `${t("activation4.subscription.nationalAddress")} *` : t("activation4.subscription.nationalAddress")}>
+                    <Input
+                      value={nationalAddress}
+                      onChange={(e) => setNationalAddress(e.target.value)}
+                      placeholder="e.g. RRRD1234"
+                      className="h-12 bg-card rounded-xl"
+                    />
+                  </Field>
+                  <Field label={t("activation4.checkout.addressLine")}>
+                    <textarea
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder={t("activation4.subscription.addressPlaceholder")}
+                      rows={3}
+                      className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
+            <MapPicker
+              open={mapOpen}
+              onOpenChange={setMapOpen}
+              onConfirm={(city, address) => {
+                const matchedCity = city ? matchDemoCity(city) : "Riyadh";
+                setContactCity(matchedCity);
+                setLocationRegion(CITY_TO_REGION[matchedCity] ?? REGIONS[0]);
+                const cityDistricts = DISTRICTS[matchedCity] ?? [];
+                setLocationDistrict(cityDistricts[Math.floor(Math.random() * cityDistricts.length)] ?? "");
+                setNationalAddress(generateNationalAddress());
+                setDeliveryAddress(address);
+              }}
+            />
+
+            {/* Verification — ID (Customer) Verification → OTP Verification → Nafith Verification → Customer Signature → Dealer Signature */}
+            <p className="text-sm font-semibold text-foreground px-1">{t("activation4.checkout.verification")}</p>
+
+            {/* Customer Verification (ID Verification) — first step, always available */}
+            <SectionCard title={t("activation4.checkout.customerVerification")} required>
+              {customerVerified ? (
+                <VerifiedBanner label="Customer Verified" />
+              ) : (
+                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
+                  {t("activation4.checkout.verifyCustomer")}
+                </Button>
+              )}
+            </SectionCard>
+
+            {/* OTP Verification — unlocked after Customer Verification */}
+            {showOtp && (
+              <SectionCard title={t("activation4.checkout.otp")} required={otpRequired}>
+                {otpVerified ? (
+                  <VerifiedBanner label="OTP Verified" />
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation4.checkout.sendOtp")}</Button>
+                    {!otpGateOk && (
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock OTP Verification.</p>
+                    )}
+                  </>
+                )}
+              </SectionCard>
+            )}
+
+            {/* Nafith Verification — Switch Postpaid (vanity + commitment) or Vnet only; enabled only after OTP Verification */}
+            {showNafith && (
+              <SectionCard title={t("activation4.checkout.nafath")} required>
+                {nafithVerified ? (
+                  <VerifiedBanner label="Nafith Verified" onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
+                      {t("activation4.checkout.nafathVerify")}
+                    </Button>
+                    {!nafithGateOk && (
+                      <p className="text-[11px] text-muted-foreground mt-2">{t("activation4.checkout.nafathLocked")}</p>
+                    )}
+                  </>
+                )}
+              </SectionCard>
+            )}
+
+            {/* Allow Promotional Calls — every mobile line except 5G MBB and Vnet */}
+            {showPromoCalls && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <button
+                  type="button"
+                  className="flex items-center gap-3 select-none cursor-pointer w-full text-start"
+                  onClick={() => setAllowPromoCalls(v => !v)}
+                >
+                  <div className={cn(
+                    "w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                    allowPromoCalls ? "bg-primary border-primary" : "border-primary"
+                  )}>
+                    {allowPromoCalls && <Check className="w-3 h-3 text-primary-foreground" />}
+                  </div>
+                  <span className="text-sm text-foreground">{t("activation4.checkout.allowPromoCalls")}</span>
+                </button>
+              </section>
+            )}
+
+            {/* Terms & Conditions + Privacy Policy — single combined consent */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start gap-3 select-none">
+                <div
+                  role="checkbox"
+                  aria-checked={terms}
+                  tabIndex={0}
+                  onClick={() => { if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                    terms ? "bg-primary border-primary" : "border-primary"
+                  )}
+                >
+                  {terms && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                  {t("activation4.checkout.agreeTo")}{" "}
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                    {t("activation4.checkout.terms")}
+                  </button>{" "}
+                  {t("activation4.checkout.consentMiddle")}{" "}
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                    {t("activation4.checkout.privacyPolicy")}
+                  </button>.
+                </p>
+              </div>
+            </section>
+
+            {/* Customer Signature — freely accessible; Payment itself is still gated on all verification steps being done */}
+            <SignatureBox title={t("activation4.checkout.customerSig")} required value={customerSig} onEdit={() => setSigEditor("customer")} onClear={() => setCustomerSig(null)} />
+
+            {/* Dealer Signature — freely accessible; Payment itself is still gated on all verification steps being done */}
+            <SignatureBox title={t("activation4.checkout.dealerSig")} required value={dealerSig} onEdit={() => setSigEditor("dealer")} onClear={() => setDealerSig(null)} />
+          </>
+        )}
+      </div>
+
+      {/* Sticky bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+        <div className="max-w-[390px] mx-auto">
+          {/* Names exactly what's still missing so a dealer scrolling a long form isn't left
+              staring at a disabled button with no idea what's left to fill in. */}
+          {SHOW_MISSING_HINT && stepMissing.length > 0 && (
+            <p className="text-[11px] text-muted-foreground text-center mb-2 px-2">
+              {t("activation4.missing.prefix", { items: joinList(stepMissing, t("activation4.missing.and")) })}
+            </p>
+          )}
+          {step < 2 ? (
+            <>
+              {step === 1 && (
+                <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
+                  <Wallet className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-[12px] text-muted-foreground">{t("activation4.subscription.walletBalanceLabel")}</span>
+                  <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</span>
+                </div>
+              )}
+              <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation4.continue")}</Button>
+            </>
+          ) : (
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setPayConfirmOpen(true)}>
+              {total === 0 ? t("activation4.checkout.submit") : <>{t("activation4.checkout.pay")} <RiyalSymbol /> {total}</>}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Customer verification */}
+      <SematiVerification open={customerVerifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
+
+      {/* Fulfilment: QR scan lookup — full-screen camera-style view, no hardware access */}
+      {qrScanOpen && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center px-8">
+          <button
+            onClick={() => setQrScanOpen(false)}
+            className="absolute top-6 end-6 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center"
+            aria-label={t("activation4.verification.cancel")}
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+
+          {qrScanStep === "scanning" ? (
+            <>
+              <div className="relative w-64 h-64 shrink-0">
+                <div className="absolute top-0 start-0 w-10 h-10 border-t-4 border-s-4 border-primary rounded-tl-2xl" />
+                <div className="absolute top-0 end-0 w-10 h-10 border-t-4 border-e-4 border-primary rounded-tr-2xl" />
+                <div className="absolute bottom-0 start-0 w-10 h-10 border-b-4 border-s-4 border-primary rounded-bl-2xl" />
+                <div className="absolute bottom-0 end-0 w-10 h-10 border-b-4 border-e-4 border-primary rounded-br-2xl" />
+                <div className="absolute inset-x-6 top-1/2 h-0.5 bg-primary/80 animate-pulse" />
+              </div>
+              <p className="text-white text-sm font-semibold mt-8 text-center leading-snug">
+                {t("activation4.identity.qrNoticeDesc")}
+              </p>
+              <p className="text-white/50 text-xs mt-2 flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t("activation4.identity.qrScanning")}
+              </p>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="w-8 h-8 text-white" strokeWidth={3} />
+              </div>
+              <div className="text-center">
+                <h4 className="font-semibold text-white mb-1">{t("activation4.identity.qrFound")}</h4>
+                <p className="text-xs text-white/70">{t("activation4.identity.qrFoundNote")}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Fulfilment: shown when Continue is pressed with a well-formed email that matches no application */}
+      <Dialog open={customerNotFoundOpen} onOpenChange={setCustomerNotFoundOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <Mail className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-[#E30613] mb-2 text-lg">Email Not Registered</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+            This email isn't linked to any online application. Please double-check the address, or ask the customer to submit their application first.
+          </p>
+          <button
+            onClick={() => setCustomerNotFoundOpen(false)}
+            className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+          >
+            Got It
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Number picker drawer */}
+      {(() => {
+        // Switch Postpaid: before a plan is picked, only offer tiers free on ANY postpaid plan
+        // (Rare/Silver, Value/Bronze, Standard) — Gold/Diamond depend on a plan we don't know yet.
+        // Once a plan is selected, show every tier: eligible ones as "free with commitment",
+        // ineligible ones (e.g. Diamond on a plan that only unlocks Gold) as a normal paid number.
+        const eligibleTiers = isPostpaidMobile && !selectedPlanObj
+          ? new Set(VANITY_CATEGORIES.filter(c => c.minTier === 0).map(c => c.tier))
+          : null;
+        const availableTabs = eligibleTiers ? NUMBER_TABS.filter(tab => tab.value === "all" || eligibleTiers.has(tab.value)) : NUMBER_TABS;
+        const filtered = DEMO_NUMBER_POOL
+          // Friendi only offers standard numbers — no vanity tiers.
+          .filter(n => !isFriendi || n.tier === "standard")
+          .filter(n => !eligibleTiers || eligibleTiers.has(n.tier))
+          .filter(n => numberPickerTab === "all" || n.tier === numberPickerTab)
+          .filter(n => n.number.includes(numberSearch));
+        return (
+          <Drawer open={numberPickerOpen} onOpenChange={setNumberPickerOpen}>
+            <DrawerContent className="bg-card rounded-t-3xl h-[88vh] flex flex-col">
+              <div className="flex items-center justify-between px-5 pt-3 pb-4">
+                <h2 className="text-lg font-bold text-foreground">{t("activation4.checkout.numberPickerTitle")}</h2>
+                <button onClick={() => setNumberPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+              <div className="px-5 mb-3">
+                <div className="relative">
+                  <input value={numberSearch} onChange={e => setNumberSearch(e.target.value)} placeholder={t("activation4.checkout.search")} style={{ fontSize: "16px" }} className="w-full h-11 bg-muted/50 rounded-xl ps-4 pe-10 text-base outline-none border border-border/40 rtl:text-right" />
+                  <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+              </div>
+              {/* Tier tabs — hidden for Friendi (standard numbers only). */}
+              {!isFriendi && (
+              <div
+                {...numberTabsDragScroll}
+                className={cn("flex gap-2 px-5 mb-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", numberTabsDragScroll.className)}
+              >
+                {availableTabs.map(tab => (
+                  <button key={tab.value} onClick={() => setNumberPickerTab(tab.value)}
+                    className={cn("px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0", numberPickerTab === tab.value ? "bg-primary text-white" : "bg-muted text-foreground")}>
+                    {t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}
+                  </button>
+                ))}
+              </div>
+              )}
+              <div className="overflow-y-auto flex-1 px-5 pb-6">
+                <div className="divide-y divide-border/40">
+                  {filtered.map((item, i) => {
+                    const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
+                    const fee = tier.fee ?? 0;
+                    const isVanityTier = isPostpaidMobile && fee > 0 && item.tier !== "standard";
+                    // Before a plan is picked, only tiers free on any plan are shown at all — plain "Free".
+                    // Once a plan is selected, only the tiers that plan actually qualifies for are "free with
+                    // commitment"; the rest (e.g. Diamond on a Gold-level plan) show their normal paid price.
+                    const isTierEligibleForPlan = eligibleVanityCategories.some(c => c.tier === item.tier);
+                    const freeWithCommitment = isVanityTier && !!selectedPlanObj && isTierEligibleForPlan;
+                    const freePlain = isVanityTier && !selectedPlanObj;
+                    const vanityCat = VANITY_CATEGORIES.find(c => c.tier === item.tier);
+                    // OLD approach: tapping any row selected it immediately (commitment was decided
+                    // afterwards via a checkbox on the main page). Kept commented in case we need
+                    // to revert.
+                    // onClick={() => { setPhone(item.number); setNumberPickerOpen(false); }}
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (freeWithCommitment) {
+                            setPendingVanityNumber({ number: item.number, tier: item.tier });
+                          } else {
+                            setPhone(item.number);
+                            setVanityCommitment(false);
+                            setNumberPickerOpen(false);
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-1 py-3.5 hover:bg-muted/30 transition-colors"
+                      >
+                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tier.color ?? "#0EA5E9" }} />
+                        <span className="flex-1 text-start text-base font-semibold text-foreground">{item.number}</span>
+                        {freeWithCommitment ? (
+                          <span className="flex flex-col items-end">
+                            <span className="text-xs font-semibold text-emerald-600">
+                              {vanityCat ? t("activation4.vanity.commitmentOn", { months: vanityCat.months }) : t("activation4.vanity.freeWithCommitment")}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground line-through"><RiyalSymbol /> {vanityCat?.price ?? fee}.00</span>
+                          </span>
+                        ) : freePlain ? (
+                          <span className="text-sm font-semibold text-muted-foreground">{t("activation4.checkout.free")}</span>
+                        ) : fee > 0 ? (
+                          <span className="text-sm text-muted-foreground font-medium"><span className="font-bold text-foreground"><RiyalSymbol /></span> {fee}.00</span>
+                        ) : (
+                          <span className="text-sm font-semibold text-muted-foreground">{t("activation4.checkout.free")}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        );
+      })()}
+
+      {/* Commitment choice popup — shown when picking a vanity number eligible for free-with-commitment */}
+      {pendingVanityNumber && (() => {
+        const cat = VANITY_CATEGORIES.find(c => c.tier === pendingVanityNumber.tier);
+        if (!cat) return null;
+        return (
+          <Dialog open onOpenChange={(o) => !o && setPendingVanityNumber(null)}>
+            <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+              <h4 className="font-semibold text-primary mb-1">
+                {t(`activation.vanity.tiers.${cat.tier}`)} · {pendingVanityNumber.number}
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">{t("activation4.vanity.choosePrompt")}</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+                >
+                  {t("activation4.vanity.getFreeWithCommitment", { months: cat.months })}
+                </button>
+                <button
+                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  className="w-full py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
+                >
+                  {t("activation4.vanity.payNumberPrice", { price: cat.price })}
+                </button>
+                <button onClick={() => setPendingVanityNumber(null)} className="text-primary text-sm font-medium mt-1">
+                  {t("activation4.checkout.cancelBtn")}
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
+
+      {/* Nationality picker drawer */}
+      <Drawer open={nationalityPickerOpen} onOpenChange={(o) => { setNationalityPickerOpen(o); if (!o) setNationalitySearch(""); }}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
+          <div className="flex items-center justify-between px-5 pt-3 pb-4">
+            <h2 className="text-lg font-bold text-foreground">{t("activation4.identity.selectNationality")}</h2>
+            <button onClick={() => setNationalityPickerOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="px-5 mb-3">
+            <div className="relative">
+              <input
+                value={nationalitySearch}
+                onChange={(e) => setNationalitySearch(e.target.value)}
+                placeholder={t("activation4.checkout.search")}
+                className="w-full h-11 bg-white rounded-xl ps-4 pe-10 text-sm outline-none border border-input rtl:text-right"
+              />
+              <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 px-5 pb-6">
+            <div className="rounded-2xl bg-muted/40 border border-border/50 overflow-hidden divide-y divide-border/50">
+              {NATIONALITY_CODES
+                .filter((code) => t(`activation.identity.nationalities.${code}`).toLowerCase().includes(nationalitySearch.trim().toLowerCase()))
+                .map((code) => (
+                  <button
+                    key={code}
+                    onClick={() => { setNationality(code); setNationalityPickerOpen(false); }}
+                    className="w-full text-start px-4 py-3.5 hover:bg-muted/30 transition-colors text-base text-foreground"
+                  >
+                    {t(`activation.identity.nationalities.${code}`)}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* eSIM devices drawer */}
+      <Drawer open={esimInfoOpen} onOpenChange={(o) => { setEsimInfoOpen(o); if (!o) setEsimDeviceSearch(""); }}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[88vh] flex flex-col">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
+          <div className="px-5 pt-3 pb-4">
+            <h2 className="text-lg font-bold text-foreground">{t("activation4.checkout.esimDevicesTitle")}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("activation4.checkout.esimDevicesNote")}</p>
+          </div>
+          <div className="px-5 mb-1">
+            <div className="relative">
+              <input
+                value={esimDeviceSearch}
+                onChange={(e) => setEsimDeviceSearch(e.target.value)}
+                placeholder={t("activation4.checkout.search")}
+                className="w-full h-11 bg-white rounded-xl ps-4 pe-10 text-base outline-none border border-input rtl:text-right"
+                style={{ fontSize: "16px" }}
+              />
+              <svg className="absolute end-3 top-3 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 px-5 pb-6 pt-3 space-y-4">
+            {(() => {
+              const filteredDevices = ESIM_DEVICES.filter((d) => d.model.toLowerCase().includes(esimDeviceSearch.trim().toLowerCase()));
+              return filteredDevices.length > 0 ? (
+                <div className="rounded-2xl bg-muted/40 border border-border/50 overflow-hidden divide-y divide-border/50">
+                  {filteredDevices.map((d, i) => (
+                    <div key={i} className="flex items-center gap-3 px-4 py-3">
+                      <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <span className="text-sm text-foreground flex-1">{d.model}</span>
+                      <span className="text-[10px] text-muted-foreground">{d.ios}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-6">{t("activation4.checkout.noDevicesFound")}</p>
+              );
+            })()}
+            <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation4.checkout.esimUnlocked")}</p>
+          </div>
+          <div className="px-5 pb-6 pt-2">
+            <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>{t("activation4.checkout.gotIt")}</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* OTP drawer */}
+      <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <h3 className="text-lg font-bold text-foreground">{t("activation4.otpSheet.title")}</h3>
+            <p className="text-sm text-muted-foreground text-center px-4">
+              {otpError ? t("activation4.otpSheet.errorSubtitle") : t("activation4.otpSheet.subtitle")}
+            </p>
+            <div className="flex gap-2">
+              {otpDigits.map((d, i) => (
+                <input
+                  key={i}
+                  id={`checkout-otp-${i}`}
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => setOtpDigitAt(i, e.target.value)}
+                  className={cn(
+                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none",
+                    otpError ? "border-destructive text-destructive" : "border-border focus:border-primary text-foreground"
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {otpError ? (
+                <>
+                  {t("activation4.otpSheet.resendLabel")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation4.otpSheet.resend")}</button>
+                </>
+              ) : otpSecondsLeft > 0 ? (
+                <>
+                  {t("activation4.otpSheet.noCode")}{" "}
+                  <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
+                </>
+              ) : (
+                <>
+                  {t("activation4.otpSheet.noCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation4.otpSheet.resend")}</button>
+                </>
+              )}
+            </p>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Terms drawer */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("activation4.termsSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation4.termsSheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation4.termsSheet.p1")}</p>
+            <p>{t("activation4.termsSheet.p2")}</p>
+            <p>{t("activation4.termsSheet.p3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTerms(true); } }} className="w-full h-12 rounded-full">{t("activation4.termsSheet.accept")}</Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">{t("activation4.termsSheet.cancel")}</button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Privacy Policy drawer */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("activation4.privacySheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation4.privacySheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("activation4.privacySheet.p1")}</p>
+            <p>{t("activation4.privacySheet.p2")}</p>
+            <p>{t("activation4.privacySheet.p3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { if (termsChain) { setTerms(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">{t("activation4.privacySheet.close")}</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Pay confirmation */}
+      <Drawer open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <DrawerHeader className="text-center px-0 pb-4">
+            <div className="mx-auto mb-3 w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <DrawerTitle>{t(`activation.checkout.${confirmCopyKey}`)}</DrawerTitle>
+            <DrawerDescription>{t(`activation.checkout.${confirmCopyKey}Desc`)}</DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col gap-3">
+            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
+              {t(`activation.checkout.${confirmCopyKey}Btn`)}
+            </Button>
+            <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPayConfirmOpen(false)}>
+              {t("activation4.checkout.cancelBtn")}
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Signature pad */}
+      <SignaturePadSheet
+        open={sigEditor !== null}
+        title={sigEditor === "customer" ? t("activation4.checkout.customerSig") : t("activation4.checkout.dealerSig")}
+        initial={sigEditor === "customer" ? customerSig : sigEditor === "dealer" ? dealerSig : null}
+        onClose={() => setSigEditor(null)}
+        onSave={(dataUrl) => { if (sigEditor === "customer") setCustomerSig(dataUrl); if (sigEditor === "dealer") setDealerSig(dataUrl); setSigEditor(null); }}
+      />
+
+      {/* Success */}
+      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
+        {simType === "esim" && (
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`ESIM:${orderId}:${phone || contactNumber}`)}`}
+                alt={t("activation4.success.qrAlt")}
+                className="w-40 h-40"
+              />
+              <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation4.success.qrHint")}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground">{t("activation4.success.shareVia")}</p>
+              <Select
+                value={shareVia}
+                onValueChange={(v: "mobile" | "email") => {
+                  setShareVia(v);
+                  setShareValue(v === "mobile" ? contactNumber : contactEmail);
+                }}
+              >
+                <SelectTrigger className="h-11 bg-card rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mobile">{t("activation4.success.shareMobile")}</SelectItem>
+                  <SelectItem value="email">{t("activation4.success.shareEmail")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Field label={shareVia === "mobile" ? t("activation4.success.shareMobile") : t("activation4.success.shareEmail")}>
+                <Input
+                  value={shareValue}
+                  onChange={(e) => setShareValue(e.target.value)}
+                  placeholder={shareVia === "mobile" ? "05XXXXXXXX" : "name@email.com"}
+                  inputMode={shareVia === "mobile" ? "numeric" : "email"}
+                  className="h-11 bg-card rounded-xl"
+                />
+              </Field>
+              <Button
+                className="w-full h-11 rounded-full"
+                disabled={!shareValue.trim()}
+                onClick={() => {
+                  const text = t("activation4.success.shareMessage", { orderId });
+                  if (shareVia === "mobile") window.location.href = `sms:${shareValue}?&body=${encodeURIComponent(text)}`;
+                  else window.location.href = `mailto:${shareValue}?subject=${encodeURIComponent(t("activation4.success.shareSubject"))}&body=${encodeURIComponent(text)}`;
+                }}
+              >
+                <Share2 className="w-4 h-4" /> {t("activation4.success.share")}
+              </Button>
+            </div>
+          </div>
+        )}
+      </SuccessBottomSheet>
+
+      {/* Cancel bottom sheet */}
+      <Drawer open={cancelOpen} onOpenChange={(o) => { if (!o) { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); } }}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <DrawerHeader className="text-start px-0 pb-4">
+            <DrawerTitle>{t("activation4.cancelSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activation4.cancelSheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">{t("activation4.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
+              <Select value={cancelReason} onValueChange={setCancelReason}>
+                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
+                  <SelectValue placeholder={t("activation4.cancelSheet.selectReason")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border/60 rounded-xl">
+                  <SelectItem value="customer-changed-mind">{t("activation4.cancelSheet.reasons.customerChangedMind")}</SelectItem>
+                  <SelectItem value="missing-documents">{t("activation4.cancelSheet.reasons.missingDocuments")}</SelectItem>
+                  <SelectItem value="price-too-high">{t("activation4.cancelSheet.reasons.priceTooHigh")}</SelectItem>
+                  <SelectItem value="system-issue">{t("activation4.cancelSheet.reasons.systemIssue")}</SelectItem>
+                  <SelectItem value="wrong-plan-selected">{t("activation4.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
+                  <SelectItem value="other">{t("activation4.cancelSheet.reasons.other")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {cancelReason === "other" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="text-sm font-semibold text-foreground">{t("activation4.cancelSheet.specify")} <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("activation4.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); navigate("/"); }} className="w-full h-11 rounded-full">{t("activation4.cancelSheet.confirm")}</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("activation4.cancelSheet.keepEditing")}</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+};
+
+export default NewActivation4;

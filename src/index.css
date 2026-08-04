@@ -158,8 +158,26 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Thin, light-grey scrollbar for inner scroll boxes (e.g. the compact plan list) —
+     visible enough to hint scrollability without the bold default browser bar. */
+  .scrollbar-thin-light {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
+  }
+
+  .scrollbar-thin-light::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin-light::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin-light::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
   }
 }

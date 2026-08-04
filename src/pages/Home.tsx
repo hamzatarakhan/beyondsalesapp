@@ -109,12 +109,13 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // SIM Activation family — the three activation options. MNP is hidden for now; Continue
+  // SIM Activation family — the four activation options. MNP is hidden for now; Continue
   // Activation (fulfilment) lives in Customer Activities instead.
   const simActivationOptions = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
-    { id: "sim-3", icon: Sparkles, label: t("home.simActivation3"), path: "/new-activation-3", badge: "Option 3", badgeTone: "special" as const },
+    { id: "sim-3", icon: Sparkles, label: t("home.simActivation3"), path: "/new-activation-3", badge: "Plans option 1", badgeTone: "special" as const },
+    { id: "sim-4", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-4", badge: "Plans option 2", badgeTone: "special" as const },
   ];
 
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
@@ -232,7 +233,7 @@ const Home = () => {
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {simActivationOptions.map((activity) => (
               <ActivityIcon
-                key={activity.label}
+                key={activity.id}
                 icon={activity.icon}
                 label={activity.label}
                 color="teal"
