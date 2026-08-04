@@ -1678,7 +1678,7 @@ const NewActivation3 = () => {
                 })}
                 className="h-11 px-4 rounded-xl bg-primary/10 text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               >
-                View all plans
+                All plans
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
