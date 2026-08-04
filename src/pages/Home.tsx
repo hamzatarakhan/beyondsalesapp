@@ -109,12 +109,15 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // SIM Activation family — the five activation options. MNP is hidden for now; Continue
-  // Activation (fulfilment) lives in Customer Activities instead.
-  const simActivationOptions = [
+  // SIM Activation family — split into the original two flows ("Old approaches") and the
+  // three plan-card presentation experiments ("New plan card options"). MNP is hidden for
+  // now; Continue Activation (fulfilment) lives in Customer Activities instead.
+  const oldSimActivationOptions = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
-    { id: "sim-3", icon: Sparkles, label: t("home.simActivation3"), path: "/new-activation-3", badge: "Plans option 1", badgeTone: "special" as const },
+  ];
+  const newPlanCardOptions = [
+    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: "Plans option 1", badgeTone: "special" as const },
     { id: "sim-4", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-4", badge: "Plans option 2", badgeTone: "special" as const },
     { id: "sim-5", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-5", badge: "Plans option 3", badgeTone: "special" as const },
   ];
@@ -231,8 +234,9 @@ const Home = () => {
             <h3 className="font-semibold text-foreground">SIM Activation Options</h3>
           </div>
 
+          <p className="text-xs font-medium text-muted-foreground mb-3">Old approaches</p>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {simActivationOptions.map((activity) => (
+            {oldSimActivationOptions.map((activity) => (
               <ActivityIcon
                 key={activity.id}
                 icon={activity.icon}
@@ -245,6 +249,23 @@ const Home = () => {
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
+              />
+            ))}
+          </div>
+
+          <div className="h-px bg-border/60 my-4" />
+
+          <p className="text-xs font-medium text-muted-foreground mb-3">New plan card options</p>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {newPlanCardOptions.map((activity) => (
+              <ActivityIcon
+                key={activity.id}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
+                onClick={() => navigate(activity.path)}
               />
             ))}
           </div>
