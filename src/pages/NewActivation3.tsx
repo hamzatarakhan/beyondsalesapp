@@ -755,9 +755,9 @@ const NewActivation3 = () => {
   const paygHidden        = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_NO_PAYG_ID_SUFFIX);
   const isVnetMode        = !isFriendi && payType === "postpaid" && lineType === "data";
   // Friendi treats "data" as a regular prepaid-mobile bundle (keeps the number section),
-  // so the 5G-MBB internet behaviour only applies to Virgin. Basic Postpaid never gets a
-  // Data line at all — same Baqah/Flex/Aman-only catalogue as Mobile Prepaid.
-  const is5GDataMode      = !isFriendi && payType === "prepaid" && lineType === "data";
+  // so the 5G-MBB internet behaviour only applies to Virgin. Basic Postpaid shares the same
+  // Data line treatment as Prepaid (both resolve to the 5G MBB catalogue).
+  const is5GDataMode      = !isFriendi && payType !== "postpaid" && lineType === "data";
   const isPrepaidMobile   = payType !== "postpaid" && !is5GDataMode;
   const isPrepaidInternet = is5GDataMode;
   const isPostpaidMobile  = payType === "postpaid" && !isVnetMode;
@@ -784,10 +784,9 @@ const NewActivation3 = () => {
     setPlanTypeChip("all");
     setSelectedPlan(null);
     setPlanMode("plan");
-    // Basic Postpaid has no Data line at all; Postpaid's Data line (Vnet) just isn't
-    // offered on E-SIM. Either way, fall back to Mobile so lineType never carries a
-    // stale "data" value into a combination that doesn't support it.
-    if (newPayType === "basic-postpaid" || (newPayType === "postpaid" && simType === "esim")) {
+    // Postpaid's Data line (Vnet) isn't offered on E-SIM — fall back to Mobile so lineType
+    // never carries a stale "data" value into a combination that doesn't support it.
+    if (newPayType === "postpaid" && simType === "esim") {
       if (lineType === "data") setLineType("mobile");
     }
   };
@@ -807,9 +806,7 @@ const NewActivation3 = () => {
         { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
         { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
       ]
-  ).filter(o => o.key === "prepaid" || isSaudiId)
-    // Basic Postpaid isn't offered in this flow.
-    .filter(o => o.key !== "basic-postpaid");
+  ).filter(o => o.key === "prepaid" || isSaudiId);
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
@@ -817,7 +814,7 @@ const NewActivation3 = () => {
     : PREPAID_CHIPS.filter(c => c.value !== "data");
   // Chips only sub-filter within Mobile+Prepaid — every other combination already pins
   // one plan family, so there's nothing left to filter by chip.
-  const showPlanTypeChips = isFriendi ? true : (payType === "basic-postpaid" || (lineType === "mobile" && payType === "prepaid"));
+  const showPlanTypeChips = isFriendi ? true : (lineType === "mobile" && payType !== "postpaid");
   // MNP eligibility: a Data-only line (5G Prepaid / Vnet) can never port a number; a Mobile
   // line can, but only above its family's minimum plan value. Each reason gets its own hint
   // copy — reading activePlansForType[selectedPlan] directly here (not selectedPlanObj, which
@@ -1561,29 +1558,16 @@ const NewActivation3 = () => {
               </div>
             ) : (
             <div className="space-y-4">
-            {/* Plans catalogue — two independent selectors. Line Type (Mobile/Data) only
-                applies to Virgin Prepaid/Postpaid, whose catalogue actually splits that way;
-                Basic Postpaid (like Friendi) goes straight to its Baqah/Flex/Aman chips. */}
+            {/* Plans catalogue — two independent selectors. Line Type (Mobile/Data) applies to
+                every Virgin subscription type the same way — Basic Postpaid shares Prepaid's
+                catalogue split (Mobile → Baqah/Flex/Aman chips, Data → 5G MBB). */}
             <div className="space-y-4">
-              {!isFriendi && payType !== "basic-postpaid" && (
+              {!isFriendi && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.lineTypeTitle")}</h3>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     {lineTypeOptions.map(({ key, label, Icon, disabled }) => (
-                      <button
-                        key={key}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => selectLineType(key)}
-                        className={cn(
-                          "flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors",
-                          lineType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
-                          disabled && "opacity-40 cursor-not-allowed",
-                        )}
-                      >
-                        <Icon className={cn("w-5 h-5", lineType === key ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-xs font-medium", lineType === key ? "text-primary" : "text-foreground")}>{label}</p>
-                      </button>
+                      <SimCard key={key} active={lineType === key} label={label} icon={Icon} disabled={disabled} onClick={() => selectLineType(key)} />
                     ))}
                   </div>
                 </div>
@@ -1688,12 +1672,14 @@ const NewActivation3 = () => {
                   // scratch otherwise, losing anything the dealer had already filled in.
                   state: {
                     payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
+                    selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
                     resume: { idType, nationality, idNumber, simType, kit },
                   },
                 })}
-                className="h-11 px-4 rounded-xl bg-muted text-foreground text-sm font-semibold whitespace-nowrap shrink-0"
+                className="h-11 px-4 rounded-xl bg-primary/10 text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               >
                 View all plans
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 

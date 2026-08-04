@@ -20,6 +20,9 @@ interface NavState {
   payType?: PayType;
   lineType?: LineType;
   chip?: string;
+  // The plan (if any) already selected back on the Subscription step before the dealer
+  // opened this page — carried along so the Back button can restore it untouched.
+  selectedPlanTitle?: string;
   // Forwarded from SIM Activation 3 untouched, and forwarded straight back on pick — this
   // page never reads it, it just carries the dealer's in-progress Identity fields across
   // the round trip so they survive /new-activation-3 remounting on return.
@@ -39,7 +42,7 @@ const NewActivation3AllPlans = () => {
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const showPlanTypeChips = isFriendi ? true : (payType === "basic-postpaid" || (lineType === "mobile" && payType === "prepaid"));
+  const showPlanTypeChips = isFriendi ? true : (lineType === "mobile" && payType !== "postpaid");
 
   const effectiveChip = isFriendi
     ? chip
@@ -62,46 +65,65 @@ const NewActivation3AllPlans = () => {
     navigate("/new-activation-3", { state: { pickPlan: { payType, lineType, chip: effectiveChip, title }, resume: initial.resume } });
   };
 
+  // Back restores the Subscription step exactly as it was before this page opened —
+  // original payType/lineType/chip, plus whatever plan was already selected, if any —
+  // rather than whatever filters the dealer may have changed while just browsing here.
+  const goBack = () => {
+    navigate("/new-activation-3", {
+      state: {
+        pickPlan: {
+          payType: initial.payType ?? "prepaid",
+          lineType: initial.lineType ?? "mobile",
+          chip: initial.chip ?? "all",
+          title: initial.selectedPlanTitle ?? "",
+        },
+        resume: initial.resume,
+      },
+    });
+  };
+
   const activeFilterCount = (payType !== "prepaid" ? 1 : 0) + (lineType !== "mobile" ? 1 : 0) + (chip !== "all" ? 1 : 0);
 
   return (
     <div className="mobile-container pb-8 min-h-screen bg-background">
-      <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 flex items-center gap-3">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Back"
-          className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">All Plans</h1>
-        <div className="w-10 shrink-0" />
-      </header>
+      <div className="sticky top-0 z-10 bg-background">
+        <header dir="ltr" className="px-4 py-4 flex items-center gap-3">
+          <button
+            onClick={goBack}
+            aria-label="Back"
+            className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">All Plans</h1>
+          <div className="w-10 shrink-0" />
+        </header>
 
-      {/* Search + filter, side by side */}
-      <div className="px-4 flex items-center gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search plans"
-            className="h-11 bg-card rounded-xl ps-9"
-          />
+        {/* Search + filter, side by side */}
+        <div className="px-4 flex items-center gap-2 pb-4">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search plans"
+              className="h-11 bg-card rounded-xl ps-9"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            aria-label="Filters"
+            className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
+          >
+            <SlidersHorizontal className="w-4 h-4 text-foreground" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setFilterOpen(true)}
-          aria-label="Filters"
-          className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
-        >
-          <SlidersHorizontal className="w-4 h-4 text-foreground" />
-          {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
       </div>
 
       {/* Vertical plan list */}
@@ -231,7 +253,7 @@ const NewActivation3AllPlans = () => {
               onClick={() => setFilterOpen(false)}
               className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
-              Show {visiblePlans.length} plan{visiblePlans.length === 1 ? "" : "s"}
+              Apply Filters
             </button>
           </div>
         </DrawerContent>
