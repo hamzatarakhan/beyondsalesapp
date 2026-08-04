@@ -38,6 +38,8 @@ import NewActivation3 from "./pages/NewActivation3";
 import NewActivation3AllPlans from "./pages/NewActivation3AllPlans";
 import NewActivation4 from "./pages/NewActivation4";
 import NewActivation4AllPlans from "./pages/NewActivation4AllPlans";
+import NewActivation5 from "./pages/NewActivation5";
+import NewActivation5AllPlans from "./pages/NewActivation5AllPlans";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -90,6 +92,8 @@ const App = () => {
           <Route path="/new-activation-3/plans" element={<NewActivation3AllPlans />} />
           <Route path="/new-activation-4" element={<NewActivation4 />} />
           <Route path="/new-activation-4/plans" element={<NewActivation4AllPlans />} />
+          <Route path="/new-activation-5" element={<NewActivation5 />} />
+          <Route path="/new-activation-5/plans" element={<NewActivation5AllPlans />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
