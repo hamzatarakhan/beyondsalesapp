@@ -1507,14 +1507,14 @@ const NewActivationV2 = () => {
                 reachable in a single tap. */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activationV2.subscription.subscriptionTypeTitle")}</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {catalogueOptions.map(({ key, label, Icon, selected, onClick }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={onClick}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-full py-2 px-3 transition-colors",
+                      "flex items-center gap-1.5 rounded-full py-2 px-3 shrink-0 transition-colors",
                       selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
                     )}
                   >
