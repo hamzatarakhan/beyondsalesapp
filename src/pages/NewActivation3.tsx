@@ -1630,36 +1630,6 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* Search + View all plans — search narrows the carousel below (PlanSelector
-                shows its own "no plans match" state); View all plans opens the full
-                vertical browser with its own search + filters. */}
-            <div className="space-y-2">
-              <div className="relative">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={planSearch}
-                  onChange={(e) => setPlanSearch(e.target.value)}
-                  placeholder="Search plans"
-                  className="h-11 bg-card rounded-xl ps-9"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate("/new-activation-3/plans", {
-                  // Identity fields are forwarded so the round trip back can restore them too —
-                  // /plans is a separate route, so returning here remounts this page from
-                  // scratch otherwise, losing anything the dealer had already filled in.
-                  state: {
-                    payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
-                    resume: { idType, nationality, idNumber, simType, kit },
-                  },
-                })}
-                className="w-full flex items-center justify-center gap-1 text-primary text-sm font-semibold py-1"
-              >
-                View all plans <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-              </button>
-            </div>
-
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
@@ -1696,6 +1666,36 @@ const NewActivation3 = () => {
                 </div>
               </div>
             )}
+
+            {/* Search + View all plans, side by side — search narrows the plan cards
+                below (PlanSelector shows its own "no plans match" state); View all plans
+                (secondary button) opens the full vertical browser with its own search + filters. */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder="Search plans"
+                  className="h-11 bg-card rounded-xl ps-9"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/new-activation-3/plans", {
+                  // Identity fields are forwarded so the round trip back can restore them too —
+                  // /plans is a separate route, so returning here remounts this page from
+                  // scratch otherwise, losing anything the dealer had already filled in.
+                  state: {
+                    payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
+                    resume: { idType, nationality, idNumber, simType, kit },
+                  },
+                })}
+                className="h-11 px-4 rounded-xl bg-muted text-foreground text-sm font-semibold whitespace-nowrap shrink-0"
+              >
+                View all plans
+              </button>
+            </div>
 
             <PlanSelector
               key={`${brand}-${payType}-${planTypeChip}-${lineType}`}

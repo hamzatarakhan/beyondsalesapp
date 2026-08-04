@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Search, SlidersHorizontal, X, Smartphone, Wifi, Wallet, Receipt, ReceiptText } from "lucide-react";
+import { ArrowLeft, Search, SlidersHorizontal, X } from "lucide-react";
 import PlanCard from "@/components/PlanCard";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -155,22 +155,21 @@ const NewActivation3AllPlans = () => {
             {!isFriendi && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">Line Type</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-wrap gap-2">
                   {([
-                    { key: "mobile" as const, label: "Mobile", Icon: Smartphone },
-                    { key: "data" as const, label: "Data", Icon: Wifi },
-                  ]).map(({ key, label, Icon }) => (
+                    { key: "mobile" as const, label: "Mobile" },
+                    { key: "data" as const, label: "Data" },
+                  ]).map(({ key, label }) => (
                     <button
                       key={key}
                       type="button"
                       onClick={() => selectLineType(key)}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors",
-                        lineType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                        lineType === key ? "bg-primary text-white" : "bg-muted text-foreground"
                       )}
                     >
-                      <Icon className={cn("w-5 h-5", lineType === key ? "text-primary" : "text-muted-foreground")} />
-                      <p className={cn("text-xs font-medium", lineType === key ? "text-primary" : "text-foreground")}>{label}</p>
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -179,29 +178,28 @@ const NewActivation3AllPlans = () => {
 
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {(isFriendi
                   ? [
-                      { key: "prepaid" as const, label: "Prepaid", Icon: Wallet },
-                      { key: "basic-postpaid" as const, label: "Basic Postpaid", Icon: ReceiptText },
+                      { key: "prepaid" as const, label: "Prepaid" },
+                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
                     ]
                   : [
-                      { key: "prepaid" as const, label: "Prepaid", Icon: Wallet },
-                      { key: "basic-postpaid" as const, label: "Basic Postpaid", Icon: ReceiptText },
-                      { key: "postpaid" as const, label: "Postpaid", Icon: Receipt },
+                      { key: "prepaid" as const, label: "Prepaid" },
+                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
+                      { key: "postpaid" as const, label: "Postpaid" },
                     ]
-                ).map(({ key, label, Icon }) => (
+                ).map(({ key, label }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={() => selectPayType(key)}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 px-1 transition-colors",
-                      payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+                      "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                      payType === key ? "bg-primary text-white" : "bg-muted text-foreground"
                     )}
                   >
-                    <Icon className={cn("w-4 h-4", payType === key ? "text-primary" : "text-muted-foreground")} />
-                    <p className={cn("text-[10.5px] font-medium text-center leading-tight", payType === key ? "text-primary" : "text-foreground")}>{label}</p>
+                    {label}
                   </button>
                 ))}
               </div>
