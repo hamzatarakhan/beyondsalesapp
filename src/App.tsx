@@ -35,6 +35,7 @@ import ExistingCustomerFound from "./pages/ExistingCustomerFound";
 import NewActivation from "./pages/NewActivation";
 import NewActivationV2 from "./pages/NewActivationV2";
 import NewActivation3 from "./pages/NewActivation3";
+import NewActivation3AllPlans from "./pages/NewActivation3AllPlans";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -84,6 +85,7 @@ const App = () => {
           <Route path="/new-activation" element={<NewActivation />} />
           <Route path="/new-activation-v2" element={<NewActivationV2 />} />
           <Route path="/new-activation-3" element={<NewActivation3 />} />
+          <Route path="/new-activation-3/plans" element={<NewActivation3AllPlans />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />

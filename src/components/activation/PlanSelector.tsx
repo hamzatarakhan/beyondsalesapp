@@ -214,9 +214,13 @@ interface PlanSelectorProps {
   /** Optional per-plan MNP eligibility check — when passed, each card shows a small
    * "MNP Eligible" tag. Omitted by flows that don't have MNP eligibility rules. */
   isMnpEligible?: (plan: Plan) => boolean;
+  /** Optional title search — filters the displayed carousel without touching `plans` itself,
+   * so `plans.indexOf(p)` (the index callers resolve selections by) stays stable. Shows a
+   * "No plans match" empty state when it filters everything out. */
+  searchQuery?: string;
 }
 
-const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, isMnpEligible }: PlanSelectorProps) => {
+const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, isMnpEligible, searchQuery }: PlanSelectorProps) => {
   const { t } = useTranslation();
   const { isRtl } = useLanguage();
   const [planType, setPlanType] = useState<string>("all");
@@ -233,6 +237,8 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
     return n;
   }, [planFilters]);
 
+  const normalizedSearch = searchQuery?.trim().toLowerCase() ?? "";
+
   const filteredPlans = useMemo(() => {
     return plans.filter((p) => {
       // In the "All" tab, hide PAYG plans — PAYG is only reachable via its own chip.
@@ -245,7 +251,8 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
       const matchesData = pData >= planFilters.data[0] && pData <= planFilters.data[1];
       const pMins = parsePlanMins(p.mins);
       const matchesMins = pMins >= planFilters.mins[0] && pMins <= planFilters.mins[1];
-      return matchesType && matchesValidity && matchesPrice && matchesData && matchesMins;
+      const matchesSearch = !normalizedSearch || p.title.toLowerCase().includes(normalizedSearch);
+      return matchesType && matchesValidity && matchesPrice && matchesData && matchesMins && matchesSearch;
     })
     // In "All": group families richest-first (Aman → Baqa → Flex → 5G Data →
     // Switch Postpaid → Vnet). In a specific chip: richest plan first.
@@ -256,7 +263,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
       }
       return b.price - a.price;
     });
-  }, [plans, activePlanType, planFilters]);
+  }, [plans, activePlanType, planFilters, normalizedSearch]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
   const [activeSnap, setActiveSnap] = useState(0);

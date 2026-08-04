@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import MapPicker from "@/components/MapPicker";
 import { useDragScroll } from "@/hooks/useDragScroll";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification, { type Method as VerificationMethod } from "@/components/SematiVerification";
@@ -73,6 +73,7 @@ import {
   QrCode,
   UserX,
  Mail,
+  Search,
 } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -82,8 +83,8 @@ import { useBrand } from "@/contexts/BrandContext";
 // ---------- Types ----------
 type SimType = "psim" | "esim";
 type SubType = "sim" | "mnp";
-type PayType = "prepaid" | "postpaid" | "basic-postpaid";
-type LineType = "mobile" | "data";
+export type PayType = "prepaid" | "postpaid" | "basic-postpaid";
+export type LineType = "mobile" | "data";
 type PlanMode = "plan" | "topup";
 type PayMethod = "card" | "pos";
 
@@ -398,7 +399,7 @@ const generateNationalAddress = (): string => {
   return `${letters}${digits}`;
 };
 
-const PREPAID_CHIPS = [
+export const PREPAID_CHIPS = [
   { value: "all", label: "All" },
   { value: "base-plan", label: "Baqah" },
   { value: "flex", label: "Flex" },
@@ -409,7 +410,7 @@ const PREPAID_CHIPS = [
 // Single source of truth for "which plans does this catalogue tab show" — used both to
 // build the list handed to PlanSelector and to resolve `selectedPlan` (an index into that
 // same list) back to a plan object, so the two stay index-aligned by construction.
-const getVmCatalogPlans = (
+export const getVmCatalogPlans = (
   pType: PayType,
   chip: string,
   opts: { esim?: boolean; fulfilment?: boolean } = {},
@@ -428,18 +429,18 @@ const getVmCatalogPlans = (
 // porting onto a throwaway low-value plan), distinct from Data-only lines being categorically
 // unportable. E.g. on Prepaid: Baqah 45/70, Aman 60 and Flex 60 fall below the threshold
 // (Baqah 100+ / Flex 100+ clear it) — the concrete, testable "select a higher plan" case.
-const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 100, postpaid: 200 };
+export const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 100, postpaid: 200 };
 // Per-plan MNP eligibility, independent of whatever catalogue selection is currently active —
 // used to show the "MNP Eligible" tag on plan cards. Data-only lines (5G/Vnet) can never
 // port; Mobile lines need to clear their family's minimum value.
-const isPlanMnpEligible = (p: { categories?: string[]; price: number }) => {
+export const isPlanMnpEligible = (p: { categories?: string[]; price: number }) => {
   if (p.categories?.includes("data") || p.categories?.includes("vnet")) return false;
   const threshold = p.categories?.includes("switch-postpaid") ? MNP_MIN_PLAN_PRICE.postpaid : MNP_MIN_PLAN_PRICE.prepaid;
   return p.price >= threshold;
 };
 
 // Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
-const FRIENDI_CHIPS = [
+export const FRIENDI_CHIPS = [
   { value: "all", label: "All" },
   { value: "combo", label: "Combo Plans" },
   { value: "flexi", label: "Flexi Plans" },
@@ -595,6 +596,7 @@ const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWln
 // ---------- Page ----------
 const NewActivation3 = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
@@ -654,6 +656,7 @@ const NewActivation3 = () => {
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
   const [esimDeviceSearch, setEsimDeviceSearch] = useState("");
   const [planTypeChip, setPlanTypeChip] = useState("all");
+  const [planSearch, setPlanSearch] = useState("");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
@@ -847,6 +850,7 @@ const NewActivation3 = () => {
   useEffect(() => {
     setSelectedPlan(null);
     setPlanMode("plan");
+    setPlanSearch("");
   }, [payType, lineType]);
 
   useEffect(() => {
@@ -861,6 +865,36 @@ const NewActivation3 = () => {
   useEffect(() => {
     if (isMnpIneligiblePlan && subType === "mnp") setSubType("sim");
   }, [isMnpIneligiblePlan, subType]);
+
+  // Picking up a selection made on the "View all plans" page: it navigates back here with
+  // the chosen catalogue (payType/lineType/chip) and plan title in navigation state, since
+  // that's a separate route/page rather than a modal. Apply it once, then clear the state so
+  // it doesn't re-apply on a later back/forward navigation.
+  useEffect(() => {
+    const state = location.state as {
+      pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string };
+    } | null;
+    const pick = state?.pickPlan;
+    if (!pick) return;
+    if (state?.resume) {
+      setIdType(state.resume.idType);
+      setNationality(state.resume.nationality);
+      setIdNumber(state.resume.idNumber);
+      setSimType(state.resume.simType);
+      setKit(state.resume.kit);
+    }
+    setPayType(pick.payType);
+    setLineType(pick.lineType);
+    setPlanTypeChip(pick.chip);
+    const list = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(pick.payType, pick.chip, { esim: state?.resume?.simType === "esim", fulfilment: isFulfilment });
+    const idx = list.findIndex((p) => p.title === pick.title);
+    setSelectedPlan(idx >= 0 ? idx : null);
+    setPlanMode("plan");
+    setStep(1);
+    navigate(location.pathname + location.search, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   // ID Number validation per the selected ID Type's rule (start digit(s) + exact length).
   const idNumberRule = ID_TYPE_RULES[idType];
@@ -1596,6 +1630,36 @@ const NewActivation3 = () => {
               )}
             </div>
 
+            {/* Search + View all plans — search narrows the carousel below (PlanSelector
+                shows its own "no plans match" state); View all plans opens the full
+                vertical browser with its own search + filters. */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder="Search plans"
+                  className="h-11 bg-card rounded-xl ps-9"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/new-activation-3/plans", {
+                  // Identity fields are forwarded so the round trip back can restore them too —
+                  // /plans is a separate route, so returning here remounts this page from
+                  // scratch otherwise, losing anything the dealer had already filled in.
+                  state: {
+                    payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
+                    resume: { idType, nationality, idNumber, simType, kit },
+                  },
+                })}
+                className="w-full flex items-center justify-center gap-1 text-primary text-sm font-semibold py-1"
+              >
+                View all plans <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+              </button>
+            </div>
+
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
@@ -1640,6 +1704,7 @@ const NewActivation3 = () => {
               plans={activePlansForType}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
               isMnpEligible={isFriendi ? undefined : isPlanMnpEligible}
+              searchQuery={planSearch}
             />
 
             {/* MNP can't port a data-only line — flag it right under the plan and steer the
