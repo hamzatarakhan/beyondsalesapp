@@ -804,7 +804,9 @@ const NewActivation3 = () => {
         { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
         { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
       ]
-  ).filter(o => o.key === "prepaid" || isSaudiId);
+  ).filter(o => o.key === "prepaid" || isSaudiId)
+    // Basic Postpaid isn't offered in this flow.
+    .filter(o => o.key !== "basic-postpaid");
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
