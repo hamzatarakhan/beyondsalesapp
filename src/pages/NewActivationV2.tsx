@@ -428,6 +428,14 @@ const getVmCatalogPlans = (
 // unportable. E.g. on Prepaid: Baqah 45/70, Aman 60 and Flex 60 fall below the threshold
 // (Baqah 100+ / Flex 100+ clear it) — the concrete, testable "select a higher plan" case.
 const MNP_MIN_PLAN_PRICE: Record<"prepaid" | "postpaid", number> = { prepaid: 100, postpaid: 200 };
+// Per-plan MNP eligibility, independent of whatever catalogue tab is currently active —
+// used to show the "MNP Eligible" tag on plan cards. Data-only lines (5G/Vnet) can never
+// port; Mobile lines need to clear their family's minimum value.
+const isPlanMnpEligible = (p: { categories?: string[]; price: number }) => {
+  if (p.categories?.includes("data") || p.categories?.includes("vnet")) return false;
+  const threshold = p.categories?.includes("switch-postpaid") ? MNP_MIN_PLAN_PRICE.postpaid : MNP_MIN_PLAN_PRICE.prepaid;
+  return p.price >= threshold;
+};
 
 // Friendi (FM) prepaid chip row — Combo / Flexi / Internet / International / PAYG.
 const FRIENDI_CHIPS = [
@@ -1580,6 +1588,7 @@ const NewActivationV2 = () => {
               onSelect={(i) => setSelectedPlan((prev) => (prev === i ? null : i))}
               plans={lineType === "internet" ? INTERNET_PLANS : activePlansForType}
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
+              isMnpEligible={isFriendi ? undefined : isPlanMnpEligible}
             />
 
             {/* MNP can't port a data-only line — flag it right under the plan and steer the

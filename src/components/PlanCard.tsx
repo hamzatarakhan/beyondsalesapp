@@ -55,6 +55,10 @@ interface Props {
   onMoreDetails?: () => void;
   /** Hide the select radio — for read-only views where the plan can't be changed. */
   hideRadio?: boolean;
+  /** Shows a small "MNP Eligible" tag at the top-left corner (mirrors to top-right in RTL),
+   * on the same line as the top-right badge. Only passed by flows that have MNP eligibility
+   * rules (SIM Activation 2 / 3) — omitted elsewhere, so the tag never renders by default. */
+  mnpEligible?: boolean;
 }
 
 const FeatureRow = ({
@@ -472,6 +476,7 @@ const PlanCard = ({
   onSelect,
   onMoreDetails,
   hideRadio,
+  mnpEligible,
 }: Props) => {
   const { t } = useTranslation();
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
@@ -499,8 +504,14 @@ const PlanCard = ({
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
+        {/* MNP eligibility tag — top-left corner, same line as the badge above, no extra height */}
+        {mnpEligible && layout !== "payg" && (
+          <span className="absolute top-0 start-0 bg-green-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tl-2xl rounded-br-md z-10">
+            MNP Eligible
+          </span>
+        )}
 
-        <div className={cn("p-4 flex flex-col flex-1", plan.badge && layout !== "payg" && "pt-6")}>
+        <div className={cn("p-4 flex flex-col flex-1", (plan.badge || mnpEligible) && layout !== "payg" && "pt-6")}>
           {layout === "payg" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} />

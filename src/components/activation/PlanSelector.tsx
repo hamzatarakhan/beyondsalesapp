@@ -211,9 +211,12 @@ interface PlanSelectorProps {
   onSelect: (idx: number, plan: Plan) => void;
   plans?: Plan[];
   categoryFilter?: string;
+  /** Optional per-plan MNP eligibility check — when passed, each card shows a small
+   * "MNP Eligible" tag. Omitted by flows that don't have MNP eligibility rules. */
+  isMnpEligible?: (plan: Plan) => boolean;
 }
 
-const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }: PlanSelectorProps) => {
+const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, isMnpEligible }: PlanSelectorProps) => {
   const { t } = useTranslation();
   const { isRtl } = useLanguage();
   const [planType, setPlanType] = useState<string>("all");
@@ -418,6 +421,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter }:
                       onSelect={() => onSelect(originalIdx, p)}
                       minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
                       layout={layout}
+                      mnpEligible={isMnpEligible?.(p)}
                     />
                   </div>
                 );

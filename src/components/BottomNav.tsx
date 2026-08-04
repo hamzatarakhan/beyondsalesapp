@@ -31,7 +31,7 @@ const BottomNav = () => {
                   : "bg-[#E2E8F0] text-muted-foreground hover:text-foreground hover:bg-[#d1d9e6]"
               }`}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-5 h-5" fill={isActive ? "currentColor" : "none"} />
             </button>
           );
         })}
