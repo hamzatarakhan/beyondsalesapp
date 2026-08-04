@@ -506,7 +506,7 @@ const PlanCard = ({
         )}
         {/* MNP eligibility tag — top-left corner, same line as the badge above, no extra height */}
         {mnpEligible && layout !== "payg" && (
-          <span className="absolute top-0 start-0 bg-green-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tl-2xl rounded-br-md z-10">
+          <span className="absolute top-0 start-0 bg-sky-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tl-2xl rounded-br-md z-10">
             MNP Eligible
           </span>
         )}
