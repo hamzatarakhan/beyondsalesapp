@@ -2316,7 +2316,7 @@ const NewActivation = () => {
                   <>
                     <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock OTP Verification.</p>
                     )}
                   </>
                 )}
