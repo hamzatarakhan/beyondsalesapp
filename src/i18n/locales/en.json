@@ -29,6 +29,11 @@
     "successTitle": "Device Activated",
     "successDesc": "Your device has been activated successfully."
   },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "message": "This feature isn't available yet — we're working on it and it'll be ready soon.",
+    "backAria": "Back"
+  },
   "home": {
     "greeting": "Hello, Hamza 👋",
     "dealerId": "123456789",

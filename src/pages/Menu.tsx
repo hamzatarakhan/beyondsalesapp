@@ -103,7 +103,7 @@ const Menu = () => {
               {section.items.map((item) => (
                 <button
                   key={item.label}
-                  onClick={item.path ? () => navigate(item.path!) : undefined}
+                  onClick={() => navigate(item.path ?? "/coming-soon", item.path ? undefined : { state: { feature: item.label } })}
                   className="w-full flex items-center gap-3 py-3 text-start"
                 >
                   <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />

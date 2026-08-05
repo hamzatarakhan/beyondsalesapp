@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import DeviceRegistration from "./pages/DeviceRegistration";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
+import ComingSoon from "./pages/ComingSoon";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import MyHierarchy from "./pages/MyHierarchy";
@@ -88,6 +89,7 @@ const App = () => {
           <Route element={<RequireAuth />}>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/coming-soon" element={<ComingSoon />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/hierarchy" element={<MyHierarchy />} />
