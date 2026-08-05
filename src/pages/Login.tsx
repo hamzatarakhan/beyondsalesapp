@@ -57,13 +57,13 @@ const Login = () => {
       <button
         type="button"
         onClick={handleLogin}
-        className="mt-6 h-14 rounded-full bg-black text-white font-semibold text-base"
+        className="mt-6 h-12 rounded-full bg-black text-white font-semibold text-base"
       >
         {t("login.loginButton")}
       </button>
       <button
         type="button"
-        className="mt-3 h-14 rounded-full bg-black/10 text-foreground font-semibold text-base"
+        className="mt-3 h-12 rounded-full bg-black/10 text-foreground font-semibold text-base"
       >
         {t("login.activateDevice")}
       </button>
