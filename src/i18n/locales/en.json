@@ -6,7 +6,8 @@
     "forgetPassword": "Forget Password ?",
     "loginButton": "Login",
     "activateDevice": "Activate Device",
-    "poweredBy": "Powered by"
+    "poweredBy": "Powered by",
+    "prototypeHint": "Prototype only — enter any username/password, or just tap Login"
   },
   "home": {
     "greeting": "Hello, Hamza 👋",

@@ -108,10 +108,10 @@ const Home = () => {
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: t("home.badgeOption1"), badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: t("home.badgeOption2"), badgeTone: "special" as const },
   ];
+  // Plans option 2 and 3 (sim-4, sim-5) are hidden for now — kept out of this array
+  // rather than deleted so they're easy to bring back.
   const newPlanCardOptions = [
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgePlansOption1"), badgeTone: "special" as const },
-    { id: "sim-4", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-4", badge: t("home.badgePlansOption2"), badgeTone: "special" as const },
-    { id: "sim-5", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-5", badge: t("home.badgePlansOption3"), badgeTone: "special" as const },
   ];
 
   const memberOnboarding = [

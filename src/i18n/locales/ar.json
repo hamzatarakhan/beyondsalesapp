@@ -6,7 +6,8 @@
     "forgetPassword": "نسيت كلمة المرور؟",
     "loginButton": "تسجيل الدخول",
     "activateDevice": "تفعيل الجهاز",
-    "poweredBy": "بدعم من"
+    "poweredBy": "بدعم من",
+    "prototypeHint": "نسخة تجريبية فقط — أدخل أي اسم مستخدم/كلمة مرور، أو اضغط تسجيل الدخول مباشرة"
   },
   "home": {
     "greeting": "مرحباً، حمزة 👋",

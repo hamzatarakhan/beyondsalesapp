@@ -53,6 +53,8 @@ const Login = () => {
         </div>
       </div>
 
+      <p className="text-center text-xs text-muted-foreground mt-3">{t("login.prototypeHint")}</p>
+
       <button type="button" className="self-end mt-3 text-sm font-medium text-foreground">
         {t("login.forgetPassword")}
       </button>
