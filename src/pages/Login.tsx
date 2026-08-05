@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import BeyondOneLogo from "@/components/BeyondOneLogo";
@@ -79,7 +79,10 @@ const Login = () => {
         </svg>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground mt-6">{t("login.prototypeHint")}</p>
+      <div className="mt-6 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-start gap-2.5">
+        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-700 dark:text-amber-400">{t("login.prototypeHint")}</p>
+      </div>
 
       <div className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span>{t("login.poweredBy")}</span>
