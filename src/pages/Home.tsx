@@ -274,7 +274,7 @@ const Home = () => {
   };
 
   return (
-    <div className="mobile-container pb-24 bg-background">
+    <div className="mobile-container pb-24 bg-background h-screen overflow-y-auto scrollbar-hide">
       {/* Header */}
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
