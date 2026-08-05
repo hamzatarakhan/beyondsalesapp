@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 
 export interface WidgetConfig {
   id: string;
-  label: string;
   enabled: boolean;
 }
 
@@ -10,11 +9,20 @@ export interface WidgetConfig {
 // today. Widgets still commented out there (Working Shift, Tickets) aren't listed since
 // there's nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "sim-activation-options", label: "SIM Activation Options", enabled: true },
-  { id: "customer-activities", label: "Customer Activities", enabled: true },
-  { id: "sim-services", label: "SIM Services", enabled: true },
-  { id: "member-onboarding", label: "Member Onboarding", enabled: true },
+  { id: "sim-activation-options", enabled: true },
+  { id: "customer-activities", enabled: true },
+  { id: "sim-services", enabled: true },
+  { id: "member-onboarding", enabled: true },
 ];
+
+// Display labels live in i18n (home.*), not here, so switching language relabels
+// widgets everywhere immediately instead of leaving stale text baked into storage.
+export const WIDGET_LABEL_KEYS: Record<string, string> = {
+  "sim-activation-options": "home.simActivationOptions",
+  "customer-activities": "home.customerActivities",
+  "sim-services": "home.simServices",
+  "member-onboarding": "home.memberOnboarding",
+};
 
 interface WidgetsContextValue {
   widgets: WidgetConfig[];
@@ -34,7 +42,9 @@ function getInitialWidgets(): WidgetConfig[] {
     // Merge with defaults so a newly-added widget (or one renamed/removed in code)
     // doesn't silently disappear or crash on a stale stored shape.
     const storedIds = new Set(stored.map((w) => w.id));
-    const known = stored.filter((w) => DEFAULT_WIDGETS.some((d) => d.id === w.id));
+    const known = stored
+      .filter((w) => DEFAULT_WIDGETS.some((d) => d.id === w.id))
+      .map((w) => ({ id: w.id, enabled: w.enabled }));
     const missing = DEFAULT_WIDGETS.filter((d) => !storedIds.has(d.id));
     return [...known, ...missing];
   } catch {

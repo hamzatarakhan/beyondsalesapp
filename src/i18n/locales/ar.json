@@ -1,4 +1,13 @@
 {
+  "login": {
+    "welcome": "أهلاً، مرحباً بك في بيوند ون",
+    "usernamePlaceholder": "اسم المستخدم",
+    "passwordPlaceholder": "كلمة المرور",
+    "forgetPassword": "نسيت كلمة المرور؟",
+    "loginButton": "تسجيل الدخول",
+    "activateDevice": "تفعيل الجهاز",
+    "poweredBy": "بدعم من"
+  },
   "home": {
     "greeting": "مرحباً، حمزة 👋",
     "dealerId": "123456789",
@@ -11,7 +20,41 @@
     "simActivationV2": "تفعيل الشريحة 2",
     "simActivation3": "تفعيل الشريحة 3",
     "mnp": "نقل الرقم (MNP)",
-    "fulfilment": "متابعة التفعيل"
+    "fulfilment": "متابعة التفعيل",
+    "simActivationOptions": "خيارات تفعيل الشريحة",
+    "oldApproaches": "الطرق القديمة",
+    "newPlanCardOptions": "خيارات بطاقة الباقة الجديدة",
+    "simServices": "خدمات الشريحة",
+    "memberOnboarding": "تأهيل الأعضاء",
+    "channelOnboarding": "تأهيل القنوات",
+    "onboardingRequests": "طلبات التأهيل",
+    "simReplacement": "استبدال الشريحة",
+    "simTermination": "إنهاء الشريحة",
+    "subscriptionMigration": "ترحيل الاشتراك",
+    "creditLimitAdjustment": "تعديل حد الائتمان",
+    "billPayment": "دفع الفاتورة",
+    "badgeApproved": "معتمد",
+    "badgeNeedsConfirm": "بانتظار التأكيد",
+    "badgeInProgress": "قيد التنفيذ",
+    "chooseActivationFlow": "اختر طريقة التفعيل",
+    "chooseActivationFlowSub": "اختر الطريقة التي تريد بها إتمام هذا التفعيل",
+    "stcFlow": "مسار STC",
+    "stcFlowSub": "التفاصيل ← المراجعة والدفع ← الإكمال.",
+    "multiStepFlow": "الخيار 2 -- خطوات متعددة",
+    "multiStepFlowSub": "الشريحة والعلبة ← التفاصيل ← المراجعة والدفع.",
+    "switchBrands": "تبديل العلامة التجارية",
+    "switchBrandsSub": "اختر المشغل الذي تبيع باسمه",
+    "selected": "محدد",
+    "qrCode": "رمز QR",
+    "done": "تم",
+    "switchBrandAria": "تبديل العلامة التجارية — الحالية {{brand}}",
+    "showQrAria": "إظهار رمز QR",
+    "notificationsAria": "الإشعارات",
+    "badgeOption1": "الخيار 1",
+    "badgeOption2": "الخيار 2",
+    "badgePlansOption1": "خيار الباقات 1",
+    "badgePlansOption2": "خيار الباقات 2",
+    "badgePlansOption3": "خيار الباقات 3"
   },
   "nav": {
     "home": "الرئيسية",
@@ -316,7 +359,10 @@
         "facebook": "فيسبوك",
         "snapchat": "سناب شات",
         "telegram": "تيليجرام"
-      }
+      },
+      "mnpEligible": "مؤهل لنقل الرقم",
+      "selectPlanAria": "اختيار {{title}}",
+      "selectedPlan": "الباقة المختارة"
     },
     "checkout": {
       "title": "الدفع",
@@ -574,6 +620,18 @@
       "failedTitle": "فشل التحقق !",
       "failedDesc": "تعذّر إتمام التحقق. يرجى المحاولة مرة أخرى.",
       "again": "إعادة المحاولة"
+    },
+    "prepaidLimit": {
+      "title": "غير مؤهل للدفع المسبق",
+      "description": "وصل هذا العميل إلى الحد الأقصى المسموح به من تفعيلات الدفع المسبق ولا يمكن تفعيل خط دفع مسبق جديد له. لا يزال بإمكانه نقل رقمه (نقل الملكية) إلى الدفع المسبق، أو استكشاف باقات الفوترة بدلاً من ذلك.",
+      "cta": "استكشف باقات الفوترة"
+    },
+    "fulfilment": {
+      "paymentAlreadyCompleted": "تم إتمام الدفع بالفعل",
+      "paymentAlreadyCompletedDesc": "تم إتمام دفع العميل بالفعل. لا حاجة لتحصيل أي دفعة إضافية.",
+      "emailNotRegistered": "البريد الإلكتروني غير مسجل",
+      "emailNotRegisteredDesc": "هذا البريد الإلكتروني غير مرتبط بأي طلب إلكتروني. يرجى التحقق من العنوان، أو مطالبة العميل بتقديم طلبه أولاً.",
+      "gotIt": "حسنًا"
     }
   },
   "activationV2": {
@@ -1339,7 +1397,16 @@
         "registered": "رمز KIT مسجّل بالفعل لشريحة أخرى.",
         "invalid": "رمز KIT غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
         "used": "رمز KIT مُستخدم بالفعل في تفعيل سابق."
-      }
+      },
+      "planTypesTitle": "أنواع الباقات",
+      "allPlansTitle": "كل الباقات",
+      "searchPlans": "ابحث عن باقة",
+      "filtersAria": "الفلاتر",
+      "filtersTitle": "الفلاتر",
+      "applyFilters": "تطبيق الفلاتر",
+      "noPlansMatchSearch": "لا توجد باقات مطابقة لبحثك.",
+      "allPlansBtn": "كل الباقات",
+      "backAria": "رجوع"
     },
     "plan": {
       "filter": "تصفية",
@@ -1906,7 +1973,16 @@
         "registered": "رمز KIT مسجّل بالفعل لشريحة أخرى.",
         "invalid": "رمز KIT غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
         "used": "رمز KIT مُستخدم بالفعل في تفعيل سابق."
-      }
+      },
+      "planTypesTitle": "أنواع الباقات",
+      "allPlansTitle": "كل الباقات",
+      "searchPlans": "ابحث عن باقة",
+      "filtersAria": "الفلاتر",
+      "filtersTitle": "الفلاتر",
+      "applyFilters": "تطبيق الفلاتر",
+      "noPlansMatchSearch": "لا توجد باقات مطابقة لبحثك.",
+      "allPlansBtn": "كل الباقات",
+      "backAria": "رجوع"
     },
     "plan": {
       "filter": "تصفية",
@@ -2473,7 +2549,16 @@
         "registered": "رمز KIT مسجّل بالفعل لشريحة أخرى.",
         "invalid": "رمز KIT غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
         "used": "رمز KIT مُستخدم بالفعل في تفعيل سابق."
-      }
+      },
+      "planTypesTitle": "أنواع الباقات",
+      "allPlansTitle": "كل الباقات",
+      "searchPlans": "ابحث عن باقة",
+      "filtersAria": "الفلاتر",
+      "filtersTitle": "الفلاتر",
+      "applyFilters": "تطبيق الفلاتر",
+      "noPlansMatchSearch": "لا توجد باقات مطابقة لبحثك.",
+      "allPlansBtn": "كل الباقات",
+      "backAria": "رجوع"
     },
     "plan": {
       "filter": "تصفية",
@@ -2852,7 +2937,28 @@
     "english": "الإنجليزية",
     "arabic": "العربية",
     "comingSoon": "قريباً",
-    "comingSoonDesc": "المزيد من إعدادات التفضيلات قادمة."
+    "comingSoonDesc": "المزيد من إعدادات التفضيلات قادمة.",
+    "widgets": "الودجات",
+    "changePinCode": "تغيير رمز PIN",
+    "allowFaceId": "السماح بمعرف الوجه",
+    "biometrics": "القياسات الحيوية",
+    "appearance": "المظهر",
+    "appearanceLight": "فاتح",
+    "appearanceDark": "داكن",
+    "appearanceSystem": "النظام",
+    "deviceInfo": "معلومات الجهاز",
+    "versionNumber": "رقم الإصدار",
+    "buildNumber": "رقم البناء",
+    "close": "إغلاق",
+    "currentPin": "رمز PIN الحالي",
+    "newPin": "رمز PIN الجديد",
+    "confirmPinCode": "تأكيد رمز PIN",
+    "enterCurrentPin": "أدخل رمز PIN الحالي",
+    "enterNewPin": "أدخل رمز PIN الجديد",
+    "submitPin": "إرسال",
+    "showPin": "إظهار رمز PIN",
+    "hidePin": "إخفاء رمز PIN",
+    "reorderWidget": "إعادة ترتيب {{label}}"
   },
   "profile": {
     "myHierarchy": "التسلسل الإداري",
@@ -2875,7 +2981,16 @@
         "salesPartner": "شريك المبيعات",
         "salesPromoter": "مروّج المبيعات"
       }
-    }
+    },
+    "scanQrCode": "مسح رمز QR",
+    "scanQrCodeSub": "ضع رمز QR داخل الإطار للمسح",
+    "logOut": "تسجيل الخروج",
+    "logOutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "cancel": "إلغاء",
+    "logoutAction": "تسجيل الخروج",
+    "logOutAria": "تسجيل الخروج",
+    "shareAria": "مشاركة",
+    "title": "الملف الشخصي"
   },
   "notifications": {
     "title": "الإشعارات",

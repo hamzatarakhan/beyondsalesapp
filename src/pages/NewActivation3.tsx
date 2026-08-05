@@ -1495,14 +1495,14 @@ const NewActivation3 = () => {
               <div className="space-y-4">
                 {selectedPlanObj && (
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Selected Plan</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation.plan.selectedPlan")}</h3>
                     <PlanCard
                       plan={selectedPlanObj}
                       selected
                       active
                       onSelect={() => {}}
                       hideRadio
-                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                       layout={
                         selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
                         : selectedPlanObj.categories?.includes("aman") ? "aman"
@@ -1633,7 +1633,7 @@ const NewActivation3 = () => {
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Plan Types</h3>
+                <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.planTypesTitle")}</h3>
                 <div
                 {...planChipsDragScroll}
                 className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", planChipsDragScroll.className)}
@@ -1693,8 +1693,8 @@ const NewActivation3 = () => {
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               >
-                All plans
-                <ChevronRight className="w-4 h-4" />
+                {t("activation3.subscription.allPlansBtn")}
+                <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
 
@@ -2073,9 +2073,9 @@ const NewActivation3 = () => {
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Payment Already Completed</p>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.fulfilment.paymentAlreadyCompleted")}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
-                    Customer payment has already been completed. No additional payment collection is required.
+                    {t("activation.fulfilment.paymentAlreadyCompletedDesc")}
                   </p>
                 </div>
               </div>
@@ -2711,15 +2711,15 @@ const NewActivation3 = () => {
             </svg>
             <Mail className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-[#E30613] mb-2 text-lg">Email Not Registered</h4>
+          <h4 className="font-semibold text-[#E30613] mb-2 text-lg">{t("activation.fulfilment.emailNotRegistered")}</h4>
           <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-            This email isn't linked to any online application. Please double-check the address, or ask the customer to submit their application first.
+            {t("activation.fulfilment.emailNotRegisteredDesc")}
           </p>
           <button
             onClick={() => setCustomerNotFoundOpen(false)}
             className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
           >
-            Got It
+            {t("activation.fulfilment.gotIt")}
           </button>
         </DialogContent>
       </Dialog>
@@ -2735,9 +2735,9 @@ const NewActivation3 = () => {
             </svg>
             <Wallet className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
           </div>
-          <DialogTitle className="font-semibold text-[#E30613] mb-2 text-lg">Not Eligible for Prepaid</DialogTitle>
+          <DialogTitle className="font-semibold text-[#E30613] mb-2 text-lg">{t("activation.prepaidLimit.title")}</DialogTitle>
           <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-            This customer has reached their prepaid activation limit and can't be activated on a new prepaid line. They can still be ported in (MNP) on Prepaid, or explore Postpaid instead.
+            {t("activation.prepaidLimit.description")}
           </p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
               auto-injected close button) would otherwise also hide this direct-child button. */}
@@ -2746,7 +2746,7 @@ const NewActivation3 = () => {
               onClick={() => { selectPayType("basic-postpaid"); setPrepaidLimitOpen(false); }}
               className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
             >
-              Explore our Postpaid Plans
+              {t("activation.prepaidLimit.cta")}
             </button>
           </div>
         </DialogContent>

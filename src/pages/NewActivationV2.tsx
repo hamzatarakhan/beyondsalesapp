@@ -1445,7 +1445,7 @@ const NewActivationV2 = () => {
                       active
                       onSelect={() => {}}
                       hideRadio
-                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      minsLabel={selectedPlanObj.categories?.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                       layout={
                         selectedPlanObj.categories?.includes("switch-postpaid") ? "postpaid"
                         : selectedPlanObj.categories?.includes("aman") ? "aman"

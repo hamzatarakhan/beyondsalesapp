@@ -426,7 +426,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
                       selected={selectedPlan === originalIdx}
                       active={activeSnap === i}
                       onSelect={() => onSelect(originalIdx, p)}
-                      minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                      minsLabel={cats.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                       layout={layout}
                       mnpEligible={isMnpEligible?.(p)}
                     />

@@ -46,16 +46,6 @@ import QRCode from "react-qr-code";
 
 
 
-const memberOnboarding = [
-  { icon: UserPlus, label: "Channel Onboarding", path: "/channel-onboarding", badge: "Approved", badgeTone: "approved" as const },
-  { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests", badge: "Approved", badgeTone: "approved" as const },
-];
-
-const simServices = [
-  { id: "sim-replacement", icon: RefreshCw, label: "SIM Replacement", path: "/sim-replacement", badge: "Needs Confirm", badgeTone: "confirm" as const },
-  { id: "sim-termination", icon: PhoneOff, label: "SIM Termination", path: "/sim-termination", badge: "Needs Confirm", badgeTone: "confirm" as const },
-];
-
 // Hero banner slides — same content repeated for now, swap in real variations later.
 const HERO_SLIDES = [0, 1, 2];
 const HERO_AUTOPLAY_MS = 4000;
@@ -115,25 +105,35 @@ const Home = () => {
   // three plan-card presentation experiments ("New plan card options"). MNP is hidden for
   // now; Continue Activation (fulfilment) lives in Customer Activities instead.
   const oldSimActivationOptions = [
-    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: "Option 1", badgeTone: "special" as const },
-    { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: "Option 2", badgeTone: "special" as const },
+    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: t("home.badgeOption1"), badgeTone: "special" as const },
+    { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: t("home.badgeOption2"), badgeTone: "special" as const },
   ];
   const newPlanCardOptions = [
-    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: "Plans option 1", badgeTone: "special" as const },
-    { id: "sim-4", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-4", badge: "Plans option 2", badgeTone: "special" as const },
-    { id: "sim-5", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-5", badge: "Plans option 3", badgeTone: "special" as const },
+    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgePlansOption1"), badgeTone: "special" as const },
+    { id: "sim-4", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-4", badge: t("home.badgePlansOption2"), badgeTone: "special" as const },
+    { id: "sim-5", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-5", badge: t("home.badgePlansOption3"), badgeTone: "special" as const },
+  ];
+
+  const memberOnboarding = [
+    { icon: UserPlus, label: t("home.channelOnboarding"), path: "/channel-onboarding", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
+    { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
+  ];
+
+  const simServices = [
+    { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
-    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: "Needs Confirm", badgeTone: "confirm" as const },
-    { id: "migration", icon: ArrowLeftRight, label: "Subscription Migration", path: "/subscription-migration", badge: "Needs Confirm", badgeTone: "confirm" as const },
-    { id: "credit-limit", icon: CreditCard, label: "Credit Limit Adjustment", path: "/credit-limit-adjustment", badge: "Needs Confirm", badgeTone: "confirm" as const },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "migration", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "credit-limit", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
     ...(activeOperator === "friendi"
       ? []
-      : [{ id: "bill-payment", icon: Receipt, label: "Bill Payment", path: "/bill-payment", badge: "In Progress", badgeTone: "progress" as const }]),
+      : [{ id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const }]),
   ];
 
   const handleActivityClick = (path: string) => {
@@ -158,10 +158,10 @@ const Home = () => {
       <div key="sim-activation-options" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">SIM Activation Options</h3>
+            <h3 className="font-semibold text-foreground">{t("home.simActivationOptions")}</h3>
           </div>
 
-          <p className="text-xs font-medium text-muted-foreground mb-3">Old approaches</p>
+          <p className="text-xs font-medium text-muted-foreground mb-3">{t("home.oldApproaches")}</p>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {oldSimActivationOptions.map((activity) => (
               <ActivityIcon
@@ -182,7 +182,7 @@ const Home = () => {
 
           <div className="h-px bg-border/60 my-4" />
 
-          <p className="text-xs font-medium text-muted-foreground mb-3">New plan card options</p>
+          <p className="text-xs font-medium text-muted-foreground mb-3">{t("home.newPlanCardOptions")}</p>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {newPlanCardOptions.map((activity) => (
               <ActivityIcon
@@ -231,7 +231,7 @@ const Home = () => {
       <div key="sim-services" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">SIM Services</h3>
+            <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {simServices.map((item) => (
@@ -253,7 +253,7 @@ const Home = () => {
       <div key="member-onboarding" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
+            <h3 className="font-semibold text-foreground">{t("home.memberOnboarding")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {memberOnboarding.map((item) => (
@@ -288,8 +288,8 @@ const Home = () => {
           {SHOW_BRAND_SWITCHER && (
             <button
               onClick={() => setOperatorSheetOpen(true)}
-              aria-label={`Switch brand — currently ${activeOp.name}`}
-              className="h-10 pl-1 pr-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
+              aria-label={t("home.switchBrandAria", { brand: activeOp.name })}
+              className="h-10 ps-1 pe-2.5 rounded-full bg-card shadow-sm flex items-center gap-1.5 shrink-0"
             >
               <img src={activeOp.logo} alt={activeOp.name} className="w-8 h-8 rounded-full shrink-0" />
               <ArrowLeftRight className="w-4 h-4 text-foreground" />
@@ -297,18 +297,18 @@ const Home = () => {
           )}
           <button
             onClick={() => setQrSheetOpen(true)}
-            aria-label="Show QR code"
+            aria-label={t("home.showQrAria")}
             className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
           >
             <QrCode className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => navigate("/notifications")}
-            aria-label="Notifications"
+            aria-label={t("home.notificationsAria")}
             className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative"
           >
             <Bell className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full" />
+            <span className="absolute top-2 end-2.5 w-2 h-2 bg-primary rounded-full" />
           </button>
         </div>
       </header>
@@ -459,43 +459,43 @@ const Home = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
           <button
             onClick={() => { setFlowChoiceOpen(false); setPendingPath(null); }}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
           >
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">Choose Activation Flow</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("home.chooseActivationFlow")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
-              Select how you want to complete this activation
+              {t("home.chooseActivationFlowSub")}
             </DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-3">
             <button
               onClick={() => goWithMode("classic")}
-              className="w-full text-left flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <LayoutList className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">STC Flow</p>
+                <p className="font-semibold text-sm text-foreground">{t("home.stcFlow")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Details → Review & pay → Complete.
+                  {t("home.stcFlowSub")}
                 </p>
               </div>
             </button>
             <button
               onClick={() => goWithMode("staged")}
-              className="w-full text-left flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <ListChecks className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Option 2 -- Multiple steps</p>
+                <p className="font-semibold text-sm text-foreground">{t("home.multiStepFlow")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  SIM & KIT → Details → Review & pay.
+                  {t("home.multiStepFlowSub")}
                 </p>
               </div>
             </button>
@@ -507,15 +507,15 @@ const Home = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
           <button
             onClick={() => setOperatorSheetOpen(false)}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
           >
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">Switch Brands</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("home.switchBrands")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
-              Choose the operator you're selling for
+              {t("home.switchBrandsSub")}
             </DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-8 space-y-2">
@@ -528,10 +528,10 @@ const Home = () => {
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition ${selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card"}`}
                 >
                   <img src={op.logo} alt={op.name} className="w-10 h-10 rounded-full shrink-0" />
-                  <p className="flex-1 text-left text-sm font-semibold text-foreground">{op.name}</p>
+                  <p className="flex-1 text-start text-sm font-semibold text-foreground">{op.name}</p>
                   {selected && (
                     <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
-                      Selected
+                      {t("home.selected")}
                     </span>
                   )}
                 </button>
@@ -545,13 +545,13 @@ const Home = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
           <button
             onClick={() => setQrSheetOpen(false)}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
           >
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">QR Code</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("home.qrCode")}</DrawerTitle>
           </DrawerHeader>
           <div className="px-8 pb-6 flex items-center justify-center">
             <div className="bg-white p-4 rounded-2xl">
@@ -563,7 +563,7 @@ const Home = () => {
               onClick={() => setQrSheetOpen(false)}
               className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
-              Done
+              {t("home.done")}
             </button>
           </div>
         </DrawerContent>

@@ -3,13 +3,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { BrandProvider } from "./contexts/BrandContext";
 import { WidgetsProvider } from "./contexts/WidgetsContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import SplashScreen from "./components/SplashScreen";
 import BrandSwitchLoader from "./components/BrandSwitchLoader";
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Settings from "./pages/Settings";
@@ -50,6 +52,11 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const RequireAuth = () => {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
   return (
@@ -58,6 +65,7 @@ const App = () => {
     <LanguageProvider>
     <BrandProvider>
     <WidgetsProvider>
+    <AuthProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         <BrandSwitchLoader />
@@ -65,6 +73,8 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<RequireAuth />}>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
           <Route path="/settings" element={<Settings />} />
@@ -100,11 +110,13 @@ const App = () => {
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
 
         </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </AuthProvider>
     </WidgetsProvider>
     </BrandProvider>
     </LanguageProvider>

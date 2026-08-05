@@ -1,4 +1,13 @@
 {
+  "login": {
+    "welcome": "Hello, Welcome to Beyond One",
+    "usernamePlaceholder": "Username",
+    "passwordPlaceholder": "Password",
+    "forgetPassword": "Forget Password ?",
+    "loginButton": "Login",
+    "activateDevice": "Activate Device",
+    "poweredBy": "Powered by"
+  },
   "home": {
     "greeting": "Hello, Hamza 👋",
     "dealerId": "123456789",
@@ -11,7 +20,41 @@
     "simActivationV2": "SIM Activation 2",
     "simActivation3": "SIM Activation 3",
     "mnp": "MNP",
-    "fulfilment": "Continue Activation"
+    "fulfilment": "Continue Activation",
+    "simActivationOptions": "SIM Activation Options",
+    "oldApproaches": "Old approaches",
+    "newPlanCardOptions": "New plan card options",
+    "simServices": "SIM Services",
+    "memberOnboarding": "Member Onboarding",
+    "channelOnboarding": "Channel Onboarding",
+    "onboardingRequests": "Onboarding Requests",
+    "simReplacement": "SIM Replacement",
+    "simTermination": "SIM Termination",
+    "subscriptionMigration": "Subscription Migration",
+    "creditLimitAdjustment": "Credit Limit Adjustment",
+    "billPayment": "Bill Payment",
+    "badgeApproved": "Approved",
+    "badgeNeedsConfirm": "Needs Confirm",
+    "badgeInProgress": "In Progress",
+    "chooseActivationFlow": "Choose Activation Flow",
+    "chooseActivationFlowSub": "Select how you want to complete this activation",
+    "stcFlow": "STC Flow",
+    "stcFlowSub": "Details → Review & pay → Complete.",
+    "multiStepFlow": "Option 2 -- Multiple steps",
+    "multiStepFlowSub": "SIM & KIT → Details → Review & pay.",
+    "switchBrands": "Switch Brands",
+    "switchBrandsSub": "Choose the operator you're selling for",
+    "selected": "Selected",
+    "qrCode": "QR Code",
+    "done": "Done",
+    "switchBrandAria": "Switch brand — currently {{brand}}",
+    "showQrAria": "Show QR code",
+    "notificationsAria": "Notifications",
+    "badgeOption1": "Option 1",
+    "badgeOption2": "Option 2",
+    "badgePlansOption1": "Plans option 1",
+    "badgePlansOption2": "Plans option 2",
+    "badgePlansOption3": "Plans option 3"
   },
   "nav": {
     "home": "Home",
@@ -316,7 +359,10 @@
         "facebook": "Facebook",
         "snapchat": "Snapchat",
         "telegram": "Telegram"
-      }
+      },
+      "mnpEligible": "MNP Eligible",
+      "selectPlanAria": "Select {{title}}",
+      "selectedPlan": "Selected Plan"
     },
     "checkout": {
       "title": "Checkout",
@@ -567,6 +613,18 @@
       "failedTitle": "Verification Failed !",
       "failedDesc": "The verification could not be completed. Please try again.",
       "again": "Again"
+    },
+    "prepaidLimit": {
+      "title": "Not Eligible for Prepaid",
+      "description": "This customer has reached their prepaid activation limit and can't be activated on a new prepaid line. They can still be ported in (MNP) on Prepaid, or explore Postpaid instead.",
+      "cta": "Explore our Postpaid Plans"
+    },
+    "fulfilment": {
+      "paymentAlreadyCompleted": "Payment Already Completed",
+      "paymentAlreadyCompletedDesc": "Customer payment has already been completed. No additional payment collection is required.",
+      "emailNotRegistered": "Email Not Registered",
+      "emailNotRegisteredDesc": "This email isn't linked to any online application. Please double-check the address, or ask the customer to submit their application first.",
+      "gotIt": "Got It"
     }
   },
   "activationV2": {
@@ -1325,7 +1383,16 @@
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
         "used": "This KIT Code has already been used for a previous activation."
-      }
+      },
+      "planTypesTitle": "Plan Types",
+      "allPlansTitle": "All Plans",
+      "searchPlans": "Search plans",
+      "filtersAria": "Filters",
+      "filtersTitle": "Filters",
+      "applyFilters": "Apply Filters",
+      "noPlansMatchSearch": "No plans match your search.",
+      "allPlansBtn": "All plans",
+      "backAria": "Back"
     },
     "plan": {
       "filter": "Filter",
@@ -1885,7 +1952,16 @@
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
         "used": "This KIT Code has already been used for a previous activation."
-      }
+      },
+      "planTypesTitle": "Plan Types",
+      "allPlansTitle": "All Plans",
+      "searchPlans": "Search plans",
+      "filtersAria": "Filters",
+      "filtersTitle": "Filters",
+      "applyFilters": "Apply Filters",
+      "noPlansMatchSearch": "No plans match your search.",
+      "allPlansBtn": "All plans",
+      "backAria": "Back"
     },
     "plan": {
       "filter": "Filter",
@@ -2445,7 +2521,16 @@
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
         "used": "This KIT Code has already been used for a previous activation."
-      }
+      },
+      "planTypesTitle": "Plan Types",
+      "allPlansTitle": "All Plans",
+      "searchPlans": "Search plans",
+      "filtersAria": "Filters",
+      "filtersTitle": "Filters",
+      "applyFilters": "Apply Filters",
+      "noPlansMatchSearch": "No plans match your search.",
+      "allPlansBtn": "All plans",
+      "backAria": "Back"
     },
     "plan": {
       "filter": "Filter",
@@ -2817,7 +2902,28 @@
     "english": "English",
     "arabic": "Arabic",
     "comingSoon": "Coming Soon",
-    "comingSoonDesc": "More settings preferences are on the way."
+    "comingSoonDesc": "More settings preferences are on the way.",
+    "widgets": "Widgets",
+    "changePinCode": "Change PIN Code",
+    "allowFaceId": "Allow Face ID",
+    "biometrics": "Biometrics",
+    "appearance": "Appearance",
+    "appearanceLight": "Light",
+    "appearanceDark": "Dark",
+    "appearanceSystem": "System",
+    "deviceInfo": "Device Info",
+    "versionNumber": "Version Number",
+    "buildNumber": "Build Number",
+    "close": "Close",
+    "currentPin": "Current PIN",
+    "newPin": "New PIN",
+    "confirmPinCode": "Confirm PIN Code",
+    "enterCurrentPin": "Enter current PIN",
+    "enterNewPin": "Enter New PIN",
+    "submitPin": "Submit",
+    "showPin": "Show PIN",
+    "hidePin": "Hide PIN",
+    "reorderWidget": "Reorder {{label}}"
   },
   "profile": {
     "myHierarchy": "My Hierarchy",
@@ -2840,7 +2946,16 @@
         "salesPartner": "Sales Partner",
         "salesPromoter": "Sales Promoter"
       }
-    }
+    },
+    "scanQrCode": "Scan QR Code",
+    "scanQrCodeSub": "Place QR code inside the frame to scan",
+    "logOut": "Log Out",
+    "logOutConfirm": "Are you sure you want to log out?",
+    "cancel": "Cancel",
+    "logoutAction": "Logout",
+    "logOutAria": "Log out",
+    "shareAria": "Share",
+    "title": "Profile"
   },
   "notifications": {
     "title": "Notifications",

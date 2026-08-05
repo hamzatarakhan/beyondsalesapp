@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useBrand, Brand } from "@/contexts/BrandContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import virginBadge from "@/assets/virgin-mobile-badge.svg";
 import friendiBadge from "@/assets/friendi-mobile-badge.svg";
@@ -33,18 +34,25 @@ const Profile = () => {
   const { brand } = useBrand();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { logout } = useAuth();
   const qrData = encodeURIComponent(`EMPLOYEE:${EMPLOYEE.code}`);
   const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const handleLogout = () => {
+    setLogoutOpen(false);
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
       <AppHeader
-        title="Profile"
+        title={t("profile.title")}
         showBack
         rightElement={
           <button
             type="button"
-            aria-label="Log out"
+            aria-label={t("profile.logOutAria")}
             onClick={() => setLogoutOpen(true)}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
           >
@@ -82,7 +90,7 @@ const Profile = () => {
               <span className="text-sm text-foreground flex-1">{EMPLOYEE.email}</span>
               <button
                 type="button"
-                aria-label="Share"
+                aria-label={t("profile.shareAria")}
                 className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
               >
                 <Share2 className="w-4 h-4 text-primary" />
@@ -107,8 +115,8 @@ const Profile = () => {
         </button>
 
         <section className="bg-card rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
-          <h2 className="text-base font-semibold text-foreground">Scan QR Code</h2>
-          <p className="text-xs text-muted-foreground mt-1 mb-5">Place QR code inside the frame to scan</p>
+          <h2 className="text-base font-semibold text-foreground">{t("profile.scanQrCode")}</h2>
+          <p className="text-xs text-muted-foreground mt-1 mb-5">{t("profile.scanQrCodeSub")}</p>
 
           <div className="relative w-56 h-56">
             <span className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary rounded-tl-md" />
@@ -140,8 +148,8 @@ const Profile = () => {
             </svg>
             <span className="text-2xl font-bold text-[#0284c7] relative">!</span>
           </div>
-          <DialogTitle className="font-semibold text-[#0284c7] text-lg">Log Out</DialogTitle>
-          <p className="text-sm text-muted-foreground mb-3">Are you sure you want to log out?</p>
+          <DialogTitle className="font-semibold text-[#0284c7] text-lg">{t("profile.logOut")}</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-3">{t("profile.logOutConfirm")}</p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
               auto-injected close button) would otherwise also hide these direct-child buttons. */}
           <div className="flex gap-3">
@@ -149,13 +157,13 @@ const Profile = () => {
               onClick={() => setLogoutOpen(false)}
               className="flex-1 py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
             >
-              Cancel
+              {t("profile.cancel")}
             </button>
             <button
-              onClick={() => setLogoutOpen(false)}
+              onClick={handleLogout}
               className="flex-1 py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
             >
-              Logout
+              {t("profile.logoutAction")}
             </button>
           </div>
         </DialogContent>

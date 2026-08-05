@@ -508,15 +508,15 @@ const PlanCard = ({
         {/* Per-plan badge — pinned flush to the card's top-right corner. Suppressed when
             embedded (hideTitleRow): the collapsed row already shows it as a small chip. */}
         {plan.badge && layout !== "payg" && !hideTitleRow && (
-          <span className="absolute top-0 end-0 bg-green-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tr-2xl rounded-bl-md z-10">
+          <span className="absolute top-0 end-0 bg-green-600 text-white text-[9px] font-semibold px-2 py-1 rounded-se-2xl rounded-es-md z-10">
             {t(`activation.plan.badges.${plan.badge}`, plan.badge)}
           </span>
         )}
-        {/* MNP eligibility tag — top-left corner, same line as the badge above, no extra height.
+        {/* MNP eligibility tag — top-start corner, same line as the badge above, no extra height.
             Suppressed when embedded (hideTitleRow): the collapsed row already shows it as a small chip. */}
         {mnpEligible && layout !== "payg" && !hideTitleRow && (
-          <span className="absolute top-0 start-0 bg-sky-600 text-white text-[9px] font-semibold px-2 py-1 rounded-tl-2xl rounded-br-md z-10">
-            MNP Eligible
+          <span className="absolute top-0 start-0 bg-sky-600 text-white text-[9px] font-semibold px-2 py-1 rounded-ss-2xl rounded-ee-md z-10">
+            {t("activation.plan.mnpEligible")}
           </span>
         )}
 

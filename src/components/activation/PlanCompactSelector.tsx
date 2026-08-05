@@ -103,7 +103,7 @@ const PlanCompactSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFi
                     <p className="text-[11px] text-muted-foreground">{validity}</p>
                     {isMnpEligible?.(p) && (
                       <span className="px-1.5 py-[1px] rounded-full bg-sky-600 text-white text-[9px] font-semibold whitespace-nowrap">
-                        MNP Eligible
+                        {t("activation.plan.mnpEligible")}
                       </span>
                     )}
                   </div>
@@ -127,7 +127,7 @@ const PlanCompactSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFi
             <DrawerTitle className="font-semibold text-foreground text-lg truncate px-10">{detailPlan?.title}</DrawerTitle>
             <button
               onClick={() => setDetailIdx(null)}
-              aria-label="Close"
+              aria-label={t("settings.close")}
               className="absolute end-0 w-8 h-8 rounded-full border border-border flex items-center justify-center shrink-0"
             >
               <X className="w-4 h-4" />
@@ -140,7 +140,7 @@ const PlanCompactSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFi
                 selected={detailIdx === selectedPlan}
                 active
                 layout={planLayout(detailPlan)}
-                minsLabel={detailPlan.categories.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                minsLabel={detailPlan.categories.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                 mnpEligible={isMnpEligible?.(detailPlan)}
                 onSelect={() => {
                   if (detailIdx != null) onSelect(detailIdx, detailPlan);

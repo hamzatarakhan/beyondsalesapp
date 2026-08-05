@@ -103,7 +103,7 @@ const PlanExpandableSelector = ({ selectedPlan, onSelect, plans = PLANS, categor
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onSelect(originalIdx, p); }}
-                    aria-label={`Select ${p.title}`}
+                    aria-label={t("activation.plan.selectPlanAria", { title: p.title })}
                     className={cn(
                       "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
                       isSelected ? "border-primary bg-primary" : "border-muted-foreground/30",
@@ -119,7 +119,7 @@ const PlanExpandableSelector = ({ selectedPlan, onSelect, plans = PLANS, categor
                       <p className="text-[11px] text-muted-foreground">{validity}</p>
                       {isMnpEligible?.(p) && (
                         <span className="px-1.5 py-[1px] rounded-full bg-sky-600 text-white text-[9px] font-semibold whitespace-nowrap">
-                          MNP Eligible
+                          {t("activation.plan.mnpEligible")}
                         </span>
                       )}
                       {p.badge && (
@@ -156,7 +156,7 @@ const PlanExpandableSelector = ({ selectedPlan, onSelect, plans = PLANS, categor
                         selected={isSelected}
                         active
                         layout={planLayout(p)}
-                        minsLabel={p.categories.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                        minsLabel={p.categories.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                         mnpEligible={isMnpEligible?.(p)}
                         onSelect={() => onSelect(originalIdx, p)}
                         hideTitleRow

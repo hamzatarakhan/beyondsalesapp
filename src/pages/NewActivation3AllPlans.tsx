@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Search, SlidersHorizontal, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import PlanCard from "@/components/PlanCard";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -32,6 +33,7 @@ interface NavState {
 const NewActivation3AllPlans = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
 
@@ -90,12 +92,12 @@ const NewActivation3AllPlans = () => {
         <header dir="ltr" className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={goBack}
-            aria-label="Back"
+            aria-label={t("activation3.subscription.backAria")}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">All Plans</h1>
+          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("activation3.subscription.allPlansTitle")}</h1>
           <div className="w-10 shrink-0" />
         </header>
 
@@ -106,14 +108,14 @@ const NewActivation3AllPlans = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search plans"
+              placeholder={t("activation3.subscription.searchPlans")}
               className="h-11 bg-card rounded-xl ps-9"
             />
           </div>
           <button
             type="button"
             onClick={() => setFilterOpen(true)}
-            aria-label="Filters"
+            aria-label={t("activation3.subscription.filtersAria")}
             className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
           >
             <SlidersHorizontal className="w-4 h-4 text-foreground" />
@@ -130,7 +132,7 @@ const NewActivation3AllPlans = () => {
       <div className="px-4 space-y-3">
         {visiblePlans.length === 0 ? (
           <div className="bg-card rounded-2xl p-6 text-center text-sm text-muted-foreground shadow-sm">
-            No plans match your search.
+            {t("activation3.subscription.noPlansMatchSearch")}
           </div>
         ) : (
           visiblePlans.map((p) => {
@@ -150,7 +152,7 @@ const NewActivation3AllPlans = () => {
                 selected={false}
                 active
                 hideRadio
-                minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                minsLabel={cats.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                 layout={layout as any}
                 onSelect={() => pickPlan(p.title)}
                 mnpEligible={isFriendi ? undefined : isPlanMnpEligible(p)}
@@ -165,22 +167,22 @@ const NewActivation3AllPlans = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
           <button
             onClick={() => setFilterOpen(false)}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
           >
             <X className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">Filters</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("activation3.subscription.filtersTitle")}</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-8 space-y-5 overflow-y-auto">
             {!isFriendi && (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Line Type</h3>
+                <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.lineTypeTitle")}</h3>
                 <div className="flex flex-wrap gap-2">
                   {([
-                    { key: "mobile" as const, label: "Mobile" },
-                    { key: "data" as const, label: "Data" },
+                    { key: "mobile" as const, label: t("activation3.subscription.lineMobile") },
+                    { key: "data" as const, label: t("activation3.subscription.lineData") },
                   ]).map(({ key, label }) => (
                     <button
                       key={key}
@@ -199,17 +201,17 @@ const NewActivation3AllPlans = () => {
             )}
 
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-foreground">Subscription Type</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.subscriptionTypeTitle")}</h3>
               <div className="flex flex-wrap gap-2">
                 {(isFriendi
                   ? [
-                      { key: "prepaid" as const, label: "Prepaid" },
-                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
+                      { key: "prepaid" as const, label: t("activation3.subscription.prepaid") },
+                      { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid") },
                     ]
                   : [
-                      { key: "prepaid" as const, label: "Prepaid" },
-                      { key: "postpaid" as const, label: "Postpaid" },
-                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
+                      { key: "prepaid" as const, label: t("activation3.subscription.prepaid") },
+                      { key: "postpaid" as const, label: t("activation3.subscription.postpaid") },
+                      { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid") },
                     ]
                 ).map(({ key, label }) => (
                   <button
@@ -229,7 +231,7 @@ const NewActivation3AllPlans = () => {
 
             {showPlanTypeChips && (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Plan Types</h3>
+                <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.planTypesTitle")}</h3>
                 <div className="flex flex-wrap gap-2">
                   {activePlanChips.map((c) => (
                     <button
@@ -241,7 +243,19 @@ const NewActivation3AllPlans = () => {
                         chip === c.value ? "bg-primary text-white" : "bg-muted text-foreground"
                       )}
                     >
-                      {c.label}
+                      {({
+                        "all": t("activation3.subscription.chips.all"),
+                        "flex": t("activation3.subscription.chips.flex"),
+                        "aman": t("activation3.subscription.chips.aman"),
+                        "base-plan": t("activation3.subscription.chips.baqa"),
+                        "data": isFriendi ? t("activation3.subscription.chips.internet") : t("activation3.subscription.chips.data"),
+                        "switch-postpaid": t("activation3.subscription.chips.switchPostpaid"),
+                        "vnet": t("activation3.subscription.chips.vnet"),
+                        "combo": t("activation3.subscription.chips.combo"),
+                        "flexi": t("activation3.subscription.chips.flexiPlans"),
+                        "calls": t("activation3.subscription.chips.international"),
+                        "payg": t("activation3.subscription.chips.payg"),
+                      } as Record<string, string>)[c.value] ?? c.label}
                     </button>
                   ))}
                 </div>
@@ -253,7 +267,7 @@ const NewActivation3AllPlans = () => {
               onClick={() => setFilterOpen(false)}
               className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
-              Apply Filters
+              {t("activation3.subscription.applyFilters")}
             </button>
           </div>
         </DrawerContent>

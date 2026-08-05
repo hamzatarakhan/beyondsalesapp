@@ -1,0 +1,87 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import beyondOneLogo from "@/assets/beyond-one-logo.svg";
+
+const Login = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { login } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = () => {
+    login();
+    navigate("/", { replace: true });
+  };
+
+  return (
+    <div className="mobile-container min-h-screen bg-background flex flex-col px-6 pt-32 pb-10">
+      <img src={beyondOneLogo} alt="Beyond One" className="h-14 w-auto mx-auto" />
+      <p className="text-center text-sm text-muted-foreground mt-4">{t("login.welcome")}</p>
+
+      <div className="mt-10 space-y-3">
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder={t("login.usernamePlaceholder")}
+          className="h-14 rounded-2xl bg-white px-4"
+        />
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t("login.passwordPlaceholder")}
+            className="h-14 rounded-2xl bg-white px-4 pe-11"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? t("settings.hidePin") : t("settings.showPin")}
+            className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      <button type="button" className="self-end mt-3 text-sm font-medium text-foreground">
+        {t("login.forgetPassword")}
+      </button>
+
+      <button
+        type="button"
+        onClick={handleLogin}
+        className="mt-6 h-14 rounded-full bg-black text-white font-semibold text-base"
+      >
+        {t("login.loginButton")}
+      </button>
+      <button
+        type="button"
+        className="mt-3 h-14 rounded-full bg-black/10 text-foreground font-semibold text-base"
+      >
+        {t("login.activateDevice")}
+      </button>
+
+      <div className="mt-8 mx-auto w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500">
+        <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none" />
+          <circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none" />
+          <path d="M8.5 15c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5" />
+        </svg>
+      </div>
+
+      <div className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <span>{t("login.poweredBy")}</span>
+        <img src={beyondOneLogo} alt="" className="h-3.5 w-auto" />
+      </div>
+    </div>
+  );
+};
+
+export default Login;
