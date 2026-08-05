@@ -2,7 +2,10 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 
 interface AuthContextValue {
   isLoggedIn: boolean;
+  /** True from the moment login() is called until the post-login loader finishes playing. */
+  loginTransition: boolean;
   login: () => void;
+  finishLoginTransition: () => void;
   logout: () => void;
 }
 
@@ -17,16 +20,24 @@ function getInitialLoggedIn(): boolean {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(getInitialLoggedIn);
+  const [loginTransition, setLoginTransition] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(isLoggedIn));
   }, [isLoggedIn]);
 
-  const login = () => setIsLoggedIn(true);
+  // Flips isLoggedIn immediately (so the Home route is already mounted) and raises
+  // loginTransition so an App-level overlay can play the loader on top of it — the
+  // overlay must live above Login in the tree since Login itself unmounts on navigate.
+  const login = () => {
+    setIsLoggedIn(true);
+    setLoginTransition(true);
+  };
+  const finishLoginTransition = () => setLoginTransition(false);
   const logout = () => setIsLoggedIn(false);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, loginTransition, login, finishLoginTransition, logout }}>
       {children}
     </AuthContext.Provider>
   );

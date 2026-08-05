@@ -57,6 +57,14 @@ const RequireAuth = () => {
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
+// Lives above the router so it survives the /login -> / navigation: login() flips
+// isLoggedIn and loginTransition together, Home mounts immediately underneath, and
+// this plays the loader on top of it until the transition finishes.
+const LoginTransitionOverlay = () => {
+  const { loginTransition, finishLoginTransition } = useAuth();
+  return loginTransition ? <SplashScreen onFinish={finishLoginTransition} /> : null;
+};
+
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
   return (
@@ -68,6 +76,7 @@ const App = () => {
     <AuthProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+        <LoginTransitionOverlay />
         <BrandSwitchLoader />
         <Toaster />
         <Sonner />

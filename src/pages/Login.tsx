@@ -5,7 +5,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import BeyondOneLogo from "@/components/BeyondOneLogo";
-import SplashScreen from "@/components/SplashScreen";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,22 +13,14 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loggingIn, setLoggingIn] = useState(false);
 
+  // login() flips auth state and raises loginTransition, which an App-level overlay
+  // (mounted above the router, so it survives this navigation) picks up to play the
+  // loader on top of the Home page underneath.
   const handleLogin = () => {
-    setLoggingIn(true);
+    login();
+    navigate("/", { replace: true });
   };
-
-  if (loggingIn) {
-    return (
-      <SplashScreen
-        onFinish={() => {
-          login();
-          navigate("/", { replace: true });
-        }}
-      />
-    );
-  }
 
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col px-6 pt-32 pb-10">
@@ -41,7 +32,7 @@ const Login = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder={t("login.usernamePlaceholder")}
-          className="h-12 rounded-2xl bg-white px-4"
+          className="h-12 rounded-2xl bg-card px-4"
         />
         <div className="relative">
           <Input
@@ -49,7 +40,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("login.passwordPlaceholder")}
-            className="h-12 rounded-2xl bg-white px-4 pe-11"
+            className="h-12 rounded-2xl bg-card px-4 pe-11"
           />
           <button
             type="button"
