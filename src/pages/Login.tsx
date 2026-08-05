@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import beyondOneLogo from "@/assets/beyond-one-logo.svg";
+import BeyondOneLogo from "@/components/BeyondOneLogo";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Login = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col px-6 pt-32 pb-10">
-      <img src={beyondOneLogo} alt="Beyond One" className="h-14 w-auto mx-auto" />
+      <BeyondOneLogo className="h-14 w-auto mx-auto text-[#000B25] dark:text-white" />
       <p className="text-center text-sm text-muted-foreground mt-4">{t("login.welcome")}</p>
 
       <div className="mt-10 space-y-3">
@@ -63,7 +63,7 @@ const Login = () => {
       </button>
       <button
         type="button"
-        className="mt-3 h-12 rounded-full bg-black/10 text-foreground font-semibold text-base"
+        className="mt-3 h-12 rounded-full bg-black/10 dark:bg-white/10 text-foreground font-semibold text-base"
       >
         {t("login.activateDevice")}
       </button>
@@ -78,7 +78,7 @@ const Login = () => {
 
       <div className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span>{t("login.poweredBy")}</span>
-        <img src={beyondOneLogo} alt="" className="h-3.5 w-auto" />
+        <BeyondOneLogo className="h-3.5 w-auto text-[#000B25] dark:text-white" />
       </div>
     </div>
   );
