@@ -28,7 +28,7 @@ const BottomNav = () => {
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
                 isActive
                   ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-foreground/10 text-muted-foreground hover:text-foreground hover:bg-foreground/15"
+                  : "bg-[#E2E8F0] hover:bg-[#d1d9e6] dark:bg-foreground/10 dark:hover:bg-foreground/15 text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-5 h-5" />
