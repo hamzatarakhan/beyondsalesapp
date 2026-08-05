@@ -1129,7 +1129,7 @@
     }
   },
   "activation3": {
-    "title": "SIM Activation 3",
+    "title": "SIM Activation",
     "steps": {
       "identity": "Identity",
       "subscription": "Subscription",
