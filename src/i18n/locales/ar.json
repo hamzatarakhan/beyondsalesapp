@@ -9,6 +9,26 @@
     "poweredBy": "بدعم من",
     "prototypeHint": "نسخة تجريبية فقط — أدخل أي اسم مستخدم/كلمة مرور، أو اضغط تسجيل الدخول مباشرة"
   },
+  "deviceRegistration": {
+    "title": "تسجيل الجهاز",
+    "userName": "اسم المستخدم",
+    "userNamePlaceholder": "أدخل اسمك",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "phoneNumber": "رقم الهاتف",
+    "phoneNumberPlaceholder": "أدخل رقم هاتفك",
+    "deviceInfo": "معلومات الجهاز",
+    "deviceId": "معرّف الجهاز",
+    "androidVersion": "إصدار أندرويد",
+    "deviceModel": "طراز الجهاز",
+    "registerButton": "تسجيل الجهاز",
+    "verifyTitle": "أدخل رمز التحقق",
+    "verifySubtitle": "لقد أرسلنا لك رمز تحقق عبر رسالة نصية",
+    "didntReceiveCode": "لم تستلم الرمز؟",
+    "resend": "إعادة الإرسال",
+    "successTitle": "تم تفعيل الجهاز",
+    "successDesc": "تم تفعيل جهازك بنجاح."
+  },
   "home": {
     "greeting": "مرحباً، حمزة 👋",
     "dealerId": "123456789",

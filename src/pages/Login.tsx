@@ -66,6 +66,7 @@ const Login = () => {
       </button>
       <button
         type="button"
+        onClick={() => navigate("/device-registration")}
         className="mt-3 h-12 rounded-full bg-black/10 dark:bg-white/10 text-foreground font-semibold text-base"
       >
         {t("login.activateDevice")}

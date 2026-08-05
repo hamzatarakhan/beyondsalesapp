@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import SplashScreen from "./components/SplashScreen";
 import BrandSwitchLoader from "./components/BrandSwitchLoader";
 import Login from "./pages/Login";
+import DeviceRegistration from "./pages/DeviceRegistration";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Settings from "./pages/Settings";
@@ -83,6 +84,7 @@ const App = () => {
         <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/device-registration" element={<DeviceRegistration />} />
           <Route element={<RequireAuth />}>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />

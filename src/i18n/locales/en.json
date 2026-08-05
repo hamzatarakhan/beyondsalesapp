@@ -9,6 +9,26 @@
     "poweredBy": "Powered by",
     "prototypeHint": "Prototype only — enter any username/password, or just tap Login"
   },
+  "deviceRegistration": {
+    "title": "Device Registration",
+    "userName": "User Name",
+    "userNamePlaceholder": "Enter your name",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Enter your phone number",
+    "deviceInfo": "Device Info",
+    "deviceId": "Device ID",
+    "androidVersion": "Android Version",
+    "deviceModel": "Device Model",
+    "registerButton": "Register Device",
+    "verifyTitle": "Enter Verification Code",
+    "verifySubtitle": "We sent you a verification code via SMS",
+    "didntReceiveCode": "Didn't receive the code?",
+    "resend": "Resend",
+    "successTitle": "Device Activated",
+    "successDesc": "Your device has been activated successfully."
+  },
   "home": {
     "greeting": "Hello, Hamza 👋",
     "dealerId": "123456789",
