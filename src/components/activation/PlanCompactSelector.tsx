@@ -99,7 +99,14 @@ const PlanCompactSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFi
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">{p.title}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{validity}</p>
+                  <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                    <p className="text-[11px] text-muted-foreground">{validity}</p>
+                    {isMnpEligible?.(p) && (
+                      <span className="px-1.5 py-[1px] rounded-full bg-sky-600 text-white text-[9px] font-semibold whitespace-nowrap">
+                        MNP Eligible
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-end shrink-0">
                   <p className="text-[10px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>

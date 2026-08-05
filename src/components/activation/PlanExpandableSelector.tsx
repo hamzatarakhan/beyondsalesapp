@@ -117,6 +117,11 @@ const PlanExpandableSelector = ({ selectedPlan, onSelect, plans = PLANS, categor
                         so they add width, not height, when the row expands. */}
                     <div className="flex items-center gap-1 mt-0.5 flex-wrap">
                       <p className="text-[11px] text-muted-foreground">{validity}</p>
+                      {isMnpEligible?.(p) && (
+                        <span className="px-1.5 py-[1px] rounded-full bg-sky-600 text-white text-[9px] font-semibold whitespace-nowrap">
+                          MNP Eligible
+                        </span>
+                      )}
                       {p.badge && (
                         <span className="px-1.5 py-[1px] rounded-full bg-green-600 text-white text-[9px] font-semibold whitespace-nowrap">
                           {t(`activation.plan.badges.${p.badge}`, p.badge)}

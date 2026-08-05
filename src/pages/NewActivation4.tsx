@@ -1703,7 +1703,7 @@ const NewActivation4 = () => {
                     resume: { idType, nationality, idNumber, simType, kit },
                   },
                 })}
-                className="h-11 px-4 rounded-xl bg-primary/10 text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               >
                 All plans
                 <ChevronRight className="w-4 h-4" />
