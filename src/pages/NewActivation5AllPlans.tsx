@@ -208,8 +208,8 @@ const NewActivation5AllPlans = () => {
                     ]
                   : [
                       { key: "prepaid" as const, label: "Prepaid" },
-                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
                       { key: "postpaid" as const, label: "Postpaid" },
+                      { key: "basic-postpaid" as const, label: "Basic Postpaid" },
                     ]
                 ).map(({ key, label }) => (
                   <button

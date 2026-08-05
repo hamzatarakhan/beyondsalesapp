@@ -737,8 +737,8 @@ const NewActivation = () => {
       ]
     : [
         { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
-        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
         { value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt },
+        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: ReceiptText },
       ]
   ).filter(o => o.value === "prepaid" || isSaudiId);
   const activePlanChips  = isFriendi

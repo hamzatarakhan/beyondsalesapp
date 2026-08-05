@@ -626,9 +626,6 @@ const NewActivation3 = () => {
   const [qrVerified, setQrVerified] = useState(false);
   const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
   const [prepaidLimitOpen, setPrepaidLimitOpen] = useState(false);
-  // Prepaid stays selectable until the dealer actually tries to Continue with it — only then
-  // does the error show and Prepaid get disabled, rather than blocking it upfront.
-  const [prepaidBlockedOnce, setPrepaidBlockedOnce] = useState(false);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -646,7 +643,6 @@ const NewActivation3 = () => {
   // KSA regulation: customers who've hit their prepaid activation limit can't get a new
   // prepaid line — Prepaid is disabled below and Continue blocks with an explanation.
   const prepaidLimitReached = idNumber.trim().length === 10 && idNumber.trim().endsWith(PREPAID_LIMIT_REACHED_ID_SUFFIX);
-  useEffect(() => { setPrepaidBlockedOnce(false); }, [idNumber]);
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
   const SHOW_VANITY_OVERVIEW = false;
@@ -814,11 +810,10 @@ const NewActivation3 = () => {
       ]
     : [
         { key: "prepaid" as const, label: t("activation3.subscription.prepaid"), Icon: Wallet },
-        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
         { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
+        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
       ]
-  ).filter(o => o.key === "prepaid" || isSaudiId)
-   .map(o => o.key === "prepaid" ? { ...o, disabled: prepaidLimitReached && prepaidBlockedOnce } : o);
+  ).filter(o => o.key === "prepaid" || isSaudiId);
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
@@ -1236,9 +1231,8 @@ const NewActivation3 = () => {
       setCustomerNotFoundOpen(true);
       return;
     }
-    if (step === 1 && payType === "prepaid" && prepaidLimitReached) {
+    if (step === 1 && payType === "prepaid" && prepaidLimitReached && subType !== "mnp") {
       setPrepaidLimitOpen(true);
-      setPrepaidBlockedOnce(true);
       return;
     }
     if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
@@ -1362,11 +1356,11 @@ const NewActivation3 = () => {
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
                   { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
                   { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
-                  { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit — Prepaid disabled" },
+                  { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
                 ] : [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
-                  { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit — Prepaid disabled" },
+                  { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
                 ]}
                 onSelect={setIdNumber}
               />
@@ -1632,11 +1626,6 @@ const NewActivation3 = () => {
               </div>
               {!isSaudiId && (
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation3.subscription.postpaidSaudiOnly")}</p>
-              )}
-              {prepaidLimitReached && prepaidBlockedOnce && (
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 px-1">
-                  This customer has reached their prepaid activation limit — Prepaid is unavailable. Choose Basic Postpaid instead.
-                </p>
               )}
             </div>
 
@@ -2748,7 +2737,7 @@ const NewActivation3 = () => {
           </div>
           <DialogTitle className="font-semibold text-[#E30613] mb-2 text-lg">Not Eligible for Prepaid</DialogTitle>
           <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-            This customer has reached their prepaid activation limit and can't be activated on a new prepaid line. Switch to Basic Postpaid to continue.
+            This customer has reached their prepaid activation limit and can't be activated on a new prepaid line. They can still be ported in (MNP) on Prepaid, or explore Postpaid instead.
           </p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
               auto-injected close button) would otherwise also hide this direct-child button. */}
@@ -2757,7 +2746,7 @@ const NewActivation3 = () => {
               onClick={() => { selectPayType("basic-postpaid"); setPrepaidLimitOpen(false); }}
               className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
             >
-              Switch to Basic Postpaid
+              Explore our Postpaid Plans
             </button>
           </div>
         </DialogContent>
