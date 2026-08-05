@@ -29,7 +29,7 @@ const Login = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder={t("login.usernamePlaceholder")}
-          className="h-14 rounded-2xl bg-white px-4"
+          className="h-12 rounded-2xl bg-white px-4"
         />
         <div className="relative">
           <Input
@@ -37,7 +37,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("login.passwordPlaceholder")}
-            className="h-14 rounded-2xl bg-white px-4 pe-11"
+            className="h-12 rounded-2xl bg-white px-4 pe-11"
           />
           <button
             type="button"
