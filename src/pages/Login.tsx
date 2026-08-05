@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import BeyondOneLogo from "@/components/BeyondOneLogo";
+import SplashScreen from "@/components/SplashScreen";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,11 +14,22 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const handleLogin = () => {
-    login();
-    navigate("/", { replace: true });
+    setLoggingIn(true);
   };
+
+  if (loggingIn) {
+    return (
+      <SplashScreen
+        onFinish={() => {
+          login();
+          navigate("/", { replace: true });
+        }}
+      />
+    );
+  }
 
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col px-6 pt-32 pb-10">
