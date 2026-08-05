@@ -133,15 +133,15 @@ const Profile = () => {
       <BottomNav />
 
       <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 gap-2 text-center [&>button]:hidden">
+          <div className="mx-auto relative w-16 h-16 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#0284c7" strokeWidth="6" strokeLinejoin="round">
               <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
             </svg>
             <span className="text-2xl font-bold text-[#0284c7] relative">!</span>
           </div>
-          <DialogTitle className="font-semibold text-[#0284c7] mb-2 text-lg">Log Out</DialogTitle>
-          <p className="text-sm text-muted-foreground mb-5">Are you sure you want to log out?</p>
+          <DialogTitle className="font-semibold text-[#0284c7] text-lg">Log Out</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-3">Are you sure you want to log out?</p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
               auto-injected close button) would otherwise also hide these direct-child buttons. */}
           <div className="flex gap-3">
