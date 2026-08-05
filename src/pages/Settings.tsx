@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronRight, Check, X, Eye, EyeOff, GripVertical } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
@@ -6,20 +6,58 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme, type ThemeMode } from "@/contexts/ThemeContext";
+import { useWidgets } from "@/contexts/WidgetsContext";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
-const DEFAULT_WIDGETS = ["Widget Name", "Widget Name", "Widget Name", "Widget Name", "Widget Name", "Widget Name"];
+const APPEARANCE_OPTIONS: { value: ThemeMode; label: string }[] = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+];
 
 const SettingsPage = () => {
   const { lang, setLang } = useLanguage();
   const { t } = useTranslation();
+  const { themeMode, setThemeMode } = useTheme();
+  const { widgets, toggleWidget, reorderWidget } = useWidgets();
   const [langSheetOpen, setLangSheetOpen] = useState(false);
+  const [appearanceSheetOpen, setAppearanceSheetOpen] = useState(false);
   const [widgetsSheetOpen, setWidgetsSheetOpen] = useState(false);
   const [pinSheetOpen, setPinSheetOpen] = useState(false);
 
   const [faceId, setFaceId] = useState(true);
   const [biometrics, setBiometrics] = useState(true);
-  const [widgetsEnabled, setWidgetsEnabled] = useState(DEFAULT_WIDGETS.map(() => true));
+
+  // Drag-to-reorder for the widget rows — Pointer Events so mouse and touch share one
+  // code path. Pointer capture keeps move/up events targeting this same handle even
+  // once the finger/cursor has moved off it, so no window-level listeners are needed.
+  const widgetListRef = useRef<HTMLDivElement>(null);
+  const [dragState, setDragState] = useState<{ id: string; startY: number; offsetY: number } | null>(null);
+
+  const startDrag = (id: string) => (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragState({ id, startY: e.clientY, offsetY: 0 });
+  };
+
+  const onDragMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragState) return;
+    const offsetY = e.clientY - dragState.startY;
+    const rowEl = widgetListRef.current?.querySelector<HTMLElement>("[data-widget-row]");
+    const rowHeight = (rowEl?.offsetHeight ?? 48) + 10; // + space-y-2.5 gap
+    const fromIndex = widgets.findIndex((w) => w.id === dragState.id);
+    const toIndex = Math.min(Math.max(fromIndex + Math.round(offsetY / rowHeight), 0), widgets.length - 1);
+    if (toIndex !== fromIndex) {
+      reorderWidget(fromIndex, toIndex);
+      // Re-baseline so the next delta is measured from the row's new position.
+      setDragState({ id: dragState.id, startY: e.clientY, offsetY: 0 });
+    } else {
+      setDragState({ ...dragState, offsetY });
+    }
+  };
+
+  const endDrag = () => setDragState(null);
 
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
@@ -88,10 +126,13 @@ const SettingsPage = () => {
           <Switch checked={biometrics} onCheckedChange={setBiometrics} />
         </div>
 
-        <button className="w-full bg-card rounded-2xl shadow-sm p-4 flex items-center justify-between text-start">
+        <button
+          onClick={() => setAppearanceSheetOpen(true)}
+          className="w-full bg-card rounded-2xl shadow-sm p-4 flex items-center justify-between text-start"
+        >
           <p className="text-sm font-semibold text-foreground">Appearance</p>
           <div className="flex items-center gap-1.5 text-muted-foreground">
-            <span className="text-xs font-semibold">System</span>
+            <span className="text-xs font-semibold">{APPEARANCE_OPTIONS.find((o) => o.value === themeMode)?.label}</span>
             <ChevronRight className="w-4 h-4 rtl:rotate-180" />
           </div>
         </button>
@@ -147,23 +188,73 @@ const SettingsPage = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Widgets bottom sheet — drag handle is decorative only; reordering isn't wired up yet */}
+      {/* Appearance bottom sheet */}
+      <Drawer open={appearanceSheetOpen} onOpenChange={setAppearanceSheetOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex items-center justify-between mb-4 mt-2">
+            <div className="w-9" />
+            <DrawerTitle className="text-xl font-bold text-foreground">Appearance</DrawerTitle>
+            <button
+              onClick={() => setAppearanceSheetOpen(false)}
+              className="w-9 h-9 rounded-full border border-border flex items-center justify-center"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+          </div>
+          <div className="divide-y divide-border/60">
+            {APPEARANCE_OPTIONS.map((opt) => {
+              const active = themeMode === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => { setThemeMode(opt.value); setAppearanceSheetOpen(false); }}
+                  className={cn("w-full flex items-center justify-between py-4 px-3 -mx-3 rounded-xl text-start", active && "bg-primary/10")}
+                >
+                  <span className={cn("text-base", active ? "font-semibold text-primary" : "text-foreground")}>{opt.label}</span>
+                  {active && <Check className="w-5 h-5 text-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Widgets bottom sheet — toggles show/hide the widget on Home, drag reorders it there too */}
       <Drawer open={widgetsSheetOpen} onOpenChange={setWidgetsSheetOpen}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
           <DrawerHeader className="text-center pt-8">
             <DrawerTitle className="text-lg font-semibold">Widgets</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-8 space-y-2.5">
-            {DEFAULT_WIDGETS.map((name, i) => (
-              <div key={i} className="w-full flex items-center gap-2 py-3 px-3 rounded-xl bg-muted/40">
-                <GripVertical className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                <span className="flex-1 text-sm text-foreground">{name}</span>
-                <Switch
-                  checked={widgetsEnabled[i]}
-                  onCheckedChange={(v) => setWidgetsEnabled((prev) => prev.map((p, idx) => (idx === i ? v : p)))}
-                />
-              </div>
-            ))}
+          <div ref={widgetListRef} className="px-4 pb-8 space-y-2.5">
+            {widgets.map((w) => {
+              const isDragging = dragState?.id === w.id;
+              return (
+                <div
+                  key={w.id}
+                  data-widget-row
+                  style={isDragging ? { transform: `translateY(${dragState.offsetY}px)`, position: "relative", zIndex: 10 } : undefined}
+                  className={cn(
+                    "w-full flex items-center gap-2 py-3 px-3 rounded-xl bg-muted/40 transition-shadow",
+                    isDragging && "shadow-lg bg-card",
+                  )}
+                >
+                  <button
+                    type="button"
+                    aria-label={`Reorder ${w.label}`}
+                    onPointerDown={startDrag(w.id)}
+                    onPointerMove={onDragMove}
+                    onPointerUp={endDrag}
+                    onPointerCancel={endDrag}
+                    className="touch-none cursor-grab active:cursor-grabbing shrink-0 p-1 -m-1"
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                  </button>
+                  <span className="flex-1 text-sm text-foreground">{w.label}</span>
+                  <Switch checked={w.enabled} onCheckedChange={() => toggleWidget(w.id)} />
+                </div>
+              );
+            })}
           </div>
         </DrawerContent>
       </Drawer>

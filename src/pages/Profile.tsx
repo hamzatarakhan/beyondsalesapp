@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Hash, Smartphone, Mail, Share2, LogOut, Network, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useBrand, Brand } from "@/contexts/BrandContext";
 import { cn } from "@/lib/utils";
 import virginBadge from "@/assets/virgin-mobile-badge.svg";
@@ -32,6 +34,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const qrData = encodeURIComponent(`EMPLOYEE:${EMPLOYEE.code}`);
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
@@ -42,6 +45,7 @@ const Profile = () => {
           <button
             type="button"
             aria-label="Log out"
+            onClick={() => setLogoutOpen(true)}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
           >
             <LogOut className="w-5 h-5 text-foreground" />
@@ -127,6 +131,35 @@ const Profile = () => {
       </div>
 
       <BottomNav />
+
+      <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#0284c7" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <span className="text-2xl font-bold text-[#0284c7] relative">!</span>
+          </div>
+          <DialogTitle className="font-semibold text-[#0284c7] mb-2 text-lg">Log Out</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-5">Are you sure you want to log out?</p>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide these direct-child buttons. */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setLogoutOpen(false)}
+              className="flex-1 py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => setLogoutOpen(false)}
+              className="flex-1 py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+            >
+              Logout
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -25,6 +25,7 @@ import ActivityIcon from "@/components/ActivityIcon";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
+import { useWidgets } from "@/contexts/WidgetsContext";
 import { useState, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
@@ -74,6 +75,7 @@ const Home = () => {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
+  const { widgets } = useWidgets();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
   const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true });
@@ -147,6 +149,128 @@ const Home = () => {
     setFlowChoiceOpen(false);
     setPendingPath(null);
     if (path) navigate(path);
+  };
+
+  // Keyed by the same widget ids Settings reorders/toggles — rendered below in
+  // whatever order `widgets` currently has, skipping any that are disabled there.
+  const widgetNodes: Record<string, JSX.Element> = {
+    "sim-activation-options": (
+      <div key="sim-activation-options" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">SIM Activation Options</h3>
+          </div>
+
+          <p className="text-xs font-medium text-muted-foreground mb-3">Old approaches</p>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {oldSimActivationOptions.map((activity) => (
+              <ActivityIcon
+                key={activity.id}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
+                onClick={() =>
+                  activity.id === "sim"
+                    ? handleActivityClick(activity.path)
+                    : navigate(activity.path)
+                }
+              />
+            ))}
+          </div>
+
+          <div className="h-px bg-border/60 my-4" />
+
+          <p className="text-xs font-medium text-muted-foreground mb-3">New plan card options</p>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {newPlanCardOptions.map((activity) => (
+              <ActivityIcon
+                key={activity.id}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
+                onClick={() => navigate(activity.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    "customer-activities": (
+      <div key="customer-activities" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{t("home.customerActivities")}</h3>
+          </div>
+
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {activities.map((activity) => (
+              <ActivityIcon
+                key={activity.label}
+                icon={activity.icon}
+                label={activity.label}
+                color="teal"
+                badge={activity.badge}
+                badgeTone={activity.badgeTone}
+                onClick={() =>
+                  activity.id === "fulfilment" || activity.id === "migration" || activity.id === "credit-limit"
+                    ? handleActivityClick(activity.path)
+                    : navigate(activity.path)
+                }
+              />
+            ))}
+          </div>
+
+        </div>
+      </div>
+    ),
+    "sim-services": (
+      <div key="sim-services" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">SIM Services</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {simServices.map((item) => (
+              <ActivityIcon
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    "member-onboarding": (
+      <div key="member-onboarding" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {memberOnboarding.map((item) => (
+              <ActivityIcon
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                color="amber"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => navigate(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
   };
 
   return (
@@ -227,122 +351,8 @@ const Home = () => {
         </div>
       </div>
 
-      {/* SIM Activation options */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">SIM Activation Options</h3>
-          </div>
-
-          <p className="text-xs font-medium text-muted-foreground mb-3">Old approaches</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {oldSimActivationOptions.map((activity) => (
-              <ActivityIcon
-                key={activity.id}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() =>
-                  activity.id === "sim"
-                    ? handleActivityClick(activity.path)
-                    : navigate(activity.path)
-                }
-              />
-            ))}
-          </div>
-
-          <div className="h-px bg-border/60 my-4" />
-
-          <p className="text-xs font-medium text-muted-foreground mb-3">New plan card options</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {newPlanCardOptions.map((activity) => (
-              <ActivityIcon
-                key={activity.id}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() => navigate(activity.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Customer Activities */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.customerActivities")}</h3>
-          </div>
-
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {activities.map((activity) => (
-              <ActivityIcon
-                key={activity.label}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() =>
-                  activity.id === "fulfilment" || activity.id === "migration" || activity.id === "credit-limit"
-                    ? handleActivityClick(activity.path)
-                    : navigate(activity.path)
-                }
-              />
-            ))}
-          </div>
-
-        </div>
-      </div>
-
-      {/* SIM Services */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">SIM Services</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {simServices.map((item) => (
-              <ActivityIcon
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Member Onboarding */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Member Onboarding</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {memberOnboarding.map((item) => (
-              <ActivityIcon
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                color="amber"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => navigate(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Widgets — order and visibility come from Settings, dealer-configurable there. */}
+      {widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}
 
       {/*
         NOTE: Hidden per request — keep these widgets in source for future use.

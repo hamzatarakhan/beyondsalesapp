@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { BrandProvider } from "./contexts/BrandContext";
+import { WidgetsProvider } from "./contexts/WidgetsContext";
 import SplashScreen from "./components/SplashScreen";
 import BrandSwitchLoader from "./components/BrandSwitchLoader";
 import Home from "./pages/Home";
@@ -56,6 +57,7 @@ const App = () => {
     <ThemeProvider>
     <LanguageProvider>
     <BrandProvider>
+    <WidgetsProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         <BrandSwitchLoader />
@@ -103,6 +105,7 @@ const App = () => {
         </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </WidgetsProvider>
     </BrandProvider>
     </LanguageProvider>
     </ThemeProvider>
