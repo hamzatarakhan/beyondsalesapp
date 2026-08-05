@@ -161,7 +161,7 @@ const Profile = () => {
             </button>
             <button
               onClick={handleLogout}
-              className="flex-1 py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+              className="flex-1 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
               {t("profile.logoutAction")}
             </button>
