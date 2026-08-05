@@ -2104,6 +2104,7 @@ const NewActivation4 = () => {
               </div>
               {showEsim && <SummaryRow label={t("activation4.subscription.simType")} value={simType === "psim" ? t("activation4.subscription.psim") : t("activation4.subscription.esim")} />}
               {showEsim && simType === "psim" && kit && <SummaryRow label={t("activation4.checkout.simNumber")} value={kit} />}
+              {!isFriendi && <SummaryRow label={t("activation4.subscription.lineTypeTitle")} value={lineType === "data" ? t("activation4.subscription.lineData") : t("activation4.subscription.lineMobile")} />}
               <SummaryRow label={t("activation4.subscription.type")} value={payType === "prepaid" ? t("activation4.subscription.prepaid") : payType === "postpaid" ? t("activation4.subscription.postpaid") : t("activation4.subscription.basicPostpaid")} />
               {selectedPlanObj && (() => {
                 const cats = selectedPlanObj.categories ?? [];

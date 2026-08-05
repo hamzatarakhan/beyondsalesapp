@@ -27,11 +27,11 @@ const BottomNav = () => {
               onClick={() => navigate(item.path)}
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-md"
+                  ? "bg-[#E2E8F0] text-primary"
                   : "bg-[#E2E8F0] text-muted-foreground hover:text-foreground hover:bg-[#d1d9e6]"
               }`}
             >
-              <Icon className="w-5 h-5" fill={isActive ? "currentColor" : "none"} />
+              <Icon className="w-5 h-5" />
             </button>
           );
         })}
