@@ -53,8 +53,6 @@ const Login = () => {
         </div>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground mt-3">{t("login.prototypeHint")}</p>
-
       <button type="button" className="self-end mt-3 text-sm font-medium text-foreground">
         {t("login.forgetPassword")}
       </button>
@@ -80,6 +78,8 @@ const Login = () => {
           <path d="M8.5 15c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5" />
         </svg>
       </div>
+
+      <p className="text-center text-xs text-muted-foreground mt-6">{t("login.prototypeHint")}</p>
 
       <div className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span>{t("login.poweredBy")}</span>
