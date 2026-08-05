@@ -60,7 +60,7 @@ const Login = () => {
       <button
         type="button"
         onClick={handleLogin}
-        className="mt-6 h-12 rounded-full bg-black text-white font-semibold text-base"
+        className="mt-6 h-12 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold text-base"
       >
         {t("login.loginButton")}
       </button>
@@ -71,7 +71,7 @@ const Login = () => {
         {t("login.activateDevice")}
       </button>
 
-      <div className="mt-8 mx-auto w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500">
+      <div className="mt-8 mx-auto w-12 h-12 rounded-full bg-white shadow-sm dark:bg-white/10 dark:shadow-none dark:border dark:border-white/20 flex items-center justify-center text-gray-500 dark:text-white/80">
         <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
           <circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none" />
           <circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none" />
