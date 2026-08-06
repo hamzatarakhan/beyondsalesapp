@@ -32,7 +32,9 @@ interface WidgetsContextValue {
 
 const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "app-widgets";
+// Bumped to v2 so devices with a pre-existing stored config (from before SIM Activation
+// Options defaulted to off) pick up the new default instead of keeping their stale value.
+const STORAGE_KEY = "app-widgets-v2";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
