@@ -11,17 +11,16 @@ import {
   CreditCard,
   RefreshCw,
   PackageCheck,
-  MapPin,
   ArrowLeftRight,
   UserPlus,
   ClipboardList,
-  ChevronRight,
   Sparkles,
   Receipt,
   PhoneOff,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
+import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
@@ -150,6 +149,7 @@ const Home = () => {
   // Keyed by the same widget ids Settings reorders/toggles — rendered below in
   // whatever order `widgets` currently has, skipping any that are disabled there.
   const widgetNodes: Record<string, JSX.Element> = {
+    "working-shift": <WorkingShiftWidget key="working-shift" />,
     "customer-activities": (
       <div key="customer-activities" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -306,54 +306,8 @@ const Home = () => {
       {widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}
 
       {/*
-        NOTE: Hidden per request — keep these widgets in source for future use.
-        To restore, uncomment the Working Shift and Tickets sections below.
-
-      // Working Shift
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-foreground">My Working Shift</h3>
-            <button className="flex items-center gap-1 text-primary text-sm font-medium">
-              See all <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="bg-muted/50 rounded-xl p-3 mb-3 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-foreground">10:00 AM - 6:00 PM</p>
-              <p className="text-xs text-muted-foreground">Today's Schedule</p>
-            </div>
-            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-medium">
-              Not Started
-            </span>
-          </div>
-          <div className="bg-muted/50 rounded-xl p-3 mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Store Name</p>
-                <p className="text-xs text-muted-foreground">City Centre, Muscat</p>
-              </div>
-            </div>
-            <button className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium">
-              View map
-            </button>
-          </div>
-          <div className="flex gap-2 mb-3">
-            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-xs font-medium">
-              ✓ Check-in: HH:MM
-            </span>
-            <span className="flex-1 text-center px-2 py-1.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300 text-xs font-medium">
-              ✓ Check-out: HH:MM
-            </span>
-          </div>
-          <button className="w-full py-3 rounded-full bg-muted text-muted-foreground font-medium text-sm">
-            Check in
-          </button>
-        </div>
-      </div>
+        NOTE: Hidden per request — keep this widget in source for future use.
+        To restore, uncomment the Tickets section below.
 
       // Tickets
       <div className="px-4 mb-4">

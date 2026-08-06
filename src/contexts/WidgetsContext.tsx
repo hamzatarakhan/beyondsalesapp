@@ -6,9 +6,10 @@ export interface WidgetConfig {
 }
 
 // Order here is the default/fallback order — matches what's actually rendered on Home
-// today. Widgets still commented out there (Working Shift, Tickets) aren't listed since
-// there's nothing on Home for the dealer to toggle/reorder yet.
+// today. Widgets still commented out there (Tickets) aren't listed since there's
+// nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
+  { id: "working-shift", enabled: true },
   { id: "customer-activities", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "member-onboarding", enabled: true },
@@ -17,6 +18,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
 // Display labels live in i18n (home.*), not here, so switching language relabels
 // widgets everywhere immediately instead of leaving stale text baked into storage.
 export const WIDGET_LABEL_KEYS: Record<string, string> = {
+  "working-shift": "home.workingShift.title",
   "customer-activities": "home.customerActivities",
   "sim-services": "home.simServices",
   "member-onboarding": "home.memberOnboarding",
@@ -30,9 +32,10 @@ interface WidgetsContextValue {
 
 const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined);
 
-// Bumped to v2 so devices with a pre-existing stored config (from before SIM Activation
-// Options defaulted to off) pick up the new default instead of keeping their stale value.
-const STORAGE_KEY = "app-widgets-v2";
+// Bumped to v3 so devices with a pre-existing stored config pick up the new Working
+// Shift widget at its designed front-of-list position instead of it being appended
+// at the end by the missing-widget merge below.
+const STORAGE_KEY = "app-widgets-v3";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;

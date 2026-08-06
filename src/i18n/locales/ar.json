@@ -651,6 +651,56 @@
       "title": "أطلق إمكاناتك",
       "subtitle": "زِد مبيعاتك، وسّع نطاقك،\nحقّق النجاح"
     },
+    "workingShift": {
+      "title": "دوامي",
+      "seeAll": "عرض الكل",
+      "noShiftsTitle": "لا توجد دوامات مجدولة",
+      "noShiftsSubtitle": "ستظهر الدوامات الجديدة هنا",
+      "today": "اليوم",
+      "viewMap": "عرض الخريطة",
+      "statusNotCheckedIn": "لم يتم تسجيل الحضور",
+      "statusOngoing": "جارٍ",
+      "statusCompleted": "مكتمل",
+      "checkIn": "تسجيل الحضور",
+      "checkOut": "تسجيل الانصراف",
+      "checkInLabel": "الحضور",
+      "checkOutLabel": "الانصراف",
+      "confirmationMessage": "رسالة التأكيد",
+      "lateCheckinTitle": "تسجيل حضور متأخر",
+      "lateCheckinSubtitle": "لقد فاتك وقت البدء. يرجى مشاركة السبب.",
+      "earlyCheckoutTitle": "أنت تسجل انصرافًا مبكرًا",
+      "earlyCheckoutSubtitle": "أنت تنهي دوامك قبل الوقت المحدد. يرجى إخبارنا بالسبب.",
+      "lateCheckoutTitle": "أنت تسجل انصرافًا متأخرًا",
+      "lateCheckoutSubtitle": "يرجى تقديم سبب وقت العمل الإضافي وتحديد الساعات الإضافية قبل الإرسال.",
+      "reasonLabel": "السبب",
+      "selectTheReason": "اختر السبب",
+      "reasonTextLabel": "إضافة نص السبب",
+      "reasonTextPlaceholder": "اكتب سببًا",
+      "submit": "إرسال",
+      "cancel": "إلغاء",
+      "reasons": {
+        "lateCheckin": {
+          "traffic": "تأخر بسبب الازدحام المروري",
+          "publicTransport": "تأخر وسيلة المواصلات العامة",
+          "personalEmergency": "ظرف طارئ شخصي",
+          "overslept": "استيقظت متأخرًا",
+          "other": "أخرى"
+        },
+        "earlyCheckout": {
+          "personalEmergency": "ظرف طارئ شخصي",
+          "feelingUnwell": "شعور بالتعب",
+          "approvedLeave": "إذن انصراف مبكر معتمد",
+          "other": "أخرى"
+        },
+        "lateCheckout": {
+          "highVolume": "ازدحام كبير في العملاء",
+          "closingTasks": "مهام الإغلاق/الجرد",
+          "teamMeeting": "اجتماع فريق",
+          "systemIssue": "مشكلة في النظام",
+          "other": "أخرى"
+        }
+      }
+    },
     "customerActivities": "أنشطة العملاء",
     "simActivation": "تفعيل الشريحة",
     "simActivationV2": "تفعيل الشريحة 2",

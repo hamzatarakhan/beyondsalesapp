@@ -651,6 +651,56 @@
       "title": "Unlock Your Potential",
       "subtitle": "Drive Sales, Expand Reach,\nAchieve Success"
     },
+    "workingShift": {
+      "title": "My Working Shift",
+      "seeAll": "See all",
+      "noShiftsTitle": "No Shifts Scheduled",
+      "noShiftsSubtitle": "New scheduled will appear here",
+      "today": "Today",
+      "viewMap": "View map",
+      "statusNotCheckedIn": "Not checked in",
+      "statusOngoing": "Ongoing",
+      "statusCompleted": "Completed",
+      "checkIn": "Check In",
+      "checkOut": "Check Out",
+      "checkInLabel": "Check-in",
+      "checkOutLabel": "Check-out",
+      "confirmationMessage": "Confirmation Message",
+      "lateCheckinTitle": "Checking in Late",
+      "lateCheckinSubtitle": "You missed your start time. Please share the reason.",
+      "earlyCheckoutTitle": "You're Checking Out Early",
+      "earlyCheckoutSubtitle": "You're ending your shift before the scheduled time. Please tell us why.",
+      "lateCheckoutTitle": "You're Checking Out Late",
+      "lateCheckoutSubtitle": "Please provide the reason for the extended working time and specify the extra hours before submitting.",
+      "reasonLabel": "Reason",
+      "selectTheReason": "select the reason",
+      "reasonTextLabel": "Add Reason Text",
+      "reasonTextPlaceholder": "write a reason",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "reasons": {
+        "lateCheckin": {
+          "traffic": "Traffic delay",
+          "publicTransport": "Public transport delay",
+          "personalEmergency": "Personal emergency",
+          "overslept": "Overslept",
+          "other": "Other"
+        },
+        "earlyCheckout": {
+          "personalEmergency": "Personal emergency",
+          "feelingUnwell": "Feeling unwell",
+          "approvedLeave": "Approved early leave",
+          "other": "Other"
+        },
+        "lateCheckout": {
+          "highVolume": "High customer volume",
+          "closingTasks": "Closing/inventory tasks",
+          "teamMeeting": "Team meeting",
+          "systemIssue": "System issue",
+          "other": "Other"
+        }
+      }
+    },
     "customerActivities": "Customer Activities",
     "simActivation": "SIM Activation",
     "simActivationV2": "SIM Activation 2",
