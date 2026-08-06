@@ -1293,7 +1293,7 @@ const NewActivation3 = () => {
                   <button
                     type="button"
                     onClick={() => setNationalityPickerOpen(true)}
-                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm rtl:flex-row-reverse"
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
                   >
                     <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
                     <ChevronDown className="h-4 w-4 opacity-50" />
@@ -1702,7 +1702,7 @@ const NewActivation3 = () => {
                 <Input
                   value={planSearch}
                   onChange={(e) => setPlanSearch(e.target.value)}
-                  placeholder="Search plans"
+                  placeholder={t("activation3.subscription.searchPlans")}
                   className="h-11 bg-card rounded-xl ps-9"
                 />
               </div>
