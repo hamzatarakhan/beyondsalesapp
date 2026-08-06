@@ -20,10 +20,10 @@ const getSystemTheme = (): ResolvedTheme =>
   typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 function getInitialMode(): ThemeMode {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark" || stored === "system") return stored;
-  return "system";
+  return "light";
 }
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
