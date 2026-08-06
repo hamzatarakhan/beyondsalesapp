@@ -101,13 +101,6 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // SIM Activation family — the original two flows ("Old approaches"). MNP is hidden for
-  // now; Continue Activation (fulfilment) lives in Customer Activities instead.
-  const oldSimActivationOptions = [
-    { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: t("home.badgeOption1"), badgeTone: "special" as const },
-    { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: t("home.badgeOption2"), badgeTone: "special" as const },
-  ];
-
   const memberOnboarding = [
     { icon: UserPlus, label: t("home.channelOnboarding"), path: "/channel-onboarding", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
     { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
@@ -149,34 +142,6 @@ const Home = () => {
   // Keyed by the same widget ids Settings reorders/toggles — rendered below in
   // whatever order `widgets` currently has, skipping any that are disabled there.
   const widgetNodes: Record<string, JSX.Element> = {
-    "sim-activation-options": (
-      <div key="sim-activation-options" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.simActivationOptions")}</h3>
-          </div>
-
-          <p className="text-xs font-medium text-muted-foreground mb-3">{t("home.oldApproaches")}</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {oldSimActivationOptions.map((activity) => (
-              <ActivityIcon
-                key={activity.id}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() =>
-                  activity.id === "sim"
-                    ? handleActivityClick(activity.path)
-                    : navigate(activity.path)
-                }
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
     "customer-activities": (
       <div key="customer-activities" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
