@@ -6,6 +6,7 @@ import FlowStepper, { STAGED_STEPS } from "@/components/FlowStepper";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -870,12 +871,10 @@ const PrepaidActivation = () => {
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                   Existing number <span className="text-destructive">*</span>
                 </label>
-                <Input
+                <PhoneNumberInput
                   value={portNumber}
-                  onChange={(e) => setPortNumber(e.target.value)}
-                  placeholder="e.g. 0501234567"
-                  inputMode="tel"
-                  className="h-11 bg-muted/40 border-0 rounded-xl"
+                  onChange={setPortNumber}
+                  className="h-11 border-0 bg-muted/40"
                 />
               </div>
               <div>
@@ -1109,13 +1108,10 @@ const PrepaidActivation = () => {
           <p className="text-sm font-semibold text-foreground">Contact <span className="text-destructive">*</span></p>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Phone <span className="text-destructive">*</span></label>
-            <Input
-              type="tel"
-              inputMode="tel"
+            <PhoneNumberInput
               value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              placeholder="05XXXXXXXX"
-              className="h-11 bg-muted/40 border-0 rounded-xl"
+              onChange={setContactPhone}
+              className="h-11 border-0 bg-muted/40"
             />
           </div>
           <div>

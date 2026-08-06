@@ -10,6 +10,7 @@ import SematiVerification from "@/components/SematiVerification";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import {
   Select,
   SelectContent,
@@ -289,16 +290,12 @@ const SimReplacement = () => {
           <>
             <Field label={t("simReplacement.msisdn")}>
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    value={msisdn}
-                    onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
-                    placeholder={t("simReplacement.msisdnPlaceholder")}
-                    inputMode="numeric"
-                    className="h-12 bg-card rounded-xl pe-10"
-                  />
-                  <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                </div>
+                <PhoneNumberInput
+                  value={msisdn}
+                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                  icon={<Phone className="w-4 h-4" />}
+                  className="flex-1"
+                />
                 {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
                 <Button
                   type="button"

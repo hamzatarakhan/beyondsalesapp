@@ -7,6 +7,7 @@ import MapPicker from "@/components/MapPicker";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
@@ -454,10 +455,19 @@ const ChannelOnboarding = () => {
             <span className="text-sm font-medium text-muted-foreground">{field.lockedValue}</span>
           </div>
         );
+      case "mobile":
+        return (
+          <PhoneNumberInput
+            value={values[field.key] || ""}
+            onChange={(v) => handleChange(field.key, v)}
+            onBlur={() => handleBlur(field)}
+            error={!!errors[field.key]}
+          />
+        );
       default:
         return (
           <Input
-            type={field.type === "email" ? "email" : field.type === "mobile" ? "tel" : "text"}
+            type={field.type === "email" ? "email" : "text"}
             value={values[field.key] || ""}
             onChange={(e) => handleChange(field.key, e.target.value)}
             onBlur={() => handleBlur(field)}

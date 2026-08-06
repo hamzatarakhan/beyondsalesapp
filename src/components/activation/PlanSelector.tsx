@@ -420,7 +420,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
                 // card span the full width instead of the 85% carousel peek.
                 const singlePlan = filteredPlans.length === 1;
                 return (
-                  <div key={`${p.title}-${p.price}`} className={cn("shrink-0 grow-0 flex", singlePlan ? "basis-full px-4" : "basis-[85%] pl-3 first:pl-4 last:pr-4")}>
+                  <div key={`${p.title}-${p.price}`} className={cn("shrink-0 grow-0 flex", singlePlan ? "basis-full px-4" : "basis-[85%] ps-3 first:ps-4 last:pe-4")}>
                     <PlanCard
                       plan={p}
                       selected={selectedPlan === originalIdx}

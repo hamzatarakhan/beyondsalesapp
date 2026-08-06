@@ -190,7 +190,7 @@
   "simTermination": {
     "title": "إلغاء الشريحة",
     "msisdn": "رقم الجوال",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "بحث",
     "testNumbersHeading": "أرقام تجريبية",
     "testDescription": "استخدم هذه الأرقام لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
@@ -256,7 +256,7 @@
   "simReplacement": {
     "title": "استبدال الشريحة",
     "msisdn": "رقم الجوال",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "بحث",
     "testNumbersHeading": "أرقام تجريبية",
     "testDescription": "استخدم هذه الأرقام لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
@@ -397,7 +397,7 @@
   "creditLimitAdjustment": {
     "title": "تعديل حد الائتمان",
     "msisdn": "رقم الجوال",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "بحث",
     "testNumbersHeading": "أرقام تجريبية",
     "testNumbersDescription": "استخدم هذه الأرقام لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
@@ -460,7 +460,7 @@
     "nationalityIndian": "هندي",
     "nationalityOther": "أخرى",
     "msisdn": "رقم الجوال",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "checkingNumber": "جارٍ التحقق من الرقم…",
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
     "ineligibleDataReason": "لا يمكن ترحيل هذا الرقم — باقات 5G MBB غير مؤهلة لهذه الخدمة.",

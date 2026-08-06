@@ -11,6 +11,7 @@ import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RU
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import {
   Select,
   SelectContent,
@@ -419,16 +420,11 @@ const SubscriptionMigration = () => {
               </Select>
             </Field>
             <Field label={t("subscriptionMigration.msisdn")}>
-              <div className="relative">
-                <Input
-                  value={msisdn}
-                  onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder={t("subscriptionMigration.msisdnPlaceholder")}
-                  inputMode="numeric"
-                  className="h-12 bg-card rounded-xl pe-10"
-                />
-                <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              </div>
+              <PhoneNumberInput
+                value={msisdn}
+                onChange={setMsisdn}
+                icon={<Phone className="w-4 h-4" />}
+              />
               {checking && <p className="text-[11px] text-muted-foreground">{t("subscriptionMigration.checkingNumber")}</p>}
             </Field>
 

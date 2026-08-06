@@ -26,6 +26,7 @@ import ActivityIcon from "@/components/ActivityIcon";
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
 import { useWidgets } from "@/contexts/WidgetsContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
@@ -66,9 +67,10 @@ const Home = () => {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const { widgets } = useWidgets();
+  const { isRtl } = useLanguage();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
-  const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true });
+  const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true, direction: isRtl ? "rtl" : "ltr" });
   const [heroActiveSnap, setHeroActiveSnap] = useState(0);
   const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
   const activeOp = OPERATORS.find((o) => o.id === activeOperator) ?? OPERATORS[0];
@@ -83,6 +85,12 @@ const Home = () => {
     onSelect();
     return () => { heroEmblaApi.off("select", onSelect); };
   }, [heroEmblaApi]);
+
+  // Re-init when text direction flips (LTR ↔ RTL) so slides scroll the correct way
+  useEffect(() => {
+    if (!heroEmblaApi) return;
+    heroEmblaApi.reInit({ loop: true, direction: isRtl ? "rtl" : "ltr" });
+  }, [isRtl, heroEmblaApi]);
 
   useEffect(() => {
     if (!heroEmblaApi) return;
@@ -276,14 +284,14 @@ const Home = () => {
                   <img
                     src={heroBanner}
                     alt="Sales professional"
-                    className="absolute right-0 top-0 h-full w-1/2 object-cover object-left opacity-90"
+                    className="absolute end-0 top-0 h-full w-1/2 object-cover object-left opacity-90"
                   />
                 </div>
               ))}
             </div>
           </div>
           {/* Carousel dots */}
-          <div className="absolute bottom-3 left-5 flex gap-1.5 z-20">
+          <div className="absolute bottom-3 start-5 flex gap-1.5 z-20">
             {HERO_SLIDES.map((slide, i) => (
               <span
                 key={slide}

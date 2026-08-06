@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 
 const SearchSubscription = () => {
   const navigate = useNavigate();
@@ -51,12 +52,7 @@ const SearchSubscription = () => {
         {/* MSISDN */}
         <div className="mb-6">
           <label className="section-title block">MSISDN</label>
-          <Input
-            value={msisdn}
-            onChange={(e) => setMsisdn(e.target.value)}
-            placeholder="Enter the MSISDN number"
-            className="h-12 bg-card border-border"
-          />
+          <PhoneNumberInput value={msisdn} onChange={setMsisdn} />
         </div>
       </div>
 

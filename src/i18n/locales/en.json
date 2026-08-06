@@ -190,7 +190,7 @@
   "simTermination": {
     "title": "SIM Termination",
     "msisdn": "MSISDN",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "Search",
     "testNumbersHeading": "test numbers",
     "testDescription": "Use these to try every case. This box won't appear in the real implementation.",
@@ -256,7 +256,7 @@
   "simReplacement": {
     "title": "SIM Replacement",
     "msisdn": "MSISDN",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "Search",
     "testNumbersHeading": "test numbers",
     "testDescription": "Use these to try every case. This box won't appear in the real implementation.",
@@ -397,7 +397,7 @@
   "creditLimitAdjustment": {
     "title": "Credit Limit Adjustment",
     "msisdn": "MSISDN",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "search": "Search",
     "testNumbersHeading": "test numbers",
     "testNumbersDescription": "Use these to try every case. This box won't appear in the real implementation.",
@@ -460,7 +460,7 @@
     "nationalityIndian": "Indian",
     "nationalityOther": "Other",
     "msisdn": "MSISDN",
-    "msisdnPlaceholder": "05XXXXXXXX",
+    "msisdnPlaceholder": "5XXXXXXXX",
     "checkingNumber": "Checking number…",
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
     "ineligibleDataReason": "This number can't migrate — 5G MBB plans aren't eligible for this service.",

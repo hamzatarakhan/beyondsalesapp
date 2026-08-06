@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -231,16 +231,12 @@ const CreditLimitAdjustment = () => {
           <>
             <Field label={t("creditLimitAdjustment.msisdn")}>
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    value={msisdn}
-                    onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
-                    placeholder={t("creditLimitAdjustment.msisdnPlaceholder")}
-                    inputMode="numeric"
-                    className="h-12 bg-card rounded-xl pe-10"
-                  />
-                  <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                </div>
+                <PhoneNumberInput
+                  value={msisdn}
+                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                  icon={<Phone className="w-4 h-4" />}
+                  className="flex-1"
+                />
                 {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
                 <Button
                   type="button"

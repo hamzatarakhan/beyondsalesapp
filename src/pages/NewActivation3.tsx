@@ -16,6 +16,7 @@ import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/Pla
 import PlanCard from "@/components/PlanCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -2005,7 +2006,7 @@ const NewActivation3 = () => {
                   </>
                 ) : (
                   <div className="space-y-3">
-                    <Field label={t("activation3.subscription.portNumber")}><Input value={portNumber} onChange={(e) => setPortNumber(e.target.value)} placeholder="05XXXXXXXX" inputMode="numeric" /></Field>
+                    <Field label={t("activation3.subscription.portNumber")}><PhoneNumberInput value={portNumber} onChange={setPortNumber} /></Field>
                     <Field label={t("activation3.subscription.currentOperator")}>
                       <Select value={portOperator} onValueChange={setPortOperator}>
                         <SelectTrigger><SelectValue placeholder={t("activation3.subscription.selectOperator")} /></SelectTrigger>
@@ -2452,7 +2453,7 @@ const NewActivation3 = () => {
                   />
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation3.checkout.contactNumber")} *` : t("activation3.checkout.contactNumber")}>
-                  <Input value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="05XXXXXXXX" inputMode="numeric" className="h-12 bg-card rounded-xl" />
+                  <PhoneNumberInput value={contactNumber} onChange={setContactNumber} />
                 </Field>
               </div>
             </div>
@@ -3152,13 +3153,17 @@ const NewActivation3 = () => {
                 </SelectContent>
               </Select>
               <Field label={shareVia === "mobile" ? t("activation3.success.shareMobile") : t("activation3.success.shareEmail")}>
-                <Input
-                  value={shareValue}
-                  onChange={(e) => setShareValue(e.target.value)}
-                  placeholder={shareVia === "mobile" ? "05XXXXXXXX" : "name@email.com"}
-                  inputMode={shareVia === "mobile" ? "numeric" : "email"}
-                  className="h-11 bg-card rounded-xl"
-                />
+                {shareVia === "mobile" ? (
+                  <PhoneNumberInput value={shareValue} onChange={setShareValue} className="h-11" />
+                ) : (
+                  <Input
+                    value={shareValue}
+                    onChange={(e) => setShareValue(e.target.value)}
+                    placeholder="name@email.com"
+                    inputMode="email"
+                    className="h-11 bg-card rounded-xl"
+                  />
+                )}
               </Field>
               <Button
                 className="w-full h-11 rounded-full"

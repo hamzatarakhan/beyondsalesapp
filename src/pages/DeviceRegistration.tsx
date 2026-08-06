@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Bell, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 // Prototype only — no real device APIs are reachable from a web app, so these mirror
@@ -121,13 +122,7 @@ const DeviceRegistration = () => {
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">{t("deviceRegistration.phoneNumber")}</label>
-          <Input
-            type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder={t("deviceRegistration.phoneNumberPlaceholder")}
-            className="h-12 bg-card rounded-xl"
-          />
+          <PhoneNumberInput value={phoneNumber} onChange={setPhoneNumber} />
         </div>
 
         <div className="space-y-2 pt-2">

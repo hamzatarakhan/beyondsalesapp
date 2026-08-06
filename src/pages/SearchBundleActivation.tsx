@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
-import { Input } from "@/components/ui/input";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Button } from "@/components/ui/button";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { AlertCircle } from "lucide-react";
@@ -36,8 +36,11 @@ const SearchBundleActivation = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMobileNumber(e.target.value);
+  // numbersWithBundles stores the 9-digit local part with no leading 0, so mobileNumber
+  // keeps that same shape — PhoneNumberInput's "full local number" contract is adapted
+  // here rather than changing the mock data's format.
+  const handlePhoneChange = (v: string) => {
+    setMobileNumber(v.replace(/^0/, ""));
     // Clear error when user starts typing again
     if (error) setError(null);
   };
@@ -51,14 +54,10 @@ const SearchBundleActivation = () => {
           <label className="text-sm font-medium text-foreground">
             Mobile Number
           </label>
-          <Input
-            type="tel"
-            placeholder="Enter the mobile number"
-            value={mobileNumber}
-            onChange={handleInputChange}
-            className={`h-12 rounded-xl bg-card border-border ${
-              error ? "border-destructive focus-visible:ring-destructive" : ""
-            }`}
+          <PhoneNumberInput
+            value={mobileNumber ? "0" + mobileNumber : ""}
+            onChange={handlePhoneChange}
+            error={!!error}
           />
           
           {/* Error Message */}
