@@ -546,7 +546,7 @@ const ChannelOnboarding = () => {
           className="w-full bg-card rounded-xl px-4 py-4 flex items-center justify-between shadow-sm"
         >
           <span className="text-sm font-medium text-foreground">{role.listLabel}</span>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
         </button>
       ))}
     </div>
@@ -581,7 +581,7 @@ const ChannelOnboarding = () => {
               <p className="text-sm font-semibold text-foreground">Location Information</p>
               {activeRole.showMap && (
                 <button type="button" onClick={() => setMapOpen(true)} className="flex items-center gap-0.5 text-xs font-semibold text-primary">
-                  Map <ChevronRight className="w-3.5 h-3.5" />
+                  Map <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               )}
             </div>

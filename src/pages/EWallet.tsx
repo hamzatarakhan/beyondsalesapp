@@ -1206,7 +1206,7 @@ const EWallet = () => {
                     <p className="text-xs text-muted-foreground">Ref: {txn.referenceId}</p>
                     <div className="flex items-center gap-1 text-xs text-primary">
                       <span>View Details</span>
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4 rtl:rotate-180" />
                     </div>
                   </div>
                 </div>

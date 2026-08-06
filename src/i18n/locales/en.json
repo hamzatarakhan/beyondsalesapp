@@ -1,4 +1,24 @@
 {
+  "menu": {
+    "title": "Services",
+    "backAria": "Back",
+    "showQrAria": "Show QR code",
+    "notificationsAria": "Notifications",
+    "qrCodeTitle": "QR Code",
+    "done": "Done",
+    "closeAria": "Close",
+    "stockManagement": "Stock Management",
+    "myHierarchy": "My Hierarchy",
+    "checkIn": "Check In",
+    "channelMemberOnboarding": "Channel Member Onboarding",
+    "kpiDashboard": "KPI Dashboard",
+    "salesKpis": "Sales KPI's",
+    "performanceAtGlance": "Performance at Glance",
+    "otherWidgets": "Other widgets",
+    "trainingHub": "Training Hub",
+    "myShifts": "My Shifts",
+    "tickets": "Tickets"
+  },
   "login": {
     "welcome": "Hello, Welcome to Beyond One",
     "usernamePlaceholder": "Username",

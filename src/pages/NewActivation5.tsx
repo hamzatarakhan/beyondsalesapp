@@ -786,6 +786,9 @@ const NewActivation5 = () => {
     setPlanTypeChip("all");
     setSelectedPlan(null);
     setPlanMode("plan");
+    // Basic Postpaid isn't offered on the Data line — fall back to Prepaid so payType
+    // never carries a stale "basic-postpaid" value into an unsupported combination.
+    if (newLine === "data" && payType === "basic-postpaid") setPayType("prepaid");
   };
   const selectPayType = (newPayType: PayType) => {
     setPayType(newPayType);
@@ -814,7 +817,7 @@ const NewActivation5 = () => {
         { key: "postpaid" as const, label: t("activation5.subscription.postpaid"), Icon: Receipt },
         { key: "basic-postpaid" as const, label: t("activation5.subscription.basicPostpaid"), Icon: ReceiptText },
       ]
-  ).filter(o => o.key === "prepaid" || isSaudiId);
+  ).filter(o => (o.key === "prepaid" || isSaudiId) && !(o.key === "basic-postpaid" && lineType === "data"));
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
@@ -1588,6 +1591,28 @@ const NewActivation5 = () => {
               )}
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("activation5.subscription.subscriptionTypeTitle")}</h3>
+                {/* Chip-style alternative (icon + label inline, one responsive row) — kept here
+                    for a quick swap back in if asked. To restore: delete the grid block below
+                    and uncomment this.
+                <div className="flex gap-2">
+                  {subscriptionOptions.map(({ key, label, Icon, disabled }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => selectPayType(key)}
+                      className={cn(
+                        "flex-auto min-w-0 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-[13px] font-medium transition-colors",
+                        payType === key && !disabled ? "bg-primary text-white" : "bg-card text-foreground shadow-sm border border-border/60",
+                        disabled && "opacity-40 cursor-not-allowed",
+                      )}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </button>
+                  ))}
+                </div>
+                */}
                 {/* Same row at every count — scaled down (icon, font, padding) once there
                     are 3+ options, matching the compact tile treatment from SIM Activation 1,
                     so Prepaid / Basic Postpaid / Postpaid all fit on one row. */}

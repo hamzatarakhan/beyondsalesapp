@@ -114,7 +114,7 @@ const PlanCompactSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFi
                     <span className="text-muted-foreground font-normal text-xs"><RiyalSymbol /></span> {Number(p.price).toFixed(2)}
                   </p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
               </button>
             );
           })}

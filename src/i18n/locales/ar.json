@@ -1,4 +1,24 @@
 {
+  "menu": {
+    "title": "الخدمات",
+    "backAria": "رجوع",
+    "showQrAria": "عرض رمز QR",
+    "notificationsAria": "الإشعارات",
+    "qrCodeTitle": "رمز QR",
+    "done": "تم",
+    "closeAria": "إغلاق",
+    "stockManagement": "إدارة المخزون",
+    "myHierarchy": "هيكلي التنظيمي",
+    "checkIn": "تسجيل الحضور",
+    "channelMemberOnboarding": "تأهيل أعضاء القناة",
+    "kpiDashboard": "لوحة مؤشرات الأداء",
+    "salesKpis": "مؤشرات أداء المبيعات",
+    "performanceAtGlance": "نظرة عامة على الأداء",
+    "otherWidgets": "أدوات أخرى",
+    "trainingHub": "مركز التدريب",
+    "myShifts": "نوبات عملي",
+    "tickets": "التذاكر"
+  },
   "login": {
     "welcome": "أهلاً، مرحباً بك في بيوند ون",
     "usernamePlaceholder": "اسم المستخدم",

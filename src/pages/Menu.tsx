@@ -28,75 +28,75 @@ interface ServiceItem {
   path?: string;
 }
 
-const SECTIONS: { title: string; items: ServiceItem[] }[] = [
-  {
-    title: "Stock Management",
-    items: [
-      { icon: Network, label: "My Hierarchy" },
-      { icon: ClipboardCheck, label: "Check In" },
-    ],
-  },
-  {
-    title: "Channel Member Onboarding",
-    items: [
-      { icon: UserPlus, label: "Channel Onboarding", path: "/channel-onboarding" },
-      { icon: ClipboardList, label: "Onboarding Requests", path: "/onboarding-requests" },
-    ],
-  },
-  {
-    title: "KPI Dashboard",
-    items: [
-      { icon: Target, label: "Sales KPI's" },
-      { icon: BarChart3, label: "Performance at Glance" },
-    ],
-  },
-  {
-    title: "Other widgets",
-    items: [
-      { icon: GraduationCap, label: "Training Hub" },
-      { icon: Calendar, label: "My Shifts" },
-      { icon: Headphones, label: "Tickets" },
-    ],
-  },
-];
-
 const Menu = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
+
+  const sections: { title: string; items: ServiceItem[] }[] = [
+    {
+      title: t("menu.stockManagement"),
+      items: [
+        { icon: Network, label: t("menu.myHierarchy") },
+        { icon: ClipboardCheck, label: t("menu.checkIn") },
+      ],
+    },
+    {
+      title: t("menu.channelMemberOnboarding"),
+      items: [
+        { icon: UserPlus, label: t("home.channelOnboarding"), path: "/channel-onboarding" },
+        { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests" },
+      ],
+    },
+    {
+      title: t("menu.kpiDashboard"),
+      items: [
+        { icon: Target, label: t("menu.salesKpis") },
+        { icon: BarChart3, label: t("menu.performanceAtGlance") },
+      ],
+    },
+    {
+      title: t("menu.otherWidgets"),
+      items: [
+        { icon: GraduationCap, label: t("menu.trainingHub") },
+        { icon: Calendar, label: t("menu.myShifts") },
+        { icon: Headphones, label: t("menu.tickets") },
+      ],
+    },
+  ];
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
       <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
         <button
           onClick={() => navigate("/")}
-          aria-label="Back"
+          aria-label={t("menu.backAria")}
           className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-center text-lg font-semibold text-foreground truncate">Services</h1>
+        <h1 className="text-center text-lg font-semibold text-foreground truncate">{t("menu.title")}</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setQrSheetOpen(true)}
-            aria-label="Show QR code"
+            aria-label={t("menu.showQrAria")}
             className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
           >
             <QrCode className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => navigate("/notifications")}
-            aria-label="Notifications"
+            aria-label={t("menu.notificationsAria")}
             className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm relative"
           >
             <Bell className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-primary rounded-full" />
+            <span className="absolute top-2 end-2.5 w-2 h-2 bg-primary rounded-full" />
           </button>
         </div>
       </header>
 
       <div className="px-4 space-y-4">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.title} className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
             <h3 className="font-semibold text-foreground mb-2">{section.title}</h3>
             <div className="divide-y divide-border/60">
@@ -108,7 +108,7 @@ const Menu = () => {
                 >
                   <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
                   <span className="flex-1 text-sm text-foreground">{item.label}</span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 rtl:rotate-180" />
                 </button>
               ))}
             </div>
@@ -122,13 +122,13 @@ const Menu = () => {
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
           <button
             onClick={() => setQrSheetOpen(false)}
-            aria-label="Close"
-            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            aria-label={t("menu.closeAria")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
           >
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">QR Code</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("menu.qrCodeTitle")}</DrawerTitle>
           </DrawerHeader>
           <div className="px-8 pb-6 flex items-center justify-center">
             <div className="bg-white p-4 rounded-2xl">
@@ -140,7 +140,7 @@ const Menu = () => {
               onClick={() => setQrSheetOpen(false)}
               className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
-              Done
+              {t("menu.done")}
             </button>
           </div>
         </DrawerContent>

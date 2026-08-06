@@ -60,7 +60,13 @@ const NewActivation3AllPlans = () => {
     .filter((p) => showPlanTypeChips ? (effectiveChip === "all" ? !p.categories?.includes("payg") : p.categories?.includes(effectiveChip as any)) : true)
     .filter((p) => !normalizedSearch || p.title.toLowerCase().includes(normalizedSearch));
 
-  const selectLineType = (v: LineType) => { setLineType(v); setChip("all"); };
+  const selectLineType = (v: LineType) => {
+    setLineType(v);
+    setChip("all");
+    // Basic Postpaid isn't offered on the Data line — fall back to Prepaid so payType
+    // never carries a stale "basic-postpaid" value into an unsupported combination.
+    if (v === "data" && payType === "basic-postpaid") setPayType("prepaid");
+  };
   const selectPayType = (v: PayType) => { setPayType(v); setChip("all"); };
 
   const pickPlan = (title: string) => {
@@ -213,7 +219,7 @@ const NewActivation3AllPlans = () => {
                       { key: "postpaid" as const, label: t("activation3.subscription.postpaid") },
                       { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid") },
                     ]
-                ).map(({ key, label }) => (
+                ).filter((o) => !(o.key === "basic-postpaid" && lineType === "data")).map(({ key, label }) => (
                   <button
                     key={key}
                     type="button"
