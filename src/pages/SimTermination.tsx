@@ -99,20 +99,6 @@ interface DemoTerminationLine {
   bill?: TerminationBill;
 }
 
-const LINE_TYPE_LABEL: Record<LineType, string> = {
-  prepaid: "Prepaid",
-  "switch-postpaid": "Switch Postpaid",
-  vnet: "Vnet",
-};
-
-const REASON_LABEL: Record<string, string> = {
-  "switching-provider": "Switching to another provider",
-  "no-longer-needed": "No longer needed",
-  "poor-service": "Poor service quality",
-  relocating: "Relocating abroad",
-  other: "Other",
-};
-
 // Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
 // (mirrors SimReplacement.tsx's demoIdFor) so switching type keeps the field valid, and
 // pre-filling it (rather than leaving it blank) speeds through the demo.
@@ -148,6 +134,20 @@ const money = (n: number) => n.toFixed(2).replace(/\.00$/, "");
 const SimTermination = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const LINE_TYPE_LABEL: Record<LineType, string> = {
+    prepaid: t("simTermination.lineTypePrepaid"),
+    "switch-postpaid": t("simTermination.lineTypeSwitchPostpaid"),
+    vnet: t("simTermination.lineTypeVnet"),
+  };
+
+  const REASON_LABEL: Record<string, string> = {
+    "switching-provider": t("simTermination.reasonSwitchingProvider"),
+    "no-longer-needed": t("simTermination.reasonNoLongerNeeded"),
+    "poor-service": t("simTermination.reasonPoorService"),
+    relocating: t("simTermination.reasonRelocating"),
+    other: t("simTermination.reasonOther"),
+  };
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -195,7 +195,7 @@ const SimTermination = () => {
       setChecking(false);
       const found = DEMO_TERMINATION_LINES.find((l) => l.msisdn === msisdn);
       if (!found) {
-        setLookupError("Number not found. Please check the MSISDN and try again.");
+        setLookupError(t("simTermination.lookupErrorNotFound"));
         return;
       }
       setLine(found);
@@ -264,23 +264,23 @@ const SimTermination = () => {
     (document.getElementById("sim-termination-otp-0") as HTMLInputElement | null)?.focus();
   };
 
-  const otpTarget = lineType === "vnet" ? `the registered contact number ${line?.contactNumber}` : `the entered number ${msisdn}`;
+  const otpTarget = lineType === "vnet" ? t("simTermination.otpTargetContact", { number: line?.contactNumber }) : t("simTermination.otpTargetEntered", { number: msisdn });
 
   // ---------- Gates ----------
   const canConfirm = verified && otpVerified && terms && (!needsPayment || payChoice === "skip" || (payChoice === "pay" && !!payMethod));
 
   // ---------- Confirm / Success / Failure copy ----------
   const confirmMessage = !needsPayment
-    ? "Please confirm you want to process this SIM termination."
+    ? t("simTermination.confirmMsgNoPayment")
     : payChoice === "pay"
-    ? "Please confirm the outstanding bill payment has been completed using the selected payment method, then the SIM will be terminated."
-    : "Please confirm you want to terminate this SIM. The outstanding balance will remain on the account and must be settled separately.";
+    ? t("simTermination.confirmMsgPay")
+    : t("simTermination.confirmMsgSkip");
 
   const successMessage = !needsPayment
-    ? "This SIM has been terminated successfully."
+    ? t("simTermination.successMsgNoPayment")
     : payChoice === "pay"
-    ? `The outstanding bill of ${money(bill!.totalOutstanding)} SAR has been paid and the SIM has been terminated successfully.`
-    : `This SIM has been terminated. An outstanding balance of ${money(bill!.totalOutstanding)} SAR remains on the account.`;
+    ? t("simTermination.successMsgPay", { amount: money(bill!.totalOutstanding) })
+    : t("simTermination.successMsgSkip", { amount: money(bill!.totalOutstanding) });
 
   const resolveTermination = () => {
     setConfirmOpen(false);
@@ -318,20 +318,20 @@ const SimTermination = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="SIM Termination" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep(0))} />
+      <AppHeader title={t("simTermination.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep(0))} />
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup + Termination form ── */}
         {step === 0 && (
           <>
-            <Field label="MSISDN">
+            <Field label={t("simTermination.msisdn")}>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
                     value={msisdn}
                     onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setLine(null); setLookupError(null); }}
-                    placeholder="05XXXXXXXX"
+                    placeholder={t("simTermination.msisdnPlaceholder")}
                     inputMode="numeric"
                     className="h-12 bg-card rounded-xl pe-10"
                   />
@@ -343,21 +343,21 @@ const SimTermination = () => {
                   disabled={!/^\d{10}$/.test(msisdn) || checking}
                   onClick={handleSearch}
                 >
-                  Search
+                  {t("simTermination.search")}
                 </Button>
               </div>
             </Field>
 
             <PrototypeTestBox
-              heading="test numbers"
-              description="Use these to try every case. This box won't appear in the real implementation."
+              heading={t("simTermination.testNumbersHeading")}
+              description={t("simTermination.testDescription")}
               items={[
-                { value: "0501110001", note: "Virgin Mobile — Prepaid" },
-                { value: "0501110002", note: "Friendi Mobile — Prepaid" },
-                { value: "0501110003", note: "Virgin Mobile — Switch Postpaid, unpaid bill" },
-                { value: "0501110004", note: "Virgin Mobile — Vnet, unpaid bill, OTP goes to a different contact number" },
-                { value: "0501110005", note: "Friendi Mobile — Switch Postpaid, fully paid (nothing to pay)" },
-                { value: "0501119999", note: "Number not found" },
+                { value: "0501110001", note: t("simTermination.testNoteVirginPrepaid") },
+                { value: "0501110002", note: t("simTermination.testNoteFriendiPrepaid") },
+                { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid") },
+                { value: "0501110004", note: t("simTermination.testNoteVirginVnet") },
+                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidPaid") },
+                { value: "0501119999", note: t("simTermination.testNoteNotFound") },
               ]}
               onSelect={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
             />
@@ -371,13 +371,13 @@ const SimTermination = () => {
 
             {line && (
               <>
-                <CardSection title="Line Details" icon={Phone}>
-                  <SummaryRow label="MSISDN" value={line.msisdn} />
-                  <SummaryRow label="Subscription Type" value={LINE_TYPE_LABEL[line.lineType]} />
+                <CardSection title={t("simTermination.lineDetails")} icon={Phone}>
+                  <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
+                  <SummaryRow label={t("simTermination.subscriptionType")} value={LINE_TYPE_LABEL[line.lineType]} />
                 </CardSection>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-semibold text-foreground px-1">Identity Details</p>
+                  <p className="text-sm font-semibold text-foreground px-1">{t("simTermination.identityDetails")}</p>
                   <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                     <Field label={t("activation.identity.idType")}>
                       <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
@@ -419,17 +419,17 @@ const SimTermination = () => {
                   </div>
                 </div>
 
-                <Field label="Termination Reason">
+                <Field label={t("simTermination.terminationReason")}>
                   <Select value={reason} onValueChange={setReason}>
                     <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                      <SelectValue placeholder="Select the reason" />
+                      <SelectValue placeholder={t("simTermination.selectReasonPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
-                      <SelectItem value="switching-provider">Switching to another provider</SelectItem>
-                      <SelectItem value="no-longer-needed">No longer needed</SelectItem>
-                      <SelectItem value="poor-service">Poor service quality</SelectItem>
-                      <SelectItem value="relocating">Relocating abroad</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="switching-provider">{t("simTermination.reasonSwitchingProvider")}</SelectItem>
+                      <SelectItem value="no-longer-needed">{t("simTermination.reasonNoLongerNeeded")}</SelectItem>
+                      <SelectItem value="poor-service">{t("simTermination.reasonPoorService")}</SelectItem>
+                      <SelectItem value="relocating">{t("simTermination.reasonRelocating")}</SelectItem>
+                      <SelectItem value="other">{t("simTermination.reasonOther")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -441,15 +441,15 @@ const SimTermination = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && line && (
           <>
-            <CardSection title="Termination Summary" icon={ClipboardList}>
-              <SummaryRow label="MSISDN" value={line.msisdn} />
-              <SummaryRow label="Subscription Type" value={LINE_TYPE_LABEL[line.lineType]} />
-              <SummaryRow label="Termination Reason" value={REASON_LABEL[reason] ?? reason} />
+            <CardSection title={t("simTermination.terminationSummary")} icon={ClipboardList}>
+              <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
+              <SummaryRow label={t("simTermination.subscriptionType")} value={LINE_TYPE_LABEL[line.lineType]} />
+              <SummaryRow label={t("simTermination.terminationReason")} value={REASON_LABEL[reason] ?? reason} />
             </CardSection>
 
             <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
               {verified ? (
-                <VerifiedBanner label="Customer Verified" />
+                <VerifiedBanner label={t("simTermination.customerVerified")} />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
               )}
@@ -468,9 +468,9 @@ const SimTermination = () => {
                 <>
                   <Button variant="outline" className="w-full disabled:opacity-50" disabled={!verified} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                   {verified ? (
-                    <p className="text-[11px] text-muted-foreground mt-2">The code will be sent to {otpTarget}.</p>
+                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.codeSentTo", { target: otpTarget })}</p>
                   ) : (
-                    <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
+                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.completeVerificationFirst")}</p>
                   )}
                 </>
               )}
@@ -478,33 +478,33 @@ const SimTermination = () => {
 
             {isPostpaid && otpVerified && bill && (
               <>
-                <CardSection title="Outstanding Bill" icon={ReceiptText}>
+                <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] text-muted-foreground">Status</span>
+                    <span className="text-[11px] text-muted-foreground">{t("simTermination.status")}</span>
                     <span className={cn(
                       "px-2.5 py-1 rounded-full text-[11px] font-semibold",
                       bill.status === "Paid"
                         ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
                         : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
                     )}>
-                      {bill.status}
+                      {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
                     </span>
                   </div>
-                  <SummaryRow label="Total Outstanding Amount (VAT Incl.)" value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
-                  <SummaryRow label="Current Balance" value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-                  <SummaryRow label="Outstanding Balance" value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
-                  <SummaryRow label="Out of Bundle Usage" value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
+                  <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
+                  <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
+                  <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
+                  <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
                 </CardSection>
 
                 {needsPayment && (
-                  <CardSection title="Payment" icon={CreditCard}>
+                  <CardSection title={t("simTermination.payment")} icon={CreditCard}>
                     <div className="space-y-2">
-                      <PayOption icon={Wallet} label="Pay Bill Now" description="Settle the outstanding balance before terminating" selected={payChoice === "pay"} onClick={() => setPayChoice("pay")} />
-                      <PayOption icon={XCircle} label="Terminate Without Paying" description="The outstanding balance remains on the account" selected={payChoice === "skip"} onClick={() => setPayChoice("skip")} />
+                      <PayOption icon={Wallet} label={t("simTermination.payBillNow")} description={t("simTermination.payBillNowDesc")} selected={payChoice === "pay"} onClick={() => setPayChoice("pay")} />
+                      <PayOption icon={XCircle} label={t("simTermination.terminateWithoutPaying")} description={t("simTermination.terminateWithoutPayingDesc")} selected={payChoice === "skip"} onClick={() => setPayChoice("skip")} />
                     </div>
                     {payChoice === "pay" && (
                       <div className="space-y-2 mt-3 pt-3 border-t border-border/50">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Payment Method</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">{t("simTermination.paymentMethod")}</p>
                         <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                         <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                       </div>
@@ -547,16 +547,16 @@ const SimTermination = () => {
       </div>
 
       {/* Sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(1)}>
-              Continue
+              {t("simTermination.continue")}
             </Button>
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {needsPayment && payChoice === "pay" ? `Pay ${money(bill!.totalOutstanding)} SAR & Terminate` : "Confirm Termination"}
+              {needsPayment && payChoice === "pay" ? t("simTermination.payAndTerminate", { amount: money(bill!.totalOutstanding) }) : t("simTermination.confirmTermination")}
             </Button>
           )}
         </div>
@@ -571,9 +571,9 @@ const SimTermination = () => {
           <div className="flex flex-col items-center gap-4 py-4">
             <h3 className="text-lg font-bold text-foreground">{t("activation.otpSheet.title")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("activation.otpSheet.errorSubtitle") : `We sent a verification code to ${otpTarget}`}
+              {otpError ? t("activation.otpSheet.errorSubtitle") : t("simTermination.otpSentTo", { target: otpTarget })}
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -708,12 +708,12 @@ const SimTermination = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirm Termination</h3>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("simTermination.confirmTermination")}</h3>
               <p className="text-sm text-muted-foreground">{confirmMessage}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveTermination}>Yes, Confirm</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveTermination}>{t("simTermination.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("simTermination.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -728,17 +728,17 @@ const SimTermination = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">SIM Terminated Successfully</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("simTermination.terminatedSuccessfullyTitle")}</h3>
             <p className="text-sm text-muted-foreground text-center">{successMessage}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{orderId}</span>
+              {t("simTermination.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
             onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
           >
-            Done
+            {t("simTermination.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -752,19 +752,19 @@ const SimTermination = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Termination Couldn't Be Completed</h3>
-            <p className="text-sm text-muted-foreground text-center">Something went wrong while processing this request. No charge was made.</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("simTermination.terminationFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("simTermination.terminationFailedDesc")}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              Try Again
+              {t("simTermination.tryAgain")}
             </Button>
             <button
               type="button"
               className="w-full h-11 text-primary font-semibold text-sm"
               onClick={() => { setFailureOpen(false); }}
             >
-              Cancel
+              {t("simTermination.cancel")}
             </button>
           </div>
         </DrawerContent>

@@ -119,11 +119,11 @@ const CreditLimitAdjustment = () => {
       setChecking(false);
       const found = DEMO_CREDIT_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
-        setLookupError("Number not found. Please check the MSISDN and try again.");
+        setLookupError(t("creditLimitAdjustment.lookupErrorNotFound"));
         return;
       }
       if (found.planCategory !== "switch-postpaid") {
-        setLookupError("This number isn't a Switch Postpaid line. Credit limit adjustment isn't available for it.");
+        setLookupError(t("creditLimitAdjustment.lookupErrorNotEligible"));
         return;
       }
       setCustomer(found);
@@ -222,20 +222,20 @@ const CreditLimitAdjustment = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="Credit Limit Adjustment" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title={t("creditLimitAdjustment.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup + Adjust (merged) ── */}
         {step === 0 && (
           <>
-            <Field label="MSISDN">
+            <Field label={t("creditLimitAdjustment.msisdn")}>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
                     value={msisdn}
                     onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
-                    placeholder="05XXXXXXXX"
+                    placeholder={t("creditLimitAdjustment.msisdnPlaceholder")}
                     inputMode="numeric"
                     className="h-12 bg-card rounded-xl pe-10"
                   />
@@ -248,19 +248,19 @@ const CreditLimitAdjustment = () => {
                   disabled={!/^\d{10}$/.test(msisdn) || checking}
                   onClick={handleSearch}
                 >
-                  Search
+                  {t("creditLimitAdjustment.search")}
                 </Button>
               </div>
             </Field>
 
             <PrototypeTestBox
-              heading="test numbers"
-              description="Use these to try every case. This box won't appear in the real implementation."
+              heading={t("creditLimitAdjustment.testNumbersHeading")}
+              description={t("creditLimitAdjustment.testNumbersDescription")}
               items={[
-                { value: "0502222211", note: "Switch Postpaid, current limit 200 SAR" },
-                { value: "0502222222", note: "Switch Postpaid, current limit 500 SAR" },
-                { value: "0501111133", note: "Not a Switch Postpaid line" },
-                { value: "0500000099", note: "Number not found" },
+                { value: "0502222211", note: t("creditLimitAdjustment.testNoteLimit200") },
+                { value: "0502222222", note: t("creditLimitAdjustment.testNoteLimit500") },
+                { value: "0501111133", note: t("creditLimitAdjustment.testNoteNotSwitchPostpaid") },
+                { value: "0500000099", note: t("creditLimitAdjustment.testNoteNotFound") },
               ]}
               onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
             />
@@ -274,15 +274,15 @@ const CreditLimitAdjustment = () => {
 
             {customer && (
               <>
-                <CardSection title="Customer Details" icon={ClipboardList}>
-              <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Current Credit Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
+                <CardSection title={t("creditLimitAdjustment.customerDetails")} icon={ClipboardList}>
+              <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
+              <SummaryRow label={t("creditLimitAdjustment.currentCreditLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
             </CardSection>
 
             <div className="flex gap-3">
               {([
-                { value: "increase" as const, label: "Increase", Icon: TrendingUp },
-                { value: "decrease" as const, label: "Decrease", Icon: TrendingDown },
+                { value: "increase" as const, label: t("creditLimitAdjustment.increase"), Icon: TrendingUp },
+                { value: "decrease" as const, label: t("creditLimitAdjustment.decrease"), Icon: TrendingDown },
               ]).map(({ value, label, Icon }) => {
                 const selected = direction === value;
                 return (
@@ -308,7 +308,7 @@ const CreditLimitAdjustment = () => {
               })}
             </div>
 
-            <CardSection title="Adjustment Amount" icon={direction === "increase" ? TrendingUp : TrendingDown}>
+            <CardSection title={t("creditLimitAdjustment.adjustmentAmount")} icon={direction === "increase" ? TrendingUp : TrendingDown}>
               <div className="flex items-center justify-between">
                 <button
                   type="button"
@@ -332,23 +332,23 @@ const CreditLimitAdjustment = () => {
               </div>
             </CardSection>
 
-            <CardSection title="Preview" icon={ClipboardList}>
-              <SummaryRow label="Current Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
-              <SummaryRow label="New Limit" value={<span className="text-primary"><RiyalSymbol /> {newLimit}</span>} />
+            <CardSection title={t("creditLimitAdjustment.preview")} icon={ClipboardList}>
+              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit}</span>} />
             </CardSection>
 
             {direction === "increase" ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  The customer will pay <span className="font-semibold">{delta} SAR</span> now to increase the credit limit.
+                  {t("creditLimitAdjustment.increaseNote", { delta })}
                 </p>
               </div>
             ) : (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
                 <Wallet className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">
-                  No payment required. <span className="font-semibold">{effectiveDelta} SAR</span> will be added to the customer's advance payment wallet.
+                  {t("creditLimitAdjustment.decreaseNote", { delta: effectiveDelta })}
                 </p>
               </div>
             )}
@@ -360,23 +360,23 @@ const CreditLimitAdjustment = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 1 && customer && (
           <>
-            <CardSection title="Adjustment Summary" icon={ClipboardList}>
-              <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Direction" value={direction === "increase" ? "Increase" : "Decrease"} />
-              <SummaryRow label="Current Limit" value={<><RiyalSymbol /> {currentLimit}</>} />
-              <SummaryRow label="New Limit" value={<><RiyalSymbol /> {newLimit}</>} />
+            <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
+              <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
+              <SummaryRow label={t("creditLimitAdjustment.direction")} value={direction === "increase" ? t("creditLimitAdjustment.increase") : t("creditLimitAdjustment.decrease")} />
+              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit}</>} />
             </CardSection>
 
-            <CardSection title="OTP Verification" icon={Phone}>
+            <CardSection title={t("creditLimitAdjustment.otpVerification")} icon={Phone}>
               {otpVerified ? (
-                <VerifiedBanner label="OTP Verified" />
+                <VerifiedBanner label={t("creditLimitAdjustment.otpVerified")} />
               ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("creditLimitAdjustment.sendVerifyOtp")}</Button>
               )}
             </CardSection>
 
             {direction === "increase" && (
-              <CardSection title="Payment Method" icon={CreditCard}>
+              <CardSection title={t("creditLimitAdjustment.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
                   <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
@@ -388,16 +388,16 @@ const CreditLimitAdjustment = () => {
       </div>
 
       {/* Sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueAdjust} onClick={() => setStep(1)}>
-              Continue
+              {t("creditLimitAdjustment.continue")}
             </Button>
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {direction === "increase" ? `Pay ${delta} SAR` : "Confirm Adjustment"}
+              {direction === "increase" ? t("creditLimitAdjustment.payAmountSar", { amount: delta }) : t("creditLimitAdjustment.confirmAdjustment")}
             </Button>
           )}
         </div>
@@ -407,11 +407,11 @@ const CreditLimitAdjustment = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">Enter Verification Code</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("creditLimitAdjustment.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? "The verification code you entered is incorrect. Please try again." : "We sent you a verification code via SMS"}
+              {otpError ? t("creditLimitAdjustment.otpIncorrect") : t("creditLimitAdjustment.otpSentViaSms")}
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -430,18 +430,18 @@ const CreditLimitAdjustment = () => {
             <p className="text-xs text-muted-foreground">
               {otpError ? (
                 <>
-                  Resend the code ?{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">Resend</button>
+                  {t("creditLimitAdjustment.resendCodeQuestion")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("creditLimitAdjustment.resend")}</button>
                 </>
               ) : otpSecondsLeft > 0 ? (
                 <>
-                  Didn't receive the code?{" "}
+                  {t("creditLimitAdjustment.didntReceiveCode")}{" "}
                   <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
                 </>
               ) : (
                 <>
-                  Didn't receive the code?{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">Resend</button>
+                  {t("creditLimitAdjustment.didntReceiveCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("creditLimitAdjustment.resend")}</button>
                 </>
               )}
             </p>
@@ -458,17 +458,17 @@ const CreditLimitAdjustment = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-foreground mb-1">
-                {direction === "increase" ? "Confirm Payment" : "Confirm Adjustment"}
+                {direction === "increase" ? t("creditLimitAdjustment.confirmPaymentTitle") : t("creditLimitAdjustment.confirmAdjustment")}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {direction === "increase"
-                  ? "Please confirm the payment has been completed using the selected payment method."
-                  : "Please confirm you want to decrease this customer's credit limit."}
+                  ? t("creditLimitAdjustment.confirmPaymentDesc")
+                  : t("creditLimitAdjustment.confirmAdjustmentDesc")}
               </p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>Yes, Confirm</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("creditLimitAdjustment.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("creditLimitAdjustment.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -483,21 +483,21 @@ const CreditLimitAdjustment = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Credit Limit Updated</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("creditLimitAdjustment.creditLimitUpdated")}</h3>
             <p className="text-sm text-muted-foreground text-center">
               {direction === "increase"
-                ? `The customer's credit limit has been increased to ${newLimit} SAR.`
-                : `The credit limit has been decreased to ${newLimit} SAR. ${effectiveDelta} SAR has been added to the customer's advance payment wallet.`}
+                ? t("creditLimitAdjustment.increasedTo", { limit: newLimit })
+                : t("creditLimitAdjustment.decreasedTo", { limit: newLimit, delta: effectiveDelta })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{orderId}</span>
+              {t("creditLimitAdjustment.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
             onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
           >
-            Done
+            {t("creditLimitAdjustment.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -511,19 +511,19 @@ const CreditLimitAdjustment = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Adjustment Couldn't Be Completed</h3>
-            <p className="text-sm text-muted-foreground text-center">Something went wrong while processing this request. No charge was made.</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("creditLimitAdjustment.adjustmentFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("creditLimitAdjustment.adjustmentFailedDesc")}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              Try Again
+              {t("creditLimitAdjustment.tryAgain")}
             </Button>
             <button
               type="button"
               className="w-full h-11 text-primary font-semibold text-sm"
               onClick={() => { setFailureOpen(false); }}
             >
-              Cancel
+              {t("creditLimitAdjustment.cancel")}
             </button>
           </div>
         </DrawerContent>

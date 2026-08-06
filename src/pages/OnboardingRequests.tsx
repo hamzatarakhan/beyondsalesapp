@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import AppHeader from "@/components/AppHeader";
@@ -103,15 +104,6 @@ interface OnboardingRequest {
   history: HistoryEntry[];
 }
 
-const STATUS_LABEL: Record<OnboardingStatus, string> = {
-  pending: "Pending",
-  activated: "Activated",
-  rejected: "Rejected",
-  completed: "Completed",
-  resubmitted: "Resubmitted",
-  "in-completed": "In completed",
-};
-
 const STATUS_STYLE: Record<OnboardingStatus, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   activated: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
@@ -119,17 +111,6 @@ const STATUS_STYLE: Record<OnboardingStatus, string> = {
   completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   resubmitted: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
   "in-completed": "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-};
-
-const STAGE_LABEL: Record<HistoryStage, string> = {
-  submitted: "Submitted",
-  "approval-pending-1": "Approval Pending 1",
-  "approval-pending-2": "Approval Pending 2",
-  "activation-pending": "Activation Pending",
-  activated: "Activated",
-  rejected: "Rejected",
-  resubmitted: "Resubmitted",
-  "in-completed": "In completed",
 };
 
 const STAGE_STYLE: Record<HistoryStage, string> = {
@@ -158,30 +139,31 @@ const STAGE_DOT_STYLE: Record<HistoryStage, string> = {
 // which names the resulting queue/state rather than the verb (e.g. reaching "Approval Pending 2"
 // is the result of someone having chosen Approve on the "Approval Pending 1" step). Matches the
 // exact verb used on the Approve/Reject/Resubmit buttons elsewhere on this page, not past tense.
-const ACTION_LABEL: Record<HistoryStage, string> = {
-  submitted: "Submit",
-  "approval-pending-1": "Pending",
-  "approval-pending-2": "Approve",
-  "activation-pending": "Approve",
-  activated: "Approve",
-  rejected: "Reject",
+type ActionKey = "submit" | "pending" | "approve" | "reject";
+
+const ACTION_KEY: Record<HistoryStage, ActionKey> = {
+  submitted: "submit",
+  "approval-pending-1": "pending",
+  "approval-pending-2": "approve",
+  "activation-pending": "approve",
+  activated: "approve",
+  rejected: "reject",
   // Resubmitting is still a submission, from the requester's point of view — same action bucket
   // as the initial submit, just a later stage badge.
-  resubmitted: "Submit",
-  "in-completed": "Pending",
+  resubmitted: "submit",
+  "in-completed": "pending",
 };
 
 // Soft-tinted pill for the "Action Taken" line — lighter than the Stage badge above it so the
 // two don't compete, but still color-coded for a quick glance (green=approve, red=reject, etc).
-const ACTION_STYLE: Record<string, string> = {
-  Approve: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
-  Reject: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
-  Submit: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
-  Pending: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+const ACTION_STYLE: Record<ActionKey, string> = {
+  approve: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+  reject: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
+  submit: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
+  pending: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
 };
 
 const CHANNEL_TYPES = ["Retailer", "Distributor", "Franchise"];
-const REJECT_REASONS = ["Missing or expired documents", "Invalid information", "Duplicate request", "Other"];
 
 // Stretches the date-picker grid to the full width of its drawer instead of the default's
 // intrinsic (centered) sizing — the day columns become flexible instead of fixed w-9 cells.
@@ -196,6 +178,8 @@ const FULL_WIDTH_CALENDAR_CLASSNAMES = {
   cell: "flex-1 flex items-center justify-center h-9 text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
 };
 
+// Document categories are stored as stable English keys (used as demo-data identifiers and
+// React list keys); DOC_CATEGORY_LABEL below maps them to a translated display string.
 const makeDocuments = (): OnboardingRequest["documents"] => [
   { category: "Commercial Registration", files: [{ title: "CR_Certificate.pdf" }, { title: "CR_Photo.jpg" }] },
   { category: "VAT Certificate", files: [{ title: "VAT_Certificate.pdf" }, { title: "VAT_Photo.jpg" }] },
@@ -340,6 +324,49 @@ type StatusFilter = "all" | "rejected" | "pending" | "active";
 
 const OnboardingRequests = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const STATUS_LABEL: Record<OnboardingStatus, string> = {
+    pending: t("onboardingRequests.status_pending"),
+    activated: t("onboardingRequests.status_activated"),
+    rejected: t("onboardingRequests.status_rejected"),
+    completed: t("onboardingRequests.status_completed"),
+    resubmitted: t("onboardingRequests.status_resubmitted"),
+    "in-completed": t("onboardingRequests.status_inCompleted"),
+  };
+
+  const STAGE_LABEL: Record<HistoryStage, string> = {
+    submitted: t("onboardingRequests.stage_submitted"),
+    "approval-pending-1": t("onboardingRequests.stage_approvalPending1"),
+    "approval-pending-2": t("onboardingRequests.stage_approvalPending2"),
+    "activation-pending": t("onboardingRequests.stage_activationPending"),
+    activated: t("onboardingRequests.status_activated"),
+    rejected: t("onboardingRequests.status_rejected"),
+    resubmitted: t("onboardingRequests.status_resubmitted"),
+    "in-completed": t("onboardingRequests.status_inCompleted"),
+  };
+
+  const ACTION_LABEL: Record<ActionKey, string> = {
+    submit: t("onboardingRequests.action_submit"),
+    pending: t("onboardingRequests.action_pending"),
+    approve: t("onboardingRequests.action_approve"),
+    reject: t("onboardingRequests.action_reject"),
+  };
+
+  const DOC_CATEGORY_LABEL: Record<string, string> = {
+    "Commercial Registration": t("onboardingRequests.docCategories.commercialRegistration"),
+    "VAT Certificate": t("onboardingRequests.docCategories.vatCertificate"),
+    "Municipality License": t("onboardingRequests.docCategories.municipalityLicense"),
+    "Signed Dealer Contract": t("onboardingRequests.docCategories.signedDealerContract"),
+    "Shop Pictures": t("onboardingRequests.docCategories.shopPictures"),
+  };
+
+  const REJECT_REASONS = [
+    t("onboardingRequests.reason_missingDocs"),
+    t("onboardingRequests.reason_invalidInfo"),
+    t("onboardingRequests.reason_duplicateRequest"),
+    t("onboardingRequests.reason_other"),
+  ];
 
   const [requests, setRequests] = useState<OnboardingRequest[]>(INITIAL_REQUESTS);
   const [tasks, setTasks] = useState<OnboardingRequest[]>(INITIAL_TASKS);
@@ -390,11 +417,11 @@ const OnboardingRequests = () => {
   const hasActiveFilter = statusFilter !== "all" || channelTypeFilter !== "all" || !!dateRange?.from;
   const activeFilterLabel =
     statusFilter !== "all"
-      ? statusFilter === "active" ? "Active" : statusFilter === "rejected" ? "Rejected" : "Pending"
+      ? statusFilter === "active" ? t("onboardingRequests.filterActive") : statusFilter === "rejected" ? STATUS_LABEL.rejected : STATUS_LABEL.pending
       : channelTypeFilter !== "all"
       ? channelTypeFilter
       : dateRange?.from
-      ? "Custom Date"
+      ? t("onboardingRequests.customDate")
       : null;
 
   const clearActiveFilter = () => {
@@ -476,7 +503,7 @@ const OnboardingRequests = () => {
       setView("list");
       return;
     }
-    navigate("/");
+    navigate(-1);
   };
 
   // ---------- Detail view render ----------
@@ -498,7 +525,7 @@ const OnboardingRequests = () => {
         >
           <span className="flex items-center gap-2">
             <History className="w-4 h-4 text-primary" />
-            <span className="text-sm text-muted-foreground">Status</span>
+            <span className="text-sm text-muted-foreground">{t("onboardingRequests.status")}</span>
           </span>
           <span className={cn("px-3 py-1 rounded-full text-xs font-semibold", STATUS_STYLE[activeItem.status])}>
             {STATUS_LABEL[activeItem.status]}
@@ -509,7 +536,7 @@ const OnboardingRequests = () => {
           <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
             <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-destructive">Rejected Reason</p>
+              <p className="text-xs font-semibold text-destructive">{t("onboardingRequests.rejectedReason")}</p>
               <p className="text-[13px] text-destructive/90 leading-snug mt-0.5">{activeItem.rejectedReason}</p>
             </div>
           </div>
@@ -517,56 +544,56 @@ const OnboardingRequests = () => {
 
         {readOnly ? (
           <>
-            <InfoSection title="Business Information">
-              <SummaryRow label="Type" value={activeItem.business.type} />
-              <SummaryRow label="Organization Trading Name" value={activeItem.business.orgTradingName} />
-              <SummaryRow label="Organization ID" value={activeItem.business.orgId} />
-              <SummaryRow label="Bank IBAN Proof" value={activeItem.business.bankIbanProof} />
-              <SummaryRow label="Store Name" value={activeItem.business.storeName} />
+            <InfoSection title={t("onboardingRequests.businessInformation")}>
+              <SummaryRow label={t("onboardingRequests.type")} value={activeItem.business.type} />
+              <SummaryRow label={t("onboardingRequests.orgTradingName")} value={activeItem.business.orgTradingName} />
+              <SummaryRow label={t("onboardingRequests.orgId")} value={activeItem.business.orgId} />
+              <SummaryRow label={t("onboardingRequests.bankIbanProof")} value={activeItem.business.bankIbanProof} />
+              <SummaryRow label={t("onboardingRequests.storeName")} value={activeItem.business.storeName} />
             </InfoSection>
-            <InfoSection title="Member Information">
-              <SummaryRow label="Full Name" value={activeItem.member.fullName} />
-              <SummaryRow label="ID" value={activeItem.member.civilId} />
-              <SummaryRow label="Member Title" value={activeItem.member.memberTitle} />
-              <SummaryRow label="Mobile Number" value={activeItem.member.mobileNumber} />
-              <SummaryRow label="Email" value={activeItem.member.email} />
+            <InfoSection title={t("onboardingRequests.memberInformation")}>
+              <SummaryRow label={t("onboardingRequests.fullName")} value={activeItem.member.fullName} />
+              <SummaryRow label={t("onboardingRequests.idLabel")} value={activeItem.member.civilId} />
+              <SummaryRow label={t("onboardingRequests.memberTitle")} value={activeItem.member.memberTitle} />
+              <SummaryRow label={t("onboardingRequests.mobileNumber")} value={activeItem.member.mobileNumber} />
+              <SummaryRow label={t("onboardingRequests.email")} value={activeItem.member.email} />
             </InfoSection>
-            <InfoSection title="Location Information">
-              <SummaryRow label="Region" value={activeItem.location.region} />
-              <SummaryRow label="City" value={activeItem.location.city} />
-              <SummaryRow label="District" value={activeItem.location.district} />
+            <InfoSection title={t("onboardingRequests.locationInformation")}>
+              <SummaryRow label={t("onboardingRequests.region")} value={activeItem.location.region} />
+              <SummaryRow label={t("onboardingRequests.city")} value={activeItem.location.city} />
+              <SummaryRow label={t("onboardingRequests.district")} value={activeItem.location.district} />
             </InfoSection>
           </>
         ) : (
           <>
-            <InfoSection title="Business Information">
+            <InfoSection title={t("onboardingRequests.businessInformation")}>
               <div className="space-y-3">
-                <BoxField label="Organization Trading Name" value={activeItem.business.orgTradingName} />
-                <BoxField label="Organization ID" value={activeItem.business.orgId} />
-                <BoxField label="Bank IBAN Proof" value={activeItem.business.bankIbanProof} />
-                <BoxField label="Store Name" value={activeItem.business.storeName} />
+                <BoxField label={t("onboardingRequests.orgTradingName")} value={activeItem.business.orgTradingName} />
+                <BoxField label={t("onboardingRequests.orgId")} value={activeItem.business.orgId} />
+                <BoxField label={t("onboardingRequests.bankIbanProof")} value={activeItem.business.bankIbanProof} />
+                <BoxField label={t("onboardingRequests.storeName")} value={activeItem.business.storeName} />
               </div>
             </InfoSection>
-            <InfoSection title="Member Information">
+            <InfoSection title={t("onboardingRequests.memberInformation")}>
               <div className="space-y-3">
-                <BoxField label="Full Name" value={activeItem.member.fullName} />
-                <BoxField label="Civil ID" value={activeItem.member.civilId} />
-                <BoxField label="Member Title" value={activeItem.member.memberTitle} />
-                <BoxField label="Mobile Number" value={activeItem.member.mobileNumber} />
-                <BoxField label="Email" value={activeItem.member.email} />
+                <BoxField label={t("onboardingRequests.fullName")} value={activeItem.member.fullName} />
+                <BoxField label={t("onboardingRequests.civilId")} value={activeItem.member.civilId} />
+                <BoxField label={t("onboardingRequests.memberTitle")} value={activeItem.member.memberTitle} />
+                <BoxField label={t("onboardingRequests.mobileNumber")} value={activeItem.member.mobileNumber} />
+                <BoxField label={t("onboardingRequests.email")} value={activeItem.member.email} />
                 <div className="flex items-center gap-2 pt-1">
                   <div className={cn("w-4 h-4 rounded border-2 flex items-center justify-center shrink-0", activeItem.member.dealerIsAuthorizedRep ? "bg-primary border-primary" : "border-destructive")}>
                     {activeItem.member.dealerIsAuthorizedRep && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
-                  <span className="text-xs text-foreground">Dealer is the Authorized Representative</span>
+                  <span className="text-xs text-foreground">{t("onboardingRequests.dealerAuthorizedRep")}</span>
                 </div>
               </div>
             </InfoSection>
-            <InfoSection title="Location Information">
+            <InfoSection title={t("onboardingRequests.locationInformation")}>
               <div className="space-y-3">
-                <BoxField label="Region" value={activeItem.location.region} />
-                <BoxField label="City" value={activeItem.location.city} />
-                <BoxField label="District" value={activeItem.location.district} />
+                <BoxField label={t("onboardingRequests.region")} value={activeItem.location.region} />
+                <BoxField label={t("onboardingRequests.city")} value={activeItem.location.city} />
+                <BoxField label={t("onboardingRequests.district")} value={activeItem.location.district} />
               </div>
             </InfoSection>
           </>
@@ -575,10 +602,10 @@ const OnboardingRequests = () => {
         {activeItem.documents.map((doc) => (
           <div key={doc.category} className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <p className="text-sm font-semibold text-foreground">{doc.category}</p>
+              <p className="text-sm font-semibold text-foreground">{DOC_CATEGORY_LABEL[doc.category] ?? doc.category}</p>
               {!readOnly && (
                 <button type="button" className="flex items-center gap-1 text-xs font-semibold text-primary">
-                  <Plus className="w-3.5 h-3.5" /> Add File
+                  <Plus className="w-3.5 h-3.5" /> {t("onboardingRequests.addFile")}
                 </button>
               )}
             </div>
@@ -593,10 +620,10 @@ const OnboardingRequests = () => {
                     </span>
                   ) : (
                     <>
-                      <button type="button" aria-label={`View ${file.title}`} className="text-primary shrink-0">
+                      <button type="button" aria-label={t("channelOnboarding.viewFileAria", { title: file.title })} className="text-primary shrink-0">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button type="button" aria-label={`Remove ${file.title}`} className="text-destructive shrink-0">
+                      <button type="button" aria-label={t("channelOnboarding.removeFileAria", { title: file.title })} className="text-destructive shrink-0">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </>
@@ -608,16 +635,16 @@ const OnboardingRequests = () => {
         ))}
 
         {(showApproveReject || showResubmit) && (
-          <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+          <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
             <div className="max-w-[390px] mx-auto flex flex-col gap-2">
               {showApproveReject && (
                 <>
-                  <Button className="w-full h-12 rounded-full font-semibold" onClick={() => setApproveOpen(true)}>Approve</Button>
-                  <Button variant="outline" className="w-full h-12 rounded-full font-semibold border-destructive text-destructive hover:text-destructive" onClick={() => setRejectOpen(true)}>Reject</Button>
+                  <Button className="w-full h-12 rounded-full font-semibold" onClick={() => setApproveOpen(true)}>{t("onboardingRequests.approve")}</Button>
+                  <Button variant="outline" className="w-full h-12 rounded-full font-semibold border-destructive text-destructive hover:text-destructive" onClick={() => setRejectOpen(true)}>{t("onboardingRequests.reject")}</Button>
                 </>
               )}
               {showResubmit && (
-                <Button className="w-full h-12 rounded-full font-semibold" onClick={() => setResubmitOpen(true)}>Resubmit</Button>
+                <Button className="w-full h-12 rounded-full font-semibold" onClick={() => setResubmitOpen(true)}>{t("onboardingRequests.resubmit")}</Button>
               )}
             </div>
           </div>
@@ -640,17 +667,17 @@ const OnboardingRequests = () => {
               tab === v ? "text-primary border-primary" : "text-muted-foreground border-transparent",
             )}
           >
-            {v === "requests" ? "My Requests" : "My Tasks"}
+            {v === "requests" ? t("onboardingRequests.myRequests") : t("onboardingRequests.myTasks")}
           </button>
         ))}
       </div>
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" className="pl-10 h-11 rounded-xl bg-card border-border" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("onboardingRequests.search")} className="ps-10 h-11 rounded-xl bg-card border-border" />
         </div>
-        <button type="button" onClick={openFilter} aria-label="Filter" className="w-11 h-11 rounded-xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0">
+        <button type="button" onClick={openFilter} aria-label={t("onboardingRequests.filterAria")} className="w-11 h-11 rounded-xl bg-card border border-border shadow-sm flex items-center justify-center shrink-0">
           <SlidersHorizontal className="w-4 h-4 text-primary" />
         </button>
       </div>
@@ -659,7 +686,7 @@ const OnboardingRequests = () => {
         <div className="flex">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-destructive text-destructive text-xs font-semibold">
             {activeFilterLabel}
-            <button type="button" onClick={clearActiveFilter} aria-label="Clear filter">
+            <button type="button" onClick={clearActiveFilter} aria-label={t("onboardingRequests.clearFilterAria")}>
               <X className="w-3 h-3" />
             </button>
           </span>
@@ -669,16 +696,16 @@ const OnboardingRequests = () => {
       {currentList.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-8 py-20 text-center">
           <Inbox className="w-14 h-14 text-primary mb-4" strokeWidth={1.5} />
-          <p className="font-semibold text-foreground">{tab === "requests" ? "No Requests Yet" : "No Tasks Yet"}</p>
-          <p className="text-sm text-muted-foreground mt-1">{tab === "requests" ? "No requests found." : "No tasks found."}</p>
+          <p className="font-semibold text-foreground">{tab === "requests" ? t("onboardingRequests.noRequestsYetTitle") : t("onboardingRequests.noTasksYetTitle")}</p>
+          <p className="text-sm text-muted-foreground mt-1">{tab === "requests" ? t("onboardingRequests.noRequestsFound") : t("onboardingRequests.noTasksFound")}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-card rounded-xl p-8 text-center">
-          <p className="text-muted-foreground">No results found.</p>
+          <p className="text-muted-foreground">{t("onboardingRequests.noResultsFound")}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          <p className="text-[11px] text-muted-foreground px-1">Total: {filtered.length}</p>
+          <p className="text-[11px] text-muted-foreground px-1">{t("onboardingRequests.total", { count: filtered.length })}</p>
           {filtered.map((item) => (
             <div
               key={item.id}
@@ -696,7 +723,7 @@ const OnboardingRequests = () => {
               </div>
               {!isMyRequest && item.requesterName && (
                 <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
-                  <IconChip icon={User} /> Requester: {item.requesterName}
+                  <IconChip icon={User} /> {t("onboardingRequests.requester", { name: item.requesterName })}
                 </div>
               )}
               <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
@@ -714,7 +741,7 @@ const OnboardingRequests = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-6">
-      <AppHeader title={view === "detail" ? "View Request" : "Onboarding Requests"} showBack onBackClick={handleBack} />
+      <AppHeader title={view === "detail" ? t("onboardingRequests.viewRequestTitle") : t("onboardingRequests.pageTitle")} showBack onBackClick={handleBack} />
 
       {view === "detail" ? renderDetail() : renderList()}
 
@@ -724,8 +751,8 @@ const OnboardingRequests = () => {
           <div className="flex justify-center pt-1 pb-2"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="flex items-center justify-between pb-3">
             <div>
-              <h3 className="text-lg font-bold text-foreground">Filter</h3>
-              <p className="text-xs text-muted-foreground">Please choose your filter options</p>
+              <h3 className="text-lg font-bold text-foreground">{t("onboardingRequests.filterTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("onboardingRequests.filterSubtitle")}</p>
             </div>
             <DrawerClose className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
               <X className="w-4 h-4 text-muted-foreground" />
@@ -734,9 +761,9 @@ const OnboardingRequests = () => {
 
           <div className="space-y-4 pb-4">
             <div>
-              <p className="text-sm font-semibold text-foreground mb-2">Request Status</p>
+              <p className="text-sm font-semibold text-foreground mb-2">{t("onboardingRequests.requestStatus")}</p>
               <div className="flex flex-wrap gap-2">
-                {([["all", "All"], ["rejected", "Rejected"], ["pending", "Pending"], ["active", "Active"]] as [StatusFilter, string][]).map(([value, label]) => (
+                {([["all", t("onboardingRequests.filterAll")], ["rejected", STATUS_LABEL.rejected], ["pending", STATUS_LABEL.pending], ["active", t("onboardingRequests.filterActive")]] as [StatusFilter, string][]).map(([value, label]) => (
                   <button
                     key={value}
                     type="button"
@@ -753,7 +780,7 @@ const OnboardingRequests = () => {
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-foreground mb-2">Channel Type</p>
+              <p className="text-sm font-semibold text-foreground mb-2">{t("onboardingRequests.channelType")}</p>
               <div className="flex flex-wrap gap-2">
                 {["all", ...CHANNEL_TYPES].map((value) => (
                   <button
@@ -765,14 +792,14 @@ const OnboardingRequests = () => {
                       draftChannelType === value ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
                     )}
                   >
-                    {value !== "all" && "+ "}{value === "all" ? "All" : value}
+                    {value !== "all" && "+ "}{value === "all" ? t("onboardingRequests.filterAll") : value}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-foreground mb-2">Date Duration</p>
+              <p className="text-sm font-semibold text-foreground mb-2">{t("onboardingRequests.dateDuration")}</p>
               <button
                 type="button"
                 onClick={() => { setFilterOpen(false); setDateOpen(true); }}
@@ -783,15 +810,15 @@ const OnboardingRequests = () => {
                     ? draftDateRange.to
                       ? `${format(draftDateRange.from, "d MMM yyyy")} - ${format(draftDateRange.to, "d MMM yyyy")}`
                       : format(draftDateRange.from, "d MMM yyyy")
-                    : "Select date"}
+                    : t("onboardingRequests.selectDate")}
                 </span>
                 <Clock className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           </div>
 
-          <Button className="w-full h-12 rounded-full font-semibold" onClick={applyFilter}>Apply</Button>
-          <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={clearFilter}>Clear Filter</button>
+          <Button className="w-full h-12 rounded-full font-semibold" onClick={applyFilter}>{t("channelOnboarding.apply")}</Button>
+          <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={clearFilter}>{t("onboardingRequests.clearFilter")}</button>
         </DrawerContent>
       </Drawer>
 
@@ -801,8 +828,8 @@ const OnboardingRequests = () => {
           <div className="flex justify-center pt-1 pb-2"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="flex items-center justify-between pb-1">
             <div className="flex-1 text-center">
-              <h3 className="text-lg font-bold text-foreground">Pick a Date</h3>
-              <p className="text-xs text-muted-foreground">Please select a date</p>
+              <h3 className="text-lg font-bold text-foreground">{t("channelOnboarding.pickADate")}</h3>
+              <p className="text-xs text-muted-foreground">{t("channelOnboarding.pleaseSelectDate")}</p>
             </div>
             <DrawerClose className="w-8 h-8 rounded-full bg-muted flex items-center justify-center absolute end-5 top-4">
               <X className="w-4 h-4 text-muted-foreground" />
@@ -821,17 +848,17 @@ const OnboardingRequests = () => {
 
           <div className="rounded-xl bg-muted/40 divide-y divide-border mb-4 mt-2">
             <div className="px-3 py-2.5 flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Date From</span>
+              <span className="text-muted-foreground">{t("onboardingRequests.dateFrom")}</span>
               <span className="font-semibold text-foreground">{draftDateRange?.from ? format(draftDateRange.from, "d MMM yyyy") : "—"}</span>
             </div>
             <div className="px-3 py-2.5 flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Date To</span>
+              <span className="text-muted-foreground">{t("onboardingRequests.dateTo")}</span>
               <span className="font-semibold text-foreground">{draftDateRange?.to ? format(draftDateRange.to, "d MMM yyyy") : "—"}</span>
             </div>
           </div>
 
-          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setDateOpen(false); setFilterOpen(true); }}>Apply</Button>
-          <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setDraftDateRange(undefined)}>Clear Filter</button>
+          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setDateOpen(false); setFilterOpen(true); }}>{t("channelOnboarding.apply")}</Button>
+          <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setDraftDateRange(undefined)}>{t("onboardingRequests.clearFilter")}</button>
         </DrawerContent>
       </Drawer>
 
@@ -843,27 +870,27 @@ const OnboardingRequests = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirmation Message</h3>
-              <p className="text-sm text-muted-foreground">Do you want to reject this request?</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("onboardingRequests.confirmationMessage")}</h3>
+              <p className="text-sm text-muted-foreground">{t("onboardingRequests.confirmRejectQuestion")}</p>
             </div>
             <div className="w-full space-y-3 text-start">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Reject Reason</label>
+                <label className="text-xs font-medium text-muted-foreground">{t("onboardingRequests.rejectReasonLabel")}</label>
                 <Select value={rejectReason} onValueChange={setRejectReason}>
-                  <SelectTrigger className="w-full bg-card rounded-xl h-12"><SelectValue placeholder="Select the reason" /></SelectTrigger>
+                  <SelectTrigger className="w-full bg-card rounded-xl h-12"><SelectValue placeholder={t("onboardingRequests.selectTheReason")} /></SelectTrigger>
                   <SelectContent className="bg-card">
                     {REJECT_REASONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Reject Remark</label>
-                <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder="Write here .." className="bg-card rounded-xl resize-none" rows={3} />
+                <label className="text-xs font-medium text-muted-foreground">{t("onboardingRequests.rejectRemarkLabel")}</label>
+                <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder={t("onboardingRequests.writeHerePlaceholder")} className="bg-card rounded-xl resize-none" rows={3} />
               </div>
             </div>
             <div className="w-full flex flex-col gap-3 mt-1">
-              <Button className="w-full h-12 rounded-full font-semibold" disabled={!rejectReason} onClick={confirmReject}>Yes</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setRejectOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" disabled={!rejectReason} onClick={confirmReject}>{t("onboardingRequests.yes")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setRejectOpen(false)}>{t("onboardingRequests.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -877,12 +904,12 @@ const OnboardingRequests = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirmation Message</h3>
-              <p className="text-sm text-muted-foreground">Do you want to approve this request?</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("onboardingRequests.confirmationMessage")}</h3>
+              <p className="text-sm text-muted-foreground">{t("onboardingRequests.confirmApproveQuestion")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={confirmApprove}>Yes</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setApproveOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={confirmApprove}>{t("onboardingRequests.yes")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setApproveOpen(false)}>{t("onboardingRequests.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -896,12 +923,12 @@ const OnboardingRequests = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirmation Message</h3>
-              <p className="text-sm text-muted-foreground">Do you want to resubmit this request?</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("onboardingRequests.confirmationMessage")}</h3>
+              <p className="text-sm text-muted-foreground">{t("onboardingRequests.confirmResubmitQuestion")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={confirmResubmit}>Yes</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setResubmitOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={confirmResubmit}>{t("onboardingRequests.yes")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setResubmitOpen(false)}>{t("onboardingRequests.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -912,12 +939,12 @@ const OnboardingRequests = () => {
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2 max-h-[85vh] flex flex-col">
           <div className="flex justify-center pt-1 pb-2"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="flex items-center justify-between pb-4">
-            <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Back" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+            <button type="button" onClick={() => setHistoryOpen(false)} aria-label={t("onboardingRequests.backAria")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
               <ArrowLeft className="w-4 h-4 text-foreground" />
             </button>
             <div className="text-center flex-1">
-              <h3 className="text-lg font-bold text-foreground">Status History</h3>
-              <p className="text-xs text-muted-foreground">List of users action history</p>
+              <h3 className="text-lg font-bold text-foreground">{t("onboardingRequests.statusHistory")}</h3>
+              <p className="text-xs text-muted-foreground">{t("onboardingRequests.historySubtitle")}</p>
             </div>
             <DrawerClose className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
               <X className="w-4 h-4 text-muted-foreground" />
@@ -943,15 +970,15 @@ const OnboardingRequests = () => {
                       </div>
                       <p className="text-[11px] text-muted-foreground">{h.role}</p>
                       <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-[11px] text-muted-foreground">Action Taken:</span>
-                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", ACTION_STYLE[ACTION_LABEL[h.stage]])}>
-                          {ACTION_LABEL[h.stage]}
+                        <span className="text-[11px] text-muted-foreground">{t("onboardingRequests.actionTaken")}</span>
+                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", ACTION_STYLE[ACTION_KEY[h.stage]])}>
+                          {ACTION_LABEL[ACTION_KEY[h.stage]]}
                         </span>
                       </div>
                       {h.stage === "rejected" && h.note && (
                         <div className="mt-2 rounded-lg bg-destructive/10 px-2.5 py-2">
                           <p className="text-[10px] font-semibold text-destructive flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> Rejected Reason
+                            <AlertCircle className="w-3 h-3" /> {t("onboardingRequests.rejectedReason")}
                           </p>
                           <p className="text-[11px] text-destructive/90 leading-snug mt-0.5">{h.note}</p>
                         </div>

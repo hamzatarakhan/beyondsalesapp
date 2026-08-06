@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
@@ -110,43 +111,6 @@ const ELIGIBLE_PREPAID_CATEGORIES = ["aman", "base-plan", "flex"];
 // appear in. Calls (international minutes) and PAYG aren't plan-swap targets, so excluded.
 const FM_MIGRATION_CATEGORIES = ["combo", "flexi", "data"];
 
-const CATEGORY_LABEL: Record<string, string> = {
-  aman: "Aman",
-  "base-plan": "Baqah",
-  flex: "Baqah Flex",
-  data: "5G MBB",
-  "switch-postpaid": "Switch Postpaid",
-  vnet: "Vnet",
-};
-// Friendi's own category labels — "data" collides with Virgin's "5G MBB" meaning above,
-// so this is looked up separately when the active brand is Friendi.
-const FM_CATEGORY_LABEL: Record<string, string> = {
-  combo: "Combo Plans",
-  flexi: "Flexi Plans",
-  data: "Data Plans",
-};
-
-// Plain-English labels for the shared ID_TYPE_RULES keys (mirrors NewActivation.tsx's
-// i18n copy) — this page doesn't use i18n yet, so these stay local string constants.
-const ID_TYPE_LABELS: Record<string, string> = {
-  saudiId: "Saudi National ID",
-  iqamaId: "Iqama ID",
-  borderVisa: "Visit Visa (Border Number)",
-  gccId: "GCC ID",
-  visitorVisa: "Visitor Visa",
-  umrahVisa: "Umrah Visa",
-  hajVisa: "Haj Visa",
-  gccPassport: "GCC Passport",
-  premiumResidency: "Premium Residency",
-};
-const ID_FIELD_LABELS: Record<string, string> = {
-  idNumber: "ID Number",
-  borderNumber: "Border Number",
-  gccIdNumber: "GCC ID Number",
-  visaNumber: "Visa Number",
-  gccPassportNumber: "GCC Passport Number",
-};
-
 // Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
 // (mirrors NewActivation.tsx's demoIdFor) so the prototype hint is always valid.
 const DEMO_ID_SUFFIX = "324567896";
@@ -154,8 +118,44 @@ const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "
 
 const SubscriptionMigration = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
+
+  // Plain-English labels for the shared ID_TYPE_RULES keys — translated via subscriptionMigration.idType_*
+  const ID_TYPE_LABELS: Record<string, string> = {
+    saudiId: t("subscriptionMigration.idType_saudiId"),
+    iqamaId: t("subscriptionMigration.idType_iqamaId"),
+    borderVisa: t("subscriptionMigration.idType_borderVisa"),
+    gccId: t("subscriptionMigration.idType_gccId"),
+    visitorVisa: t("subscriptionMigration.idType_visitorVisa"),
+    umrahVisa: t("subscriptionMigration.idType_umrahVisa"),
+    hajVisa: t("subscriptionMigration.idType_hajVisa"),
+    gccPassport: t("subscriptionMigration.idType_gccPassport"),
+    premiumResidency: t("subscriptionMigration.idType_premiumResidency"),
+  };
+  const ID_FIELD_LABELS: Record<string, string> = {
+    idNumber: t("subscriptionMigration.idField_idNumber"),
+    borderNumber: t("subscriptionMigration.idField_borderNumber"),
+    gccIdNumber: t("subscriptionMigration.idField_gccIdNumber"),
+    visaNumber: t("subscriptionMigration.idField_visaNumber"),
+    gccPassportNumber: t("subscriptionMigration.idField_gccPassportNumber"),
+  };
+  const CATEGORY_LABEL: Record<string, string> = {
+    aman: t("subscriptionMigration.categoryAman"),
+    "base-plan": t("subscriptionMigration.categoryBaqah"),
+    flex: t("subscriptionMigration.categoryBaqahFlex"),
+    data: t("subscriptionMigration.category5gMbb"),
+    "switch-postpaid": t("subscriptionMigration.categorySwitchPostpaid"),
+    vnet: t("subscriptionMigration.categoryVnet"),
+  };
+  // Friendi's own category labels — "data" collides with Virgin's "5G MBB" meaning above,
+  // so this is looked up separately when the active brand is Friendi.
+  const FM_CATEGORY_LABEL: Record<string, string> = {
+    combo: t("subscriptionMigration.categoryCombo"),
+    flexi: t("subscriptionMigration.categoryFlexi"),
+    data: t("subscriptionMigration.categoryData"),
+  };
 
   // ---------- Flow state ----------
   const [direction, setDirection] = useState<Direction | null>(null);
@@ -213,7 +213,7 @@ const SubscriptionMigration = () => {
       setChecking(false);
       const found = DEMO_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
-        setLookupError("Number not found. Please check the MSISDN and try again.");
+        setLookupError(t("subscriptionMigration.lookupErrorNotFound"));
         return;
       }
       const dir: Direction = found.subscriptionType === "prepaid" ? "pre-to-post" : "post-to-pre";
@@ -222,12 +222,12 @@ const SubscriptionMigration = () => {
       // modal when the dealer presses Continue (same pattern as SIM Activation's
       // "Email Not Registered" dialog).
       if (dir === "pre-to-post" && found.planCategory === "data") {
-        setIneligibleReason("This number can't migrate — 5G MBB plans aren't eligible for this service.");
+        setIneligibleReason(t("subscriptionMigration.ineligibleDataReason"));
         setCustomer(found);
         return;
       }
       if (dir === "post-to-pre" && found.planCategory === "vnet") {
-        setIneligibleReason("This number can't migrate — Vnet lines aren't eligible for this service.");
+        setIneligibleReason(t("subscriptionMigration.ineligibleVnetReason"));
         setCustomer(found);
         return;
       }
@@ -236,6 +236,7 @@ const SubscriptionMigration = () => {
       setDepositWaiver(!!found.depositWaiver);
     }, 800);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msisdn]);
 
   const eligible = !!customer && !lookupError;
@@ -368,17 +369,17 @@ const SubscriptionMigration = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="Subscription Migration" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title={t("subscriptionMigration.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Identity ── */}
         {step === 0 && (
           <>
-            <Field label="ID Type">
+            <Field label={t("subscriptionMigration.idType")}>
               <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder="Select ID type" />
+                  <SelectValue placeholder={t("subscriptionMigration.idTypePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
                   {ID_TYPE_ORDER.map((key) => (
@@ -391,44 +392,44 @@ const SubscriptionMigration = () => {
               <Input
                 value={idNumber}
                 onChange={(e) => setIdNumber(e.target.value)}
-                placeholder="Enter ID number"
+                placeholder={t("subscriptionMigration.idNumberPlaceholder")}
                 className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
               />
               {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
                 <p className="text-xs text-destructive">
                   {idNumberRule.startDigits
-                    ? `Must start with ${idNumberRule.startDigits.join(", ")} and be exactly ${idNumberRule.length} digits`
-                    : `Must be exactly ${idNumberRule.length} digits`}
+                    ? t("subscriptionMigration.idNumberRuleStart", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                    : t("subscriptionMigration.idNumberRuleLength", { length: idNumberRule.length })}
                 </p>
               )}
             </Field>
-            <Field label="Nationality">
+            <Field label={t("subscriptionMigration.nationality")}>
               <Select value={nationality} onValueChange={setNationality}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder="Select nationality" />
+                  <SelectValue placeholder={t("subscriptionMigration.nationalityPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
-                  <SelectItem value="sa">Saudi</SelectItem>
-                  <SelectItem value="om">Omani</SelectItem>
-                  <SelectItem value="ae">Emirati</SelectItem>
-                  <SelectItem value="eg">Egyptian</SelectItem>
-                  <SelectItem value="in">Indian</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="sa">{t("subscriptionMigration.nationalitySaudi")}</SelectItem>
+                  <SelectItem value="om">{t("subscriptionMigration.nationalityOmani")}</SelectItem>
+                  <SelectItem value="ae">{t("subscriptionMigration.nationalityEmirati")}</SelectItem>
+                  <SelectItem value="eg">{t("subscriptionMigration.nationalityEgyptian")}</SelectItem>
+                  <SelectItem value="in">{t("subscriptionMigration.nationalityIndian")}</SelectItem>
+                  <SelectItem value="other">{t("subscriptionMigration.nationalityOther")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="MSISDN">
+            <Field label={t("subscriptionMigration.msisdn")}>
               <div className="relative">
                 <Input
                   value={msisdn}
                   onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder="05XXXXXXXX"
+                  placeholder={t("subscriptionMigration.msisdnPlaceholder")}
                   inputMode="numeric"
                   className="h-12 bg-card rounded-xl pe-10"
                 />
                 <Phone className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               </div>
-              {checking && <p className="text-[11px] text-muted-foreground">Checking number…</p>}
+              {checking && <p className="text-[11px] text-muted-foreground">{t("subscriptionMigration.checkingNumber")}</p>}
             </Field>
 
             {lookupError && (
@@ -439,16 +440,16 @@ const SubscriptionMigration = () => {
             )}
 
             <PrototypeTestBox
-              heading="test numbers"
-              description="Use these to try every case (pre-to-post/post-to-pre × whitelisted/not), plus a demo ID Number valid for whichever ID Type is currently selected. This box won't appear in the real implementation."
+              heading={t("subscriptionMigration.testNumbersHeading")}
+              description={t("subscriptionMigration.testNumbersDescription")}
               items={[
-                { value: demoIdFor(idNumberRule), note: `Valid for ${ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"]}`, group: "ID Number" },
-                { value: "0501111133", note: "Normal customer", group: "Prepaid → Postpaid" },
-                { value: "0501111155", note: "Whitelisted + deposit waiver — free", group: "Prepaid → Postpaid" },
-                { value: "0502222222", note: "Normal customer", group: "Postpaid → Prepaid" },
-                { value: "0502222211", note: "With outstanding bills (170 SAR)", group: "Postpaid → Prepaid" },
-                { value: "0501111144", note: "5G MBB plan — can't migrate", group: "Not eligible" },
-                { value: "0502222233", note: "Vnet line — can't migrate", group: "Not eligible" },
+                { value: demoIdFor(idNumberRule), note: t("subscriptionMigration.testNoteValidFor", { type: ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"] }), group: t("subscriptionMigration.testGroupIdNumber") },
+                { value: "0501111133", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPreToPost") },
+                { value: "0501111155", note: t("subscriptionMigration.testNoteWhitelistedWaiver"), group: t("subscriptionMigration.testGroupPreToPost") },
+                { value: "0502222222", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPostToPre") },
+                { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre") },
+                { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible") },
+                { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible") },
               ]}
               onSelect={(v) => {
                 // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
@@ -484,10 +485,10 @@ const SubscriptionMigration = () => {
               return (
                 <div>
                   <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
-                    <h3 className="text-sm font-semibold text-foreground">Current Plan</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{t("subscriptionMigration.currentPlan")}</h3>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold">
                       <ClipboardList className="w-3 h-3" />
-                      {customer.subscriptionType === "prepaid" ? "Prepaid" : "Postpaid"} · {customer.planName}
+                      {customer.subscriptionType === "prepaid" ? t("subscriptionMigration.prepaid") : t("subscriptionMigration.postpaid")} · {customer.planName}
                     </span>
                   </div>
                   <PlanCard
@@ -496,27 +497,27 @@ const SubscriptionMigration = () => {
                     active
                     onSelect={() => {}}
                     hideRadio
-                    minsLabel={cats.includes("switch-postpaid") ? "Local Mins" : "Flex Mins"}
+                    minsLabel={cats.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                     layout={layout}
                   />
                 </div>
               );
             })()}
             <h3 className="text-sm font-semibold text-foreground px-1">
-              {direction === "pre-to-post" ? "Available Postpaid Plans" : "Available Prepaid Plans"}
+              {direction === "pre-to-post" ? t("subscriptionMigration.availablePostpaidPlans") : t("subscriptionMigration.availablePrepaidPlans")}
             </h3>
             {direction === "post-to-pre" && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {(isFriendi ? [
-                  { value: "all", label: "All" },
-                  { value: "combo", label: "Combo Plans" },
-                  { value: "flexi", label: "Flexi Plans" },
-                  { value: "data", label: "Data Plans" },
+                  { value: "all", label: t("subscriptionMigration.chipAll") },
+                  { value: "combo", label: t("subscriptionMigration.categoryCombo") },
+                  { value: "flexi", label: t("subscriptionMigration.categoryFlexi") },
+                  { value: "data", label: t("subscriptionMigration.categoryData") },
                 ] : [
-                  { value: "all", label: "All" },
-                  { value: "aman", label: "Aman" },
-                  { value: "base-plan", label: "Baqah" },
-                  { value: "flex", label: "Baqah Flex" },
+                  { value: "all", label: t("subscriptionMigration.chipAll") },
+                  { value: "aman", label: t("subscriptionMigration.categoryAman") },
+                  { value: "base-plan", label: t("subscriptionMigration.categoryBaqah") },
+                  { value: "flex", label: t("subscriptionMigration.categoryBaqahFlex") },
                 ]).map((chip) => (
                   <button
                     key={chip.value}
@@ -549,29 +550,29 @@ const SubscriptionMigration = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 2 && (
           <>
-            <CardSection title="Subscription Details" icon={ClipboardList}>
+            <CardSection title={t("subscriptionMigration.subscriptionDetails")} icon={ClipboardList}>
               <SummaryRow
-                label="Migration Type"
-                value={direction === "pre-to-post" ? "Prepaid → Postpaid" : "Postpaid → Prepaid"}
+                label={t("subscriptionMigration.migrationType")}
+                value={direction === "pre-to-post" ? t("subscriptionMigration.migrationPreToPost") : t("subscriptionMigration.migrationPostToPre")}
               />
               {customer && (
-                <SummaryRow label="MSISDN" value={customer.msisdn} />
+                <SummaryRow label={t("subscriptionMigration.msisdn")} value={customer.msisdn} />
               )}
               <SummaryRow
-                label="Subscription Type"
-                value={direction === "pre-to-post" ? "Postpaid" : "Prepaid"}
+                label={t("subscriptionMigration.subscriptionType")}
+                value={direction === "pre-to-post" ? t("subscriptionMigration.postpaid") : t("subscriptionMigration.prepaid")}
               />
               <SummaryRow
-                label="Plan Type"
+                label={t("subscriptionMigration.planType")}
                 value={
                   selectedPlanObj?.categories?.[0]
-                    ? (isFriendi ? FM_CATEGORY_LABEL : CATEGORY_LABEL)[selectedPlanObj.categories[0]] ?? "—"
-                    : "—"
+                    ? (isFriendi ? FM_CATEGORY_LABEL : CATEGORY_LABEL)[selectedPlanObj.categories[0]] ?? t("subscriptionMigration.dash")
+                    : t("subscriptionMigration.dash")
                 }
               />
-              <SummaryRow label="Plan Name" value={selectedPlanObj?.title ?? "—"} />
-              <SummaryRow label="Plan Validity" value={selectedPlanObj?.validityLabel ? formatValidity(selectedPlanObj.validityLabel) : "—"} />
-              <SummaryRow label="ID Number" value={idNumber || "—"} />
+              <SummaryRow label={t("subscriptionMigration.planName")} value={selectedPlanObj?.title ?? t("subscriptionMigration.dash")} />
+              <SummaryRow label={t("subscriptionMigration.planValidity")} value={selectedPlanObj?.validityLabel ? formatValidity(selectedPlanObj.validityLabel) : t("subscriptionMigration.dash")} />
+              <SummaryRow label={t("subscriptionMigration.idNumber")} value={idNumber || t("subscriptionMigration.dash")} />
             </CardSection>
 
             {direction === "pre-to-post" && (
@@ -581,16 +582,16 @@ const SubscriptionMigration = () => {
                 </div>
                 <div className="text-[12px] leading-snug">
                   <p className="text-blue-600 font-semibold">
-                    You are eligible for a credit limit of {creditLimit.toFixed(2)} SAR.
+                    {t("subscriptionMigration.creditLimitEligible", { limit: creditLimit.toFixed(2) })}
                   </p>
                   <p className="text-blue-900/70 mt-0.5">
-                    You can use purchase additional services from app within this limit.
+                    {t("subscriptionMigration.creditLimitDesc")}
                   </p>
                 </div>
               </div>
             )}
 
-            <CardSection title="Payment Summary" icon={Receipt}>
+            <CardSection title={t("subscriptionMigration.paymentSummary")} icon={Receipt}>
               {direction === "pre-to-post" ? (() => {
                 // Prepaid accounts don't carry a postpaid-style outstanding bill — that concept
                 // only applies when migrating away from postpaid (see the post-to-pre branch).
@@ -603,31 +604,31 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2 pb-3">
                       {!isWhitelisted && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                          <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? t("subscriptionMigration.plan")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">Deposit Fee</span>
-                        <span className="text-xs font-semibold text-foreground">{depositWaiver ? "Waived" : `${deposit} SAR`}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.depositFee")}</span>
+                        <span className="text-xs font-semibold text-foreground">{depositWaiver ? t("subscriptionMigration.waived") : t("subscriptionMigration.amountSar", { amount: deposit })}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.subtotal")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.vat")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-sm font-semibold text-foreground">{t("subscriptionMigration.total")}</span>
                       <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand}</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-snug pt-2">
-                      The customer's prepaid wallet balance will be moved as an advance payment balance on the new line.
+                      {t("subscriptionMigration.walletBalanceNote")}
                     </p>
                   </>
                 );
@@ -646,28 +647,28 @@ const SubscriptionMigration = () => {
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-1.5">
                               <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                              <p className="text-xs font-semibold text-foreground">Outstanding Bill (Old Line)</p>
+                              <p className="text-xs font-semibold text-foreground">{t("subscriptionMigration.outstandingBillOldLine")}</p>
                             </div>
                             <span className="text-[10px] font-semibold text-red-600 bg-red-100 dark:bg-red-500/20 rounded-full px-2 py-0.5 uppercase tracking-wide">
-                              Not paid
+                              {t("subscriptionMigration.notPaid")}
                             </span>
                           </div>
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Current Balance</span>
+                              <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.currentBalance")}</span>
                               <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Unbilled Amount</span>
+                              <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.unbilledAmount")}</span>
                               <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-muted-foreground">Out Of Bundle Usage</span>
+                              <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.oobUsage")}</span>
                               <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
                             </div>
                           </div>
                           <div className="flex items-center justify-between border-t border-red-200 dark:border-red-500/25 mt-2 pt-2">
-                            <span className="text-[11px] font-semibold text-foreground">Total Outstanding</span>
+                            <span className="text-[11px] font-semibold text-foreground">{t("subscriptionMigration.totalOutstanding")}</span>
                             <span className="text-xs font-bold text-red-600"><RiyalSymbol /> {outstandingBalance}</span>
                           </div>
                         </div>
@@ -675,28 +676,28 @@ const SubscriptionMigration = () => {
                     })()}
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? "Plan"}</span>
+                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? t("subscriptionMigration.plan")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">Subtotal</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.subtotal")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">VAT (15%)</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.vat")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
                       </div>
                       {outstandingBalance > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">Outstanding Bill</span>
+                          <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.outstandingBill")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
                         </div>
                       )}
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                      <span className="text-sm font-semibold text-foreground">Total</span>
+                      <span className="text-sm font-semibold text-foreground">{t("subscriptionMigration.total")}</span>
                       <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand}</span>
                     </div>
                   </>
@@ -705,44 +706,44 @@ const SubscriptionMigration = () => {
             </CardSection>
 
             {!(direction === "pre-to-post" && isWhitelisted) && (
-              <CardSection title="Payment Method" icon={CreditCard}>
+              <CardSection title={t("subscriptionMigration.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={Wallet} label="Dealer Wallet" description="Pay from your wallet (550 SAR balance)" selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
-                  <PayOption icon={CreditCard} label="POS Terminal" description="Collect cash or card from the customer" selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc")} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
               </CardSection>
             )}
 
             {direction !== "post-to-pre" && (
-            <CardSection title="Customer Verification" icon={UserCheck}>
+            <CardSection title={t("subscriptionMigration.customerVerification")} icon={UserCheck}>
               {customerVerified ? (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Customer Verified</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("subscriptionMigration.customerVerified")}</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("subscriptionMigration.stepVerified")}</p>
                   </div>
                 </div>
               ) : (
-                <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>Verify Customer</Button>
+                <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>{t("subscriptionMigration.verifyCustomer")}</Button>
               )}
             </CardSection>
             )}
 
-            <CardSection title="OTP Verification" icon={Phone}>
+            <CardSection title={t("subscriptionMigration.otpVerification")} icon={Phone}>
               {otpVerified ? (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Verified</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">This step has been successfully verified.</p>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("subscriptionMigration.verified")}</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("subscriptionMigration.stepVerified")}</p>
                   </div>
                 </div>
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" disabled={direction === "pre-to-post" && !customerVerified} onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
+                  <Button variant="outline" className="w-full" disabled={direction === "pre-to-post" && !customerVerified} onClick={() => setOtpOpen(true)}>{t("subscriptionMigration.sendVerifyOtp")}</Button>
                   {direction === "pre-to-post" && !customerVerified && (
-                    <p className="text-[11px] text-muted-foreground mt-2">Complete Customer Verification first to unlock OTP Verification.</p>
+                    <p className="text-[11px] text-muted-foreground mt-2">{t("subscriptionMigration.completeCustomerVerificationFirst")}</p>
                   )}
                 </>
               )}
@@ -765,13 +766,13 @@ const SubscriptionMigration = () => {
                   {termsAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
                 <p className="text-sm text-foreground text-start flex-1 leading-snug">
-                  I agree to the{" "}
+                  {t("subscriptionMigration.agreeToThe")}{" "}
                   <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
-                    Terms and Conditions
+                    {t("subscriptionMigration.termsAndConditions")}
                   </button>{" "}
-                  and acknowledge that my information will be processed in accordance with the{" "}
+                  {t("subscriptionMigration.andAcknowledge")}{" "}
                   <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
-                    Privacy Policy
+                    {t("subscriptionMigration.privacyPolicy")}
                   </button>.
                 </p>
               </div>
@@ -781,7 +782,7 @@ const SubscriptionMigration = () => {
       </div>
 
       {/* Sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step < 2 ? (
             <Button
@@ -789,11 +790,11 @@ const SubscriptionMigration = () => {
               disabled={step === 0 ? !canContinueIdentity : !canContinuePlan}
               onClick={step === 0 ? onContinueStep0 : () => setStep((s) => s + 1)}
             >
-              Continue
+              {t("subscriptionMigration.continue")}
             </Button>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {direction === "pre-to-post" && isWhitelisted ? "Submit" : `Pay ${total} SAR`}
+              {direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : t("subscriptionMigration.payAmountSar", { amount: total })}
             </Button>
           )}
         </div>
@@ -803,11 +804,11 @@ const SubscriptionMigration = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">Enter Verification Code</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("subscriptionMigration.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? "The verification code you entered is incorrect. Please try again." : "We sent you a verification code via SMS"}
+              {otpError ? t("subscriptionMigration.otpIncorrect") : t("subscriptionMigration.otpSentViaSms")}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -826,18 +827,18 @@ const SubscriptionMigration = () => {
             <p className="text-xs text-muted-foreground">
               {otpError ? (
                 <>
-                  Resend the code ?{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">Resend</button>
+                  {t("subscriptionMigration.resendCodeQuestion")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("subscriptionMigration.resend")}</button>
                 </>
               ) : otpSecondsLeft > 0 ? (
                 <>
-                  Didn't receive the code?{" "}
+                  {t("subscriptionMigration.didntReceiveCode")}{" "}
                   <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
                 </>
               ) : (
                 <>
-                  Didn't receive the code?{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">Resend</button>
+                  {t("subscriptionMigration.didntReceiveCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("subscriptionMigration.resend")}</button>
                 </>
               )}
             </p>
@@ -852,31 +853,23 @@ const SubscriptionMigration = () => {
             <XIcon className="h-5 w-5 text-foreground" />
           </DrawerClose>
           <DrawerHeader className="text-center">
-            <DrawerTitle>Terms and Conditions</DrawerTitle>
-            <DrawerDescription>Please read and accept our terms and conditions to continue.</DrawerDescription>
+            <DrawerTitle>{t("subscriptionMigration.termsAndConditions")}</DrawerTitle>
+            <DrawerDescription>{t("subscriptionMigration.termsDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
-            <p>
-              By proceeding, the customer agrees to the service agreement, billing terms,
-              and acceptable use policy.
-            </p>
-            <p>
-              All activations are subject to identity verification and regulatory approval.
-            </p>
-            <p>
-              Refunds, replacements, and cancellations follow the standard policy available
-              in the merchant portal.
-            </p>
+            <p>{t("subscriptionMigration.termsParagraph1")}</p>
+            <p>{t("subscriptionMigration.termsParagraph2")}</p>
+            <p>{t("subscriptionMigration.termsParagraph3")}</p>
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
               <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTermsAccepted(true); } }} className="w-full h-12 rounded-full">
-                Accept
+                {t("subscriptionMigration.accept")}
               </Button>
             </DrawerClose>
             <DrawerClose asChild>
               <button type="button" className="text-sm font-semibold text-primary">
-                Cancel
+                {t("subscriptionMigration.cancel")}
               </button>
             </DrawerClose>
           </DrawerFooter>
@@ -890,27 +883,18 @@ const SubscriptionMigration = () => {
             <XIcon className="h-5 w-5 text-foreground" />
           </DrawerClose>
           <DrawerHeader className="text-center">
-            <DrawerTitle>Privacy Policy</DrawerTitle>
-            <DrawerDescription>Please review how the customer's data is collected and used.</DrawerDescription>
+            <DrawerTitle>{t("subscriptionMigration.privacyPolicy")}</DrawerTitle>
+            <DrawerDescription>{t("subscriptionMigration.privacyDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
-            <p>
-              Personal and identity data collected during activation is used solely to process
-              the service request and meet regulatory requirements.
-            </p>
-            <p>
-              Data is stored securely and shared only with parties required to complete
-              activation, billing, or number portability.
-            </p>
-            <p>
-              The customer may request access to, correction of, or deletion of their data in
-              line with the applicable privacy regulations.
-            </p>
+            <p>{t("subscriptionMigration.privacyParagraph1")}</p>
+            <p>{t("subscriptionMigration.privacyParagraph2")}</p>
+            <p>{t("subscriptionMigration.privacyParagraph3")}</p>
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
               <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
-                Close
+                {t("subscriptionMigration.close")}
               </Button>
             </DrawerClose>
           </DrawerFooter>
@@ -925,13 +909,13 @@ const SubscriptionMigration = () => {
           <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
             <AlertCircle className="w-7 h-7 text-destructive" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-destructive mb-2 text-lg">Not Eligible</h4>
+          <h4 className="font-semibold text-destructive mb-2 text-lg">{t("subscriptionMigration.notEligible")}</h4>
           <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{ineligibleReason}</p>
           <button
             onClick={() => setIneligibleModalOpen(false)}
             className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
           >
-            Got It
+            {t("subscriptionMigration.gotIt")}
           </button>
         </DialogContent>
       </Dialog>
@@ -944,12 +928,12 @@ const SubscriptionMigration = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirm Payment</h3>
-              <p className="text-sm text-muted-foreground">Please confirm the payment has been completed using the selected payment method.</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.confirmPaymentTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("subscriptionMigration.confirmPaymentDesc")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>Yes, Confirm</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("subscriptionMigration.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("subscriptionMigration.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -964,20 +948,20 @@ const SubscriptionMigration = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Migration Successful</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("subscriptionMigration.migrationSuccessful")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {direction === "pre-to-post" ? "The customer has been migrated to Postpaid." : "The customer has been migrated to Prepaid."}
+              {direction === "pre-to-post" ? t("subscriptionMigration.migratedToPostpaid") : t("subscriptionMigration.migratedToPrepaid")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{orderId}</span>
+              {t("subscriptionMigration.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
-            <p className="text-[11px] text-muted-foreground mt-2 text-center">The customer will receive an SMS confirming this change.</p>
+            <p className="text-[11px] text-muted-foreground mt-2 text-center">{t("subscriptionMigration.smsConfirmation")}</p>
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
             onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
           >
-            Done
+            {t("subscriptionMigration.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -991,22 +975,22 @@ const SubscriptionMigration = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Migration Couldn't Be Completed</h3>
-            <p className="text-sm text-muted-foreground text-center">Something went wrong while processing this request. No charge was made.</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("subscriptionMigration.migrationFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("subscriptionMigration.migrationFailedDesc")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{`SM-${Math.floor(100000 + Math.random() * 900000)}`}</span>
+              {t("subscriptionMigration.reference")} <span className="font-semibold text-foreground">{`SM-${Math.floor(100000 + Math.random() * 900000)}`}</span>
             </p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              Try Again
+              {t("subscriptionMigration.tryAgain")}
             </Button>
             <button
               type="button"
               className="w-full h-11 text-primary font-semibold text-sm"
               onClick={() => { setFailureOpen(false); }}
             >
-              Cancel
+              {t("subscriptionMigration.cancel")}
             </button>
           </div>
         </DrawerContent>

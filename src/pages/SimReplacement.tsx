@@ -163,7 +163,7 @@ const SimReplacement = () => {
       setChecking(false);
       const found = DEMO_REPLACEMENT_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
-        setLookupError("Number not found. Please check the MSISDN and try again.");
+        setLookupError(t("simReplacement.lookupErrorNotFound"));
         return;
       }
       setCustomer(found);
@@ -280,20 +280,20 @@ const SimReplacement = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="SIM Replacement" showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title={t("simReplacement.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup + Replacement details (merged) ── */}
         {step === 0 && (
           <>
-            <Field label="MSISDN">
+            <Field label={t("simReplacement.msisdn")}>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
                     value={msisdn}
                     onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
-                    placeholder="05XXXXXXXX"
+                    placeholder={t("simReplacement.msisdnPlaceholder")}
                     inputMode="numeric"
                     className="h-12 bg-card rounded-xl pe-10"
                   />
@@ -306,19 +306,19 @@ const SimReplacement = () => {
                   disabled={!/^\d{10}$/.test(msisdn) || checking}
                   onClick={handleSearch}
                 >
-                  Search
+                  {t("simReplacement.search")}
                 </Button>
               </div>
             </Field>
 
             <PrototypeTestBox
-              heading="test numbers"
-              description="Use these to try every case. This box won't appear in the real implementation."
+              heading={t("simReplacement.testNumbersHeading")}
+              description={t("simReplacement.testDescription")}
               items={[
-                { value: "0503333311", note: "P-SIM, free replacement available" },
-                { value: "0503333322", note: "E-SIM, free replacement already used" },
-                { value: "0503333333", note: "P-SIM, free replacement already used" },
-                { value: "0503333399", note: "Number not found" },
+                { value: "0503333311", note: t("simReplacement.testNotePsimFree") },
+                { value: "0503333322", note: t("simReplacement.testNoteEsimUsed") },
+                { value: "0503333333", note: t("simReplacement.testNotePsimUsed") },
+                { value: "0503333399", note: t("simReplacement.testNoteNotFound") },
               ]}
               onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
             />
@@ -332,12 +332,12 @@ const SimReplacement = () => {
 
             {customer && (
               <>
-                <CardSection title="Customer Details" icon={ClipboardList}>
-                  <SummaryRow label="Customer Name" value={customer.name} />
-                  <SummaryRow label="Current SIM Type" value={simTypeLabel(customer.currentSimType)} />
+                <CardSection title={t("simReplacement.customerDetails")} icon={ClipboardList}>
+                  <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+                  <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
                 </CardSection>
 
-                <Field label="Change To">
+                <Field label={t("simReplacement.changeTo")}>
                   <div className="flex gap-3">
                     <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
                     <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
@@ -359,11 +359,11 @@ const SimReplacement = () => {
                       <Input
                         value={kit}
                         onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder="KIT Code (10 Digits)"
+                        placeholder={t("simReplacement.kitCodePlaceholder")}
                         inputMode="numeric"
                         className="h-12 bg-card rounded-xl pe-10"
                       />
-                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("simReplacement.scanKitAria")}>
                         <ScanLine className="w-5 h-5" />
                       </button>
                     </div>
@@ -372,8 +372,8 @@ const SimReplacement = () => {
 
                 <div className="space-y-2">
                   <div className="px-1">
-                    <p className="text-sm font-semibold text-foreground">Identity Details</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Pre-filled from the customer's record — update if anything has changed.</p>
+                    <p className="text-sm font-semibold text-foreground">{t("simReplacement.identityDetails")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{t("simReplacement.identityDetailsSub")}</p>
                   </div>
                   <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                     <Field label={t("activation.identity.idType")}>
@@ -423,32 +423,32 @@ const SimReplacement = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && customer && (
           <>
-            <CardSection title="Replacement Summary" icon={ClipboardList}>
-              <SummaryRow label="Customer Name" value={customer.name} />
-              <SummaryRow label="Replacement Type" value={replacementTypeLabel} />
-              {newSimType === "psim" && <SummaryRow label="KIT Code" value={kit} />}
-              <SummaryRow label="Fee" value={isChargeable ? <><RiyalSymbol /> {fee}</> : <span className="text-emerald-600">Free</span>} />
+            <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
+              <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+              <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
+              {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
+              <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
             </CardSection>
 
             {isChargeable ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  This customer already used their free replacement. <span className="font-semibold">{fee} SAR</span> will be charged for this {newSimType === "psim" ? "physical SIM" : "eSIM"} replacement.
+                  {t(newSimType === "psim" ? "simReplacement.chargeableNotePsim" : "simReplacement.chargeableNoteEsim", { fee })}
                 </p>
               </div>
             ) : (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
                 <Wallet className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">
-                  This is the customer's free replacement — no payment required.
+                  {t("simReplacement.freeReplacementNote")}
                 </p>
               </div>
             )}
 
             <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
               {verified ? (
-                <VerifiedBanner label="Customer Verified" />
+                <VerifiedBanner label={t("simReplacement.customerVerified")} />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
               )}
@@ -498,7 +498,7 @@ const SimReplacement = () => {
             </section>
 
             {isChargeable && (
-              <CardSection title="Payment Method" icon={CreditCard}>
+              <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
                   <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
@@ -510,16 +510,16 @@ const SimReplacement = () => {
       </div>
 
       {/* Sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(1)}>
-              Continue
+              {t("simReplacement.continue")}
             </Button>
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {isChargeable ? `Pay ${fee} SAR` : "Confirm Replacement"}
+              {isChargeable ? t("simReplacement.payAmountSar", { amount: fee }) : t("simReplacement.confirmReplacement")}
             </Button>
           )}
         </div>
@@ -536,7 +536,7 @@ const SimReplacement = () => {
             <p className="text-sm text-muted-foreground text-center px-4">
               {otpError ? t("activation.otpSheet.errorSubtitle") : t("activation.otpSheet.subtitle")}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -721,16 +721,16 @@ const SimReplacement = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirm Replacement</h3>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("simReplacement.confirmReplacement")}</h3>
               <p className="text-sm text-muted-foreground">
                 {isChargeable
-                  ? "Please confirm the payment has been completed using the selected payment method."
-                  : "Please confirm you want to process this SIM replacement."}
+                  ? t("simReplacement.confirmPaymentDesc")
+                  : t("simReplacement.confirmProcessDesc")}
               </p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveReplacement}>Yes, Confirm</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveReplacement}>{t("simReplacement.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("simReplacement.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -745,14 +745,14 @@ const SimReplacement = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">SIM Replacement Complete</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("simReplacement.replacementCompleteTitle")}</h3>
             <p className="text-sm text-muted-foreground text-center">
               {newSimType === "psim"
-                ? "The new physical SIM should be active within 30 minutes. A confirmation has also been sent to the customer via SMS and Email."
-                : "A new eSIM QR code has been generated below, and also sent to the customer via SMS and Email."}
+                ? t("simReplacement.physicalSimNote")
+                : t("simReplacement.esimNote")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{orderId}</span>
+              {t("simReplacement.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
             {newSimType === "esim" && (
               <div className="mt-4 p-3 bg-white rounded-2xl border border-border">
@@ -764,7 +764,7 @@ const SimReplacement = () => {
             className="w-full h-12 rounded-full font-semibold"
             onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
           >
-            Done
+            {t("simReplacement.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -778,19 +778,19 @@ const SimReplacement = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Replacement Couldn't Be Completed</h3>
-            <p className="text-sm text-muted-foreground text-center">Something went wrong while processing this request. No charge was made.</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("simReplacement.replacementFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("simReplacement.replacementFailedDesc")}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              Try Again
+              {t("simReplacement.tryAgain")}
             </Button>
             <button
               type="button"
               className="w-full h-11 text-primary font-semibold text-sm"
               onClick={() => { setFailureOpen(false); }}
             >
-              Cancel
+              {t("simReplacement.cancel")}
             </button>
           </div>
         </DrawerContent>

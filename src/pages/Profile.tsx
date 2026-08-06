@@ -11,16 +11,6 @@ import { cn } from "@/lib/utils";
 import virginBadge from "@/assets/virgin-mobile-badge.svg";
 import friendiBadge from "@/assets/friendi-mobile-badge.svg";
 
-// Prototype-only static profile — no employee backend to source this from yet.
-const EMPLOYEE = {
-  initials: "EN",
-  name: "Employee Name",
-  hierarchy: "Hierarchy Type",
-  code: "Code",
-  phone: "Phone Number",
-  email: "Email",
-};
-
 const BrandBadge = ({ brand, className }: { brand: Brand; className?: string }) =>
   brand === "virgin" ? (
     <img src={virginBadge} alt="Virgin Mobile" className={cn("object-contain", className)} />
@@ -35,6 +25,17 @@ const Profile = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { logout } = useAuth();
+
+  // Prototype-only static profile — no employee backend to source this from yet.
+  const EMPLOYEE = {
+    initials: "EN",
+    name: t("profile.employeePlaceholder.name"),
+    hierarchy: t("profile.employeePlaceholder.hierarchy"),
+    code: t("profile.employeePlaceholder.code"),
+    phone: t("profile.hierarchy.phoneNumber"),
+    email: t("profile.hierarchy.email"),
+  };
+
   const qrData = encodeURIComponent(`EMPLOYEE:${EMPLOYEE.code}`);
   const [logoutOpen, setLogoutOpen] = useState(false);
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import AppHeader from "@/components/AppHeader";
 import MapPicker from "@/components/MapPicker";
@@ -122,168 +123,168 @@ interface RoleConfig {
   documents: DocDef[];
 }
 
-const ROLE_CONFIGS: RoleConfig[] = [
+const buildRoleConfigs = (t: (key: string, opts?: Record<string, unknown>) => string): RoleConfig[] => [
   {
     key: "sales-partner",
-    listLabel: "Sales Partner",
-    formTitle: "New Sales Partner",
+    listLabel: t("channelOnboarding.roles.salesPartner.listLabel"),
+    formTitle: t("channelOnboarding.roles.salesPartner.formTitle"),
     businessFields: [
-      { key: "orgTradingName", label: "Organization Trading Name", required: true, type: "text", placeholder: "Enter organization name", demoValue: "Al Rajhi Retail Trading Co." },
-      { key: "orgId", label: "Organization ID", required: true, type: "text", placeholder: "Enter the ID", demoValue: "7011223344" },
-      { key: "sapNumber", label: "SAP Number", required: true, type: "text", placeholder: "Enter the number", demoValue: "SAP-558231" },
-      { key: "bankIban", label: "Bank IBAN Proof", required: true, type: "text", placeholder: "Enter IBAN", demoValue: "SA0380000000608010167519" },
-      { key: "crExpiry", label: "CR Expiry Date", required: true, type: "date", demoOffsetDays: 365 },
+      { key: "orgTradingName", label: t("channelOnboarding.fieldLabels.orgTradingName"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterOrgName"), demoValue: "Al Rajhi Retail Trading Co." },
+      { key: "orgId", label: t("channelOnboarding.fieldLabels.orgId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheId"), demoValue: "7011223344" },
+      { key: "sapNumber", label: t("channelOnboarding.fieldLabels.sapNumber"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheNumber"), demoValue: "SAP-558231" },
+      { key: "bankIban", label: t("channelOnboarding.fieldLabels.bankIbanProof"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterIban"), demoValue: "SA0380000000608010167519" },
+      { key: "crExpiry", label: t("channelOnboarding.fieldLabels.crExpiryDate"), required: true, type: "date", demoOffsetDays: 365 },
     ],
     memberFields: [
-      { key: "fullName", label: "Full Name", required: true, type: "name", placeholder: "Enter full name", demoValue: "Ahmed Al Otaibi" },
-      { key: "civilId", label: "Civil ID", required: true, type: "text", placeholder: "Enter Civil ID", demoValue: "1029384756" },
-      { key: "absherMobile", label: "Absher Mobile Number", required: true, type: "mobile", placeholder: "Enter Absher mobile number", demoValue: "0501234567" },
-      { key: "email", label: "Email", required: true, type: "email", placeholder: "Enter the email", demoValue: "ahmed@alrajhiretail.sa" },
-      { key: "contactName", label: "Contact Name", required: true, type: "name", placeholder: "Enter contact name", demoValue: "Sara Al Harbi" },
-      { key: "contactMobile", label: "Contact Mobile Number", required: true, type: "mobile", placeholder: "Enter the mobile number", demoValue: "0559876543" },
+      { key: "fullName", label: t("channelOnboarding.fieldLabels.fullName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterFullName"), demoValue: "Ahmed Al Otaibi" },
+      { key: "civilId", label: t("channelOnboarding.fieldLabels.civilId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterCivilId"), demoValue: "1029384756" },
+      { key: "absherMobile", label: t("channelOnboarding.fieldLabels.absherMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterAbsherMobile"), demoValue: "0501234567" },
+      { key: "email", label: t("channelOnboarding.fieldLabels.email"), required: true, type: "email", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheEmail"), demoValue: "ahmed@alrajhiretail.sa" },
+      { key: "contactName", label: t("channelOnboarding.fieldLabels.contactName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterContactName"), demoValue: "Sara Al Harbi" },
+      { key: "contactMobile", label: t("channelOnboarding.fieldLabels.contactMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheMobileNumber"), demoValue: "0559876543" },
     ],
     locationFields: [
-      { key: "hqAddress", label: "HQ National Address", required: true, type: "text", placeholder: "Enter the coordinates EX. ABCD1234", demoValue: "RRRD1234" },
-      { key: "region", label: "Region", required: true, type: "select", options: REGIONS, demoValue: "Riyadh Region" },
-      { key: "city", label: "City", required: true, type: "select", options: CITIES, demoValue: "Riyadh" },
-      { key: "district", label: "District", required: true, type: "select", demoValue: "Al Olaya" },
+      { key: "hqAddress", label: t("channelOnboarding.fieldLabels.hqNationalAddress"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterCoordinates"), demoValue: "RRRD1234" },
+      { key: "region", label: t("channelOnboarding.fieldLabels.region"), required: true, type: "select", options: REGIONS, demoValue: "Riyadh Region" },
+      { key: "city", label: t("channelOnboarding.fieldLabels.city"), required: true, type: "select", options: CITIES, demoValue: "Riyadh" },
+      { key: "district", label: t("channelOnboarding.fieldLabels.district"), required: true, type: "select", demoValue: "Al Olaya" },
     ],
     showMap: true,
     documents: [
-      { key: "commercialRegistration", label: "Commercial Registration", required: true, multi: true },
-      { key: "vatCertificate", label: "VAT Certificate", required: true, multi: true },
-      { key: "municipalityLicense", label: "Municipality License", required: true, multi: true },
-      { key: "memberCivilIdCopy", label: "Member Civil ID Copy", required: true, multi: true },
-      { key: "memberSignature", label: "Member Signature", required: true, signature: true },
-      { key: "shopPictures", label: "Shop Pictures", required: true, multi: true },
-      { key: "contractCopy", label: "Contract Copy", required: true, multi: true },
+      { key: "commercialRegistration", label: t("channelOnboarding.docLabels.commercialRegistration"), required: true, multi: true },
+      { key: "vatCertificate", label: t("channelOnboarding.docLabels.vatCertificate"), required: true, multi: true },
+      { key: "municipalityLicense", label: t("channelOnboarding.docLabels.municipalityLicense"), required: true, multi: true },
+      { key: "memberCivilIdCopy", label: t("channelOnboarding.docLabels.memberCivilIdCopy"), required: true, multi: true },
+      { key: "memberSignature", label: t("channelOnboarding.memberSignature"), required: true, signature: true },
+      { key: "shopPictures", label: t("channelOnboarding.docLabels.shopPictures"), required: true, multi: true },
+      { key: "contractCopy", label: t("channelOnboarding.docLabels.contractCopy"), required: true, multi: true },
     ],
   },
   {
     key: "distributor",
-    listLabel: "Distributor",
-    formTitle: "New Partner",
+    listLabel: t("channelOnboarding.roles.distributor.listLabel"),
+    formTitle: t("channelOnboarding.roles.distributor.formTitle"),
     businessFields: [
-      { key: "storeName", label: "Store Name", required: true, type: "text", placeholder: "Enter the store name", demoValue: "Noor Mobile Store" },
-      { key: "rentalStart", label: "Rental Agreement Start Date", required: true, type: "date", demoOffsetDays: -30 },
-      { key: "rentalEnd", label: "Rental Agreement End Date", required: true, type: "date", demoOffsetDays: 335 },
+      { key: "storeName", label: t("channelOnboarding.fieldLabels.storeName"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterStoreName"), demoValue: "Noor Mobile Store" },
+      { key: "rentalStart", label: t("channelOnboarding.fieldLabels.rentalStart"), required: true, type: "date", demoOffsetDays: -30 },
+      { key: "rentalEnd", label: t("channelOnboarding.fieldLabels.rentalEnd"), required: true, type: "date", demoOffsetDays: 335 },
     ],
     locationFields: [
-      { key: "region", label: "Region", type: "select", options: REGIONS, demoValue: "Makkah Region" },
-      { key: "city", label: "City", required: true, type: "select", options: CITIES, demoValue: "Jeddah" },
-      { key: "district", label: "District", required: true, type: "select", demoValue: "Al Hamra" },
-      { key: "landmark", label: "Landmark", type: "text", placeholder: "Enter landmark", demoValue: "Near Al Rawdah Park" },
+      { key: "region", label: t("channelOnboarding.fieldLabels.region"), type: "select", options: REGIONS, demoValue: "Makkah Region" },
+      { key: "city", label: t("channelOnboarding.fieldLabels.city"), required: true, type: "select", options: CITIES, demoValue: "Jeddah" },
+      { key: "district", label: t("channelOnboarding.fieldLabels.district"), required: true, type: "select", demoValue: "Al Hamra" },
+      { key: "landmark", label: t("channelOnboarding.fieldLabels.landmark"), type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterLandmark"), demoValue: "Near Al Rawdah Park" },
     ],
     documents: [
-      { key: "rentalAgreementCopy", label: "Rental Agreement Copy", required: true },
-      { key: "municipalityLicense", label: "Municipality license" },
+      { key: "rentalAgreementCopy", label: t("channelOnboarding.docLabels.rentalAgreementCopy"), required: true },
+      { key: "municipalityLicense", label: t("channelOnboarding.docLabels.municipalityLicense") },
     ],
   },
   {
     key: "pos",
-    listLabel: "POS",
-    formTitle: "New Partner",
+    listLabel: t("channelOnboarding.roles.pos.listLabel"),
+    formTitle: t("channelOnboarding.roles.pos.formTitle"),
     businessFields: [
-      { key: "parentPartnerCode", label: "Parent Partner Code", required: true, type: "select", options: PARTNER_CODES, placeholder: "Select the partner code", demoValue: PARTNER_CODES[0] },
-      { key: "storeName", label: "Store Name", required: true, type: "text", placeholder: "Enter the store name", demoValue: "Gulf Connect POS Store" },
-      { key: "rentalStart", label: "Rental Agreement Start Date", required: true, type: "date", demoOffsetDays: -20 },
-      { key: "rentalEnd", label: "Rental Agreement End Date", required: true, type: "date", demoOffsetDays: 345 },
+      { key: "parentPartnerCode", label: t("channelOnboarding.fieldLabels.parentPartnerCode"), required: true, type: "select", options: PARTNER_CODES, placeholder: t("channelOnboarding.fieldPlaceholders.selectPartnerCode"), demoValue: PARTNER_CODES[0] },
+      { key: "storeName", label: t("channelOnboarding.fieldLabels.storeName"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterStoreName"), demoValue: "Gulf Connect POS Store" },
+      { key: "rentalStart", label: t("channelOnboarding.fieldLabels.rentalStart"), required: true, type: "date", demoOffsetDays: -20 },
+      { key: "rentalEnd", label: t("channelOnboarding.fieldLabels.rentalEnd"), required: true, type: "date", demoOffsetDays: 345 },
     ],
     locationFields: [
-      { key: "region", label: "Region", type: "select", options: REGIONS, demoValue: "Eastern Province" },
-      { key: "city", label: "City", required: true, type: "select", options: CITIES, demoValue: "Dammam" },
-      { key: "district", label: "District", required: true, type: "select", demoValue: "Al Faisaliyah" },
-      { key: "landmark", label: "Landmark", type: "text", placeholder: "Enter landmark", demoValue: "Opposite Al Nuzha Mall" },
+      { key: "region", label: t("channelOnboarding.fieldLabels.region"), type: "select", options: REGIONS, demoValue: "Eastern Province" },
+      { key: "city", label: t("channelOnboarding.fieldLabels.city"), required: true, type: "select", options: CITIES, demoValue: "Dammam" },
+      { key: "district", label: t("channelOnboarding.fieldLabels.district"), required: true, type: "select", demoValue: "Al Faisaliyah" },
+      { key: "landmark", label: t("channelOnboarding.fieldLabels.landmark"), type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterLandmark"), demoValue: "Opposite Al Nuzha Mall" },
     ],
     documents: [
-      { key: "rentalAgreementCopy", label: "Rental Agreement Copy", required: true },
+      { key: "rentalAgreementCopy", label: t("channelOnboarding.docLabels.rentalAgreementCopy"), required: true },
     ],
   },
   {
     key: "sales-promotor",
-    listLabel: "Sales Promotor (Outsource)",
-    formTitle: "New Sales Promotor",
+    listLabel: t("channelOnboarding.roles.salesPromotor.listLabel"),
+    formTitle: t("channelOnboarding.roles.salesPromotor.formTitle"),
     businessFields: [
-      { key: "fullName", label: "Full Name", required: true, type: "name", placeholder: "Enter the full name", demoValue: "Fahad Al Qahtani" },
-      { key: "civilId", label: "Civil ID", required: true, type: "text", placeholder: "Enter the Civil ID", demoValue: "1055667788" },
-      { key: "absherMobile", label: "Absher Mobile Number", required: true, type: "mobile", placeholder: "Enter the Absher mobile number", demoValue: "0503456789" },
-      { key: "partnerName", label: "Partner Name", required: true, type: "locked", lockedValue: "Al Rajhi Trading Partner" },
-      { key: "partnerStoreName", label: "Partner Store Name", type: "select", options: PARTNER_STORE_NAMES, placeholder: "Select the partner store name", demoValue: PARTNER_STORE_NAMES[0] },
+      { key: "fullName", label: t("channelOnboarding.fieldLabels.fullName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheFullName"), demoValue: "Fahad Al Qahtani" },
+      { key: "civilId", label: t("channelOnboarding.fieldLabels.civilId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheCivilId"), demoValue: "1055667788" },
+      { key: "absherMobile", label: t("channelOnboarding.fieldLabels.absherMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheAbsherMobile"), demoValue: "0503456789" },
+      { key: "partnerName", label: t("channelOnboarding.fieldLabels.partnerName"), required: true, type: "locked", lockedValue: t("channelOnboarding.lockedValues.partnerNameValue") },
+      { key: "partnerStoreName", label: t("channelOnboarding.fieldLabels.partnerStoreName"), type: "select", options: PARTNER_STORE_NAMES, placeholder: t("channelOnboarding.fieldPlaceholders.selectPartnerStoreName"), demoValue: PARTNER_STORE_NAMES[0] },
     ],
     documents: [
-      { key: "civilIdAttachment", label: "Civil ID Attachment", required: true },
+      { key: "civilIdAttachment", label: t("channelOnboarding.docLabels.civilIdAttachment"), required: true },
     ],
   },
   {
     key: "sales-champion",
-    listLabel: "Sales Champion",
-    formTitle: "New Sales Champion",
+    listLabel: t("channelOnboarding.roles.salesChampion.listLabel"),
+    formTitle: t("channelOnboarding.roles.salesChampion.formTitle"),
     businessFields: [
-      { key: "fullName", label: "Full Name", required: true, type: "name", placeholder: "Enter the full name", demoValue: "Noura Al Harbi" },
-      { key: "activeMobile", label: "Active Mobile Number", required: true, type: "mobile", placeholder: "Enter the active mobile number", demoValue: "0502345678" },
-      { key: "dob", label: "Date of Birth", required: true, type: "date", demoOffsetDays: -30 * 365 },
-      { key: "civilId", label: "Civil ID", required: true, type: "text", placeholder: "Enter the Civil ID", demoValue: "2098765432" },
-      { key: "idExpiry", label: "ID Expiry Date", required: true, type: "date", demoOffsetDays: 900 },
-      { key: "email", label: "Email", required: true, type: "email", placeholder: "Enter the email", demoValue: "noura@example.sa" },
-      { key: "mtStoreName", label: "MT Store Name", required: true, type: "text", placeholder: "Enter the MT store name", demoValue: "Noura MT Store" },
+      { key: "fullName", label: t("channelOnboarding.fieldLabels.fullName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheFullName"), demoValue: "Noura Al Harbi" },
+      { key: "activeMobile", label: t("channelOnboarding.fieldLabels.activeMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheActiveMobile"), demoValue: "0502345678" },
+      { key: "dob", label: t("channelOnboarding.fieldLabels.dob"), required: true, type: "date", demoOffsetDays: -30 * 365 },
+      { key: "civilId", label: t("channelOnboarding.fieldLabels.civilId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheCivilId"), demoValue: "2098765432" },
+      { key: "idExpiry", label: t("channelOnboarding.fieldLabels.idExpiry"), required: true, type: "date", demoOffsetDays: 900 },
+      { key: "email", label: t("channelOnboarding.fieldLabels.email"), required: true, type: "email", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheEmail"), demoValue: "noura@example.sa" },
+      { key: "mtStoreName", label: t("channelOnboarding.fieldLabels.mtStoreName"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheMtStoreName"), demoValue: "Noura MT Store" },
     ],
     documents: [
-      { key: "civilIdAttachment", label: "Civil ID Attachment", required: true },
+      { key: "civilIdAttachment", label: t("channelOnboarding.docLabels.civilIdAttachment"), required: true },
     ],
   },
   {
     key: "team-leader",
-    listLabel: "Team Leader",
-    formTitle: "New Team Leader",
+    listLabel: t("channelOnboarding.roles.teamLeader.listLabel"),
+    formTitle: t("channelOnboarding.roles.teamLeader.formTitle"),
     businessFields: [
-      { key: "fullName", label: "Full Name", required: true, type: "name", placeholder: "Enter the full name", demoValue: "Khalid Al Dossari" },
-      { key: "activeMobile", label: "Active Mobile Number", required: true, type: "mobile", placeholder: "Enter the active mobile number", demoValue: "0544455566" },
-      { key: "dob", label: "Date of Birth", required: true, type: "date", demoOffsetDays: -32 * 365 },
-      { key: "civilId", label: "Civil ID", required: true, type: "text", placeholder: "Enter the Civil ID", demoValue: "2233445566" },
-      { key: "idExpiry", label: "ID Expiry Date", required: true, type: "date", demoOffsetDays: 800 },
-      { key: "email", label: "Email", required: true, type: "email", placeholder: "Enter the email", demoValue: "khalid@example.sa" },
+      { key: "fullName", label: t("channelOnboarding.fieldLabels.fullName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheFullName"), demoValue: "Khalid Al Dossari" },
+      { key: "activeMobile", label: t("channelOnboarding.fieldLabels.activeMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheActiveMobile"), demoValue: "0544455566" },
+      { key: "dob", label: t("channelOnboarding.fieldLabels.dob"), required: true, type: "date", demoOffsetDays: -32 * 365 },
+      { key: "civilId", label: t("channelOnboarding.fieldLabels.civilId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheCivilId"), demoValue: "2233445566" },
+      { key: "idExpiry", label: t("channelOnboarding.fieldLabels.idExpiry"), required: true, type: "date", demoOffsetDays: 800 },
+      { key: "email", label: t("channelOnboarding.fieldLabels.email"), required: true, type: "email", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheEmail"), demoValue: "khalid@example.sa" },
     ],
     locationFields: [
-      { key: "nationalAddress", label: "National Address", type: "text", placeholder: "Enter the national address", demoValue: "ABCD5678" },
-      { key: "region", label: "Region", required: true, type: "select", options: REGIONS, demoValue: "Madinah Region" },
-      { key: "city", label: "City", required: true, type: "select", options: CITIES, demoValue: "Medina" },
-      { key: "district", label: "District", required: true, type: "select", demoValue: "Quba" },
+      { key: "nationalAddress", label: t("channelOnboarding.fieldLabels.nationalAddress"), type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheNationalAddress"), demoValue: "ABCD5678" },
+      { key: "region", label: t("channelOnboarding.fieldLabels.region"), required: true, type: "select", options: REGIONS, demoValue: "Madinah Region" },
+      { key: "city", label: t("channelOnboarding.fieldLabels.city"), required: true, type: "select", options: CITIES, demoValue: "Medina" },
+      { key: "district", label: t("channelOnboarding.fieldLabels.district"), required: true, type: "select", demoValue: "Quba" },
     ],
     showMap: true,
     documents: [
-      { key: "civilIdAttachment", label: "Civil ID Attachment", required: true },
+      { key: "civilIdAttachment", label: t("channelOnboarding.docLabels.civilIdAttachment"), required: true },
     ],
   },
   {
     key: "account-manager",
-    listLabel: "Account Manager",
-    formTitle: "New Account Manager",
+    listLabel: t("channelOnboarding.roles.accountManager.listLabel"),
+    formTitle: t("channelOnboarding.roles.accountManager.formTitle"),
     businessFields: [
-      { key: "fullName", label: "Full Name", required: true, type: "name", placeholder: "Enter the full name", demoValue: "Huda Al Qahtani" },
-      { key: "activeMobile", label: "Active Mobile Number", required: true, type: "mobile", placeholder: "Enter the active mobile number", demoValue: "0555566677" },
-      { key: "dob", label: "Date of Birth", required: true, type: "date", demoOffsetDays: -35 * 365 },
-      { key: "civilId", label: "Civil ID", required: true, type: "text", placeholder: "Enter the Civil ID", demoValue: "1344556677" },
-      { key: "idExpiry", label: "ID Expiry Date", required: true, type: "date", demoOffsetDays: 700 },
-      { key: "email", label: "Email", required: true, type: "email", placeholder: "Enter the email", demoValue: "huda@example.sa" },
+      { key: "fullName", label: t("channelOnboarding.fieldLabels.fullName"), required: true, type: "name", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheFullName"), demoValue: "Huda Al Qahtani" },
+      { key: "activeMobile", label: t("channelOnboarding.fieldLabels.activeMobile"), required: true, type: "mobile", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheActiveMobile"), demoValue: "0555566677" },
+      { key: "dob", label: t("channelOnboarding.fieldLabels.dob"), required: true, type: "date", demoOffsetDays: -35 * 365 },
+      { key: "civilId", label: t("channelOnboarding.fieldLabels.civilId"), required: true, type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheCivilId"), demoValue: "1344556677" },
+      { key: "idExpiry", label: t("channelOnboarding.fieldLabels.idExpiry"), required: true, type: "date", demoOffsetDays: 700 },
+      { key: "email", label: t("channelOnboarding.fieldLabels.email"), required: true, type: "email", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheEmail"), demoValue: "huda@example.sa" },
     ],
     locationFields: [
-      { key: "nationalAddress", label: "National Address", type: "text", placeholder: "Enter the national address", demoValue: "WXYZ4321" },
-      { key: "region", label: "Region", required: true, type: "select", options: REGIONS, demoValue: "Makkah Region" },
-      { key: "city", label: "City", required: true, type: "select", options: CITIES, demoValue: "Jeddah" },
-      { key: "district", label: "District", required: true, type: "select", demoValue: "Al Safa" },
+      { key: "nationalAddress", label: t("channelOnboarding.fieldLabels.nationalAddress"), type: "text", placeholder: t("channelOnboarding.fieldPlaceholders.enterTheNationalAddress"), demoValue: "WXYZ4321" },
+      { key: "region", label: t("channelOnboarding.fieldLabels.region"), required: true, type: "select", options: REGIONS, demoValue: "Makkah Region" },
+      { key: "city", label: t("channelOnboarding.fieldLabels.city"), required: true, type: "select", options: CITIES, demoValue: "Jeddah" },
+      { key: "district", label: t("channelOnboarding.fieldLabels.district"), required: true, type: "select", demoValue: "Al Safa" },
     ],
     showMap: true,
     documents: [
-      { key: "civilIdAttachment", label: "Civil ID Attachment", required: true },
+      { key: "civilIdAttachment", label: t("channelOnboarding.docLabels.civilIdAttachment"), required: true },
     ],
   },
 ];
 
-const validateField = (field: FieldDef, val: string): string | undefined => {
+const validateField = (t: (key: string) => string, field: FieldDef, val: string): string | undefined => {
   if (!val) return undefined;
-  if (field.type === "name" && !/^[A-Za-z\s]+$/.test(val)) return "Full name must contain letters only.";
-  if (field.type === "mobile" && !/^\d{9,10}$/.test(val)) return "Enter a valid mobile number.";
-  if (field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Enter a valid email address.";
+  if (field.type === "name" && !/^[A-Za-z\s]+$/.test(val)) return t("channelOnboarding.nameError");
+  if (field.type === "mobile" && !/^\d{9,10}$/.test(val)) return t("channelOnboarding.mobileError");
+  if (field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return t("channelOnboarding.emailError");
   return undefined;
 };
 
@@ -322,6 +323,8 @@ const buildDefaultFiles = (role: RoleConfig): Record<string, { title: string }[]
 
 const ChannelOnboarding = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const ROLE_CONFIGS = buildRoleConfigs(t);
 
   const [view, setView] = useState<"list" | "form">("list");
   const [activeRole, setActiveRole] = useState<RoleConfig | null>(null);
@@ -357,7 +360,7 @@ const ChannelOnboarding = () => {
       closeForm();
       return;
     }
-    navigate("/");
+    navigate(-1);
   };
 
   const handleChange = (key: string, val: string) => {
@@ -370,7 +373,7 @@ const ChannelOnboarding = () => {
   };
 
   const handleBlur = (field: FieldDef) => {
-    setErrors((prev) => ({ ...prev, [field.key]: validateField(field, values[field.key] || "") }));
+    setErrors((prev) => ({ ...prev, [field.key]: validateField(t, field, values[field.key] || "") }));
   };
 
   const addFile = (doc: DocDef) => {
@@ -440,7 +443,7 @@ const ChannelOnboarding = () => {
             className="w-full h-12 rounded-xl border border-input bg-card px-3.5 flex items-center justify-between text-sm"
           >
             <span className={dates[field.key] ? "text-foreground font-medium" : "text-muted-foreground"}>
-              {dates[field.key] ? format(dates[field.key]!, "d MMM yyyy") : "Select Date"}
+              {dates[field.key] ? format(dates[field.key]!, "d MMM yyyy") : t("channelOnboarding.selectDate")}
             </span>
             <CalendarDays className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -500,7 +503,7 @@ const ChannelOnboarding = () => {
           </p>
           {doc.multi && files.length > 0 && (
             <button type="button" onClick={() => addFile(doc)} className="flex items-center gap-1 text-xs font-semibold text-primary">
-              <Plus className="w-3.5 h-3.5" /> Add Files
+              <Plus className="w-3.5 h-3.5" /> {t("channelOnboarding.addFiles")}
             </button>
           )}
         </div>
@@ -513,7 +516,7 @@ const ChannelOnboarding = () => {
             <span className="w-9 h-9 rounded-full border-2 border-primary flex items-center justify-center text-primary">
               <Plus className="w-4 h-4" />
             </span>
-            <p className="text-sm text-muted-foreground">Upload your files here</p>
+            <p className="text-sm text-muted-foreground">{t("channelOnboarding.uploadFilesHere")}</p>
           </button>
         ) : (
           <div className="space-y-2">
@@ -521,10 +524,10 @@ const ChannelOnboarding = () => {
               <div key={i} className="flex items-center gap-2.5 rounded-xl border border-dashed border-border bg-card px-3.5 py-3">
                 <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
                 <span className="text-sm text-foreground flex-1 truncate">{file.title}</span>
-                <button type="button" aria-label={`View ${file.title}`} className="text-primary shrink-0">
+                <button type="button" aria-label={t("channelOnboarding.viewFileAria", { title: file.title })} className="text-primary shrink-0">
                   <Eye className="w-4 h-4" />
                 </button>
-                <button type="button" aria-label={`Remove ${file.title}`} onClick={() => removeFile(doc.key, i)} className="text-destructive shrink-0">
+                <button type="button" aria-label={t("channelOnboarding.removeFileAria", { title: file.title })} onClick={() => removeFile(doc.key, i)} className="text-destructive shrink-0">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -560,7 +563,7 @@ const ChannelOnboarding = () => {
     return (
       <div className="px-4 pb-32 space-y-5">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-foreground px-1">Business Information</p>
+          <p className="text-sm font-semibold text-foreground px-1">{t("channelOnboarding.businessInformation")}</p>
           <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
             {activeRole.businessFields.map(renderFieldWrapper)}
           </div>
@@ -568,7 +571,7 @@ const ChannelOnboarding = () => {
 
         {activeRole.memberFields && (
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground px-1">Member Information</p>
+            <p className="text-sm font-semibold text-foreground px-1">{t("channelOnboarding.memberInformation")}</p>
             <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
               {activeRole.memberFields.map(renderFieldWrapper)}
             </div>
@@ -578,10 +581,10 @@ const ChannelOnboarding = () => {
         {activeRole.locationFields && (
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <p className="text-sm font-semibold text-foreground">Location Information</p>
+              <p className="text-sm font-semibold text-foreground">{t("channelOnboarding.locationInformation")}</p>
               {activeRole.showMap && (
                 <button type="button" onClick={() => setMapOpen(true)} className="flex items-center gap-0.5 text-xs font-semibold text-primary">
-                  Map <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                  {t("channelOnboarding.map")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               )}
             </div>
@@ -595,10 +598,10 @@ const ChannelOnboarding = () => {
           <div key={doc.key}>{renderDocument(doc)}</div>
         ))}
 
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="max-w-[390px] mx-auto">
             <Button disabled={!canSubmit} onClick={handleSubmit} className="w-full h-12 rounded-full font-semibold">
-              Submit
+              {t("channelOnboarding.submit")}
             </Button>
           </div>
         </div>
@@ -623,7 +626,7 @@ const ChannelOnboarding = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-6">
-      <AppHeader title={view === "form" ? activeRole?.formTitle ?? "" : "Channel Member Onboarding"} showBack onBackClick={handleBack} />
+      <AppHeader title={view === "form" ? activeRole?.formTitle ?? "" : t("channelOnboarding.title")} showBack onBackClick={handleBack} />
 
       {view === "form" ? renderForm() : renderList()}
 
@@ -633,8 +636,8 @@ const ChannelOnboarding = () => {
           <div className="flex justify-center pt-1 pb-2"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="flex items-center justify-between pb-1">
             <div className="flex-1 text-center">
-              <h3 className="text-lg font-bold text-foreground">Pick a Date</h3>
-              <p className="text-xs text-muted-foreground">Please select a date</p>
+              <h3 className="text-lg font-bold text-foreground">{t("channelOnboarding.pickADate")}</h3>
+              <p className="text-xs text-muted-foreground">{t("channelOnboarding.pleaseSelectDate")}</p>
             </div>
             <DrawerClose className="w-8 h-8 rounded-full bg-muted flex items-center justify-center absolute end-5 top-4">
               <X className="w-4 h-4 text-muted-foreground" />
@@ -648,14 +651,14 @@ const ChannelOnboarding = () => {
             className="w-full p-0"
             classNames={FULL_WIDTH_CALENDAR_CLASSNAMES}
           />
-          <Button className="w-full h-12 rounded-full font-semibold mt-2" onClick={() => setDateDrawerKey(null)}>Apply</Button>
+          <Button className="w-full h-12 rounded-full font-semibold mt-2" onClick={() => setDateDrawerKey(null)}>{t("channelOnboarding.apply")}</Button>
         </DrawerContent>
       </Drawer>
 
       {/* Signature pad */}
       <SignaturePadSheet
         open={sigOpen}
-        title="Member Signature"
+        title={t("channelOnboarding.memberSignature")}
         initial={signature}
         onClose={() => setSigOpen(false)}
         onSave={(dataUrl) => { setSignature(dataUrl); setSigOpen(false); }}
@@ -670,13 +673,13 @@ const ChannelOnboarding = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Request Submitted</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("channelOnboarding.requestSubmitted")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {activeRole?.listLabel} onboarding request has been submitted for review.
+              {t("channelOnboarding.requestSubmittedDesc", { role: activeRole?.listLabel })}
             </p>
           </div>
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); closeForm(); }}>
-            Done
+            {t("channelOnboarding.done")}
           </Button>
         </DrawerContent>
       </Drawer>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
@@ -110,31 +111,6 @@ interface BillAccount {
   bills: Bill[];
 }
 
-const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
-  "switch-postpaid": "Switch Postpaid",
-  vnet: "Vnet",
-};
-
-const STATUS_LABEL: Record<AccountStatus, string> = {
-  active: "Active",
-  sd: "Soft Disconnected",
-  hd: "Hard Disconnected",
-  terminated: "Terminated",
-};
-
-const STATUS_STYLE: Record<AccountStatus, string> = {
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-  sd: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-  hd: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
-  terminated: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
-};
-
-const BILL_STATUS_STYLE: Record<Bill["status"], string> = {
-  Unpaid: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-  Overdue: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
-  "Partially Paid": "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
-};
-
 // ---------- Demo data ----------
 const makeBill = (over: Partial<Bill> & Pick<Bill, "number" | "cycle" | "amount">): Bill => ({
   status: "Unpaid",
@@ -227,6 +203,38 @@ const totalDueOf = (a: BillAccount) => (a.bills.length > 0 ? a.bills[0].amount :
 
 const BillPayment = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
+    "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
+    vnet: t("billPayment.accountTypeVnet"),
+  };
+
+  const STATUS_LABEL: Record<AccountStatus, string> = {
+    active: t("billPayment.statusActive"),
+    sd: t("billPayment.statusSoftDisconnected"),
+    hd: t("billPayment.statusHardDisconnected"),
+    terminated: t("billPayment.statusTerminated"),
+  };
+
+  const STATUS_STYLE: Record<AccountStatus, string> = {
+    active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+    sd: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+    hd: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
+    terminated: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  };
+
+  const BILL_STATUS_LABEL: Record<Bill["status"], string> = {
+    Unpaid: t("billPayment.billStatusUnpaid"),
+    Overdue: t("billPayment.billStatusOverdue"),
+    "Partially Paid": t("billPayment.billStatusPartiallyPaid"),
+  };
+
+  const BILL_STATUS_STYLE: Record<Bill["status"], string> = {
+    Unpaid: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+    Overdue: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+    "Partially Paid": "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  };
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -295,21 +303,21 @@ const BillPayment = () => {
 
       if (method === "msisdn") {
         if (DEMO_PREPAID_MSISDNS.includes(msisdn)) {
-          setLookupError("This is a prepaid number. Bill payment is only available for postpaid lines.");
+          setLookupError(t("billPayment.errorPrepaidIneligible"));
           return;
         }
         const found = DEMO_ACCOUNTS.find((a) => a.msisdn === msisdn);
         if (!found) {
-          setLookupError("Number not found. Please check the number and try again.");
+          setLookupError(t("billPayment.errorNumberNotFound"));
           return;
         }
         // A terminated line can't be looked up directly — its balance is settled against the Civil ID.
         if (found.status === "terminated") {
-          setLookupError("This number is terminated. Use Civil ID to Pay Bill.");
+          setLookupError(t("billPayment.errorTerminated"));
           return;
         }
         if (found.bills.length === 0) {
-          setNoBillsMessage("No outstanding bills for this number — the account is fully settled.");
+          setNoBillsMessage(t("billPayment.noBillsForNumber"));
           return;
         }
         setAccounts([found]);
@@ -324,9 +332,9 @@ const BillPayment = () => {
       if (found.length === 0) {
         const idExists = DEMO_ACCOUNTS.some((a) => a.civilId === civilId);
         if (idExists) {
-          setNoBillsMessage("No outstanding bills for this ID — every account is fully settled.");
+          setNoBillsMessage(t("billPayment.noBillsForId"));
         } else {
-          setLookupError("No postpaid accounts found for this ID.");
+          setLookupError(t("billPayment.errorNoPostpaidForId"));
         }
         return;
       }
@@ -347,12 +355,12 @@ const BillPayment = () => {
 
   const amountErrorFor = (a: BillAccount): string | null => {
     const raw = amounts[a.msisdn] ?? "";
-    if (raw.trim() === "") return "Enter an amount.";
+    if (raw.trim() === "") return t("billPayment.amountErrorEmpty");
     const n = Number(raw);
-    if (!Number.isFinite(n)) return "Enter a valid amount.";
-    if (n < MIN_PAY) return `Minimum payment is ${MIN_PAY} SAR.`;
+    if (!Number.isFinite(n)) return t("billPayment.amountErrorInvalid");
+    if (n < MIN_PAY) return t("billPayment.amountErrorMin", { min: MIN_PAY });
     const max = maxFor(a);
-    if (n > max) return `Maximum payment is ${money(max)} SAR.`;
+    if (n > max) return t("billPayment.amountErrorMax", { max: money(max) });
     return null;
   };
 
@@ -372,9 +380,9 @@ const BillPayment = () => {
   /** Where the OTP lands: Vnet uses its associated contact, Civil ID uses the registered number. */
   const otpTarget =
     method === "civil-id"
-      ? "the number registered against this Civil ID"
+      ? t("billPayment.otpTargetCivilId")
       : primary?.type === "vnet"
-      ? `the associated contact number ${primary.contactNumber}`
+      ? t("billPayment.otpTargetContact", { number: primary.contactNumber })
       : primary?.msisdn ?? "";
 
   // ---------- OTP ----------
@@ -471,7 +479,7 @@ const BillPayment = () => {
               <RiyalSymbol /> {money(bill.amount)}
             </p>
             <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", BILL_STATUS_STYLE[bill.status])}>
-              {bill.status}
+              {BILL_STATUS_LABEL[bill.status]}
             </span>
           </div>
         </div>
@@ -481,14 +489,14 @@ const BillPayment = () => {
           className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
         >
           {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
-          Bill breakdown
+          {t("billPayment.billBreakdown")}
         </button>
         {open && (
           <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-            <SummaryRow label="Current Balance" value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-            <SummaryRow label="Unbilled Amount" value={<><RiyalSymbol /> {money(bill.unbilled)}</>} />
-            <SummaryRow label="Out of Bundle Usage" value={<><RiyalSymbol /> {money(bill.outOfBundle)}</>} />
-            <SummaryRow label="Total (VAT incl.)" value={<><RiyalSymbol /> {money(bill.amount)}</>} />
+            <SummaryRow label={t("billPayment.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
+            <SummaryRow label={t("billPayment.unbilledAmount")} value={<><RiyalSymbol /> {money(bill.unbilled)}</>} />
+            <SummaryRow label={t("billPayment.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundle)}</>} />
+            <SummaryRow label={t("billPayment.totalVatIncl")} value={<><RiyalSymbol /> {money(bill.amount)}</>} />
           </div>
         )}
       </div>
@@ -503,7 +511,7 @@ const BillPayment = () => {
     const diff = Number.isFinite(n) && raw.trim() !== "" ? n - due : 0;
     return (
       <div className="space-y-1.5">
-        <Field label="Amount to Pay">
+        <Field label={t("billPayment.amountToPay")}>
           <div className="relative">
             <Input
               value={raw}
@@ -524,15 +532,15 @@ const BillPayment = () => {
           <p className="text-[11px] text-destructive">{err}</p>
         ) : diff < 0 ? (
           <p className="text-[11px] text-amber-600 dark:text-amber-400">
-            Partial payment — the remaining {money(-diff)} SAR moves to the next bill cycle.
+            {t("billPayment.partialPaymentNote", { amount: money(-diff) })}
           </p>
         ) : diff > 0 ? (
           <p className="text-[11px] text-sky-600 dark:text-sky-400">
-            {money(diff)} SAR above the due amount — the extra adjusts the next bill.
+            {t("billPayment.abovePaymentNote", { amount: money(diff) })}
           </p>
         ) : (
           <p className="text-[11px] text-muted-foreground">
-            Full amount due. Min {MIN_PAY} SAR, max {money(maxFor(a))} SAR.
+            {t("billPayment.fullAmountNote", { min: MIN_PAY, max: money(maxFor(a)) })}
           </p>
         )}
       </div>
@@ -548,7 +556,7 @@ const BillPayment = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title="Bill Payment" showBack onBackClick={handleBack} />
+      <AppHeader title={t("billPayment.title")} showBack onBackClick={handleBack} />
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
@@ -556,22 +564,22 @@ const BillPayment = () => {
         {step === 0 && (
           <>
             <section className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Search Bills By</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("billPayment.searchBillsBy")}</h3>
               {/* Same selector card as SIM Activation's SIM Type toggle. */}
               <div className="grid grid-cols-2 gap-3">
-                <SimCard active={method === "msisdn"} label="MSISDN" icon={Phone} onClick={() => { setMethod("msisdn"); resetLookup(); }} />
-                <SimCard active={method === "civil-id"} label="Civil ID" icon={IdCard} onClick={() => { setMethod("civil-id"); resetLookup(); }} />
+                <SimCard active={method === "msisdn"} label={t("billPayment.msisdn")} icon={Phone} onClick={() => { setMethod("msisdn"); resetLookup(); }} />
+                <SimCard active={method === "civil-id"} label={t("billPayment.civilId")} icon={IdCard} onClick={() => { setMethod("civil-id"); resetLookup(); }} />
               </div>
             </section>
 
             {method === "msisdn" ? (
-              <Field label="MSISDN">
+              <Field label={t("billPayment.msisdn")}>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Input
                       value={msisdn}
                       onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13)); resetLookup(); }}
-                      placeholder="Switch Postpaid (10) or Vnet (13)"
+                      placeholder={t("billPayment.msisdnPlaceholder")}
                       inputMode="numeric"
                       className="h-12 bg-card rounded-xl pe-10"
                     />
@@ -579,67 +587,67 @@ const BillPayment = () => {
                   </div>
                   {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
                   <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!msisdnValid || checking} onClick={handleSearch}>
-                    Search
+                    {t("billPayment.search")}
                   </Button>
                 </div>
                 {msisdn.length > 0 && !msisdnValid ? (
                   <p className="text-[11px] text-destructive mt-1.5">
-                    Enter a 10-digit Switch Postpaid number or a 13-digit Vnet number.
+                    {t("billPayment.msisdnInvalidHint")}
                   </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground mt-1.5">
-                    Customer should enter a Vnet or Switch Postpaid number.
+                    {t("billPayment.msisdnValidHint")}
                   </p>
                 )}
               </Field>
             ) : (
-              <Field label="Civil ID">
+              <Field label={t("billPayment.civilId")}>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Input
                       value={civilId}
                       onChange={(e) => { setCivilId(e.target.value.replace(/\D/g, "").slice(0, 10)); resetLookup(); }}
-                      placeholder="Saudi ID or Iqama ID"
+                      placeholder={t("billPayment.civilIdPlaceholder")}
                       inputMode="numeric"
                       className="h-12 bg-card rounded-xl pe-10"
                     />
                     <IdCard className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   </div>
                   <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!civilIdValid || checking} onClick={handleSearch}>
-                    Search
+                    {t("billPayment.search")}
                   </Button>
                 </div>
                 {civilId.length > 0 && !civilIdValid ? (
                   <p className="text-[11px] text-destructive mt-1.5">
-                    Enter a 10-digit ID. Saudi National IDs start with 1, Iqama IDs start with 2.
+                    {t("billPayment.civilIdInvalidHint")}
                   </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground mt-1.5">
-                    Enter a Saudi or Iqama ID — 10 digits. Saudi starts with 1, Iqama starts with 2.
+                    {t("billPayment.civilIdValidHint")}
                   </p>
                 )}
               </Field>
             )}
 
             <PrototypeTestBox
-              heading={method === "msisdn" ? "test numbers" : "test IDs"}
-              description="Use these to try every case. This box won't appear in the real implementation."
+              heading={method === "msisdn" ? t("billPayment.testNumbersHeading") : t("billPayment.testIdsHeading")}
+              description={t("billPayment.testDescription")}
               items={
                 method === "msisdn"
                   ? [
-                      { value: "0502222211", note: "Switch Postpaid — one open bill" },
-                      { value: "0502222222", note: "Switch Postpaid — two open bills" },
-                      { value: "0502222233444", note: "Vnet (13 digits) — OTP to contact number" },
-                      { value: "0502222244", note: "Terminated — use Civil ID instead" },
-                      { value: "0502222266", note: "No outstanding bills" },
-                      { value: "0501111133", note: "Prepaid number — not eligible" },
-                      { value: "0500000099", note: "Number not found" },
+                      { value: "0502222211", note: t("billPayment.testNoteOneOpenBill") },
+                      { value: "0502222222", note: t("billPayment.testNoteTwoOpenBills") },
+                      { value: "0502222233444", note: t("billPayment.testNoteVnet") },
+                      { value: "0502222244", note: t("billPayment.testNoteTerminated") },
+                      { value: "0502222266", note: t("billPayment.testNoteNoOutstanding") },
+                      { value: "0501111133", note: t("billPayment.testNotePrepaidIneligible") },
+                      { value: "0500000099", note: t("billPayment.testNoteNotFound") },
                     ]
                   : [
-                      { value: "1324567896", note: "Saudi ID — single account" },
-                      { value: "1876543210", note: "Saudi ID — 4 accounts incl. HD & terminated" },
-                      { value: "2345678901", note: "Iqama ID — no outstanding bills" },
-                      { value: "1000000009", note: "No postpaid accounts found" },
+                      { value: "1324567896", note: t("billPayment.testNoteSaudiSingle") },
+                      { value: "1876543210", note: t("billPayment.testNoteSaudiFour") },
+                      { value: "2345678901", note: t("billPayment.testNoteIqamaNoOutstanding") },
+                      { value: "1000000009", note: t("billPayment.testNoteNoPostpaidFound") },
                     ]
               }
               onSelect={(v) => {
@@ -654,8 +662,7 @@ const BillPayment = () => {
             {/* Results land inline, right under the search — no page hop to review bills. */}
             {isMulti && accounts && (
               <p className="text-xs text-muted-foreground px-1">
-                {accounts.length} accounts with outstanding bills are registered to this ID. Select the
-                ones to pay for and set each amount.
+                {t("billPayment.accountsRegisteredToId", { count: accounts.length })}
               </p>
             )}
 
@@ -679,7 +686,7 @@ const BillPayment = () => {
                         type="button"
                         role="checkbox"
                         aria-checked={isOn}
-                        aria-label={`Pay for ${a.msisdn}`}
+                        aria-label={t("billPayment.payForAria", { msisdn: a.msisdn })}
                         onClick={(e) => { e.stopPropagation(); setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] })); }}
                         className={cn(
                           "w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
@@ -701,7 +708,7 @@ const BillPayment = () => {
                       </p>
                     </div>
                     <div className="text-end shrink-0">
-                      <p className="text-[10px] text-muted-foreground">Total Due</p>
+                      <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDue")}</p>
                       <p className="text-base font-bold text-primary">
                         <RiyalSymbol /> {money(totalDueOf(a))}
                       </p>
@@ -717,8 +724,7 @@ const BillPayment = () => {
 
                       {a.bills.length > 1 && (
                         <p className="text-[11px] text-muted-foreground leading-snug">
-                          The latest bill already includes the earlier unpaid cycles, so the total due is
-                          {" "}{money(totalDueOf(a))} SAR — not the sum of both bills.
+                          {t("billPayment.latestBillRollup", { amount: money(totalDueOf(a)) })}
                         </p>
                       )}
 
@@ -734,7 +740,7 @@ const BillPayment = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && accounts && (
           <>
-            <CardSection title="Payment Summary" icon={ReceiptText}>
+            <CardSection title={t("billPayment.paymentSummary")} icon={ReceiptText}>
               {/* Wrapped so SummaryRow's `last:border-0` scopes to these rows only — otherwise
                   the Total div right after it is the true last child, and the last row's own
                   bottom border stacks with Total's top border into a visible double line. */}
@@ -751,7 +757,7 @@ const BillPayment = () => {
                   when it's actually summing more than one account. */}
               {payingAccounts.length > 1 && (
                 <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
-                  <span className="text-sm font-semibold text-foreground">Total</span>
+                  <span className="text-sm font-semibold text-foreground">{t("billPayment.total")}</span>
                   <span className="text-base font-bold text-primary">
                     <RiyalSymbol /> {money(totalToPay)}
                   </span>
@@ -759,37 +765,37 @@ const BillPayment = () => {
               )}
             </CardSection>
 
-            <CardSection title="Payment Method" icon={CreditCard}>
+            <CardSection title={t("billPayment.paymentMethod")} icon={CreditCard}>
               <div className="space-y-2">
                 <PayOption
                   icon={Wallet}
-                  label="Dealer Wallet"
-                  description={`Pay from your wallet (${DEALER_WALLET_BALANCE} SAR balance)`}
+                  label={t("billPayment.dealerWallet")}
+                  description={t("billPayment.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })}
                   selected={payMethod === "wallet"}
                   onClick={() => setPayMethod("wallet")}
                 />
                 <PayOption
                   icon={CreditCard}
-                  label="POS Terminal"
-                  description="Collect cash or card from the customer"
+                  label={t("billPayment.posTerminal")}
+                  description={t("billPayment.posTerminalDesc")}
                   selected={payMethod === "pos"}
                   onClick={() => setPayMethod("pos")}
                 />
               </div>
               {walletShort && (
                 <p className="text-[11px] text-destructive mt-2">
-                  Wallet balance is short by {money(totalToPay - DEALER_WALLET_BALANCE)} SAR. Use the POS terminal instead.
+                  {t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
                 </p>
               )}
             </CardSection>
 
-            <CardSection title="OTP Verification" icon={ShieldCheck}>
+            <CardSection title={t("billPayment.otpVerification")} icon={ShieldCheck}>
               {otpVerified ? (
-                <VerifiedBanner label="OTP Verified" />
+                <VerifiedBanner label={t("billPayment.otpVerified")} />
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>Send &amp; verify OTP</Button>
-                  <p className="text-[11px] text-muted-foreground mt-2">The code will be sent to {otpTarget}.</p>
+                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("billPayment.sendVerifyOtp")}</Button>
+                  <p className="text-[11px] text-muted-foreground mt-2">{t("billPayment.codeSentTo", { target: otpTarget })}</p>
                 </>
               )}
             </CardSection>
@@ -798,16 +804,16 @@ const BillPayment = () => {
       </div>
 
       {/* Sticky bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueBills} onClick={() => setStep(1)}>
-              Continue
+              {t("billPayment.continue")}
             </Button>
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              Pay {money(totalToPay)} SAR
+              {t("billPayment.payAmountSar", { amount: money(totalToPay) })}
             </Button>
           )}
         </div>
@@ -817,11 +823,11 @@ const BillPayment = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">Enter Verification Code</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("billPayment.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? "The verification code you entered is incorrect. Please try again." : `We sent a verification code to ${otpTarget}`}
+              {otpError ? t("billPayment.otpIncorrect") : t("billPayment.otpSentTo", { target: otpTarget })}
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
@@ -840,12 +846,12 @@ const BillPayment = () => {
             <p className="text-xs text-muted-foreground">
               {otpError || otpSecondsLeft === 0 ? (
                 <>
-                  Didn't receive the code?{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">Resend</button>
+                  {t("billPayment.didntReceiveCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("billPayment.resend")}</button>
                 </>
               ) : (
                 <>
-                  Didn't receive the code?{" "}
+                  {t("billPayment.didntReceiveCode")}{" "}
                   <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
                 </>
               )}
@@ -862,15 +868,14 @@ const BillPayment = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Confirm Payment</h3>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("billPayment.confirmPaymentTitle")}</h3>
               <p className="text-sm text-muted-foreground">
-                {money(totalToPay)} SAR will be paid for {payingAccounts.length}{" "}
-                {payingAccounts.length === 1 ? "account" : "accounts"} using the selected payment method.
+                {t("billPayment.confirmPaymentDesc", { amount: money(totalToPay), count: payingAccounts.length })}
               </p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>Yes, Confirm</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("billPayment.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("billPayment.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -885,17 +890,16 @@ const BillPayment = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Payment Successful</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("billPayment.paymentSuccessful")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {money(totalToPay)} SAR has been paid across {payingAccounts.length}{" "}
-              {payingAccounts.length === 1 ? "account" : "accounts"}.
+              {t("billPayment.paymentSuccessfulDesc", { amount: money(totalToPay), count: payingAccounts.length })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Reference: <span className="font-semibold text-foreground">{orderId}</span>
+              {t("billPayment.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
           </div>
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}>
-            Done
+            {t("billPayment.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -909,14 +913,14 @@ const BillPayment = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Payment Failed</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("billPayment.paymentFailedTitle")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              Something went wrong while processing this payment. No amount has been charged.
+              {t("billPayment.paymentFailedDesc")}
             </p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              Try Again
+              {t("billPayment.tryAgain")}
             </Button>
             <Button
               variant="outline"
@@ -928,7 +932,7 @@ const BillPayment = () => {
               }}
             >
               <LifeBuoy className="w-4 h-4 me-2" />
-              Raise Tech Ticket
+              {t("billPayment.raiseTechTicket")}
             </Button>
           </div>
         </DrawerContent>
@@ -943,16 +947,16 @@ const BillPayment = () => {
                 <FileText className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">Tech Ticket Raised</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("billPayment.techTicketRaised")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              Our technical team will look into this failed payment and follow up with you.
+              {t("billPayment.techTicketDesc")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Ticket: <span className="font-semibold text-foreground">{ticketId}</span>
+              {t("billPayment.ticket")} <span className="font-semibold text-foreground">{ticketId}</span>
             </p>
           </div>
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setTicketOpen(false); resetAll(); navigate("/"); }}>
-            Done
+            {t("billPayment.done")}
           </Button>
         </DrawerContent>
       </Drawer>
