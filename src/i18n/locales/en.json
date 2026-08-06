@@ -1,4 +1,19 @@
 {
+  "myShifts": {
+    "pageTitle": "My Shifts",
+    "filters": "Filters",
+    "filterTitle": "Filter",
+    "filterSubtitle": "Please choose your filter options",
+    "status": "Status",
+    "statusScheduled": "Scheduled",
+    "statusNotStarted": "Not Started",
+    "statusNotCheckedIn": "Not Checked In",
+    "statusCompleted": "Completed",
+    "dateDuration": "Date Duration",
+    "tomorrow": "Tomorrow",
+    "noResultsTitle": "No Upcoming Shift",
+    "noResultsSubtitle": "You don't have any scheduled shifts for now"
+  },
   "onboardingRequests": {
     "pageTitle": "Onboarding Requests",
     "viewRequestTitle": "View Request",

@@ -49,6 +49,7 @@ import SubscriptionMigration from "./pages/SubscriptionMigration";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
+import MyShifts from "./pages/MyShifts";
 import NotFound from "./pages/NotFound";
 
 
@@ -123,6 +124,7 @@ const App = () => {
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />
+          <Route path="/my-shifts" element={<MyShifts />} />
           </Route>
           <Route path="*" element={<NotFound />} />
 

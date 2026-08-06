@@ -59,7 +59,7 @@ const Menu = () => {
       title: t("menu.otherWidgets"),
       items: [
         { icon: GraduationCap, label: t("menu.trainingHub") },
-        { icon: Calendar, label: t("menu.myShifts") },
+        { icon: Calendar, label: t("menu.myShifts"), path: "/my-shifts" },
         { icon: Headphones, label: t("menu.tickets") },
       ],
     },

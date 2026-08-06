@@ -1,4 +1,19 @@
 {
+  "myShifts": {
+    "pageTitle": "دواماتي",
+    "filters": "التصفية",
+    "filterTitle": "تصفية",
+    "filterSubtitle": "يرجى اختيار خيارات التصفية",
+    "status": "الحالة",
+    "statusScheduled": "مجدول",
+    "statusNotStarted": "لم يبدأ",
+    "statusNotCheckedIn": "لم يتم تسجيل الحضور",
+    "statusCompleted": "مكتمل",
+    "dateDuration": "المدة الزمنية",
+    "tomorrow": "غدًا",
+    "noResultsTitle": "لا يوجد دوام قادم",
+    "noResultsSubtitle": "ليس لديك أي دوامات مجدولة حاليًا"
+  },
   "onboardingRequests": {
     "pageTitle": "طلبات التأهيل",
     "viewRequestTitle": "عرض الطلب",

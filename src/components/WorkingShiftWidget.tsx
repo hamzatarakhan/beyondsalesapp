@@ -114,7 +114,7 @@ const WorkingShiftWidget = () => {
           <h3 className="font-semibold text-foreground">{t("home.workingShift.title")}</h3>
           <button
             type="button"
-            onClick={() => navigate("/coming-soon", { state: { feature: t("home.workingShift.title") } })}
+            onClick={() => navigate("/my-shifts")}
             className="flex items-center gap-1 text-primary text-sm font-medium"
           >
             {t("home.workingShift.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
