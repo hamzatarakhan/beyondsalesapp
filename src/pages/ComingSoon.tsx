@@ -14,7 +14,7 @@ const ComingSoon = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col">
-      <header dir="ltr" className="px-4 py-4 flex items-center gap-3">
+      <header dir="ltr" className="relative z-10 px-4 py-4 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           aria-label={t("comingSoon.backAria")}
