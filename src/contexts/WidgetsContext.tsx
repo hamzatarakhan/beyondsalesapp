@@ -9,7 +9,7 @@ export interface WidgetConfig {
 // today. Widgets still commented out there (Working Shift, Tickets) aren't listed since
 // there's nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "sim-activation-options", enabled: true },
+  { id: "sim-activation-options", enabled: false },
   { id: "customer-activities", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "member-onboarding", enabled: true },

@@ -101,17 +101,11 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // SIM Activation family — split into the original two flows ("Old approaches") and the
-  // three plan-card presentation experiments ("New plan card options"). MNP is hidden for
+  // SIM Activation family — the original two flows ("Old approaches"). MNP is hidden for
   // now; Continue Activation (fulfilment) lives in Customer Activities instead.
   const oldSimActivationOptions = [
     { id: "sim", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation", badge: t("home.badgeOption1"), badgeTone: "special" as const },
     { id: "sim-v2", icon: Sparkles, label: t("home.simActivationV2"), path: "/new-activation-v2", badge: t("home.badgeOption2"), badgeTone: "special" as const },
-  ];
-  // Plans option 2 and 3 (sim-4, sim-5) are hidden for now — kept out of this array
-  // rather than deleted so they're easy to bring back.
-  const newPlanCardOptions = [
-    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgePlansOption1"), badgeTone: "special" as const },
   ];
 
   const memberOnboarding = [
@@ -127,6 +121,7 @@ const Home = () => {
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
+    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgePlansOption1"), badgeTone: "special" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "migration", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "credit-limit", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
@@ -176,23 +171,6 @@ const Home = () => {
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
-              />
-            ))}
-          </div>
-
-          <div className="h-px bg-border/60 my-4" />
-
-          <p className="text-xs font-medium text-muted-foreground mb-3">{t("home.newPlanCardOptions")}</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {newPlanCardOptions.map((activity) => (
-              <ActivityIcon
-                key={activity.id}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() => navigate(activity.path)}
               />
             ))}
           </div>
