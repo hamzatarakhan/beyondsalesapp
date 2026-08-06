@@ -62,6 +62,7 @@
     "badgeApproved": "معتمد",
     "badgeNeedsConfirm": "بانتظار التأكيد",
     "badgeInProgress": "قيد التنفيذ",
+    "badgeConfirmed": "مؤكد",
     "chooseActivationFlow": "اختر طريقة التفعيل",
     "chooseActivationFlowSub": "اختر الطريقة التي تريد بها إتمام هذا التفعيل",
     "stcFlow": "مسار STC",

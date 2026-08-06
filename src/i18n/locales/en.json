@@ -62,6 +62,7 @@
     "badgeApproved": "Approved",
     "badgeNeedsConfirm": "Needs Confirm",
     "badgeInProgress": "In Progress",
+    "badgeConfirmed": "Confirmed",
     "chooseActivationFlow": "Choose Activation Flow",
     "chooseActivationFlowSub": "Select how you want to complete this activation",
     "stcFlow": "STC Flow",
