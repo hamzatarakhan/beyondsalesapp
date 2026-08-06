@@ -2839,7 +2839,7 @@ const NewActivation = () => {
       />
 
       {/* Success */}
-      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId}>
+      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId} phoneNumber={subType === "sim" ? phone : portNumber}>
         {simType === "esim" && (
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">

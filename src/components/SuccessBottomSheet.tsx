@@ -7,6 +7,8 @@ export interface SuccessBottomSheetProps {
   open: boolean;
   onClose: () => void;
   orderId: string;
+  /** The number (new or ported-in) that was chosen in the activation's number-selection step. */
+  phoneNumber?: string;
   showMessage?: boolean;
   children?: ReactNode;
 }
@@ -15,6 +17,7 @@ export function SuccessBottomSheet({
   open,
   onClose,
   orderId,
+  phoneNumber,
   showMessage = true,
   children,
 }: SuccessBottomSheetProps) {
@@ -50,6 +53,11 @@ export function SuccessBottomSheet({
           <p className="text-xs text-muted-foreground mt-1">
             {t("activation.success.orderId")} <span className="font-semibold text-foreground">{orderId}</span>
           </p>
+          {phoneNumber && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("activation.success.mobileNumber")} <span className="font-semibold text-foreground" dir="ltr">{phoneNumber}</span>
+            </p>
+          )}
         </div>
 
         <div className="overflow-y-auto space-y-3 mb-4 -mx-1 px-1">
