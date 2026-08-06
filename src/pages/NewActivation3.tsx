@@ -1612,11 +1612,12 @@ const NewActivation3 = () => {
                   ))}
                 </div>
                 */}
-                {/* Same row at every count — scaled down (icon, font, padding) once there
-                    are 3+ options, matching the compact tile treatment from SIM Activation 1,
-                    so Prepaid / Basic Postpaid / Postpaid all fit on one row. */}
+                {/* Same row at every count — scaled down (icon, font, padding) from 2+
+                    options, matching the compact tile treatment from SIM Activation 1, so a
+                    2-option row (e.g. Data line type hiding Basic Postpaid) matches the size
+                    of the 3-option row instead of rendering visibly bigger. */}
                 {(() => {
-                  const compact = subscriptionOptions.length >= 3;
+                  const compact = subscriptionOptions.length >= 2;
                   return (
                     <div className={cn("grid gap-2",
                       subscriptionOptions.length === 1 ? "grid-cols-1" :
