@@ -1439,10 +1439,12 @@ const NewActivation = () => {
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
               {/* Payment type selector — same icon-tile card at every count, just scaled down
-                  (icon, font, padding) as more options are added so it keeps fitting in one row
-                  instead of switching to a visually different compact-chip style. */}
+                  (icon, font, padding) from 2 options up, so a 2-option row (e.g. Friendi's
+                  Prepaid/Basic Postpaid) matches the 3-option tile size instead of rendering
+                  visibly bigger; the grid still naturally splits the full row width between
+                  however many options are present. */}
               {(() => {
-                const compact = payTypeOptions.length >= 3;
+                const compact = payTypeOptions.length >= 2;
                 return (
                   <div className={cn("grid gap-2",
                     payTypeOptions.length === 1 ? "grid-cols-1" :
