@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import StoreLocationMap from "@/components/StoreLocationMap";
 import { cn } from "@/lib/utils";
 
 // Prototype-only demo shift — no scheduling backend to source this from yet. Toggling
@@ -37,6 +38,7 @@ const WorkingShiftWidget = () => {
   const [justifyOpen, setJustifyOpen] = useState<JustifyKind | null>(null);
   const [reason, setReason] = useState("");
   const [reasonText, setReasonText] = useState("");
+  const [mapOpen, setMapOpen] = useState(false);
 
   const status: "not-checked-in" | "ongoing" | "completed" = checkOutTime ? "completed" : checkInTime ? "ongoing" : "not-checked-in";
 
@@ -151,14 +153,13 @@ const WorkingShiftWidget = () => {
                   <p className="text-xs text-muted-foreground truncate">{DEMO_SHIFT.storeLocation}</p>
                 </div>
               </div>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${DEMO_SHIFT.storeName} ${DEMO_SHIFT.storeLocation}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setMapOpen(true)}
                 className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium shrink-0"
               >
                 {t("home.workingShift.viewMap")}
-              </a>
+              </button>
             </div>
 
             {(checkInTime || checkOutTime) && (
@@ -241,6 +242,13 @@ const WorkingShiftWidget = () => {
           )}
         </DrawerContent>
       </Drawer>
+
+      <StoreLocationMap
+        open={mapOpen}
+        onOpenChange={setMapOpen}
+        storeName={DEMO_SHIFT.storeName}
+        storeLocation={DEMO_SHIFT.storeLocation}
+      />
     </div>
   );
 };

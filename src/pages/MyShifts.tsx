@@ -7,6 +7,7 @@ import AppHeader from "@/components/AppHeader";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import StoreLocationMap from "@/components/StoreLocationMap";
 import { cn } from "@/lib/utils";
 import { SlidersHorizontal, X, CalendarX, MapPin, Clock, ChevronRight } from "lucide-react";
 
@@ -75,6 +76,7 @@ const MyShifts = () => {
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("all");
   const [draftDateRange, setDraftDateRange] = useState<DateRange | undefined>();
   const [dateOpen, setDateOpen] = useState(false);
+  const [mapShift, setMapShift] = useState<ShiftRecord | null>(null);
 
   const hasActiveFilter = statusFilter !== "all" || !!dateRange?.from;
   const activeFilterLabel = statusFilter !== "all" ? STATUS_LABEL[statusFilter] : dateRange?.from ? t("onboardingRequests.customDate") : null;
@@ -172,14 +174,13 @@ const MyShifts = () => {
                       <p className="text-xs text-muted-foreground truncate">{s.storeLocation}</p>
                     </div>
                   </div>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.storeName} ${s.storeLocation}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => setMapShift(s)}
                     className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium shrink-0"
                   >
                     {t("home.workingShift.viewMap")}
-                  </a>
+                  </button>
                 </div>
 
                 {(s.checkInTime || s.checkOutTime) && (
@@ -299,6 +300,13 @@ const MyShifts = () => {
           <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setDraftDateRange(undefined)}>{t("onboardingRequests.clearFilter")}</button>
         </DrawerContent>
       </Drawer>
+
+      <StoreLocationMap
+        open={!!mapShift}
+        onOpenChange={(o) => !o && setMapShift(null)}
+        storeName={mapShift?.storeName ?? ""}
+        storeLocation={mapShift?.storeLocation ?? ""}
+      />
     </div>
   );
 };
