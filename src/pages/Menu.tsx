@@ -73,7 +73,7 @@ const Menu = () => {
           aria-label={t("menu.backAria")}
           className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
         <h1 className="text-center text-lg font-semibold text-foreground truncate">{t("menu.title")}</h1>
         <div className="flex items-center gap-2">

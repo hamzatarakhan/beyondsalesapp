@@ -20,7 +20,7 @@ const ComingSoon = () => {
           aria-label={t("comingSoon.backAria")}
           className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
       </header>
 
