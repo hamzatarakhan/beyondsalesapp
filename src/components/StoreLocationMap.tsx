@@ -17,11 +17,11 @@ interface StoreLocationMapProps {
   onOpenChange: (v: boolean) => void;
   storeName: string;
   storeLocation: string;
-  /** [lat, lng] — defaults to Muscat, Oman's City Centre area. */
+  /** [lat, lng] — defaults to Riyadh (matches MapPicker.tsx's RIYADH constant). */
   coords?: [number, number];
 }
 
-const DEFAULT_COORDS: [number, number] = [23.6098, 58.4441];
+const DEFAULT_COORDS: [number, number] = [24.7136, 46.6753];
 
 // Read-only "here's the store" map (as opposed to MapPicker.tsx, which lets the dealer
 // tap to choose a delivery location) — just centers on a fixed pin, no interaction needed.
