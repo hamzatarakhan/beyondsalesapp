@@ -57,7 +57,7 @@ const Profile = () => {
             onClick={() => setLogoutOpen(true)}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
           >
-            <LogOut className="w-5 h-5 text-foreground" />
+            <LogOut className="w-5 h-5 text-foreground rtl:-scale-x-100" />
           </button>
         }
       />
