@@ -41,11 +41,11 @@ const today = new Date();
 
 // Prototype-only demo shifts — no scheduling backend to source this from yet.
 const DEMO_SHIFTS: ShiftRecord[] = [
-  { id: "shift-1", date: today, status: "not-started", start: "10:00 AM", end: "6:00 PM", storeName: "Store Name", storeLocation: "City Centre, Muscat" },
-  { id: "shift-2", date: subDays(today, 1), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "Store Name", storeLocation: "City Centre, Muscat", checkInTime: "10:05 AM", checkOutTime: "6:10 PM" },
-  { id: "shift-3", date: addDays(today, 1), status: "scheduled", start: "10:00 AM", end: "6:00 PM", storeName: "Store Name", storeLocation: "City Centre, Muscat" },
-  { id: "shift-4", date: subDays(today, 3), status: "not-checked-in", start: "10:00 AM", end: "6:00 PM", storeName: "Store Name", storeLocation: "City Centre, Muscat" },
-  { id: "shift-5", date: subDays(today, 4), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "Store Name", storeLocation: "City Centre, Muscat", checkInTime: "9:58 AM", checkOutTime: "6:02 PM" },
+  { id: "shift-1", date: today, status: "not-started", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
+  { id: "shift-2", date: subDays(today, 1), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation", checkInTime: "10:05 AM", checkOutTime: "6:10 PM" },
+  { id: "shift-3", date: addDays(today, 1), status: "scheduled", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
+  { id: "shift-4", date: subDays(today, 3), status: "not-checked-in", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
+  { id: "shift-5", date: subDays(today, 4), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation", checkInTime: "9:58 AM", checkOutTime: "6:02 PM" },
 ];
 
 type StatusFilter = "all" | ShiftStatus;
@@ -168,12 +168,12 @@ const MyShifts = () => {
                       <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{s.storeName}</p>
-                      <p className="text-xs text-muted-foreground truncate">{s.storeLocation}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{t(s.storeName)}</p>
+                      <p className="text-xs text-muted-foreground truncate">{t(s.storeLocation)}</p>
                     </div>
                   </div>
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.storeName} ${s.storeLocation}`)}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${t(s.storeName)} ${t(s.storeLocation)}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium shrink-0"
