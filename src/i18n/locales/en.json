@@ -3662,6 +3662,8 @@
     "appearanceSystem": "System",
     "darkModeSoonTitle": "Dark Mode",
     "darkModeSoonDesc": "Dark mode will be available soon. We're working on it!",
+    "systemModeSoonTitle": "System Mode",
+    "systemModeSoonDesc": "System mode will be available soon. We're working on it!",
     "gotIt": "Got it",
     "deviceInfo": "Device Info",
     "versionNumber": "Version Number",
