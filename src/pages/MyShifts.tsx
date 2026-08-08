@@ -41,11 +41,11 @@ const today = new Date();
 
 // Prototype-only demo shifts — no scheduling backend to source this from yet.
 const DEMO_SHIFTS: ShiftRecord[] = [
-  { id: "shift-1", date: today, status: "not-started", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
-  { id: "shift-2", date: subDays(today, 1), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation", checkInTime: "10:05 AM", checkOutTime: "6:10 PM" },
-  { id: "shift-3", date: addDays(today, 1), status: "scheduled", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
-  { id: "shift-4", date: subDays(today, 3), status: "not-checked-in", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation" },
-  { id: "shift-5", date: subDays(today, 4), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.storeName", storeLocation: "home.workingShift.storeLocation", checkInTime: "9:58 AM", checkOutTime: "6:02 PM" },
+  { id: "shift-1", date: today, status: "not-started", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.stores.s1.name", storeLocation: "home.workingShift.stores.s1.location" },
+  { id: "shift-2", date: subDays(today, 1), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.stores.s2.name", storeLocation: "home.workingShift.stores.s2.location", checkInTime: "10:05 AM", checkOutTime: "6:10 PM" },
+  { id: "shift-3", date: addDays(today, 1), status: "scheduled", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.stores.s3.name", storeLocation: "home.workingShift.stores.s3.location" },
+  { id: "shift-4", date: subDays(today, 3), status: "not-checked-in", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.stores.s4.name", storeLocation: "home.workingShift.stores.s4.location" },
+  { id: "shift-5", date: subDays(today, 4), status: "completed", start: "10:00 AM", end: "6:00 PM", storeName: "home.workingShift.stores.s5.name", storeLocation: "home.workingShift.stores.s5.location", checkInTime: "9:58 AM", checkOutTime: "6:02 PM" },
 ];
 
 type StatusFilter = "all" | ShiftStatus;
