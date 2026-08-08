@@ -67,7 +67,7 @@ const Menu = () => {
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
-      <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
+      <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
         <button
           onClick={() => navigate("/")}
           aria-label={t("menu.backAria")}

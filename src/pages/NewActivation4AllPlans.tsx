@@ -95,7 +95,7 @@ const NewActivation4AllPlans = () => {
   return (
     <div className="mobile-container pb-8 min-h-screen bg-background">
       <div className="sticky top-0 z-10 bg-background">
-        <header dir="ltr" className="px-4 py-4 flex items-center gap-3">
+        <header className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={goBack}
             aria-label={t("activation4.subscription.backAria")}
