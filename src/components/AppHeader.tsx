@@ -13,14 +13,14 @@ const AppHeader = ({ title, showBack = false, rightElement, onBackClick }: AppHe
   const navigate = useNavigate();
 
   return (
-    <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
+    <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
       <div className="flex items-center justify-center">
         {showBack && (
           <button
             onClick={onBackClick ? onBackClick : () => navigate("/")}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
           >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
           </button>
         )}
       </div>
