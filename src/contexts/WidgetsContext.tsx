@@ -9,10 +9,10 @@ export interface WidgetConfig {
 // today. Widgets still commented out there (Tickets) aren't listed since there's
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "working-shift", enabled: true },
   { id: "customer-activities", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "member-onboarding", enabled: true },
+  { id: "working-shift", enabled: true },
 ];
 
 // Display labels live in i18n (home.*), not here, so switching language relabels
@@ -35,7 +35,7 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped to v3 so devices with a pre-existing stored config pick up the new Working
 // Shift widget at its designed front-of-list position instead of it being appended
 // at the end by the missing-widget merge below.
-const STORAGE_KEY = "app-widgets-v3";
+const STORAGE_KEY = "app-widgets-v4";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
