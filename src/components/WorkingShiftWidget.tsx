@@ -17,8 +17,8 @@ const DEMO_SHIFT = {
   end: "6:00 PM",
   startHour: 10,
   endHour: 18,
-  storeName: "Store Name",
-  storeLocation: "City Centre, Muscat",
+  storeNameKey: "home.workingShift.storeName",
+  storeLocationKey: "home.workingShift.storeLocation",
 };
 
 const STATUS_STYLE: Record<"not-checked-in" | "ongoing" | "completed", string> = {
