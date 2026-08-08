@@ -17,8 +17,8 @@ const DEMO_SHIFT = {
   end: "6:00 PM",
   startHour: 10,
   endHour: 18,
-  storeName: "Store Name",
-  storeLocation: "City Centre, Muscat",
+  storeNameKey: "home.workingShift.storeName",
+  storeLocationKey: "home.workingShift.storeLocation",
 };
 
 const STATUS_STYLE: Record<"not-checked-in" | "ongoing" | "completed", string> = {
@@ -147,12 +147,12 @@ const WorkingShiftWidget = () => {
                   <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{DEMO_SHIFT.storeName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{DEMO_SHIFT.storeLocation}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{t(DEMO_SHIFT.storeNameKey)}</p>
+                  <p className="text-xs text-muted-foreground truncate">{t(DEMO_SHIFT.storeLocationKey)}</p>
                 </div>
               </div>
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${DEMO_SHIFT.storeName} ${DEMO_SHIFT.storeLocation}`)}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${t(DEMO_SHIFT.storeNameKey)} ${t(DEMO_SHIFT.storeLocationKey)}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-lg bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900 text-xs font-medium shrink-0"
