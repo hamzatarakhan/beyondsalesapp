@@ -14,13 +14,13 @@ const ComingSoon = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col">
-      <header dir="ltr" className="relative z-10 px-4 py-4 flex items-center gap-3">
+      <header className="relative z-10 px-4 py-4 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           aria-label={t("comingSoon.backAria")}
           className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
       </header>
 

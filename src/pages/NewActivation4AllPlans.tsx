@@ -95,13 +95,13 @@ const NewActivation4AllPlans = () => {
   return (
     <div className="mobile-container pb-8 min-h-screen bg-background">
       <div className="sticky top-0 z-10 bg-background">
-        <header dir="ltr" className="px-4 py-4 flex items-center gap-3">
+        <header className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={goBack}
             aria-label={t("activation4.subscription.backAria")}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
           >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
           </button>
           <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("activation4.subscription.allPlansTitle")}</h1>
           <div className="w-10 shrink-0" />

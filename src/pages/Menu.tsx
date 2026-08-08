@@ -67,13 +67,13 @@ const Menu = () => {
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
-      <header dir="ltr" className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
+      <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
         <button
           onClick={() => navigate("/")}
           aria-label={t("menu.backAria")}
           className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center"
         >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
         </button>
         <h1 className="text-center text-lg font-semibold text-foreground truncate">{t("menu.title")}</h1>
         <div className="flex items-center gap-2">
