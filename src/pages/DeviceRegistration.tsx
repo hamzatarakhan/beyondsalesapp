@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Bell, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
@@ -78,14 +78,6 @@ const DeviceRegistration = () => {
         title={t("deviceRegistration.title")}
         showBack
         onBackClick={() => navigate("/login")}
-        rightElement={
-          <button
-            aria-label={t("home.notificationsAria")}
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-sm"
-          >
-            <Bell className="w-[18px] h-[18px] text-foreground" strokeWidth={2.5} />
-          </button>
-        }
       />
 
       <div className="px-4 pb-28 space-y-4">
