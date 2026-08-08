@@ -672,6 +672,8 @@
       "noShiftsTitle": "No Shifts Scheduled",
       "noShiftsSubtitle": "New scheduled will appear here",
       "today": "Today",
+      "storeName": "Store Name",
+      "storeLocation": "City Centre, Muscat",
       "viewMap": "View map",
       "statusNotCheckedIn": "Not checked in",
       "statusOngoing": "Ongoing",
