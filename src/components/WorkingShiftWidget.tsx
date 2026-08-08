@@ -18,8 +18,8 @@ const DEMO_SHIFT = {
   end: "6:00 PM",
   startHour: 10,
   endHour: 18,
-  storeName: "Store Name",
-  storeLocation: "City Centre, Muscat",
+  storeNameKey: "home.workingShift.storeName",
+  storeLocationKey: "home.workingShift.storeLocation",
 };
 
 const STATUS_STYLE: Record<"not-checked-in" | "ongoing" | "completed", string> = {
@@ -149,8 +149,8 @@ const WorkingShiftWidget = () => {
                   <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{DEMO_SHIFT.storeName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{DEMO_SHIFT.storeLocation}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{t(DEMO_SHIFT.storeNameKey)}</p>
+                  <p className="text-xs text-muted-foreground truncate">{t(DEMO_SHIFT.storeLocationKey)}</p>
                 </div>
               </div>
               <button
@@ -246,8 +246,8 @@ const WorkingShiftWidget = () => {
       <StoreLocationMap
         open={mapOpen}
         onOpenChange={setMapOpen}
-        storeName={DEMO_SHIFT.storeName}
-        storeLocation={DEMO_SHIFT.storeLocation}
+        storeName={t(DEMO_SHIFT.storeNameKey)}
+        storeLocation={t(DEMO_SHIFT.storeLocationKey)}
       />
     </div>
   );

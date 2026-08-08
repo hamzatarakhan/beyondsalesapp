@@ -128,13 +128,34 @@
     "requestSubmittedDesc": "{{role}} onboarding request has been submitted for review.",
     "done": "Done",
     "roles": {
-      "salesPartner": { "listLabel": "Sales Partner", "formTitle": "New Sales Partner" },
-      "distributor": { "listLabel": "Distributor", "formTitle": "New Partner" },
-      "pos": { "listLabel": "POS", "formTitle": "New Partner" },
-      "salesPromotor": { "listLabel": "Sales Promotor (Outsource)", "formTitle": "New Sales Promotor" },
-      "salesChampion": { "listLabel": "Sales Champion", "formTitle": "New Sales Champion" },
-      "teamLeader": { "listLabel": "Team Leader", "formTitle": "New Team Leader" },
-      "accountManager": { "listLabel": "Account Manager", "formTitle": "New Account Manager" }
+      "salesPartner": {
+        "listLabel": "Sales Partner",
+        "formTitle": "New Sales Partner"
+      },
+      "distributor": {
+        "listLabel": "Distributor",
+        "formTitle": "New Partner"
+      },
+      "pos": {
+        "listLabel": "POS",
+        "formTitle": "New Partner"
+      },
+      "salesPromotor": {
+        "listLabel": "Sales Promotor (Outsource)",
+        "formTitle": "New Sales Promotor"
+      },
+      "salesChampion": {
+        "listLabel": "Sales Champion",
+        "formTitle": "New Sales Champion"
+      },
+      "teamLeader": {
+        "listLabel": "Team Leader",
+        "formTitle": "New Team Leader"
+      },
+      "accountManager": {
+        "listLabel": "Account Manager",
+        "formTitle": "New Account Manager"
+      }
     },
     "fieldLabels": {
       "orgTradingName": "Organization Trading Name",
@@ -672,6 +693,8 @@
       "noShiftsTitle": "No Shifts Scheduled",
       "noShiftsSubtitle": "New scheduled will appear here",
       "today": "Today",
+      "storeName": "Al Nakheel Plaza Store",
+      "storeLocation": "Al Nakheel, Riyadh",
       "viewMap": "View map",
       "statusNotCheckedIn": "Not checked in",
       "statusOngoing": "Ongoing",
@@ -713,6 +736,28 @@
           "teamMeeting": "Team meeting",
           "systemIssue": "System issue",
           "other": "Other"
+        }
+      },
+      "stores": {
+        "s1": {
+          "name": "Al Nakheel Plaza Store",
+          "location": "Al Nakheel, Riyadh"
+        },
+        "s2": {
+          "name": "Panorama Mall Store",
+          "location": "Al Wizarat, Riyadh"
+        },
+        "s3": {
+          "name": "Red Sea Mall Store",
+          "location": "Ash Shati, Jeddah"
+        },
+        "s4": {
+          "name": "Dhahran Mall Store",
+          "location": "Dhahran, Eastern Province"
+        },
+        "s5": {
+          "name": "Al Rashid Mall Store",
+          "location": "Al Khobar"
         }
       }
     },

@@ -128,13 +128,34 @@
     "requestSubmittedDesc": "تم إرسال طلب تأهيل {{role}} للمراجعة.",
     "done": "تم",
     "roles": {
-      "salesPartner": { "listLabel": "شريك مبيعات", "formTitle": "شريك مبيعات جديد" },
-      "distributor": { "listLabel": "موزّع", "formTitle": "شريك جديد" },
-      "pos": { "listLabel": "نقطة بيع", "formTitle": "شريك جديد" },
-      "salesPromotor": { "listLabel": "مروّج مبيعات (خارجي)", "formTitle": "مروّج مبيعات جديد" },
-      "salesChampion": { "listLabel": "بطل المبيعات", "formTitle": "بطل مبيعات جديد" },
-      "teamLeader": { "listLabel": "قائد فريق", "formTitle": "قائد فريق جديد" },
-      "accountManager": { "listLabel": "مدير حسابات", "formTitle": "مدير حسابات جديد" }
+      "salesPartner": {
+        "listLabel": "شريك مبيعات",
+        "formTitle": "شريك مبيعات جديد"
+      },
+      "distributor": {
+        "listLabel": "موزّع",
+        "formTitle": "شريك جديد"
+      },
+      "pos": {
+        "listLabel": "نقطة بيع",
+        "formTitle": "شريك جديد"
+      },
+      "salesPromotor": {
+        "listLabel": "مروّج مبيعات (خارجي)",
+        "formTitle": "مروّج مبيعات جديد"
+      },
+      "salesChampion": {
+        "listLabel": "بطل المبيعات",
+        "formTitle": "بطل مبيعات جديد"
+      },
+      "teamLeader": {
+        "listLabel": "قائد فريق",
+        "formTitle": "قائد فريق جديد"
+      },
+      "accountManager": {
+        "listLabel": "مدير حسابات",
+        "formTitle": "مدير حسابات جديد"
+      }
     },
     "fieldLabels": {
       "orgTradingName": "الاسم التجاري للمنشأة",
@@ -672,6 +693,8 @@
       "noShiftsTitle": "لا توجد دوامات مجدولة",
       "noShiftsSubtitle": "ستظهر الدوامات الجديدة هنا",
       "today": "اليوم",
+      "storeName": "متجر النخيل بلازا",
+      "storeLocation": "النخيل، الرياض",
       "viewMap": "عرض الخريطة",
       "statusNotCheckedIn": "لم يتم تسجيل الحضور",
       "statusOngoing": "جارٍ",
@@ -713,6 +736,28 @@
           "teamMeeting": "اجتماع فريق",
           "systemIssue": "مشكلة في النظام",
           "other": "أخرى"
+        }
+      },
+      "stores": {
+        "s1": {
+          "name": "متجر النخيل بلازا",
+          "location": "النخيل، الرياض"
+        },
+        "s2": {
+          "name": "متجر بانوراما مول",
+          "location": "الوزارات، الرياض"
+        },
+        "s3": {
+          "name": "متجر رد سي مول",
+          "location": "الشاطئ، جدة"
+        },
+        "s4": {
+          "name": "متجر الظهران مول",
+          "location": "الظهران، المنطقة الشرقية"
+        },
+        "s5": {
+          "name": "متجر الراشد مول",
+          "location": "الخبر"
         }
       }
     },
