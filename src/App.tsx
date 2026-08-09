@@ -18,6 +18,7 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import ComingSoon from "./pages/ComingSoon";
 import VisitManagement from "./pages/VisitManagement";
+import VisitDetails from "./pages/VisitDetails";
 import CreateVisit from "./pages/CreateVisit";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -99,6 +100,7 @@ const App = () => {
           <Route path="/menu" element={<Menu />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
           <Route path="/visit-management" element={<VisitManagement />} />
+          <Route path="/visit-management/:id" element={<VisitDetails />} />
           <Route path="/create-visit" element={<CreateVisit />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
