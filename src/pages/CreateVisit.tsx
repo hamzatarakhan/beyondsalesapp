@@ -837,9 +837,15 @@ const CreateVisit = () => {
               <div className="mt-4 rounded-2xl border border-border/60 p-3">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-semibold text-foreground">{recurrenceTitle()}</p>
-                  <span className="shrink-0 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 text-[11px] font-semibold">
+                  <button
+                    type="button"
+                    disabled={occurrences.length === 0}
+                    onClick={() => setDatesSheet(true)}
+                    className="shrink-0 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 text-[11px] font-semibold flex items-center gap-1 disabled:opacity-60"
+                  >
                     {occurrences.length} Visit
-                  </span>
+                    {occurrences.length > 0 && <Eye className="w-3 h-3" />}
+                  </button>
                 </div>
                 {range?.from && (
                   <p className="text-xs text-muted-foreground mt-1">
