@@ -442,7 +442,7 @@ const VisitDetails = () => {
           <div className="divide-y divide-border/60">
             <div className="flex items-center justify-between py-3.5">
               <span className="text-sm text-muted-foreground">Status</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">{visit.status}</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${VISIT_STATUS_PILL[visit.status]}`}>{visit.status}</span>
             </div>
             {[["Visit Type", visit.type], ["User Type", visit.userType], ["Assigned To", visit.assignee]].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-3.5">
@@ -490,10 +490,18 @@ const VisitDetails = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
-        <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Save Changes</button>
-        <button onClick={() => { setCancelMode("remark"); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
-      </div>
+      {(visit.status === "Active" || visit.status === "Pending") && (
+        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+          {visit.status === "Active" ? (
+            <>
+              <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Update</button>
+              <button onClick={() => { setCancelPurpose(""); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
+            </>
+          ) : (
+            <button onClick={() => { setCancelPurpose(""); setCancelRemark(""); setCancelOpen(true); }} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Cancel</button>
+          )}
+        </div>
+      )}
 
       {/* Steps of Call */}
       <Drawer open={stepsOpen} onOpenChange={setStepsOpen}>
