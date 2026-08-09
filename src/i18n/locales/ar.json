@@ -762,6 +762,14 @@
       }
     },
     "customerActivities": "أنشطة العملاء",
+    "tickets": {
+      "title": "التذاكر",
+      "seeAll": "عرض الكل",
+      "progress": "قيد التنفيذ",
+      "closed": "مغلقة",
+      "resolved": "تم الحل",
+      "newTicket": "تذكرة جديدة"
+    },
     "simActivation": "تفعيل الشريحة",
     "simActivationV2": "تفعيل الشريحة 2",
     "simActivation3": "تفعيل الشريحة 3",

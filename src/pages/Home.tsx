@@ -17,6 +17,7 @@ import {
   Sparkles,
   Receipt,
   PhoneOff,
+  ChevronRight,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -219,6 +220,35 @@ const Home = () => {
               />
             ))}
           </div>
+        </div>
+      </div>
+    ),
+    tickets: (
+      <div key="tickets" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground">{t("home.tickets.title")}</h3>
+            <button className="flex items-center gap-1 text-primary text-sm font-medium">
+              {t("home.tickets.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[
+              { count: 100, label: t("home.tickets.progress"), color: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" },
+              { count: 50, label: t("home.tickets.closed"), color: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300" },
+              { count: 20, label: t("home.tickets.resolved"), color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" },
+            ].map((s) => (
+              <div key={s.label} className="bg-muted/40 rounded-xl py-3 flex flex-col items-center gap-1.5">
+                <p className="text-xl font-bold text-foreground">{s.count}</p>
+                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${s.color}`}>
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button className="w-full py-3 rounded-full bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
+            + {t("home.tickets.newTicket")}
+          </button>
         </div>
       </div>
     ),
