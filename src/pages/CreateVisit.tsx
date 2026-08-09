@@ -19,6 +19,16 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 
+/* hexagon badge used in confirmation / success states */
+const HexIcon = ({ tone, children }: { tone: "info" | "success"; children: React.ReactNode }) => (
+  <span className="relative mx-auto flex items-center justify-center w-12 h-12">
+    <svg viewBox="0 0 24 24" className={`w-12 h-12 ${tone === "info" ? "text-sky-500" : "text-emerald-600"}`} fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M12 2.5 20.5 7.25v9.5L12 21.5 3.5 16.75v-9.5z" strokeLinejoin="round" />
+    </svg>
+    <span className={`absolute ${tone === "info" ? "text-sky-500" : "text-emerald-600"}`}>{children}</span>
+  </span>
+);
+
 /* ---------------- demo data (prototype only) ---------------- */
 const VISIT_TYPES = ["Planned Visit", "Ad-Hoc Visit"];
 const USER_TYPES = ["Modern Trade", "Sales Promoter", "Distributor", "Retailer"];
