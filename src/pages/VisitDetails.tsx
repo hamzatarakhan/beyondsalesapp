@@ -313,19 +313,22 @@ const VisitDetails = () => {
 
   /* ---------- RESULT FORM ---------- */
   if (view === "form" && member) {
-    const readOnly = !!openResult;
-    const data = openResult ?? draft;
+    // Fields stay editable (except Visit Date); openResult only drives the status pill.
+    const readOnly = false;
+    const data = draft;
+    const showStatus = !!openResult;
+    const isCancelled = draft.result === "Cancelled" || draft.status === "Cancelled";
     return (
       <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-8">
         <AppHeader title="View Result" showBack onBackClick={() => { setOpenResult(null); setPostSurvey(false); setView("result"); }} />
         <div className="px-4 flex-1">
-          {readOnly && (
+          {showStatus && (
             <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 mb-4 flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status</span>
               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${STATUS_PILL[data.status]}`}>{data.status}</span>
             </div>
           )}
-          {!readOnly && (
+          {!showStatus && (
             <Field label="Visit Title">
               <input
                 value={draft.title}
@@ -374,19 +377,23 @@ const VisitDetails = () => {
             </span>
           </button>
 
-          <p className="text-sm font-semibold text-foreground mt-5 mb-2">Document</p>
-          <div className="rounded-2xl bg-card border border-dashed border-border p-1 divide-y divide-border/60">
-            {[{ icon: FileText, label: "File Title" }, { icon: ImageIcon, label: "Image Title" }].map(({ icon: Icon, label }) => (
-              <div key={label} className="px-3 py-3.5 flex items-center justify-between">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Icon className="w-4 h-4" /> {label}
-                </span>
-                <button onClick={() => setDocPreview(label)} aria-label={`Preview ${label}`}>
-                  <Eye className="w-5 h-5 text-sky-600 dark:text-sky-300" />
-                </button>
+          {isCancelled && (
+            <>
+              <p className="text-sm font-semibold text-foreground mt-5 mb-2">Document</p>
+              <div className="rounded-2xl bg-card border border-dashed border-border p-1 divide-y divide-border/60">
+                {[{ icon: FileText, label: "File Title" }, { icon: ImageIcon, label: "Image Title" }].map(({ icon: Icon, label }) => (
+                  <div key={label} className="px-3 py-3.5 flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Icon className="w-4 h-4" /> {label}
+                    </span>
+                    <button onClick={() => setDocPreview(label)} aria-label={`Preview ${label}`}>
+                      <Eye className="w-5 h-5 text-sky-600 dark:text-sky-300" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
 
         <div className="px-4 pt-4">
