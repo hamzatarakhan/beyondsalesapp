@@ -359,8 +359,8 @@ const VisitDetails = () => {
           </Field>
           <Field label="Visit Result">
             <SelectRow
-              placeholder="Select result" value={data.result} disabled={readOnly}
-              onClick={() => setPicker({ title: "Visit Result", options: RESULTS, value: draft.result, onPick: (v) => setDraft((d) => ({ ...d, result: v })) })}
+              placeholder={postSurvey ? "Select result" : "Complete the survey first"} value={data.result} disabled={!postSurvey}
+              onClick={() => { if (!postSurvey) return; setPicker({ title: "Visit Result", options: RESULTS, value: draft.result, onPick: (v) => setDraft((d) => ({ ...d, result: v })) }); }}
             />
           </Field>
 
