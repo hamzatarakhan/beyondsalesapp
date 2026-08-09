@@ -189,7 +189,7 @@ const CreateVisit = () => {
     setView("form");
   };
 
-  const canSubmit = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
+  const canSubmitBase = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
 
   /* ---------- recurring occurrence engine ---------- */
   const rangeDays = useMemo(() => {
