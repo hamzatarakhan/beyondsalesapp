@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon,
-  MapPin, Network, Plus, QrCode, User, X, CheckCircle2,
+  MapPin, Network, Plus, QrCode, User, X, CheckCircle2, XOctagon,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import SurveyFlow from "@/components/visit/SurveyFlow";
@@ -152,6 +152,7 @@ const VisitDetails = () => {
   const [docPreview, setDocPreview] = useState<string | null>(null);
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [postSurvey, setPostSurvey] = useState(false);
+  const [cancelResultOpen, setCancelResultOpen] = useState(false);
 
   const visit = useMemo(
     () => {
