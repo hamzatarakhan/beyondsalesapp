@@ -1,11 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import {
   CalendarDays, ChevronDown, Check, ContactRound, GripVertical, Hash, MapPin,
   Network, Repeat, Search, SlidersHorizontal, Trash2, User, X, ArrowLeft,
+  ChevronRight, Crosshair, Plus, CheckCircle2,
 } from "lucide-react";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import AppHeader from "@/components/AppHeader";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
@@ -43,6 +46,11 @@ const MEMBERS: Member[] = [
   { id: "M-4", name: "Olaya Digital", channelType: "Modern Trade", code: "MT-1188", parent: "Riyadh Hub", region: "Riyadh", city: "Riyadh", district: "Al Olaya" },
   { id: "M-5", name: "Madinah Mobile Center", channelType: "Retailer", code: "RT-2456", parent: "Madinah Hub", region: "Madinah", city: "Madinah", district: "Al Salamah" },
 ];
+
+const MEMBER_COORDS: Record<string, [number, number]> = {
+  "M-1": [24.7536, 46.6853], "M-2": [21.5433, 39.1728], "M-3": [26.4207, 50.0888],
+  "M-4": [24.6944, 46.6853], "M-5": [24.4686, 39.6142],
+};
 
 const KPIS = [
   { name: "Gross Activations", trend: "Degrowth - 10", pct: 90, target: 300, achievement: "298.326", lm: "132.56", mtd: "25.13", lmtd: "213.21" },
@@ -94,7 +102,10 @@ const CreateVisit = () => {
   const [params] = useSearchParams();
   const planned = params.get("type") !== "adhoc";
 
-  const [view, setView] = useState<"form" | "members" | "filter">("form");
+  const [view, setView] = useState<"form" | "members" | "filter" | "map" | "memberVisit" | "viewResult" | "visitDetails">("form");
+  const [resultMember, setResultMember] = useState<Member | null>(null);
+  const [results, setResults] = useState<Record<string, { title: string; purpose: string; date: string; survey: string }[]>>({});
+  const [draftResult, setDraftResult] = useState({ title: "", purpose: "", date: "17 Aug 2024", survey: "" });
 
   // form state
   const [visitType, setVisitType] = useState<string | undefined>(planned ? "Planned Visit" : "Ad-Hoc Visit");
@@ -155,6 +166,159 @@ const CreateVisit = () => {
 
   const canSubmit = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
 
+  /* ---------- MAP VIEW ---------- */
+  if (view === "map") {
+    return <MembersMap members={filteredMembers} onBack={() => setView("members")} />;
+  }
+
+  /* ---------- MEMBER VISIT LIST ---------- */
+  if (view === "memberVisit") {
+    return (
+      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+        <AppHeader title="Member Visit" showBack onBackClick={() => setView("form")} />
+        <div className="px-4 space-y-3">
+          {selected.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => { setResultMember(m); setView("viewResult"); }}
+              className="w-full text-start rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 flex items-center gap-3"
+            >
+              <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <User className="w-5 h-5 text-primary" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground truncate">{m.name}</p>
+                <MemberMeta m={m} />
+              </div>
+              <ChevronRight className="w-5 h-5 text-sky-600 dark:text-sky-300 shrink-0 rtl:-scale-x-100" />
+            </button>
+          ))}
+          {selected.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">No members added yet</p>}
+        </div>
+        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+          <button onClick={openMembers} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            Add New Members
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------- VIEW RESULT ---------- */
+  if (view === "viewResult" && resultMember) {
+    const list = results[resultMember.id] ?? [];
+    return (
+      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+        <AppHeader title="View Result" showBack onBackClick={() => setView("memberVisit")} />
+        <div className="px-4">
+          <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 flex items-start gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <User className="w-5 h-5 text-primary" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground truncate">{resultMember.name}</p>
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                <Hash className="w-3.5 h-3.5" />
+                <span className="bg-muted/60 rounded px-1.5 py-0.5">{resultMember.channelType}</span>
+                <span>{resultMember.code}</span>
+              </p>
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                <Network className="w-3.5 h-3.5" /> {resultMember.parent}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-sm font-medium text-foreground mt-4 mb-2">Location</p>
+          <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 flex items-center gap-3">
+            <span className="w-9 h-9 rounded-lg bg-muted/60 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-muted-foreground" />
+            </span>
+            <p className="font-semibold text-foreground">{resultMember.region} / {resultMember.city} / {resultMember.district}</p>
+          </div>
+
+          <div className="flex items-center justify-between mt-4 mb-2">
+            <p className="text-sm font-medium text-foreground">Visit Result</p>
+            <button
+              onClick={() => { setDraftResult({ title: "", purpose: "", date: "17 Aug 2024", survey: "" }); setView("visitDetails"); }}
+              className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1"
+            >
+              Add New Result <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60">
+            {(list.length ? list : [{ title: "Visit", purpose: "", date: "", survey: "" }]).map((r, i) => (
+              <div key={i} className="p-3.5 flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-foreground truncate">{r.title || "Visit"}</span>
+                <span className="flex items-center gap-2 shrink-0">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${list.length ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"}`}>
+                    {list.length ? "Performed" : "Not Performed"}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+          <button onClick={() => setView("memberVisit")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            Submit
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------- VISIT DETAILS (result form) ---------- */
+  if (view === "visitDetails" && resultMember) {
+    const saveResult = () => {
+      setResults((prev) => ({
+        ...prev,
+        [resultMember.id]: [...(prev[resultMember.id] ?? []), { ...draftResult, title: draftResult.title || "Visit" }],
+      }));
+      setView("viewResult");
+    };
+    return (
+      <div className="mobile-container pb-8 bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col">
+        <AppHeader title="Visit Details" showBack onBackClick={() => setView("viewResult")} />
+        <div className="px-4 flex-1">
+          <Field label="Visit Title">
+            <input
+              value={draftResult.title}
+              onChange={(e) => setDraftResult((d) => ({ ...d, title: e.target.value }))}
+              placeholder="Visit title"
+              className="w-full h-12 rounded-xl bg-card border border-border px-4 text-[16px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary"
+            />
+          </Field>
+          <Field label="Visit Purpose">
+            <SelectRow
+              placeholder="Visit Purpose"
+              value={draftResult.purpose || undefined}
+              onClick={() => setPicker({ title: "Visit Purpose", options: ["Merchandising Audit", "Stock Check", "Training", "Complaint Follow-up"], value: draftResult.purpose, onPick: (v) => setDraftResult((d) => ({ ...d, purpose: v })) })}
+            />
+          </Field>
+          <Field label="Visit Date">
+            <div className="w-full h-12 rounded-xl bg-muted/60 border border-border px-4 flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">{draftResult.date}</span>
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-300" />
+            </div>
+          </Field>
+          <Field label="Survey">
+            <SelectRow
+              placeholder="Survey Name"
+              value={draftResult.survey || undefined}
+              onClick={() => setPicker({ title: "Survey", options: ["Merchandising Survey", "Stock Survey", "Customer Feedback"], value: draftResult.survey, onPick: (v) => setDraftResult((d) => ({ ...d, survey: v })) })}
+            />
+          </Field>
+        </div>
+        <div className="px-4 pb-8 pt-4">
+          <button onClick={saveResult} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+          <button onClick={() => setView("viewResult")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
+        </div>
+        <OptionPicker picker={picker} onClose={() => setPicker(null)} />
+      </div>
+    );
+  }
+
   /* ---------- FILTER VIEW ---------- */
   if (view === "filter") {
     const rows: { label: string; value: string[]; options: string[]; set: (v: string[]) => void }[] = [
@@ -168,11 +332,22 @@ const CreateVisit = () => {
         <div className="px-4 flex-1">
           {rows.map((r) => (
             <Field key={r.label} label={r.label}>
-              <SelectRow
-                placeholder={`Select the ${r.label.toLowerCase()}`}
-                value={r.value.join(", ") || undefined}
+              <button
                 onClick={() => setMultiPicker({ title: r.label, options: r.options, value: r.value, onApply: r.set })}
-              />
+                className="w-full h-12 rounded-xl border border-border bg-card px-4 flex items-center justify-between text-start"
+              >
+                <span className={`text-sm truncate ${r.value.length ? "text-foreground" : "text-muted-foreground"}`}>
+                  {r.value.join(", ") || `Select the ${r.label.toLowerCase()}`}
+                </span>
+                <span className="flex items-center gap-2 shrink-0">
+                  {r.value.length > 0 && (
+                    <span className="min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                      {r.value.length}
+                    </span>
+                  )}
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                </span>
+              </button>
             </Field>
           ))}
         </div>
@@ -245,15 +420,39 @@ const CreateVisit = () => {
             <button onClick={() => setView("filter")} aria-label="Filter" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0">
               <SlidersHorizontal className="w-5 h-5 text-primary" />
             </button>
-            <button onClick={() => setSelectedSheet(true)} aria-label="Selected members" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0 relative">
+            <button onClick={() => setView("map")} aria-label="Map view" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0">
               <MapPin className="w-5 h-5 text-primary" />
-              {draftSelected.length > 0 && (
-                <span className="absolute -top-1 -end-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center">
-                  {draftSelected.length}
-                </span>
-              )}
             </button>
           </div>
+
+          {(fRegion.length > 0 || fCity.length > 0 || fDistrict.length > 0) && (
+            <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide">
+              {[
+                ...fRegion.map((v) => ({ v, clear: () => setFRegion((p) => p.filter((x) => x !== v)) })),
+                ...fCity.map((v) => ({ v, clear: () => setFCity((p) => p.filter((x) => x !== v)) })),
+                ...fDistrict.map((v) => ({ v, clear: () => setFDistrict((p) => p.filter((x) => x !== v)) })),
+              ].map(({ v, clear }) => (
+                <button key={v} onClick={clear} className="shrink-0 px-3 py-1 rounded-full border border-primary text-primary text-xs font-medium flex items-center gap-1">
+                  {v} <X className="w-3 h-3" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {draftSelected.length > 0 && (
+            <button
+              onClick={() => setSelectedSheet(true)}
+              className="w-full mt-3 h-12 rounded-xl bg-card border border-border px-4 flex items-center justify-between"
+            >
+              <span className="text-sm text-foreground">Select channel members</span>
+              <span className="flex items-center gap-2">
+                <span className="min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                  {draftSelected.length}
+                </span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
+              </span>
+            </button>
+          )}
 
           <label className="flex items-center gap-2 mt-4">
             <input
@@ -495,30 +694,49 @@ const CreateVisit = () => {
           <Switch checked={recurring} onCheckedChange={setRecurring} />
         </div>
 
-        <p className="text-sm font-semibold text-foreground mt-4 mb-2">Members Visit</p>
-        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-5">
+        <div className="flex items-center justify-between mt-4 mb-2">
+          <p className="text-sm font-semibold text-foreground">Member Visit</p>
+          {selected.length > 0 && (
+            <button onClick={() => setView("memberVisit")} className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1">
+              See All <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
+            </button>
+          )}
+        </div>
+        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
           {selected.length === 0 ? (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 py-1">
               <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="w-6 h-6 text-primary" />
               </span>
               <p className="text-sm text-muted-foreground">Add at least member to begin the visit</p>
-              <button onClick={openMembers} className="text-sm font-semibold text-sky-600 dark:text-sky-300">Add Channel Members ＋</button>
+              <button onClick={openMembers} className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1">
+                Add Channel Members <Plus className="w-4 h-4" />
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
-              {selected.map((m) => (
-                <div key={m.id} className="rounded-xl bg-muted/30 p-3 flex items-start gap-2">
+              {selected.slice(0, 3).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => { setResultMember(m); setView("viewResult"); }}
+                  className="w-full text-start rounded-xl bg-muted/30 p-3 flex items-center gap-3"
+                >
+                  <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <User className="w-5 h-5 text-primary" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-foreground truncate">{m.name}</p>
                     <MemberMeta m={m} />
                   </div>
-                  <button onClick={() => setSelected((p) => p.filter((x) => x.id !== m.id))} aria-label="Remove" className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0">
-                    <Trash2 className="w-5 h-5 text-primary" />
-                  </button>
-                </div>
+                  <ChevronRight className="w-5 h-5 text-sky-600 dark:text-sky-300 shrink-0 rtl:-scale-x-100" />
+                </button>
               ))}
-              <button onClick={openMembers} className="w-full text-sm font-semibold text-sky-600 dark:text-sky-300 pt-1">Add Channel Members ＋</button>
+              <button
+                onClick={openMembers}
+                className="w-full py-3 rounded-full bg-primary/10 text-foreground font-medium text-sm flex items-center justify-center gap-1.5"
+              >
+                Add Channel Member <Plus className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>
@@ -664,6 +882,57 @@ const MultiSelectList = ({
       </div>
       <button onClick={() => onApply(vals)} className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Apply</button>
       <button onClick={onClear} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Clear Filter</button>
+    </div>
+  );
+};
+
+/* ---------- members map ---------- */
+const MembersMap = ({ members, onBack }: { members: Member[]; onBack: () => void }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const map = useRef<L.Map | null>(null);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    if (!ref.current || map.current) return;
+    const m = L.map(ref.current, { zoomControl: false }).setView([24.7136, 46.6753], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(m);
+    const pins = members
+      .map((mem) => (MEMBER_COORDS[mem.id] ? L.marker(MEMBER_COORDS[mem.id]).bindPopup(mem.name).addTo(m) : null))
+      .filter(Boolean) as L.Marker[];
+    if (pins.length) m.fitBounds(L.featureGroup(pins).getBounds().pad(0.3));
+    map.current = m;
+    return () => { m.remove(); map.current = null; };
+  }, [members]);
+
+  const recenter = () => map.current?.setView([24.7136, 46.6753], 6);
+  const search = () => {
+    const hit = members.find((mem) => mem.name.toLowerCase().includes(q.toLowerCase()));
+    if (hit && MEMBER_COORDS[hit.id]) map.current?.setView(MEMBER_COORDS[hit.id], 13);
+  };
+
+  return (
+    <div className="mobile-container bg-background h-screen relative overflow-hidden">
+      <div ref={ref} className="absolute inset-0 z-0" />
+      <div className="absolute top-4 inset-x-4 z-10 flex items-center gap-2">
+        <button onClick={onBack} aria-label="Back" className="w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center shrink-0">
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:-scale-x-100" />
+        </button>
+        <div className="flex-1 relative">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && search()}
+            placeholder="Search .."
+            className="w-full h-11 rounded-full bg-card shadow-lg ps-4 pe-11 text-[16px] text-foreground placeholder:text-muted-foreground outline-none"
+          />
+          <button onClick={search} aria-label="Search" className="absolute end-3 top-1/2 -translate-y-1/2">
+            <Search className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+      <button onClick={recenter} aria-label="Recenter" className="absolute bottom-8 end-5 z-10 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center">
+        <Crosshair className="w-5 h-5" />
+      </button>
     </div>
   );
 };
