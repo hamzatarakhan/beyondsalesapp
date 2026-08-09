@@ -753,15 +753,118 @@ const CreateVisit = () => {
           </Field>
         </div>
 
-        <div className="mt-3 rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Repeat className="w-5 h-5 text-primary" />
-          </span>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Recurring Visit</p>
-            <p className="text-sm text-muted-foreground">Repeat this visit automatically.</p>
+        <div className="mt-3 rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Repeat className="w-5 h-5 text-primary" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Recurring Visit</p>
+              <p className="text-sm text-muted-foreground">Repeat this visit automatically.</p>
+            </div>
+            <Switch checked={recurring} onCheckedChange={setRecurring} />
           </div>
-          <Switch checked={recurring} onCheckedChange={setRecurring} />
+
+          {recurring && (
+            <div className="mt-4 pt-4 border-t border-border/60">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-foreground">Frequency</p>
+                <p className="text-xs text-muted-foreground">
+                  {rangeDays.length ? `${rangeDays.length}-day range` : "Select a date range"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {(["daily", "weekly", "monthly"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFrequency(f)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize ${frequency === f ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              {frequency === "weekly" && (
+                <>
+                  <p className="text-sm font-medium text-foreground mt-4 mb-2">Repeat on</p>
+                  <div className="flex gap-2">
+                    {WEEK_LABELS.map((l, i) => {
+                      const on = weekDays.includes(i);
+                      return (
+                        <button
+                          key={i}
+                          aria-label={WEEK_NAMES[i]}
+                          onClick={() => setWeekDays((p) => (on ? p.filter((x) => x !== i) : [...p, i]))}
+                          className={`w-9 h-9 rounded-full text-xs font-semibold ${on ? "bg-primary text-primary-foreground" : "bg-muted/60 text-muted-foreground"}`}
+                        >
+                          {l}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {frequency === "monthly" && (
+                <>
+                  <p className="text-sm font-medium text-foreground mt-4 mb-2">Days of month</p>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => {
+                      const on = monthDays.includes(d);
+                      return (
+                        <button
+                          key={d}
+                          onClick={() => setMonthDays((p) => (on ? p.filter((x) => x !== d) : [...p, d]))}
+                          className={`h-9 rounded-lg text-xs font-semibold ${on ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button
+                    onClick={() => setLastDayOfMonth((v) => !v)}
+                    className={`w-full mt-1.5 h-9 rounded-lg text-xs font-semibold ${lastDayOfMonth ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                  >
+                    Last day of month
+                  </button>
+                </>
+              )}
+
+              <div className="mt-4 rounded-2xl border border-border/60 p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">{recurrenceTitle()}</p>
+                  <span className="shrink-0 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 text-[11px] font-semibold">
+                    {occurrences.length} Visit
+                  </span>
+                </div>
+                {range?.from && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {fmt(range.from)} → {fmt(range.to ?? range.from)}
+                  </p>
+                )}
+                {occurrences.length > 0 && (
+                  <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide">
+                    {occurrences.slice(0, 5).map((d, i) => (
+                      <span key={i} className="shrink-0 px-2.5 py-1 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+                        {format(d, "MMM d")}
+                      </span>
+                    ))}
+                    {occurrences.length > 5 && (
+                      <button
+                        onClick={() => setDatesSheet(true)}
+                        className="shrink-0 px-2.5 py-1 rounded-lg bg-muted/50 text-xs text-muted-foreground flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        {occurrences.length - 5}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4 mb-2">
