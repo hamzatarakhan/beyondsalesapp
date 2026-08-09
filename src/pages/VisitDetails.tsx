@@ -35,6 +35,22 @@ const RESULTS = ["Passed", "Failed", "Rescheduled"];
 const STEPS_OF_CALL = ["Merchandising Audit", "Stock Check", "Sales Pitch", "Training"];
 const CANCEL_PURPOSES = ["Store Closed", "Dealer Unavailable", "Weather Conditions", "Rescheduled by Dealer", "Other"];
 
+type VisitStatus = "Active" | "Pending" | "Missed" | "Canceled" | "Completed";
+const VISIT_STATUS: Record<string, { name: string; status: VisitStatus }> = {
+  "VST-1001": { name: "Riyadh North Route", status: "Pending" },
+  "VST-1002": { name: "Jeddah Corniche Route", status: "Missed" },
+  "VST-1003": { name: "Tahlia Dealers", status: "Completed" },
+  "VST-1004": { name: "Dammam Central", status: "Canceled" },
+  "VST-1005": { name: "Al Nakheel Plaza", status: "Active" },
+};
+const VISIT_STATUS_PILL: Record<VisitStatus, string> = {
+  Active: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  Pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  Missed: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+  Canceled: "bg-muted text-muted-foreground",
+  Completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+};
+
 type ResultStatus = "Passed" | "Cancelled" | "Not Performed";
 
 interface VisitResult {
@@ -133,7 +149,11 @@ const VisitDetails = () => {
   const [showAllMembers, setShowAllMembers] = useState(false);
 
   const visit = useMemo(
-    () => ({ id: id ?? "VST-1005", name: "Al Nakheel Plaza", type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: "Active" }),
+    () => {
+      const key = id ?? "VST-1005";
+      const meta = VISIT_STATUS[key] ?? { name: "Al Nakheel Plaza", status: "Active" as VisitStatus };
+      return { id: key, name: meta.name, type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: meta.status };
+    },
     [id],
   );
 
@@ -414,7 +434,7 @@ const VisitDetails = () => {
 
   /* ---------- VIEW VISIT ---------- */
   return (
-    <div className="mobile-container pb-40 bg-background h-screen overflow-y-auto scrollbar-hide">
+    <div className={`mobile-container bg-background h-screen overflow-y-auto scrollbar-hide ${visit.status === "Active" ? "pb-40" : visit.status === "Pending" ? "pb-32" : "pb-8"}`}>
       <AppHeader title="View Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">
@@ -422,7 +442,7 @@ const VisitDetails = () => {
           <div className="divide-y divide-border/60">
             <div className="flex items-center justify-between py-3.5">
               <span className="text-sm text-muted-foreground">Status</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">{visit.status}</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${VISIT_STATUS_PILL[visit.status]}`}>{visit.status}</span>
             </div>
             {[["Visit Type", visit.type], ["User Type", visit.userType], ["Assigned To", visit.assignee]].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-3.5">
@@ -470,10 +490,18 @@ const VisitDetails = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
-        <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Save Changes</button>
-        <button onClick={() => { setCancelMode("remark"); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
-      </div>
+      {(visit.status === "Active" || visit.status === "Pending") && (
+        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+          {visit.status === "Active" ? (
+            <>
+              <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Update</button>
+              <button onClick={() => { setCancelPurpose(""); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
+            </>
+          ) : (
+            <button onClick={() => { setCancelPurpose(""); setCancelRemark(""); setCancelOpen(true); }} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Cancel</button>
+          )}
+        </div>
+      )}
 
       {/* Steps of Call */}
       <Drawer open={stepsOpen} onOpenChange={setStepsOpen}>
