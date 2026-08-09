@@ -20,6 +20,7 @@ import ComingSoon from "./pages/ComingSoon";
 import VisitManagement from "./pages/VisitManagement";
 import VisitDetails from "./pages/VisitDetails";
 import CreateVisit from "./pages/CreateVisit";
+import AdHocVisit from "./pages/AdHocVisit";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import MyHierarchy from "./pages/MyHierarchy";
@@ -102,6 +103,7 @@ const App = () => {
           <Route path="/visit-management" element={<VisitManagement />} />
           <Route path="/visit-management/:id" element={<VisitDetails />} />
           <Route path="/create-visit" element={<CreateVisit />} />
+          <Route path="/adhoc-visit" element={<AdHocVisit />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/hierarchy" element={<MyHierarchy />} />

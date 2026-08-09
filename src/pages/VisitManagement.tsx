@@ -151,7 +151,7 @@ const VisitManagement = () => {
         {addOpen && (
           <>
             <button
-              onClick={() => { setAddOpen(false); navigate("/create-visit?type=adhoc"); }}
+              onClick={() => { setAddOpen(false); navigate("/adhoc-visit"); }}
               className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg"
             >
               {t("visits.adHocVisit")}
