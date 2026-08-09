@@ -886,4 +886,55 @@ const MultiSelectList = ({
   );
 };
 
+/* ---------- members map ---------- */
+const MembersMap = ({ members, onBack }: { members: Member[]; onBack: () => void }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const map = useRef<L.Map | null>(null);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    if (!ref.current || map.current) return;
+    const m = L.map(ref.current, { zoomControl: false }).setView([24.7136, 46.6753], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(m);
+    const pins = members
+      .map((mem) => (MEMBER_COORDS[mem.id] ? L.marker(MEMBER_COORDS[mem.id]).bindPopup(mem.name).addTo(m) : null))
+      .filter(Boolean) as L.Marker[];
+    if (pins.length) m.fitBounds(L.featureGroup(pins).getBounds().pad(0.3));
+    map.current = m;
+    return () => { m.remove(); map.current = null; };
+  }, [members]);
+
+  const recenter = () => map.current?.setView([24.7136, 46.6753], 6);
+  const search = () => {
+    const hit = members.find((mem) => mem.name.toLowerCase().includes(q.toLowerCase()));
+    if (hit && MEMBER_COORDS[hit.id]) map.current?.setView(MEMBER_COORDS[hit.id], 13);
+  };
+
+  return (
+    <div className="mobile-container bg-background h-screen relative overflow-hidden">
+      <div ref={ref} className="absolute inset-0 z-0" />
+      <div className="absolute top-4 inset-x-4 z-10 flex items-center gap-2">
+        <button onClick={onBack} aria-label="Back" className="w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center shrink-0">
+          <ArrowLeft className="w-5 h-5 text-foreground rtl:-scale-x-100" />
+        </button>
+        <div className="flex-1 relative">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && search()}
+            placeholder="Search .."
+            className="w-full h-11 rounded-full bg-card shadow-lg ps-4 pe-11 text-[16px] text-foreground placeholder:text-muted-foreground outline-none"
+          />
+          <button onClick={search} aria-label="Search" className="absolute end-3 top-1/2 -translate-y-1/2">
+            <Search className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+      <button onClick={recenter} aria-label="Recenter" className="absolute bottom-8 end-5 z-10 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center">
+        <Crosshair className="w-5 h-5" />
+      </button>
+    </div>
+  );
+};
+
 export default CreateVisit;
