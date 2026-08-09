@@ -233,6 +233,8 @@ const CreateVisit = () => {
     return `Repeats monthly on the ${parts.join(", ")}`;
   };
 
+  const canSubmit = canSubmitBase && (!recurring || occurrences.length > 0);
+
   /* ---------- MAP VIEW ---------- */
   if (view === "map") {
     return <MembersMap members={filteredMembers} onBack={() => setView("members")} />;
