@@ -191,6 +191,48 @@ const CreateVisit = () => {
 
   const canSubmit = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
 
+  /* ---------- recurring occurrence engine ---------- */
+  const rangeDays = useMemo(() => {
+    if (!range?.from) return [] as Date[];
+    const end = range.to ?? range.from;
+    const out: Date[] = [];
+    const cur = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
+    while (cur <= end) {
+      out.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }, [range]);
+
+  const isLastDayOfMonth = (d: Date) => d.getDate() === new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+
+  const occurrences = useMemo(() => {
+    if (!recurring) return [] as Date[];
+    if (frequency === "daily") return rangeDays;
+    if (frequency === "weekly") return rangeDays.filter((d) => weekDays.includes(d.getDay()));
+    return rangeDays.filter((d) => monthDays.includes(d.getDate()) || (lastDayOfMonth && isLastDayOfMonth(d)));
+  }, [recurring, frequency, rangeDays, weekDays, monthDays, lastDayOfMonth]);
+
+  const WEEK_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+  const WEEK_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const ordinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+  };
+
+  const recurrenceTitle = () => {
+    if (frequency === "daily") return "Repeats every day";
+    if (frequency === "weekly") {
+      if (!weekDays.length) return "Select at least one day of the week";
+      return `Repeats every week on ${[...weekDays].sort((a, b) => a - b).map((d) => WEEK_NAMES[d]).join(", ")}`;
+    }
+    const parts = [...monthDays].sort((a, b) => a - b).map(ordinal);
+    if (lastDayOfMonth) parts.push("last day");
+    if (!parts.length) return "Select at least one day of the month";
+    return `Repeats monthly on the ${parts.join(", ")}`;
+  };
+
   /* ---------- MAP VIEW ---------- */
   if (view === "map") {
     return <MembersMap members={filteredMembers} onBack={() => setView("members")} />;
