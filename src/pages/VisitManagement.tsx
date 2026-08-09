@@ -151,13 +151,13 @@ const VisitManagement = () => {
         {addOpen && (
           <>
             <button
-              onClick={() => { setAddOpen(false); navigate("/coming-soon"); }}
+              onClick={() => { setAddOpen(false); navigate("/create-visit?type=adhoc"); }}
               className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg"
             >
               {t("visits.adHocVisit")}
             </button>
             <button
-              onClick={() => { setAddOpen(false); navigate("/coming-soon"); }}
+              onClick={() => { setAddOpen(false); navigate("/create-visit?type=planned"); }}
               className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg"
             >
               {t("visits.plannedVisit")}

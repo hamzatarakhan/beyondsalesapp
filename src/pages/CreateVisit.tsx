@@ -164,7 +164,7 @@ const CreateVisit = () => {
     ];
     return (
       <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col">
-        <AppHeader title="Filter" showBack onBack={() => setView("members")} />
+        <AppHeader title="Filter" showBack onBackClick={() => setView("members")} />
         <div className="px-4 flex-1">
           {rows.map((r) => (
             <Field key={r.label} label={r.label}>
@@ -220,7 +220,7 @@ const CreateVisit = () => {
   if (view === "members") {
     return (
       <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
-        <AppHeader title="Select Channel Member" showBack onBack={() => setView("form")} />
+        <AppHeader title="Select Channel Member" showBack onBackClick={() => setView("form")} />
 
         <div className="px-4">
           <p className="text-sm font-semibold text-foreground mb-2">Survey</p>
@@ -455,7 +455,7 @@ const CreateVisit = () => {
   /* ---------- FORM VIEW ---------- */
   return (
     <div className="mobile-container pb-8 bg-background h-screen overflow-y-auto scrollbar-hide">
-      <AppHeader title="Create New Visit" showBack onBack={() => navigate("/visit-management")} />
+      <AppHeader title="Create New Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">
         <p className="text-sm font-semibold text-foreground mb-2">Visit Details</p>
