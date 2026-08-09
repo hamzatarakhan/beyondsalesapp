@@ -363,19 +363,23 @@ const VisitDetails = () => {
             />
           </Field>
 
-          <p className="text-sm font-semibold text-foreground mt-5 mb-2">Survey</p>
-          <button
-            onClick={() => setView("qr")}
-            className="w-full rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center justify-between text-start"
-          >
-            <span>
-              <span className="block text-sm font-semibold text-foreground">{data.survey || "Survey Title"}</span>
-              <span className="block text-xs text-muted-foreground">Fill Address</span>
-            </span>
-            <span className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
-              Start <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
-            </span>
-          </button>
+          {!postSurvey && (
+            <>
+              <p className="text-sm font-semibold text-foreground mt-5 mb-2">Survey</p>
+              <button
+                onClick={() => setView("qr")}
+                className="w-full rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center justify-between text-start"
+              >
+                <span>
+                  <span className="block text-sm font-semibold text-foreground">{data.survey || "Survey Title"}</span>
+                  <span className="block text-xs text-muted-foreground">Fill Address</span>
+                </span>
+                <span className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+                  Start <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
+                </span>
+              </button>
+            </>
+          )}
 
           {isCancelled && (
             <>
