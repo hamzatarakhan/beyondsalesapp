@@ -159,12 +159,27 @@ const VisitDetails = () => {
     [id],
   );
 
-  const memberResults = member ? results[member.id] ?? [] : [];
+  // Active visits always start with a "Not Performed" result row for each member.
+  const memberResults = useMemo(() => {
+    if (!member) return [] as VisitResult[];
+    const list = results[member.id] ?? [];
+    if (list.length === 0 && visit.status === "Active") {
+      return [{ id: `NP-${member.id}`, title: "Visit 1", status: "Not Performed" as ResultStatus, purpose: "Merchandising", date: "17 Aug 2024", survey: "Merchandising Survey" }];
+    }
+    return list;
+  }, [member, results, visit.status]);
 
   const saveDraft = () => {
     if (!member || !draft.title && !draft.purpose && !draft.survey && !draft.result) { setView("result"); return; }
-    const entry: VisitResult = { ...draft, id: `R-${Date.now()}`, title: draft.title || `Visit ${(results[member.id]?.length ?? 0) + 1}`, status: (draft.result === "Passed" ? "Passed" : draft.result ? "Cancelled" : "Not Performed") };
-    setResults((p) => ({ ...p, [member.id]: [...(p[member.id] ?? []), entry] }));
+    const status: ResultStatus = draft.result === "Passed" ? "Passed" : draft.result ? "Cancelled" : "Not Performed";
+    const list = results[member.id] ?? [];
+    const existing = draft.id && list.some((r) => r.id === draft.id);
+    const entry: VisitResult = { ...draft, id: draft.id || `R-${Date.now()}`, title: draft.title || `Visit ${list.length + 1}`, status };
+    setResults((p) => ({
+      ...p,
+      [member.id]: existing ? (p[member.id] ?? []).map((r) => (r.id === entry.id ? entry : r)) : [...(p[member.id] ?? []), entry],
+    }));
+    setPostSurvey(false);
     setView("result");
   };
 
@@ -174,7 +189,13 @@ const VisitDetails = () => {
       <SurveyFlow
         title={(openResult ?? draft).survey || "Survey Title"}
         onBack={() => setView("overview")}
-        onComplete={() => { if (openResult) { setOpenResult(null); setView("result"); } else { saveDraft(); } }}
+        onComplete={() => {
+          const base = openResult ?? draft;
+          setDraft({ ...base, result: "" });
+          setOpenResult(null);
+          setPostSurvey(true);
+          setView("form");
+        }}
       />
     );
   }
