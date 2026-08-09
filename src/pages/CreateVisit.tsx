@@ -927,6 +927,27 @@ const CreateVisit = () => {
 
       <OptionPicker picker={picker} onClose={() => setPicker(null)} />
 
+      {/* selected recurring dates sheet */}
+      <Drawer open={datesSheet} onOpenChange={setDatesSheet}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[70vh]">
+          <DrawerHeader className="pt-6 relative">
+            <button onClick={() => setDatesSheet(false)} aria-label="Back" className="absolute start-4 top-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4 text-foreground rtl:-scale-x-100" />
+            </button>
+            <DrawerTitle className="text-lg font-semibold text-center">Selected Date</DrawerTitle>
+            <DrawerDescription className="sr-only">All recurring visit dates</DrawerDescription>
+            <button onClick={() => setDatesSheet(false)} aria-label="Close" className="absolute end-4 top-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+          </DrawerHeader>
+          <div className="px-4 pb-8 overflow-y-auto scrollbar-hide divide-y divide-border/60">
+            {occurrences.map((d, i) => (
+              <p key={i} className="py-3 text-sm text-foreground">{format(d, "MMM d, yyyy")}</p>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
       {/* date range sheet */}
       <Drawer open={dateOpen} onOpenChange={setDateOpen}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[92vh]">
