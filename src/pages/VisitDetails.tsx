@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon,
+  CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon, PlusCircle,
   MapPin, Network, Plus, QrCode, User, X, CheckCircle2, XOctagon,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -410,12 +410,23 @@ const VisitDetails = () => {
         <Drawer open={cancelResultOpen} onOpenChange={setCancelResultOpen}>
           <DrawerContent className="bg-card rounded-t-3xl">
             <DrawerHeader className="text-center pt-4 pb-2">
-              <DrawerTitle className="text-lg font-semibold">Confirmation Message</DrawerTitle>
+              <DrawerTitle className="text-lg font-semibold">Cancel Visit</DrawerTitle>
             </DrawerHeader>
-            <div className="px-4 pb-8 text-center">
-              <XOctagon className="w-12 h-12 mx-auto text-primary" strokeWidth={1.5} />
-              <p className="mt-2 text-base font-semibold text-primary">Discard this result ?</p>
-              <p className="text-sm text-muted-foreground">Your changes will not be saved. Are you sure you want to cancel ?</p>
+            <div className="px-4 pb-8">
+              <p className="text-sm font-medium text-foreground mb-2">Cancel Purpose</p>
+              <button
+                onClick={() => setPicker({ title: "Cancel Purpose", options: CANCEL_PURPOSES, value: cancelPurpose, onPick: setCancelPurpose })}
+                className="w-full h-12 rounded-xl bg-card border border-border px-4 flex items-center justify-between text-start"
+              >
+                <span className={`text-sm ${cancelPurpose ? "text-foreground font-medium" : "text-muted-foreground"}`}>{cancelPurpose || "Select purpose"}</span>
+                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+              </button>
+
+              <p className="text-sm font-semibold text-foreground mt-4 mb-2">Document <span className="text-primary">*</span></p>
+              <button className="w-full rounded-xl border border-dashed border-border py-7 flex flex-col items-center gap-2">
+                <PlusCircle className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                <span className="text-sm text-muted-foreground">Upload your files here</span>
+              </button>
               <button
                 onClick={() => {
                   if (member) {
