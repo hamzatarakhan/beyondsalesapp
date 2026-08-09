@@ -5,7 +5,7 @@ import { DateRange } from "react-day-picker";
 import {
   CalendarDays, ChevronDown, Check, ContactRound, GripVertical, Hash, MapPin,
   Network, Repeat, Search, SlidersHorizontal, Trash2, User, X, ArrowLeft,
-  ChevronRight, Crosshair, Plus, CheckCircle2,
+  ChevronRight, Crosshair, Plus, CheckCircle2, Eye,
 } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
