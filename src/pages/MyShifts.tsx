@@ -133,7 +133,7 @@ const MyShifts = () => {
 
         {hasActiveFilter && activeFilterLabel && (
           <div className="flex">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-destructive text-destructive text-xs font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary text-primary text-xs font-semibold">
               {activeFilterLabel}
               <button type="button" onClick={clearActiveFilter} aria-label={t("onboardingRequests.clearFilterAria")}>
                 <X className="w-3 h-3" />
