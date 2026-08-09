@@ -1963,7 +1963,7 @@ const NewActivation4 = () => {
                         );
                       })()}
                     </div>
-                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold">
+                    <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation4.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (

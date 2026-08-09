@@ -17,6 +17,11 @@
     --primary: 0 91% 46%;
     --primary-foreground: 0 0% 100%;
 
+    /* Text links (e.g. "See all", "Add New Result") — a fixed blue for Virgin, distinct
+       from --primary (Virgin's red), so links stay visually consistent regardless of the
+       brand's own accent color. Friendi overrides this to match its own --primary below. */
+    --link: 228 72% 56%;
+
     --secondary: 210 25% 93%;
     --secondary-foreground: 220 20% 30%;
 
@@ -55,6 +60,7 @@
     --popover-foreground: 210 40% 98%;
     --primary: 0 91% 46%;
     --primary-foreground: 0 0% 100%;
+    --link: 228 72% 56%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
@@ -73,6 +79,7 @@
   [data-brand="friendi"] {
     --primary: 181 69% 49%;
     --ring: 181 69% 49%;
+    --link: 181 69% 49%;
   }
 }
 

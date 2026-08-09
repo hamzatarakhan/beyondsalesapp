@@ -78,9 +78,9 @@ const NewOwnerDetails = () => {
           <p className="text-sm text-muted-foreground mb-2">
             Tap to open camera scan
           </p>
-          <button className="flex items-center gap-1 text-primary font-medium text-sm">
+          <button className="flex items-center gap-1 text-link font-medium text-sm">
             Scan
-            <Play className="w-4 h-4 fill-primary" />
+            <Play className="w-4 h-4 fill-link" />
           </button>
         </div>
       </div>

@@ -230,7 +230,7 @@ const Home = () => {
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-foreground">{t("home.tickets.title")}</h3>
-            <button onClick={() => navigate("/tickets")} className="flex items-center gap-1 text-primary text-sm font-medium">
+            <button onClick={() => navigate("/tickets")} className="flex items-center gap-1 text-link text-sm font-medium">
               {t("home.tickets.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </button>
           </div>
@@ -346,7 +346,7 @@ const Home = () => {
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-foreground">Tickets</h3>
-            <button className="flex items-center gap-1 text-primary text-sm font-medium">
+            <button className="flex items-center gap-1 text-link text-sm font-medium">
               See all <ChevronRight className="w-4 h-4" />
             </button>
           </div>

@@ -259,7 +259,7 @@ const CreateVisit = () => {
                 <p className="font-semibold text-foreground truncate">{m.name}</p>
                 <MemberMeta m={m} />
               </div>
-              <ChevronRight className="w-5 h-5 text-sky-600 dark:text-sky-300 shrink-0 rtl:-scale-x-100" />
+              <ChevronRight className="w-5 h-5 text-link shrink-0 rtl:-scale-x-100" />
             </button>
           ))}
           {selected.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">No members added yet</p>}
@@ -309,7 +309,7 @@ const CreateVisit = () => {
             <p className="text-sm font-medium text-foreground">Visit Result</p>
             <button
               onClick={() => { setDraftResult({ title: "", purpose: "", date: "17 Aug 2024", survey: "" }); setView("visitDetails"); }}
-              className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1"
+              className="text-sm font-semibold text-link flex items-center gap-1"
             >
               Add New Result <Plus className="w-4 h-4" />
             </button>
@@ -841,7 +841,7 @@ const CreateVisit = () => {
                     type="button"
                     disabled={occurrences.length === 0}
                     onClick={() => setDatesSheet(true)}
-                    className="shrink-0 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 text-[11px] font-semibold flex items-center gap-1 disabled:opacity-60"
+                    className="shrink-0 px-2 py-0.5 rounded-md bg-link/10 text-link text-[11px] font-semibold flex items-center gap-1 disabled:opacity-60"
                   >
                     {occurrences.length} Visit
                     {occurrences.length > 0 && <Eye className="w-3 h-3" />}
@@ -880,7 +880,7 @@ const CreateVisit = () => {
             Member Visit<span className="text-destructive ms-0.5">*</span>
           </p>
           {selected.length > 0 && (
-            <button onClick={() => setView("memberVisit")} className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1">
+            <button onClick={() => setView("memberVisit")} className="text-sm font-semibold text-link flex items-center gap-1">
               See All <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
             </button>
           )}
@@ -892,7 +892,7 @@ const CreateVisit = () => {
                 <User className="w-6 h-6 text-primary" />
               </span>
               <p className="text-sm text-muted-foreground">Add at least member to begin the visit</p>
-              <button onClick={openMembers} className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1">
+              <button onClick={openMembers} className="text-sm font-semibold text-link flex items-center gap-1">
                 Add Channel Members <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -911,7 +911,7 @@ const CreateVisit = () => {
                     <p className="font-semibold text-foreground truncate">{m.name}</p>
                     <MemberMeta m={m} />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-sky-600 dark:text-sky-300 shrink-0 rtl:-scale-x-100" />
+                  <ChevronRight className="w-5 h-5 text-link shrink-0 rtl:-scale-x-100" />
                 </button>
               ))}
               <button

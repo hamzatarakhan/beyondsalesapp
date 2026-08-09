@@ -375,7 +375,7 @@ const VisitDetails = () => {
                   <span className="block text-sm font-semibold text-foreground">{data.survey || "Survey Title"}</span>
                   <span className="block text-xs text-muted-foreground">Fill Address</span>
                 </span>
-                <span className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+                <span className="flex items-center gap-1 text-sm font-semibold text-link">
                   Start <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
                 </span>
               </button>
@@ -498,7 +498,7 @@ const VisitDetails = () => {
             <p className="text-sm font-medium text-foreground">Visit Result</p>
             <button
               onClick={() => { setOpenResult(null); setPostSurvey(false); setDraft({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" }); setView("form"); }}
-              className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1"
+              className="text-sm font-semibold text-link flex items-center gap-1"
             >
               Add New Result <Plus className="w-4 h-4" />
             </button>
@@ -546,7 +546,7 @@ const VisitDetails = () => {
             <button onClick={() => setStepsOpen(true)} className="w-full flex items-center justify-between py-3.5">
               <span className="text-sm text-muted-foreground">Steps of Call</span>
               <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                {visit.steps} <Eye className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+                {visit.steps} <Eye className="w-4 h-4 text-link" />
               </span>
             </button>
             {[["Visit Date", visit.date], ["Recurrence", visit.recurrence]].map(([k, v]) => (
@@ -560,7 +560,7 @@ const VisitDetails = () => {
 
         <div className="flex items-center justify-between mt-5 mb-2">
           <p className="text-base font-semibold text-foreground">Member Visit</p>
-          <button onClick={() => setShowAllMembers((s) => !s)} className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+          <button onClick={() => setShowAllMembers((s) => !s)} className="flex items-center gap-1 text-sm font-semibold text-link">
             {showAllMembers ? "Show Less" : "See All"} <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
           </button>
         </div>
@@ -577,7 +577,7 @@ const VisitDetails = () => {
                   <MapPin className="w-3.5 h-3.5" /> {m.region}, {m.city}, {m.district}
                 </p>
               </button>
-              <ChevronRight className="w-5 h-5 text-sky-600 dark:text-sky-300 shrink-0 rtl:-scale-x-100" />
+              <ChevronRight className="w-5 h-5 text-link shrink-0 rtl:-scale-x-100" />
             </div>
           ))}
         </div>

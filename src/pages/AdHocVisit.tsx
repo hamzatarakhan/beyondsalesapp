@@ -356,7 +356,7 @@ const AdHocVisit = () => {
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-foreground">Survey</p>
             {surveys.length > 3 && (
-              <button onClick={() => setShowAllSurveys((s) => !s)} className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+              <button onClick={() => setShowAllSurveys((s) => !s)} className="flex items-center gap-1 text-sm font-semibold text-link">
                 {showAllSurveys ? "Show Less" : "See All"} <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
               </button>
             )}
@@ -368,7 +368,7 @@ const AdHocVisit = () => {
                 <ClipboardList className="w-7 h-7 text-primary" />
               </span>
               <p className="text-sm text-muted-foreground">Start creating a survey and continue working on it.</p>
-              <button onClick={startNewSurvey} className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+              <button onClick={startNewSurvey} className="flex items-center gap-1 text-sm font-semibold text-link">
                 Add Survey <Plus className="w-4 h-4" />
               </button>
             </div>

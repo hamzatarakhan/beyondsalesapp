@@ -859,7 +859,7 @@ const PrepaidActivation = () => {
               {simType === "psim" && (
                 <button
                   onClick={() => setNumberSheetOpen(true)}
-                  className="w-full flex items-center justify-center gap-1.5 text-sky-600 text-sm font-semibold"
+                  className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold"
                 >
                   Pick Different Number <ArrowRight className="w-4 h-4" />
                 </button>
