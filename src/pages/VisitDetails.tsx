@@ -128,9 +128,10 @@ const VisitDetails = () => {
   const [overviewTab, setOverviewTab] = useState<"kpi" | "stock">("kpi");
   const [openKpi, setOpenKpi] = useState(0);
   const [docPreview, setDocPreview] = useState<string | null>(null);
+  const [showAllMembers, setShowAllMembers] = useState(false);
 
   const visit = useMemo(
-    () => ({ id: id ?? "VST-1005", name: "Al Nakheel Plaza", type: "Planned Visit", assignee: "Ahmad Khaled", userType: "Modern Trade", steps: "Merchandising Audit", date: "15 Dec 2026 - 20 Dec 2026", status: "Active" }),
+    () => ({ id: id ?? "VST-1005", name: "Al Nakheel Plaza", type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: "Active" }),
     [id],
   );
 
@@ -415,34 +416,42 @@ const VisitDetails = () => {
       <AppHeader title="View Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">
-        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-semibold text-foreground">{visit.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">{visit.id}</p>
+        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] px-4 py-1">
+          <div className="divide-y divide-border/60">
+            <div className="flex items-center justify-between py-3.5">
+              <span className="text-sm text-muted-foreground">Status</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">{visit.status}</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">{visit.status}</span>
-          </div>
-          <div className="mt-3 divide-y divide-border/60">
-            {[["Visit Type", visit.type], ["User Type", visit.userType], ["Assign To", visit.assignee], ["Date", visit.date]].map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between py-2.5">
+            {[["Visit Type", visit.type], ["User Type", visit.userType], ["Assigned To", visit.assignee]].map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between py-3.5">
                 <span className="text-sm text-muted-foreground">{k}</span>
-                <span className="text-sm font-medium text-foreground">{v}</span>
+                <span className="text-sm font-semibold text-foreground">{v}</span>
               </div>
             ))}
-            <button onClick={() => setStepsOpen(true)} className="w-full flex items-center justify-between py-2.5">
+            <button onClick={() => setStepsOpen(true)} className="w-full flex items-center justify-between py-3.5">
               <span className="text-sm text-muted-foreground">Steps of Call</span>
-              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                {visit.steps} <ChevronRight className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                {visit.steps} <Eye className="w-4 h-4 text-sky-600 dark:text-sky-300" />
               </span>
             </button>
+            {[["Visit Date", visit.date], ["Recurrence", visit.recurrence]].map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between py-3.5">
+                <span className="text-sm text-muted-foreground">{k}</span>
+                <span className="text-sm font-semibold text-foreground">{v}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        <p className="text-sm font-medium text-foreground mt-4 mb-2">Member Visit</p>
-        <div className="space-y-3">
-          {MEMBERS.map((m) => (
-            <div key={m.id} className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 flex items-center gap-3">
+        <div className="flex items-center justify-between mt-5 mb-2">
+          <p className="text-base font-semibold text-foreground">Member Visit</p>
+          <button onClick={() => setShowAllMembers((s) => !s)} className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+            {showAllMembers ? "Show Less" : "See All"} <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
+          </button>
+        </div>
+        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 space-y-3">
+          {(showAllMembers ? MEMBERS : MEMBERS.slice(0, 2)).map((m) => (
+            <div key={m.id} className="rounded-2xl bg-muted/30 border border-border/60 p-3 flex items-center gap-3">
               <button onClick={() => setOverview(m)} aria-label={`Dealer overview for ${m.name}`} className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <User className="w-5 h-5 text-primary" />
               </button>
@@ -460,8 +469,8 @@ const VisitDetails = () => {
       </div>
 
       <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
-        <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Save</button>
-        <button onClick={() => { setCancelMode("remark"); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel Visit</button>
+        <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Save Changes</button>
+        <button onClick={() => { setCancelMode("remark"); setCancelRemark(""); setCancelOpen(true); }} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
       </div>
 
       {/* Steps of Call */}
