@@ -3784,5 +3784,36 @@
     "readAll": "Read All",
     "read": "Read",
     "delete": "Delete"
+  },
+  "visits": {
+    "title": "Visit Management",
+    "search": "Search",
+    "filter": "Filter",
+    "filterSubtitle": "Please choose your filter options",
+    "visitStatus": "Visit Status",
+    "dateDuration": "Date Duration",
+    "selectDate": "Select date",
+    "apply": "Apply",
+    "clearFilter": "Clear Filter",
+    "close": "Close",
+    "pickDate": "Pick a Date",
+    "pickDateSubtitle": "Please select a date",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "addNewVisit": "Add New Visit",
+    "adHocVisit": "Add-Hoc Visit",
+    "plannedVisit": "Planned Visit",
+    "empty": "No visits match your filters",
+    "visitName": "Visit Name",
+    "planned": "Planned Visit",
+    "adHoc": "Ad - Hoc Visit",
+    "status": {
+      "all": "All",
+      "pending": "Pending",
+      "active": "Active",
+      "completed": "Completed",
+      "missed": "Missed",
+      "canceled": "Canceled"
+    }
   }
 }

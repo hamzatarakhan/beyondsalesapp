@@ -3819,5 +3819,36 @@
     "readAll": "تعليم الكل كمقروء",
     "read": "مقروء",
     "delete": "حذف"
+  },
+  "visits": {
+    "title": "إدارة الزيارات",
+    "search": "بحث",
+    "filter": "تصفية",
+    "filterSubtitle": "يرجى اختيار خيارات التصفية",
+    "visitStatus": "حالة الزيارة",
+    "dateDuration": "الفترة الزمنية",
+    "selectDate": "اختر التاريخ",
+    "apply": "تطبيق",
+    "clearFilter": "مسح التصفية",
+    "close": "إغلاق",
+    "pickDate": "اختر تاريخاً",
+    "pickDateSubtitle": "يرجى اختيار التاريخ",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ",
+    "addNewVisit": "إضافة زيارة",
+    "adHocVisit": "زيارة طارئة",
+    "plannedVisit": "زيارة مجدولة",
+    "empty": "لا توجد زيارات مطابقة",
+    "visitName": "اسم الزيارة",
+    "planned": "زيارة مجدولة",
+    "adHoc": "زيارة طارئة",
+    "status": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "active": "نشطة",
+      "completed": "مكتملة",
+      "missed": "فائتة",
+      "canceled": "ملغاة"
+    }
   }
 }
