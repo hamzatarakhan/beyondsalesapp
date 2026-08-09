@@ -73,9 +73,12 @@ const STOCK = [
 ];
 
 /* ---------------- small building blocks ---------------- */
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
   <div className="mb-4 last:mb-0">
-    <p className="text-sm font-medium text-foreground mb-2">{label}</p>
+    <p className="text-sm font-medium text-foreground mb-2">
+      {label}
+      {required && <span className="text-destructive ms-0.5">*</span>}
+    </p>
     {children}
   </div>
 );
@@ -674,21 +677,24 @@ const CreateVisit = () => {
       <AppHeader title="Create New Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">
-        <p className="text-sm font-semibold text-foreground mb-2">Visit Details</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-foreground">Visit Details</p>
+          <p className="text-xs text-muted-foreground"><span className="text-destructive">*</span> Required</p>
+        </div>
         <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-          <Field label="Visit Type">
+          <Field label="Visit Type" required>
             <SelectRow placeholder="Select the type" value={visitType} onClick={() => setPicker({ title: "Visit Type", options: VISIT_TYPES, value: visitType, onPick: setVisitType })} />
           </Field>
-          <Field label="User Type">
+          <Field label="User Type" required>
             <SelectRow placeholder="Select the type eg. sales promoter" value={userType} onClick={() => setPicker({ title: "User Type", options: USER_TYPES, value: userType, onPick: setUserType })} />
           </Field>
-          <Field label="Assign To">
+          <Field label="Assign To" required>
             <SelectRow placeholder="Select assigned to" value={assignTo} onClick={() => setPicker({ title: "Assign To", options: ASSIGNEES, value: assignTo, onPick: setAssignTo })} />
           </Field>
-          <Field label="Steps of Call">
+          <Field label="Steps of Call" required>
             <SelectRow placeholder="Select steps of call" value={stepsOfCall} onClick={() => setPicker({ title: "Steps of Call", options: STEPS_OF_CALL, value: stepsOfCall, onPick: setStepsOfCall })} />
           </Field>
-          <Field label="Date Range">
+          <Field label="Date Range" required>
             <button
               onClick={() => { setDraftRange(range); setDateOpen(true); }}
               className="w-full h-12 rounded-xl border border-border bg-card px-4 flex items-center justify-between"
@@ -712,7 +718,9 @@ const CreateVisit = () => {
         </div>
 
         <div className="flex items-center justify-between mt-4 mb-2">
-          <p className="text-sm font-semibold text-foreground">Member Visit</p>
+          <p className="text-sm font-semibold text-foreground">
+            Member Visit<span className="text-destructive ms-0.5">*</span>
+          </p>
           {selected.length > 0 && (
             <button onClick={() => setView("memberVisit")} className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1">
               See All <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
