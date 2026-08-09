@@ -32,7 +32,7 @@ const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", 
       className,
     )}
   >
-    <span className="shrink-0 px-3 h-full flex items-center text-sm font-medium text-muted-foreground border-e border-input">
+    <span className="shrink-0 ms-2 px-2.5 py-1 rounded-md bg-muted text-sm font-medium text-foreground">
       966
     </span>
     <input
