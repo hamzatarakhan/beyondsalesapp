@@ -126,6 +126,13 @@ const CreateVisit = () => {
   const [recurring, setRecurring] = useState(false);
   const [selected, setSelected] = useState<Member[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    if (!submitted) return;
+    const t = setTimeout(() => navigate("/visit-management"), 1800);
+    return () => clearTimeout(t);
+  }, [submitted]);
 
   // pickers
   const [picker, setPicker] = useState<null | { title: string; options: string[]; value?: string; onPick: (v: string) => void }>(null);
