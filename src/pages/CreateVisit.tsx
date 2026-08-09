@@ -73,9 +73,12 @@ const STOCK = [
 ];
 
 /* ---------------- small building blocks ---------------- */
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
   <div className="mb-4 last:mb-0">
-    <p className="text-sm font-medium text-foreground mb-2">{label}</p>
+    <p className="text-sm font-medium text-foreground mb-2">
+      {label}
+      {required && <span className="text-destructive ms-0.5">*</span>}
+    </p>
     {children}
   </div>
 );
