@@ -33,6 +33,7 @@ const PURPOSES = ["Merchandising Audit", "Stock Check", "Training", "Complaint F
 const SURVEYS = ["Merchandising Survey", "Stock Survey", "Customer Feedback"];
 const RESULTS = ["Passed", "Failed", "Rescheduled"];
 const STEPS_OF_CALL = ["Merchandising Audit", "Stock Check", "Sales Pitch", "Training"];
+const CANCEL_PURPOSES = ["Store Closed", "Dealer Unavailable", "Weather Conditions", "Rescheduled by Dealer", "Other"];
 
 type ResultStatus = "Passed" | "Cancelled" | "Not Performed";
 
@@ -124,6 +125,7 @@ const VisitDetails = () => {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelMode, setCancelMode] = useState<"remark" | "document">("remark");
   const [cancelRemark, setCancelRemark] = useState("");
+  const [cancelPurpose, setCancelPurpose] = useState("");
   const [overview, setOverview] = useState<Member | null>(null);
   const [overviewTab, setOverviewTab] = useState<"kpi" | "stock">("kpi");
   const [openKpi, setOpenKpi] = useState(0);
@@ -497,47 +499,37 @@ const VisitDetails = () => {
       {/* Cancel Visit */}
       <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
         <DrawerContent className="bg-card rounded-t-3xl">
-          <button onClick={() => setCancelOpen(false)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
-            <X className="w-4 h-4 text-foreground" />
-          </button>
           <DrawerHeader className="text-center pt-6">
             <DrawerTitle className="text-lg font-semibold">Cancel Visit</DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground">Tell us why this visit is being cancelled</DrawerDescription>
+            <DrawerDescription className="sr-only">Tell us why this visit is being cancelled</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-8">
-            <div className="flex gap-2 mb-4">
-              {(["remark", "document"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setCancelMode(m)}
-                  className={`flex-1 py-2 rounded-full text-xs font-semibold ${cancelMode === m ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
-                >
-                  {m === "remark" ? "Add Remark" : "Attach Document"}
-                </button>
-              ))}
-            </div>
-            {cancelMode === "remark" ? (
-              <textarea
-                value={cancelRemark}
-                onChange={(e) => setCancelRemark(e.target.value)}
-                rows={4}
-                placeholder="Write your remark"
-                className="w-full rounded-xl bg-card border border-border p-4 text-[16px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary"
-              />
-            ) : (
-              <button className="w-full rounded-xl border border-dashed border-border bg-muted/30 py-8 flex flex-col items-center gap-2 text-sm text-muted-foreground">
-                <FileText className="w-6 h-6" />
-                Upload supporting document
-              </button>
-            )}
+            <p className="text-sm text-muted-foreground mb-2">Cancel Purpose</p>
+            <button
+              onClick={() => setPicker({ title: "Cancel Purpose", options: CANCEL_PURPOSES, value: cancelPurpose, onPick: setCancelPurpose })}
+              className="w-full h-12 rounded-xl bg-card border border-border px-4 flex items-center justify-between"
+            >
+              <span className={`text-sm ${cancelPurpose ? "text-foreground font-medium" : "text-muted-foreground"}`}>{cancelPurpose || "Select purpose"}</span>
+              <ChevronDown className="w-5 h-5 text-muted-foreground" />
+            </button>
+
+            <p className="text-sm text-muted-foreground mt-4 mb-2">Remark</p>
+            <textarea
+              value={cancelRemark}
+              onChange={(e) => setCancelRemark(e.target.value)}
+              rows={3}
+              placeholder="Write here ..."
+              className="w-full rounded-xl bg-card border border-border p-4 text-[16px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary resize-none"
+            />
             <button
               onClick={() => { setCancelOpen(false); navigate("/visit-management"); }}
               className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
               Submit
             </button>
-            <button onClick={() => setCancelOpen(false)} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Back</button>
+            <button onClick={() => setCancelOpen(false)} className="w-full mt-2 py-2 text-primary font-semibold text-sm">Cancel</button>
           </div>
+          <OptionPicker picker={picker} onClose={() => setPicker(null)} />
         </DrawerContent>
       </Drawer>
 
