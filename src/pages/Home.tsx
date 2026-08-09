@@ -201,6 +201,7 @@ const Home = () => {
       </div>
     ),
     "member-onboarding": (
+      <div key="member-onboarding-wrap" className="contents">
       <div key="member-onboarding" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
@@ -220,6 +221,7 @@ const Home = () => {
             ))}
           </div>
         </div>
+      </div>
       </div>
     ),
   };
