@@ -35,6 +35,22 @@ const RESULTS = ["Passed", "Failed", "Rescheduled"];
 const STEPS_OF_CALL = ["Merchandising Audit", "Stock Check", "Sales Pitch", "Training"];
 const CANCEL_PURPOSES = ["Store Closed", "Dealer Unavailable", "Weather Conditions", "Rescheduled by Dealer", "Other"];
 
+type VisitStatus = "Active" | "Pending" | "Missed" | "Canceled" | "Completed";
+const VISIT_STATUS: Record<string, { name: string; status: VisitStatus }> = {
+  "VST-1001": { name: "Riyadh North Route", status: "Pending" },
+  "VST-1002": { name: "Jeddah Corniche Route", status: "Missed" },
+  "VST-1003": { name: "Tahlia Dealers", status: "Completed" },
+  "VST-1004": { name: "Dammam Central", status: "Canceled" },
+  "VST-1005": { name: "Al Nakheel Plaza", status: "Active" },
+};
+const VISIT_STATUS_PILL: Record<VisitStatus, string> = {
+  Active: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  Pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  Missed: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+  Canceled: "bg-muted text-muted-foreground",
+  Completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+};
+
 type ResultStatus = "Passed" | "Cancelled" | "Not Performed";
 
 interface VisitResult {
