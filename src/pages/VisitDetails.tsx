@@ -134,7 +134,9 @@ const VisitDetails = () => {
 
   const [view, setView] = useState<"visit" | "result" | "form" | "qr" | "overview" | "survey">("visit");
   const [member, setMember] = useState<Member | null>(null);
-  const [results, setResults] = useState<Record<string, VisitResult[]>>(INITIAL_RESULTS);
+  const isActiveVisit = (id ?? "VST-1005") === "VST-1005";
+  // Active visits start with no recorded results — every member shows "Not Performed".
+  const [results, setResults] = useState<Record<string, VisitResult[]>>(isActiveVisit ? {} : INITIAL_RESULTS);
   const [openResult, setOpenResult] = useState<VisitResult | null>(null);
   const [draft, setDraft] = useState<VisitResult>({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" });
 
