@@ -229,16 +229,16 @@ const VisitDetails = () => {
   if (view === "qr") {
     return (
       <div className="mobile-container bg-background h-screen overflow-hidden flex flex-col">
-        <AppHeader title="Scan QR" showBack onBackClick={() => setView("result")} />
+        <AppHeader title="Scan QR" showBack onBackClick={() => setView("form")} />
         <div className="flex-1 px-4 pb-6 flex flex-col">
           <div className="flex-1 rounded-[32px] bg-neutral-800 border-[6px] border-neutral-900 relative overflow-hidden flex items-center justify-center">
             <span className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-neutral-900 rounded-b-2xl" />
-            <div className="relative w-full aspect-square bg-white flex items-center justify-center">
+            <button onClick={() => setView("overview")} aria-label="Scan code" className="relative w-full aspect-square bg-white flex items-center justify-center">
               {[["top-0 start-0", "border-t-4 border-s-4 rounded-ts-xl"], ["top-0 end-0", "border-t-4 border-e-4"], ["bottom-0 start-0", "border-b-4 border-s-4"], ["bottom-0 end-0", "border-b-4 border-e-4"]].map(([pos, b]) => (
                 <span key={pos} className={`absolute ${pos} w-12 h-12 border-primary ${b}`} />
               ))}
               <QrCode className="w-40 h-40 text-neutral-900" strokeWidth={1} />
-            </div>
+            </button>
           </div>
           <button
             onClick={() => setView("overview")}
@@ -300,6 +300,20 @@ const VisitDetails = () => {
             />
           </Field>
 
+          <p className="text-sm font-semibold text-foreground mt-5 mb-2">Survey</p>
+          <button
+            onClick={() => setView("qr")}
+            className="w-full rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center justify-between text-start"
+          >
+            <span>
+              <span className="block text-sm font-semibold text-foreground">{data.survey || "Survey Title"}</span>
+              <span className="block text-xs text-muted-foreground">Fill Address</span>
+            </span>
+            <span className="flex items-center gap-1 text-sm font-semibold text-sky-600 dark:text-sky-300">
+              Start <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
+            </span>
+          </button>
+
           <p className="text-sm font-semibold text-foreground mt-5 mb-2">Document</p>
           <div className="rounded-2xl bg-card border border-dashed border-border p-1 divide-y divide-border/60">
             {[{ icon: FileText, label: "File Title" }, { icon: ImageIcon, label: "Image Title" }].map(({ icon: Icon, label }) => (
@@ -317,7 +331,7 @@ const VisitDetails = () => {
 
         {!readOnly && (
           <div className="px-4 pt-4">
-            <button onClick={saveDraft} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+            <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
             <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
           </div>
         )}
@@ -367,7 +381,7 @@ const VisitDetails = () => {
           <div className="flex items-center justify-between mt-4 mb-2">
             <p className="text-sm font-medium text-foreground">Visit Result</p>
             <button
-              onClick={() => { setOpenResult(null); setDraft({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" }); setView("qr"); }}
+              onClick={() => { setOpenResult(null); setDraft({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" }); setView("form"); }}
               className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1"
             >
               Add New Result <Plus className="w-4 h-4" />
