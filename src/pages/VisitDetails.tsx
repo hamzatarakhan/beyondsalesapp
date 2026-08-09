@@ -128,6 +128,7 @@ const VisitDetails = () => {
   const [overviewTab, setOverviewTab] = useState<"kpi" | "stock">("kpi");
   const [openKpi, setOpenKpi] = useState(0);
   const [docPreview, setDocPreview] = useState<string | null>(null);
+  const [showAllMembers, setShowAllMembers] = useState(false);
 
   const visit = useMemo(
     () => ({ id: id ?? "VST-1005", name: "Al Nakheel Plaza", type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: "Active" }),
