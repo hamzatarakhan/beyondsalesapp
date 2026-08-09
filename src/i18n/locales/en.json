@@ -762,6 +762,14 @@
       }
     },
     "customerActivities": "Customer Activities",
+    "tickets": {
+      "title": "Tickets",
+      "seeAll": "See all",
+      "progress": "Progress",
+      "closed": "Closed",
+      "resolved": "Resolved",
+      "newTicket": "New Ticket"
+    },
     "simActivation": "SIM Activation",
     "simActivationV2": "SIM Activation 2",
     "simActivation3": "SIM Activation 3",
