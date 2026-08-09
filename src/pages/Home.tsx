@@ -22,6 +22,7 @@ import {
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
+import DealerVisitWidget from "@/components/DealerVisitWidget";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
@@ -151,6 +152,7 @@ const Home = () => {
   // whatever order `widgets` currently has, skipping any that are disabled there.
   const widgetNodes: Record<string, JSX.Element> = {
     "working-shift": <WorkingShiftWidget key="working-shift" />,
+    "dealer-visit": <DealerVisitWidget key="dealer-visit" />,
     "customer-activities": (
       <div key="customer-activities" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
