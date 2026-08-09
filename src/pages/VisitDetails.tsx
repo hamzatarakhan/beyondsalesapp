@@ -61,6 +61,7 @@ interface VisitResult {
 const INITIAL_RESULTS: Record<string, VisitResult[]> = {
   "M-1": [{ id: "R-1", title: "Visit 1", status: "Passed", purpose: "Stock Check", date: "17 Aug 2024", survey: "Stock Survey", result: "Passed" }],
   "M-4": [{ id: "R-2", title: "Visit 1", status: "Cancelled", purpose: "Training", date: "17 Aug 2024", survey: "Merchandising Survey", result: "Rescheduled" }],
+  "M-2": [{ id: "R-3", title: "Visit", status: "Not Performed", purpose: "Merchandising", date: "17 Aug 2024", survey: "Merchandising Survey" }],
 };
 
 const STATUS_PILL: Record<ResultStatus, string> = {
@@ -352,12 +353,10 @@ const VisitDetails = () => {
           </div>
         </div>
 
-        {!readOnly && (
-          <div className="px-4 pt-4">
-            <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
-            <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
-          </div>
-        )}
+        <div className="px-4 pt-4">
+          <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+          <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
+        </div>
 
         <OptionPicker picker={picker} onClose={() => setPicker(null)} />
         <Drawer open={!!docPreview} onOpenChange={(o) => !o && setDocPreview(null)}>
