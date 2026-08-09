@@ -5,7 +5,7 @@ import { DateRange } from "react-day-picker";
 import {
   CalendarDays, ChevronDown, Check, ContactRound, GripVertical, Hash, MapPin,
   Network, Repeat, Search, SlidersHorizontal, Trash2, User, X, ArrowLeft,
-  ChevronRight, Crosshair, Plus, CheckCircle2,
+  ChevronRight, Crosshair, Plus, CheckCircle2, Eye,
 } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -127,6 +127,11 @@ const CreateVisit = () => {
   const [stepsOfCall, setStepsOfCall] = useState<string>();
   const [range, setRange] = useState<DateRange | undefined>();
   const [recurring, setRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [weekDays, setWeekDays] = useState<number[]>([]);
+  const [monthDays, setMonthDays] = useState<number[]>([]);
+  const [lastDayOfMonth, setLastDayOfMonth] = useState(false);
+  const [datesSheet, setDatesSheet] = useState(false);
   const [selected, setSelected] = useState<Member[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -184,7 +189,51 @@ const CreateVisit = () => {
     setView("form");
   };
 
-  const canSubmit = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
+  const canSubmitBase = visitType && userType && assignTo && stepsOfCall && range?.from && selected.length > 0;
+
+  /* ---------- recurring occurrence engine ---------- */
+  const rangeDays = useMemo(() => {
+    if (!range?.from) return [] as Date[];
+    const end = range.to ?? range.from;
+    const out: Date[] = [];
+    const cur = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
+    while (cur <= end) {
+      out.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }, [range]);
+
+  const isLastDayOfMonth = (d: Date) => d.getDate() === new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+
+  const occurrences = useMemo(() => {
+    if (!recurring) return [] as Date[];
+    if (frequency === "daily") return rangeDays;
+    if (frequency === "weekly") return rangeDays.filter((d) => weekDays.includes(d.getDay()));
+    return rangeDays.filter((d) => monthDays.includes(d.getDate()) || (lastDayOfMonth && isLastDayOfMonth(d)));
+  }, [recurring, frequency, rangeDays, weekDays, monthDays, lastDayOfMonth]);
+
+  const WEEK_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+  const WEEK_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const ordinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+  };
+
+  const recurrenceTitle = () => {
+    if (frequency === "daily") return "Repeats every day";
+    if (frequency === "weekly") {
+      if (!weekDays.length) return "Select at least one day of the week";
+      return `Repeats every week on ${[...weekDays].sort((a, b) => a - b).map((d) => WEEK_NAMES[d]).join(", ")}`;
+    }
+    const parts = [...monthDays].sort((a, b) => a - b).map(ordinal);
+    if (lastDayOfMonth) parts.push("last day");
+    if (!parts.length) return "Select at least one day of the month";
+    return `Repeats monthly on the ${parts.join(", ")}`;
+  };
+
+  const canSubmit = canSubmitBase && (!recurring || occurrences.length > 0);
 
   /* ---------- MAP VIEW ---------- */
   if (view === "map") {
@@ -706,15 +755,118 @@ const CreateVisit = () => {
           </Field>
         </div>
 
-        <div className="mt-3 rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Repeat className="w-5 h-5 text-primary" />
-          </span>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Recurring Visit</p>
-            <p className="text-sm text-muted-foreground">Repeat this visit automatically.</p>
+        <div className="mt-3 rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Repeat className="w-5 h-5 text-primary" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Recurring Visit</p>
+              <p className="text-sm text-muted-foreground">Repeat this visit automatically.</p>
+            </div>
+            <Switch checked={recurring} onCheckedChange={setRecurring} />
           </div>
-          <Switch checked={recurring} onCheckedChange={setRecurring} />
+
+          {recurring && (
+            <div className="mt-4 pt-4 border-t border-border/60">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-foreground">Frequency</p>
+                <p className="text-xs text-muted-foreground">
+                  {rangeDays.length ? `${rangeDays.length}-day range` : "Select a date range"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {(["daily", "weekly", "monthly"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFrequency(f)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize ${frequency === f ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              {frequency === "weekly" && (
+                <>
+                  <p className="text-sm font-medium text-foreground mt-4 mb-2">Repeat on</p>
+                  <div className="flex gap-2">
+                    {WEEK_LABELS.map((l, i) => {
+                      const on = weekDays.includes(i);
+                      return (
+                        <button
+                          key={i}
+                          aria-label={WEEK_NAMES[i]}
+                          onClick={() => setWeekDays((p) => (on ? p.filter((x) => x !== i) : [...p, i]))}
+                          className={`w-9 h-9 rounded-full text-xs font-semibold ${on ? "bg-primary text-primary-foreground" : "bg-muted/60 text-muted-foreground"}`}
+                        >
+                          {l}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {frequency === "monthly" && (
+                <>
+                  <p className="text-sm font-medium text-foreground mt-4 mb-2">Days of month</p>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => {
+                      const on = monthDays.includes(d);
+                      return (
+                        <button
+                          key={d}
+                          onClick={() => setMonthDays((p) => (on ? p.filter((x) => x !== d) : [...p, d]))}
+                          className={`h-9 rounded-lg text-xs font-semibold ${on ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button
+                    onClick={() => setLastDayOfMonth((v) => !v)}
+                    className={`w-full mt-1.5 h-9 rounded-lg text-xs font-semibold ${lastDayOfMonth ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"}`}
+                  >
+                    Last day of month
+                  </button>
+                </>
+              )}
+
+              <div className="mt-4 rounded-2xl border border-border/60 p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">{recurrenceTitle()}</p>
+                  <span className="shrink-0 px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 text-[11px] font-semibold">
+                    {occurrences.length} Visit
+                  </span>
+                </div>
+                {range?.from && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {fmt(range.from)} → {fmt(range.to ?? range.from)}
+                  </p>
+                )}
+                {occurrences.length > 0 && (
+                  <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide">
+                    {occurrences.slice(0, 5).map((d, i) => (
+                      <span key={i} className="shrink-0 px-2.5 py-1 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+                        {format(d, "MMM d")}
+                      </span>
+                    ))}
+                    {occurrences.length > 5 && (
+                      <button
+                        onClick={() => setDatesSheet(true)}
+                        className="shrink-0 px-2.5 py-1 rounded-lg bg-muted/50 text-xs text-muted-foreground flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        {occurrences.length - 5}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-4 mb-2">
@@ -776,6 +928,27 @@ const CreateVisit = () => {
       </div>
 
       <OptionPicker picker={picker} onClose={() => setPicker(null)} />
+
+      {/* selected recurring dates sheet */}
+      <Drawer open={datesSheet} onOpenChange={setDatesSheet}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[70vh]">
+          <DrawerHeader className="pt-6 relative">
+            <button onClick={() => setDatesSheet(false)} aria-label="Back" className="absolute start-4 top-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4 text-foreground rtl:-scale-x-100" />
+            </button>
+            <DrawerTitle className="text-lg font-semibold text-center">Selected Date</DrawerTitle>
+            <DrawerDescription className="sr-only">All recurring visit dates</DrawerDescription>
+            <button onClick={() => setDatesSheet(false)} aria-label="Close" className="absolute end-4 top-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+          </DrawerHeader>
+          <div className="px-4 pb-8 overflow-y-auto scrollbar-hide divide-y divide-border/60">
+            {occurrences.map((d, i) => (
+              <p key={i} className="py-3 text-sm text-foreground">{format(d, "MMM d, yyyy")}</p>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* date range sheet */}
       <Drawer open={dateOpen} onOpenChange={setDateOpen}>
