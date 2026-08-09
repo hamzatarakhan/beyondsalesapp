@@ -434,7 +434,7 @@ const VisitDetails = () => {
 
   /* ---------- VIEW VISIT ---------- */
   return (
-    <div className="mobile-container pb-40 bg-background h-screen overflow-y-auto scrollbar-hide">
+    <div className={`mobile-container bg-background h-screen overflow-y-auto scrollbar-hide ${visit.status === "Active" ? "pb-40" : visit.status === "Pending" ? "pb-32" : "pb-8"}`}>
       <AppHeader title="View Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">
