@@ -179,11 +179,22 @@ const CreateVisit = () => {
         <div className="px-4 flex-1">
           {rows.map((r) => (
             <Field key={r.label} label={r.label}>
-              <SelectRow
-                placeholder={`Select the ${r.label.toLowerCase()}`}
-                value={r.value.join(", ") || undefined}
+              <button
                 onClick={() => setMultiPicker({ title: r.label, options: r.options, value: r.value, onApply: r.set })}
-              />
+                className="w-full h-12 rounded-xl border border-border bg-card px-4 flex items-center justify-between text-start"
+              >
+                <span className={`text-sm truncate ${r.value.length ? "text-foreground" : "text-muted-foreground"}`}>
+                  {r.value.join(", ") || `Select the ${r.label.toLowerCase()}`}
+                </span>
+                <span className="flex items-center gap-2 shrink-0">
+                  {r.value.length > 0 && (
+                    <span className="min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                      {r.value.length}
+                    </span>
+                  )}
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                </span>
+              </button>
             </Field>
           ))}
         </div>
@@ -256,15 +267,39 @@ const CreateVisit = () => {
             <button onClick={() => setView("filter")} aria-label="Filter" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0">
               <SlidersHorizontal className="w-5 h-5 text-primary" />
             </button>
-            <button onClick={() => setSelectedSheet(true)} aria-label="Selected members" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0 relative">
+            <button onClick={() => setView("map")} aria-label="Map view" className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center shrink-0">
               <MapPin className="w-5 h-5 text-primary" />
-              {draftSelected.length > 0 && (
-                <span className="absolute -top-1 -end-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center">
-                  {draftSelected.length}
-                </span>
-              )}
             </button>
           </div>
+
+          {(fRegion.length > 0 || fCity.length > 0 || fDistrict.length > 0) && (
+            <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide">
+              {[
+                ...fRegion.map((v) => ({ v, clear: () => setFRegion((p) => p.filter((x) => x !== v)) })),
+                ...fCity.map((v) => ({ v, clear: () => setFCity((p) => p.filter((x) => x !== v)) })),
+                ...fDistrict.map((v) => ({ v, clear: () => setFDistrict((p) => p.filter((x) => x !== v)) })),
+              ].map(({ v, clear }) => (
+                <button key={v} onClick={clear} className="shrink-0 px-3 py-1 rounded-full border border-primary text-primary text-xs font-medium flex items-center gap-1">
+                  {v} <X className="w-3 h-3" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {draftSelected.length > 0 && (
+            <button
+              onClick={() => setSelectedSheet(true)}
+              className="w-full mt-3 h-12 rounded-xl bg-card border border-border px-4 flex items-center justify-between"
+            >
+              <span className="text-sm text-foreground">Select channel members</span>
+              <span className="flex items-center gap-2">
+                <span className="min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                  {draftSelected.length}
+                </span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
+              </span>
+            </button>
+          )}
 
           <label className="flex items-center gap-2 mt-4">
             <input
