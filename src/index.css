@@ -181,3 +181,17 @@
     border-radius: 9999px;
   }
 }
+
+/* Hide scrollbars app-wide while keeping scrolling functional.
+   Opt back in with .scrollbar-thin-light where a visible bar is wanted. */
+@layer base {
+  *:not(.scrollbar-thin-light) {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *:not(.scrollbar-thin-light)::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}
