@@ -61,6 +61,7 @@ interface VisitResult {
 const INITIAL_RESULTS: Record<string, VisitResult[]> = {
   "M-1": [{ id: "R-1", title: "Visit 1", status: "Passed", purpose: "Stock Check", date: "17 Aug 2024", survey: "Stock Survey", result: "Passed" }],
   "M-4": [{ id: "R-2", title: "Visit 1", status: "Cancelled", purpose: "Training", date: "17 Aug 2024", survey: "Merchandising Survey", result: "Rescheduled" }],
+  "M-2": [{ id: "R-3", title: "Visit", status: "Not Performed", purpose: "Merchandising", date: "17 Aug 2024", survey: "Merchandising Survey" }],
 };
 
 const STATUS_PILL: Record<ResultStatus, string> = {
