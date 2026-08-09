@@ -121,7 +121,7 @@ const VisitManagement = () => {
         {visits.map((v) => (
           <button
             key={v.id}
-            onClick={() => navigate("/coming-soon")}
+            onClick={() => navigate(`/visit-management/${v.id}`)}
             className="w-full text-start relative overflow-hidden rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 ps-5"
           >
             <span className="absolute start-0 top-0 bottom-0 w-1.5 bg-primary" />
