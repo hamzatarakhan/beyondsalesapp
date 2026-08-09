@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon,
-  MapPin, Network, Plus, QrCode, User, X, CheckCircle2,
+  MapPin, Network, Plus, QrCode, User, X, CheckCircle2, XOctagon,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import SurveyFlow from "@/components/visit/SurveyFlow";
@@ -152,6 +152,7 @@ const VisitDetails = () => {
   const [docPreview, setDocPreview] = useState<string | null>(null);
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [postSurvey, setPostSurvey] = useState(false);
+  const [cancelResultOpen, setCancelResultOpen] = useState(false);
 
   const visit = useMemo(
     () => {
@@ -402,10 +403,29 @@ const VisitDetails = () => {
 
         <div className="px-4 pt-4">
           <button onClick={() => (postSurvey ? saveDraft() : setView("qr"))} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
-          <button onClick={() => { setPostSurvey(false); setView("result"); }} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
+          <button onClick={() => setCancelResultOpen(true)} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
         </div>
 
         <OptionPicker picker={picker} onClose={() => setPicker(null)} />
+        <Drawer open={cancelResultOpen} onOpenChange={setCancelResultOpen}>
+          <DrawerContent className="bg-card rounded-t-3xl">
+            <DrawerHeader className="text-center pt-4 pb-2">
+              <DrawerTitle className="text-lg font-semibold">Confirmation Message</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-8 text-center">
+              <XOctagon className="w-12 h-12 mx-auto text-primary" strokeWidth={1.5} />
+              <p className="mt-2 text-base font-semibold text-primary">Discard this result ?</p>
+              <p className="text-sm text-muted-foreground">Your changes will not be saved. Are you sure you want to cancel ?</p>
+              <button
+                onClick={() => { setCancelResultOpen(false); setPostSurvey(false); setView("result"); }}
+                className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+              >
+                Yes, Cancel
+              </button>
+              <button onClick={() => setCancelResultOpen(false)} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Back</button>
+            </div>
+          </DrawerContent>
+        </Drawer>
         <Drawer open={!!docPreview} onOpenChange={(o) => !o && setDocPreview(null)}>
           <DrawerContent className="bg-card rounded-t-3xl">
             <DrawerHeader className="text-center pt-6">
