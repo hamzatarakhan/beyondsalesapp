@@ -149,7 +149,11 @@ const VisitDetails = () => {
   const [showAllMembers, setShowAllMembers] = useState(false);
 
   const visit = useMemo(
-    () => ({ id: id ?? "VST-1005", name: "Al Nakheel Plaza", type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: "Active" }),
+    () => {
+      const key = id ?? "VST-1005";
+      const meta = VISIT_STATUS[key] ?? { name: "Al Nakheel Plaza", status: "Active" as VisitStatus };
+      return { id: key, name: meta.name, type: "Planned Visit", assignee: "Ahmad Khaled", userType: "POS", steps: "Merchandising Audit", date: "03 Jun 2026", recurrence: "Monthly", status: meta.status };
+    },
     [id],
   );
 
