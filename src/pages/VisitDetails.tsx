@@ -5,6 +5,7 @@ import {
   MapPin, Network, Plus, QrCode, User, X, CheckCircle2,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
+import SurveyFlow from "@/components/visit/SurveyFlow";
 import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription,
 } from "@/components/ui/drawer";
@@ -131,7 +132,7 @@ const VisitDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [view, setView] = useState<"visit" | "result" | "form" | "qr" | "overview">("visit");
+  const [view, setView] = useState<"visit" | "result" | "form" | "qr" | "overview" | "survey">("visit");
   const [member, setMember] = useState<Member | null>(null);
   const [results, setResults] = useState<Record<string, VisitResult[]>>(INITIAL_RESULTS);
   const [openResult, setOpenResult] = useState<VisitResult | null>(null);
@@ -166,6 +167,17 @@ const VisitDetails = () => {
     setResults((p) => ({ ...p, [member.id]: [...(p[member.id] ?? []), entry] }));
     setView("result");
   };
+
+  /* ---------- SURVEY ---------- */
+  if (view === "survey") {
+    return (
+      <SurveyFlow
+        title={(openResult ?? draft).survey || "Survey Title"}
+        onBack={() => setView("overview")}
+        onComplete={() => { if (openResult) { setOpenResult(null); setView("result"); } else { saveDraft(); } }}
+      />
+    );
+  }
 
   /* ---------- DEALER OVERVIEW (full page, after scan) ---------- */
   if (view === "overview") {
@@ -239,7 +251,7 @@ const VisitDetails = () => {
         </div>
         <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button
-            onClick={() => { if (openResult) { setOpenResult(null); setView("result"); } else { saveDraft(); } }}
+            onClick={() => setView("survey")}
             className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
           >
             Continue
