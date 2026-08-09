@@ -127,6 +127,11 @@ const CreateVisit = () => {
   const [stepsOfCall, setStepsOfCall] = useState<string>();
   const [range, setRange] = useState<DateRange | undefined>();
   const [recurring, setRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [weekDays, setWeekDays] = useState<number[]>([]);
+  const [monthDays, setMonthDays] = useState<number[]>([]);
+  const [lastDayOfMonth, setLastDayOfMonth] = useState(false);
+  const [datesSheet, setDatesSheet] = useState(false);
   const [selected, setSelected] = useState<Member[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
