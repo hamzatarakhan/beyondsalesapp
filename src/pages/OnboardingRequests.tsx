@@ -53,7 +53,7 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
 );
 
 /** Read-only "form field" look used on the Pending/Rejected detail view — label above, boxed value below. */
-const BoxField = ({ label, value }: { label: string; value: string }) => (
+const BoxField = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="space-y-1.5">
     <label className="text-xs text-muted-foreground">{label}</label>
     <div className="h-12 rounded-xl border border-input bg-card px-3.5 flex items-center">
@@ -322,6 +322,12 @@ const INITIAL_TASKS: OnboardingRequest[] = [
 
 type StatusFilter = "all" | "rejected" | "pending" | "active";
 
+// Member mobile numbers are stored as the local 10-digit form (leading 0) — display them
+// the same +966-prefixed, LTR-locked way the rest of the app formats phone numbers.
+const formatMobile = (v: string) => (
+  <span dir="ltr">+966 {v.replace(/^0/, "")}</span>
+);
+
 const OnboardingRequests = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -555,7 +561,7 @@ const OnboardingRequests = () => {
               <SummaryRow label={t("onboardingRequests.fullName")} value={activeItem.member.fullName} />
               <SummaryRow label={t("onboardingRequests.idLabel")} value={activeItem.member.civilId} />
               <SummaryRow label={t("onboardingRequests.memberTitle")} value={activeItem.member.memberTitle} />
-              <SummaryRow label={t("onboardingRequests.mobileNumber")} value={activeItem.member.mobileNumber} />
+              <SummaryRow label={t("onboardingRequests.mobileNumber")} value={formatMobile(activeItem.member.mobileNumber)} />
               <SummaryRow label={t("onboardingRequests.email")} value={activeItem.member.email} />
             </InfoSection>
             <InfoSection title={t("onboardingRequests.locationInformation")}>
@@ -579,7 +585,7 @@ const OnboardingRequests = () => {
                 <BoxField label={t("onboardingRequests.fullName")} value={activeItem.member.fullName} />
                 <BoxField label={t("onboardingRequests.civilId")} value={activeItem.member.civilId} />
                 <BoxField label={t("onboardingRequests.memberTitle")} value={activeItem.member.memberTitle} />
-                <BoxField label={t("onboardingRequests.mobileNumber")} value={activeItem.member.mobileNumber} />
+                <BoxField label={t("onboardingRequests.mobileNumber")} value={formatMobile(activeItem.member.mobileNumber)} />
                 <BoxField label={t("onboardingRequests.email")} value={activeItem.member.email} />
                 <div className="flex items-center gap-2 pt-1">
                   <div className={cn("w-4 h-4 rounded border-2 flex items-center justify-center shrink-0", activeItem.member.dealerIsAuthorizedRep ? "bg-primary border-primary" : "border-destructive")}>
@@ -727,7 +733,7 @@ const OnboardingRequests = () => {
                 </div>
               )}
               <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
-                <IconChip icon={Phone} /> {item.phone}
+                <IconChip icon={Phone} /> {formatMobile(item.phone)}
               </div>
               <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
                 <IconChip icon={CalendarDays} /> {item.date}
