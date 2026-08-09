@@ -325,7 +325,9 @@ type StatusFilter = "all" | "rejected" | "pending" | "active";
 // Member mobile numbers are stored as the local 10-digit form (leading 0) — display them
 // the same 966-prefixed, LTR-locked way the rest of the app formats phone numbers.
 const formatMobile = (v: string) => (
-  <span dir="ltr">966 <span className="text-muted-foreground">|</span> {v.replace(/^0/, "")}</span>
+  <span dir="ltr" className="inline-flex items-center gap-1.5">
+    966 <span className="w-px h-4 bg-border" /> {v.replace(/^0/, "")}
+  </span>
 );
 
 const OnboardingRequests = () => {
