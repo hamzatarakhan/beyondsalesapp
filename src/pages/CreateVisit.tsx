@@ -1,11 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import {
   CalendarDays, ChevronDown, Check, ContactRound, GripVertical, Hash, MapPin,
   Network, Repeat, Search, SlidersHorizontal, Trash2, User, X, ArrowLeft,
+  ChevronRight, Crosshair, Plus, CheckCircle2,
 } from "lucide-react";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import AppHeader from "@/components/AppHeader";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
@@ -43,6 +46,11 @@ const MEMBERS: Member[] = [
   { id: "M-4", name: "Olaya Digital", channelType: "Modern Trade", code: "MT-1188", parent: "Riyadh Hub", region: "Riyadh", city: "Riyadh", district: "Al Olaya" },
   { id: "M-5", name: "Madinah Mobile Center", channelType: "Retailer", code: "RT-2456", parent: "Madinah Hub", region: "Madinah", city: "Madinah", district: "Al Salamah" },
 ];
+
+const MEMBER_COORDS: Record<string, [number, number]> = {
+  "M-1": [24.7536, 46.6853], "M-2": [21.5433, 39.1728], "M-3": [26.4207, 50.0888],
+  "M-4": [24.6944, 46.6853], "M-5": [24.4686, 39.6142],
+};
 
 const KPIS = [
   { name: "Gross Activations", trend: "Degrowth - 10", pct: 90, target: 300, achievement: "298.326", lm: "132.56", mtd: "25.13", lmtd: "213.21" },
@@ -94,7 +102,10 @@ const CreateVisit = () => {
   const [params] = useSearchParams();
   const planned = params.get("type") !== "adhoc";
 
-  const [view, setView] = useState<"form" | "members" | "filter">("form");
+  const [view, setView] = useState<"form" | "members" | "filter" | "map" | "memberVisit" | "viewResult" | "visitDetails">("form");
+  const [resultMember, setResultMember] = useState<Member | null>(null);
+  const [results, setResults] = useState<Record<string, { title: string; purpose: string; date: string; survey: string }[]>>({});
+  const [draftResult, setDraftResult] = useState({ title: "", purpose: "", date: "17 Aug 2024", survey: "" });
 
   // form state
   const [visitType, setVisitType] = useState<string | undefined>(planned ? "Planned Visit" : "Ad-Hoc Visit");
