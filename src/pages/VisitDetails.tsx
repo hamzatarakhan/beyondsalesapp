@@ -353,12 +353,10 @@ const VisitDetails = () => {
           </div>
         </div>
 
-        {!readOnly && (
-          <div className="px-4 pt-4">
-            <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
-            <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
-          </div>
-        )}
+        <div className="px-4 pt-4">
+          <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+          <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
+        </div>
 
         <OptionPicker picker={picker} onClose={() => setPicker(null)} />
         <Drawer open={!!docPreview} onOpenChange={(o) => !o && setDocPreview(null)}>
