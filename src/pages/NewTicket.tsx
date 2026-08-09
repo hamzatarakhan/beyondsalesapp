@@ -63,13 +63,13 @@ const NewTicket = () => {
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">Priority Level</label>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {PRIORITIES.map((p) => (
               <button
                 key={p}
                 onClick={() => setPriority(p)}
                 className={cn(
-                  "px-6 h-10 rounded-full text-sm font-medium border capitalize transition-colors",
+                  "px-4 h-7 rounded-full text-xs font-medium border capitalize transition-colors",
                   priority === p
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-transparent text-primary border-primary"
