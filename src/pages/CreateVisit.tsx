@@ -752,7 +752,7 @@ const CreateVisit = () => {
         </div>
 
         <button
-          onClick={() => setSubmitted(true)}
+          onClick={() => setConfirmOpen(true)}
           disabled={!canSubmit}
           className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
         >
@@ -792,23 +792,40 @@ const CreateVisit = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* success */}
-      <Dialog open={submitted} onOpenChange={setSubmitted}>
-        <DialogContent className="max-w-[320px] rounded-3xl text-center">
-          <DialogHeader>
-            <span className="mx-auto w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center mb-2">
-              <Check className="w-7 h-7 text-emerald-600 dark:text-emerald-300" />
-            </span>
-            <DialogTitle className="text-center">Visit Created</DialogTitle>
-            <DialogDescription className="text-center">
-              The visit has been created and assigned successfully.
-            </DialogDescription>
-          </DialogHeader>
-          <button onClick={() => navigate("/visit-management")} className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            Go to Visits
-          </button>
-        </DialogContent>
-      </Dialog>
+      {/* confirmation message */}
+      <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl">
+          <DrawerHeader className="text-center pt-4">
+            <DrawerTitle className="text-lg font-semibold">Confirmation Message</DrawerTitle>
+            <DrawerDescription className="sr-only">Confirm submitting the visit request</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-5 pb-8 text-center">
+            <HexIcon tone="info"><span className="text-lg font-bold leading-none">!</span></HexIcon>
+            <p className="mt-3 text-base font-semibold text-sky-500">Submit Request</p>
+            <p className="mt-1 text-sm text-muted-foreground">Do you want to submit the new visit request ?</p>
+            <button
+              onClick={() => { setConfirmOpen(false); setSubmitted(true); }}
+              className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              Submit
+            </button>
+            <button onClick={() => setConfirmOpen(false)} className="w-full mt-3 py-2 text-primary font-semibold text-sm">
+              Cancel
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* success overlay */}
+      {submitted && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 px-5 pb-8">
+          <div className="w-full max-w-[360px] rounded-2xl bg-card px-6 py-5 text-center shadow-lg">
+            <HexIcon tone="success"><Check className="w-4 h-4" strokeWidth={3} /></HexIcon>
+            <p className="mt-2 text-base font-semibold text-emerald-600">Submit Request</p>
+            <p className="mt-1 text-sm text-muted-foreground">Your visit request has been sent successfully.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
