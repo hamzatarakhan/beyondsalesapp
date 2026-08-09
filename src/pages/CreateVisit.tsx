@@ -292,9 +292,7 @@ const CreateVisit = () => {
         ...prev,
         [resultMember.id]: [...(prev[resultMember.id] ?? []), { ...draftResult, title: draftResult.title || "Visit" }],
       }));
-      setConfirmOpen(false);
-      setResultSubmitted(true);
-      setTimeout(() => { setResultSubmitted(false); setView("viewResult"); }, 1600);
+      setView("viewResult");
     };
     return (
       <div className="mobile-container pb-8 bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col">
@@ -330,36 +328,10 @@ const CreateVisit = () => {
           </Field>
         </div>
         <div className="px-4 pb-8 pt-4">
-          <button onClick={() => setConfirmOpen(true)} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+          <button onClick={saveResult} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
           <button onClick={() => setView("viewResult")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
         </div>
         <OptionPicker picker={picker} onClose={() => setPicker(null)} />
-
-        <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <DrawerContent className="bg-card rounded-t-3xl">
-            <DrawerHeader className="text-center pt-4">
-              <DrawerTitle className="text-lg font-semibold">Confirmation Message</DrawerTitle>
-              <DrawerDescription className="sr-only">Confirm submitting the new visit request</DrawerDescription>
-            </DrawerHeader>
-            <div className="px-5 pb-8 text-center">
-              <HexIcon tone="info"><span className="text-lg font-bold leading-none">!</span></HexIcon>
-              <p className="mt-3 text-base font-semibold text-sky-500">Submit Request</p>
-              <p className="mt-1 text-sm text-muted-foreground">Do you want to submit the new visit request ?</p>
-              <button onClick={saveResult} className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
-              <button onClick={() => setConfirmOpen(false)} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
-            </div>
-          </DrawerContent>
-        </Drawer>
-
-        {resultSubmitted && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 px-5 pb-8">
-            <div className="w-full max-w-[360px] rounded-2xl bg-card px-6 py-5 text-center shadow-lg">
-              <HexIcon tone="success"><Check className="w-4 h-4" strokeWidth={3} /></HexIcon>
-              <p className="mt-2 text-base font-semibold text-emerald-600">Submit Request</p>
-              <p className="mt-1 text-sm text-muted-foreground">Your visit request has been sent successfully.</p>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
