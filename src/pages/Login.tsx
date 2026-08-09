@@ -1,18 +1,28 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import BeyondOneLogo from "@/components/BeyondOneLogo";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+
+  useEffect(() => {
+    if ((location.state as { passwordReset?: boolean } | null)?.passwordReset) {
+      setResetSuccess(true);
+      navigate("/login", { replace: true, state: null });
+    }
+  }, [location.state, navigate]);
 
   // login() flips auth state and raises loginTransition, which an App-level overlay
   // (mounted above the router, so it survives this navigation) picks up to play the
@@ -53,7 +63,11 @@ const Login = () => {
         </div>
       </div>
 
-      <button type="button" className="self-end mt-3 text-sm font-medium text-foreground">
+      <button
+        type="button"
+        onClick={() => navigate("/forgot-password")}
+        className="self-end mt-3 text-sm font-medium text-foreground"
+      >
         {t("login.forgetPassword")}
       </button>
 
@@ -89,6 +103,16 @@ const Login = () => {
         <span>{t("login.poweredBy")}</span>
         <BeyondOneLogo className="h-3.5 w-auto text-[#000B25] dark:text-white" />
       </div>
+
+      <Dialog open={resetSuccess} onOpenChange={setResetSuccess}>
+        <DialogContent className="w-[85%] rounded-3xl p-6 text-center [&>button]:hidden">
+          <div className="mx-auto w-12 h-12 rounded-full border-2 border-emerald-500 flex items-center justify-center">
+            <Check className="w-6 h-6 text-emerald-500" strokeWidth={3} />
+          </div>
+          <p className="mt-3 text-lg font-semibold text-emerald-600">Success</p>
+          <p className="text-sm text-muted-foreground">Your password has been reset successfully.</p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
