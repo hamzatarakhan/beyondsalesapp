@@ -149,6 +149,7 @@ const VisitDetails = () => {
   const [openKpi, setOpenKpi] = useState(0);
   const [docPreview, setDocPreview] = useState<string | null>(null);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const [postSurvey, setPostSurvey] = useState(false);
 
   const visit = useMemo(
     () => {
