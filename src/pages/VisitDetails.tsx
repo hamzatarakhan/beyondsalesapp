@@ -149,6 +149,7 @@ const VisitDetails = () => {
   const [openKpi, setOpenKpi] = useState(0);
   const [docPreview, setDocPreview] = useState<string | null>(null);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const [postSurvey, setPostSurvey] = useState(false);
 
   const visit = useMemo(
     () => {
@@ -159,12 +160,27 @@ const VisitDetails = () => {
     [id],
   );
 
-  const memberResults = member ? results[member.id] ?? [] : [];
+  // Active visits always start with a "Not Performed" result row for each member.
+  const memberResults = useMemo(() => {
+    if (!member) return [] as VisitResult[];
+    const list = results[member.id] ?? [];
+    if (list.length === 0 && visit.status === "Active") {
+      return [{ id: `NP-${member.id}`, title: "Visit 1", status: "Not Performed" as ResultStatus, purpose: "Merchandising", date: "17 Aug 2024", survey: "Merchandising Survey" }];
+    }
+    return list;
+  }, [member, results, visit.status]);
 
   const saveDraft = () => {
     if (!member || !draft.title && !draft.purpose && !draft.survey && !draft.result) { setView("result"); return; }
-    const entry: VisitResult = { ...draft, id: `R-${Date.now()}`, title: draft.title || `Visit ${(results[member.id]?.length ?? 0) + 1}`, status: (draft.result === "Passed" ? "Passed" : draft.result ? "Cancelled" : "Not Performed") };
-    setResults((p) => ({ ...p, [member.id]: [...(p[member.id] ?? []), entry] }));
+    const status: ResultStatus = draft.result === "Passed" ? "Passed" : draft.result ? "Cancelled" : "Not Performed";
+    const list = results[member.id] ?? [];
+    const existing = draft.id && list.some((r) => r.id === draft.id);
+    const entry: VisitResult = { ...draft, id: draft.id || `R-${Date.now()}`, title: draft.title || `Visit ${list.length + 1}`, status };
+    setResults((p) => ({
+      ...p,
+      [member.id]: existing ? (p[member.id] ?? []).map((r) => (r.id === entry.id ? entry : r)) : [...(p[member.id] ?? []), entry],
+    }));
+    setPostSurvey(false);
     setView("result");
   };
 
@@ -174,7 +190,13 @@ const VisitDetails = () => {
       <SurveyFlow
         title={(openResult ?? draft).survey || "Survey Title"}
         onBack={() => setView("overview")}
-        onComplete={() => { if (openResult) { setOpenResult(null); setView("result"); } else { saveDraft(); } }}
+        onComplete={() => {
+          const base = openResult ?? draft;
+          setDraft({ ...base, result: "" });
+          setOpenResult(null);
+          setPostSurvey(true);
+          setView("form");
+        }}
       />
     );
   }
@@ -293,7 +315,7 @@ const VisitDetails = () => {
     const data = openResult ?? draft;
     return (
       <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-8">
-        <AppHeader title="View Result" showBack onBackClick={() => { setOpenResult(null); setView("result"); }} />
+        <AppHeader title="View Result" showBack onBackClick={() => { setOpenResult(null); setPostSurvey(false); setView("result"); }} />
         <div className="px-4 flex-1">
           {readOnly && (
             <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 mb-4 flex items-center justify-between">
@@ -366,8 +388,8 @@ const VisitDetails = () => {
         </div>
 
         <div className="px-4 pt-4">
-          <button onClick={() => setView("qr")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
-          <button onClick={() => setView("result")} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
+          <button onClick={() => (postSurvey ? saveDraft() : setView("qr"))} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
+          <button onClick={() => { setPostSurvey(false); setView("result"); }} className="w-full mt-3 py-2 text-primary font-semibold text-sm">Cancel</button>
         </div>
 
         <OptionPicker picker={picker} onClose={() => setPicker(null)} />
@@ -415,7 +437,7 @@ const VisitDetails = () => {
           <div className="flex items-center justify-between mt-4 mb-2">
             <p className="text-sm font-medium text-foreground">Visit Result</p>
             <button
-              onClick={() => { setOpenResult(null); setDraft({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" }); setView("form"); }}
+              onClick={() => { setOpenResult(null); setPostSurvey(false); setDraft({ id: "", title: "", status: "Not Performed", date: "17 Aug 2024" }); setView("form"); }}
               className="text-sm font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1"
             >
               Add New Result <Plus className="w-4 h-4" />
@@ -426,7 +448,7 @@ const VisitDetails = () => {
               <p className="p-4 text-center text-sm text-muted-foreground">No results recorded yet</p>
             )}
             {memberResults.map((r) => (
-              <button key={r.id} onClick={() => { setOpenResult(r); setView("form"); }} className="w-full p-3.5 flex items-center justify-between gap-2 text-start">
+              <button key={r.id} onClick={() => { setOpenResult(r); setPostSurvey(false); setView("form"); }} className="w-full p-3.5 flex items-center justify-between gap-2 text-start">
                 <span className="text-sm font-medium text-foreground truncate">{r.title}</span>
                 <span className="flex items-center gap-2 shrink-0">
                   <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${STATUS_PILL[r.status]}`}>{r.status}</span>
