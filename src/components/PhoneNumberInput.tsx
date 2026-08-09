@@ -16,7 +16,7 @@ interface PhoneNumberInputProps {
   icon?: ReactNode;
 }
 
-// Saudi mobile numbers are always entered as +966 followed by the 9-digit local number
+// Saudi mobile numbers are always entered as 966 followed by the 9-digit local number
 // (the leading 0 of the domestic 05XXXXXXXX form is dropped). The leading-0 reattachment
 // happens here, not at call sites, so an emptied field reports back "" rather than a
 // stray "0" that would read as "filled" by a truthy required-field check. Locked to
@@ -33,7 +33,7 @@ const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", 
     )}
   >
     <span className="shrink-0 px-3 h-full flex items-center text-sm font-medium text-muted-foreground border-e border-input">
-      +966
+      966
     </span>
     <input
       type="text"
