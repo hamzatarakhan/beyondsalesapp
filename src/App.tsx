@@ -50,6 +50,9 @@ import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
 import MyShifts from "./pages/MyShifts";
+import Tickets from "./pages/Tickets";
+import NewTicket from "./pages/NewTicket";
+import TicketDetails from "./pages/TicketDetails";
 import NotFound from "./pages/NotFound";
 
 
@@ -125,6 +128,9 @@ const App = () => {
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />
           <Route path="/my-shifts" element={<MyShifts />} />
+          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/tickets/new" element={<NewTicket />} />
+          <Route path="/tickets/:id" element={<TicketDetails />} />
           </Route>
           <Route path="*" element={<NotFound />} />
 
