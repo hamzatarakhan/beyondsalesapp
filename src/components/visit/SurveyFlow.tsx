@@ -16,7 +16,7 @@ const QUESTIONS: Question[] = [
   { q: "Training Required ?", type: "radio", options: ["Label", "Label"] },
   { q: "Location Photo Upload", type: "upload" },
 ];
-const TOTAL = 38;
+const TOTAL = QUESTIONS.length;
 const pad = (n: number) => String(n).padStart(2, "0");
 
 interface Props {
