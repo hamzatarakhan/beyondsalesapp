@@ -417,7 +417,23 @@ const VisitDetails = () => {
               <p className="mt-2 text-base font-semibold text-primary">Discard this result ?</p>
               <p className="text-sm text-muted-foreground">Your changes will not be saved. Are you sure you want to cancel ?</p>
               <button
-                onClick={() => { setCancelResultOpen(false); setPostSurvey(false); setView("result"); }}
+                onClick={() => {
+                  if (member) {
+                    const list = results[member.id] ?? memberResults;
+                    const baseId = draft.id || openResult?.id || `R-${Date.now()}`;
+                    const entry: VisitResult = { ...draft, id: baseId, title: draft.title || `Visit ${list.length + 1}`, result: "Cancelled", status: "Cancelled" };
+                    const current = results[member.id] ?? memberResults;
+                    const exists = current.some((r) => r.id === baseId);
+                    setResults((p) => ({
+                      ...p,
+                      [member.id]: exists ? current.map((r) => (r.id === baseId ? entry : r)) : [...current, entry],
+                    }));
+                  }
+                  setCancelResultOpen(false);
+                  setPostSurvey(false);
+                  setOpenResult(null);
+                  setView("result");
+                }}
                 className="w-full mt-5 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
               >
                 Yes, Cancel
