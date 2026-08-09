@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon,
+  CalendarDays, ChevronDown, ChevronRight, Eye, FileText, Hash, Image as ImageIcon, PlusCircle,
   MapPin, Network, Plus, QrCode, User, X, CheckCircle2, XOctagon,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
