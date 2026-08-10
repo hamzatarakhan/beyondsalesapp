@@ -196,7 +196,7 @@ const MIN_PAY = 10;
 /** Ceiling for a single-account payment. Multi-account rows cap at their own bill amount instead. */
 const MSISDN_MAX_PAY = 2500;
 
-const money = (n: number) => n.toFixed(2).replace(/\.00$/, "");
+const money = (n: number) => n.toFixed(2);
 
 /** Newest bill carries the full outstanding balance, so it alone is the amount due. */
 const totalDueOf = (a: BillAccount) => (a.bills.length > 0 ? a.bills[0].amount : 0);
@@ -770,7 +770,7 @@ const BillPayment = () => {
                 <PayOption
                   icon={Wallet}
                   label={t("billPayment.dealerWallet")}
-                  description={t("billPayment.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })}
+                  description={t("billPayment.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })}
                   selected={payMethod === "wallet"}
                   onClick={() => setPayMethod("wallet")}
                 />
@@ -813,7 +813,7 @@ const BillPayment = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {t("billPayment.payAmountSar", { amount: money(totalToPay) })}
+              {t("billPayment.pay")} <RiyalSymbol /> {money(totalToPay)}
             </Button>
           )}
         </div>

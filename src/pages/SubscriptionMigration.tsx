@@ -598,18 +598,18 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.depositFee")}</span>
-                        <span className="text-xs font-semibold text-foreground">{depositWaiver ? t("subscriptionMigration.waived") : t("subscriptionMigration.amountSar", { amount: deposit })}</span>
+                        <span className="text-xs font-semibold text-foreground">{depositWaiver ? t("subscriptionMigration.waived") : t("subscriptionMigration.amountSar", { amount: deposit.toFixed(2) })}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal.toFixed(2)}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("subscriptionMigration.total")}</span>
-                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand}</span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand.toFixed(2)}</span>
                     </div>
                   </>
                 );
@@ -637,20 +637,20 @@ const SubscriptionMigration = () => {
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.currentBalance")}</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance}</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {currentBalance.toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.unbilledAmount")}</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled}</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {unbilled.toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.oobUsage")}</span>
-                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob}</span>
+                              <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {oob.toFixed(2)}</span>
                             </div>
                           </div>
                           <div className="flex items-center justify-between border-t border-red-200 dark:border-red-500/25 mt-2 pt-2">
                             <span className="text-[11px] font-semibold text-foreground">{t("subscriptionMigration.totalOutstanding")}</span>
-                            <span className="text-xs font-bold text-red-600"><RiyalSymbol /> {outstandingBalance}</span>
+                            <span className="text-xs font-bold text-red-600"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</span>
                           </div>
                         </div>
                       );
@@ -658,28 +658,28 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.plan")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice.toFixed(2)}</span>
                       </div>
                     </div>
                     <div className="border-t border-border/60 space-y-2 py-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.subtotal")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
+                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat.toFixed(2)}</span>
                       </div>
                       {outstandingBalance > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.outstandingBill")}</span>
-                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance}</span>
+                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("subscriptionMigration.total")}</span>
-                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand}</span>
+                      <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand.toFixed(2)}</span>
                     </div>
                   </>
                 );
@@ -689,7 +689,7 @@ const SubscriptionMigration = () => {
             {!(direction === "pre-to-post" && isWhitelisted) && (
               <CardSection title={t("subscriptionMigration.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc")} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
               </CardSection>
@@ -759,7 +759,7 @@ const SubscriptionMigration = () => {
                 <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
                   <Wallet className="w-4 h-4 text-primary shrink-0" />
                   <span className="text-[12px] text-muted-foreground">{t("subscriptionMigration.walletBalanceLabel")}</span>
-                  <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</span>
+                  <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
                 </div>
               )}
               <Button
@@ -772,7 +772,7 @@ const SubscriptionMigration = () => {
             </>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : t("subscriptionMigration.payAmountSar", { amount: total })}
+              {direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : <>{t("subscriptionMigration.pay")} <RiyalSymbol /> {total.toFixed(2)}</>}
             </Button>
           )}
         </div>

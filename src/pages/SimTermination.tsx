@@ -130,7 +130,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
   },
 ];
 
-const money = (n: number) => n.toFixed(2).replace(/\.00$/, "");
+const money = (n: number) => n.toFixed(2);
 
 const SimTermination = () => {
   const navigate = useNavigate();
@@ -502,7 +502,7 @@ const SimTermination = () => {
                     {payChoice === "pay" && (
                       <div className="space-y-2 mt-3 pt-3 border-t border-border/50">
                         <p className="text-xs font-medium text-muted-foreground mb-1">{t("simTermination.paymentMethod")}</p>
-                        <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                        <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                         <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                       </div>
                     )}

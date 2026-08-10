@@ -930,7 +930,7 @@ const PrepaidActivation = () => {
               </SelectTrigger>
               <SelectContent className="bg-card">
                 {topupValues.map((v) => (
-                  <SelectItem key={v} value={v}><RiyalSymbol /> {v}</SelectItem>
+                  <SelectItem key={v} value={v}><RiyalSymbol /> {Number(v).toFixed(2)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

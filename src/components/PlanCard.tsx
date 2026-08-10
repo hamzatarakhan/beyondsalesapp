@@ -537,9 +537,9 @@ const PlanCard = ({
                 )}
               </div>
               <div className="space-y-2.5 mb-4">
-                <FeatureRow icon={Signal} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perMb}</span> {t("activation.plan.payg.perMb")}</>} />
-                <FeatureRow icon={MessageSquare} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perSms}</span> {t("activation.plan.payg.perSms")}</>} />
-                <FeatureRow icon={Phone} label={<><span className="font-semibold"><RiyalSymbol /> {plan.payg?.perMin}</span> {t("activation.plan.payg.perMin")}</>} />
+                <FeatureRow icon={Signal} label={<><span className="font-semibold"><RiyalSymbol /> {Number(plan.payg?.perMb).toFixed(2)}</span> {t("activation.plan.payg.perMb")}</>} />
+                <FeatureRow icon={MessageSquare} label={<><span className="font-semibold"><RiyalSymbol /> {Number(plan.payg?.perSms).toFixed(2)}</span> {t("activation.plan.payg.perSms")}</>} />
+                <FeatureRow icon={Phone} label={<><span className="font-semibold"><RiyalSymbol /> {Number(plan.payg?.perMin).toFixed(2)}</span> {t("activation.plan.payg.perMin")}</>} />
               </div>
             </>
           ) : layout === "combo" ? (

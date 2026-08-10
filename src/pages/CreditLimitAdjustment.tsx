@@ -272,7 +272,7 @@ const CreditLimitAdjustment = () => {
               <>
                 <CardSection title={t("creditLimitAdjustment.customerDetails")} icon={ClipboardList}>
               <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
-              <SummaryRow label={t("creditLimitAdjustment.currentCreditLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.currentCreditLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
             </CardSection>
 
             <div className="flex gap-3">
@@ -315,7 +315,7 @@ const CreditLimitAdjustment = () => {
                   <Minus className="w-4 h-4 text-foreground" />
                 </button>
                 <span className="text-2xl font-bold text-foreground">
-                  <RiyalSymbol className="text-lg" /> {delta}
+                  <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
                 </span>
                 <button
                   type="button"
@@ -329,22 +329,22 @@ const CreditLimitAdjustment = () => {
             </CardSection>
 
             <CardSection title={t("creditLimitAdjustment.preview")} icon={ClipboardList}>
-              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
-              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit}</span>} />
+              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit.toFixed(2)}</span>} />
             </CardSection>
 
             {direction === "increase" ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  {t("creditLimitAdjustment.increaseNote", { delta })}
+                  {t("creditLimitAdjustment.increaseNote", { delta: delta.toFixed(2) })}
                 </p>
               </div>
             ) : (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
                 <Wallet className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">
-                  {t("creditLimitAdjustment.decreaseNote", { delta: effectiveDelta })}
+                  {t("creditLimitAdjustment.decreaseNote", { delta: effectiveDelta.toFixed(2) })}
                 </p>
               </div>
             )}
@@ -359,8 +359,8 @@ const CreditLimitAdjustment = () => {
             <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
               <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
               <SummaryRow label={t("creditLimitAdjustment.direction")} value={direction === "increase" ? t("creditLimitAdjustment.increase") : t("creditLimitAdjustment.decrease")} />
-              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit}</>} />
-              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit.toFixed(2)}</>} />
             </CardSection>
 
             <CardSection title={t("creditLimitAdjustment.otpVerification")} icon={Phone}>
@@ -374,7 +374,7 @@ const CreditLimitAdjustment = () => {
             {direction === "increase" && (
               <CardSection title={t("creditLimitAdjustment.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
               </CardSection>
@@ -393,7 +393,7 @@ const CreditLimitAdjustment = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {direction === "increase" ? t("creditLimitAdjustment.payAmountSar", { amount: delta }) : t("creditLimitAdjustment.confirmAdjustment")}
+              {direction === "increase" ? <>{t("creditLimitAdjustment.pay")} <RiyalSymbol /> {delta.toFixed(2)}</> : t("creditLimitAdjustment.confirmAdjustment")}
             </Button>
           )}
         </div>
@@ -482,8 +482,8 @@ const CreditLimitAdjustment = () => {
             <h3 className="font-semibold text-foreground text-base mb-1">{t("creditLimitAdjustment.creditLimitUpdated")}</h3>
             <p className="text-sm text-muted-foreground text-center">
               {direction === "increase"
-                ? t("creditLimitAdjustment.increasedTo", { limit: newLimit })
-                : t("creditLimitAdjustment.decreasedTo", { limit: newLimit, delta: effectiveDelta })}
+                ? t("creditLimitAdjustment.increasedTo", { limit: newLimit.toFixed(2) })
+                : t("creditLimitAdjustment.decreasedTo", { limit: newLimit.toFixed(2), delta: effectiveDelta.toFixed(2) })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {t("creditLimitAdjustment.reference")} <span className="font-semibold text-foreground">{orderId}</span>
