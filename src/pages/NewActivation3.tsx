@@ -1025,6 +1025,13 @@ const NewActivation3 = () => {
     // selectedPlan are deliberately included so this effect re-fires and wins that race.
   }, [isFulfilment, fulfilmentEmail, payType, selectedPlan]);
 
+  // Paid fulfilment always means a physical SIM — the customer only ever comes into the store
+  // to collect one, since a paid E-SIM would already be provisioned remotely with nothing to
+  // hand over. SIM Type is locked to P-SIM (not just defaulted) so it can't drift to E-SIM.
+  useEffect(() => {
+    if (fulfilmentLocked) setSimType("psim");
+  }, [fulfilmentLocked]);
+
   // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
   // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
   // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
@@ -1254,7 +1261,7 @@ const NewActivation3 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [successOpen]);
 
-  const pageTitle = isFulfilment ? "Fulfillment" : isMnp ? "MNP (Port In)" : t("activation3.title");
+  const pageTitle = isFulfilment ? "Continue Activation" : isMnp ? "MNP (Port In)" : t("activation3.title");
 
   return (
     <div className="mobile-container bg-background min-h-screen pb-32">
@@ -1317,23 +1324,6 @@ const NewActivation3 = () => {
               </>
             ) : (
               <>
-                <Field label={t("activation3.identity.customerEmail")}>
-                  <Input
-                    type="email"
-                    value={fulfilmentEmail}
-                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
-                    placeholder="customer@email.com"
-                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
-                  />
-                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
-                    <p className="text-xs text-destructive">Enter a valid email address.</p>
-                  )}
-                </Field>
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium text-muted-foreground shrink-0">{t("activation3.identity.or")}</span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
                 <button
                   type="button"
                   onClick={() => setQrScanOpen(true)}
@@ -1348,6 +1338,23 @@ const NewActivation3 = () => {
                   </div>
                   <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
                 </button>
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">{t("activation3.identity.or")}</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <Field label={t("activation3.identity.customerEmail")}>
+                  <Input
+                    type="email"
+                    value={fulfilmentEmail}
+                    onChange={(e) => { setFulfilmentEmail(e.target.value); setQrVerified(false); }}
+                    placeholder="customer@email.com"
+                    className={cn("h-12 bg-card rounded-xl", fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {fulfilmentEmail.trim().length > 0 && !isValidEmail(fulfilmentEmail) && (
+                    <p className="text-xs text-destructive">Enter a valid email address.</p>
+                  )}
+                </Field>
               </>
             )}
 
@@ -1407,18 +1414,20 @@ const NewActivation3 = () => {
             {fulfilmentLocked && (
               <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
                 <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
-                  This customer already chose everything and paid online — just enter the KIT code (or change SIM Type, if needed) and hand over the SIM.
+                  This customer already chose everything and paid online — just enter the KIT code and hand over the SIM.
                 </p>
               </div>
             )}
-            {/* 1. SIM Type — always changeable, even on a paid fulfilment request */}
+            {/* 1. SIM Type — locked to P-SIM on a paid fulfilment request: a paid E-SIM would
+                already be provisioned remotely, so the only reason the customer is in the store
+                at all is to collect a physical SIM. Only KIT Code stays editable below. */}
             <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation3.subscription.simType")} <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} onClick={() => setSimType("psim")} />
-                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => setSimType("esim")} />
+                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} disabled={fulfilmentLocked} onClick={() => setSimType("psim")} />
+                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} disabled={fulfilmentLocked} onClick={() => setSimType("esim")} />
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
@@ -1497,6 +1506,18 @@ const NewActivation3 = () => {
                 fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
             {fulfilmentLocked ? (
               <div className="space-y-4">
+                {/* Line Type — read-only here (see the interactive toggle below for the unpaid
+                    case): paid fulfilment already fixed this online, the dealer just needs to see it. */}
+                {!isFriendi && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation3.subscription.lineTypeTitle")}</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {lineTypeOptions.map(({ key, label, Icon }) => (
+                        <SimCard key={key} active={lineType === key} label={label} icon={Icon} disabled onClick={() => {}} />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {selectedPlanObj && (
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation.plan.selectedPlan")}</h3>

@@ -124,7 +124,7 @@ const Home = () => {
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "migration", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "credit-limit", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Bill Payment settles postpaid bills, so it's Virgin-only — Friendi has no postpaid product.
