@@ -7,7 +7,7 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, type IdTypeRule } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, DEALER_WALLET_BALANCE, VerifiedBanner, type IdTypeRule } from "@/pages/NewActivation";
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,6 @@ import {
   Receipt,
   AlertCircle,
   Check,
-  CheckCircle2,
   XCircle,
   Phone,
   X as XIcon,
@@ -658,7 +657,7 @@ const SubscriptionMigration = () => {
                     })()}
                     <div className="space-y-2 pb-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? t("subscriptionMigration.plan")}</span>
+                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.plan")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                     </div>
@@ -699,13 +698,7 @@ const SubscriptionMigration = () => {
             {direction !== "post-to-pre" && (
             <CardSection title={t("subscriptionMigration.customerVerification")} icon={UserCheck}>
               {customerVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("subscriptionMigration.customerVerified")}</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("subscriptionMigration.stepVerified")}</p>
-                  </div>
-                </div>
+                <VerifiedBanner label={t("subscriptionMigration.customerVerified")} />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setCustomerVerifyOpen(true)}>{t("subscriptionMigration.verifyCustomer")}</Button>
               )}
@@ -714,13 +707,7 @@ const SubscriptionMigration = () => {
 
             <CardSection title={t("subscriptionMigration.otpVerification")} icon={Phone}>
               {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("subscriptionMigration.verified")}</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("subscriptionMigration.stepVerified")}</p>
-                  </div>
-                </div>
+                <VerifiedBanner label={t("subscriptionMigration.verified")} />
               ) : (
                 <>
                   <Button variant="outline" className="w-full" disabled={direction === "pre-to-post" && !customerVerified} onClick={() => setOtpOpen(true)}>{t("subscriptionMigration.sendVerifyOtp")}</Button>
@@ -767,13 +754,22 @@ const SubscriptionMigration = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step < 2 ? (
-            <Button
-              className="w-full h-12 text-sm font-semibold rounded-full"
-              disabled={step === 0 ? !canContinueIdentity : !canContinuePlan}
-              onClick={step === 0 ? onContinueStep0 : () => setStep((s) => s + 1)}
-            >
-              {t("subscriptionMigration.continue")}
-            </Button>
+            <>
+              {step === 1 && (
+                <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
+                  <Wallet className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-[12px] text-muted-foreground">{t("subscriptionMigration.walletBalanceLabel")}</span>
+                  <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE}</span>
+                </div>
+              )}
+              <Button
+                className="w-full h-12 text-sm font-semibold rounded-full"
+                disabled={step === 0 ? !canContinueIdentity : !canContinuePlan}
+                onClick={step === 0 ? onContinueStep0 : () => setStep((s) => s + 1)}
+              >
+                {t("subscriptionMigration.continue")}
+              </Button>
+            </>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
               {direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : t("subscriptionMigration.payAmountSar", { amount: total })}
