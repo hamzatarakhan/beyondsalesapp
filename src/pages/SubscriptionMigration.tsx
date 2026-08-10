@@ -591,19 +591,12 @@ const SubscriptionMigration = () => {
               {direction === "pre-to-post" ? (() => {
                 // Prepaid accounts don't carry a postpaid-style outstanding bill — that concept
                 // only applies when migrating away from postpaid (see the post-to-pre branch).
+                // Migrating from prepaid: no VAT applies, the customer only ever owes the deposit fee.
                 const subtotal = deposit;
-                // Whitelisted: no VAT on the deposit fee, matching SIM Activation's postpaid-whitelisted rule.
-                const vat = isWhitelisted ? 0 : Math.round(subtotal * 0.15 * 100) / 100;
-                const grand = Math.round((subtotal + vat) * 100) / 100;
+                const grand = subtotal;
                 return (
                   <>
                     <div className="space-y-2 pb-3">
-                      {!isWhitelisted && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{selectedPlanObj?.title ?? t("subscriptionMigration.plan")}</span>
-                          <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
-                        </div>
-                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.depositFee")}</span>
                         <span className="text-xs font-semibold text-foreground">{depositWaiver ? t("subscriptionMigration.waived") : t("subscriptionMigration.amountSar", { amount: deposit })}</span>
@@ -614,18 +607,11 @@ const SubscriptionMigration = () => {
                         <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.subtotal")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {subtotal}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("subscriptionMigration.vat")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat}</span>
-                      </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border/60 pt-3">
                       <span className="text-sm font-semibold text-foreground">{t("subscriptionMigration.total")}</span>
                       <span className="text-base font-bold text-primary"><RiyalSymbol /> {grand}</span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground leading-snug pt-2">
-                      {t("subscriptionMigration.walletBalanceNote")}
-                    </p>
                   </>
                 );
               })() : (() => {
