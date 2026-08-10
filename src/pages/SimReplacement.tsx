@@ -99,8 +99,9 @@ interface DemoReplacementCustomer {
 
 const DEMO_REPLACEMENT_CUSTOMERS: DemoReplacementCustomer[] = [
   { msisdn: "0503333311", name: "Mohammed Al-Qahtani", currentSimType: "psim", subscriptionType: "Postpaid", freeReplacementUsed: false, idType: "saudi-id", nationality: "sa", idNumber: "1029384756" },
-  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true, idType: "iqama-id", nationality: "sa", idNumber: "2098765432" },
+  { msisdn: "0503333344", name: "Sara Al-Amri", currentSimType: "esim", subscriptionType: "Postpaid", freeReplacementUsed: false, idType: "saudi-id", nationality: "sa", idNumber: "1039485762" },
   { msisdn: "0503333333", name: "Khalid Al-Dossari", currentSimType: "psim", subscriptionType: "Data SIM", freeReplacementUsed: true, idType: "gcc-id", nationality: "ae", idNumber: "2233445566" },
+  { msisdn: "0503333322", name: "Noura Al-Harbi", currentSimType: "esim", subscriptionType: "Prepaid", freeReplacementUsed: true, idType: "iqama-id", nationality: "sa", idNumber: "2098765432" },
 ];
 
 // Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
@@ -313,8 +314,9 @@ const SimReplacement = () => {
               description={t("simReplacement.testDescription")}
               items={[
                 { value: "0503333311", note: t("simReplacement.testNotePsimFree") },
-                { value: "0503333322", note: t("simReplacement.testNoteEsimUsed") },
+                { value: "0503333344", note: t("simReplacement.testNoteEsimFree") },
                 { value: "0503333333", note: t("simReplacement.testNotePsimUsed") },
+                { value: "0503333322", note: t("simReplacement.testNoteEsimUsed") },
                 { value: "0503333399", note: t("simReplacement.testNoteNotFound") },
               ]}
               onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
@@ -334,8 +336,11 @@ const SimReplacement = () => {
                   <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
                 </CardSection>
 
-                <Field label={t("simReplacement.changeTo")}>
-                  <div className="flex gap-3">
+                <section>
+                  <h3 className="text-sm font-semibold text-foreground mb-2">
+                    {t("simReplacement.changeTo")} <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
                     <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
                     <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
                   </div>
@@ -352,20 +357,25 @@ const SimReplacement = () => {
                     </button>
                   )}
                   {newSimType === "psim" && (
-                    <div className="relative mt-3">
-                      <Input
-                        value={kit}
-                        onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder={t("simReplacement.kitCodePlaceholder")}
-                        inputMode="numeric"
-                        className="h-12 bg-card rounded-xl pe-10"
-                      />
-                      <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("simReplacement.scanKitAria")}>
-                        <ScanLine className="w-5 h-5" />
-                      </button>
+                    <div className="mt-3 space-y-2">
+                      <h4 className="text-sm font-semibold text-foreground">
+                        {t("simReplacement.kitCode")} <span className="text-destructive">*</span>
+                      </h4>
+                      <div className="relative">
+                        <Input
+                          value={kit}
+                          onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          placeholder={t("simReplacement.kitCodePlaceholder")}
+                          inputMode="numeric"
+                          className="h-12 bg-card rounded-xl pe-10"
+                        />
+                        <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("simReplacement.scanKitAria")}>
+                          <ScanLine className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   )}
-                </Field>
+                </section>
 
                 <div className="space-y-2">
                   <div className="px-1">
@@ -424,14 +434,14 @@ const SimReplacement = () => {
               <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
               <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
               {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
-              <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
+              <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
             </CardSection>
 
             {isChargeable ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  {t(newSimType === "psim" ? "simReplacement.chargeableNotePsim" : "simReplacement.chargeableNoteEsim", { fee })}
+                  {t(newSimType === "psim" ? "simReplacement.chargeableNotePsim" : "simReplacement.chargeableNoteEsim", { fee: fee.toFixed(2) })}
                 </p>
               </div>
             ) : (
@@ -497,7 +507,7 @@ const SimReplacement = () => {
             {isChargeable && (
               <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
               </CardSection>
@@ -516,7 +526,7 @@ const SimReplacement = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {isChargeable ? t("simReplacement.payAmountSar", { amount: fee }) : t("simReplacement.confirmReplacement")}
+              {isChargeable ? <>{t("simReplacement.pay")} <RiyalSymbol /> {fee.toFixed(2)}</> : t("simReplacement.confirmReplacement")}
             </Button>
           )}
         </div>
