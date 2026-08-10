@@ -307,10 +307,13 @@ interface FulfilmentRecord {
   numberTier?: "standard" | "bronze" | "silver" | "gold" | "diamond";
   /** Only meaningful when numberTier isn't "standard". */
   vanityCommitment?: boolean;
+  /** KSA regulation: customer already hit their prepaid activation limit — same Continue-blocking error as SIM Activation. */
+  prepaidLimitReached?: boolean;
 }
 const FULFILMENT_PAID_EMAIL = "paid.customer@email.com";
 const FULFILMENT_UNPAID_EMAIL = "unpaid.customer@email.com";
 const FULFILMENT_UNPAID_WHITELISTED_EMAIL = "unpaid.whitelisted@email.com";
+const FULFILMENT_UNPAID_PREPAID_LIMIT_EMAIL = "unpaid.prepaidlimit@email.com";
 const FULFILMENT_POSTPAID_STANDARD_EMAIL = "paid.postpaid.standard@email.com";
 const FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL = "paid.postpaid.standard.whitelisted@email.com";
 const FULFILMENT_POSTPAID_VANITY_EMAIL = "paid.postpaid.vanity@email.com";
@@ -333,6 +336,8 @@ const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   [FULFILMENT_PAID_EMAIL]: { paid: true, whitelisted: false },
   [FULFILMENT_UNPAID_EMAIL]: { paid: false, whitelisted: false },
   [FULFILMENT_UNPAID_WHITELISTED_EMAIL]: { paid: false, whitelisted: true },
+  // Hit their prepaid activation limit — Continue on Prepaid blocks with the same error as SIM Activation.
+  [FULFILMENT_UNPAID_PREPAID_LIMIT_EMAIL]: { paid: false, whitelisted: false, prepaidLimitReached: true },
   // Postpaid + standard number — no vanity fee, no Nafith.
   [FULFILMENT_POSTPAID_STANDARD_EMAIL]: { paid: true, whitelisted: false, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
   [FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL]: { paid: true, whitelisted: true, payType: "postpaid", planTitle: "Switch Postpaid 200", numberTier: "standard" },
@@ -643,7 +648,11 @@ const NewActivation3 = () => {
   const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim().length === 10 && idNumber.trim().endsWith(WHITELISTED_TEST_ID_SUFFIX);
   // KSA regulation: customers who've hit their prepaid activation limit can't get a new
   // prepaid line — Prepaid is disabled below and Continue blocks with an explanation.
-  const prepaidLimitReached = idNumber.trim().length === 10 && idNumber.trim().endsWith(PREPAID_LIMIT_REACHED_ID_SUFFIX);
+  // Fulfilment derives this from the demo email record (no ID number to check), same
+  // pattern as isWhitelisted above.
+  const prepaidLimitReached = isFulfilment
+    ? (fulfilmentRecord?.prepaidLimitReached ?? false)
+    : idNumber.trim().length === 10 && idNumber.trim().endsWith(PREPAID_LIMIT_REACHED_ID_SUFFIX);
   // Vanity Number Category overview list (informational) hidden for now — the commitment
   // checkbox on the picked number remains active. May be reverted.
   const SHOW_VANITY_OVERVIEW = false;
@@ -1025,13 +1034,6 @@ const NewActivation3 = () => {
     // selectedPlan are deliberately included so this effect re-fires and wins that race.
   }, [isFulfilment, fulfilmentEmail, payType, selectedPlan]);
 
-  // Paid fulfilment always means a physical SIM — the customer only ever comes into the store
-  // to collect one, since a paid E-SIM would already be provisioned remotely with nothing to
-  // hand over. SIM Type is locked to P-SIM (not just defaulted) so it can't drift to E-SIM.
-  useEffect(() => {
-    if (fulfilmentLocked) setSimType("psim");
-  }, [fulfilmentLocked]);
-
   // OLD vanity-commitment approach (checkbox toggle after picking a number) — kept commented
   // in case we need to revert. Replaced by the "free with commitment / pay number price" popup
   // shown inside the number picker at selection time (see numberPickerOpen Drawer below).
@@ -1393,6 +1395,7 @@ const NewActivation3 = () => {
                     { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
                     { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
+                    { value: FULFILMENT_UNPAID_PREPAID_LIMIT_EMAIL, note: "Hit prepaid activation limit — Postpaid works fine, Prepaid blocks", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_EMAIL, note: "Switch Postpaid — Standard number, normal", group: "Unpaid (Switch Postpaid)" },
                     { value: FULFILMENT_UNPAID_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Switch Postpaid — Standard number, whitelisted", group: "Unpaid (Switch Postpaid)" },
                     { value: FULFILMENT_UNPAID_POSTPAID_VANITY_EMAIL, note: "Switch Postpaid — Vanity, no commitment, normal", group: "Unpaid (Switch Postpaid)" },
@@ -1414,20 +1417,18 @@ const NewActivation3 = () => {
             {fulfilmentLocked && (
               <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
                 <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
-                  This customer already chose everything and paid online — just enter the KIT code and hand over the SIM.
+                  This customer already chose everything and paid online — just enter the KIT code (or change SIM Type, if needed) and hand over the SIM.
                 </p>
               </div>
             )}
-            {/* 1. SIM Type — locked to P-SIM on a paid fulfilment request: a paid E-SIM would
-                already be provisioned remotely, so the only reason the customer is in the store
-                at all is to collect a physical SIM. Only KIT Code stays editable below. */}
+            {/* 1. SIM Type — always changeable, even on a paid fulfilment request */}
             <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation3.subscription.simType")} <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} disabled={fulfilmentLocked} onClick={() => setSimType("psim")} />
-                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} disabled={fulfilmentLocked} onClick={() => setSimType("esim")} />
+                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} onClick={() => setSimType("psim")} />
+                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => setSimType("esim")} />
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
@@ -2297,7 +2298,7 @@ const NewActivation3 = () => {
                     )}
                     {selectedPlanObj && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj.title}</span>
+                        <span className="text-[11px] text-muted-foreground">{payType === "postpaid" ? t("activation3.checkout.deposit") : t("activation3.checkout.planLabel")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                     )}
@@ -2334,7 +2335,7 @@ const NewActivation3 = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation3.checkout.planLabel")) : t("activation3.checkout.topupLabel")}</span>
+                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (payType === "postpaid" ? t("activation3.checkout.deposit") : t("activation3.checkout.planLabel")) : t("activation3.checkout.topupLabel")}</span>
                       <span className="text-xs font-semibold text-amber-600">{t("activation3.checkout.waived")}</span>
                     </div>
                   </div>
@@ -2407,7 +2408,7 @@ const NewActivation3 = () => {
                       )}
                       {selectedPlanObj && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation3.checkout.deposit") : selectedPlanObj.title}</span>
+                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation3.checkout.deposit") : t("activation3.checkout.planLabel")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
                         </div>
                       )}
@@ -2594,7 +2595,7 @@ const NewActivation3 = () => {
                   <>
                     <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation3.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock OTP Verification.</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
                     )}
                   </>
                 )}
