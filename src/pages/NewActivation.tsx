@@ -2022,7 +2022,7 @@ const NewActivation = () => {
                     )}
                     {selectedPlanObj && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{selectedPlanObj.title}</span>
+                        <span className="text-[11px] text-muted-foreground">{payType === "postpaid" ? t("activation.checkout.deposit") : t("activation.checkout.planLabel")}</span>
                         <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice}</span>
                       </div>
                     )}
@@ -2059,7 +2059,7 @@ const NewActivation = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (selectedPlanObj?.title ?? t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
+                      <span className="text-[11px] text-muted-foreground">{planMode === "plan" ? (payType === "postpaid" ? t("activation.checkout.deposit") : t("activation.checkout.planLabel")) : t("activation.checkout.topupLabel")}</span>
                       <span className="text-xs font-semibold text-amber-600">{t("activation.checkout.waived")}</span>
                     </div>
                   </div>
@@ -2132,7 +2132,7 @@ const NewActivation = () => {
                       )}
                       {selectedPlanObj && (
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : selectedPlanObj.title}</span>
+                          <span className="text-[11px] text-muted-foreground">{isPostpaidDeposit ? t("activation.checkout.deposit") : t("activation.checkout.planLabel")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw}</span>
                         </div>
                       )}
@@ -2319,7 +2319,7 @@ const NewActivation = () => {
                   <>
                     <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock OTP Verification.</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
                     )}
                   </>
                 )}
