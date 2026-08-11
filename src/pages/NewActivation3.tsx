@@ -816,23 +816,24 @@ const NewActivation3 = () => {
   ];
   // Friendi has no separate Postpaid tier — just Prepaid and Basic Postpaid. Postpaid is
   // omitted entirely (not shown disabled) for ID types that don't allow it.
+  // Vnet (Postpaid Data) isn't offered on E-SIM — Prepaid is the only choice once Data +
+  // E-SIM is selected, but Postpaid/Basic Postpaid stay visible-but-disabled rather than
+  // disappearing, so the dealer can see why they're unavailable instead of wondering
+  // where they went.
+  const isEsimData = lineType === "data" && simType === "esim";
   const subscriptionOptions: { key: PayType; label: string; Icon: typeof Wallet; disabled?: boolean }[] = (isFriendi
     ? [
         { key: "prepaid" as const, label: t("activation3.subscription.prepaid"), Icon: Wallet },
-        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
+        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText, disabled: isEsimData },
       ]
     : [
         { key: "prepaid" as const, label: t("activation3.subscription.prepaid"), Icon: Wallet },
-        { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
-        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
+        { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt, disabled: isEsimData },
+        { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText, disabled: isEsimData },
       ]
   ).filter(o =>
     (o.key === "prepaid" || isSaudiId) &&
-    !(o.key === "basic-postpaid" && lineType === "data") &&
-    // Vnet (Postpaid Data) isn't offered on E-SIM — don't even offer Postpaid as a choice
-    // once Data + E-SIM is selected, rather than letting the dealer pick it and silently
-    // falling back to Mobile.
-    !(o.key === "postpaid" && lineType === "data" && simType === "esim")
+    !(o.key === "basic-postpaid" && lineType === "data" && !isEsimData)
   );
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
