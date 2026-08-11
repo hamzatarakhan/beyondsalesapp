@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -42,6 +42,7 @@ import {
   X as XIcon,
   Info,
   UserCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import SematiVerification from "@/components/SematiVerification";
@@ -118,6 +119,7 @@ const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "
 
 const SubscriptionMigration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
@@ -173,13 +175,22 @@ const SubscriptionMigration = () => {
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("1324567896");
   const [nationality, setNationality] = useState("sa");
-  const [msisdn, setMsisdn] = useState("0501111133");
+  // A number carried over from the other direction-locked service's "wrong number" modal
+  // (see wrongDirectionModalOpen below) takes priority; otherwise default to a demo number
+  // that actually matches this service's locked direction, so a fresh Option-2 entry point
+  // never opens straight into its own mismatch error.
+  const [msisdn, setMsisdn] = useState<string>(
+    (location.state as { msisdn?: string } | null)?.msisdn ?? (lockedDirection === "post-to-pre" ? "0502222211" : "0501111133")
+  );
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   // Ineligible line type (5G MBB / Vnet) — surfaced in a modal on Continue, not inline.
   const [ineligibleReason, setIneligibleReason] = useState<string | null>(null);
   const [ineligibleModalOpen, setIneligibleModalOpen] = useState(false);
+  // Locked-service lookup found a number of the wrong direction — offer a CTA straight to
+  // the other direction's service instead of leaving the dealer to find it themselves.
+  const [wrongDirectionModalOpen, setWrongDirectionModalOpen] = useState(false);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [depositWaiver, setDepositWaiver] = useState(false);
 
@@ -214,6 +225,7 @@ const SubscriptionMigration = () => {
     setCustomer(null);
     setLookupError(null);
     setIneligibleReason(null);
+    setWrongDirectionModalOpen(false);
     setDirection(null);
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
@@ -231,6 +243,7 @@ const SubscriptionMigration = () => {
             ? t("subscriptionMigration.lookupErrorWrongDirectionPreToPost")
             : t("subscriptionMigration.lookupErrorWrongDirectionPostToPre")
         );
+        setWrongDirectionModalOpen(true);
         return;
       }
       setDirection(dir);
@@ -252,8 +265,13 @@ const SubscriptionMigration = () => {
       setDepositWaiver(!!found.depositWaiver);
     }, 800);
     return () => clearTimeout(timer);
+    // lockedDirection is a real dependency, not just msisdn — the wrong-direction modal's
+    // CTA navigates between the two locked services without unmounting this component (same
+    // route, only the query param changes), so without it here the lookup would never
+    // re-run against the new lockedDirection and the modal would show stale, contradictory
+    // text.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msisdn]);
+  }, [msisdn, lockedDirection]);
 
   const eligible = !!customer && !lookupError;
 
@@ -469,6 +487,18 @@ const SubscriptionMigration = () => {
                 { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
                 { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "pre-to-post" as const },
                 { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "post-to-pre" as const },
+                // Only meaningful on the locked services — an opposite-direction number to
+                // demonstrate the wrong-direction modal + CTA. "direction" here is tagged as
+                // the CURRENT lockedDirection (not the number's real type) purely so the
+                // filter below keeps it visible on whichever locked page it applies to.
+                ...(lockedDirection
+                  ? [{
+                      value: lockedDirection === "pre-to-post" ? "0502222222" : "0501111133",
+                      note: t("subscriptionMigration.testNoteWrongDirection"),
+                      group: t("subscriptionMigration.testGroupWrongDirection"),
+                      direction: lockedDirection,
+                    }]
+                  : []),
               ].filter((item) => !lockedDirection || item.direction === null || item.direction === lockedDirection)}
               onSelect={(v) => {
                 // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
@@ -919,6 +949,38 @@ const SubscriptionMigration = () => {
           >
             {t("subscriptionMigration.gotIt")}
           </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Locked-service wrong-direction lookup (Option 2 only) — offers a direct CTA to the
+          other direction's service instead of leaving the dealer to find it themselves,
+          carrying the number they already typed over so they don't have to retype it. */}
+      <Dialog open={wrongDirectionModalOpen} onOpenChange={setWrongDirectionModalOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <ArrowLeftRight className="w-7 h-7 text-primary" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-foreground mb-2 text-lg">{t("subscriptionMigration.wrongDirectionTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+            {lockedDirection === "pre-to-post"
+              ? t("subscriptionMigration.lookupErrorWrongDirectionPreToPost")
+              : t("subscriptionMigration.lookupErrorWrongDirectionPostToPre")}
+          </p>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => {
+                const otherDirection: Direction = lockedDirection === "pre-to-post" ? "post-to-pre" : "pre-to-post";
+                navigate(`/subscription-migration?direction=${otherDirection}`, { state: { msisdn } });
+              }}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              {t("subscriptionMigration.wrongDirectionCta", {
+                service: lockedDirection === "pre-to-post" ? t("subscriptionMigration.migrationPostToPre") : t("subscriptionMigration.migrationPreToPost"),
+              })}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 

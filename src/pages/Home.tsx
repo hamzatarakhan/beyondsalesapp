@@ -132,13 +132,13 @@ const Home = () => {
     { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.creditLimitOptions.optionBadge", { number: 4 }), badgeTone: "special" as const },
   ];
 
-  // The original flow (auto-detects direction from the looked-up number) plus a proposed
-  // "Option 2" alternative: two separate services, each locked to one direction, rather
-  // than the dealer relying on the app to infer which way a given number can migrate.
-  // Both direction-locked tiles share the "Option 2" badge — they're one design
-  // alternative split across two entry points, not two separate options.
+  // "Option 1" is the original flow (auto-detects direction from the looked-up number);
+  // "Option 2" is a proposed alternative: two separate services, each locked to one
+  // direction, rather than the dealer relying on the app to infer which way a given
+  // number can migrate. Both direction-locked tiles share the "Option 2" badge — they're
+  // one design alternative split across two entry points, not two separate options.
   const subscriptionMigrationOptions = [
-    { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 1 }), badgeTone: "special" as const },
     { id: "migration-pre-to-post", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
     { id: "migration-post-to-pre", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
   ];
