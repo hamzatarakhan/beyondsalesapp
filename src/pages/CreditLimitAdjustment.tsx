@@ -458,7 +458,7 @@ const CreditLimitAdjustment = () => {
                         <div
                           key={v}
                           style={{ width: AMOUNT_ITEM_WIDTH, scrollSnapAlign: "center", opacity }}
-                          className="shrink-0 flex items-center justify-center h-full"
+                          className="shrink-0 flex flex-col items-center justify-center h-full gap-1"
                         >
                           <span className={cn(
                             "font-bold whitespace-nowrap transition-all",
@@ -466,6 +466,7 @@ const CreditLimitAdjustment = () => {
                           )}>
                             {v.toFixed(0)}
                           </span>
+                          <span className={cn("w-6 h-0.5 rounded-full", isCenter ? "bg-primary" : "bg-transparent")} />
                         </div>
                       );
                     })}
@@ -493,26 +494,21 @@ const CreditLimitAdjustment = () => {
               )}
             </CardSection>
 
-            {amountMode === "wheel" ? (
-              <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center gap-4">
-                <div className="text-center">
-                  <p className="text-xl font-bold text-foreground"><RiyalSymbol className="text-base" /> {currentLimit.toFixed(0)}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourCurrentLimit")}</p>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                  <ArrowRight className="w-4 h-4 text-foreground rtl:rotate-180" />
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-primary"><RiyalSymbol className="text-base" /> {newLimit.toFixed(0)}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourNewLimit")}</p>
-                </div>
+            <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center gap-4">
+              <div className="text-center">
+                <p className="text-xl font-bold text-foreground"><RiyalSymbol className="text-base" /> {currentLimit.toFixed(0)}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourCurrentLimit")}</p>
               </div>
-            ) : (
-              <CardSection title={t("creditLimitAdjustment.preview")} icon={ClipboardList}>
-                <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
-                <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit.toFixed(2)}</span>} />
-              </CardSection>
-            )}
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <ArrowRight className="w-4 h-4 text-foreground rtl:rotate-180" />
+              </div>
+              <div className="text-center">
+                <p className={cn("text-xl font-bold", direction === "increase" ? "value-positive" : "value-negative")}>
+                  <RiyalSymbol className="text-base" /> {newLimit.toFixed(0)}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourNewLimit")}</p>
+              </div>
+            </div>
 
             {direction === "increase" ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
