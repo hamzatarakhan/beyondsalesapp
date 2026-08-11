@@ -441,19 +441,19 @@ const CreditLimitAdjustment = () => {
                           style={{ width: AMOUNT_ITEM_WIDTH, scrollSnapAlign: "center", opacity }}
                           className="shrink-0 flex flex-col items-center justify-center h-full gap-1"
                         >
-                          <span className={cn(
-                            "font-bold whitespace-nowrap transition-all",
-                            isCenter ? "text-2xl text-foreground" : "text-lg text-muted-foreground"
-                          )}>
-                            {v.toFixed(0)}
+                          <span className="flex items-center gap-1">
+                            <RiyalSymbol className={isCenter ? "text-foreground" : "text-muted-foreground"} />
+                            <span className={cn(
+                              "font-bold whitespace-nowrap transition-all",
+                              isCenter ? "text-2xl text-foreground" : "text-lg text-muted-foreground"
+                            )}>
+                              {v.toFixed(0)}
+                            </span>
                           </span>
                           <span className={cn("w-6 h-0.5 rounded-full", isCenter ? "bg-primary" : "bg-transparent")} />
                         </div>
                       );
                     })}
-                  </div>
-                  <div className="flex justify-center mt-1">
-                    <RiyalSymbol className="text-muted-foreground" />
                   </div>
                 </div>
               ) : (
