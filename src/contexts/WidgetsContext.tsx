@@ -66,8 +66,14 @@ function getInitialWidgets(): WidgetConfig[] {
 export const WidgetsProvider = ({ children }: { children: ReactNode }) => {
   const [widgets, setWidgets] = useState<WidgetConfig[]>(getInitialWidgets);
 
+  // Debounced — a drag-to-reorder can update `widgets` many times a second, and a
+  // synchronous localStorage write on every single step was a real source of jank there.
+  // Collapses rapid-fire updates into one write shortly after they settle.
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(widgets));
+    const timer = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(widgets));
+    }, 150);
+    return () => clearTimeout(timer);
   }, [widgets]);
 
   const toggleWidget = (id: string) => {

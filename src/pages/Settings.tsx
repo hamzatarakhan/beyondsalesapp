@@ -35,31 +35,47 @@ const SettingsPage = () => {
   // Drag-to-reorder for the widget rows — Pointer Events so mouse and touch share one
   // code path. Pointer capture keeps move/up events targeting this same handle even
   // once the finger/cursor has moved off it, so no window-level listeners are needed.
+  //
+  // The dragged row's follow-the-finger motion is applied directly to the DOM via
+  // dragRowRef, NOT React state — a setState on every pointermove (which can fire well
+  // over 60 times/sec) forced the whole row list to re-render every tick and was the
+  // actual source of the drag feeling laggy. State only updates (and React re-renders)
+  // at the coarser moment a reorder threshold is actually crossed.
   const widgetListRef = useRef<HTMLDivElement>(null);
-  const [dragState, setDragState] = useState<{ id: string; startY: number; offsetY: number } | null>(null);
+  const dragRowRef = useRef<HTMLDivElement | null>(null);
+  const dragInfo = useRef<{ id: string; startY: number; rowHeight: number } | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const startDrag = (id: string) => (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
-    setDragState({ id, startY: e.clientY, offsetY: 0 });
+    const rowEl = widgetListRef.current?.querySelector<HTMLElement>("[data-widget-row]");
+    const rowHeight = (rowEl?.offsetHeight ?? 48) + 10; // + space-y-2.5 gap — measured once, not per move
+    dragInfo.current = { id, startY: e.clientY, rowHeight };
+    setDraggingId(id);
   };
 
   const onDragMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragState) return;
-    const offsetY = e.clientY - dragState.startY;
-    const rowEl = widgetListRef.current?.querySelector<HTMLElement>("[data-widget-row]");
-    const rowHeight = (rowEl?.offsetHeight ?? 48) + 10; // + space-y-2.5 gap
-    const fromIndex = widgets.findIndex((w) => w.id === dragState.id);
-    const toIndex = Math.min(Math.max(fromIndex + Math.round(offsetY / rowHeight), 0), widgets.length - 1);
+    const info = dragInfo.current;
+    if (!info) return;
+    const offsetY = e.clientY - info.startY;
+    const fromIndex = widgets.findIndex((w) => w.id === info.id);
+    const toIndex = Math.min(Math.max(fromIndex + Math.round(offsetY / info.rowHeight), 0), widgets.length - 1);
     if (toIndex !== fromIndex) {
       reorderWidget(fromIndex, toIndex);
       // Re-baseline so the next delta is measured from the row's new position.
-      setDragState({ id: dragState.id, startY: e.clientY, offsetY: 0 });
-    } else {
-      setDragState({ ...dragState, offsetY });
+      dragInfo.current = { ...info, startY: e.clientY };
+      if (dragRowRef.current) dragRowRef.current.style.transform = "";
+    } else if (dragRowRef.current) {
+      dragRowRef.current.style.transform = `translateY(${offsetY}px)`;
     }
   };
 
-  const endDrag = () => setDragState(null);
+  const endDrag = () => {
+    if (dragRowRef.current) dragRowRef.current.style.transform = "";
+    dragRowRef.current = null;
+    dragInfo.current = null;
+    setDraggingId(null);
+  };
 
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
@@ -263,13 +279,14 @@ const SettingsPage = () => {
           </DrawerHeader>
           <div ref={widgetListRef} className="px-4 pb-8 space-y-2.5">
             {widgets.map((w) => {
-              const isDragging = dragState?.id === w.id;
+              const isDragging = draggingId === w.id;
               const label = t(WIDGET_LABEL_KEYS[w.id] ?? w.id);
               return (
                 <div
                   key={w.id}
                   data-widget-row
-                  style={isDragging ? { transform: `translateY(${dragState.offsetY}px)`, position: "relative", zIndex: 10 } : undefined}
+                  ref={isDragging ? dragRowRef : undefined}
+                  style={isDragging ? { position: "relative", zIndex: 10 } : undefined}
                   className={cn(
                     "w-full flex items-center gap-2 py-3 px-3 rounded-xl bg-muted/40 transition-shadow",
                     isDragging && "shadow-lg bg-card",
