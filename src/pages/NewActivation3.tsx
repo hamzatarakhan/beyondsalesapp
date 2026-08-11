@@ -826,7 +826,14 @@ const NewActivation3 = () => {
         { key: "postpaid" as const, label: t("activation3.subscription.postpaid"), Icon: Receipt },
         { key: "basic-postpaid" as const, label: t("activation3.subscription.basicPostpaid"), Icon: ReceiptText },
       ]
-  ).filter(o => (o.key === "prepaid" || isSaudiId) && !(o.key === "basic-postpaid" && lineType === "data"));
+  ).filter(o =>
+    (o.key === "prepaid" || isSaudiId) &&
+    !(o.key === "basic-postpaid" && lineType === "data") &&
+    // Vnet (Postpaid Data) isn't offered on E-SIM — don't even offer Postpaid as a choice
+    // once Data + E-SIM is selected, rather than letting the dealer pick it and silently
+    // falling back to Mobile.
+    !(o.key === "postpaid" && lineType === "data" && simType === "esim")
+  );
   const activePlanChips  = isFriendi
     ? FRIENDI_CHIPS.filter(c => !(paygHidden && c.value === "payg"))
     // Data is its own Line Type option now, so the chip row underneath Mobile Prepaid
