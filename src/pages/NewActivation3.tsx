@@ -1152,11 +1152,15 @@ const NewActivation3 = () => {
   // Fulfilment: everything was already paid for online, so nothing is owed here.
   const subtotal = isFulfilment && alreadyPaid ? 0 : effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
   // Switch Postpaid: no VAT is collected when the number is Standard, or when a
-  // Vanity number is taken free-with-commitment (deposit-only flow either way).
+  // Vanity number is taken free-with-commitment — the number itself is free either way
+  // (deposit-only flow), regardless of whitelisted status.
+  // Vnet (Postpaid Data): same deposit-only treatment, unconditionally — there's no
+  // number/tier selection on a data-only line, so it's never anything but the deposit.
   const vatWaived =
-    isPostpaidMobile &&
-    subType === "sim" &&
-    (pickedTier === "standard" || (isWhitelisted && pickedCategoryEligibleFree && vanityCommitment));
+    (isPostpaidMobile &&
+      subType === "sim" &&
+      (pickedTier === "standard" || (pickedCategoryEligibleFree && vanityCommitment))) ||
+    isPostpaidInternet;
   const vat = isFulfilment && alreadyPaid ? 0 : (vatWaived ? 0 : Math.round(subtotal * 0.15));
   const total = subtotal + vat;
   // Checkout confirm sheet copy: fulfilment already paid online, nothing owed for another
@@ -2477,27 +2481,31 @@ const NewActivation3 = () => {
               </div>
             </div>
 
-            {/* Address Details */}
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">{t("activation3.checkout.addressDetails")}</p>
-              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                {/* City required for all cases (prepaid + postpaid) */}
-                <Field label={`${t("activation3.subscription.city")} *`}>
-                  <Select value={contactCity} onValueChange={setContactCity}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                  </Select>
-                </Field>
-                <Field label={isVnetMode ? `${t("activation3.subscription.nationalAddress")} *` : t("activation3.subscription.nationalAddress")}>
-                  <Input
-                    value={nationalAddress}
-                    onChange={(e) => setNationalAddress(e.target.value)}
-                    placeholder="e.g. RRRD1234"
-                    className="h-12 bg-card rounded-xl"
-                  />
-                </Field>
+            {/* Address Details — superseded by Delivery Details when it's shown (Vnet with
+                delivery, not dealer handover), since that section already carries City and
+                National Address alongside Region/District/Address Line. */}
+            {!showDelivery && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground px-1">{t("activation3.checkout.addressDetails")}</p>
+                <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                  {/* City required for all cases (prepaid + postpaid) */}
+                  <Field label={`${t("activation3.subscription.city")} *`}>
+                    <Select value={contactCity} onValueChange={setContactCity}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label={isVnetMode ? `${t("activation3.subscription.nationalAddress")} *` : t("activation3.subscription.nationalAddress")}>
+                    <Input
+                      value={nationalAddress}
+                      onChange={(e) => setNationalAddress(e.target.value)}
+                      placeholder="e.g. RRRD1234"
+                      className="h-12 bg-card rounded-xl"
+                    />
+                  </Field>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Delivery Details — Vnet only */}
             {showDelivery && (
