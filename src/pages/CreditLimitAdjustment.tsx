@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
@@ -23,8 +25,7 @@ import {
   AlertCircle,
   Check,
   XCircle,
-  Minus,
-  Plus,
+  ArrowRight,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors NewActivation.tsx / SubscriptionMigration.tsx) ----------
@@ -79,10 +80,29 @@ const DEMO_CREDIT_CUSTOMERS: DemoCreditCustomer[] = [
 const DELTA_STEP = 10;
 const DELTA_MIN = 10;
 const DELTA_MAX = 200;
+const AMOUNT_PRESETS = [10, 20, 30, 50, 100, 150, 200];
+// Option 3 (carousel): fixed slot width each amount occupies, incl. the gap to its neighbor —
+// drives both the scroll-snap math and the padding that lets the first/last items center.
+const AMOUNT_ITEM_WIDTH = 84;
+const AMOUNT_ITEM_GAP = 20;
+const AMOUNT_SLOT = AMOUNT_ITEM_WIDTH + AMOUNT_ITEM_GAP;
 
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  // Four separate Home entry points ("Option 1-4") land on this same flow, each fixed to
+  // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
+  // (mirrors Friendi's PAYG top-up), a boxed swipeable carousel, or a plain typographic
+  // wheel picker paired with its own current→new limit summary. Not a toggle the dealer
+  // switches mid-flow; which one they get depends on which tile they tapped.
+  const optionParam = searchParams.get("option");
+  const amountMode: "slider" | "preset" | "carousel" | "wheel" =
+    optionParam === "2" ? "preset" : optionParam === "3" ? "carousel" : optionParam === "4" ? "wheel" : "slider";
+  // Carousel and wheel are the same swipeable-strip mechanic underneath, just styled
+  // differently — every effect/handler that drives the strip keys off this instead of
+  // repeating the two-mode check.
+  const usesSwipeStrip = amountMode === "carousel" || amountMode === "wheel";
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -136,11 +156,57 @@ const CreditLimitAdjustment = () => {
   const currentLimit = customer?.currentLimit ?? 0;
   const effectiveDelta = direction === "decrease" ? Math.min(delta, currentLimit) : delta;
   const newLimit = direction === "increase" ? currentLimit + delta : currentLimit - effectiveDelta;
+  // Can't decrease by more than the customer already has.
+  const deltaMax = direction === "decrease" ? Math.max(DELTA_MIN, Math.min(DELTA_MAX, currentLimit)) : DELTA_MAX;
 
   // Reset the delta step whenever direction or customer changes, so it never starts out-of-range.
   useEffect(() => {
     setDelta(DELTA_STEP);
   }, [direction, customer]);
+
+  // ---------- Option 3: swipeable centered amount carousel ----------
+  const carouselValues = useMemo(() => {
+    const vals: number[] = [];
+    for (let v = DELTA_MIN; v <= deltaMax; v += DELTA_STEP) vals.push(v);
+    return vals;
+  }, [deltaMax]);
+  const carouselDrag = useDragScroll<HTMLDivElement>();
+  const [carouselScroll, setCarouselScroll] = useState(0);
+
+  // Re-center the strip on the current delta whenever the carousel becomes active or its
+  // value range changes (direction flip) — instant jump, not an animated scroll, so it
+  // doesn't fight a drag the dealer might already be mid-gesture on. `customer` is in the
+  // deps (not read otherwise) because the carousel <div> only exists in the DOM once a
+  // customer is looked up — without it, this would only ever see a null ref from the
+  // pre-lookup render and never retry once the element actually mounts.
+  useEffect(() => {
+    if (!usesSwipeStrip) return;
+    const el = carouselDrag.ref.current;
+    if (!el) return;
+    const idx = Math.max(0, carouselValues.indexOf(delta));
+    el.scrollLeft = idx * AMOUNT_SLOT;
+    setCarouselScroll(idx * AMOUNT_SLOT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usesSwipeStrip, carouselValues, customer]);
+
+  // Snaps to the nearest value a beat after the strip stops moving (covers both a drag
+  // release and momentum scrolling), rather than reading delta off every scroll frame.
+  useEffect(() => {
+    if (!usesSwipeStrip) return;
+    const el = carouselDrag.ref.current;
+    if (!el) return;
+    let settleTimer: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      requestAnimationFrame(() => setCarouselScroll(el.scrollLeft));
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(() => {
+        const idx = Math.max(0, Math.min(carouselValues.length - 1, Math.round(el.scrollLeft / AMOUNT_SLOT)));
+        setDelta(carouselValues[idx]);
+      }, 100);
+    };
+    el.addEventListener("scroll", onScroll);
+    return () => { el.removeEventListener("scroll", onScroll); clearTimeout(settleTimer); };
+  }, [usesSwipeStrip, carouselValues, carouselDrag.ref, customer]);
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -305,33 +371,148 @@ const CreditLimitAdjustment = () => {
             </div>
 
             <CardSection title={t("creditLimitAdjustment.adjustmentAmount")} icon={direction === "increase" ? TrendingUp : TrendingDown}>
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setDelta((d) => Math.max(DELTA_MIN, d - DELTA_STEP))}
-                  disabled={delta <= DELTA_MIN}
-                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center disabled:opacity-40"
-                >
-                  <Minus className="w-4 h-4 text-foreground" />
-                </button>
-                <span className="text-2xl font-bold text-foreground">
-                  <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setDelta((d) => Math.min(DELTA_MAX, d + DELTA_STEP))}
-                  disabled={delta >= DELTA_MAX || (direction === "decrease" && delta >= currentLimit)}
-                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center disabled:opacity-40"
-                >
-                  <Plus className="w-4 h-4 text-foreground" />
-                </button>
-              </div>
+              {amountMode !== "wheel" && (
+                <div className="text-center mb-4">
+                  <span className="text-2xl font-bold text-foreground">
+                    <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {amountMode === "slider" ? (
+                <div className="space-y-2">
+                  <Slider
+                    value={[delta]}
+                    min={DELTA_MIN}
+                    max={deltaMax}
+                    step={DELTA_STEP}
+                    onValueChange={([v]) => setDelta(v)}
+                  />
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span><RiyalSymbol /> {DELTA_MIN.toFixed(2)}</span>
+                    <span><RiyalSymbol /> {deltaMax.toFixed(2)}</span>
+                  </div>
+                </div>
+              ) : amountMode === "carousel" ? (
+                <div className="relative -mx-4">
+                  {/* Center selection window — purely visual, sits behind the strip */}
+                  <div
+                    className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-primary/40 bg-primary/5"
+                    style={{ width: AMOUNT_ITEM_WIDTH, height: 56 }}
+                  />
+                  <div
+                    ref={carouselDrag.ref}
+                    onMouseDown={carouselDrag.onMouseDown}
+                    onMouseUp={carouselDrag.onMouseUp}
+                    onMouseLeave={carouselDrag.onMouseLeave}
+                    onMouseMove={carouselDrag.onMouseMove}
+                    onClickCapture={carouselDrag.onClickCapture}
+                    className={cn("relative flex items-center overflow-x-auto no-scrollbar", carouselDrag.className)}
+                    style={{
+                      height: 72,
+                      gap: AMOUNT_ITEM_GAP,
+                      scrollSnapType: "x mandatory",
+                      paddingInline: `calc(50% - ${AMOUNT_ITEM_WIDTH / 2}px)`,
+                    }}
+                  >
+                    {carouselValues.map((v, i) => {
+                      const dist = Math.abs(i * AMOUNT_SLOT - carouselScroll) / AMOUNT_SLOT;
+                      const opacity = Math.max(0.25, 1 - dist * 0.5);
+                      const scale = Math.max(0.72, 1 - dist * 0.2);
+                      return (
+                        <div
+                          key={v}
+                          style={{ width: AMOUNT_ITEM_WIDTH, scrollSnapAlign: "center", opacity, transform: `scale(${scale})` }}
+                          className="shrink-0 flex items-center justify-center h-full"
+                        >
+                          <span className="text-base font-bold text-foreground whitespace-nowrap">
+                            <RiyalSymbol className="text-sm" /> {v.toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : amountMode === "wheel" ? (
+                <div>
+                  <div
+                    ref={carouselDrag.ref}
+                    onMouseDown={carouselDrag.onMouseDown}
+                    onMouseUp={carouselDrag.onMouseUp}
+                    onMouseLeave={carouselDrag.onMouseLeave}
+                    onMouseMove={carouselDrag.onMouseMove}
+                    onClickCapture={carouselDrag.onClickCapture}
+                    className={cn("relative -mx-4 flex items-center overflow-x-auto no-scrollbar", carouselDrag.className)}
+                    style={{
+                      height: 56,
+                      gap: AMOUNT_ITEM_GAP,
+                      scrollSnapType: "x mandatory",
+                      paddingInline: `calc(50% - ${AMOUNT_ITEM_WIDTH / 2}px)`,
+                    }}
+                  >
+                    {carouselValues.map((v, i) => {
+                      const dist = Math.abs(i * AMOUNT_SLOT - carouselScroll) / AMOUNT_SLOT;
+                      const isCenter = dist < 0.5;
+                      const opacity = Math.max(0.3, 1 - dist * 0.45);
+                      return (
+                        <div
+                          key={v}
+                          style={{ width: AMOUNT_ITEM_WIDTH, scrollSnapAlign: "center", opacity }}
+                          className="shrink-0 flex items-center justify-center h-full"
+                        >
+                          <span className={cn(
+                            "font-bold whitespace-nowrap transition-all",
+                            isCenter ? "text-2xl text-foreground" : "text-lg text-muted-foreground"
+                          )}>
+                            {v.toFixed(0)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-center mt-1">
+                    <RiyalSymbol className="text-muted-foreground" />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-2">
+                  {AMOUNT_PRESETS.filter((amt) => amt <= deltaMax).map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setDelta(amt)}
+                      className={cn(
+                        "py-2 rounded-full text-[11px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                        delta === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
+                      )}
+                    >
+                      <RiyalSymbol /> {amt.toFixed(2)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </CardSection>
 
-            <CardSection title={t("creditLimitAdjustment.preview")} icon={ClipboardList}>
-              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
-              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit.toFixed(2)}</span>} />
-            </CardSection>
+            {amountMode === "wheel" ? (
+              <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center gap-4">
+                <div className="text-center">
+                  <p className="text-xl font-bold text-foreground"><RiyalSymbol className="text-base" /> {currentLimit.toFixed(0)}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourCurrentLimit")}</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <ArrowRight className="w-4 h-4 text-foreground rtl:rotate-180" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xl font-bold text-primary"><RiyalSymbol className="text-base" /> {newLimit.toFixed(0)}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourNewLimit")}</p>
+                </div>
+              </div>
+            ) : (
+              <CardSection title={t("creditLimitAdjustment.preview")} icon={ClipboardList}>
+                <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
+                <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<span className="text-primary"><RiyalSymbol /> {newLimit.toFixed(2)}</span>} />
+              </CardSection>
+            )}
 
             {direction === "increase" ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">

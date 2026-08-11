@@ -120,18 +120,30 @@ const Home = () => {
     { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
+  // Four separate entry points into the same flow, not a toggle — each tile is fixed to
+  // its own way of picking the adjustment amount (?option=1 → slider, ?option=2 →
+  // predefined amounts, ?option=3 → boxed swipeable carousel, ?option=4 → plain wheel
+  // picker with its own current→new summary), so they can be reviewed side by side.
+  // "special" badge tone flags them as alternate options rather than a rollout-status badge.
+  const creditLimitOptions = [
+    { id: "credit-limit-1", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=1", badge: t("home.creditLimitOptions.optionBadge", { number: 1 }), badgeTone: "special" as const },
+    { id: "credit-limit-2", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=2", badge: t("home.creditLimitOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
+    { id: "credit-limit-3", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=3", badge: t("home.creditLimitOptions.optionBadge", { number: 3 }), badgeTone: "special" as const },
+    { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.creditLimitOptions.optionBadge", { number: 4 }), badgeTone: "special" as const },
+  ];
+
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    // Subscription Migration, Credit Limit Adjustment and Bill Payment are all postpaid-related
-    // (or postpaid-driven), so they're Virgin-only — Friendi has no postpaid product.
+    // Subscription Migration and Bill Payment are postpaid-related, so they're Virgin-only —
+    // Friendi has no postpaid product. Credit Limit Adjustment moved to its own
+    // "Credit Limit Options" widget below, out of this grid.
     ...(activeOperator === "friendi"
       ? []
       : [
           { id: "migration", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-          { id: "credit-limit", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
           { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
         ]),
   ];
@@ -173,7 +185,7 @@ const Home = () => {
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
                 onClick={() =>
-                  activity.id === "fulfilment" || activity.id === "migration" || activity.id === "credit-limit"
+                  activity.id === "fulfilment" || activity.id === "migration"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
@@ -194,6 +206,33 @@ const Home = () => {
             {simServices.map((item) => (
               <ActivityIcon
                 key={item.label}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    // Credit Limit Adjustment lives here on its own instead of buried in the Customer
+    // Activities grid — Virgin-only (no postpaid product on Friendi), same as Subscription
+    // Migration / Bill Payment there. Two separate entry points, not one flow with an
+    // in-page toggle — each tile is fixed to its own way of picking the adjustment amount
+    // (?option=1 → slider, ?option=2 → predefined amounts) so they can be reviewed side by side.
+    "credit-limit-options": activeOperator === "friendi" ? <div key="credit-limit-options" /> : (
+      <div key="credit-limit-options" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{t("home.creditLimitOptions.title")}</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {creditLimitOptions.map((item) => (
+              <ActivityIcon
+                key={item.id}
                 icon={item.icon}
                 label={item.label}
                 color="teal"

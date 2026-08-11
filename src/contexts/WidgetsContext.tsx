@@ -10,6 +10,7 @@ export interface WidgetConfig {
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "customer-activities", enabled: true },
+  { id: "credit-limit-options", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
@@ -22,6 +23,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
 export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "working-shift": "home.workingShift.title",
   "customer-activities": "home.customerActivities",
+  "credit-limit-options": "home.creditLimitOptions.title",
   "sim-services": "home.simServices",
   "member-onboarding": "home.memberOnboarding",
   "dealer-visit": "home.dealerVisit.title",
@@ -39,7 +41,7 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped to v3 so devices with a pre-existing stored config pick up the new Working
 // Shift widget at its designed front-of-list position instead of it being appended
 // at the end by the missing-widget merge below.
-const STORAGE_KEY = "app-widgets-v6";
+const STORAGE_KEY = "app-widgets-v7";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
