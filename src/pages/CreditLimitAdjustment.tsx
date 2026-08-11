@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
+import SimCard from "@/components/activation/SimCard";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useDragScroll } from "@/hooks/useDragScroll";
@@ -345,29 +346,9 @@ const CreditLimitAdjustment = () => {
               {([
                 { value: "increase" as const, label: t("creditLimitAdjustment.increase"), Icon: TrendingUp },
                 { value: "decrease" as const, label: t("creditLimitAdjustment.decrease"), Icon: TrendingDown },
-              ]).map(({ value, label, Icon }) => {
-                const selected = direction === value;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setDirection(value)}
-                    className={cn(
-                      "relative flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all",
-                      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
-                    )}
-                  >
-                    <span className={cn(
-                      "absolute top-2.5 end-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                      selected ? "border-primary bg-primary" : "border-muted-foreground/30"
-                    )}>
-                      {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </span>
-                    <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                    <p className={cn("text-sm font-semibold", selected ? "text-foreground" : "text-muted-foreground")}>{label}</p>
-                  </button>
-                );
-              })}
+              ]).map(({ value, label, Icon }) => (
+                <SimCard key={value} active={direction === value} label={label} icon={Icon} onClick={() => setDirection(value)} />
+              ))}
             </div>
 
             <CardSection title={t("creditLimitAdjustment.adjustmentAmount")} icon={direction === "increase" ? TrendingUp : TrendingDown}>
