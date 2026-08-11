@@ -132,18 +132,28 @@ const Home = () => {
     { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.creditLimitOptions.optionBadge", { number: 4 }), badgeTone: "special" as const },
   ];
 
+  // The original flow (auto-detects direction from the looked-up number) plus a proposed
+  // "Option 2" alternative: two separate services, each locked to one direction, rather
+  // than the dealer relying on the app to infer which way a given number can migrate.
+  // Both direction-locked tiles share the "Option 2" badge — they're one design
+  // alternative split across two entry points, not two separate options.
+  const subscriptionMigrationOptions = [
+    { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "migration-pre-to-post", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
+    { id: "migration-post-to-pre", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
+  ];
+
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    // Subscription Migration and Bill Payment are postpaid-related, so they're Virgin-only —
-    // Friendi has no postpaid product. Credit Limit Adjustment moved to its own
-    // "Credit Limit Options" widget below, out of this grid.
+    // Bill Payment is postpaid-related, so it's Virgin-only — Friendi has no postpaid
+    // product. Credit Limit Adjustment and Subscription Migration moved to their own
+    // "Options" widgets below, out of this grid.
     ...(activeOperator === "friendi"
       ? []
       : [
-          { id: "migration", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
           { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
         ]),
   ];
@@ -185,7 +195,7 @@ const Home = () => {
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
                 onClick={() =>
-                  activity.id === "fulfilment" || activity.id === "migration"
+                  activity.id === "fulfilment"
                     ? handleActivityClick(activity.path)
                     : navigate(activity.path)
                 }
@@ -219,10 +229,9 @@ const Home = () => {
       </div>
     ),
     // Credit Limit Adjustment lives here on its own instead of buried in the Customer
-    // Activities grid — Virgin-only (no postpaid product on Friendi), same as Subscription
-    // Migration / Bill Payment there. Two separate entry points, not one flow with an
-    // in-page toggle — each tile is fixed to its own way of picking the adjustment amount
-    // (?option=1 → slider, ?option=2 → predefined amounts) so they can be reviewed side by side.
+    // Activities grid — Virgin-only (no postpaid product on Friendi). Four separate entry
+    // points, not one flow with an in-page toggle — each tile is fixed to its own way of
+    // picking the adjustment amount so they can be reviewed side by side.
     "credit-limit-options": activeOperator === "friendi" ? <div key="credit-limit-options" /> : (
       <div key="credit-limit-options" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -231,6 +240,31 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {creditLimitOptions.map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    // Same idea as Credit Limit Options — the original auto-detect flow, plus a proposed
+    // split into two direction-locked services, so both approaches can be reviewed side by
+    // side. Virgin-only (no postpaid product on Friendi, so no migration at all).
+    "subscription-migration-options": activeOperator === "friendi" ? <div key="subscription-migration-options" /> : (
+      <div key="subscription-migration-options" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{t("home.subscriptionMigrationOptions.title")}</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {subscriptionMigrationOptions.map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}

@@ -11,6 +11,7 @@ export interface WidgetConfig {
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "customer-activities", enabled: true },
   { id: "credit-limit-options", enabled: true },
+  { id: "subscription-migration-options", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
@@ -24,6 +25,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "working-shift": "home.workingShift.title",
   "customer-activities": "home.customerActivities",
   "credit-limit-options": "home.creditLimitOptions.title",
+  "subscription-migration-options": "home.subscriptionMigrationOptions.title",
   "sim-services": "home.simServices",
   "member-onboarding": "home.memberOnboarding",
   "dealer-visit": "home.dealerVisit.title",
@@ -41,7 +43,7 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped to v3 so devices with a pre-existing stored config pick up the new Working
 // Shift widget at its designed front-of-list position instead of it being appended
 // at the end by the missing-widget merge below.
-const STORAGE_KEY = "app-widgets-v7";
+const STORAGE_KEY = "app-widgets-v8";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;

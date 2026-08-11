@@ -508,6 +508,8 @@
     "msisdnPlaceholder": "5XXXXXXXX",
     "checkingNumber": "جارٍ التحقق من الرقم…",
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
+    "lookupErrorWrongDirectionPreToPost": "هذا الرقم ليس خطاً مسبق الدفع، لذا فهو غير مؤهل لهذه الخدمة. استخدم خدمة \"من الفوترة إلى الدفع المسبق\" بدلاً من ذلك.",
+    "lookupErrorWrongDirectionPostToPre": "هذا الرقم ليس خطاً فوترة، لذا فهو غير مؤهل لهذه الخدمة. استخدم خدمة \"من الدفع المسبق إلى الفوترة\" بدلاً من ذلك.",
     "ineligibleDataReason": "لا يمكن ترحيل هذا الرقم — باقات 5G MBB غير مؤهلة لهذه الخدمة.",
     "ineligibleVnetReason": "لا يمكن ترحيل هذا الرقم — خطوط Vnet غير مؤهلة لهذه الخدمة.",
     "idNumberPlaceholder": "أدخل رقم الهوية",
@@ -795,6 +797,12 @@
     "simReplacement": "استبدال الشريحة",
     "simTermination": "إنهاء الشريحة",
     "subscriptionMigration": "ترحيل الاشتراك",
+    "subscriptionMigrationOptions": {
+      "title": "خيارات ترحيل الاشتراك",
+      "preToPost": "مسبق الدفع إلى الفوترة",
+      "postToPre": "الفوترة إلى مسبق الدفع",
+      "optionBadge": "خيار {{number}}"
+    },
     "creditLimitAdjustment": "تعديل حد الائتمان",
     "creditLimitOptions": {
       "title": "خيارات حد الائتمان",

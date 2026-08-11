@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -121,6 +121,14 @@ const SubscriptionMigration = () => {
   const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
+  const [searchParams] = useSearchParams();
+  // "Option 1" (no param) keeps today's behavior — direction is auto-detected from
+  // whichever number the dealer looks up. "Option 2" is two separate Home entry points,
+  // each locked to one direction; looking up a number that doesn't match that direction
+  // is treated as ineligible rather than silently switching direction.
+  const directionParam = searchParams.get("direction");
+  const lockedDirection: Direction | null =
+    directionParam === "pre-to-post" || directionParam === "post-to-pre" ? directionParam : null;
 
   // Plain-English labels for the shared ID_TYPE_RULES keys — translated via subscriptionMigration.idType_*
   const ID_TYPE_LABELS: Record<string, string> = {
@@ -217,6 +225,14 @@ const SubscriptionMigration = () => {
         return;
       }
       const dir: Direction = found.subscriptionType === "prepaid" ? "pre-to-post" : "post-to-pre";
+      if (lockedDirection && dir !== lockedDirection) {
+        setLookupError(
+          lockedDirection === "pre-to-post"
+            ? t("subscriptionMigration.lookupErrorWrongDirectionPreToPost")
+            : t("subscriptionMigration.lookupErrorWrongDirectionPostToPre")
+        );
+        return;
+      }
       setDirection(dir);
       // Ineligible line types don't get an inline banner — the reason is surfaced in a
       // modal when the dealer presses Continue (same pattern as SIM Activation's
@@ -369,7 +385,15 @@ const SubscriptionMigration = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("subscriptionMigration.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader
+        title={
+          lockedDirection === "pre-to-post" ? t("subscriptionMigration.migrationPreToPost")
+          : lockedDirection === "post-to-pre" ? t("subscriptionMigration.migrationPostToPre")
+          : t("subscriptionMigration.title")
+        }
+        showBack
+        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+      />
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
@@ -438,14 +462,14 @@ const SubscriptionMigration = () => {
               heading={t("subscriptionMigration.testNumbersHeading")}
               description={t("subscriptionMigration.testNumbersDescription")}
               items={[
-                { value: demoIdFor(idNumberRule), note: t("subscriptionMigration.testNoteValidFor", { type: ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"] }), group: t("subscriptionMigration.testGroupIdNumber") },
-                { value: "0501111133", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPreToPost") },
-                { value: "0501111155", note: t("subscriptionMigration.testNoteWhitelistedWaiver"), group: t("subscriptionMigration.testGroupPreToPost") },
-                { value: "0502222222", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPostToPre") },
-                { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre") },
-                { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible") },
-                { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible") },
-              ]}
+                { value: demoIdFor(idNumberRule), note: t("subscriptionMigration.testNoteValidFor", { type: ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"] }), group: t("subscriptionMigration.testGroupIdNumber"), direction: null },
+                { value: "0501111133", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPreToPost"), direction: "pre-to-post" as const },
+                { value: "0501111155", note: t("subscriptionMigration.testNoteWhitelistedWaiver"), group: t("subscriptionMigration.testGroupPreToPost"), direction: "pre-to-post" as const },
+                { value: "0502222222", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
+                { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
+                { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "pre-to-post" as const },
+                { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "post-to-pre" as const },
+              ].filter((item) => !lockedDirection || item.direction === null || item.direction === lockedDirection)}
               onSelect={(v) => {
                 // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
                 // Number field only, leaving MSISDN and the rest of the form untouched.
