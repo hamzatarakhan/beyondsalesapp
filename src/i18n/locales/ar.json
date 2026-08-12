@@ -390,7 +390,6 @@
     "unbilledAmount": "المبلغ غير المفوتر",
     "outOfBundleUsage": "استخدام خارج الباقة",
     "totalVatIncl": "الإجمالي (شامل الضريبة)",
-    "latestBillRollup": "تتضمن أحدث فاتورة الدورات السابقة غير المدفوعة، لذا فإن إجمالي المستحق هو {{amount}} ريال — وليس مجموع الفاتورتين.",
     "amountToPay": "المبلغ المراد دفعه",
     "partialPaymentNote": "دفعة جزئية — سيتم ترحيل المبلغ المتبقي {{amount}} ريال إلى دورة الفاتورة التالية.",
     "abovePaymentNote": "{{amount}} ريال أعلى من المبلغ المستحق — سيتم تعديل الفاتورة التالية بالفرق.",
@@ -678,7 +677,7 @@
     "forgetPassword": "نسيت كلمة المرور؟",
     "loginButton": "تسجيل الدخول",
     "activateDevice": "تفعيل الجهاز",
-    "poweredBy": "بدعم من",
+    "poweredBy": "Powered by",
     "prototypeHint": "نسخة تجريبية فقط — أدخل أي اسم مستخدم/كلمة مرور، أو اضغط تسجيل الدخول مباشرة"
   },
   "deviceRegistration": {
@@ -3782,11 +3781,6 @@
     "appearanceLight": "فاتح",
     "appearanceDark": "داكن",
     "appearanceSystem": "النظام",
-    "darkModeSoonTitle": "الوضع الداكن",
-    "darkModeSoonDesc": "الوضع الداكن سيكون متاحاً قريباً. نحن نعمل عليه!",
-    "systemModeSoonTitle": "وضع النظام",
-    "systemModeSoonDesc": "وضع النظام سيكون متاحاً قريباً. نحن نعمل عليه!",
-    "gotIt": "حسناً",
     "deviceInfo": "معلومات الجهاز",
     "versionNumber": "رقم الإصدار",
     "buildNumber": "رقم البناء",

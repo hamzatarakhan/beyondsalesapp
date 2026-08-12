@@ -107,7 +107,7 @@ interface BillAccount {
   holder: string;
   /** Vnet lines aren't voice-reachable — their OTP goes to this associated contact number. */
   contactNumber?: string;
-  /** Newest bill first. The newest bill's amount is the total due; it rolls up earlier cycles. */
+  /** Newest bill first. Total due is the sum of every unpaid bill's amount. */
   bills: Bill[];
 }
 
@@ -198,8 +198,8 @@ const MSISDN_MAX_PAY = 2500;
 
 const money = (n: number) => n.toFixed(2);
 
-/** Newest bill carries the full outstanding balance, so it alone is the amount due. */
-const totalDueOf = (a: BillAccount) => (a.bills.length > 0 ? a.bills[0].amount : 0);
+/** Total due is the sum of every unpaid bill on the account, not just the newest one. */
+const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + b.amount, 0);
 
 const BillPayment = () => {
   const navigate = useNavigate();
@@ -721,12 +721,6 @@ const BillPayment = () => {
                   {isExpanded && (
                     <>
                       <div className="space-y-2">{a.bills.map(renderBill)}</div>
-
-                      {a.bills.length > 1 && (
-                        <p className="text-[11px] text-muted-foreground leading-snug">
-                          {t("billPayment.latestBillRollup", { amount: money(totalDueOf(a)) })}
-                        </p>
-                      )}
 
                       {(!isMulti || isOn) && renderAmountInput(a)}
                     </>
