@@ -202,3 +202,15 @@
     display: none;
   }
 }
+
+/* iOS Safari (and other WebKit mobile browsers) auto-zooms the whole page when a focused
+   form control's font-size computes under 16px, to keep the text legible — that's the
+   "tapping a field zooms the screen" behavior. Many inputs across the app use text-sm
+   (14px) or smaller, which triggers it. Force every real text-entry element to at least
+   16px on actual mobile-width viewports so focusing never zooms, regardless of what text
+   size a given screen applies. Desktop preview sizing is untouched. */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
