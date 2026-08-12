@@ -20,6 +20,7 @@ import {
 import { Drawer, DrawerContent, DrawerClose, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import { useBrand } from "@/contexts/BrandContext";
 import {
   DEALER_WALLET_BALANCE,
   VerifiedBanner,
@@ -135,6 +136,7 @@ const money = (n: number) => n.toFixed(2);
 const SimTermination = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { brand } = useBrand();
 
   const LINE_TYPE_LABEL: Record<LineType, string> = {
     prepaid: t("simTermination.lineTypePrepaid"),
@@ -349,13 +351,13 @@ const SimTermination = () => {
               heading={t("simTermination.testNumbersHeading")}
               description={t("simTermination.testDescription")}
               items={[
-                { value: "0501110001", note: t("simTermination.testNoteVirginPrepaid") },
-                { value: "0501110002", note: t("simTermination.testNoteFriendiPrepaid") },
-                { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid") },
-                { value: "0501110004", note: t("simTermination.testNoteVirginVnet") },
-                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidPaid") },
-                { value: "0501119999", note: t("simTermination.testNoteNotFound") },
-              ]}
+                { value: "0501110001", note: t("simTermination.testNoteVirginPrepaid"), brand: "virgin" as const },
+                { value: "0501110002", note: t("simTermination.testNoteFriendiPrepaid"), brand: "friendi" as const },
+                { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid"), brand: "virgin" as const },
+                { value: "0501110004", note: t("simTermination.testNoteVirginVnet"), brand: "virgin" as const },
+                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidPaid"), brand: "friendi" as const },
+                { value: "0501119999", note: t("simTermination.testNoteNotFound"), brand: null },
+              ].filter((item) => item.brand === null || item.brand === brand)}
               onSelect={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
             />
 
