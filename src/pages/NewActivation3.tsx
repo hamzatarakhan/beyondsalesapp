@@ -79,6 +79,7 @@ import {
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { useBrand } from "@/contexts/BrandContext";
 
 // ---------- Types ----------
@@ -330,6 +331,14 @@ const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_EMAIL = "unpaid.postpaid.vanit
 const FULFILMENT_UNPAID_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL = "unpaid.postpaid.vanitycommitted.whitelisted@email.com";
 // Deliberately absent from FULFILMENT_DEMO_EMAILS — used to demo the "no matching application" state.
 const FULFILMENT_UNKNOWN_EMAIL = "notfound.customer@email.com";
+// The operator pre-reserves some physical KITs for a specific plan (inventory/stock rule).
+// On Continue Activation only, a KIT reserved for a different plan than the one the customer
+// already picked on the digital channel is a real mismatch — flagged separately from the
+// registered/invalid/used checks below. Not checked on fresh SIM Activation, where the plan
+// is chosen after the KIT and can't be "wrong" yet.
+const KIT_RESERVED_PLAN: Record<string, string> = {
+  "5551110000": "Switch Postpaid 300",
+};
 const FULFILMENT_DEMO_EMAILS: Record<string, FulfilmentRecord> = {
   // Whitelisting doesn't change anything for a paid fulfilment request — it's already fully
   // settled either way — so there's no separate "prepaid whitelisted" paid case to test.
@@ -666,6 +675,14 @@ const NewActivation3 = () => {
   const [payType, setPayType] = useState<PayType>("prepaid");
   const [lineType, setLineType] = useState<LineType>("mobile");
   const [simType, setSimType] = useState<SimType>("psim");
+  // Brief brand-loader flash whenever the dealer switches SIM Type, Line Type, Subscription
+  // Type, or a Plan Type chip — the plan catalogue swaps under them, so this gives a visible
+  // beat instead of the list silently changing out.
+  const [optionSwitching, setOptionSwitching] = useState(false);
+  const flashSwitchLoader = () => {
+    setOptionSwitching(true);
+    setTimeout(() => setOptionSwitching(false), 500);
+  };
   const [kit, setKit] = useState("1234567890");
   const [kitError, setKitError] = useState<string | null>(null);
   const [kitChecking, setKitChecking] = useState(false);
@@ -791,6 +808,7 @@ const NewActivation3 = () => {
   // (not hidden) whenever Postpaid + one of those is active.
   const dataLineUnavailable = payType === "postpaid" && (simType === "esim" || isFulfilment);
   const selectLineType = (newLine: LineType) => {
+    flashSwitchLoader();
     setLineType(newLine);
     setPlanTypeChip("all");
     setSelectedPlan(null);
@@ -800,6 +818,7 @@ const NewActivation3 = () => {
     if (newLine === "data" && payType === "basic-postpaid") setPayType("prepaid");
   };
   const selectPayType = (newPayType: PayType) => {
+    flashSwitchLoader();
     setPayType(newPayType);
     setPlanTypeChip("all");
     setSelectedPlan(null);
@@ -1055,9 +1074,11 @@ const NewActivation3 = () => {
       setKitChecking(true);
       setTimeout(() => {
         setKitChecking(false);
+        const reservedFor = KIT_RESERVED_PLAN[kit];
         if (kit === "0000000000") setKitError("registered");
         else if (kit === "1111111111") setKitError("invalid");
         else if (kit === "2222222222") setKitError("used");
+        else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError("planMismatch");
         else setKitChecked(true);
       }, 1500);
     }
@@ -1182,6 +1203,13 @@ const NewActivation3 = () => {
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
+  // Everything below the SIM Type/KIT section stays hidden until the dealer has something
+  // to actually build a subscription off of: eSIM needs no KIT at all, P-SIM needs a
+  // verified (not just well-formed) code. Continue Activation is exempt regardless of paid
+  // or unpaid — the customer already made these choices on the digital channel, so the
+  // dealer needs to see (and for the unpaid case, still be able to adjust) them as reference
+  // regardless of what's going on with the physical SIM's KIT code.
+  const kitVerified = isFulfilment || simType === "esim" || (kitChecked && !kitError);
   const emailRequired = isPrepaidInternet;
   const cityRequired = true;
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
@@ -1439,8 +1467,8 @@ const NewActivation3 = () => {
                   {t("activation3.subscription.simType")} <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} onClick={() => setSimType("psim")} />
-                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => setSimType("esim")} />
+                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} onClick={() => { flashSwitchLoader(); setSimType("psim"); }} />
+                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => { flashSwitchLoader(); setSimType("esim"); }} />
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
@@ -1472,9 +1500,11 @@ const NewActivation3 = () => {
                               setKitChecking(true);
                               setTimeout(() => {
                                 setKitChecking(false);
+                                const reservedFor = KIT_RESERVED_PLAN[val];
                                     if (val === "0000000000") setKitError("registered");
                                 else if (val === "1111111111") setKitError("invalid");
                                 else if (val === "2222222222") setKitError("used");
+                                else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError("planMismatch");
                                 else setKitChecked(true);
                               }, 1500);
                             }
@@ -1517,7 +1547,7 @@ const NewActivation3 = () => {
 
             {/* 2. Subscription Type — through to Number section below. Read-only summary for a paid
                 fulfilment request, since it won't ever become editable — the dealer just needs to see it. */}
-            {fulfilmentLocked ? (
+            {kitVerified && (fulfilmentLocked ? (
               <div className="space-y-4">
                 {/* Line Type — read-only here (see the interactive toggle below for the unpaid
                     case): paid fulfilment already fixed this online, the dealer just needs to see it. */}
@@ -1702,7 +1732,7 @@ const NewActivation3 = () => {
                 {activePlanChips.map(chip => (
                   <button
                     key={chip.value}
-                    onClick={() => { setPlanTypeChip(chip.value); setSelectedPlan(null); }}
+                    onClick={() => { flashSwitchLoader(); setPlanTypeChip(chip.value); setSelectedPlan(null); }}
                     className={cn(
                       "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
                       planTypeChip === chip.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm"
@@ -2117,7 +2147,7 @@ const NewActivation3 = () => {
               </section>
             )}
           </div>
-          )}
+          ))}
           </>
         )}
 
@@ -2721,6 +2751,7 @@ const NewActivation3 = () => {
 
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
+      <BrandLoadingOverlay open={optionSwitching} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Fulfilment: QR scan lookup — full-screen camera-style view, no hardware access */}

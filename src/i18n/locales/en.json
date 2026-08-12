@@ -1082,7 +1082,8 @@
       "kitErrors": {
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
-        "used": "This KIT Code has already been used for a previous activation."
+        "used": "This KIT Code has already been used for a previous activation.",
+        "planMismatch": "This KIT isn't valid for the plan already selected. Try a different KIT, or change the plan to match."
       }
     },
     "plan": {
