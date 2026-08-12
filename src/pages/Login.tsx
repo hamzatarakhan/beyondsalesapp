@@ -99,7 +99,9 @@ const Login = () => {
         <p className="text-xs text-amber-700 dark:text-amber-400">{t("login.prototypeHint")}</p>
       </div>
 
-      <div className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+      {/* dir="ltr" pins this to the English layout regardless of app language — the "Powered
+          by" credit line and logo shouldn't translate or mirror under Arabic/RTL. */}
+      <div dir="ltr" className="mt-auto pt-10 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span>{t("login.poweredBy")}</span>
         <BeyondOneLogo className="h-3.5 w-auto text-[#000B25] dark:text-white" />
       </div>
