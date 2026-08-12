@@ -16,7 +16,7 @@ const BottomNav = () => {
 
   return (
     <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center gap-6 px-7 py-2 rounded-full bg-background/70 backdrop-blur-xl border border-border/40 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+      <nav className="pointer-events-auto flex items-center gap-6 px-7 py-2 rounded-full bg-background/70 dark:bg-white/10 backdrop-blur-xl border border-border/40 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -28,7 +28,7 @@ const BottomNav = () => {
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
                 isActive
                   ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-[#E2E8F0] hover:bg-[#d1d9e6] dark:bg-foreground/10 dark:hover:bg-foreground/15 text-muted-foreground hover:text-foreground"
+                  : "bg-foreground/5 hover:bg-foreground/10 dark:bg-foreground/10 dark:hover:bg-foreground/15 text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-5 h-5" />
