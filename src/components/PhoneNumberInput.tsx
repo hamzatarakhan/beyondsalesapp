@@ -26,7 +26,11 @@ const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", 
   <div
     dir="ltr"
     className={cn(
-      "flex items-center h-12 rounded-xl border border-input bg-card ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+      // min-w-0 lets this shrink below its content's natural width when it's a flex-1 child
+      // next to a fixed-width sibling (e.g. a Search button) — without it, flex's default
+      // min-width:auto keeps it at full content width and pushes the sibling off-screen on
+      // narrow viewports.
+      "flex items-center h-12 min-w-0 rounded-xl border border-input bg-card ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
       error && "border-destructive focus-within:ring-destructive",
       disabled && "opacity-50 cursor-not-allowed",
       className,
