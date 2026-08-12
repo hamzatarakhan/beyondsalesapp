@@ -78,10 +78,10 @@ const DEMO_CREDIT_CUSTOMERS: DemoCreditCustomer[] = [
   { msisdn: "0501111133", name: "Faisal Al-Harbi", planCategory: "flex", currentLimit: 0 },
 ];
 
-const DELTA_STEP = 10;
-const DELTA_MIN = 10;
+const DELTA_STEP = 25;
+const DELTA_MIN = 25;
 const DELTA_MAX = 200;
-const AMOUNT_PRESETS = [10, 20, 30, 50, 100, 150, 200];
+const AMOUNT_PRESETS = [25, 50, 75, 100, 125, 150, 175, 200];
 // Option 3 (carousel): fixed slot width each amount occupies, incl. the gap to its neighbor —
 // drives both the scroll-snap math and the padding that lets the first/last items center.
 const AMOUNT_ITEM_WIDTH = 84;
