@@ -101,10 +101,10 @@ const CreditLimitAdjustment = () => {
   const optionParam = searchParams.get("option");
   const amountMode: "slider" | "preset" | "carousel" | "wheel" | "unified" =
     optionParam === "2" ? "preset" : optionParam === "3" ? "carousel" : optionParam === "4" ? "wheel" : optionParam === "5" ? "unified" : "slider";
-  // Carousel and wheel are the same swipeable-strip mechanic underneath, just styled
-  // differently — every effect/handler that drives the strip keys off this instead of
-  // repeating the two-mode check.
-  const usesSwipeStrip = amountMode === "carousel" || amountMode === "wheel";
+  // Carousel, wheel, and the unified (Option 5) picker are the same swipeable-strip
+  // mechanic underneath, just styled differently and (for Option 5) signed — every
+  // effect/handler that drives the strip keys off this instead of repeating the check.
+  const usesSwipeStrip = amountMode === "carousel" || amountMode === "wheel" || amountMode === "unified";
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -180,30 +180,40 @@ const CreditLimitAdjustment = () => {
     setDirection("increase");
   }, [customer, amountMode]);
 
-  // ---------- Option 3: swipeable centered amount carousel ----------
+  // ---------- Option 3/4: swipeable centered amount carousel (unsigned) ----------
   const carouselValues = useMemo(() => {
     const vals: number[] = [];
     for (let v = DELTA_MIN; v <= deltaMax; v += DELTA_STEP) vals.push(v);
     return vals;
   }, [deltaMax]);
+  // ---------- Option 5: same strip, but signed and running through zero ----------
+  const unifiedValues = useMemo(() => {
+    const vals: number[] = [];
+    for (let v = unifiedMinBound; v <= DELTA_MAX; v += DELTA_STEP) vals.push(v);
+    return vals;
+  }, [unifiedMinBound]);
+  // Which value set + "where on it are we" the shared strip effects below track, since
+  // Option 5's is signed (direction folded into the sign) while 3/4's is a plain magnitude.
+  const stripValues = amountMode === "unified" ? unifiedValues : carouselValues;
+  const currentStripValue = amountMode === "unified" ? (direction === "decrease" ? -delta : delta) : delta;
   const carouselDrag = useDragScroll<HTMLDivElement>();
   const [carouselScroll, setCarouselScroll] = useState(0);
 
-  // Re-center the strip on the current delta whenever the carousel becomes active or its
-  // value range changes (direction flip) — instant jump, not an animated scroll, so it
-  // doesn't fight a drag the dealer might already be mid-gesture on. `customer` is in the
-  // deps (not read otherwise) because the carousel <div> only exists in the DOM once a
-  // customer is looked up — without it, this would only ever see a null ref from the
-  // pre-lookup render and never retry once the element actually mounts.
+  // Re-center the strip on the current value whenever it becomes active or its value range
+  // changes (direction flip) — instant jump, not an animated scroll, so it doesn't fight a
+  // drag the dealer might already be mid-gesture on. `customer` is in the deps (not read
+  // otherwise) because the strip <div> only exists in the DOM once a customer is looked up —
+  // without it, this would only ever see a null ref from the pre-lookup render and never
+  // retry once the element actually mounts.
   useEffect(() => {
     if (!usesSwipeStrip) return;
     const el = carouselDrag.ref.current;
     if (!el) return;
-    const idx = Math.max(0, carouselValues.indexOf(delta));
+    const idx = Math.max(0, stripValues.indexOf(currentStripValue));
     el.scrollLeft = idx * AMOUNT_SLOT;
     setCarouselScroll(idx * AMOUNT_SLOT);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usesSwipeStrip, carouselValues, customer]);
+  }, [usesSwipeStrip, stripValues, customer]);
 
   // Snaps to the nearest value a beat after the strip stops moving (covers both a drag
   // release and momentum scrolling), rather than reading delta off every scroll frame.
@@ -216,13 +226,19 @@ const CreditLimitAdjustment = () => {
       requestAnimationFrame(() => setCarouselScroll(el.scrollLeft));
       clearTimeout(settleTimer);
       settleTimer = setTimeout(() => {
-        const idx = Math.max(0, Math.min(carouselValues.length - 1, Math.round(el.scrollLeft / AMOUNT_SLOT)));
-        setDelta(carouselValues[idx]);
+        const idx = Math.max(0, Math.min(stripValues.length - 1, Math.round(el.scrollLeft / AMOUNT_SLOT)));
+        const v = stripValues[idx];
+        if (amountMode === "unified") {
+          setDirection(v < 0 ? "decrease" : "increase");
+          setDelta(Math.abs(v));
+        } else {
+          setDelta(v);
+        }
       }, 100);
     };
     el.addEventListener("scroll", onScroll);
     return () => { el.removeEventListener("scroll", onScroll); clearTimeout(settleTimer); };
-  }, [usesSwipeStrip, carouselValues, carouselDrag.ref, customer]);
+  }, [usesSwipeStrip, stripValues, carouselDrag.ref, customer, amountMode]);
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -391,17 +407,11 @@ const CreditLimitAdjustment = () => {
             )}
 
             <CardSection title={t("creditLimitAdjustment.adjustmentAmount")} icon={direction === "increase" ? TrendingUp : TrendingDown}>
-              {amountMode !== "wheel" && (
+              {amountMode !== "wheel" && amountMode !== "unified" && (
                 <div className="text-center mb-4">
-                  {amountMode === "unified" ? (
-                    <span className={cn("text-2xl font-bold", delta === 0 ? "text-foreground" : direction === "increase" ? "value-positive" : "value-negative")}>
-                      {delta === 0 ? "" : direction === "increase" ? "+" : "−"}<RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="text-2xl font-bold text-foreground">
-                      <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
-                    </span>
-                  )}
+                  <span className="text-2xl font-bold text-foreground">
+                    <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
+                  </span>
                 </div>
               )}
 
@@ -503,23 +513,52 @@ const CreditLimitAdjustment = () => {
                 </div>
               ) : amountMode === "unified" ? (
                 <div className="space-y-2">
-                  <div className="relative">
-                    {/* Zero mark — purely visual, shows the dealer where the thumb starts */}
-                    <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-muted-foreground/40 z-10" />
-                    {/* dir="ltr" pins left = min (decrease) / right = max (increase) regardless
-                        of app language — same reason as the label row below. */}
-                    <Slider
-                      dir="ltr"
-                      value={[direction === "decrease" ? -delta : delta]}
-                      min={unifiedMinBound}
-                      max={DELTA_MAX}
-                      step={DELTA_STEP}
-                      onValueChange={([v]) => { setDirection(v < 0 ? "decrease" : "increase"); setDelta(Math.abs(v)); }}
-                    />
+                  {/* dir="ltr" pins left = decrease / right = increase regardless of app
+                      language, same reason as the label row below — native scroll containers
+                      can otherwise reverse their scrollLeft convention under the Arabic rtl dir. */}
+                  <div
+                    ref={carouselDrag.ref}
+                    dir="ltr"
+                    onMouseDown={carouselDrag.onMouseDown}
+                    onMouseUp={carouselDrag.onMouseUp}
+                    onMouseLeave={carouselDrag.onMouseLeave}
+                    onMouseMove={carouselDrag.onMouseMove}
+                    onClickCapture={carouselDrag.onClickCapture}
+                    className={cn("relative -mx-4 flex items-center overflow-x-auto no-scrollbar", carouselDrag.className)}
+                    style={{
+                      height: 56,
+                      gap: AMOUNT_ITEM_GAP,
+                      scrollSnapType: "x mandatory",
+                      paddingInline: `calc(50% - ${AMOUNT_ITEM_WIDTH / 2}px)`,
+                    }}
+                  >
+                    {unifiedValues.map((v, i) => {
+                      const dist = Math.abs(i * AMOUNT_SLOT - carouselScroll) / AMOUNT_SLOT;
+                      const isCenter = dist < 0.5;
+                      const opacity = Math.max(0.3, 1 - dist * 0.45);
+                      const tone = v === 0 ? "text-foreground" : v > 0 ? "value-positive" : "value-negative";
+                      return (
+                        <div
+                          key={v}
+                          style={{ width: AMOUNT_ITEM_WIDTH, scrollSnapAlign: "center", opacity }}
+                          className="shrink-0 flex flex-col items-center justify-center h-full gap-1"
+                        >
+                          <span className="flex items-center gap-1">
+                            <span className={cn(
+                              "font-bold whitespace-nowrap transition-all flex items-center gap-0.5",
+                              isCenter ? cn("text-2xl", tone) : "text-lg text-muted-foreground"
+                            )}>
+                              {v !== 0 && (v > 0 ? "+" : "−")}<RiyalSymbol className={isCenter ? undefined : "text-muted-foreground"} /> {Math.abs(v).toFixed(0)}
+                            </span>
+                          </span>
+                          <span className={cn("w-6 h-0.5 rounded-full", isCenter ? "bg-primary" : "bg-transparent")} />
+                        </div>
+                      );
+                    })}
                   </div>
-                  {/* dir="ltr" pins left/right physically, same reason as the slider above —
+                  {/* dir="ltr" pins left/right physically, same reason as the strip above —
                       a plain flex row would otherwise mirror under the Arabic layout's rtl dir
-                      and put "Increase" on the same side the slider still treats as decrease. */}
+                      and put "Increase" on the same side the strip still treats as decrease. */}
                   <div dir="ltr" className="flex items-center justify-between text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1"><TrendingDown className="w-3 h-3" /> {t("creditLimitAdjustment.decrease")}</span>
                     <span className="flex items-center gap-1">{t("creditLimitAdjustment.increase")} <TrendingUp className="w-3 h-3" /></span>
