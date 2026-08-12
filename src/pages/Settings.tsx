@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
-import { ChevronRight, Check, X, Eye, EyeOff, GripVertical, Moon, Smartphone } from "lucide-react";
+import { ChevronRight, Check, X, Eye, EyeOff, GripVertical } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme, type ThemeMode } from "@/contexts/ThemeContext";
 import { useWidgets, WIDGET_LABEL_KEYS } from "@/contexts/WidgetsContext";
@@ -27,7 +26,6 @@ const SettingsPage = () => {
   const [appearanceSheetOpen, setAppearanceSheetOpen] = useState(false);
   const [widgetsSheetOpen, setWidgetsSheetOpen] = useState(false);
   const [pinSheetOpen, setPinSheetOpen] = useState(false);
-  const [themeSoonMode, setThemeSoonMode] = useState<"dark" | "system" | null>(null);
 
   const [faceId, setFaceId] = useState(true);
   const [biometrics, setBiometrics] = useState(true);
@@ -228,13 +226,9 @@ const SettingsPage = () => {
                   key={opt.value}
                   onClick={() => {
                     setAppearanceSheetOpen(false);
-                    if (opt.value === "dark" || opt.value === "system") {
-                      setThemeSoonMode(opt.value);
-                    } else {
-                      setThemeMode(opt.value);
-                    }
+                    setThemeMode(opt.value);
                   }}
-                  className={cn("w-full flex items-center justify-between py-4 px-3 -mx-3 rounded-xl text-start", active && "bg-primary/10")}
+                  className="w-full flex items-center justify-between py-4 text-start"
                 >
                   <span className={cn("text-base", active ? "font-semibold text-primary" : "text-foreground")}>{opt.label}</span>
                   {active && <Check className="w-5 h-5 text-primary" />}
@@ -244,32 +238,6 @@ const SettingsPage = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      {/* Dark and System modes aren't wired up to actually apply yet — this just informs
-          the dealer instead of silently no-op'ing when they tap either in the Appearance sheet. */}
-      <Dialog open={themeSoonMode !== null} onOpenChange={(o) => !o && setThemeSoonMode(null)}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-1">
-            {themeSoonMode === "system" ? <Smartphone className="w-6 h-6 text-primary" /> : <Moon className="w-6 h-6 text-primary" />}
-          </div>
-          <h3 className="font-semibold text-foreground text-lg">
-            {t(themeSoonMode === "system" ? "settings.systemModeSoonTitle" : "settings.darkModeSoonTitle")}
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1 mb-3">
-            {t(themeSoonMode === "system" ? "settings.systemModeSoonDesc" : "settings.darkModeSoonDesc")}
-          </p>
-          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
-              auto-injected close button) would otherwise also hide this direct-child button. */}
-          <div>
-            <button
-              onClick={() => setThemeSoonMode(null)}
-              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-            >
-              {t("settings.gotIt")}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Widgets bottom sheet — toggles show/hide the widget on Home, drag reorders it there too */}
       <Drawer open={widgetsSheetOpen} onOpenChange={setWidgetsSheetOpen}>

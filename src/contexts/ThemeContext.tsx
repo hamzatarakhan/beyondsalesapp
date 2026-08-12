@@ -39,12 +39,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  // Dark mode is temporarily disabled app-wide — light always renders regardless of
-  // the dealer's stored preference or OS setting. themeMode/setThemeMode still track
-  // and persist the dealer's choice normally so the Settings picker keeps working;
-  // swap the line below back to the commented one to re-enable actually applying it.
-  // const theme: ResolvedTheme = themeMode === "system" ? systemTheme : themeMode;
-  const theme = "light" as ResolvedTheme;
+  // Light is still the default (getInitialMode falls back to "light" with nothing
+  // stored), but the dealer's actual preference — including "system" — now applies.
+  const theme: ResolvedTheme = themeMode === "system" ? systemTheme : themeMode;
 
   useEffect(() => {
     const root = document.documentElement;
