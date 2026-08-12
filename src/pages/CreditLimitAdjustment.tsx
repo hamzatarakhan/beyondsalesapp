@@ -204,7 +204,11 @@ const CreditLimitAdjustment = () => {
   // drag the dealer might already be mid-gesture on. `customer` is in the deps (not read
   // otherwise) because the strip <div> only exists in the DOM once a customer is looked up —
   // without it, this would only ever see a null ref from the pre-lookup render and never
-  // retry once the element actually mounts.
+  // retry once the element actually mounts. `step` is in the deps for the same reason on the
+  // way back: step 0's JSX (and the strip along with it) unmounts while on step 1, so
+  // returning to step 0 mounts a brand-new <div> whose native scrollLeft starts at 0 — without
+  // `step` here, that remount wouldn't re-trigger this effect and the strip would render at
+  // its default position even though `delta`/`direction` themselves were never actually lost.
   useEffect(() => {
     if (!usesSwipeStrip) return;
     const el = carouselDrag.ref.current;
@@ -213,10 +217,15 @@ const CreditLimitAdjustment = () => {
     el.scrollLeft = idx * AMOUNT_SLOT;
     setCarouselScroll(idx * AMOUNT_SLOT);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usesSwipeStrip, stripValues, customer]);
+  }, [usesSwipeStrip, stripValues, customer, step]);
 
   // Snaps to the nearest value a beat after the strip stops moving (covers both a drag
   // release and momentum scrolling), rather than reading delta off every scroll frame.
+  // `carouselDrag.ref` is a stable useRef object (never changes identity), so it does
+  // nothing to trigger a re-run on its own — `step` is what actually gets this listener
+  // re-attached to the fresh <div> after leaving and returning to step 0. Without it, a
+  // drag after coming back moves the strip (native scrolling still works) but never
+  // commits a new delta, since the listener was never re-attached to the new element.
   useEffect(() => {
     if (!usesSwipeStrip) return;
     const el = carouselDrag.ref.current;
@@ -238,7 +247,7 @@ const CreditLimitAdjustment = () => {
     };
     el.addEventListener("scroll", onScroll);
     return () => { el.removeEventListener("scroll", onScroll); clearTimeout(settleTimer); };
-  }, [usesSwipeStrip, stripValues, carouselDrag.ref, customer, amountMode]);
+  }, [usesSwipeStrip, stripValues, carouselDrag.ref, customer, amountMode, step]);
 
   // ---------- OTP handlers ----------
   useEffect(() => {
