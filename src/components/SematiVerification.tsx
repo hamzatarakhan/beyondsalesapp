@@ -93,6 +93,17 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
+  // Every way of dismissing this (Cancel, the X button, backdrop/swipe dismiss) must go
+  // through here, not just call onClose directly. The nafath_code step has a pending
+  // approveTimer that auto-fires runConnecting() after 3.5s; that timer only gets cleared
+  // when its useEffect's `step` dependency changes, and onClose alone doesn't change step
+  // (it just closes the dialog, leaving the component mounted mid-step) — so without this,
+  // the dealer could cancel and still get auto-verified moments later.
+  const handleClose = () => {
+    setStep("select");
+    onClose();
+  };
+
   const pickMethod = (m: Method) => {
     setMethod(m);
     onMethodSelected?.(m);
@@ -150,7 +161,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
   // Step 1: bottom sheet to pick method
   if (step === "select") {
     return (
-      <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+      <Drawer open={open} onOpenChange={(o) => !o && handleClose()}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           
           <div className="flex items-start justify-between mb-1">
@@ -160,7 +171,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               </h3>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="w-6 h-6 flex items-center justify-center text-muted-foreground"
               aria-label={t("activation.verification.cancel")}
             >
@@ -213,7 +224,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
 
   // Steps 2-4: centered dialog card
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="max-w-[320px] rounded-3xl border-0 p-8 text-center [&>button]:hidden">
         {step === "nafath_code" && (
           <div className="flex flex-col items-center gap-4">
@@ -243,7 +254,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="w-full py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm"
             >
               {t("activation.verification.cancel")}
@@ -270,7 +281,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             >
               {t("activation.verification.start")}
             </button>
-            <button onClick={onClose} className="text-primary text-sm font-medium">
+            <button onClick={handleClose} className="text-primary text-sm font-medium">
               {t("activation.verification.cancel")}
             </button>
           </div>
@@ -310,7 +321,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
             >
               {t("activation.verification.submit")}
             </button>
-            <button onClick={onClose} className="text-primary text-sm font-medium">
+            <button onClick={handleClose} className="text-primary text-sm font-medium">
               {t("activation.verification.cancel")}
             </button>
           </div>
@@ -360,7 +371,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
               {t("activation.verification.again")}
             </button>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-primary text-sm font-medium"
             >
               {t("activation.verification.cancel")}

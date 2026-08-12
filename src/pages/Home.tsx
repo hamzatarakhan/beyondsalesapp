@@ -196,11 +196,7 @@ const Home = () => {
                 color="teal"
                 badge={activity.badge}
                 badgeTone={activity.badgeTone}
-                onClick={() =>
-                  activity.id === "fulfilment"
-                    ? handleActivityClick(activity.path)
-                    : navigate(activity.path)
-                }
+                onClick={() => handleActivityClick(activity.path)}
               />
             ))}
           </div>
