@@ -94,6 +94,10 @@ interface DemoCustomer {
   isWhitelisted?: boolean;
   /** 100% deposit fee waived — only set for specific whitelisted customers. */
   depositWaiver?: boolean;
+  /** SIM-inventory cap reached on the customer's account — blocks the migration regardless
+   * of the line's own plan eligibility. "max-total" applies to either direction; the other
+   * two only block the direction that would add another SIM of that type. */
+  simLimitReason?: "max-postpaid" | "max-prepaid" | "max-total";
 }
 
 const DEMO_CUSTOMERS: DemoCustomer[] = [
@@ -102,9 +106,13 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111133", subscriptionType: "prepaid", planCategory: "flex", planName: "Baqah Flex 100" },
   { msisdn: "0501111144", subscriptionType: "prepaid", planCategory: "data", planName: "300 GB (5G MBB)" },
   { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
+  { msisdn: "0501111166", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-postpaid" },
+  { msisdn: "0501111177", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-total" },
   { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBalance: 170 },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300", outstandingBalance: 0 },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
+  { msisdn: "0502222244", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", simLimitReason: "max-prepaid" },
+  { msisdn: "0502222255", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", simLimitReason: "max-total" },
 ];
 
 const ELIGIBLE_PREPAID_CATEGORIES = ["aman", "base-plan", "flex"];
@@ -191,6 +199,10 @@ const SubscriptionMigration = () => {
   // Locked-service lookup found a number of the wrong direction — offer a CTA straight to
   // the other direction's service instead of leaving the dealer to find it themselves.
   const [wrongDirectionModalOpen, setWrongDirectionModalOpen] = useState(false);
+  // Max postpaid/prepaid SIMs reached — modal with a CTA to change the existing plan on the
+  // maxed-out line type instead of adding a new one. Max-total has no alternative action, so
+  // it stays inline-only (see lookupError below), never opening this modal.
+  const [simLimitCase, setSimLimitCase] = useState<"max-postpaid" | "max-prepaid" | null>(null);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [depositWaiver, setDepositWaiver] = useState(false);
 
@@ -226,6 +238,7 @@ const SubscriptionMigration = () => {
     setLookupError(null);
     setIneligibleReason(null);
     setWrongDirectionModalOpen(false);
+    setSimLimitCase(null);
     setDirection(null);
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
@@ -244,6 +257,24 @@ const SubscriptionMigration = () => {
             : t("subscriptionMigration.lookupErrorWrongDirectionPostToPre")
         );
         setWrongDirectionModalOpen(true);
+        return;
+      }
+      // SIM inventory caps — checked before plan eligibility, since a maxed-out account
+      // blocks the migration outright regardless of whether the line itself is eligible.
+      // Max-total is inline-only (no alternative action to offer); max-postpaid/prepaid pop
+      // a modal with a CTA to change the existing plan on the maxed-out line type.
+      if (found.simLimitReason === "max-total") {
+        setLookupError(t("subscriptionMigration.lookupErrorMaxTotalSim"));
+        return;
+      }
+      if (dir === "pre-to-post" && found.simLimitReason === "max-postpaid") {
+        setLookupError(t("subscriptionMigration.lookupErrorMaxPostpaidSim"));
+        setSimLimitCase("max-postpaid");
+        return;
+      }
+      if (dir === "post-to-pre" && found.simLimitReason === "max-prepaid") {
+        setLookupError(t("subscriptionMigration.lookupErrorMaxPrepaidSim"));
+        setSimLimitCase("max-prepaid");
         return;
       }
       setDirection(dir);
@@ -487,6 +518,10 @@ const SubscriptionMigration = () => {
                 { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
                 { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "pre-to-post" as const },
                 { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "post-to-pre" as const },
+                { value: "0501111166", note: t("subscriptionMigration.testNoteMaxPostpaidSim"), group: t("subscriptionMigration.testGroupSimLimit"), direction: "pre-to-post" as const },
+                { value: "0501111177", note: t("subscriptionMigration.testNoteMaxTotalSim"), group: t("subscriptionMigration.testGroupSimLimit"), direction: "pre-to-post" as const },
+                { value: "0502222244", note: t("subscriptionMigration.testNoteMaxPrepaidSim"), group: t("subscriptionMigration.testGroupSimLimit"), direction: "post-to-pre" as const },
+                { value: "0502222255", note: t("subscriptionMigration.testNoteMaxTotalSim"), group: t("subscriptionMigration.testGroupSimLimit"), direction: "post-to-pre" as const },
                 // Only meaningful on the locked services — an opposite-direction number to
                 // demonstrate the wrong-direction modal + CTA. "direction" here is tagged as
                 // the CURRENT lockedDirection (not the number's real type) purely so the
@@ -949,6 +984,38 @@ const SubscriptionMigration = () => {
           >
             {t("subscriptionMigration.gotIt")}
           </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Max postpaid/prepaid SIMs reached — CTA points at changing the existing plan on the
+          maxed-out line type instead of adding a new one. No real "change plan" flow exists
+          in this prototype yet, so the CTA lands on the shared Coming Soon stub (see
+          Menu.tsx). */}
+      <Dialog open={simLimitCase !== null} onOpenChange={(o) => !o && setSimLimitCase(null)}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertCircle className="w-7 h-7 text-destructive" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-2 text-lg">{t("subscriptionMigration.simLimitTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{lookupError}</p>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => {
+                const feature = simLimitCase === "max-postpaid"
+                  ? t("subscriptionMigration.changePrepaidPlan")
+                  : t("subscriptionMigration.changePostpaidPlan");
+                setSimLimitCase(null);
+                navigate("/coming-soon", { state: { feature } });
+              }}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {simLimitCase === "max-postpaid"
+                ? t("subscriptionMigration.changePrepaidPlan")
+                : t("subscriptionMigration.changePostpaidPlan")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
