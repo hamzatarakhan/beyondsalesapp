@@ -92,14 +92,15 @@ const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  // Four separate Home entry points ("Option 1-4") land on this same flow, each fixed to
+  // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
-  // (mirrors Friendi's PAYG top-up), a boxed swipeable carousel, or a plain typographic
-  // wheel picker paired with its own current→new limit summary. Not a toggle the dealer
-  // switches mid-flow; which one they get depends on which tile they tapped.
+  // (mirrors Friendi's PAYG top-up), a boxed swipeable carousel, a plain typographic wheel
+  // picker paired with its own current→new limit summary, or a single zero-centered slider
+  // that replaces the increase/decrease toggle entirely. Not a toggle the dealer switches
+  // mid-flow; which one they get depends on which tile they tapped.
   const optionParam = searchParams.get("option");
-  const amountMode: "slider" | "preset" | "carousel" | "wheel" =
-    optionParam === "2" ? "preset" : optionParam === "3" ? "carousel" : optionParam === "4" ? "wheel" : "slider";
+  const amountMode: "slider" | "preset" | "carousel" | "wheel" | "unified" =
+    optionParam === "2" ? "preset" : optionParam === "3" ? "carousel" : optionParam === "4" ? "wheel" : optionParam === "5" ? "unified" : "slider";
   // Carousel and wheel are the same swipeable-strip mechanic underneath, just styled
   // differently — every effect/handler that drives the strip keys off this instead of
   // repeating the two-mode check.
@@ -159,11 +160,25 @@ const CreditLimitAdjustment = () => {
   const newLimit = direction === "increase" ? currentLimit + delta : currentLimit - effectiveDelta;
   // Can't decrease by more than the customer already has.
   const deltaMax = direction === "decrease" ? Math.max(DELTA_MIN, Math.min(DELTA_MAX, currentLimit)) : DELTA_MAX;
+  // Option 5's slider spans both directions at once — same "can't decrease past what the
+  // customer has" cap as above, just as the negative end of one continuous range.
+  const unifiedMinBound = -Math.max(DELTA_MIN, Math.min(DELTA_MAX, currentLimit));
 
-  // Reset the delta step whenever direction or customer changes, so it never starts out-of-range.
+  // Options 1-4: reset the delta step whenever direction or customer changes, so it never
+  // starts out-of-range. Option 5 is excluded — there direction is a side-effect of the
+  // slider crossing zero, not a manual toggle, so resetting here on every flip would fight
+  // the drag; it gets its own reset-on-lookup effect below instead.
   useEffect(() => {
+    if (amountMode === "unified") return;
     setDelta(DELTA_STEP);
-  }, [direction, customer]);
+  }, [direction, customer, amountMode]);
+
+  // Option 5 only: re-center the slider to zero whenever a new customer is looked up.
+  useEffect(() => {
+    if (amountMode !== "unified") return;
+    setDelta(0);
+    setDirection("increase");
+  }, [customer, amountMode]);
 
   // ---------- Option 3: swipeable centered amount carousel ----------
   const carouselValues = useMemo(() => {
@@ -280,6 +295,26 @@ const CreditLimitAdjustment = () => {
     setPayMethod("wallet");
   };
 
+  // Shared between all options — Option 5 renders it right after Customer Details instead
+  // of after the amount picker, per the client's requested layout.
+  const limitSummaryCard = (
+    <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center gap-4">
+      <div className="text-center">
+        <p className="text-xl font-bold text-foreground"><RiyalSymbol className="text-base" /> {currentLimit.toFixed(0)}</p>
+        <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourCurrentLimit")}</p>
+      </div>
+      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+        <ArrowRight className="w-4 h-4 text-foreground rtl:rotate-180" />
+      </div>
+      <div className="text-center">
+        <p className={cn("text-xl font-bold", direction === "increase" ? "value-positive" : "value-negative")}>
+          <RiyalSymbol className="text-base" /> {newLimit.toFixed(0)}
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourNewLimit")}</p>
+      </div>
+    </div>
+  );
+
   // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
   // Kept in source in case we want it back — just uncomment the FlowStepper line below.
   const steps = [
@@ -342,21 +377,31 @@ const CreditLimitAdjustment = () => {
               <SummaryRow label={t("creditLimitAdjustment.currentCreditLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
             </CardSection>
 
-            <div className="flex gap-3">
-              {([
-                { value: "increase" as const, label: t("creditLimitAdjustment.increase"), Icon: TrendingUp },
-                { value: "decrease" as const, label: t("creditLimitAdjustment.decrease"), Icon: TrendingDown },
-              ]).map(({ value, label, Icon }) => (
-                <SimCard key={value} active={direction === value} label={label} icon={Icon} onClick={() => setDirection(value)} />
-              ))}
-            </div>
+            {amountMode === "unified" && limitSummaryCard}
+
+            {amountMode !== "unified" && (
+              <div className="flex gap-3">
+                {([
+                  { value: "increase" as const, label: t("creditLimitAdjustment.increase"), Icon: TrendingUp },
+                  { value: "decrease" as const, label: t("creditLimitAdjustment.decrease"), Icon: TrendingDown },
+                ]).map(({ value, label, Icon }) => (
+                  <SimCard key={value} active={direction === value} label={label} icon={Icon} onClick={() => setDirection(value)} />
+                ))}
+              </div>
+            )}
 
             <CardSection title={t("creditLimitAdjustment.adjustmentAmount")} icon={direction === "increase" ? TrendingUp : TrendingDown}>
               {amountMode !== "wheel" && (
                 <div className="text-center mb-4">
-                  <span className="text-2xl font-bold text-foreground">
-                    <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
-                  </span>
+                  {amountMode === "unified" ? (
+                    <span className={cn("text-2xl font-bold", delta === 0 ? "text-foreground" : direction === "increase" ? "value-positive" : "value-negative")}>
+                      {delta === 0 ? "" : direction === "increase" ? "+" : "−"}<RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
+                    </span>
+                  ) : (
+                    <span className="text-2xl font-bold text-foreground">
+                      <RiyalSymbol className="text-lg" /> {delta.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               )}
 
@@ -456,6 +501,30 @@ const CreditLimitAdjustment = () => {
                     })}
                   </div>
                 </div>
+              ) : amountMode === "unified" ? (
+                <div className="space-y-2">
+                  <div className="relative">
+                    {/* Zero mark — purely visual, shows the dealer where the thumb starts */}
+                    <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-muted-foreground/40 z-10" />
+                    {/* dir="ltr" pins left = min (decrease) / right = max (increase) regardless
+                        of app language — same reason as the label row below. */}
+                    <Slider
+                      dir="ltr"
+                      value={[direction === "decrease" ? -delta : delta]}
+                      min={unifiedMinBound}
+                      max={DELTA_MAX}
+                      step={DELTA_STEP}
+                      onValueChange={([v]) => { setDirection(v < 0 ? "decrease" : "increase"); setDelta(Math.abs(v)); }}
+                    />
+                  </div>
+                  {/* dir="ltr" pins left/right physically, same reason as the slider above —
+                      a plain flex row would otherwise mirror under the Arabic layout's rtl dir
+                      and put "Increase" on the same side the slider still treats as decrease. */}
+                  <div dir="ltr" className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1"><TrendingDown className="w-3 h-3" /> {t("creditLimitAdjustment.decrease")}</span>
+                    <span className="flex items-center gap-1">{t("creditLimitAdjustment.increase")} <TrendingUp className="w-3 h-3" /></span>
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-4 gap-2">
                   {AMOUNT_PRESETS.filter((amt) => amt <= deltaMax).map((amt) => (
@@ -475,21 +544,7 @@ const CreditLimitAdjustment = () => {
               )}
             </CardSection>
 
-            <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-center gap-4">
-              <div className="text-center">
-                <p className="text-xl font-bold text-foreground"><RiyalSymbol className="text-base" /> {currentLimit.toFixed(0)}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourCurrentLimit")}</p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <ArrowRight className="w-4 h-4 text-foreground rtl:rotate-180" />
-              </div>
-              <div className="text-center">
-                <p className={cn("text-xl font-bold", direction === "increase" ? "value-positive" : "value-negative")}>
-                  <RiyalSymbol className="text-base" /> {newLimit.toFixed(0)}
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-1">{t("creditLimitAdjustment.yourNewLimit")}</p>
-              </div>
-            </div>
+            {amountMode !== "unified" && limitSummaryCard}
 
             {direction === "increase" ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">

@@ -123,13 +123,15 @@ const Home = () => {
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
   // its own way of picking the adjustment amount (?option=1 → slider, ?option=2 →
   // predefined amounts, ?option=3 → boxed swipeable carousel, ?option=4 → plain wheel
-  // picker with its own current→new summary), so they can be reviewed side by side.
+  // picker with its own current→new summary, ?option=5 → single zero-centered slider
+  // replacing the increase/decrease toggle), so they can be reviewed side by side.
   // "special" badge tone flags them as alternate options rather than a rollout-status badge.
   const creditLimitOptions = [
     { id: "credit-limit-1", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=1", badge: t("home.creditLimitOptions.optionBadge", { number: 1 }), badgeTone: "special" as const },
     { id: "credit-limit-2", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=2", badge: t("home.creditLimitOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
     { id: "credit-limit-3", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=3", badge: t("home.creditLimitOptions.optionBadge", { number: 3 }), badgeTone: "special" as const },
     { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.creditLimitOptions.optionBadge", { number: 4 }), badgeTone: "special" as const },
+    { id: "credit-limit-5", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5", badge: t("home.creditLimitOptions.optionBadge", { number: 5 }), badgeTone: "special" as const },
   ];
 
   // "Option 1" is the original flow (auto-detects direction from the looked-up number);
