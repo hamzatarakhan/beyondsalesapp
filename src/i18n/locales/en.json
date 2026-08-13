@@ -534,6 +534,7 @@
     "otpVerified": "OTP Verified",
     "otpHint": "A verification code will be sent to the customer's number.",
     "sendVerifyOtp": "Send & Verify OTP",
+    "continue": "Continue",
     "contactNumber": "Contact Number",
     "email": "Email",
     "emailPlaceholder": "customer@email.com (optional)",

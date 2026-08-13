@@ -534,6 +534,7 @@
     "otpVerified": "تم التحقق من رمز OTP",
     "otpHint": "سيتم إرسال رمز تحقق إلى رقم العميل.",
     "sendVerifyOtp": "إرسال والتحقق من رمز OTP",
+    "continue": "متابعة",
     "contactNumber": "رقم التواصل",
     "email": "البريد الإلكتروني",
     "emailPlaceholder": "customer@email.com (اختياري)",

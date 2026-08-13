@@ -113,7 +113,7 @@ const CustomerComplaint = () => {
   const [step, setStep] = useState(0);
 
   // Step 0 — Lookup + OTP
-  const [msisdn, setMsisdn] = useState("0501111133");
+  const [msisdn, setMsisdn] = useState("");
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoComplaintCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
@@ -180,11 +180,6 @@ const CustomerComplaint = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligible]);
 
-  // Auto-advance to the complaint form the instant OTP verifies — no "Continue" tap.
-  useEffect(() => {
-    if (otpVerified) setStep(1);
-  }, [otpVerified]);
-
   // ---------- OTP handlers ----------
   useEffect(() => {
     if (!otpOpen) return;
@@ -241,6 +236,7 @@ const CustomerComplaint = () => {
   };
 
   // ---------- Gates ----------
+  const canContinueStep0 = eligible && otpVerified;
   const canSubmit = contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
 
   const resolveSubmit = () => {
@@ -259,7 +255,7 @@ const CustomerComplaint = () => {
 
   const resetAll = () => {
     setStep(0);
-    setMsisdn("0501111133");
+    setMsisdn("");
     setCustomer(null);
     setLookupError(null);
     setLimitReached(false);
@@ -471,17 +467,21 @@ const CustomerComplaint = () => {
         )}
       </div>
 
-      {/* Sticky bottom — step 0 has no CTA of its own: the OTP drawer auto-opens once a
-          customer is found, and verifying it auto-advances to step 1. */}
-      {step === 1 && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <div className="max-w-[390px] mx-auto">
+      {/* Sticky bottom */}
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+        <div className="max-w-[390px] mx-auto">
+          {step === 0 && (
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueStep0} onClick={() => setStep(1)}>
+              {t("customerComplaint.continue")}
+            </Button>
+          )}
+          {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveSubmit}>
               {t("customerComplaint.submit")}
             </Button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* OTP drawer */}
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
