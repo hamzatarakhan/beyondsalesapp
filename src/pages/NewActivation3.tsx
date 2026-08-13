@@ -1583,9 +1583,9 @@ const NewActivation3 = () => {
                             type="button"
                             disabled
                             className={cn(
-                              "flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors",
+                              "flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors opacity-50 cursor-not-allowed",
                               compact ? "py-2.5 px-1" : "py-3 px-1.5",
-                              payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60 opacity-40",
+                              payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
                             )}
                           >
                             <Icon className={cn(compact ? "w-4 h-4" : "w-5 h-5", payType === key ? "text-primary" : "text-muted-foreground")} />
