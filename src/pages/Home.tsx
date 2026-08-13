@@ -5,7 +5,6 @@ import {
   XCircle,
   UserX,
   Users,
-  Wallet,
   Package,
   Smartphone,
   CreditCard,
@@ -35,6 +34,8 @@ import { useState, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
+import RiyalSymbol from "@/components/RiyalSymbol";
+import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
 import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
 import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
 import {
@@ -226,6 +227,13 @@ const Home = () => {
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">{t("home.eWallets")}</h3>
+          </div>
+          <div className="flex items-center justify-between rounded-2xl px-4 py-3 mb-4 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
+            <div>
+              <span className="text-[11px] font-medium opacity-90">{t("home.dealerWalletBalance")}</span>
+              <p className="text-xl font-bold leading-tight"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</p>
+            </div>
+            <span className="text-3xl leading-none shrink-0" role="img" aria-hidden="true">👛</span>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {eWalletOptions.map((item) => (

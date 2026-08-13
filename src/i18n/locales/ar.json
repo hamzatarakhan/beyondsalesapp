@@ -960,6 +960,7 @@
     },
     "billPayment": "دفع الفاتورة",
     "eWallets": "المحافظ الإلكترونية",
+    "dealerWalletBalance": "رصيد محفظة الموزّع",
     "creditTransfer": "تحويل رصيد",
     "walletRecharge": "شحن المحفظة الإلكترونية",
     "customerComplaint": "تقديم شكوى",
