@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -57,6 +57,88 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
   </div>
 );
 
+const SWIPE_DELETE_WIDTH = 84;
+
+// Drag the row left with a finger/mouse to reveal a Delete panel behind it — tap without
+// dragging selects the row, tap while revealed closes it back.
+const SwipeableCardRow = ({
+  isOpen,
+  onOpenChange,
+  onSelect,
+  onDelete,
+  deleteLabel,
+  children,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSelect: () => void;
+  onDelete: () => void;
+  deleteLabel: string;
+  children: React.ReactNode;
+}) => {
+  const [dragX, setDragX] = useState(isOpen ? -SWIPE_DELETE_WIDTH : 0);
+  const startX = useRef<number | null>(null);
+  const dragging = useRef(false);
+  const moved = useRef(false);
+
+  useEffect(() => {
+    setDragX(isOpen ? -SWIPE_DELETE_WIDTH : 0);
+  }, [isOpen]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    startX.current = e.clientX;
+    dragging.current = true;
+    moved.current = false;
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current || startX.current == null) return;
+    const delta = e.clientX - startX.current;
+    if (Math.abs(delta) > 4) moved.current = true;
+    const base = isOpen ? -SWIPE_DELETE_WIDTH : 0;
+    setDragX(Math.min(0, Math.max(-SWIPE_DELETE_WIDTH, base + delta)));
+  };
+  const onPointerUp = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    if (!moved.current) {
+      if (isOpen) onOpenChange(false);
+      else onSelect();
+      setDragX(isOpen ? -SWIPE_DELETE_WIDTH : 0);
+      return;
+    }
+    const shouldOpen = dragX < -SWIPE_DELETE_WIDTH / 2;
+    onOpenChange(shouldOpen);
+    setDragX(shouldOpen ? -SWIPE_DELETE_WIDTH : 0);
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-xl">
+      <button
+        type="button"
+        onClick={onDelete}
+        className="absolute inset-y-0 right-0 flex flex-col items-center justify-center gap-0.5 bg-destructive text-destructive-foreground"
+        style={{ width: SWIPE_DELETE_WIDTH }}
+      >
+        <Trash2 className="w-4 h-4" />
+        <span className="text-[10px] font-semibold">{deleteLabel}</span>
+      </button>
+      <div
+        role="button"
+        tabIndex={0}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect()}
+        style={{ transform: `translateX(${dragX}px)`, touchAction: "pan-y" }}
+        className="relative bg-background rounded-xl transition-transform duration-150 ease-out"
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
 // ---------- Demo data ----------
 const DEALER_MSISDN = "0555123456";
 const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
@@ -101,6 +183,7 @@ const WalletRecharge = () => {
   const [cardView, setCardView] = useState<"list" | "addNew">("list");
   const [cards, setCards] = useState<CardEntry[]>([SAVED_CARD]);
   const [paymentMethod, setPaymentMethod] = useState<"applepay" | string | null>(null);
+  const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
   const [savedCardCvv, setSavedCardCvv] = useState("");
   const [newCardNumber, setNewCardNumber] = useState("");
   const [newCardExpiry, setNewCardExpiry] = useState("");
@@ -137,6 +220,12 @@ const WalletRecharge = () => {
   const deleteCard = (id: string) => {
     setCards((prev) => prev.filter((c) => c.id !== id));
     setPaymentMethod((prev) => (prev === id ? null : prev));
+    setSwipedCardId((prev) => (prev === id ? null : prev));
+  };
+
+  const selectCard = (id: string) => {
+    setPaymentMethod(id);
+    setSwipedCardId(null);
   };
 
   // ---------- Result ----------
@@ -170,6 +259,7 @@ const WalletRecharge = () => {
     setCardView("list");
     setCards([SAVED_CARD]);
     setPaymentMethod(null);
+    setSwipedCardId(null);
     setSavedCardCvv("");
     setNewCardNumber("");
     setNewCardExpiry("");
@@ -353,53 +443,49 @@ const WalletRecharge = () => {
                 {/* Apple Pay */}
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("applepay")}
+                  onClick={() => selectCard("applepay")}
                   className={cn(
-                    "w-full rounded-xl p-3 flex items-center gap-3 border transition-colors",
-                    paymentMethod === "applepay" ? "border-primary bg-primary/5" : "border-border bg-background"
+                    "w-full rounded-xl p-3 flex items-center gap-3 transition-colors",
+                    paymentMethod === "applepay" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
                   )}
                 >
                   <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center shrink-0">
                     <Apple className="w-5 h-5 text-background" fill="currentColor" />
                   </div>
-                  <span className="flex-1 text-start text-sm font-semibold text-foreground">{t("walletRecharge.applePay")}</span>
+                  <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "applepay" ? "text-primary" : "text-foreground")}>
+                    {t("walletRecharge.applePay")}
+                  </span>
                   <RadioDot selected={paymentMethod === "applepay"} />
                 </button>
 
-                {/* Saved / newly-added cards */}
+                {/* Saved / newly-added cards — swipe left to reveal Delete */}
                 {cards.map((card) => (
                   <div key={card.id} className="space-y-1.5">
-                    <div
-                      className={cn(
-                        "w-full rounded-xl p-3 flex items-center gap-3 border transition-colors",
-                        paymentMethod === card.id ? "border-primary bg-primary/5" : "border-border bg-background"
-                      )}
+                    <SwipeableCardRow
+                      isOpen={swipedCardId === card.id}
+                      onOpenChange={(open) => setSwipedCardId(open ? card.id : null)}
+                      onSelect={() => selectCard(card.id)}
+                      onDelete={() => deleteCard(card.id)}
+                      deleteLabel={t("walletRecharge.delete")}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod(card.id)}
-                        className="flex items-center gap-3 flex-1 text-start min-w-0"
+                      <div
+                        className={cn(
+                          "w-full p-3 flex items-center gap-3 transition-colors",
+                          paymentMethod === card.id ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                        )}
                       >
                         <div className="w-10 h-10 rounded-lg bg-[#1a1f71] flex items-center justify-center shrink-0">
                           <span className="text-white text-[10px] font-bold italic tracking-tight">{card.brand}</span>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground" dir="ltr">XXXX-{card.last4}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className={cn("text-sm font-semibold", paymentMethod === card.id ? "text-primary" : "text-foreground")} dir="ltr">
+                            XXXX-{card.last4}
+                          </p>
                           <p className="text-xs text-muted-foreground" dir="ltr">{card.expiry}</p>
                         </div>
-                      </button>
-                      <RadioDot selected={paymentMethod === card.id} />
-                      {paymentMethod === card.id && (
-                        <button
-                          type="button"
-                          onClick={() => deleteCard(card.id)}
-                          className="flex items-center gap-1 text-destructive text-xs font-semibold shrink-0"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          {t("walletRecharge.delete")}
-                        </button>
-                      )}
-                    </div>
+                        <RadioDot selected={paymentMethod === card.id} />
+                      </div>
+                    </SwipeableCardRow>
 
                     {paymentMethod === card.id && card.id === SAVED_CARD_ID && (
                       <div className="w-28 space-y-1.5 ps-1">
