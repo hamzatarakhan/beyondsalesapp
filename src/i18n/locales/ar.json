@@ -958,6 +958,7 @@
       "optionBadge": "خيار {{number}}"
     },
     "billPayment": "دفع الفاتورة",
+    "eWallets": "المحافظ الإلكترونية",
     "creditTransfer": "تحويل رصيد",
     "walletRecharge": "شحن المحفظة الإلكترونية",
     "customerComplaint": "تقديم شكوى",

@@ -10,6 +10,7 @@ export interface WidgetConfig {
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "customer-activities", enabled: true },
+  { id: "e-wallets", enabled: true },
   { id: "credit-limit-options", enabled: true },
   { id: "subscription-migration-options", enabled: true },
   { id: "sim-services", enabled: true },
@@ -24,6 +25,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
 export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "working-shift": "home.workingShift.title",
   "customer-activities": "home.customerActivities",
+  "e-wallets": "home.eWallets",
   "credit-limit-options": "home.creditLimitOptions.title",
   "subscription-migration-options": "home.subscriptionMigrationOptions.title",
   "sim-services": "home.simServices",

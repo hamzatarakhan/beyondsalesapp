@@ -958,6 +958,7 @@
       "optionBadge": "Option {{number}}"
     },
     "billPayment": "Bill Payment",
+    "eWallets": "E Wallets",
     "creditTransfer": "Credit Transfer",
     "walletRecharge": "eWallet Recharge",
     "customerComplaint": "Raise Complaint",
