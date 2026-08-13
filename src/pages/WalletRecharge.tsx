@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
@@ -12,6 +11,7 @@ import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Ticket,
   CreditCard,
@@ -21,6 +21,8 @@ import {
   Check,
   XCircle,
   Plus,
+  Apple,
+  Trash2,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
@@ -44,10 +46,22 @@ const CardSection = ({
   </section>
 );
 
+const RadioDot = ({ selected }: { selected: boolean }) => (
+  <div
+    className={cn(
+      "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
+      selected ? "border-primary" : "border-muted-foreground/40"
+    )}
+  >
+    {selected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+  </div>
+);
+
 // ---------- Demo data ----------
 const DEALER_MSISDN = "0555123456";
 const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
-const SAVED_CARD = { brand: "Visa", last4: "4242", expiry: "12/27", holder: "Ahmed Mohammed" };
+const SAVED_CARD_ID = "saved-1";
+const SAVED_CARD = { id: SAVED_CARD_ID, brand: "Visa", last4: "4242", expiry: "12/27", holder: "Ahmed Mohammed" };
 // Any other 14-digit code "succeeds" in this prototype — this one demos the rejected case.
 const INVALID_VOUCHER_CODE = "00000000000000";
 // Physical/digital vouchers are fixed-denomination — this prototype only has one valid
@@ -55,7 +69,7 @@ const INVALID_VOUCHER_CODE = "00000000000000";
 const VOUCHER_AMOUNT = 100;
 
 type Method = "voucher" | "card";
-type CardSelection = "saved" | "new" | null;
+type CardEntry = { id: string; brand: string; last4: string; expiry: string; holder: string };
 
 const WalletRecharge = () => {
   const navigate = useNavigate();
@@ -84,7 +98,9 @@ const WalletRecharge = () => {
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
-  const [cardSelection, setCardSelection] = useState<CardSelection>(null);
+  const [cardView, setCardView] = useState<"list" | "addNew">("list");
+  const [cards, setCards] = useState<CardEntry[]>([SAVED_CARD]);
+  const [paymentMethod, setPaymentMethod] = useState<"applepay" | string | null>(null);
   const [savedCardCvv, setSavedCardCvv] = useState("");
   const [newCardNumber, setNewCardNumber] = useState("");
   const [newCardExpiry, setNewCardExpiry] = useState("");
@@ -92,13 +108,36 @@ const WalletRecharge = () => {
   const [newCardHolder, setNewCardHolder] = useState("");
   const [saveForFuture, setSaveForFuture] = useState(true);
 
+  const selectedCard = cards.find((c) => c.id === paymentMethod);
   const cardValid =
     cardAmount != null &&
-    (cardSelection === "saved"
+    (paymentMethod === "applepay"
+      ? true
+      : paymentMethod === SAVED_CARD_ID
       ? savedCardCvv.length === 3
-      : cardSelection === "new"
-      ? newCardNumber.replace(/\s/g, "").length === 16 && /^\d{2}\/\d{2}$/.test(newCardExpiry) && newCardCvv.length === 3 && newCardHolder.trim().length > 0
-      : false);
+      : !!selectedCard);
+
+  const newCardValid =
+    newCardNumber.replace(/\s/g, "").length === 16 &&
+    /^\d{2}\/\d{2}$/.test(newCardExpiry) &&
+    newCardCvv.length === 3 &&
+    newCardHolder.trim().length > 0;
+
+  const addNewCard = () => {
+    const id = `new-${Date.now()}`;
+    setCards((prev) => [...prev, { id, brand: "Visa", last4: newCardNumber.replace(/\s/g, "").slice(-4), expiry: newCardExpiry, holder: newCardHolder }]);
+    setPaymentMethod(id);
+    setNewCardNumber("");
+    setNewCardExpiry("");
+    setNewCardCvv("");
+    setNewCardHolder("");
+    setCardView("list");
+  };
+
+  const deleteCard = (id: string) => {
+    setCards((prev) => prev.filter((c) => c.id !== id));
+    setPaymentMethod((prev) => (prev === id ? null : prev));
+  };
 
   // ---------- Result ----------
   const [processing, setProcessing] = useState(false);
@@ -128,13 +167,90 @@ const WalletRecharge = () => {
     setVoucherCode("");
     setVoucherError(null);
     setCardAmount(null);
-    setCardSelection(null);
+    setCardView("list");
+    setCards([SAVED_CARD]);
+    setPaymentMethod(null);
     setSavedCardCvv("");
     setNewCardNumber("");
     setNewCardExpiry("");
     setNewCardCvv("");
     setNewCardHolder("");
   };
+
+  if (method === "card" && cardView === "addNew") {
+    return (
+      <div className="mobile-container min-h-screen bg-background pb-28">
+        <AppHeader title={t("walletRecharge.addNewCard")} showBack onBackClick={() => setCardView("list")} />
+        <div className="px-4 space-y-4 pt-2">
+          <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardNumber")}</label>
+              <Input
+                value={newCardNumber}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+                  setNewCardNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
+                }}
+                placeholder="1234 5678 9012 3456"
+                inputMode="numeric"
+                dir="ltr"
+                className="h-12 bg-background rounded-xl"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardHolder")}</label>
+              <Input
+                value={newCardHolder}
+                onChange={(e) => setNewCardHolder(e.target.value)}
+                placeholder={t("walletRecharge.cardHolderPlaceholder")}
+                className="h-12 bg-background rounded-xl"
+              />
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.expiry")}</label>
+                <Input
+                  value={newCardExpiry}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setNewCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+                  }}
+                  placeholder="MM/YY"
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="h-12 bg-background rounded-xl"
+                />
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
+                <Input
+                  value={newCardCvv}
+                  onChange={(e) => setNewCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                  placeholder="123"
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="h-12 bg-background rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 bg-card rounded-xl px-4 py-3.5 border border-border/60">
+            <Checkbox id="save-card" checked={saveForFuture} onCheckedChange={(c) => setSaveForFuture(c as boolean)} />
+            <label htmlFor="save-card" className="text-sm font-medium text-foreground">{t("walletRecharge.saveForFuture")}</label>
+          </div>
+        </div>
+
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+          <div className="max-w-[390px] mx-auto">
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!newCardValid} onClick={addNewCard}>
+              {t("walletRecharge.addCard")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
@@ -232,117 +348,88 @@ const WalletRecharge = () => {
               </div>
             </CardSection>
 
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-foreground">{t("walletRecharge.paymentCard")}</h3>
-
-              {/* Saved card — shown as a card view; tapping selects it and reveals a CVV field. */}
-              <button
-                type="button"
-                onClick={() => setCardSelection(cardSelection === "saved" ? null : "saved")}
-                className={cn(
-                  "w-full rounded-2xl p-4 text-start bg-gradient-to-br from-primary to-primary/70 text-primary-foreground transition-all",
-                  cardSelection === "saved" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
-                )}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-xs font-semibold tracking-wide uppercase">{SAVED_CARD.brand}</span>
-                  {cardSelection === "saved" && <Check className="w-4 h-4" />}
-                </div>
-                <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {SAVED_CARD.last4}</p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-[11px] opacity-90">{SAVED_CARD.holder}</span>
-                  <span className="text-[11px] opacity-90" dir="ltr">{SAVED_CARD.expiry}</span>
-                </div>
-              </button>
-
-              {cardSelection === "saved" && (
-                <div className="w-28 space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
-                  <Input
-                    value={savedCardCvv}
-                    onChange={(e) => setSavedCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                    placeholder="•••"
-                    inputMode="numeric"
-                    dir="ltr"
-                    className="h-12 bg-card rounded-xl text-center"
-                  />
-                </div>
-              )}
-
-              {/* Add new card */}
-              <button
-                type="button"
-                onClick={() => setCardSelection(cardSelection === "new" ? null : "new")}
-                className={cn(
-                  "w-full rounded-2xl p-3.5 flex items-center gap-3 border-2 border-dashed transition-colors",
-                  cardSelection === "new" ? "border-primary bg-primary/5" : "border-border bg-card"
-                )}
-              >
-                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Plus className="w-4 h-4 text-primary" />
-                </div>
-                <span className="text-sm font-semibold text-foreground">{t("walletRecharge.addNewCard")}</span>
-              </button>
-
-              {cardSelection === "new" && (
-                <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardNumber")}</label>
-                    <Input
-                      value={newCardNumber}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
-                        setNewCardNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
-                      }}
-                      placeholder="1234 5678 9012 3456"
-                      inputMode="numeric"
-                      dir="ltr"
-                      className="h-12 bg-background rounded-xl"
-                    />
+            <CardSection title={t("walletRecharge.selectPaymentMethod")} icon={CreditCard}>
+              <div className="space-y-2.5">
+                {/* Apple Pay */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("applepay")}
+                  className={cn(
+                    "w-full rounded-xl p-3 flex items-center gap-3 border transition-colors",
+                    paymentMethod === "applepay" ? "border-primary bg-primary/5" : "border-border bg-background"
+                  )}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center shrink-0">
+                    <Apple className="w-5 h-5 text-background" fill="currentColor" />
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex-1 space-y-1.5">
-                      <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.expiry")}</label>
-                      <Input
-                        value={newCardExpiry}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          setNewCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
-                        }}
-                        placeholder="MM/YY"
-                        inputMode="numeric"
-                        dir="ltr"
-                        className="h-12 bg-background rounded-xl"
-                      />
+                  <span className="flex-1 text-start text-sm font-semibold text-foreground">{t("walletRecharge.applePay")}</span>
+                  <RadioDot selected={paymentMethod === "applepay"} />
+                </button>
+
+                {/* Saved / newly-added cards */}
+                {cards.map((card) => (
+                  <div key={card.id} className="space-y-1.5">
+                    <div
+                      className={cn(
+                        "w-full rounded-xl p-3 flex items-center gap-3 border transition-colors",
+                        paymentMethod === card.id ? "border-primary bg-primary/5" : "border-border bg-background"
+                      )}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod(card.id)}
+                        className="flex items-center gap-3 flex-1 text-start min-w-0"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-[#1a1f71] flex items-center justify-center shrink-0">
+                          <span className="text-white text-[10px] font-bold italic tracking-tight">{card.brand}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground" dir="ltr">XXXX-{card.last4}</p>
+                          <p className="text-xs text-muted-foreground" dir="ltr">{card.expiry}</p>
+                        </div>
+                      </button>
+                      <RadioDot selected={paymentMethod === card.id} />
+                      {paymentMethod === card.id && (
+                        <button
+                          type="button"
+                          onClick={() => deleteCard(card.id)}
+                          className="flex items-center gap-1 text-destructive text-xs font-semibold shrink-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          {t("walletRecharge.delete")}
+                        </button>
+                      )}
                     </div>
-                    <div className="flex-1 space-y-1.5">
-                      <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
-                      <Input
-                        value={newCardCvv}
-                        onChange={(e) => setNewCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                        placeholder="•••"
-                        inputMode="numeric"
-                        dir="ltr"
-                        className="h-12 bg-background rounded-xl"
-                      />
-                    </div>
+
+                    {paymentMethod === card.id && card.id === SAVED_CARD_ID && (
+                      <div className="w-28 space-y-1.5 ps-1">
+                        <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
+                        <Input
+                          value={savedCardCvv}
+                          onChange={(e) => setSavedCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                          placeholder="•••"
+                          inputMode="numeric"
+                          dir="ltr"
+                          className="h-11 bg-card rounded-xl text-center"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardHolder")}</label>
-                    <Input
-                      value={newCardHolder}
-                      onChange={(e) => setNewCardHolder(e.target.value)}
-                      placeholder={t("walletRecharge.cardHolderPlaceholder")}
-                      className="h-12 bg-background rounded-xl"
-                    />
+                ))}
+
+                {/* Add new card — opens a dedicated full-page form */}
+                <button
+                  type="button"
+                  onClick={() => setCardView("addNew")}
+                  className="w-full rounded-xl p-3 flex items-center gap-3 border-2 border-dashed border-border bg-card"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Plus className="w-4 h-4 text-primary" />
                   </div>
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-xs font-medium text-foreground">{t("walletRecharge.saveForFuture")}</span>
-                    <Switch checked={saveForFuture} onCheckedChange={setSaveForFuture} />
-                  </div>
-                </div>
-              )}
-            </div>
+                  <span className="text-sm font-semibold text-foreground">{t("walletRecharge.addNewCard")}</span>
+                </button>
+              </div>
+            </CardSection>
           </>
         )}
       </div>
