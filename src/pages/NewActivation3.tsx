@@ -1564,6 +1564,18 @@ const NewActivation3 = () => {
                     </div>
                   </div>
                 )}
+                {/* Subscription Type — read-only, same reasoning as Line Type above: the
+                    customer already picked this online, the dealer just needs to see which
+                    one. Stacked (not a row grid) since this can have up to 3 options and
+                    SimCard's wide row shape doesn't tile 3-across cleanly. */}
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation3.subscription.subscriptionTypeTitle")}</h3>
+                  <div className="space-y-2">
+                    {subscriptionOptions.map(({ key, label, Icon }) => (
+                      <SimCard key={key} active={payType === key} label={label} icon={Icon} disabled onClick={() => {}} />
+                    ))}
+                  </div>
+                </div>
                 {selectedPlanObj && (
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation.plan.selectedPlan")}</h3>
