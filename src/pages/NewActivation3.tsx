@@ -1566,15 +1566,41 @@ const NewActivation3 = () => {
                 )}
                 {/* Subscription Type — read-only, same reasoning as Line Type above: the
                     customer already picked this online, the dealer just needs to see which
-                    one. Stacked (not a row grid) since this can have up to 3 options and
-                    SimCard's wide row shape doesn't tile 3-across cleanly. */}
+                    one. Same compact tile grid as the interactive SIM Activation version
+                    below, just non-interactive, so the two look identical apart from that. */}
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3">{t("activation3.subscription.subscriptionTypeTitle")}</h3>
-                  <div className="space-y-2">
-                    {subscriptionOptions.map(({ key, label, Icon }) => (
-                      <SimCard key={key} active={payType === key} label={label} icon={Icon} disabled onClick={() => {}} />
-                    ))}
-                  </div>
+                  {(() => {
+                    const compact = subscriptionOptions.length >= 2;
+                    return (
+                      <div className={cn("grid gap-2",
+                        subscriptionOptions.length === 1 ? "grid-cols-1" :
+                        subscriptionOptions.length === 2 ? "grid-cols-2" :
+                        subscriptionOptions.length === 3 ? "grid-cols-3" : "grid-cols-4")}>
+                        {subscriptionOptions.map(({ key, label, Icon }) => (
+                          <button
+                            key={key}
+                            type="button"
+                            disabled
+                            className={cn(
+                              "flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors",
+                              compact ? "py-2.5 px-1" : "py-3 px-1.5",
+                              payType === key ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60 opacity-40",
+                            )}
+                          >
+                            <Icon className={cn(compact ? "w-4 h-4" : "w-5 h-5", payType === key ? "text-primary" : "text-muted-foreground")} />
+                            <p className={cn(
+                              "font-medium text-center leading-tight",
+                              compact ? "text-[10.5px]" : "text-xs",
+                              payType === key ? "text-primary" : "text-foreground",
+                            )}>
+                              {label}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 {selectedPlanObj && (
                   <div>
