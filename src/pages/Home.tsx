@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Send,
   WalletCards,
+  MessageSquareWarning,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -160,9 +161,10 @@ const Home = () => {
       : [
           { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
         ]),
-    // Credit Transfer and eWallet Recharge — both Virgin and Friendi.
+    // Credit Transfer, eWallet Recharge, and Raise Customer Complaint — all Virgin and Friendi.
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     { id: "wallet-recharge", icon: WalletCards, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   const handleActivityClick = (path: string) => {
