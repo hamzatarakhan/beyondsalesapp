@@ -5,6 +5,7 @@ import {
   XCircle,
   UserX,
   Users,
+  Wallet,
   Package,
   Smartphone,
   CreditCard,
@@ -233,7 +234,7 @@ const Home = () => {
               <span className="text-[11px] font-medium opacity-90">{t("home.dealerWalletBalance")}</span>
               <p className="text-xl font-bold leading-tight"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</p>
             </div>
-            <span className="text-3xl leading-none shrink-0" role="img" aria-hidden="true">👛</span>
+            <Wallet className="w-6 h-6 opacity-90 shrink-0" />
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {eWalletOptions.map((item) => (
