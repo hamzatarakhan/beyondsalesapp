@@ -10,10 +10,10 @@ export interface WidgetConfig {
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "customer-activities", enabled: true },
-  { id: "e-wallets", enabled: true },
   { id: "credit-limit-options", enabled: true },
   { id: "subscription-migration-options", enabled: true },
   { id: "sim-services", enabled: true },
+  { id: "e-wallets", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
@@ -42,10 +42,10 @@ interface WidgetsContextValue {
 
 const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined);
 
-// Bumped to v3 so devices with a pre-existing stored config pick up the new Working
-// Shift widget at its designed front-of-list position instead of it being appended
-// at the end by the missing-widget merge below.
-const STORAGE_KEY = "app-widgets-v8";
+// Bumped to v9 so devices that already stored E Wallets (appended right after Customer
+// Activities by the missing-widget merge below when it first shipped) pick up its new
+// default position under SIM Services instead of staying wherever it first landed.
+const STORAGE_KEY = "app-widgets-v9";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
