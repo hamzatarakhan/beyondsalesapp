@@ -1718,7 +1718,10 @@ const NewActivation3 = () => {
                   );
                 })()}
               </div>
-              {!isSaudiId && (
+              {/* Only worth explaining when there's more than one tile to compare against —
+                  with a single option shown (e.g. eSIM+Data, which drops straight to Prepaid
+                  alone), there's nothing ambiguous left for the hint to clarify. */}
+              {!isSaudiId && subscriptionOptions.length > 1 && (
                 <p className="text-[11px] text-muted-foreground px-1">{t("activation3.subscription.postpaidSaudiOnly")}</p>
               )}
             </div>
