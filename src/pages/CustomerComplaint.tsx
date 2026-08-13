@@ -171,15 +171,6 @@ const CustomerComplaint = () => {
 
   const eligible = !!customer && !lookupError && !limitReached;
 
-  // Auto-open the OTP drawer the moment a customer is found and eligible — no "Send &
-  // Verify OTP" tap needed for the common case. Only fires on the eligible transition
-  // (not on every render), so a dealer who dismisses it without verifying isn't fought
-  // with it reopening; the button in the OTP CardSection below still works as a fallback.
-  useEffect(() => {
-    if (eligible && !otpVerified) setOtpOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligible]);
-
   // ---------- OTP handlers ----------
   useEffect(() => {
     if (!otpOpen) return;
