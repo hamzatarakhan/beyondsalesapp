@@ -163,10 +163,6 @@ const Home = () => {
       : [
           { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
         ]),
-    // Raise Customer Complaint — genuinely about the customer. Credit Transfer and eWallet
-    // Recharge moved out to their own "E Wallets" widget below — both are really about the
-    // dealer's own wallet/balance, not a customer activity.
-    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
@@ -175,6 +171,12 @@ const Home = () => {
   const eWalletOptions = [
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     { id: "wallet-recharge", icon: WalletCards, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+  ];
+
+  // Catch-all for services that don't fit Customer Activities or E Wallets — currently
+  // just Raise Customer Complaint.
+  const otherServicesOptions = [
+    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   const handleActivityClick = (path: string) => {
@@ -238,6 +240,28 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {eWalletOptions.map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    "other-services": (
+      <div key="other-services" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{t("home.otherServices")}</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {otherServicesOptions.map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}

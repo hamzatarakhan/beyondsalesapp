@@ -14,6 +14,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "subscription-migration-options", enabled: true },
   { id: "sim-services", enabled: true },
   { id: "e-wallets", enabled: true },
+  { id: "other-services", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
@@ -26,6 +27,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "working-shift": "home.workingShift.title",
   "customer-activities": "home.customerActivities",
   "e-wallets": "home.eWallets",
+  "other-services": "home.otherServices",
   "credit-limit-options": "home.creditLimitOptions.title",
   "subscription-migration-options": "home.subscriptionMigrationOptions.title",
   "sim-services": "home.simServices",
@@ -42,10 +44,9 @@ interface WidgetsContextValue {
 
 const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined);
 
-// Bumped to v9 so devices that already stored E Wallets (appended right after Customer
-// Activities by the missing-widget merge below when it first shipped) pick up its new
-// default position under SIM Services instead of staying wherever it first landed.
-const STORAGE_KEY = "app-widgets-v9";
+// Bumped to v10 so devices pick up the new Other Services widget positioned right after
+// E Wallets, instead of it landing at the end via the missing-widget merge below.
+const STORAGE_KEY = "app-widgets-v10";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
