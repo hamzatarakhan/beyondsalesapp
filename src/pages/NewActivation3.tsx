@@ -1078,7 +1078,10 @@ const NewActivation3 = () => {
         if (kit === "0000000000") setKitError("registered");
         else if (kit === "1111111111") setKitError("invalid");
         else if (kit === "2222222222") setKitError("used");
-        else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError("planMismatch");
+        // Paid fulfilment's plan is locked (read-only) — the dealer can't act on "change the
+        // plan" advice there, so that variant drops the suggestion. Unpaid can still adjust
+        // the plan themselves, so it keeps the fuller hint.
+        else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError(fulfilmentLocked ? "planMismatchLocked" : "planMismatch");
         else setKitChecked(true);
       }, 1500);
     }
@@ -1504,7 +1507,7 @@ const NewActivation3 = () => {
                                     if (val === "0000000000") setKitError("registered");
                                 else if (val === "1111111111") setKitError("invalid");
                                 else if (val === "2222222222") setKitError("used");
-                                else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError("planMismatch");
+                                else if (isFulfilment && reservedFor && reservedFor !== selectedPlanObj?.title) setKitError(fulfilmentLocked ? "planMismatchLocked" : "planMismatch");
                                 else setKitChecked(true);
                               }, 1500);
                             }
