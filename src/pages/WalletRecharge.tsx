@@ -50,6 +50,9 @@ const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
 const SAVED_CARD = { brand: "Visa", last4: "4242", expiry: "12/27", holder: "Ahmed Mohammed" };
 // Any other 14-digit code "succeeds" in this prototype — this one demos the rejected case.
 const INVALID_VOUCHER_CODE = "00000000000000";
+// Physical/digital vouchers are fixed-denomination — this prototype only has one valid
+// demo code, so it's pinned to a single realistic amount rather than a made-up 0.
+const VOUCHER_AMOUNT = 100;
 
 type Method = "voucher" | "card";
 type CardSelection = "saved" | "new" | null;
@@ -117,7 +120,7 @@ const WalletRecharge = () => {
     }, 900);
   };
 
-  const rechargeAmount = method === "voucher" ? null : cardAmount;
+  const rechargeAmount = method === "voucher" ? VOUCHER_AMOUNT : cardAmount;
   const canSubmit = method === "voucher" ? voucherValid : cardValid;
 
   const resetAll = () => {
@@ -187,6 +190,12 @@ const WalletRecharge = () => {
                 <p className="text-xs text-destructive flex items-center gap-1.5">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   {voucherError}
+                </p>
+              )}
+              {voucherValid && (
+                <p className="text-xs text-emerald-600 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  {t("walletRecharge.voucherValue", { amount: VOUCHER_AMOUNT.toFixed(2) })}
                 </p>
               )}
             </div>

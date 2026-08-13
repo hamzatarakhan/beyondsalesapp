@@ -487,6 +487,7 @@
     "voucherCode": "Voucher Code",
     "voucherCodePlaceholder": "Enter 14-digit voucher code",
     "voucherErrorInvalid": "This voucher code is invalid. Please check and try again.",
+    "voucherValue": "Voucher value: {{amount}} SAR",
     "testVouchersHeading": "test vouchers",
     "testVouchersDescription": "Use these to try every case. This box won't appear in the real implementation.",
     "testNoteValid": "Valid code",

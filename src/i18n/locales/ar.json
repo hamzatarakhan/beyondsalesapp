@@ -487,6 +487,7 @@
     "voucherCode": "رمز القسيمة",
     "voucherCodePlaceholder": "أدخل رمز القسيمة المكوّن من 14 رقماً",
     "voucherErrorInvalid": "رمز القسيمة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
+    "voucherValue": "قيمة القسيمة: {{amount}} ريال",
     "testVouchersHeading": "قسائم تجريبية",
     "testVouchersDescription": "استخدم هذه القسائم لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
     "testNoteValid": "رمز صالح",
