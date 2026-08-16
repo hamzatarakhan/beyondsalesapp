@@ -36,7 +36,6 @@ import {
 } from "@/pages/NewActivation";
 import {
   Phone,
-  RefreshCw,
   Wallet,
   ClipboardList,
   AlertCircle,
@@ -372,17 +371,19 @@ const SimReplacement = () => {
     </section>
   );
 
-  // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
-  // Kept in source in case we want it back — just uncomment the FlowStepper line below.
-  const steps = [
-    { label: "Replacement", Icon: RefreshCw },
+  // Option 3 is a genuine 3-stage flow (Identity → SIM Type → Checkout), so it gets the same
+  // top-of-page stepper SIM Activation uses — options 1/2 keep their content merged across
+  // fewer pages, so a stepper there wouldn't track real progress.
+  const OPTION3_STEPS = [
+    { label: "Identity", Icon: ScanLine },
+    { label: "SIM Type", Icon: Smartphone },
     { label: "Checkout", Icon: Wallet },
   ];
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader title={t("simReplacement.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
-      {/* <FlowStepper current={step} steps={steps} /> */}
+      {option === 3 && <FlowStepper current={step} steps={OPTION3_STEPS} />}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Lookup + Replacement details (merged) ── */}
@@ -445,14 +446,14 @@ const SimReplacement = () => {
               </Field>
             )}
 
-            {/* Option 3 — same four upfront fields as option 2, boxed together matching the
-                bordered-card style used across the app. Continue (sticky bottom) looks the
-                customer up and advances to its own SIM Type stage, same as option 2's search. */}
+            {/* Option 3 — same four upfront fields as option 2, unboxed. Continue (sticky
+                bottom) looks the customer up and advances to its own SIM Type stage, same as
+                option 2's search. */}
             {option === 3 && (
-              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60 space-y-3">
+              <>
                 <Field label={t("activation.identity.idType")}>
                   <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
                       <SelectValue placeholder={t("activation.identity.idType")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -466,7 +467,7 @@ const SimReplacement = () => {
                   <button
                     type="button"
                     onClick={() => setNationalityPickerOpen(true)}
-                    className="flex items-center justify-between w-full h-12 bg-background rounded-xl border border-input px-3 text-sm"
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
                   >
                     <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
                     <ChevronDown className="h-4 w-4 opacity-50" />
@@ -477,7 +478,7 @@ const SimReplacement = () => {
                     value={idNumber}
                     onChange={(e) => setIdNumber(e.target.value)}
                     placeholder={t("activation.identity.idPlaceholder")}
-                    className={cn("h-12 bg-background rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
                   />
                   {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
                     <p className="text-xs text-destructive">
@@ -494,7 +495,7 @@ const SimReplacement = () => {
                     icon={<Phone className="w-4 h-4" />}
                   />
                 </Field>
-              </div>
+              </>
             )}
 
             {option === 1 && (
