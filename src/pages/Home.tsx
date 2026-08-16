@@ -120,16 +120,16 @@ const Home = () => {
     { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
   ];
 
-  // Three parallel designs for the same service, kept side by side for review — same
-  // "Option N" badge pairing as Credit Limit Adjustment's options.
+  // Parallel designs for the same service, kept side by side for review — same "Option N"
+  // badge pairing as Credit Limit Adjustment's options.
   const simServices = [
     { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("simReplacement.optionBadge", { number: 1 }), badgeTone: "special" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN before search),
     // no card wrapper, SIM type/checkout moved to page 2 with no summary.
     { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("simReplacement.optionBadge", { number: 2 }), badgeTone: "special" as const },
-    // Same upfront fields as option 2, but boxed with an explicit Search button, and page 2
-    // keeps the full Summary + Verification + TnC like option 1.
-    { id: "sim-replacement-3", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=3", badge: t("simReplacement.optionBadge", { number: 3 }), badgeTone: "special" as const },
+    // Option 3 (?option=3) hidden from Home per request — same upfront fields as option 2
+    // boxed with an explicit Search button, full Summary + Verification + TnC like option 1,
+    // split across 3 stages. Still reachable directly at /sim-replacement?option=3.
     { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
