@@ -9,6 +9,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
@@ -815,9 +816,13 @@ const SimReplacement = () => {
                 className="w-full h-11 rounded-full"
                 disabled={!shareValue.trim()}
                 onClick={() => {
-                  const text = t("activation3.success.shareMessage", { orderId });
-                  if (shareVia === "mobile") window.location.href = `sms:${shareValue}?&body=${encodeURIComponent(text)}`;
-                  else window.location.href = `mailto:${shareValue}?subject=${encodeURIComponent(t("activation3.success.shareSubject"))}&body=${encodeURIComponent(text)}`;
+                  setSuccessOpen(false);
+                  resetAll();
+                  navigate("/");
+                  toast({
+                    title: t("activation3.success.shareSuccessTitle"),
+                    description: t("activation3.success.shareSuccessDesc", { target: shareValue }),
+                  });
                 }}
               >
                 <Share2 className="w-4 h-4" /> {t("activation3.success.share")}

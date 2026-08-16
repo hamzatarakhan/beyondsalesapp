@@ -8,6 +8,7 @@ import FlowStepper, { NEW_ACTIVATION_STEPS } from "@/components/FlowStepper";
 import SematiVerification, { type Method as VerificationMethod } from "@/components/SematiVerification";
 import NafithVerificationModal from "@/components/NafithVerificationModal";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
+import { toast } from "@/hooks/use-toast";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
 import SourceTab from "@/components/activation/SourceTab";
@@ -2996,9 +2997,12 @@ const NewActivationV2 = () => {
                 className="w-full h-11 rounded-full"
                 disabled={!shareValue.trim()}
                 onClick={() => {
-                  const text = t("activationV2.success.shareMessage", { orderId });
-                  if (shareVia === "mobile") window.location.href = `sms:${shareValue}?&body=${encodeURIComponent(text)}`;
-                  else window.location.href = `mailto:${shareValue}?subject=${encodeURIComponent(t("activationV2.success.shareSubject"))}&body=${encodeURIComponent(text)}`;
+                  setSuccessOpen(false);
+                  navigate("/");
+                  toast({
+                    title: t("activationV2.success.shareSuccessTitle"),
+                    description: t("activationV2.success.shareSuccessDesc", { target: shareValue }),
+                  });
                 }}
               >
                 <Share2 className="w-4 h-4" /> {t("activationV2.success.share")}

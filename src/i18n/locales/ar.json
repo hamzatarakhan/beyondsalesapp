@@ -1476,7 +1476,9 @@
       "shareEmail": "البريد الإلكتروني",
       "share": "مشاركة",
       "shareSubject": "رمز QR الخاص بشريحة eSIM",
-      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك."
+      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك.",
+      "shareSuccessTitle": "تمت المشاركة!",
+      "shareSuccessDesc": "تمت مشاركة تفاصيل الشريحة الإلكترونية مع {{target}}."
     },
     "handover": {
       "title": "تسليم الجهاز في المتجر",
@@ -2054,7 +2056,9 @@
       "shareEmail": "البريد الإلكتروني",
       "share": "مشاركة",
       "shareSubject": "رمز QR الخاص بشريحة eSIM",
-      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك."
+      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك.",
+      "shareSuccessTitle": "تمت المشاركة!",
+      "shareSuccessDesc": "تمت مشاركة تفاصيل الشريحة الإلكترونية مع {{target}}."
     },
     "handover": {
       "title": "تسليم الجهاز في المتجر",
@@ -2630,7 +2634,9 @@
       "shareEmail": "البريد الإلكتروني",
       "share": "مشاركة",
       "shareSubject": "رمز QR الخاص بشريحة eSIM",
-      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك."
+      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك.",
+      "shareSuccessTitle": "تمت المشاركة!",
+      "shareSuccessDesc": "تمت مشاركة تفاصيل الشريحة الإلكترونية مع {{target}}."
     },
     "handover": {
       "title": "تسليم الجهاز في المتجر",
@@ -3206,7 +3212,9 @@
       "shareEmail": "البريد الإلكتروني",
       "share": "مشاركة",
       "shareSubject": "رمز QR الخاص بشريحة eSIM",
-      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك."
+      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك.",
+      "shareSuccessTitle": "تمت المشاركة!",
+      "shareSuccessDesc": "تمت مشاركة تفاصيل الشريحة الإلكترونية مع {{target}}."
     },
     "handover": {
       "title": "تسليم الجهاز في المتجر",
@@ -3782,7 +3790,9 @@
       "shareEmail": "البريد الإلكتروني",
       "share": "مشاركة",
       "shareSubject": "رمز QR الخاص بشريحة eSIM",
-      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك."
+      "shareMessage": "تفعيل شريحة eSIM جاهز. رقم الطلب {{orderId}}. امسح رمز QR المرفق لتثبيت شريحتك.",
+      "shareSuccessTitle": "تمت المشاركة!",
+      "shareSuccessDesc": "تمت مشاركة تفاصيل الشريحة الإلكترونية مع {{target}}."
     },
     "handover": {
       "title": "تسليم الجهاز في المتجر",

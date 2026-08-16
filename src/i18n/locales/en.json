@@ -1469,7 +1469,9 @@
       "shareEmail": "Email",
       "share": "Share",
       "shareSubject": "Your eSIM QR Code",
-      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM.",
+      "shareSuccessTitle": "Shared!",
+      "shareSuccessDesc": "The eSIM details were shared with {{target}}."
     },
     "handover": {
       "title": "In-Store Device Handover",
@@ -2040,7 +2042,9 @@
       "shareEmail": "Email",
       "share": "Share",
       "shareSubject": "Your eSIM QR Code",
-      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM.",
+      "shareSuccessTitle": "Shared!",
+      "shareSuccessDesc": "The eSIM details were shared with {{target}}."
     },
     "handover": {
       "title": "In-Store Device Handover",
@@ -2609,7 +2613,9 @@
       "shareEmail": "Email",
       "share": "Share",
       "shareSubject": "Your eSIM QR Code",
-      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM.",
+      "shareSuccessTitle": "Shared!",
+      "shareSuccessDesc": "The eSIM details were shared with {{target}}."
     },
     "handover": {
       "title": "In-Store Device Handover",
@@ -3178,7 +3184,9 @@
       "shareEmail": "Email",
       "share": "Share",
       "shareSubject": "Your eSIM QR Code",
-      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM.",
+      "shareSuccessTitle": "Shared!",
+      "shareSuccessDesc": "The eSIM details were shared with {{target}}."
     },
     "handover": {
       "title": "In-Store Device Handover",
@@ -3747,7 +3755,9 @@
       "shareEmail": "Email",
       "share": "Share",
       "shareSubject": "Your eSIM QR Code",
-      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM."
+      "shareMessage": "Your eSIM activation is ready. Order {{orderId}}. Scan the attached QR code to install your eSIM.",
+      "shareSuccessTitle": "Shared!",
+      "shareSuccessDesc": "The eSIM details were shared with {{target}}."
     },
     "handover": {
       "title": "In-Store Device Handover",
