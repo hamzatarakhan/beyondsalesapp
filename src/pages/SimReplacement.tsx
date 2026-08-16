@@ -445,8 +445,9 @@ const SimReplacement = () => {
               </Field>
             )}
 
-            {/* Option 3 — same four upfront fields as option 2, but boxed together with an
-                explicit Search button, matching the bordered-card style used across the app. */}
+            {/* Option 3 — same four upfront fields as option 2, boxed together matching the
+                bordered-card style used across the app. Continue (sticky bottom) looks the
+                customer up and advances to its own SIM Type stage, same as option 2's search. */}
             {option === 3 && (
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60 space-y-3">
                 <Field label={t("activation.identity.idType")}>
@@ -493,14 +494,6 @@ const SimReplacement = () => {
                     icon={<Phone className="w-4 h-4" />}
                   />
                 </Field>
-                <Button
-                  type="button"
-                  className="w-full h-12 text-sm font-semibold rounded-full"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking || !idNumberValid}
-                  onClick={handleSearch}
-                >
-                  {t("simReplacement.search")}
-                </Button>
               </div>
             )}
 
@@ -599,13 +592,14 @@ const SimReplacement = () => {
               </>
             )}
 
-            {/* Option 3 already collected identity before search — just reveal SIM type/KIT. */}
-            {option === 3 && customer && simTypeAndKitSection}
           </>
         )}
 
-        {/* ── Step 1: Checkout ── */}
-        {step === 1 && customer && (
+        {/* ── Option 3's own stage 2: SIM Type + KIT code, its own page ── */}
+        {option === 3 && step === 1 && customer && simTypeAndKitSection}
+
+        {/* ── Checkout — step 1 for options 1/2, step 2 for option 3's third stage ── */}
+        {((option === 3 ? step === 2 : step === 1)) && customer && (
           <>
             {/* Option 2 picks SIM type/KIT code here instead of a static summary of what was
                 picked earlier — there's nothing to summarize since this page IS where it's picked. */}
@@ -703,15 +697,23 @@ const SimReplacement = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
+            // Options 2 and 3 both collect identity up front — Continue here does the lookup
+            // and advances on success, same as option 1's separate Search button used to.
             <Button
               className="w-full h-12 text-sm font-semibold rounded-full"
-              disabled={option === 2 ? (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking) : !canContinueDetails}
-              onClick={option === 2 ? handleContinueLookup : () => setStep(1)}
+              disabled={option === 1 ? !canContinueDetails : (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking)}
+              onClick={option === 1 ? () => setStep(1) : handleContinueLookup}
             >
               {t("simReplacement.continue")}
             </Button>
           )}
-          {step === 1 && (
+          {/* Option 3's own stage 2 (SIM Type + KIT) — advances to its stage 3 checkout. */}
+          {option === 3 && step === 1 && (
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!isKitValid} onClick={() => setStep(2)}>
+              {t("simReplacement.continue")}
+            </Button>
+          )}
+          {(option === 3 ? step === 2 : step === 1) && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
               {isChargeable ? <>{t("simReplacement.pay")} <RiyalSymbol /> {fee.toFixed(2)}</> : t("simReplacement.confirmReplacement")}
             </Button>
