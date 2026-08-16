@@ -684,7 +684,7 @@ const NewActivation3 = () => {
     setOptionSwitching(true);
     setTimeout(() => setOptionSwitching(false), 500);
   };
-  const [kit, setKit] = useState("1234567890");
+  const [kit, setKit] = useState("");
   const [kitError, setKitError] = useState<string | null>(null);
   const [kitChecking, setKitChecking] = useState(false);
   const [kitChecked, setKitChecked] = useState(false);
