@@ -120,11 +120,12 @@ const Home = () => {
     { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
   ];
 
+  // Two parallel designs for the same service, kept side by side for review — same
+  // "Option N" badge pairing as Credit Limit Adjustment's options.
   const simServices = [
-    { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("simReplacement.optionBadge", { number: 1 }), badgeTone: "special" as const },
     // Alternate design: identity collected up front (ID Type/Nationality/ID Number + MSISDN
-    // before search) instead of pre-filled after an MSISDN-only lookup — kept side by side
-    // with the original for review, same "?option=N" pattern as Credit Limit Adjustment.
+    // before search) instead of pre-filled after an MSISDN-only lookup.
     { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("simReplacement.optionBadge", { number: 2 }), badgeTone: "special" as const },
     { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];

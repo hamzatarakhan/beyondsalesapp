@@ -372,7 +372,7 @@ const SimReplacement = () => {
                 </Field>
                 <Button
                   type="button"
-                  className="w-full py-3 h-auto rounded-full bg-primary/10 text-primary font-medium text-sm hover:bg-primary/15"
+                  className="w-full h-12 text-sm font-semibold rounded-full"
                   disabled={!/^\d{10}$/.test(msisdn) || checking || !idNumberValid}
                   onClick={handleSearch}
                 >
