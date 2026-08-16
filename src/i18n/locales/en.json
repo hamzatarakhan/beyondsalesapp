@@ -308,6 +308,8 @@
     "testNotePsimUsed": "P-SIM, already used — fee applies",
     "testNoteNotFound": "Number not found",
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
+    "notFoundTitle": "Not Found",
+    "gotIt": "Got It",
     "customerDetails": "Customer Details",
     "customerName": "Customer Name",
     "currentSimType": "Current SIM Type",

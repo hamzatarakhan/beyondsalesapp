@@ -308,6 +308,8 @@
     "testNotePsimUsed": "شريحة فعلية، تم استخدام الاستبدال المجاني — تُطبق رسوم",
     "testNoteNotFound": "الرقم غير موجود",
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
+    "notFoundTitle": "غير موجود",
+    "gotIt": "حسناً",
     "customerDetails": "بيانات العميل",
     "customerName": "اسم العميل",
     "currentSimType": "نوع الشريحة الحالي",

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import {
@@ -474,13 +475,6 @@ const SimReplacement = () => {
               onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
             />
 
-            {lookupError && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-              </div>
-            )}
-
             {/* Option 2's customer/step change together in handleContinueLookup, so this
                 never actually renders while still on step 0 for option 2 — gated explicitly
                 anyway so the SIM type/KIT reveal only ever shows here for option 1. */}
@@ -657,6 +651,26 @@ const SimReplacement = () => {
           )}
         </div>
       </div>
+
+      {/* Lookup error — same popup pattern used app-wide for a "not found" lookup result. */}
+      <Dialog open={!!lookupError} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-2 text-lg">{t("simReplacement.notFoundTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{lookupError}</p>
+          <button
+            onClick={() => setLookupError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("simReplacement.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Customer verification */}
       <SematiVerification open={verifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
