@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -118,6 +118,11 @@ const ESIM_FEE = 10;
 const SimReplacement = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  // Option 2 collects ID Type/Nationality/ID Number up front (before search), matching SIM
+  // Activation's Identity step, instead of pre-filling them from the matched record after
+  // lookup — same "?option=N" pattern Credit Limit Adjustment uses for its 5 variants.
+  const option = searchParams.get("option") === "2" ? 2 : 1;
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -185,11 +190,14 @@ const SimReplacement = () => {
       }
       setCustomer(found);
       setNewSimType(found.currentSimType);
-      // Identity is already on file for an existing subscriber — pre-fill it
-      // from the lookup instead of making the dealer retype it from scratch.
-      setIdType(found.idType);
-      setNationality(found.nationality);
-      setIdNumber(found.idNumber);
+      // Option 1: identity is already on file for an existing subscriber — pre-fill it from
+      // the lookup instead of making the dealer retype it from scratch. Option 2 collects
+      // these fields from the dealer before search, so leave what they typed as-is.
+      if (option === 1) {
+        setIdType(found.idType);
+        setNationality(found.nationality);
+        setIdNumber(found.idNumber);
+      }
       setKit("");
     }, 800);
   };
@@ -197,7 +205,9 @@ const SimReplacement = () => {
   const eligible = !!customer && !lookupError;
 
   // ---------- Fee logic ----------
-  const isChargeable = !!customer?.freeReplacementUsed;
+  // Option 2 doesn't model the chargeable case yet — always treat it as the customer's
+  // free replacement, per spec.
+  const isChargeable = option === 2 ? false : !!customer?.freeReplacementUsed;
   const fee = newSimType === "psim" ? PHYSICAL_FEE : ESIM_FEE;
 
   const isKitValid = newSimType === "esim" || /^\d{10}$/.test(kit);
@@ -304,6 +314,50 @@ const SimReplacement = () => {
         {/* ── Step 0: Lookup + Replacement details (merged) ── */}
         {step === 0 && (
           <>
+            {/* Option 2 — identity is collected up front, same as SIM Activation's Identity
+                step, instead of being pre-filled from the record after a plain MSISDN lookup. */}
+            {option === 2 && (
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                <Field label={t("activation.identity.idType")}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                      <SelectValue placeholder={t("activation.identity.idType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {ID_TYPE_ORDER.map((key) => (
+                        <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("activation.identity.nationality")}>
+                  <button
+                    type="button"
+                    onClick={() => setNationalityPickerOpen(true)}
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
+                  >
+                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </button>
+                </Field>
+                <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                  <Input
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder={t("activation.identity.idPlaceholder")}
+                    className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                    <p className="text-xs text-destructive">
+                      {idNumberRule.startDigits
+                        ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                        : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                    </p>
+                  )}
+                </Field>
+              </div>
+            )}
+
             <Field label={t("simReplacement.msisdn")}>
               <div className="flex gap-2">
                 <PhoneNumberInput
@@ -316,7 +370,7 @@ const SimReplacement = () => {
                 <Button
                   type="button"
                   className="h-12 w-20 rounded-xl shrink-0"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking}
+                  disabled={!/^\d{10}$/.test(msisdn) || checking || (option === 2 && !idNumberValid)}
                   onClick={handleSearch}
                 >
                   {t("simReplacement.search")}
@@ -392,51 +446,54 @@ const SimReplacement = () => {
                   )}
                 </section>
 
-                <div className="space-y-2">
-                  <div className="px-1">
-                    <p className="text-sm font-semibold text-foreground">{t("simReplacement.identityDetails")}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{t("simReplacement.identityDetailsSub")}</p>
+                {/* Option 2 already collected identity before search — no need to show it again. */}
+                {option === 1 && (
+                  <div className="space-y-2">
+                    <div className="px-1">
+                      <p className="text-sm font-semibold text-foreground">{t("simReplacement.identityDetails")}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t("simReplacement.identityDetailsSub")}</p>
+                    </div>
+                    <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+                      <Field label={t("activation.identity.idType")}>
+                        <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+                          <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                            <SelectValue placeholder={t("activation.identity.idType")} />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card">
+                            {ID_TYPE_ORDER.map((key) => (
+                              <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field label={t("activation.identity.nationality")}>
+                        <button
+                          type="button"
+                          onClick={() => setNationalityPickerOpen(true)}
+                          className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
+                        >
+                          <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </button>
+                      </Field>
+                      <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                        <Input
+                          value={idNumber}
+                          onChange={(e) => setIdNumber(e.target.value)}
+                          placeholder={t("activation.identity.idPlaceholder")}
+                          className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                        />
+                        {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                          <p className="text-xs text-destructive">
+                            {idNumberRule.startDigits
+                              ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                              : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                          </p>
+                        )}
+                      </Field>
+                    </div>
                   </div>
-                  <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                    <Field label={t("activation.identity.idType")}>
-                      <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
-                        <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                          <SelectValue placeholder={t("activation.identity.idType")} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card">
-                          {ID_TYPE_ORDER.map((key) => (
-                            <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label={t("activation.identity.nationality")}>
-                      <button
-                        type="button"
-                        onClick={() => setNationalityPickerOpen(true)}
-                        className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
-                      >
-                        <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </button>
-                    </Field>
-                    <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
-                      <Input
-                        value={idNumber}
-                        onChange={(e) => setIdNumber(e.target.value)}
-                        placeholder={t("activation.identity.idPlaceholder")}
-                        className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
-                      />
-                      {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
-                        <p className="text-xs text-destructive">
-                          {idNumberRule.startDigits
-                            ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
-                            : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
-                        </p>
-                      )}
-                    </Field>
-                  </div>
-                </div>
+                )}
               </>
             )}
           </>
@@ -446,10 +503,15 @@ const SimReplacement = () => {
         {step === 1 && customer && (
           <>
             <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
-              <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
-              <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
+              {option === 1 && <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />}
+              <SummaryRow
+                label={option === 2 ? t("simReplacement.newSimTypeLabel") : t("simReplacement.replacementType")}
+                value={option === 2 ? simTypeLabel(newSimType) : replacementTypeLabel}
+              />
               {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
-              <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
+              {option === 1 && (
+                <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
+              )}
             </CardSection>
 
             {isChargeable ? (

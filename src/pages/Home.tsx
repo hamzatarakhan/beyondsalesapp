@@ -122,6 +122,10 @@ const Home = () => {
 
   const simServices = [
     { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // Alternate design: identity collected up front (ID Type/Nationality/ID Number + MSISDN
+    // before search) instead of pre-filled after an MSISDN-only lookup — kept side by side
+    // with the original for review, same "?option=N" pattern as Credit Limit Adjustment.
+    { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("simReplacement.optionBadge", { number: 2 }), badgeTone: "special" as const },
     { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
@@ -285,7 +289,7 @@ const Home = () => {
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {simServices.map((item) => (
               <ActivityIcon
-                key={item.label}
+                key={item.id}
                 icon={item.icon}
                 label={item.label}
                 color="teal"

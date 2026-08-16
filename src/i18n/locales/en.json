@@ -318,6 +318,8 @@
     "identityDetailsSub": "Pre-filled from the customer's record — update if anything has changed.",
     "replacementSummary": "Replacement Summary",
     "replacementType": "Replacement Type",
+    "newSimTypeLabel": "New SIM Type",
+    "optionBadge": "Option {{number}}",
     "kitCode": "KIT Code",
     "fee": "Fee",
     "free": "Free",

@@ -318,6 +318,8 @@
     "identityDetailsSub": "معبأة مسبقاً من سجل العميل — قم بالتحديث إذا تغيّر أي شيء.",
     "replacementSummary": "ملخص الاستبدال",
     "replacementType": "نوع الاستبدال",
+    "newSimTypeLabel": "نوع الشريحة الجديد",
+    "optionBadge": "خيار {{number}}",
     "kitCode": "رمز KIT",
     "fee": "الرسوم",
     "free": "مجاني",
