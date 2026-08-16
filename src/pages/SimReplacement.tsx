@@ -139,7 +139,9 @@ const SimReplacement = () => {
   const [nationality, setNationality] = useState("sa");
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
-  const [idNumber, setIdNumber] = useState("");
+  // Pre-filled with a valid demo ID number so option 2's lookup can be tried immediately
+  // without having to type one in first.
+  const [idNumber, setIdNumber] = useState(demoIdFor(ID_TYPE_RULES["saudi-id"]));
   const [kit, setKit] = useState("");
   // eSIM supported-devices sheet (same as SIM Activation's).
   const [esimInfoOpen, setEsimInfoOpen] = useState(false);
@@ -359,25 +361,45 @@ const SimReplacement = () => {
               </>
             )}
 
-            <Field label={t("simReplacement.msisdn")}>
-              <div className="flex gap-2">
-                <PhoneNumberInput
-                  value={msisdn}
-                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
-                  icon={<Phone className="w-4 h-4" />}
-                  className="flex-1"
-                />
-                {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
+            {option === 2 ? (
+              <>
+                <Field label={t("simReplacement.msisdn")}>
+                  <PhoneNumberInput
+                    value={msisdn}
+                    onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                    icon={<Phone className="w-4 h-4" />}
+                  />
+                </Field>
                 <Button
                   type="button"
-                  className="h-12 w-20 rounded-xl shrink-0"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking || (option === 2 && !idNumberValid)}
+                  className="w-full py-3 h-auto rounded-full bg-primary/10 text-primary font-medium text-sm hover:bg-primary/15"
+                  disabled={!/^\d{10}$/.test(msisdn) || checking || !idNumberValid}
                   onClick={handleSearch}
                 >
                   {t("simReplacement.search")}
                 </Button>
-              </div>
-            </Field>
+              </>
+            ) : (
+              <Field label={t("simReplacement.msisdn")}>
+                <div className="flex gap-2">
+                  <PhoneNumberInput
+                    value={msisdn}
+                    onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                    icon={<Phone className="w-4 h-4" />}
+                    className="flex-1"
+                  />
+                  {/* Fixed width so swapping the label for the loader doesn't resize the button. */}
+                  <Button
+                    type="button"
+                    className="h-12 w-20 rounded-xl shrink-0"
+                    disabled={!/^\d{10}$/.test(msisdn) || checking}
+                    onClick={handleSearch}
+                  >
+                    {t("simReplacement.search")}
+                  </Button>
+                </div>
+              </Field>
+            )}
 
             <PrototypeTestBox
               heading={t("simReplacement.testNumbersHeading")}
@@ -401,10 +423,12 @@ const SimReplacement = () => {
 
             {customer && (
               <>
-                <CardSection title={t("simReplacement.customerDetails")} icon={ClipboardList}>
-                  <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
-                  <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
-                </CardSection>
+                {option === 1 && (
+                  <CardSection title={t("simReplacement.customerDetails")} icon={ClipboardList}>
+                    <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+                    <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
+                  </CardSection>
+                )}
 
                 <section>
                   <h3 className="text-sm font-semibold text-foreground mb-2">
