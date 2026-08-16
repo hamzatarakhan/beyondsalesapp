@@ -274,29 +274,6 @@ const SimReplacement = () => {
   const canContinueDetails = eligible && idNumberValid && isKitValid;
   const canConfirm = verified && otpVerified && terms;
 
-  // Option 2 — lookup auto-triggers once ID Number + MSISDN are both valid, debounced, same
-  // pattern as Raise Customer Complaint's MSISDN lookup — no Search button to tap.
-  useEffect(() => {
-    if (option !== 2) return;
-    setCustomer(null);
-    setLookupError(null);
-    if (!/^\d{10}$/.test(msisdn) || !idNumberValid) return;
-    setChecking(true);
-    const timer = setTimeout(() => {
-      setChecking(false);
-      const found = DEMO_REPLACEMENT_CUSTOMERS.find((c) => c.msisdn === msisdn);
-      if (!found) {
-        setLookupError(t("simReplacement.lookupErrorNotFound"));
-        return;
-      }
-      setCustomer(found);
-      setNewSimType(found.currentSimType);
-      setKit("");
-    }, 800);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [option, msisdn, idNumber, idType]);
-
   const resolveReplacement = () => {
     setConfirmOpen(false);
     const ok = Math.random() < 0.85;
@@ -385,15 +362,23 @@ const SimReplacement = () => {
             )}
 
             {option === 2 ? (
-              // Auto-looked-up below (debounced) once ID Number + MSISDN are both valid —
-              // no Search button, one fewer tap.
-              <Field label={t("simReplacement.msisdn")}>
-                <PhoneNumberInput
-                  value={msisdn}
-                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
-                  icon={<Phone className="w-4 h-4" />}
-                />
-              </Field>
+              <>
+                <Field label={t("simReplacement.msisdn")}>
+                  <PhoneNumberInput
+                    value={msisdn}
+                    onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                    icon={<Phone className="w-4 h-4" />}
+                  />
+                </Field>
+                <Button
+                  type="button"
+                  className="w-full h-12 text-sm font-semibold rounded-full"
+                  disabled={!/^\d{10}$/.test(msisdn) || checking || !idNumberValid}
+                  onClick={handleSearch}
+                >
+                  {t("simReplacement.search")}
+                </Button>
+              </>
             ) : (
               <Field label={t("simReplacement.msisdn")}>
                 <div className="flex gap-2">
