@@ -272,7 +272,30 @@ const SimReplacement = () => {
     return true;
   })();
   const canContinueDetails = eligible && idNumberValid && isKitValid;
-  const canConfirm = verified && otpVerified && terms;
+  // Option 2 enters SIM type/KIT code on step 1 (no earlier gate enforces it), so it needs
+  // checking here too — for option 1 it's already guaranteed true by canContinueDetails.
+  const canConfirm = verified && otpVerified && terms && isKitValid;
+
+  // Option 2 — Continue on step 0 looks the customer up AND advances to step 1 on success,
+  // instead of a separate Search button plus a second Continue button.
+  const handleContinueLookup = () => {
+    if (!/^\d{10}$/.test(msisdn) || !idNumberValid) return;
+    setCustomer(null);
+    setLookupError(null);
+    setChecking(true);
+    setTimeout(() => {
+      setChecking(false);
+      const found = DEMO_REPLACEMENT_CUSTOMERS.find((c) => c.msisdn === msisdn);
+      if (!found) {
+        setLookupError(t("simReplacement.lookupErrorNotFound"));
+        return;
+      }
+      setCustomer(found);
+      setNewSimType(found.currentSimType);
+      setKit("");
+      setStep(1);
+    }, 800);
+  };
 
   const resolveReplacement = () => {
     setConfirmOpen(false);
@@ -299,6 +322,51 @@ const SimReplacement = () => {
 
   const simTypeLabel = (v: "esim" | "psim") => t(`activation.subscription.${v}`);
   const replacementTypeLabel = customer ? `${simTypeLabel(customer.currentSimType)} → ${simTypeLabel(newSimType)}` : "";
+
+  // Shared between option 1 (shown right after lookup, on step 0) and option 2 (shown on
+  // step 1, alongside verification/TnC) — same picker, different page.
+  const simTypeAndKitSection = (
+    <section>
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {t("simReplacement.changeTo")} <span className="text-destructive">*</span>
+      </h3>
+      <div className="grid grid-cols-2 gap-3">
+        <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
+        <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
+      </div>
+      {newSimType === "esim" && (
+        <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
+          <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Smartphone className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-foreground">{t("activation.subscription.esimSupportedDevices")}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.subscription.esimSupportedNote")}</p>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
+        </button>
+      )}
+      {newSimType === "psim" && (
+        <div className="mt-3 space-y-2">
+          <h4 className="text-sm font-semibold text-foreground">
+            {t("simReplacement.kitCode")} <span className="text-destructive">*</span>
+          </h4>
+          <div className="relative">
+            <Input
+              value={kit}
+              onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              placeholder={t("simReplacement.kitCodePlaceholder")}
+              inputMode="numeric"
+              className="h-12 bg-card rounded-xl pe-10"
+            />
+            <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("simReplacement.scanKitAria")}>
+              <ScanLine className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 
   // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
   // Kept in source in case we want it back — just uncomment the FlowStepper line below.
@@ -362,23 +430,15 @@ const SimReplacement = () => {
             )}
 
             {option === 2 ? (
-              <>
-                <Field label={t("simReplacement.msisdn")}>
-                  <PhoneNumberInput
-                    value={msisdn}
-                    onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
-                    icon={<Phone className="w-4 h-4" />}
-                  />
-                </Field>
-                <Button
-                  type="button"
-                  className="w-full h-12 text-sm font-semibold rounded-full"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking || !idNumberValid}
-                  onClick={handleSearch}
-                >
-                  {t("simReplacement.search")}
-                </Button>
-              </>
+              // No Search button here — pressing Continue (sticky bottom) does the lookup
+              // and advances to step 1 in one action.
+              <Field label={t("simReplacement.msisdn")}>
+                <PhoneNumberInput
+                  value={msisdn}
+                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); }}
+                  icon={<Phone className="w-4 h-4" />}
+                />
+              </Field>
             ) : (
               <Field label={t("simReplacement.msisdn")}>
                 <div className="flex gap-2">
@@ -421,59 +481,19 @@ const SimReplacement = () => {
               </div>
             )}
 
-            {customer && (
+            {/* Option 2's customer/step change together in handleContinueLookup, so this
+                never actually renders while still on step 0 for option 2 — gated explicitly
+                anyway so the SIM type/KIT reveal only ever shows here for option 1. */}
+            {option === 1 && customer && (
               <>
-                {option === 1 && (
-                  <CardSection title={t("simReplacement.customerDetails")} icon={ClipboardList}>
-                    <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
-                    <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
-                  </CardSection>
-                )}
+                <CardSection title={t("simReplacement.customerDetails")} icon={ClipboardList}>
+                  <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+                  <SummaryRow label={t("simReplacement.currentSimType")} value={simTypeLabel(customer.currentSimType)} />
+                </CardSection>
 
-                <section>
-                  <h3 className="text-sm font-semibold text-foreground mb-2">
-                    {t("simReplacement.changeTo")} <span className="text-destructive">*</span>
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <SimCard active={newSimType === "psim"} label={t("activation.subscription.psim")} icon={Smartphone} onClick={() => setNewSimType("psim")} />
-                    <SimCard active={newSimType === "esim"} label={t("activation.subscription.esim")} icon={QrCode} onClick={() => setNewSimType("esim")} />
-                  </div>
-                  {newSimType === "esim" && (
-                    <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
-                      <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                        <Smartphone className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-foreground">{t("activation.subscription.esimSupportedDevices")}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{t("activation.subscription.esimSupportedNote")}</p>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-primary/60 shrink-0 rtl:rotate-180" />
-                    </button>
-                  )}
-                  {newSimType === "psim" && (
-                    <div className="mt-3 space-y-2">
-                      <h4 className="text-sm font-semibold text-foreground">
-                        {t("simReplacement.kitCode")} <span className="text-destructive">*</span>
-                      </h4>
-                      <div className="relative">
-                        <Input
-                          value={kit}
-                          onChange={(e) => setKit(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                          placeholder={t("simReplacement.kitCodePlaceholder")}
-                          inputMode="numeric"
-                          className="h-12 bg-card rounded-xl pe-10"
-                        />
-                        <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("simReplacement.scanKitAria")}>
-                          <ScanLine className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </section>
+                {simTypeAndKitSection}
 
-                {/* Option 2 already collected identity before search — no need to show it again. */}
-                {option === 1 && (
-                  <div className="space-y-2">
+                <div className="space-y-2">
                     <div className="px-1">
                       <p className="text-sm font-semibold text-foreground">{t("simReplacement.identityDetails")}</p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">{t("simReplacement.identityDetailsSub")}</p>
@@ -517,8 +537,7 @@ const SimReplacement = () => {
                         )}
                       </Field>
                     </div>
-                  </div>
-                )}
+                </div>
               </>
             )}
           </>
@@ -527,17 +546,18 @@ const SimReplacement = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && customer && (
           <>
-            <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
-              {option === 1 && <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />}
-              <SummaryRow
-                label={option === 2 ? t("simReplacement.newSimTypeLabel") : t("simReplacement.replacementType")}
-                value={option === 2 ? simTypeLabel(newSimType) : replacementTypeLabel}
-              />
-              {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
-              {option === 1 && (
+            {/* Option 2 picks SIM type/KIT code here instead of a static summary of what was
+                picked earlier — there's nothing to summarize since this page IS where it's picked. */}
+            {option === 2 && simTypeAndKitSection}
+
+            {option === 1 && (
+              <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
+                <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+                <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
+                {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
                 <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
-              )}
-            </CardSection>
+              </CardSection>
+            )}
 
             {isChargeable ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
@@ -622,7 +642,11 @@ const SimReplacement = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(1)}>
+            <Button
+              className="w-full h-12 text-sm font-semibold rounded-full"
+              disabled={option === 2 ? (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking) : !canContinueDetails}
+              onClick={option === 2 ? handleContinueLookup : () => setStep(1)}
+            >
               {t("simReplacement.continue")}
             </Button>
           )}
