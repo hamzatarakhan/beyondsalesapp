@@ -606,89 +606,95 @@ const SimReplacement = () => {
                 picked earlier — there's nothing to summarize since this page IS where it's picked. */}
             {option === 2 && simTypeAndKitSection}
 
-            {(option === 1 || option === 3) && (
-              <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
-                <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
-                <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
-                {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
-                <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
-              </CardSection>
-            )}
+            {/* Option 2 only: same progressive reveal SIM Activation uses — nothing below the
+                KIT code shows until it's valid (or immediately for eSIM, which needs no KIT). */}
+            {(option !== 2 || isKitValid) && (
+              <>
+                {(option === 1 || option === 3) && (
+                  <CardSection title={t("simReplacement.replacementSummary")} icon={ClipboardList}>
+                    <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
+                    <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
+                    {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
+                    <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
+                  </CardSection>
+                )}
 
-            {isChargeable ? (
-              <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
-                <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  {t(newSimType === "psim" ? "simReplacement.chargeableNotePsim" : "simReplacement.chargeableNoteEsim", { fee: fee.toFixed(2) })}
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
-                <Wallet className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">
-                  {t("simReplacement.freeReplacementNote")}
-                </p>
-              </div>
-            )}
-
-            <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
-              {verified ? (
-                <VerifiedBanner label={t("simReplacement.customerVerified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
-              )}
-            </CardSection>
-
-            <CardSection title={t("activation.checkout.otp")} icon={Phone}>
-              {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
+                {isChargeable ? (
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
+                    <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+                    <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
+                      {t(newSimType === "psim" ? "simReplacement.chargeableNotePsim" : "simReplacement.chargeableNoteEsim", { fee: fee.toFixed(2) })}
+                    </p>
                   </div>
-                </div>
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
-              )}
-            </CardSection>
+                ) : (
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
+                    <Wallet className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-[13px] text-emerald-700 dark:text-emerald-300 leading-snug">
+                      {t("simReplacement.freeReplacementNote")}
+                    </p>
+                  </div>
+                )}
 
-            {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-start gap-3 select-none">
-                <div
-                  role="checkbox"
-                  aria-checked={terms}
-                  tabIndex={0}
-                  onClick={() => { if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } }}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
-                  className={cn(
-                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
-                    terms ? "bg-primary border-primary" : "border-primary",
+                <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
+                  {verified ? (
+                    <VerifiedBanner label={t("simReplacement.customerVerified")} />
+                  ) : (
+                    <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
                   )}
-                >
-                  {terms && <Check className="w-3 h-3 text-primary-foreground" />}
-                </div>
-                <p className="text-sm text-foreground text-start flex-1 leading-snug">
-                  {t("activation.checkout.agreeTo")}{" "}
-                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
-                    {t("activation.checkout.terms")}
-                  </button>{" "}
-                  {t("activation.checkout.consentMiddle")}{" "}
-                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
-                    {t("activation.checkout.privacyPolicy")}
-                  </button>.
-                </p>
-              </div>
-            </section>
+                </CardSection>
 
-            {isChargeable && (
-              <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
-                <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
-                  <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-                </div>
-              </CardSection>
+                <CardSection title={t("activation.checkout.otp")} icon={Phone}>
+                  {otpVerified ? (
+                    <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                  )}
+                </CardSection>
+
+                {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
+                <section className="bg-card rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-start gap-3 select-none">
+                    <div
+                      role="checkbox"
+                      aria-checked={terms}
+                      tabIndex={0}
+                      onClick={() => { if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (terms) { setTerms(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                      className={cn(
+                        "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                        terms ? "bg-primary border-primary" : "border-primary",
+                      )}
+                    >
+                      {terms && <Check className="w-3 h-3 text-primary-foreground" />}
+                    </div>
+                    <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                      {t("activation.checkout.agreeTo")}{" "}
+                      <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                        {t("activation.checkout.terms")}
+                      </button>{" "}
+                      {t("activation.checkout.consentMiddle")}{" "}
+                      <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                        {t("activation.checkout.privacyPolicy")}
+                      </button>.
+                    </p>
+                  </div>
+                </section>
+
+                {isChargeable && (
+                  <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
+                    <div className="space-y-2">
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                      <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                    </div>
+                  </CardSection>
+                )}
+              </>
             )}
           </>
         )}
