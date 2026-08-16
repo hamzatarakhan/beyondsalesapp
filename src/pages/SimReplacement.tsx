@@ -315,9 +315,10 @@ const SimReplacement = () => {
         {step === 0 && (
           <>
             {/* Option 2 — identity is collected up front, same as SIM Activation's Identity
-                step, instead of being pre-filled from the record after a plain MSISDN lookup. */}
+                step (plain fields directly on the page, no card wrapper), instead of being
+                pre-filled from the record after a plain MSISDN lookup. */}
             {option === 2 && (
-              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
+              <>
                 <Field label={t("activation.identity.idType")}>
                   <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                     <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -355,7 +356,7 @@ const SimReplacement = () => {
                     </p>
                   )}
                 </Field>
-              </div>
+              </>
             )}
 
             <Field label={t("simReplacement.msisdn")}>
