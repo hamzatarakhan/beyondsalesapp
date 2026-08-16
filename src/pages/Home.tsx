@@ -317,7 +317,7 @@ const Home = () => {
                 color="teal"
                 badge={item.badge}
                 badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
+                onClick={() => navigate(item.path)}
               />
             ))}
           </div>

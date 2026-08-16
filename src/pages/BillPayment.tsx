@@ -104,7 +104,6 @@ interface BillAccount {
   type: AccountType;
   status: AccountStatus;
   civilId: string;
-  holder: string;
   /** Vnet lines aren't voice-reachable — their OTP goes to this associated contact number. */
   contactNumber?: string;
   /** Newest bill first. Total due is the sum of every unpaid bill's amount. */
@@ -127,9 +126,8 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "switch-postpaid",
     status: "active",
     civilId: "1324567896",
-    holder: "Ahmed Mohammed",
     bills: [
-      makeBill({ number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026", amount: 345, currentBalance: 300, unbilled: 25, outOfBundle: 20 }),
+      makeBill({ number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026", amount: 345, currentBalance: 345 }),
     ],
   },
   // Switch Postpaid with two open cycles — the newest bill rolls up the older one.
@@ -138,10 +136,9 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "switch-postpaid",
     status: "active",
     civilId: "1876543210",
-    holder: "Sara Al-Otaibi",
     bills: [
-      makeBill({ number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", status: "Overdue", amount: 780, currentBalance: 690, unbilled: 45, outOfBundle: 45 }),
-      makeBill({ number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 420, currentBalance: 390, unbilled: 0, outOfBundle: 30 }),
+      makeBill({ number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", status: "Overdue", amount: 780, currentBalance: 780 }),
+      makeBill({ number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 420, currentBalance: 420 }),
     ],
   },
   // Vnet line — 13-digit number, OTP goes to the associated contact number.
@@ -150,10 +147,9 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "vnet",
     status: "active",
     civilId: "1876543210",
-    holder: "Sara Al-Otaibi",
     contactNumber: "0502222222",
     bills: [
-      makeBill({ number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026", amount: 512.5, currentBalance: 460, unbilled: 32.5, outOfBundle: 20 }),
+      makeBill({ number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026", amount: 512.5, currentBalance: 512.5 }),
     ],
   },
   // Terminated line — can only be settled through the Civil ID flow.
@@ -162,9 +158,8 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "switch-postpaid",
     status: "terminated",
     civilId: "1876543210",
-    holder: "Sara Al-Otaibi",
     bills: [
-      makeBill({ number: "BL-2026-05-3007", cycle: "1st May – 31st May, 2026", status: "Overdue", amount: 260, currentBalance: 260, unbilled: 0, outOfBundle: 0 }),
+      makeBill({ number: "BL-2026-05-3007", cycle: "1st May – 31st May, 2026", status: "Overdue", amount: 260, currentBalance: 260 }),
     ],
   },
   // Hard-disconnected line, still owes — also reachable only via Civil ID.
@@ -173,9 +168,8 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "switch-postpaid",
     status: "hd",
     civilId: "1876543210",
-    holder: "Sara Al-Otaibi",
     bills: [
-      makeBill({ number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 190, currentBalance: 190, unbilled: 0, outOfBundle: 0 }),
+      makeBill({ number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 190, currentBalance: 190 }),
     ],
   },
   // Settled line — nothing outstanding.
@@ -184,7 +178,6 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     type: "switch-postpaid",
     status: "active",
     civilId: "2345678901",
-    holder: "Omar Al-Ghamdi",
     bills: [],
   },
 ];
@@ -704,7 +697,7 @@ const BillPayment = () => {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {ACCOUNT_TYPE_LABEL[a.type]} · {a.holder}
+                        {ACCOUNT_TYPE_LABEL[a.type]}
                       </p>
                     </div>
                     <div className="text-end shrink-0">

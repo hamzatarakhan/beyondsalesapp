@@ -21,7 +21,6 @@ import {
   Check,
   XCircle,
   Plus,
-  Apple,
   Trash2,
 } from "lucide-react";
 
@@ -44,6 +43,23 @@ const CardSection = ({
     </div>
     {children}
   </section>
+);
+
+// Real Apple/Google marks (as small inline SVGs) instead of a generic icon-font stand-in,
+// so the payment rows read correctly rather than approximating the brand.
+const AppleMark = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+  </svg>
+);
+
+const GoogleMark = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+    <path fill="#4CAF50" d="M24 44c5.2 0 10.1-2 13.7-5.3l-6.3-5.3C29.3 35.5 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.6 39.5 16.3 44 24 44z" />
+    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.3 5.3C39.9 37.1 44 31.5 44 24c0-1.3-.1-2.7-.4-3.5z" />
+  </svg>
 );
 
 const RadioDot = ({ selected }: { selected: boolean }) => (
@@ -182,7 +198,7 @@ const WalletRecharge = () => {
   const [cardAmount, setCardAmount] = useState<number | null>(null);
   const [cardView, setCardView] = useState<"list" | "addNew">("list");
   const [cards, setCards] = useState<CardEntry[]>([SAVED_CARD]);
-  const [paymentMethod, setPaymentMethod] = useState<"applepay" | string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"applepay" | "googlepay" | string | null>(null);
   const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
   const [savedCardCvv, setSavedCardCvv] = useState("");
   const [newCardNumber, setNewCardNumber] = useState("");
@@ -194,7 +210,7 @@ const WalletRecharge = () => {
   const selectedCard = cards.find((c) => c.id === paymentMethod);
   const cardValid =
     cardAmount != null &&
-    (paymentMethod === "applepay"
+    (paymentMethod === "applepay" || paymentMethod === "googlepay"
       ? true
       : paymentMethod === SAVED_CARD_ID
       ? savedCardCvv.length === 3
@@ -449,8 +465,8 @@ const WalletRecharge = () => {
                     paymentMethod === "applepay" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
                   )}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center shrink-0">
-                    <Apple className="w-5 h-5 text-background" fill="currentColor" />
+                  <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center shrink-0">
+                    <AppleMark className="w-4 h-4 text-white" />
                   </div>
                   <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "applepay" ? "text-primary" : "text-foreground")}>
                     {t("walletRecharge.applePay")}
@@ -458,50 +474,70 @@ const WalletRecharge = () => {
                   <RadioDot selected={paymentMethod === "applepay"} />
                 </button>
 
-                {/* Saved / newly-added cards — swipe left to reveal Delete */}
-                {cards.map((card) => (
-                  <div key={card.id} className="space-y-1.5">
-                    <SwipeableCardRow
-                      isOpen={swipedCardId === card.id}
-                      onOpenChange={(open) => setSwipedCardId(open ? card.id : null)}
-                      onSelect={() => selectCard(card.id)}
-                      onDelete={() => deleteCard(card.id)}
-                      deleteLabel={t("walletRecharge.delete")}
-                    >
-                      <div
-                        className={cn(
-                          "w-full p-3 flex items-center gap-3 transition-colors",
-                          paymentMethod === card.id ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
-                        )}
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-[#1a1f71] flex items-center justify-center shrink-0">
-                          <span className="text-white text-[10px] font-bold italic tracking-tight">{card.brand}</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className={cn("text-sm font-semibold", paymentMethod === card.id ? "text-primary" : "text-foreground")} dir="ltr">
-                            XXXX-{card.last4}
-                          </p>
-                          <p className="text-xs text-muted-foreground" dir="ltr">{card.expiry}</p>
-                        </div>
-                        <RadioDot selected={paymentMethod === card.id} />
-                      </div>
-                    </SwipeableCardRow>
-
-                    {paymentMethod === card.id && card.id === SAVED_CARD_ID && (
-                      <div className="w-28 space-y-1.5 ps-1">
-                        <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
-                        <Input
-                          value={savedCardCvv}
-                          onChange={(e) => setSavedCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                          placeholder="•••"
-                          inputMode="numeric"
-                          dir="ltr"
-                          className="h-11 bg-card rounded-xl text-center"
-                        />
-                      </div>
-                    )}
+                {/* Google Pay */}
+                <button
+                  type="button"
+                  onClick={() => selectCard("googlepay")}
+                  className={cn(
+                    "w-full rounded-xl p-3 flex items-center gap-3 transition-colors",
+                    paymentMethod === "googlepay" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                  )}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-white border border-border/60 flex items-center justify-center shrink-0">
+                    <GoogleMark className="w-5 h-5" />
                   </div>
-                ))}
+                  <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "googlepay" ? "text-primary" : "text-foreground")}>
+                    {t("walletRecharge.googlePay")}
+                  </span>
+                  <RadioDot selected={paymentMethod === "googlepay"} />
+                </button>
+
+                {/* Saved / newly-added cards — shown as real card art, swipe left to delete */}
+                {cards.map((card) => {
+                  const isSelected = paymentMethod === card.id;
+                  return (
+                    <div key={card.id} className="space-y-1.5">
+                      <SwipeableCardRow
+                        isOpen={swipedCardId === card.id}
+                        onOpenChange={(open) => setSwipedCardId(open ? card.id : null)}
+                        onSelect={() => selectCard(card.id)}
+                        onDelete={() => deleteCard(card.id)}
+                        deleteLabel={t("walletRecharge.delete")}
+                      >
+                        <div
+                          className={cn(
+                            "w-full rounded-xl p-4 text-start bg-gradient-to-br from-primary to-primary/70 text-primary-foreground transition-all",
+                            isSelected ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
+                          )}
+                        >
+                          <div className="flex items-center justify-between mb-6">
+                            <span className="text-xs font-semibold tracking-wide uppercase">{card.brand}</span>
+                            {isSelected && <Check className="w-4 h-4" />}
+                          </div>
+                          <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {card.last4}</p>
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="text-[11px] opacity-90">{card.holder}</span>
+                            <span className="text-[11px] opacity-90" dir="ltr">{card.expiry}</span>
+                          </div>
+                        </div>
+                      </SwipeableCardRow>
+
+                      {isSelected && card.id === SAVED_CARD_ID && (
+                        <div className="w-28 space-y-1.5 ps-1">
+                          <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
+                          <Input
+                            value={savedCardCvv}
+                            onChange={(e) => setSavedCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                            placeholder="•••"
+                            inputMode="numeric"
+                            dir="ltr"
+                            className="h-11 bg-card rounded-xl text-center"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* Add new card — opens a dedicated full-page form */}
                 <button

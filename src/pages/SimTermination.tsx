@@ -37,6 +37,7 @@ import {
   ReceiptText,
   CreditCard,
   HandCoins,
+  Banknote,
   AlertCircle,
   Check,
   CheckCircle2,
@@ -114,13 +115,13 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
   {
     msisdn: "0501110003",
     lineType: "switch-postpaid",
-    bill: { status: "Unpaid", totalOutstanding: 345, currentBalance: 300, outstandingBalance: 45, outOfBundleUsage: 20 },
+    bill: { status: "Unpaid", totalOutstanding: 345, currentBalance: 280, outstandingBalance: 45, outOfBundleUsage: 20 },
   },
   {
     msisdn: "0501110004",
     lineType: "vnet",
     contactNumber: "0501110099",
-    bill: { status: "Unpaid", totalOutstanding: 512.5, currentBalance: 460, outstandingBalance: 52.5, outOfBundleUsage: 20 },
+    bill: { status: "Unpaid", totalOutstanding: 512.5, currentBalance: 440, outstandingBalance: 52.5, outOfBundleUsage: 20 },
   },
   // Friendi does carry a couple of legacy Switch Postpaid lines even though new activation is
   // prepaid/basic-postpaid only — this one has nothing left to pay, so it skips the payment step.
@@ -132,6 +133,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
 ];
 
 const money = (n: number) => n.toFixed(2);
+const MIN_PARTIAL_PAY = 10;
 
 const SimTermination = () => {
   const navigate = useNavigate();
@@ -177,7 +179,8 @@ const SimTermination = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
-  const [payChoice, setPayChoice] = useState<"pay" | "skip" | null>(null);
+  const [payChoice, setPayChoice] = useState<"pay" | "partial" | "skip" | null>(null);
+  const [partialAmount, setPartialAmount] = useState("");
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -269,20 +272,38 @@ const SimTermination = () => {
 
   const otpTarget = lineType === "vnet" ? t("simTermination.otpTargetContact", { number: line?.contactNumber }) : t("simTermination.otpTargetEntered", { number: msisdn });
 
+  // ---------- Partial payment ----------
+  const partialAmountNum = Number(partialAmount);
+  const partialAmountValid =
+    partialAmount.trim() !== "" &&
+    Number.isFinite(partialAmountNum) &&
+    partialAmountNum >= MIN_PARTIAL_PAY &&
+    (!bill || partialAmountNum <= bill.totalOutstanding);
+  const paidAmount = payChoice === "partial" ? partialAmountNum : bill?.totalOutstanding ?? 0;
+
   // ---------- Gates ----------
-  const canConfirm = verified && otpVerified && terms && (!needsPayment || payChoice === "skip" || (payChoice === "pay" && !!payMethod));
+  const canConfirm = verified && otpVerified && terms && (
+    !needsPayment ||
+    payChoice === "skip" ||
+    (payChoice === "pay" && !!payMethod) ||
+    (payChoice === "partial" && !!payMethod && partialAmountValid)
+  );
 
   // ---------- Confirm / Success / Failure copy ----------
   const confirmMessage = !needsPayment
     ? t("simTermination.confirmMsgNoPayment")
     : payChoice === "pay"
     ? t("simTermination.confirmMsgPay")
+    : payChoice === "partial"
+    ? t("simTermination.confirmMsgPartial", { amount: money(paidAmount) })
     : t("simTermination.confirmMsgSkip");
 
   const successMessage = !needsPayment
     ? t("simTermination.successMsgNoPayment")
     : payChoice === "pay"
     ? t("simTermination.successMsgPay", { amount: money(bill!.totalOutstanding) })
+    : payChoice === "partial"
+    ? t("simTermination.successMsgPartial", { paid: money(paidAmount), remaining: money(bill!.totalOutstanding - paidAmount) })
     : t("simTermination.successMsgSkip", { amount: money(bill!.totalOutstanding) });
 
   const resolveTermination = () => {
@@ -308,6 +329,7 @@ const SimTermination = () => {
     setVerified(false);
     setOtpVerified(false);
     setPayChoice(null);
+    setPartialAmount("");
     setPayMethod("wallet");
     setTerms(false);
   };
@@ -499,9 +521,36 @@ const SimTermination = () => {
                   <CardSection title={t("simTermination.payment")} icon={CreditCard}>
                     <div className="space-y-2">
                       <PayOption icon={Wallet} label={t("simTermination.payBillNow")} description={t("simTermination.payBillNowDesc")} selected={payChoice === "pay"} onClick={() => setPayChoice("pay")} />
+                      <PayOption icon={Banknote} label={t("simTermination.payPartial")} description={t("simTermination.payPartialDesc")} selected={payChoice === "partial"} onClick={() => setPayChoice("partial")} />
                       <PayOption icon={XCircle} label={t("simTermination.terminateWithoutPaying")} description={t("simTermination.terminateWithoutPayingDesc")} selected={payChoice === "skip"} onClick={() => setPayChoice("skip")} />
                     </div>
-                    {payChoice === "pay" && (
+
+                    {payChoice === "partial" && (
+                      <div className="space-y-1.5 mt-3 pt-3 border-t border-border/50">
+                        <Field label={t("simTermination.partialAmountLabel")}>
+                          <div className="relative">
+                            <Input
+                              value={partialAmount}
+                              onChange={(e) => setPartialAmount(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                              placeholder="0.00"
+                              inputMode="decimal"
+                              className={cn(
+                                "h-12 bg-card rounded-xl ps-10",
+                                partialAmount.trim() !== "" && !partialAmountValid && "border-destructive focus-visible:ring-destructive",
+                              )}
+                            />
+                            <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                              <RiyalSymbol />
+                            </span>
+                          </div>
+                        </Field>
+                        <p className={cn("text-[11px]", partialAmount.trim() !== "" && !partialAmountValid ? "text-destructive" : "text-muted-foreground")}>
+                          {t("simTermination.partialAmountHint", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                        </p>
+                      </div>
+                    )}
+
+                    {(payChoice === "pay" || payChoice === "partial") && (
                       <div className="space-y-2 mt-3 pt-3 border-t border-border/50">
                         <p className="text-xs font-medium text-muted-foreground mb-1">{t("simTermination.paymentMethod")}</p>
                         <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
@@ -555,7 +604,9 @@ const SimTermination = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {needsPayment && payChoice === "pay" ? t("simTermination.payAndTerminate", { amount: money(bill!.totalOutstanding) }) : t("simTermination.confirmTermination")}
+              {needsPayment && (payChoice === "pay" || (payChoice === "partial" && partialAmountValid))
+                ? t("simTermination.payAndTerminate", { amount: money(paidAmount) })
+                : t("simTermination.confirmTermination")}
             </Button>
           )}
         </div>

@@ -8,6 +8,7 @@ import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
+import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
@@ -48,6 +49,7 @@ import {
   ScanLine,
   ArrowRight,
   X,
+  Share2,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx / NewActivation.tsx) ----------
@@ -154,6 +156,18 @@ const SimReplacement = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [shareVia, setShareVia] = useState<"mobile" | "email">("mobile");
+  const [shareValue, setShareValue] = useState("");
+
+  // When the success sheet opens for an eSIM replacement, default the share method to
+  // Mobile Number and pre-fill it with the customer's own number.
+  useEffect(() => {
+    if (successOpen && newSimType === "esim") {
+      setShareVia("mobile");
+      setShareValue(customer?.msisdn ?? "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [successOpen]);
 
   // ---------- MSISDN lookup — triggered by the Search button, not on every keystroke ----------
   const handleSearch = () => {
@@ -743,38 +757,75 @@ const SimReplacement = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
-          <div className="flex flex-col items-center mb-4">
-            <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
-                <Check className="w-8 h-8 text-white" strokeWidth={3} />
-              </div>
+      {/* Success — same sheet SIM Activation uses for its eSIM success, so the QR/share
+          experience is consistent across both flows. */}
+      <SuccessBottomSheet
+        open={successOpen}
+        onClose={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
+        orderId={orderId}
+        phoneNumber={customer?.msisdn}
+        title={t("simReplacement.replacementCompleteTitle")}
+        showMessage={false}
+        phoneNumberLabel={t("simReplacement.customerNumberLabel")}
+      >
+        <p className="text-sm text-muted-foreground text-center -mt-2 mb-2">
+          {newSimType === "psim" ? t("simReplacement.physicalSimNote") : t("simReplacement.esimNote")}
+        </p>
+        {newSimType === "esim" && (
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`ESIM:${orderId}:${customer?.msisdn}`)}`}
+                alt={t("activation3.success.qrAlt")}
+                className="w-40 h-40"
+              />
+              <p className="text-[11px] text-muted-foreground text-center px-4">{t("activation3.success.qrHint")}</p>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("simReplacement.replacementCompleteTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">
-              {newSimType === "psim"
-                ? t("simReplacement.physicalSimNote")
-                : t("simReplacement.esimNote")}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("simReplacement.reference")} <span className="font-semibold text-foreground">{orderId}</span>
-            </p>
-            {newSimType === "esim" && (
-              <div className="mt-4 p-3 bg-white rounded-2xl border border-border">
-                <QrCode className="w-40 h-40 text-foreground" strokeWidth={1} />
-              </div>
-            )}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground">{t("activation3.success.shareVia")}</p>
+              <Select
+                value={shareVia}
+                onValueChange={(v: "mobile" | "email") => {
+                  setShareVia(v);
+                  setShareValue(v === "mobile" ? (customer?.msisdn ?? "") : "");
+                }}
+              >
+                <SelectTrigger className="h-11 bg-card rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mobile">{t("activation3.success.shareMobile")}</SelectItem>
+                  <SelectItem value="email">{t("activation3.success.shareEmail")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Field label={shareVia === "mobile" ? t("activation3.success.shareMobile") : t("activation3.success.shareEmail")}>
+                {shareVia === "mobile" ? (
+                  <PhoneNumberInput value={shareValue} onChange={setShareValue} className="h-11" />
+                ) : (
+                  <Input
+                    value={shareValue}
+                    onChange={(e) => setShareValue(e.target.value)}
+                    placeholder="name@email.com"
+                    inputMode="email"
+                    className="h-11 bg-card rounded-xl"
+                  />
+                )}
+              </Field>
+              <Button
+                className="w-full h-11 rounded-full"
+                disabled={!shareValue.trim()}
+                onClick={() => {
+                  const text = t("activation3.success.shareMessage", { orderId });
+                  if (shareVia === "mobile") window.location.href = `sms:${shareValue}?&body=${encodeURIComponent(text)}`;
+                  else window.location.href = `mailto:${shareValue}?subject=${encodeURIComponent(t("activation3.success.shareSubject"))}&body=${encodeURIComponent(text)}`;
+                }}
+              >
+                <Share2 className="w-4 h-4" /> {t("activation3.success.share")}
+              </Button>
+            </div>
           </div>
-          <Button
-            className="w-full h-12 rounded-full font-semibold"
-            onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
-          >
-            {t("simReplacement.done")}
-          </Button>
-        </DrawerContent>
-      </Drawer>
+        )}
+      </SuccessBottomSheet>
 
       {/* Failure */}
       <Drawer open={failureOpen} onOpenChange={setFailureOpen}>

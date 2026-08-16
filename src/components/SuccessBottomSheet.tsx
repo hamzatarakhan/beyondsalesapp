@@ -10,6 +10,12 @@ export interface SuccessBottomSheetProps {
   /** The number (new or ported-in) that was chosen in the activation's number-selection step. */
   phoneNumber?: string;
   showMessage?: boolean;
+  /** Overrides the default "Success" header — used by flows other than activation (e.g. SIM Replacement). */
+  title?: string;
+  /** Overrides the default activation-flavored completion sentence. */
+  message?: string;
+  /** Overrides the default "Activated Number:" label next to phoneNumber. */
+  phoneNumberLabel?: string;
   children?: ReactNode;
 }
 
@@ -19,17 +25,20 @@ export function SuccessBottomSheet({
   orderId,
   phoneNumber,
   showMessage = true,
+  title,
+  message,
+  phoneNumberLabel,
   children,
 }: SuccessBottomSheetProps) {
   const { t } = useTranslation();
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
-        
+
 
         <div className="flex items-center justify-between mb-5">
           <div className="w-7" />
-          <h3 className="font-semibold text-foreground text-base">{t("activation.success.title")}</h3>
+          <h3 className="font-semibold text-foreground text-base">{title ?? t("activation.success.title")}</h3>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
@@ -47,7 +56,7 @@ export function SuccessBottomSheet({
           </div>
           {showMessage && (
             <p className="text-sm text-muted-foreground text-center">
-              {t("activation.success.message")}
+              {message ?? t("activation.success.message")}
             </p>
           )}
           <p className="text-xs text-muted-foreground mt-1">
@@ -55,7 +64,7 @@ export function SuccessBottomSheet({
           </p>
           {phoneNumber && (
             <p className="text-xs text-muted-foreground mt-1">
-              {t("activation.success.mobileNumber")} <span className="font-semibold text-foreground" dir="ltr">{phoneNumber}</span>
+              {phoneNumberLabel ?? t("activation.success.mobileNumber")} <span className="font-semibold text-foreground" dir="ltr">{phoneNumber}</span>
             </p>
           )}
         </div>
