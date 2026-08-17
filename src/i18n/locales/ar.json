@@ -406,6 +406,7 @@
     "billStatusOverdue": "متأخرة",
     "billStatusPartiallyPaid": "مدفوعة جزئياً",
     "payForAria": "الدفع عن {{msisdn}}",
+    "outstandingBill": "فاتورة مستحقة",
     "totalDue": "إجمالي المستحق",
     "billBreakdown": "تفاصيل الفاتورة",
     "currentBalance": "الرصيد الحالي",

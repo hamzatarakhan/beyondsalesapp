@@ -461,7 +461,7 @@ const BillPayment = () => {
   const renderBill = (bill: Bill) => {
     const open = expandedBill === bill.number;
     return (
-      <div key={bill.number} className="rounded-xl border border-border/60 bg-background/40 p-3">
+      <div key={bill.number} className="rounded-xl border border-border/60 bg-background/60 p-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-foreground">{bill.number}</p>
@@ -670,54 +670,64 @@ const BillPayment = () => {
                   "bg-card rounded-2xl p-4 shadow-sm space-y-3 transition-colors",
                   isMulti && (isOn ? "!border !border-primary/20" : "border border-border/60"),
                 )}>
-                  <div
-                    className="flex items-center gap-3 cursor-pointer"
-                    onClick={() => toggleAccountExpanded(a.msisdn)}
-                  >
-                    {isMulti && (
-                      <button
-                        type="button"
-                        role="checkbox"
-                        aria-checked={isOn}
-                        aria-label={t("billPayment.payForAria", { msisdn: a.msisdn })}
-                        onClick={(e) => { e.stopPropagation(); setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] })); }}
-                        className={cn(
-                          "w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
-                          isOn ? "bg-primary border-primary" : "border-primary/40",
-                        )}
-                      >
-                        {isOn && <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={3} />}
-                      </button>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-foreground">{a.msisdn}</p>
-                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", STATUS_STYLE[a.status])}>
-                          {STATUS_LABEL[a.status]}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {ACCOUNT_TYPE_LABEL[a.type]}
-                      </p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <ReceiptText className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <div className="text-end shrink-0">
-                      <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDue")}</p>
-                      <p className="text-base font-bold text-primary">
-                        <RiyalSymbol /> {money(totalDueOf(a))}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-muted-foreground">
-                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rtl:rotate-180" />}
-                    </div>
+                    <p className="text-sm font-semibold text-foreground">{t("billPayment.outstandingBill")}</p>
                   </div>
 
-                  {isExpanded && (
-                    <>
-                      <div className="space-y-2">{a.bills.map(renderBill)}</div>
+                  {/* Same muted background used by SIM Termination option 3 / Subscription
+                      Migration's old-line bill card — wraps the account header and (once
+                      expanded) the bills list together. */}
+                  <div className="rounded-xl bg-background/40 border border-border/60 p-3 space-y-3">
+                    <div
+                      className="flex items-center gap-3 cursor-pointer"
+                      onClick={() => toggleAccountExpanded(a.msisdn)}
+                    >
+                      {isMulti && (
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={isOn}
+                          aria-label={t("billPayment.payForAria", { msisdn: a.msisdn })}
+                          onClick={(e) => { e.stopPropagation(); setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] })); }}
+                          className={cn(
+                            "w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+                            isOn ? "bg-primary border-primary" : "border-primary/40",
+                          )}
+                        >
+                          {isOn && <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={3} />}
+                        </button>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-semibold text-foreground">{a.msisdn}</p>
+                          <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", STATUS_STYLE[a.status])}>
+                            {STATUS_LABEL[a.status]}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {ACCOUNT_TYPE_LABEL[a.type]}
+                        </p>
+                      </div>
+                      <div className="text-end shrink-0">
+                        <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDue")}</p>
+                        <p className="text-base font-bold text-primary">
+                          <RiyalSymbol /> {money(totalDueOf(a))}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-muted-foreground">
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rtl:rotate-180" />}
+                      </div>
+                    </div>
 
-                      {(!isMulti || isOn) && renderAmountInput(a)}
-                    </>
-                  )}
+                    {isExpanded && (
+                      <div className="space-y-2">{a.bills.map(renderBill)}</div>
+                    )}
+                  </div>
+
+                  {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
                 </section>
               );
             })}

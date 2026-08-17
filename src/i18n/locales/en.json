@@ -406,6 +406,7 @@
     "billStatusOverdue": "Overdue",
     "billStatusPartiallyPaid": "Partially Paid",
     "payForAria": "Pay for {{msisdn}}",
+    "outstandingBill": "Outstanding Bill",
     "totalDue": "Total Due",
     "billBreakdown": "Bill breakdown",
     "currentBalance": "Current Balance",
