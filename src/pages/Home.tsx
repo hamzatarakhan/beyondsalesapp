@@ -130,7 +130,11 @@ const Home = () => {
     // Option 3 (?option=3) hidden from Home per request — same upfront fields as option 2
     // boxed with an explicit Search button, full Summary + Verification + TnC like option 1,
     // split across 3 stages. Still reachable directly at /sim-replacement?option=3.
-    { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("simTermination.optionBadge", { number: 1 }), badgeTone: "special" as const },
+    // Identity collected up front (ID Type/Nationality/ID Number + MSISDN), Continue does the
+    // lookup and advances; Termination Reason + Verification + Bill/Payment + Terms all land
+    // on one second page instead of being split across the reveal-after-lookup pattern.
+    { id: "sim-termination-2", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=2", badge: t("simTermination.optionBadge", { number: 2 }), badgeTone: "special" as const },
   ];
 
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to

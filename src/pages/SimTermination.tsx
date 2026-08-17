@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useBrand } from "@/contexts/BrandContext";
@@ -40,7 +41,6 @@ import {
   Banknote,
   AlertCircle,
   Check,
-  CheckCircle2,
   XCircle,
   ChevronDown,
   X,
@@ -139,6 +139,11 @@ const SimTermination = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { brand } = useBrand();
+  const [searchParams] = useSearchParams();
+  // Option 2 collects ID Type/Nationality/ID Number/MSISDN up front (Continue does the
+  // lookup and advances, no Search button), and bundles Termination Reason + Verification +
+  // Bill/Payment + Terms onto one second page — same "?option=N" pattern as SIM Replacement.
+  const option = searchParams.get("option") === "2" ? 2 : 1;
 
   const LINE_TYPE_LABEL: Record<LineType, string> = {
     prepaid: t("simTermination.lineTypePrepaid"),
@@ -168,7 +173,8 @@ const SimTermination = () => {
   const [nationality, setNationality] = useState("sa");
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
-  const [idNumber, setIdNumber] = useState("");
+  // Pre-filled with a valid demo ID number so option 2's lookup can be tried immediately.
+  const [idNumber, setIdNumber] = useState(demoIdFor(ID_TYPE_RULES["saudi-id"]));
   const [reason, setReason] = useState("");
 
   // Step 1 — Checkout
@@ -282,12 +288,35 @@ const SimTermination = () => {
   const paidAmount = payChoice === "partial" ? partialAmountNum : bill?.totalOutstanding ?? 0;
 
   // ---------- Gates ----------
-  const canConfirm = verified && otpVerified && terms && (
+  // Option 2 selects Termination Reason on the same page as this gate (no earlier step
+  // requires it), so it needs checking here too — for option 1 it's already guaranteed by
+  // canContinueDetails before step 1 is reachable.
+  const canConfirm = verified && otpVerified && terms && !!reason && (
     !needsPayment ||
     payChoice === "skip" ||
     (payChoice === "pay" && !!payMethod) ||
     (payChoice === "partial" && !!payMethod && partialAmountValid)
   );
+
+  // Option 2 — Continue on step 0 looks the line up AND advances to step 1 on success,
+  // instead of a separate Search button plus a second Continue button.
+  const handleContinueLookup = () => {
+    if (!/^\d{10}$/.test(msisdn) || !idNumberValid) return;
+    setLine(null);
+    setLookupError(null);
+    setChecking(true);
+    setTimeout(() => {
+      setChecking(false);
+      const found = DEMO_TERMINATION_LINES.find((l) => l.msisdn === msisdn);
+      if (!found) {
+        setLookupError(t("simTermination.lookupErrorNotFound"));
+        return;
+      }
+      setLine(found);
+      setReason("");
+      setStep(1);
+    }, 800);
+  };
 
   // ---------- Confirm / Success / Failure copy ----------
   const confirmMessage = !needsPayment
@@ -324,7 +353,7 @@ const SimTermination = () => {
     setLookupError(null);
     setIdType("saudi-id");
     setNationality("sa");
-    setIdNumber("");
+    setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
     setReason("");
     setVerified(false);
     setOtpVerified(false);
@@ -350,24 +379,77 @@ const SimTermination = () => {
         {/* ── Step 0: Lookup + Termination form ── */}
         {step === 0 && (
           <>
-            <Field label={t("simTermination.msisdn")}>
-              <div className="flex gap-2">
-                <PhoneNumberInput
-                  value={msisdn}
-                  onChange={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
-                  icon={<Phone className="w-4 h-4" />}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  className="h-12 w-20 rounded-xl shrink-0"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking}
-                  onClick={handleSearch}
-                >
-                  {t("simTermination.search")}
-                </Button>
-              </div>
-            </Field>
+            {/* Option 2 — identity collected up front, unboxed, matching SIM Replacement's
+                option 2. No Search button — Continue (sticky bottom) does the lookup. */}
+            {option === 2 && (
+              <>
+                <Field label={t("activation.identity.idType")}>
+                  <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+                    <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                      <SelectValue placeholder={t("activation.identity.idType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {ID_TYPE_ORDER.map((key) => (
+                        <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("activation.identity.nationality")}>
+                  <button
+                    type="button"
+                    onClick={() => setNationalityPickerOpen(true)}
+                    className="flex items-center justify-between w-full h-12 bg-card rounded-xl border border-input px-3 text-sm"
+                  >
+                    <span>{t(`activation.identity.nationalities.${nationality}`)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </button>
+                </Field>
+                <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+                  <Input
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder={t("activation.identity.idPlaceholder")}
+                    className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                    <p className="text-xs text-destructive">
+                      {idNumberRule.startDigits
+                        ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                        : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                    </p>
+                  )}
+                </Field>
+                <Field label={t("simTermination.msisdn")}>
+                  <PhoneNumberInput
+                    value={msisdn}
+                    onChange={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
+                    icon={<Phone className="w-4 h-4" />}
+                  />
+                </Field>
+              </>
+            )}
+
+            {option === 1 && (
+              <Field label={t("simTermination.msisdn")}>
+                <div className="flex gap-2">
+                  <PhoneNumberInput
+                    value={msisdn}
+                    onChange={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
+                    icon={<Phone className="w-4 h-4" />}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    className="h-12 w-20 rounded-xl shrink-0"
+                    disabled={!/^\d{10}$/.test(msisdn) || checking}
+                    onClick={handleSearch}
+                  >
+                    {t("simTermination.search")}
+                  </Button>
+                </div>
+              </Field>
+            )}
 
             <PrototypeTestBox
               heading={t("simTermination.testNumbersHeading")}
@@ -383,14 +465,7 @@ const SimTermination = () => {
               onSelect={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
             />
 
-            {lookupError && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-              </div>
-            )}
-
-            {line && (
+            {option === 1 && line && (
               <>
                 <CardSection title={t("simTermination.lineDetails")} icon={Phone}>
                   <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
@@ -462,11 +537,32 @@ const SimTermination = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && line && (
           <>
-            <CardSection title={t("simTermination.terminationSummary")} icon={ClipboardList}>
-              <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
-              <SummaryRow label={t("simTermination.subscriptionType")} value={LINE_TYPE_LABEL[line.lineType]} />
-              <SummaryRow label={t("simTermination.terminationReason")} value={REASON_LABEL[reason] ?? reason} />
-            </CardSection>
+            {option === 1 && (
+              <CardSection title={t("simTermination.terminationSummary")} icon={ClipboardList}>
+                <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
+                <SummaryRow label={t("simTermination.subscriptionType")} value={LINE_TYPE_LABEL[line.lineType]} />
+                <SummaryRow label={t("simTermination.terminationReason")} value={REASON_LABEL[reason] ?? reason} />
+              </CardSection>
+            )}
+
+            {/* Option 2 — Termination Reason picked here (interactive), since identity was
+                already collected on page 1 and there's nothing left to summarize before it. */}
+            {option === 2 && (
+              <Field label={t("simTermination.terminationReason")}>
+                <Select value={reason} onValueChange={setReason}>
+                  <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                    <SelectValue placeholder={t("simTermination.selectReasonPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card">
+                    <SelectItem value="switching-provider">{t("simTermination.reasonSwitchingProvider")}</SelectItem>
+                    <SelectItem value="no-longer-needed">{t("simTermination.reasonNoLongerNeeded")}</SelectItem>
+                    <SelectItem value="poor-service">{t("simTermination.reasonPoorService")}</SelectItem>
+                    <SelectItem value="relocating">{t("simTermination.reasonRelocating")}</SelectItem>
+                    <SelectItem value="other">{t("simTermination.reasonOther")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
 
             <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
               {verified ? (
@@ -478,13 +574,7 @@ const SimTermination = () => {
 
             <CardSection title={t("activation.checkout.otp")} icon={Phone}>
               {otpVerified ? (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
-                    <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
-                  </div>
-                </div>
+                <VerifiedBanner label="OTP Verified" />
               ) : (
                 <>
                   <Button variant="outline" className="w-full disabled:opacity-50" disabled={!verified} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
@@ -497,7 +587,7 @@ const SimTermination = () => {
               )}
             </CardSection>
 
-            {isPostpaid && otpVerified && bill && (
+            {isPostpaid && bill && (
               <>
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="flex items-center justify-between mb-1">
@@ -598,7 +688,13 @@ const SimTermination = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueDetails} onClick={() => setStep(1)}>
+            // Option 2 collects identity up front — Continue here does the lookup and
+            // advances on success, same as option 1's separate Search button used to.
+            <Button
+              className="w-full h-12 text-sm font-semibold rounded-full"
+              disabled={option === 1 ? !canContinueDetails : (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking)}
+              onClick={option === 1 ? () => setStep(1) : handleContinueLookup}
+            >
               {t("simTermination.continue")}
             </Button>
           )}
@@ -611,6 +707,26 @@ const SimTermination = () => {
           )}
         </div>
       </div>
+
+      {/* Lookup error — same popup pattern used app-wide for a "not found" lookup result. */}
+      <Dialog open={!!lookupError} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("simTermination.notFoundTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
+          <button
+            onClick={() => setLookupError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("simTermination.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Customer verification */}
       <SematiVerification open={verifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
