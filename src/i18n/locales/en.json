@@ -690,7 +690,7 @@
     "idField_visaNumber": "Visa Number",
     "idField_gccPassportNumber": "GCC Passport Number",
     "testNumbersHeading": "test numbers",
-    "testNumbersDescription": "Use these to try every case (pre-to-post/post-to-pre × whitelisted/not), plus a demo ID Number valid for whichever ID Type is currently selected. This box won't appear in the real implementation.",
+    "testNumbersDescription": "Use these to try every case (pre-to-post/post-to-pre × whitelisted/not). This box won't appear in the real implementation.",
     "testNoteValidFor": "Valid for {{type}}",
     "testNoteNormalCustomer": "Normal customer",
     "testNoteWhitelistedWaiver": "Whitelisted + deposit waiver — free",

@@ -511,7 +511,6 @@ const SubscriptionMigration = () => {
               heading={t("subscriptionMigration.testNumbersHeading")}
               description={t("subscriptionMigration.testNumbersDescription")}
               items={[
-                { value: demoIdFor(idNumberRule), note: t("subscriptionMigration.testNoteValidFor", { type: ID_TYPE_LABELS[idNumberRule?.labelKey ?? "saudiId"] }), group: t("subscriptionMigration.testGroupIdNumber"), direction: null },
                 { value: "0501111133", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPreToPost"), direction: "pre-to-post" as const },
                 { value: "0501111155", note: t("subscriptionMigration.testNoteWhitelistedWaiver"), group: t("subscriptionMigration.testGroupPreToPost"), direction: "pre-to-post" as const },
                 { value: "0502222222", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
@@ -536,12 +535,6 @@ const SubscriptionMigration = () => {
                   : []),
               ].filter((item) => !lockedDirection || item.direction === null || item.direction === lockedDirection)}
               onSelect={(v) => {
-                // The ID Number item isn't in MSISDN format (05XXXXXXXX) — fill the ID
-                // Number field only, leaving MSISDN and the rest of the form untouched.
-                if (!/^05\d{8}$/.test(v)) {
-                  setIdNumber(v);
-                  return;
-                }
                 setMsisdn(v);
                 // Refresh the ID Number to a valid demo value for whichever ID Type is
                 // currently selected — don't override the dealer's ID Type choice.
