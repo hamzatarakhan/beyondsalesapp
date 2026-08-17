@@ -643,8 +643,10 @@ const SimTermination = () => {
                 {/* Matches BillPayment.tsx's per-account card exactly: header row (MSISDN +
                     status + total due + collapse chevron, expanded by default since there's
                     only ever one line here) containing the bill card (with its own collapsed-
-                    by-default "Bill breakdown" toggle) and the amount field. */}
-                <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+                    by-default "Bill breakdown" toggle) and the amount field. Titled like the
+                    other sections on this page (Customer Verification, OTP Verification). */}
+                <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
+                  <div className="space-y-3">
                   <div
                     className="flex items-center gap-3 cursor-pointer"
                     onClick={() => setBillAccountExpanded((v) => !v)}
@@ -742,7 +744,8 @@ const SimTermination = () => {
                       )}
                     </>
                   )}
-                </section>
+                  </div>
+                </CardSection>
 
                 {/* Payment Method — directly under the bill, methods only. Hidden once the
                     amount is 0 (terminate without paying — nothing to charge). */}
