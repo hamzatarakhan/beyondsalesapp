@@ -135,6 +135,11 @@ const Home = () => {
     // lookup and advances; Termination Reason + Verification + Bill/Payment + Terms all land
     // on one second page instead of being split across the reveal-after-lookup pattern.
     { id: "sim-termination-2", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=2", badge: t("simTermination.optionBadge", { number: 2 }), badgeTone: "special" as const },
+    // Same layout as option 1 (Search button, reveal-after-lookup), but the Outstanding
+    // Bill section is styled like Bill Payment's bill card (always expanded, no collapse),
+    // and Payment Method sits directly under it — the entered amount decides pay
+    // full/partial/skip instead of separate choice buttons.
+    { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("simTermination.optionBadge", { number: 3 }), badgeTone: "special" as const },
   ];
 
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
