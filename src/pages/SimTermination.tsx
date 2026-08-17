@@ -43,6 +43,7 @@ import {
   Check,
   XCircle,
   ChevronDown,
+  ChevronRight,
   X,
 } from "lucide-react";
 
@@ -200,6 +201,12 @@ const SimTermination = () => {
   // Full/Partial/Terminate Without Paying choice; defaults to the full amount once a bill
   // is found (set in handleSearch), left as-is otherwise.
   const [amountToPay, setAmountToPay] = useState("");
+  // Option 3 only — mirrors BillPayment.tsx's account-header/bill-breakdown collapse toggles
+  // exactly. The account header starts expanded (BillPayment does the same whenever there
+  // are 2 or fewer accounts, which is always true here — a termination only ever has one
+  // line), while the bill breakdown starts collapsed, same as BillPayment's default.
+  const [billAccountExpanded, setBillAccountExpanded] = useState(true);
+  const [billBreakdownOpen, setBillBreakdownOpen] = useState(false);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -353,6 +360,8 @@ const SimTermination = () => {
       setLine(found);
       setReason("");
       setAmountToPay(found.bill && found.bill.totalOutstanding > 0 ? money(found.bill.totalOutstanding) : "");
+      setBillAccountExpanded(true);
+      setBillBreakdownOpen(false);
       setStep(1);
     }, 800);
   };
@@ -399,6 +408,8 @@ const SimTermination = () => {
     setPayChoice("pay");
     setPartialAmount("");
     setAmountToPay("");
+    setBillAccountExpanded(true);
+    setBillBreakdownOpen(false);
     setPayMethod("wallet");
     setTerms(false);
   };
@@ -629,74 +640,113 @@ const SimTermination = () => {
 
             {isPostpaid && bill && option === 3 && (
               <>
-                {/* Bill Payment's bill-card style — always expanded, no collapse toggle. */}
-                <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
-                  <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-foreground">{bill.number}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
-                      </div>
-                      <div className="text-end shrink-0">
-                        <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
-                        <span className={cn(
-                          "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                          bill.status === "Paid"
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                            : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                        )}>
-                          {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
+                {/* Matches BillPayment.tsx's per-account card exactly: header row (MSISDN +
+                    status + total due + collapse chevron, expanded by default since there's
+                    only ever one line here) containing the bill card (with its own collapsed-
+                    by-default "Bill breakdown" toggle) and the amount field. */}
+                <section className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+                  <div
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => setBillAccountExpanded((v) => !v)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-foreground">{line.msisdn}</p>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                          {t("simTermination.statusActive")}
                         </span>
                       </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{LINE_TYPE_LABEL[line.lineType]}</p>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-border/40">
-                      <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-                      <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
-                      <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
-                      <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
+                    <div className="text-end shrink-0">
+                      <p className="text-[10px] text-muted-foreground">{t("simTermination.totalDue")}</p>
+                      <p className="text-base font-bold text-primary"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
+                    </div>
+                    <div className="shrink-0 text-muted-foreground">
+                      {billAccountExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rtl:rotate-180" />}
                     </div>
                   </div>
 
-                  {/* Single amount field — no Pay Full/Partial/Terminate Without Paying choice;
-                      the entered amount tells the app which case it is. */}
-                  {needsPayment && (
-                    <div className="mt-3 space-y-1.5">
-                      <Field label={t("simTermination.amountToPay")}>
-                        <div className="relative">
-                          <Input
-                            value={amountToPay}
-                            onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-                            placeholder="0.00"
-                            inputMode="decimal"
-                            className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
-                          />
-                          <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                            <RiyalSymbol />
-                          </span>
+                  {billAccountExpanded && (
+                    <>
+                      <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-foreground">{bill.number}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
+                          </div>
+                          <div className="text-end shrink-0">
+                            <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
+                            <span className={cn(
+                              "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                              bill.status === "Paid"
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+                            )}>
+                              {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
+                            </span>
+                          </div>
                         </div>
-                      </Field>
-                      {!amountToPayValid ? (
-                        <p className="text-[11px] text-destructive">
-                          {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
-                        </p>
-                      ) : amountToPayIsZero ? (
-                        <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
-                      ) : amountToPayNum < bill.totalOutstanding ? (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                          {t("simTermination.partialPaymentNote", { amount: money(bill.totalOutstanding - amountToPayNum) })}
-                        </p>
-                      ) : (
-                        <p className="text-[11px] text-muted-foreground">
-                          {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setBillBreakdownOpen((o) => !o)}
+                          className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
+                        >
+                          {billBreakdownOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
+                          {t("simTermination.billBreakdown")}
+                        </button>
+                        {billBreakdownOpen && (
+                          <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
+                            <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
+                            <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
+                            <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
+                            <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
+                          choice; the entered amount tells the app which case it is. */}
+                      {needsPayment && (
+                        <div className="space-y-1.5">
+                          <Field label={t("simTermination.amountToPay")}>
+                            <div className="relative">
+                              <Input
+                                value={amountToPay}
+                                onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                                placeholder="0.00"
+                                inputMode="decimal"
+                                className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
+                              />
+                              <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                <RiyalSymbol />
+                              </span>
+                            </div>
+                          </Field>
+                          {!amountToPayValid ? (
+                            <p className="text-[11px] text-destructive">
+                              {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                            </p>
+                          ) : amountToPayIsZero ? (
+                            <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
+                          ) : amountToPayNum < bill.totalOutstanding ? (
+                            <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                              {t("simTermination.partialPaymentNote", { amount: money(bill.totalOutstanding - amountToPayNum) })}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-muted-foreground">
+                              {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                            </p>
+                          )}
+                        </div>
                       )}
-                    </div>
+                    </>
                   )}
-                </CardSection>
+                </section>
 
                 {/* Payment Method — directly under the bill, methods only. Hidden once the
                     amount is 0 (terminate without paying — nothing to charge). */}
-                {needsPayment && !amountToPayIsZero && (
+                {needsPayment && !amountToPayIsZero && billAccountExpanded && (
                   <CardSection title={t("simTermination.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
                       <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
