@@ -185,7 +185,9 @@ const SimTermination = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
-  const [payChoice, setPayChoice] = useState<"pay" | "partial" | "skip" | null>(null);
+  // Defaults to "pay" (Pay Full Bill Amount) so the Payment Method section is visible right
+  // away instead of only appearing once the dealer taps a payment option.
+  const [payChoice, setPayChoice] = useState<"pay" | "partial" | "skip" | null>("pay");
   const [partialAmount, setPartialAmount] = useState("");
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
@@ -357,7 +359,7 @@ const SimTermination = () => {
     setReason("");
     setVerified(false);
     setOtpVerified(false);
-    setPayChoice(null);
+    setPayChoice("pay");
     setPartialAmount("");
     setPayMethod("wallet");
     setTerms(false);
