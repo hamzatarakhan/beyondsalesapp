@@ -2731,14 +2731,14 @@ const NewActivation4 = () => {
       {/* Fulfilment: shown when Continue is pressed with a well-formed email that matches no application */}
       <Dialog open={customerNotFoundOpen} onOpenChange={setCustomerNotFoundOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
               <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
             </svg>
             <Mail className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-[#E30613] mb-2 text-lg">{t("activation.fulfilment.emailNotRegistered")}</h4>
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+          <h4 className="font-semibold text-[#E30613] mb-1 text-lg">{t("activation.fulfilment.emailNotRegistered")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
             {t("activation.fulfilment.emailNotRegisteredDesc")}
           </p>
           <button
@@ -2755,14 +2755,14 @@ const NewActivation4 = () => {
           of just dismissing, so there's no extra step to retype/reselect anything. */}
       <Dialog open={prepaidLimitOpen} onOpenChange={setPrepaidLimitOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 relative w-16 h-16 flex items-center justify-center">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
               <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
             </svg>
             <Wallet className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
           </div>
-          <DialogTitle className="font-semibold text-[#E30613] mb-2 text-lg">{t("activation.prepaidLimit.title")}</DialogTitle>
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+          <DialogTitle className="font-semibold text-[#E30613] mb-1 text-lg">{t("activation.prepaidLimit.title")}</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
             {t("activation.prepaidLimit.description")}
           </p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's

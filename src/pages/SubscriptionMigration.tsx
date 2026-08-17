@@ -966,11 +966,11 @@ const SubscriptionMigration = () => {
           Activation's "Email Not Registered" dialog pattern) */}
       <Dialog open={ineligibleModalOpen} onOpenChange={setIneligibleModalOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+          <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
             <AlertCircle className="w-7 h-7 text-destructive" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-destructive mb-2 text-lg">{t("subscriptionMigration.notEligible")}</h4>
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{ineligibleReason}</p>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("subscriptionMigration.notEligible")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{ineligibleReason}</p>
           <button
             onClick={() => setIneligibleModalOpen(false)}
             className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
@@ -986,11 +986,11 @@ const SubscriptionMigration = () => {
           Menu.tsx). */}
       <Dialog open={simLimitCase !== null} onOpenChange={(o) => !o && setSimLimitCase(null)}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+          <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
             <AlertCircle className="w-7 h-7 text-destructive" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-destructive mb-2 text-lg">{t("subscriptionMigration.simLimitTitle")}</h4>
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{lookupError}</p>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("subscriptionMigration.simLimitTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
           {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
               auto-injected close button) would otherwise also hide this direct-child button. */}
           <div>
@@ -1017,11 +1017,11 @@ const SubscriptionMigration = () => {
           carrying the number they already typed over so they don't have to retype it. */}
       <Dialog open={wrongDirectionModalOpen} onOpenChange={setWrongDirectionModalOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-3 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
             <ArrowLeftRight className="w-7 h-7 text-primary" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-foreground mb-2 text-lg">{t("subscriptionMigration.wrongDirectionTitle")}</h4>
-          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+          <h4 className="font-semibold text-foreground mb-1 text-lg">{t("subscriptionMigration.wrongDirectionTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
             {lockedDirection === "pre-to-post"
               ? t("subscriptionMigration.lookupErrorWrongDirectionPreToPost")
               : t("subscriptionMigration.lookupErrorWrongDirectionPostToPre")}
