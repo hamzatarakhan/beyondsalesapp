@@ -372,18 +372,31 @@ const Home = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">{t("home.subscriptionMigrationOptions.title")}</h3>
           </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {subscriptionMigrationOptions.map((item) => (
+          <div className="flex items-stretch">
+            <div className="flex-1 flex items-center justify-center">
               <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
+                icon={subscriptionMigrationOptions[0].icon}
+                label={subscriptionMigrationOptions[0].label}
                 color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
+                badge={subscriptionMigrationOptions[0].badge}
+                badgeTone={subscriptionMigrationOptions[0].badgeTone}
+                onClick={() => handleActivityClick(subscriptionMigrationOptions[0].path)}
               />
-            ))}
+            </div>
+            <div className="w-px bg-border/60 mx-3" />
+            <div className="flex-[2] flex items-center justify-around">
+              {subscriptionMigrationOptions.slice(1).map((item) => (
+                <ActivityIcon
+                  key={item.id}
+                  icon={item.icon}
+                  label={item.label}
+                  color="teal"
+                  badge={item.badge}
+                  badgeTone={item.badgeTone}
+                  onClick={() => handleActivityClick(item.path)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
