@@ -647,6 +647,9 @@ const SimTermination = () => {
                     other sections on this page (Customer Verification, OTP Verification). */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="space-y-3">
+                  {/* Same muted background as Subscription Migration's old-line bill card —
+                      wraps the account header and (once expanded) the bill card together. */}
+                  <div className="rounded-xl bg-background/40 border border-border/60 p-3 space-y-3">
                   <div
                     className="flex items-center gap-3 cursor-pointer"
                     onClick={() => setBillAccountExpanded((v) => !v)}
@@ -670,79 +673,78 @@ const SimTermination = () => {
                   </div>
 
                   {billAccountExpanded && (
-                    <>
-                      <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-foreground">{bill.number}</p>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
-                          </div>
-                          <div className="text-end shrink-0">
-                            <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
-                            <span className={cn(
-                              "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                              bill.status === "Paid"
-                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                            )}>
-                              {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
-                            </span>
-                          </div>
+                    <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-foreground">{bill.number}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setBillBreakdownOpen((o) => !o)}
-                          className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                        >
-                          {billBreakdownOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
-                          {t("simTermination.billBreakdown")}
-                        </button>
-                        {billBreakdownOpen && (
-                          <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-                            <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-                            <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
-                            <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
-                            <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
-                          </div>
-                        )}
+                        <div className="text-end shrink-0">
+                          <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
+                          <span className={cn(
+                            "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                            bill.status === "Paid"
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+                          )}>
+                            {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
+                          </span>
+                        </div>
                       </div>
-
-                      {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
-                          choice; the entered amount tells the app which case it is. */}
-                      {needsPayment && (
-                        <div className="space-y-1.5">
-                          <Field label={t("simTermination.amountToPay")}>
-                            <div className="relative">
-                              <Input
-                                value={amountToPay}
-                                onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-                                placeholder="0.00"
-                                inputMode="decimal"
-                                className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
-                              />
-                              <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                                <RiyalSymbol />
-                              </span>
-                            </div>
-                          </Field>
-                          {!amountToPayValid ? (
-                            <p className="text-[11px] text-destructive">
-                              {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
-                            </p>
-                          ) : amountToPayIsZero ? (
-                            <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
-                          ) : amountToPayNum < bill.totalOutstanding ? (
-                            <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                              {t("simTermination.partialPaymentNote", { amount: money(bill.totalOutstanding - amountToPayNum) })}
-                            </p>
-                          ) : (
-                            <p className="text-[11px] text-muted-foreground">
-                              {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
-                            </p>
-                          )}
+                      <button
+                        type="button"
+                        onClick={() => setBillBreakdownOpen((o) => !o)}
+                        className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
+                      >
+                        {billBreakdownOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
+                        {t("simTermination.billBreakdown")}
+                      </button>
+                      {billBreakdownOpen && (
+                        <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
+                          <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
+                          <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
+                          <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
                         </div>
                       )}
-                    </>
+                    </div>
+                  )}
+                  </div>
+
+                  {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
+                      choice; the entered amount tells the app which case it is. */}
+                  {billAccountExpanded && needsPayment && (
+                    <div className="space-y-1.5">
+                      <Field label={t("simTermination.amountToPay")}>
+                        <div className="relative">
+                          <Input
+                            value={amountToPay}
+                            onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                            placeholder="0.00"
+                            inputMode="decimal"
+                            className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
+                          />
+                          <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                            <RiyalSymbol />
+                          </span>
+                        </div>
+                      </Field>
+                      {!amountToPayValid ? (
+                        <p className="text-[11px] text-destructive">
+                          {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                        </p>
+                      ) : amountToPayIsZero ? (
+                        <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
+                      ) : amountToPayNum < bill.totalOutstanding ? (
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                          {t("simTermination.partialPaymentNote", { amount: money(bill.totalOutstanding - amountToPayNum) })}
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-muted-foreground">
+                          {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                        </p>
+                      )}
+                    </div>
                   )}
                   </div>
                 </CardSection>
