@@ -38,7 +38,6 @@ import {
   ReceiptText,
   CreditCard,
   HandCoins,
-  Banknote,
   AlertCircle,
   Check,
   XCircle,
@@ -193,15 +192,11 @@ const SimTermination = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
-  // Defaults to "pay" (Pay Full Bill Amount) so the Payment Method section is visible right
-  // away instead of only appearing once the dealer taps a payment option.
-  const [payChoice, setPayChoice] = useState<"pay" | "partial" | "skip" | null>("pay");
-  const [partialAmount, setPartialAmount] = useState("");
-  // Option 3 only — a single amount field (Bill Payment's pattern) replaces the Pay
-  // Full/Partial/Terminate Without Paying choice; defaults to the full amount once a bill
-  // is found (set in handleSearch), left as-is otherwise.
+  // A single amount field (Bill Payment's pattern), same on every option — no separate Pay
+  // Full/Partial/Terminate Without Paying choice. Defaults to the full amount once a bill is
+  // found (set in handleSearch/handleContinueLookup), left as-is otherwise.
   const [amountToPay, setAmountToPay] = useState("");
-  // Option 3 only — mirrors BillPayment.tsx's account-header/bill-breakdown collapse toggles
+  // All options — mirrors BillPayment.tsx's account-header/bill-breakdown collapse toggles
   // exactly. The account header starts expanded (BillPayment does the same whenever there
   // are 2 or fewer accounts, which is always true here — a termination only ever has one
   // line), while the bill breakdown starts collapsed, same as BillPayment's default.
@@ -236,6 +231,8 @@ const SimTermination = () => {
       setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
       setReason("");
       setAmountToPay(found.bill && found.bill.totalOutstanding > 0 ? money(found.bill.totalOutstanding) : "");
+      setBillAccountExpanded(true);
+      setBillBreakdownOpen(false);
     }, 800);
   };
 
@@ -299,18 +296,10 @@ const SimTermination = () => {
 
   const otpTarget = lineType === "vnet" ? t("simTermination.otpTargetContact", { number: line?.contactNumber }) : t("simTermination.otpTargetEntered", { number: msisdn });
 
-  // ---------- Partial payment ----------
-  const partialAmountNum = Number(partialAmount);
-  const partialAmountValid =
-    partialAmount.trim() !== "" &&
-    Number.isFinite(partialAmountNum) &&
-    partialAmountNum >= MIN_PARTIAL_PAY &&
-    (!bill || partialAmountNum <= bill.totalOutstanding);
-  const paidAmount = payChoice === "partial" ? partialAmountNum : bill?.totalOutstanding ?? 0;
-
-  // ---------- Option 3 — single Amount to Pay field, no explicit pay/partial/skip choice.
-  // The amount entered tells the app which case it is: 0 (or empty) = terminate without
-  // paying, the full total = pay in full, anything in between = a partial payment. ----------
+  // ---------- Single Amount to Pay field, same on every option — no separate Pay
+  // Full/Partial/Terminate Without Paying choice. The amount entered tells the app which
+  // case it is: 0 (or empty) = terminate without paying, the full total = pay in full,
+  // anything in between = a partial payment. ----------
   const amountToPayNum = Number(amountToPay);
   const amountToPayIsZero = amountToPay.trim() === "" || amountToPayNum === 0;
   const amountToPayValid =
@@ -318,29 +307,18 @@ const SimTermination = () => {
     (Number.isFinite(amountToPayNum) &&
       amountToPayNum >= MIN_PARTIAL_PAY &&
       (!bill || amountToPayNum <= bill.totalOutstanding));
-  // A resolved "pay"/"partial"/"skip" so option 3 can reuse the same confirm/success copy
-  // and paid-amount math as options 1 and 2, instead of duplicating it.
-  const resolvedPayChoice: "pay" | "partial" | "skip" | null =
-    option === 3
-      ? amountToPayIsZero
-        ? "skip"
-        : bill && amountToPayNum >= bill.totalOutstanding
-        ? "pay"
-        : "partial"
-      : payChoice;
-  const resolvedPaidAmount = option === 3 ? amountToPayNum || 0 : paidAmount;
+  // A resolved "pay"/"partial"/"skip" so the confirm/success copy below can stay shared
+  // instead of duplicating it per case.
+  const resolvedPayChoice: "pay" | "partial" | "skip" =
+    amountToPayIsZero ? "skip" : bill && amountToPayNum >= bill.totalOutstanding ? "pay" : "partial";
+  const resolvedPaidAmount = amountToPayNum || 0;
 
   // ---------- Gates ----------
   // Option 2 selects Termination Reason on the same page as this gate (no earlier step
   // requires it), so it needs checking here too — for option 1 it's already guaranteed by
   // canContinueDetails before step 1 is reachable.
   const canConfirm = verified && otpVerified && terms && !!reason && (
-    !needsPayment ||
-    (option === 3
-      ? amountToPayValid && (amountToPayIsZero || !!payMethod)
-      : payChoice === "skip" ||
-        (payChoice === "pay" && !!payMethod) ||
-        (payChoice === "partial" && !!payMethod && partialAmountValid))
+    !needsPayment || (amountToPayValid && (amountToPayIsZero || !!payMethod))
   );
 
   // Option 2 — Continue on step 0 looks the line up AND advances to step 1 on success,
@@ -405,8 +383,6 @@ const SimTermination = () => {
     setReason("");
     setVerified(false);
     setOtpVerified(false);
-    setPayChoice("pay");
-    setPartialAmount("");
     setAmountToPay("");
     setBillAccountExpanded(true);
     setBillBreakdownOpen(false);
@@ -638,13 +614,13 @@ const SimTermination = () => {
               )}
             </CardSection>
 
-            {isPostpaid && bill && option === 3 && (
+            {isPostpaid && bill && (
               <>
                 {/* Matches BillPayment.tsx's per-account card exactly: header row (MSISDN +
                     status + total due + collapse chevron, expanded by default since there's
                     only ever one line here) containing the bill card (with its own collapsed-
-                    by-default "Bill breakdown" toggle) and the amount field. Titled like the
-                    other sections on this page (Customer Verification, OTP Verification). */}
+                    by-default "Bill breakdown" toggle). Shared by every option — titled like
+                    the other sections on this page (Customer Verification, OTP Verification). */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="space-y-3">
                   {/* Same muted background as Subscription Migration's old-line bill card —
@@ -749,79 +725,15 @@ const SimTermination = () => {
                   </div>
                 </CardSection>
 
-                {/* Payment Method — directly under the bill, methods only. Hidden once the
-                    amount is 0 (terminate without paying — nothing to charge). */}
+                {/* Payment Method — directly under the bill, methods only, same on every
+                    option now. Hidden once the amount is 0 (terminate without paying —
+                    nothing to charge). */}
                 {needsPayment && !amountToPayIsZero && billAccountExpanded && (
                   <CardSection title={t("simTermination.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
                       <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
-                  </CardSection>
-                )}
-              </>
-            )}
-
-            {isPostpaid && bill && option !== 3 && (
-              <>
-                <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] text-muted-foreground">{t("simTermination.status")}</span>
-                    <span className={cn(
-                      "px-2.5 py-1 rounded-full text-[11px] font-semibold",
-                      bill.status === "Paid"
-                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                        : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                    )}>
-                      {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
-                    </span>
-                  </div>
-                  <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
-                  <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-                  <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
-                  <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
-                </CardSection>
-
-                {needsPayment && (
-                  <CardSection title={t("simTermination.payment")} icon={CreditCard}>
-                    <div className="space-y-2">
-                      <PayOption icon={Wallet} label={t("simTermination.payBillNow")} description={t("simTermination.payBillNowDesc")} selected={payChoice === "pay"} onClick={() => setPayChoice("pay")} />
-                      <PayOption icon={Banknote} label={t("simTermination.payPartial")} description={t("simTermination.payPartialDesc")} selected={payChoice === "partial"} onClick={() => setPayChoice("partial")} />
-                      <PayOption icon={XCircle} label={t("simTermination.terminateWithoutPaying")} description={t("simTermination.terminateWithoutPayingDesc")} selected={payChoice === "skip"} onClick={() => setPayChoice("skip")} />
-                    </div>
-
-                    {payChoice === "partial" && (
-                      <div className="space-y-1.5 mt-3 pt-3 border-t border-border/50">
-                        <Field label={t("simTermination.partialAmountLabel")}>
-                          <div className="relative">
-                            <Input
-                              value={partialAmount}
-                              onChange={(e) => setPartialAmount(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-                              placeholder="0.00"
-                              inputMode="decimal"
-                              className={cn(
-                                "h-12 bg-card rounded-xl ps-10",
-                                partialAmount.trim() !== "" && !partialAmountValid && "border-destructive focus-visible:ring-destructive",
-                              )}
-                            />
-                            <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                              <RiyalSymbol />
-                            </span>
-                          </div>
-                        </Field>
-                        <p className={cn("text-[11px]", partialAmount.trim() !== "" && !partialAmountValid ? "text-destructive" : "text-muted-foreground")}>
-                          {t("simTermination.partialAmountHint", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
-                        </p>
-                      </div>
-                    )}
-
-                    {(payChoice === "pay" || payChoice === "partial") && (
-                      <div className="space-y-2 mt-3 pt-3 border-t border-border/50">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">{t("simTermination.paymentMethod")}</p>
-                        <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
-                        <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-                      </div>
-                    )}
                   </CardSection>
                 )}
               </>
@@ -875,7 +787,7 @@ const SimTermination = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {needsPayment && (resolvedPayChoice === "pay" || (resolvedPayChoice === "partial" && (option === 3 ? amountToPayValid : partialAmountValid)))
+              {needsPayment && (resolvedPayChoice === "pay" || (resolvedPayChoice === "partial" && amountToPayValid))
                 ? t("simTermination.payAndTerminate", { amount: money(resolvedPaidAmount) })
                 : t("simTermination.confirmTermination")}
             </Button>
