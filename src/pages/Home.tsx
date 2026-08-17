@@ -121,8 +121,9 @@ const Home = () => {
   ];
 
   // Parallel designs for the same service, kept side by side for review — same "Option N"
-  // badge pairing as Credit Limit Adjustment's options.
-  const simServices = [
+  // badge pairing as Credit Limit Adjustment's options. Split into two arrays (rather than
+  // one) so the SIM Services card can render them as two sub-sections separated by a divider.
+  const simReplacementOptions = [
     { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("simReplacement.optionBadge", { number: 1 }), badgeTone: "special" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN before search),
     // no card wrapper, SIM type/checkout moved to page 2 with no summary.
@@ -130,15 +131,17 @@ const Home = () => {
     // Option 3 (?option=3) hidden from Home per request — same upfront fields as option 2
     // boxed with an explicit Search button, full Summary + Verification + TnC like option 1,
     // split across 3 stages. Still reachable directly at /sim-replacement?option=3.
+  ];
+  const simTerminationOptions = [
     { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("simTermination.optionBadge", { number: 1 }), badgeTone: "special" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN), Continue does the
     // lookup and advances; Termination Reason + Verification + Bill/Payment + Terms all land
     // on one second page instead of being split across the reveal-after-lookup pattern.
     { id: "sim-termination-2", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=2", badge: t("simTermination.optionBadge", { number: 2 }), badgeTone: "special" as const },
-    // Same layout as option 1 (Search button, reveal-after-lookup), but the Outstanding
-    // Bill section is styled like Bill Payment's bill card (always expanded, no collapse),
-    // and Payment Method sits directly under it — the entered amount decides pay
-    // full/partial/skip instead of separate choice buttons.
+    // Same layout as option 2 (identity up front, Continue does lookup+advance, Termination
+    // Reason inline on page 2, no summary card), but the Outstanding Bill section is styled
+    // like Bill Payment's bill card (always expanded, no collapse) with Payment Method
+    // directly under it — the entered amount decides pay full/partial/skip.
     { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("simTermination.optionBadge", { number: 3 }), badgeTone: "special" as const },
   ];
 
@@ -299,8 +302,27 @@ const Home = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
           </div>
+
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t("home.simReplacement")}</p>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {simServices.map((item) => (
+            {simReplacementOptions.map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+
+          <div className="border-t border-border/50 my-4" />
+
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t("home.simTermination")}</p>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {simTerminationOptions.map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
