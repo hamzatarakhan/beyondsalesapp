@@ -143,11 +143,11 @@ const SimTermination = () => {
   const { t } = useTranslation();
   const { brand } = useBrand();
   const [searchParams] = useSearchParams();
-  // Option 2 collects ID Type/Nationality/ID Number/MSISDN up front (Continue does the
-  // lookup and advances, no Search button), and bundles Termination Reason + Verification +
-  // Bill/Payment + Terms onto one second page. Option 3 is otherwise identical to option 1
-  // (Search button, same step layout) — it only swaps the Outstanding Bill/Payment section
-  // for the Bill Payment-style always-expanded bill card + single Amount to Pay field.
+  // Options 2 & 3 collect ID Type/Nationality/ID Number/MSISDN up front (Continue does the
+  // lookup and advances, no Search button), and bundle Termination Reason + Verification +
+  // Bill/Payment + Terms onto one second page. Option 3 is otherwise identical to option 2
+  // — it only swaps the Outstanding Bill/Payment section for the Bill Payment-style
+  // always-expanded bill card + single Amount to Pay field.
   // Same "?option=N" pattern as SIM Replacement.
   const optionParam = searchParams.get("option");
   const option = optionParam === "3" ? 3 : optionParam === "2" ? 2 : 1;
@@ -352,6 +352,7 @@ const SimTermination = () => {
       }
       setLine(found);
       setReason("");
+      setAmountToPay(found.bill && found.bill.totalOutstanding > 0 ? money(found.bill.totalOutstanding) : "");
       setStep(1);
     }, 800);
   };
@@ -418,9 +419,9 @@ const SimTermination = () => {
         {/* ── Step 0: Lookup + Termination form ── */}
         {step === 0 && (
           <>
-            {/* Option 2 — identity collected up front, unboxed, matching SIM Replacement's
+            {/* Options 2 & 3 — identity collected up front, unboxed, matching SIM Replacement's
                 option 2. No Search button — Continue (sticky bottom) does the lookup. */}
-            {option === 2 && (
+            {(option === 2 || option === 3) && (
               <>
                 <Field label={t("activation.identity.idType")}>
                   <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
@@ -469,7 +470,7 @@ const SimTermination = () => {
               </>
             )}
 
-            {(option === 1 || option === 3) && (
+            {option === 1 && (
               <Field label={t("simTermination.msisdn")}>
                 <div className="flex gap-2">
                   <PhoneNumberInput
@@ -504,7 +505,7 @@ const SimTermination = () => {
               onSelect={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
             />
 
-            {(option === 1 || option === 3) && line && (
+            {option === 1 && line && (
               <>
                 <CardSection title={t("simTermination.lineDetails")} icon={Phone}>
                   <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
@@ -576,7 +577,7 @@ const SimTermination = () => {
         {/* ── Step 1: Checkout ── */}
         {step === 1 && line && (
           <>
-            {(option === 1 || option === 3) && (
+            {option === 1 && (
               <CardSection title={t("simTermination.terminationSummary")} icon={ClipboardList}>
                 <SummaryRow label={t("simTermination.msisdn")} value={line.msisdn} />
                 <SummaryRow label={t("simTermination.subscriptionType")} value={LINE_TYPE_LABEL[line.lineType]} />
@@ -584,9 +585,9 @@ const SimTermination = () => {
               </CardSection>
             )}
 
-            {/* Option 2 — Termination Reason picked here (interactive), since identity was
+            {/* Options 2 & 3 — Termination Reason picked here (interactive), since identity was
                 already collected on page 1 and there's nothing left to summarize before it. */}
-            {option === 2 && (
+            {(option === 2 || option === 3) && (
               <Field label={t("simTermination.terminationReason")}>
                 <Select value={reason} onValueChange={setReason}>
                   <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -807,12 +808,12 @@ const SimTermination = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
-            // Option 2 collects identity up front — Continue here does the lookup and
-            // advances on success, same as option 1/3's separate Search button used to.
+            // Options 2 & 3 collect identity up front — Continue here does the lookup and
+            // advances on success, instead of option 1's separate Search button + Continue.
             <Button
               className="w-full h-12 text-sm font-semibold rounded-full"
-              disabled={option === 2 ? (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking) : !canContinueDetails}
-              onClick={option === 2 ? handleContinueLookup : () => setStep(1)}
+              disabled={option === 1 ? !canContinueDetails : (!/^\d{10}$/.test(msisdn) || !idNumberValid || checking)}
+              onClick={option === 1 ? () => setStep(1) : handleContinueLookup}
             >
               {t("simTermination.continue")}
             </Button>
