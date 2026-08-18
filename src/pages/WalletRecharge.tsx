@@ -157,7 +157,6 @@ const SwipeableCardRow = ({
 };
 
 // ---------- Demo data ----------
-const DEALER_MSISDN = "0555123456";
 const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
 const SAVED_CARD_ID = "saved-1";
 const SAVED_CARD = { id: SAVED_CARD_ID, brand: "Visa", last4: "4242", expiry: "12/27", holder: "Ahmed Mohammed" };
@@ -386,17 +385,6 @@ const WalletRecharge = () => {
 
         {method === "voucher" && (
           <>
-            <CardSection title={t("walletRecharge.walletDetails")} icon={Wallet}>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-[11px] text-muted-foreground">{t("walletRecharge.dealerMsisdn")}</span>
-                <span className="text-xs font-semibold text-foreground">{DEALER_MSISDN}</span>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-[11px] text-muted-foreground">{t("walletRecharge.currentBalance")}</span>
-                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
-              </div>
-            </CardSection>
-
             <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
               <Info className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
               <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">{t("walletRecharge.dataVoucherNote")}</p>
