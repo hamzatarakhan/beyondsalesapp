@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import useEmblaCarousel from "embla-carousel-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { NATIONALITY_CODES } from "@/pages/NewActivation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
 import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
 import { IdCard, User, AlertCircle, Smartphone } from "lucide-react";
@@ -112,6 +113,10 @@ const TYPE_STYLE: Record<SubscriptionType, string> = {
 const CustomerSearch = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isRtl } = useLanguage();
+  // Same "peek next card" carousel PlanSelector.tsx uses — embla instead of plain CSS
+  // scroll-snap so it responds to mouse drag too, not just touch/trackpad gestures.
+  const [emblaRef] = useEmblaCarousel({ align: "start", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
 
   const TYPE_LABEL: Record<SubscriptionType, string> = {
     prepaid: t("customerSearch.typePrepaid"),
@@ -195,27 +200,32 @@ const CustomerSearch = () => {
                 <Smartphone className="w-3.5 h-3.5 text-primary" />
                 {t("customerSearch.subscriptions")}
               </p>
-              {/* Horizontal carousel with a peek of the next card — same "basis-[85%]" trick
-                  PlanSelector.tsx uses, via plain CSS scroll-snap instead of embla since this
-                  list doesn't need active-slide tracking or dot pagination. */}
-              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 -mx-4 px-4 scrollbar-hide">
-                {customer.subscriptions.map((sub, i) => (
-                  <div key={i} className="shrink-0 basis-[85%] snap-start bg-card rounded-2xl p-4 shadow-sm border border-border/60">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", TYPE_STYLE[sub.type])}>
-                        {TYPE_LABEL[sub.type]}
-                      </span>
-                      <img src={BRAND_LOGO[sub.brand]} alt="" className="h-6 w-auto shrink-0" />
-                    </div>
-                    <SummaryRow label={t("customerSearch.msisdn")} value={sub.msisdn} />
-                    <SummaryRow label={t("customerSearch.iccid")} value={sub.iccid} />
-                    <SummaryRow label={t("customerSearch.email")} value={sub.email} />
-                    <SummaryRow
-                      label={t("customerSearch.activationDate")}
-                      value={<span className="text-emerald-600 dark:text-emerald-400">{sub.activationDate}</span>}
-                    />
+              {/* Horizontal carousel with a peek of the next card — same embla setup as
+                  PlanSelector.tsx, so it drags with the mouse as well as touch/trackpad. */}
+              <div className="-mx-4">
+                <div className="overflow-hidden" ref={emblaRef}>
+                  <div className="flex touch-pan-y gap-3 ps-4">
+                    {customer.subscriptions.map((sub, i) => (
+                      <div key={i} className="shrink-0 grow-0 basis-[85%] bg-card rounded-2xl p-4 shadow-sm border border-border/60">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", TYPE_STYLE[sub.type])}>
+                            {TYPE_LABEL[sub.type]}
+                          </span>
+                          <img src={BRAND_LOGO[sub.brand]} alt="" className="h-6 w-auto shrink-0" />
+                        </div>
+                        <SummaryRow label={t("customerSearch.msisdn")} value={sub.msisdn} />
+                        <SummaryRow label={t("customerSearch.iccid")} value={sub.iccid} />
+                        <SummaryRow label={t("customerSearch.email")} value={sub.email} />
+                        <SummaryRow
+                          label={t("customerSearch.activationDate")}
+                          value={<span className="text-emerald-600 dark:text-emerald-400">{sub.activationDate}</span>}
+                        />
+                      </div>
+                    ))}
+                    {/* Trailing spacer so the last card's peek-gutter matches the leading ps-4. */}
+                    <div className="shrink-0 w-4" />
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </>
