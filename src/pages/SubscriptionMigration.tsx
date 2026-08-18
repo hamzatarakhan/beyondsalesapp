@@ -547,7 +547,8 @@ const SubscriptionMigration = () => {
                 { value: "0501111155", note: t("subscriptionMigration.testNoteWhitelistedWaiver"), group: t("subscriptionMigration.testGroupPreToPost"), direction: "pre-to-post" as const },
                 { value: "0502222222", note: t("subscriptionMigration.testNoteNormalCustomer"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
                 { value: "0502222211", note: t("subscriptionMigration.testNoteOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
-                { value: "0502222266", note: t("subscriptionMigration.testNoteTwoOutstandingBills"), group: t("subscriptionMigration.testGroupPostToPre"), direction: "post-to-pre" as const },
+                // Two-bill case (0502222266) hidden from this list for now per request — the
+                // demo data and multi-bill rendering stay in place, just not advertised.
                 { value: "0501111144", note: t("subscriptionMigration.testNoteDataIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "pre-to-post" as const },
                 { value: "0502222233", note: t("subscriptionMigration.testNoteVnetIneligible"), group: t("subscriptionMigration.testGroupIneligible"), direction: "post-to-pre" as const },
                 { value: "0501111166", note: t("subscriptionMigration.testNoteMaxPostpaidSim"), group: t("subscriptionMigration.testGroupSimLimit"), direction: "pre-to-post" as const },
