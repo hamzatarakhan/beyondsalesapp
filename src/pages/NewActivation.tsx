@@ -900,18 +900,28 @@ const NewActivation = () => {
   //   setVanityCommitment(true);
   // }, [phone]);
 
+  // Shared by the mount-time auto-verify, manual typing, and the scan button — one place to
+  // resolve a KIT value into checked/error state instead of duplicating this logic per
+  // trigger (the scan button used to skip verification entirely, leaving kitChecked stuck
+  // false and everything gated on it permanently hidden).
+  const runKitCheck = (val: string) => {
+    setKit(val);
+    setKitError(null);
+    setKitChecked(false);
+    if (val.length !== 10) return;
+    setKitChecking(true);
+    setTimeout(() => {
+      setKitChecking(false);
+      if (val === "0000000000") setKitError("registered");
+      else if (val === "1111111111") setKitError("invalid");
+      else if (val === "2222222222") setKitError("used");
+      else setKitChecked(true);
+    }, 1500);
+  };
+
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
-    if (/^\d{10}$/.test(kit)) {
-      setKitChecking(true);
-      setTimeout(() => {
-        setKitChecking(false);
-        if (kit === "0000000000") setKitError("registered");
-        else if (kit === "1111111111") setKitError("invalid");
-        else if (kit === "2222222222") setKitError("used");
-        else setKitChecked(true);
-      }, 1500);
-    }
+    if (/^\d{10}$/.test(kit)) runKitCheck(kit);
   }, []);
 
   // OTP sheet: reset digits/error and start the resend countdown whenever it opens
@@ -1303,22 +1313,7 @@ const NewActivation = () => {
                       <div className="relative flex-1">
                         <Input
                           value={kit}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-                            setKit(val);
-                            setKitError(null);
-                            setKitChecked(false);
-                            if (val.length === 10) {
-                              setKitChecking(true);
-                              setTimeout(() => {
-                                setKitChecking(false);
-                                    if (val === "0000000000") setKitError("registered");
-                                else if (val === "1111111111") setKitError("invalid");
-                                else if (val === "2222222222") setKitError("used");
-                                else setKitChecked(true);
-                              }, 1500);
-                            }
-                          }}
+                          onChange={(e) => runKitCheck(e.target.value.replace(/\D/g, "").slice(0, 10))}
                           placeholder={t("activation.subscription.kitPlaceholder")}
                           className={cn("h-12 bg-card rounded-xl pr-12",
                             kitError && "border-destructive focus-visible:ring-destructive",
@@ -1330,7 +1325,7 @@ const NewActivation = () => {
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </span>
                         ) : (
-                          <button type="button" onClick={() => { setKit("1234567890"); setKitError(null); setKitChecked(false); setKitChecking(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                          <button type="button" onClick={() => runKitCheck("1234567890")} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
                             <ScanLine className="w-5 h-5" />
                           </button>
                         )}
