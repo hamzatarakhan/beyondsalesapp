@@ -5,7 +5,6 @@ import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
-import SimCard from "@/components/activation/SimCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -25,6 +24,43 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
     <span className="text-[11px] text-muted-foreground">{label}</span>
     <span className="text-xs font-semibold text-foreground text-end">{value}</span>
   </div>
+);
+
+// Vertical icon-then-label layout, same as SIM Activation's Subscription Type toggle
+// (icon on top, label below, app-wide selected-state convention), plus the small corner
+// radio dot from a method-picker card so the selection state reads at a glance.
+const MethodCard = ({
+  active,
+  label,
+  icon: Icon,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  icon: typeof Activity;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "relative flex flex-col items-center justify-center gap-1.5 py-3 px-1.5 rounded-xl transition-colors",
+      active ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+    )}
+  >
+    <Icon className={cn("w-5 h-5", active ? "text-primary" : "text-muted-foreground")} />
+    <p className={cn("text-xs font-medium text-center leading-tight", active ? "text-primary" : "text-foreground")}>
+      {label}
+    </p>
+    <span
+      className={cn(
+        "absolute top-2 end-2 w-4 h-4 rounded-full border-2",
+        active ? "border-primary bg-primary" : "border-muted-foreground/30",
+      )}
+    >
+      {active && <span className="block w-1.5 h-1.5 bg-card rounded-full m-auto mt-[3px]" />}
+    </span>
+  </button>
 );
 
 const CardSection = ({
@@ -135,9 +171,9 @@ const SimStatusCheck = () => {
         <div>
           <label className="text-xs font-medium text-muted-foreground mb-2 block">{t("simStatusCheck.checkBy")}</label>
           <div className="grid grid-cols-3 gap-2">
-            <SimCard active={method === "kit"} label={t("simStatusCheck.kitCode")} icon={Package} onClick={() => switchMethod("kit")} />
-            <SimCard active={method === "msisdn"} label={t("simStatusCheck.msisdn")} icon={Phone} onClick={() => switchMethod("msisdn")} />
-            <SimCard active={method === "imsi"} label={t("simStatusCheck.imsiCode")} icon={ScanLine} onClick={() => switchMethod("imsi")} />
+            <MethodCard active={method === "kit"} label={t("simStatusCheck.kitCode")} icon={Package} onClick={() => switchMethod("kit")} />
+            <MethodCard active={method === "msisdn"} label={t("simStatusCheck.msisdn")} icon={Phone} onClick={() => switchMethod("msisdn")} />
+            <MethodCard active={method === "imsi"} label={t("simStatusCheck.imsiCode")} icon={ScanLine} onClick={() => switchMethod("imsi")} />
           </div>
         </div>
 
