@@ -43,7 +43,6 @@ import {
   Info,
   UserCheck,
   ArrowLeftRight,
-  ChevronDown,
   ChevronRight,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
@@ -232,12 +231,10 @@ const SubscriptionMigration = () => {
 
   // Checkout — payment
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
-  // Post-to-pre only — the old line's outstanding bill, styled the same way as SIM
-  // Termination option 3's bill card (BillPayment's account-header + collapsible breakdown).
-  // Starts expanded (there's only ever one line to show) with the breakdown collapsed,
-  // matching BillPayment.tsx's own defaults.
-  const [oldBillExpanded, setOldBillExpanded] = useState(true);
-  const [oldBillBreakdownOpen, setOldBillBreakdownOpen] = useState(false);
+  // Post-to-pre only — the old line's outstanding bill card shows only the essentials
+  // (MSISDN, status, Total Due) by default; the bill number/cycle/status and full
+  // breakdown live in a "View Details" bottom sheet, same pattern as SIM Termination.
+  const [oldBillDetailsOpen, setOldBillDetailsOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -717,65 +714,64 @@ const SubscriptionMigration = () => {
                       const unbilled = Math.round(outstandingBalance * 0.88 * 100) / 100;
                       const oob = Math.round((outstandingBalance - currentBalance - unbilled) * 100) / 100;
                       return (
-                        <div className="rounded-xl bg-background/40 border border-border/60 p-3 mb-3 space-y-3">
-                          {/* Old line's account header — same pattern as SIM Termination
-                              option 3 / BillPayment.tsx: MSISDN + status + total due + a
-                              collapse chevron, expanded by default since there's only one line. */}
-                          <div
-                            className="flex items-center gap-3 cursor-pointer"
-                            onClick={() => setOldBillExpanded((v) => !v)}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-sm font-semibold text-foreground">{customer?.msisdn}</p>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                                  {t("subscriptionMigration.statusActive")}
-                                </span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5">{t("subscriptionMigration.postpaid")}</p>
-                            </div>
-                            <div className="text-end shrink-0">
-                              <p className="text-[10px] text-muted-foreground">{t("subscriptionMigration.totalDue")}</p>
-                              <p className="text-base font-bold text-primary"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</p>
-                            </div>
-                            <div className="shrink-0 text-muted-foreground">
-                              {oldBillExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rtl:rotate-180" />}
-                            </div>
-                          </div>
-
-                          {oldBillExpanded && (
-                            <div className="rounded-xl border border-border/60 bg-background/60 p-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold text-foreground">{customer?.billNumber}</p>
-                                  <p className="text-[11px] text-muted-foreground mt-0.5">{customer?.billCycle}</p>
-                                </div>
-                                <div className="text-end shrink-0">
-                                  <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</p>
-                                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
-                                    {t("subscriptionMigration.notPaid")}
+                        <>
+                          {/* Old line's account header — only the essentials show by default
+                              (MSISDN, status, Total Due); the bill number/cycle/status and
+                              full breakdown live in the "View Details" bottom sheet below,
+                              same pattern as SIM Termination. */}
+                          <div className="rounded-xl bg-background/40 border border-border/60 p-3 mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="text-sm font-semibold text-foreground">{customer?.msisdn}</p>
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                    {t("subscriptionMigration.statusActive")}
                                   </span>
                                 </div>
+                                <p className="text-xs text-muted-foreground mt-0.5">{t("subscriptionMigration.postpaid")}</p>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => setOldBillBreakdownOpen((o) => !o)}
-                                className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                              >
-                                {oldBillBreakdownOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
-                                {t("subscriptionMigration.billBreakdown")}
-                              </button>
-                              {oldBillBreakdownOpen && (
-                                <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
+                              <div className="text-end shrink-0">
+                                <p className="text-[10px] text-muted-foreground">{t("subscriptionMigration.totalDue")}</p>
+                                <p className="text-base font-bold text-primary"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setOldBillDetailsOpen(true)}
+                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
+                            >
+                              {t("subscriptionMigration.viewDetails")}
+                              <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                            </button>
+                          </div>
+
+                          <Drawer open={oldBillDetailsOpen} onOpenChange={setOldBillDetailsOpen}>
+                            <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+                              <div className="flex justify-center pt-1 pb-3"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
+                              <h3 className="text-base font-bold text-foreground mb-3">{t("subscriptionMigration.billDetails")}</h3>
+                              <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-foreground">{customer?.billNumber}</p>
+                                    <p className="text-[11px] text-muted-foreground mt-0.5">{customer?.billCycle}</p>
+                                  </div>
+                                  <div className="text-end shrink-0">
+                                    <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</p>
+                                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+                                      {t("subscriptionMigration.notPaid")}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="mt-2 pt-2 border-t border-border/40">
                                   <SummaryRow label={t("subscriptionMigration.currentBalance")} value={<><RiyalSymbol /> {currentBalance.toFixed(2)}</>} />
                                   <SummaryRow label={t("subscriptionMigration.unbilledAmount")} value={<><RiyalSymbol /> {unbilled.toFixed(2)}</>} />
                                   <SummaryRow label={t("subscriptionMigration.oobUsage")} value={<><RiyalSymbol /> {oob.toFixed(2)}</>} />
                                   <SummaryRow label={t("subscriptionMigration.totalOutstanding")} value={<><RiyalSymbol /> {outstandingBalance.toFixed(2)}</>} />
                                 </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                              </div>
+                            </DrawerContent>
+                          </Drawer>
+                        </>
                       );
                     })()}
                     <div className="space-y-2 pb-3">
