@@ -155,7 +155,7 @@ const SimReplacement = () => {
   const [verified, setVerified] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [terms, setTerms] = useState(false);
@@ -220,7 +220,7 @@ const SimReplacement = () => {
   // ---------- OTP handlers (same behavior as SIM Activation / Subscription Migration checkout OTP) ----------
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", ""]);
+    setOtpDigits(["", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -234,10 +234,10 @@ const SimReplacement = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 3) {
+      if (d && i === 4) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "1111") {
+          if (code === "11111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -248,14 +248,14 @@ const SimReplacement = () => {
       }
       return next;
     });
-    if (d && i < 3) {
+    if (d && i < 4) {
       const el = document.getElementById(`sim-replacement-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", ""]);
+    setOtpDigits(["", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("sim-replacement-otp-0") as HTMLInputElement | null;

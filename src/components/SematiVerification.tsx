@@ -43,14 +43,14 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>("select");
   const [method, setMethod] = useState<Method | null>(null);
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", ""]);
   const [nafathDigits, setNafathDigits] = useState<[string, string]>(["", ""]);
   const [nafathNumber, setNafathNumber] = useState<number>(22);
   const [nafathSecondsLeft, setNafathSecondsLeft] = useState<number>(60);
 
   useEffect(() => {
     if (open) {
-      setOtp(["", "", "", "", "", ""]);
+      setOtp(["", "", "", "", ""]);
       setNafathDigits(["", ""]);
       if (audience === "dealer") {
         // Dealer verification always uses Nafath — skip the method-select screen.
@@ -114,7 +114,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
       setStep("fingerprint_select");
       setTimeout(() => setStep("fingerprint_ready"), 1500);
     } else {
-      setOtp(["", "", "", "", "", ""]);
+      setOtp(["", "", "", "", ""]);
       setStep("absher_otp");
     }
   };
@@ -137,7 +137,7 @@ const SematiVerification = ({ open, onClose, onMethodSelected, onVerified, audie
       next[i] = d;
       return next;
     });
-    if (d && i < 5) {
+    if (d && i < 4) {
       const el = document.getElementById(`otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }

@@ -253,7 +253,7 @@ const BillPayment = () => {
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -381,7 +381,7 @@ const BillPayment = () => {
   // ---------- OTP ----------
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1)), 1000);
@@ -393,10 +393,10 @@ const BillPayment = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 5) {
+      if (d && i === 4) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "111111") {
+          if (code === "11111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -407,13 +407,13 @@ const BillPayment = () => {
       }
       return next;
     });
-    if (d && i < 5) {
+    if (d && i < 4) {
       (document.getElementById(`bill-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     (document.getElementById("bill-otp-0") as HTMLInputElement | null)?.focus();
