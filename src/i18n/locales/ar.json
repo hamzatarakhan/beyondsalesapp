@@ -507,6 +507,7 @@
     "walletDetails": "بيانات المحفظة",
     "dealerMsisdn": "رقم جوال الموزّع",
     "currentBalance": "الرصيد الحالي",
+    "dealerWalletBalance": "رصيد محفظة الموزّع",
     "dataVoucherNote": "قسيمة الإنترنت غير مدعومة لشحن المحفظة.",
     "voucherCode": "رمز القسيمة",
     "voucherCodePlaceholder": "أدخل رمز القسيمة المكوّن من 14 رقماً",
