@@ -34,13 +34,13 @@ const LOREM =
   "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
 
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  { id: "1", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "22, Dec, 2025", time: "8:52 AM", read: false, category: "general" },
-  { id: "2", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21, Dec, 2025", time: "8:52 AM", read: false, category: "payment" },
-  { id: "3", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21, Dec, 2025", time: "8:52 AM", read: false, category: "orders" },
-  { id: "4", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20, Dec, 2025", time: "8:52 AM", read: true, category: "unpaid" },
-  { id: "5", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20, Dec, 2025", time: "8:52 AM", read: true, category: "general" },
-  { id: "6", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19, Dec, 2025", time: "8:52 AM", read: true, category: "payment" },
-  { id: "7", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19, Dec, 2025", time: "8:52 AM", read: true, category: "orders" },
+  { id: "1", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "22 Dec", time: "8:52 AM", read: false, category: "general" },
+  { id: "2", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21 Dec", time: "8:52 AM", read: false, category: "payment" },
+  { id: "3", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21 Dec", time: "8:52 AM", read: false, category: "orders" },
+  { id: "4", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20 Dec", time: "8:52 AM", read: true, category: "unpaid" },
+  { id: "5", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20 Dec", time: "8:52 AM", read: true, category: "general" },
+  { id: "6", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19 Dec", time: "8:52 AM", read: true, category: "payment" },
+  { id: "7", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19 Dec", time: "8:52 AM", read: true, category: "orders" },
 ];
 
 const Notifications = () => {
@@ -258,7 +258,7 @@ const Notifications = () => {
                   <div
                     key={n.id}
                     onClick={() => openNotification(n)}
-                    className="bg-card rounded-xl p-3.5 shadow-sm flex items-start gap-3 cursor-pointer"
+                    className="bg-card rounded-2xl p-4 shadow-sm flex items-start gap-3 cursor-pointer"
                   >
                     {selectMode && (
                       <Checkbox
@@ -271,14 +271,17 @@ const Notifications = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />}
+                          {!n.read && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
                           <p className="text-sm font-semibold text-foreground truncate">{n.title}</p>
                         </div>
-                        <span className="text-[11px] text-muted-foreground shrink-0">{n.time}</span>
+                        <div className="flex flex-col items-end shrink-0 leading-tight">
+                          <span className="text-[10px] text-muted-foreground">{n.date}</span>
+                          <span className="text-[11px] text-muted-foreground">{n.time}</span>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2 pr-2">{n.body}</p>
+                      <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 pr-2">{n.body}</p>
                     </div>
-                    <img src={officePhoto} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                    <img src={officePhoto} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
                   </div>
                 );
               })}
