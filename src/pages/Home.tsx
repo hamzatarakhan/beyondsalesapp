@@ -14,7 +14,7 @@ import {
   ArrowLeftRight,
   UserPlus,
   ClipboardList,
-  Sparkles,
+  PlugZap,
   Receipt,
   PhoneOff,
   ChevronRight,
@@ -22,7 +22,7 @@ import {
   Zap,
   MessageSquareWarning,
   IdCard,
-  Signal,
+  Microchip,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -175,7 +175,7 @@ const Home = () => {
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
-    { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "sim-3", icon: PlugZap, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Bill Payment is postpaid-related, so it's Virgin-only — Friendi has no postpaid
     // product. Credit Limit Adjustment and Subscription Migration moved to their own
@@ -188,7 +188,7 @@ const Home = () => {
     // Client requirements — applicable to both VM and FM, so no operator filter. Placed
     // after Bill Payment regardless of whether that tile is showing for this operator.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "sim-status-check", icon: Signal, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "sim-status-check", icon: Microchip, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
