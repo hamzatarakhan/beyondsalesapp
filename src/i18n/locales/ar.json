@@ -463,6 +463,8 @@
     "testNoteNotFound": "الرقم غير موجود",
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
     "lookupErrorTerminated": "هذا الرقم ملغى ولا يمكنه استقبال تحويل رصيد.",
+    "lookupErrorTitle": "تعذر التحويل",
+    "gotIt": "حسناً",
     "customerDetails": "بيانات العميل",
     "customerName": "اسم العميل",
     "transferAmount": "مبلغ التحويل",

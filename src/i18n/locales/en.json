@@ -463,6 +463,8 @@
     "testNoteNotFound": "Number not found",
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
     "lookupErrorTerminated": "This number is terminated and can't receive a credit transfer.",
+    "lookupErrorTitle": "Unable to Transfer",
+    "gotIt": "Got It",
     "customerDetails": "Customer Details",
     "customerName": "Customer Name",
     "transferAmount": "Transfer Amount",
