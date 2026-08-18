@@ -14,7 +14,7 @@ import {
   ArrowLeftRight,
   UserPlus,
   ClipboardList,
-  Hand,
+  Microchip,
   Receipt,
   PhoneOff,
   ChevronRight,
@@ -175,7 +175,7 @@ const Home = () => {
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
-    { id: "sim-3", icon: Hand, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "sim-3", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Bill Payment is postpaid-related, so it's Virgin-only — Friendi has no postpaid
     // product. Credit Limit Adjustment and Subscription Migration moved to their own
