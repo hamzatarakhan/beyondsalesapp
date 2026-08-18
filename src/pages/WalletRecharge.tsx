@@ -5,7 +5,6 @@ import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -23,6 +22,7 @@ import {
   XCircle,
   Plus,
   Trash2,
+  Loader2,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
@@ -180,30 +180,23 @@ const WalletRecharge = () => {
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherChecking, setVoucherChecking] = useState(false);
   const [voucherError, setVoucherError] = useState<string | null>(null);
-  const [voucherValidated, setVoucherValidated] = useState(false);
+  const [voucherChecked, setVoucherChecked] = useState(false);
 
-  const onVoucherChange = (v: string) => {
-    const digits = v.replace(/\D/g, "").slice(0, 14);
-    setVoucherCode(digits);
+  // Same shape as the KIT code check on SIM Activation — auto-fires once the field is
+  // filled, shows an inline spinner in the field, and reports valid/invalid under it.
+  const runVoucherCheck = (val: string) => {
+    setVoucherCode(val);
     setVoucherError(null);
-    setVoucherValidated(false);
-  };
-
-  // Validation is a deliberate action (button press), not fired on every keystroke — it's
-  // standing in for a real backend call to check the code, so it shouldn't happen silently.
-  const handleValidateVoucher = () => {
-    if (voucherCode.length !== 14) return;
+    setVoucherChecked(false);
+    if (val.length !== 14) return;
     setVoucherChecking(true);
     setTimeout(() => {
       setVoucherChecking(false);
-      if (voucherCode === INVALID_VOUCHER_CODE) {
-        setVoucherError(t("walletRecharge.voucherErrorInvalid"));
-      } else {
-        setVoucherValidated(true);
-      }
-    }, 800);
+      if (val === INVALID_VOUCHER_CODE) setVoucherError(t("walletRecharge.voucherErrorInvalid"));
+      else setVoucherChecked(true);
+    }, 1500);
   };
-  const voucherValid = voucherValidated && !voucherError && !voucherChecking;
+  const voucherValid = voucherChecked && !voucherError && !voucherChecking;
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
@@ -411,24 +404,31 @@ const WalletRecharge = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.voucherCode")}</label>
-              <div className="flex gap-2">
+              <div className="relative">
                 <Input
                   value={voucherCode}
-                  onChange={(e) => onVoucherChange(e.target.value)}
+                  onChange={(e) => runVoucherCheck(e.target.value.replace(/\D/g, "").slice(0, 14))}
                   placeholder={t("walletRecharge.voucherCodePlaceholder")}
                   inputMode="numeric"
                   dir="ltr"
-                  className="h-12 bg-card rounded-xl flex-1"
+                  className={cn(
+                    "h-12 bg-card rounded-xl pr-12",
+                    voucherError && "border-destructive focus-visible:ring-destructive",
+                    voucherChecked && !voucherError && "border-emerald-500 focus-visible:ring-emerald-500",
+                  )}
                 />
-                <Button
-                  type="button"
-                  className="h-12 px-4 rounded-xl shrink-0"
-                  disabled={voucherCode.length !== 14 || voucherChecking || voucherValid}
-                  onClick={handleValidateVoucher}
-                >
-                  {t("walletRecharge.validate")}
-                </Button>
+                {voucherChecking && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Checking voucher">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </span>
+                )}
               </div>
+              {voucherError && (
+                <p className="text-xs text-destructive flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  {voucherError}
+                </p>
+              )}
               {voucherValid && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 shrink-0" />
@@ -444,7 +444,7 @@ const WalletRecharge = () => {
                 { value: "12345678901234", note: t("walletRecharge.testNoteValid") },
                 { value: INVALID_VOUCHER_CODE, note: t("walletRecharge.testNoteInvalid") },
               ]}
-              onSelect={onVoucherChange}
+              onSelect={runVoucherCheck}
             />
           </>
         )}
@@ -635,27 +635,7 @@ const WalletRecharge = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Invalid voucher — same popup pattern used app-wide for a lookup failure. */}
-      <Dialog open={!!voucherError} onOpenChange={(o) => { if (!o) setVoucherError(null); }}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
-              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
-            </svg>
-            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
-          </div>
-          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("walletRecharge.voucherErrorTitle")}</h4>
-          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{voucherError}</p>
-          <button
-            onClick={() => setVoucherError(null)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("walletRecharge.gotIt")}
-          </button>
-        </DialogContent>
-      </Dialog>
-
-      <BrandLoadingOverlay open={voucherChecking || processing} />
+      <BrandLoadingOverlay open={processing} />
     </div>
   );
 };
