@@ -279,7 +279,7 @@ const Notifications = () => {
                           <span className="text-[11px] text-muted-foreground">{n.time}</span>
                         </div>
                       </div>
-                      <div className="flex items-start justify-between gap-3 mt-1.5">
+                      <div className="flex items-center justify-between gap-3 mt-1.5">
                         <p className="text-xs text-muted-foreground line-clamp-2 flex-1">{n.body}</p>
                         <img src={officePhoto} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
                       </div>
