@@ -180,20 +180,30 @@ const WalletRecharge = () => {
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherChecking, setVoucherChecking] = useState(false);
   const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [voucherValidated, setVoucherValidated] = useState(false);
 
   const onVoucherChange = (v: string) => {
     const digits = v.replace(/\D/g, "").slice(0, 14);
     setVoucherCode(digits);
     setVoucherError(null);
-    if (digits.length === 14) {
-      setVoucherChecking(true);
-      setTimeout(() => {
-        setVoucherChecking(false);
-        if (digits === INVALID_VOUCHER_CODE) setVoucherError(t("walletRecharge.voucherErrorInvalid"));
-      }, 800);
-    }
+    setVoucherValidated(false);
   };
-  const voucherValid = voucherCode.length === 14 && !voucherError && !voucherChecking;
+
+  // Validation is a deliberate action (button press), not fired on every keystroke — it's
+  // standing in for a real backend call to check the code, so it shouldn't happen silently.
+  const handleValidateVoucher = () => {
+    if (voucherCode.length !== 14) return;
+    setVoucherChecking(true);
+    setTimeout(() => {
+      setVoucherChecking(false);
+      if (voucherCode === INVALID_VOUCHER_CODE) {
+        setVoucherError(t("walletRecharge.voucherErrorInvalid"));
+      } else {
+        setVoucherValidated(true);
+      }
+    }, 800);
+  };
+  const voucherValid = voucherValidated && !voucherError && !voucherChecking;
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
@@ -401,14 +411,24 @@ const WalletRecharge = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.voucherCode")}</label>
-              <Input
-                value={voucherCode}
-                onChange={(e) => onVoucherChange(e.target.value)}
-                placeholder={t("walletRecharge.voucherCodePlaceholder")}
-                inputMode="numeric"
-                dir="ltr"
-                className="h-12 bg-card rounded-xl"
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={voucherCode}
+                  onChange={(e) => onVoucherChange(e.target.value)}
+                  placeholder={t("walletRecharge.voucherCodePlaceholder")}
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="h-12 bg-card rounded-xl flex-1"
+                />
+                <Button
+                  type="button"
+                  className="h-12 px-4 rounded-xl shrink-0"
+                  disabled={voucherCode.length !== 14 || voucherChecking || voucherValid}
+                  onClick={handleValidateVoucher}
+                >
+                  {t("walletRecharge.validate")}
+                </Button>
+              </div>
               {voucherValid && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 shrink-0" />

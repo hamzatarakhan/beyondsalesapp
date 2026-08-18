@@ -510,6 +510,7 @@
     "dataVoucherNote": "Data Voucher is not supported for wallet recharge.",
     "voucherCode": "Voucher Code",
     "voucherCodePlaceholder": "Enter 14-digit voucher code",
+    "validate": "Validate",
     "voucherErrorInvalid": "This voucher code is invalid. Please check and try again.",
     "voucherErrorTitle": "Invalid Voucher",
     "gotIt": "Got It",
