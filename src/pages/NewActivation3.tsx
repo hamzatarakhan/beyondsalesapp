@@ -756,6 +756,15 @@ const NewActivation3 = () => {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [activationFailedOpen, setActivationFailedOpen] = useState(false);
+
+  // Same random-failure demo pattern as Credit Transfer — occasionally routes to the
+  // Failed Request popup instead of success, with Retry Activation just trying again.
+  const resolveActivation = () => {
+    if (Math.random() < 0.85) setSuccessOpen(true);
+    else setActivationFailedOpen(true);
+  };
+
   // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
   const [shareVia, setShareVia] = useState<"mobile" | "email">("mobile");
   const [shareValue, setShareValue] = useState("");
@@ -3208,7 +3217,7 @@ const NewActivation3 = () => {
             <DrawerDescription>{t(`activation.checkout.${confirmCopyKey}Desc`)}</DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-3">
-            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); setSuccessOpen(true); }}>
+            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPayConfirmOpen(false); resolveActivation(); }}>
               {t(`activation.checkout.${confirmCopyKey}Btn`)}
             </Button>
             <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPayConfirmOpen(false)}>
@@ -3217,6 +3226,36 @@ const NewActivation3 = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Failed Request — occasional random failure after Yes Confirm; Retry Activation just re-attempts. */}
+      <Dialog open={activationFailedOpen} onOpenChange={setActivationFailedOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <X className="w-7 h-7 text-[#E30613] relative" strokeWidth={2.5} />
+          </div>
+          <DialogTitle className="font-semibold text-[#E30613] mb-1 text-lg">{t("activation3.checkout.failedRequestTitle")}</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+            {t("activation3.checkout.failedRequestDesc")}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setActivationFailedOpen(false)}
+              className="w-full py-3 rounded-full border border-[#E30613] text-[#E30613] font-semibold text-sm"
+            >
+              {t("activation3.checkout.failedRequestCancel")}
+            </button>
+            <button
+              onClick={() => { setActivationFailedOpen(false); resolveActivation(); }}
+              className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+            >
+              {t("activation3.checkout.failedRequestRetry")}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Signature pad */}
       <SignaturePadSheet
