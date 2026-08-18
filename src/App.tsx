@@ -29,6 +29,7 @@ import BillPayment from "./pages/BillPayment";
 import CreditTransfer from "./pages/CreditTransfer";
 import WalletRecharge from "./pages/WalletRecharge";
 import CustomerComplaint from "./pages/CustomerComplaint";
+import CustomerSearch from "./pages/CustomerSearch";
 import SearchSubscription from "./pages/SearchSubscription";
 import SearchCustomer from "./pages/SearchCustomer";
 import SearchCustomerForOwnership from "./pages/SearchCustomerForOwnership";
@@ -115,6 +116,7 @@ const App = () => {
           <Route path="/credit-transfer" element={<CreditTransfer />} />
           <Route path="/wallet-recharge" element={<WalletRecharge />} />
           <Route path="/customer-complaint" element={<CustomerComplaint />} />
+          <Route path="/customer-search" element={<CustomerSearch />} />
           <Route path="/search-subscription" element={<SearchSubscription />} />
           <Route path="/search-customer" element={<SearchCustomer />} />
           <Route path="/search-customer-ownership" element={<SearchCustomerForOwnership />} />

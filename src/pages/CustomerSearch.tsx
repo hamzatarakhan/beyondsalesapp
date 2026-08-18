@@ -1,0 +1,236 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import AppHeader from "@/components/AppHeader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import PrototypeTestBox from "@/components/PrototypeTestBox";
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
+import { cn } from "@/lib/utils";
+import { NATIONALITY_CODES } from "@/pages/NewActivation";
+import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
+import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
+import { IdCard, User, AlertCircle, Smartphone } from "lucide-react";
+
+// ---------- Local UI primitives (mirrors CustomerComplaint.tsx / BillPayment.tsx) ----------
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="space-y-1.5">
+    <label className="text-xs font-medium text-muted-foreground">{label}</label>
+    {children}
+  </div>
+);
+
+const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
+    <span className="text-[11px] text-muted-foreground">{label}</span>
+    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
+  </div>
+);
+
+const CardSection = ({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: typeof User;
+  children: React.ReactNode;
+}) => (
+  <section className="bg-card rounded-2xl p-4 shadow-sm">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+        <Icon className="w-3.5 h-3.5 text-primary" />
+      </div>
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+    </div>
+    {children}
+  </section>
+);
+
+// ---------- Domain types ----------
+type SubscriptionType = "prepaid" | "postpaid" | "data";
+type SubBrand = "virgin" | "friendi";
+
+interface DemoSubscription {
+  type: SubscriptionType;
+  brand: SubBrand;
+  msisdn: string;
+  iccid: string;
+  email: string;
+  activationDate: string;
+}
+
+interface DemoSearchCustomer {
+  idNumber: string;
+  name: string;
+  /** Code from NATIONALITY_CODES. */
+  nationality: string;
+  subscriptions: DemoSubscription[];
+}
+
+// ---------- Demo data ----------
+const DEMO_CUSTOMERS: DemoSearchCustomer[] = [
+  {
+    idNumber: "2111111116",
+    name: "Tamer Mohammed Vadhi Tofahh",
+    nationality: "jo",
+    subscriptions: [
+      { type: "prepaid", brand: "virgin", msisdn: "0597398903", iccid: "8996605100094116741", email: "bilal.randhawa@gmail.com", activationDate: "2026-08-16" },
+    ],
+  },
+  // One customer with lines across both brands and all three subscription types — the
+  // carousel case (2+ cards, peek-next-card visible).
+  {
+    idNumber: "1324567896",
+    name: "Ahmed Al-Otaibi",
+    nationality: "sa",
+    subscriptions: [
+      { type: "postpaid", brand: "virgin", msisdn: "0502222211", iccid: "8996605100094118820", email: "ahmed.otaibi@example.com", activationDate: "2026-03-02" },
+      { type: "prepaid", brand: "friendi", msisdn: "0561234567", iccid: "8996605100094119115", email: "ahmed.otaibi@example.com", activationDate: "2026-05-19" },
+      { type: "data", brand: "virgin", msisdn: "0509876543", iccid: "8996605100094117603", email: "ahmed.otaibi@example.com", activationDate: "2026-07-01" },
+    ],
+  },
+  {
+    idNumber: "2298765432",
+    name: "Priya Sharma",
+    nationality: "in",
+    subscriptions: [
+      { type: "prepaid", brand: "friendi", msisdn: "0567891234", iccid: "8996605100094120456", email: "priya.sharma@example.com", activationDate: "2026-06-11" },
+    ],
+  },
+];
+
+const BRAND_LOGO: Record<SubBrand, string> = { virgin: virginMobileLogo, friendi: friendiMobileLogo };
+
+const TYPE_STYLE: Record<SubscriptionType, string> = {
+  prepaid: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  postpaid: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
+  data: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+};
+
+const CustomerSearch = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const TYPE_LABEL: Record<SubscriptionType, string> = {
+    prepaid: t("customerSearch.typePrepaid"),
+    postpaid: t("customerSearch.typePostpaid"),
+    data: t("customerSearch.typeData"),
+  };
+
+  // ---------- Lookup ----------
+  const [idNumber, setIdNumber] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [customer, setCustomer] = useState<DemoSearchCustomer | null>(null);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+
+  // Saudi National ID starts with 1, Iqama ID starts with 2 — same rule BillPayment.tsx
+  // uses for its Civil ID lookup.
+  const idNumberValid = /^[12]\d{9}$/.test(idNumber);
+
+  const handleSearch = () => {
+    if (!idNumberValid) return;
+    setCustomer(null);
+    setLookupError(null);
+    setChecking(true);
+    setTimeout(() => {
+      setChecking(false);
+      const found = DEMO_CUSTOMERS.find((c) => c.idNumber === idNumber);
+      if (!found) {
+        setLookupError(t("customerSearch.lookupErrorNotFound"));
+        return;
+      }
+      setCustomer(found);
+    }, 800);
+  };
+
+  return (
+    <div className="mobile-container min-h-screen bg-background pb-10">
+      <AppHeader title={t("customerSearch.title")} showBack onBackClick={() => navigate("/")} />
+
+      <div className="px-4 space-y-4">
+        <Field label={t("customerSearch.idNumber")}>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={idNumber}
+                onChange={(e) => { setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomer(null); setLookupError(null); }}
+                placeholder={t("customerSearch.idNumberPlaceholder")}
+                inputMode="numeric"
+                className="h-12 bg-card rounded-xl pe-10"
+              />
+              <IdCard className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            </div>
+            <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!idNumberValid || checking} onClick={handleSearch}>
+              {t("customerSearch.search")}
+            </Button>
+          </div>
+          {idNumber.length > 0 && !idNumberValid && (
+            <p className="text-[11px] text-destructive mt-1.5">{t("customerSearch.idNumberInvalidHint")}</p>
+          )}
+        </Field>
+
+        <PrototypeTestBox
+          heading={t("customerSearch.testNumbersHeading")}
+          description={t("customerSearch.testNumbersDescription")}
+          items={[
+            { value: "2111111116", note: t("customerSearch.testNoteSingleLine") },
+            { value: "1324567896", note: t("customerSearch.testNoteMultiLine") },
+            { value: "2298765432", note: t("customerSearch.testNoteFriendiLine") },
+            { value: "1999999999", note: t("customerSearch.testNoteNotFound") },
+          ]}
+          onSelect={(v) => { setIdNumber(v); setCustomer(null); setLookupError(null); }}
+        />
+
+        {lookupError && (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
+          </div>
+        )}
+
+        {customer && (
+          <>
+            <CardSection title={t("customerSearch.information")} icon={User}>
+              <SummaryRow label={t("customerSearch.name")} value={customer.name} />
+              <SummaryRow label={t("customerSearch.nationality")} value={t(`activation.identity.nationalities.${customer.nationality}`)} />
+            </CardSection>
+
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1 flex items-center gap-1.5">
+                <Smartphone className="w-3.5 h-3.5 text-primary" />
+                {t("customerSearch.subscriptions")}
+              </p>
+              {/* Horizontal carousel with a peek of the next card — same "basis-[85%]" trick
+                  PlanSelector.tsx uses, via plain CSS scroll-snap instead of embla since this
+                  list doesn't need active-slide tracking or dot pagination. */}
+              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 -mx-4 px-4 scrollbar-hide">
+                {customer.subscriptions.map((sub, i) => (
+                  <div key={i} className="shrink-0 basis-[85%] snap-start bg-card rounded-2xl p-4 shadow-sm border border-border/60">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", TYPE_STYLE[sub.type])}>
+                        {TYPE_LABEL[sub.type]}
+                      </span>
+                      <img src={BRAND_LOGO[sub.brand]} alt="" className="h-6 w-auto shrink-0" />
+                    </div>
+                    <SummaryRow label={t("customerSearch.msisdn")} value={sub.msisdn} />
+                    <SummaryRow label={t("customerSearch.iccid")} value={sub.iccid} />
+                    <SummaryRow label={t("customerSearch.email")} value={sub.email} />
+                    <SummaryRow
+                      label={t("customerSearch.activationDate")}
+                      value={<span className="text-emerald-600 dark:text-emerald-400">{sub.activationDate}</span>}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <BrandLoadingOverlay open={checking} />
+    </div>
+  );
+};
+
+export default CustomerSearch;
