@@ -10,6 +10,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
@@ -66,14 +67,7 @@ const CardSection = ({
   </section>
 );
 
-const ErrorBanner = ({ message }: { message: string }) => (
-  <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-    <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-    <p className="text-[13px] text-destructive leading-snug">{message}</p>
-  </div>
-);
-
-// Nothing owed is a good outcome, not a failure — kept visually distinct from ErrorBanner
+// Nothing owed is a good outcome, not a failure — kept visually distinct from the lookup-error popup
 // (emerald/checkmark instead of red/alert) so it doesn't read as something having gone wrong.
 const NoBillsBanner = ({ message }: { message: string }) => (
   <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20 px-4 py-3 flex items-start gap-3">
@@ -698,7 +692,6 @@ const BillPayment = () => {
               }}
             />
 
-            {lookupError && <ErrorBanner message={lookupError} />}
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
             {/* Results land inline, right under the search — no page hop to review bills. */}
@@ -1006,6 +999,26 @@ const BillPayment = () => {
           </Button>
         </DrawerContent>
       </Drawer>
+
+      {/* Lookup error — same popup pattern used app-wide for a lookup failure. */}
+      <Dialog open={!!lookupError} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("billPayment.lookupErrorTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
+          <button
+            onClick={() => setLookupError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("billPayment.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       <BrandLoadingOverlay open={checking} />
     </div>

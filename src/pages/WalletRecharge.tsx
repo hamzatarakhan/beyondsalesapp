@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -406,14 +407,8 @@ const WalletRecharge = () => {
                 placeholder={t("walletRecharge.voucherCodePlaceholder")}
                 inputMode="numeric"
                 dir="ltr"
-                className={cn("h-12 bg-card rounded-xl", voucherError && "border-destructive focus-visible:ring-destructive")}
+                className="h-12 bg-card rounded-xl"
               />
-              {voucherError && (
-                <p className="text-xs text-destructive flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  {voucherError}
-                </p>
-              )}
               {voucherValid && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 shrink-0" />
@@ -619,6 +614,26 @@ const WalletRecharge = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Invalid voucher — same popup pattern used app-wide for a lookup failure. */}
+      <Dialog open={!!voucherError} onOpenChange={(o) => { if (!o) setVoucherError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("walletRecharge.voucherErrorTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{voucherError}</p>
+          <button
+            onClick={() => setVoucherError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("walletRecharge.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       <BrandLoadingOverlay open={voucherChecking || processing} />
     </div>
