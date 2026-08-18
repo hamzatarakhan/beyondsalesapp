@@ -104,6 +104,32 @@ const DEMO_CUSTOMERS: DemoSearchCustomer[] = [
 
 const BRAND_LOGO: Record<SubBrand, string> = { virgin: virginMobileLogo, friendi: friendiMobileLogo };
 
+const SubscriptionCardContent = ({
+  sub,
+  typeLabel,
+  t,
+}: {
+  sub: DemoSubscription;
+  typeLabel: Record<SubscriptionType, string>;
+  t: (key: string) => string;
+}) => (
+  <>
+    <div className="flex items-center justify-between mb-2">
+      <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", TYPE_STYLE[sub.type])}>
+        {typeLabel[sub.type]}
+      </span>
+      <img src={BRAND_LOGO[sub.brand]} alt="" className="h-6 w-auto shrink-0" />
+    </div>
+    <SummaryRow label={t("customerSearch.msisdn")} value={sub.msisdn} />
+    <SummaryRow label={t("customerSearch.iccid")} value={sub.iccid} />
+    <SummaryRow label={t("customerSearch.email")} value={sub.email} />
+    <SummaryRow
+      label={t("customerSearch.activationDate")}
+      value={<span className="text-emerald-600 dark:text-emerald-400">{sub.activationDate}</span>}
+    />
+  </>
+);
+
 const TYPE_STYLE: Record<SubscriptionType, string> = {
   prepaid: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
   postpaid: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
@@ -200,33 +226,29 @@ const CustomerSearch = () => {
                 <Smartphone className="w-3.5 h-3.5 text-primary" />
                 {t("customerSearch.subscriptions")}
               </p>
-              {/* Horizontal carousel with a peek of the next card — same embla setup as
-                  PlanSelector.tsx, so it drags with the mouse as well as touch/trackpad. */}
-              <div className="-mx-4">
-                <div className="overflow-hidden" ref={emblaRef}>
-                  <div className="flex touch-pan-y gap-3 ps-4">
-                    {customer.subscriptions.map((sub, i) => (
-                      <div key={i} className="shrink-0 grow-0 basis-[85%] bg-card rounded-2xl p-4 shadow-sm border border-border/60">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", TYPE_STYLE[sub.type])}>
-                            {TYPE_LABEL[sub.type]}
-                          </span>
-                          <img src={BRAND_LOGO[sub.brand]} alt="" className="h-6 w-auto shrink-0" />
+              {customer.subscriptions.length === 1 ? (
+                // A single line has nothing to peek at — render it as a plain full-width
+                // card instead of a one-slide carousel.
+                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border/60">
+                  <SubscriptionCardContent sub={customer.subscriptions[0]} typeLabel={TYPE_LABEL} t={t} />
+                </div>
+              ) : (
+                // Horizontal carousel with a peek of the next card — same embla setup as
+                // PlanSelector.tsx, so it drags with the mouse as well as touch/trackpad.
+                <div className="-mx-4">
+                  <div className="overflow-hidden" ref={emblaRef}>
+                    <div className="flex touch-pan-y gap-3 ps-4">
+                      {customer.subscriptions.map((sub, i) => (
+                        <div key={i} className="shrink-0 grow-0 basis-[85%] bg-card rounded-2xl p-4 shadow-sm border border-border/60">
+                          <SubscriptionCardContent sub={sub} typeLabel={TYPE_LABEL} t={t} />
                         </div>
-                        <SummaryRow label={t("customerSearch.msisdn")} value={sub.msisdn} />
-                        <SummaryRow label={t("customerSearch.iccid")} value={sub.iccid} />
-                        <SummaryRow label={t("customerSearch.email")} value={sub.email} />
-                        <SummaryRow
-                          label={t("customerSearch.activationDate")}
-                          value={<span className="text-emerald-600 dark:text-emerald-400">{sub.activationDate}</span>}
-                        />
-                      </div>
-                    ))}
-                    {/* Trailing spacer so the last card's peek-gutter matches the leading ps-4. */}
-                    <div className="shrink-0 w-4" />
+                      ))}
+                      {/* Trailing spacer so the last card's peek-gutter matches the leading ps-4. */}
+                      <div className="shrink-0 w-4" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </>
         )}
