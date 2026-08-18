@@ -19,7 +19,7 @@ import {
   PhoneOff,
   ChevronRight,
   Send,
-  PlusCircle,
+  Zap,
   MessageSquareWarning,
   IdCard,
   Activity,
@@ -195,7 +195,9 @@ const Home = () => {
   // for VM and FM alike.
   const eWalletOptions = [
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "wallet-recharge", icon: PlusCircle, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
+    // specific than a generic plus for topping up the dealer's own wallet balance.
+    { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
