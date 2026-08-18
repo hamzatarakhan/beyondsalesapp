@@ -641,8 +641,7 @@
     "lookupErrorInvalid": "This value doesn't match any SIM on file. Please check it and try again.",
     "invalidTitle": "Invalid",
     "gotIt": "Got It",
-    "simStatusDetails": "SIM Status Details",
-    "status": "Status",
+    "simStatusDetails": "SIM Status",
     "statusActive": "Active",
     "statusNotActive": "Not Active",
     "statusDefected": "Defected"

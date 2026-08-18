@@ -641,8 +641,7 @@
     "lookupErrorInvalid": "هذه القيمة لا تطابق أي شريحة مسجلة. يرجى التحقق منها والمحاولة مرة أخرى.",
     "invalidTitle": "غير صالح",
     "gotIt": "حسناً",
-    "simStatusDetails": "تفاصيل حالة الشريحة",
-    "status": "الحالة",
+    "simStatusDetails": "حالة الشريحة",
     "statusActive": "نشطة",
     "statusNotActive": "غير نشطة",
     "statusDefected": "تالفة"

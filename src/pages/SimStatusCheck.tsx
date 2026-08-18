@@ -9,20 +9,13 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Package, Phone, ScanLine, Activity, AlertCircle } from "lucide-react";
+import { Package, Phone, ScanLine, Activity, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CustomerSearch.tsx / BillPayment.tsx) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1.5">
     <label className="text-xs font-medium text-muted-foreground">{label}</label>
     {children}
-  </div>
-);
-
-const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
-    <span className="text-[11px] text-muted-foreground">{label}</span>
-    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
   </div>
 );
 
@@ -107,6 +100,18 @@ const STATUS_STYLE: Record<SimStatus, string> = {
   active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   "not-active": "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   defected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+};
+
+const STATUS_ICON_STYLE: Record<SimStatus, string> = {
+  active: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  "not-active": "bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300",
+  defected: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
+};
+
+const STATUS_ICON: Record<SimStatus, typeof Activity> = {
+  active: CheckCircle2,
+  "not-active": AlertTriangle,
+  defected: XCircle,
 };
 
 const SimStatusCheck = () => {
@@ -263,15 +268,17 @@ const SimStatusCheck = () => {
 
         {record && (
           <CardSection title={t("simStatusCheck.simStatusDetails")} icon={Activity}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] text-muted-foreground">{t("simStatusCheck.status")}</span>
-              <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold", STATUS_STYLE[record.status])}>
+            <div className="flex flex-col items-center py-2">
+              <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3", STATUS_ICON_STYLE[record.status])}>
+                {(() => {
+                  const StatusIcon = STATUS_ICON[record.status];
+                  return <StatusIcon className="w-8 h-8" strokeWidth={2} />;
+                })()}
+              </div>
+              <span className={cn("px-3 py-1.5 rounded-full text-sm font-semibold", STATUS_STYLE[record.status])}>
                 {STATUS_LABEL[record.status]}
               </span>
             </div>
-            <SummaryRow label={t("simStatusCheck.kitCode")} value={record.kit} />
-            <SummaryRow label={t("simStatusCheck.msisdn")} value={record.msisdn} />
-            <SummaryRow label={t("simStatusCheck.imsiCode")} value={record.imsi} />
           </CardSection>
         )}
       </div>
