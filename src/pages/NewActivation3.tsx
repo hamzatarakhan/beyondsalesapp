@@ -383,6 +383,9 @@ const WHITELISTED_TEST_ID_SUFFIX = "876543210";
 // Identity test ID suffix that simulates a customer who has hit KSA's regulatory limit on
 // prepaid activation count — Prepaid is disabled and Continue blocks with an explanation.
 const PREPAID_LIMIT_REACHED_ID_SUFFIX = "999988888";
+// Deterministic trigger for the Failed Request popup at Yes, Confirm — otherwise that case
+// only shows up on the random ~15% chance, which makes it hard to demo on demand.
+const FAILED_ACTIVATION_TEST_ID_SUFFIX = "555511111";
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -757,12 +760,20 @@ const NewActivation3 = () => {
   const [allowPromoCalls, setAllowPromoCalls] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [activationFailedOpen, setActivationFailedOpen] = useState(false);
+  const [activationSubmitting, setActivationSubmitting] = useState(false);
 
   // Same random-failure demo pattern as Credit Transfer — occasionally routes to the
-  // Failed Request popup instead of success, with Retry Activation just trying again.
+  // Failed Request popup instead of success, with Retry Activation just trying again
+  // (with its own loading spell, same as the original submit).
+  // The FAILED_ACTIVATION_TEST_ID_SUFFIX ID forces it every time, so it's reliably demoable.
   const resolveActivation = () => {
-    if (Math.random() < 0.85) setSuccessOpen(true);
-    else setActivationFailedOpen(true);
+    const forceFailed = idNumber.trim().length === 10 && idNumber.trim().endsWith(FAILED_ACTIVATION_TEST_ID_SUFFIX);
+    setActivationSubmitting(true);
+    setTimeout(() => {
+      setActivationSubmitting(false);
+      if (!forceFailed && Math.random() < 0.85) setSuccessOpen(true);
+      else setActivationFailedOpen(true);
+    }, 1200);
   };
 
   // E-SIM success sheet: QR share method (defaults to Mobile Number, pre-filled from checkout)
@@ -1433,10 +1444,12 @@ const NewActivation3 = () => {
                   { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
                   { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
+                  { value: demoIdFor(idNumberRule, FAILED_ACTIVATION_TEST_ID_SUFFIX), note: "Forces Failed Request at Yes, Confirm" },
                 ] : [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
+                  { value: demoIdFor(idNumberRule, FAILED_ACTIVATION_TEST_ID_SUFFIX), note: "Forces Failed Request at Yes, Confirm" },
                 ]}
                 onSelect={setIdNumber}
               />
@@ -2798,7 +2811,7 @@ const NewActivation3 = () => {
 
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
-      <BrandLoadingOverlay open={optionSwitching} />
+      <BrandLoadingOverlay open={optionSwitching || activationSubmitting} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />
 
       {/* Fulfilment: QR scan lookup — full-screen camera-style view, no hardware access */}
