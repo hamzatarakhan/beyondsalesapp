@@ -9,11 +9,11 @@ export interface WidgetConfig {
 // today. Widgets still commented out there (Tickets) aren't listed since there's
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
+  { id: "e-wallets", enabled: true },
   { id: "customer-activities", enabled: true },
   { id: "credit-limit-options", enabled: true },
   { id: "subscription-migration-options", enabled: true },
   { id: "sim-services", enabled: true },
-  { id: "e-wallets", enabled: true },
   { id: "other-services", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
@@ -46,7 +46,8 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 
 // Bumped to v10 so devices pick up the new Other Services widget positioned right after
 // E Wallets, instead of it landing at the end via the missing-widget merge below.
-const STORAGE_KEY = "app-widgets-v10";
+// Bumped again to v11 so devices pick up E Wallets moving to the very top of Home.
+const STORAGE_KEY = "app-widgets-v11";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;

@@ -19,7 +19,7 @@ import {
   PhoneOff,
   ChevronRight,
   Send,
-  WalletCards,
+  PlusCircle,
   MessageSquareWarning,
   IdCard,
   Activity,
@@ -195,7 +195,7 @@ const Home = () => {
   // for VM and FM alike.
   const eWalletOptions = [
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "wallet-recharge", icon: WalletCards, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "wallet-recharge", icon: PlusCircle, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
