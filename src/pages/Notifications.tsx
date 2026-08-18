@@ -269,19 +269,21 @@ const Notifications = () => {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 min-w-0">
                           {!n.read && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
                           <p className="text-sm font-semibold text-foreground truncate">{n.title}</p>
                         </div>
-                        <div className="flex flex-col items-end shrink-0 leading-tight">
+                        <div className="flex items-baseline gap-1 shrink-0">
                           <span className="text-[10px] text-muted-foreground">{n.date}</span>
                           <span className="text-[11px] text-muted-foreground">{n.time}</span>
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 pr-2">{n.body}</p>
+                      <div className="flex items-start justify-between gap-3 mt-1.5">
+                        <p className="text-xs text-muted-foreground line-clamp-2 flex-1">{n.body}</p>
+                        <img src={officePhoto} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                      </div>
                     </div>
-                    <img src={officePhoto} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
                   </div>
                 );
               })}
