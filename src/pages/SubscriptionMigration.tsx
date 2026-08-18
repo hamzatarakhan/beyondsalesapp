@@ -91,9 +91,15 @@ type Direction = "pre-to-post" | "post-to-pre";
 interface DemoOldBill {
   number: string;
   cycle: string;
-  /** VAT-inclusive total for this cycle. */
-  amount: number;
+  /** Can go negative when there's an advance payment balance — the total payable (below)
+   * clamps at 0 rather than showing a negative amount due. */
+  currentBalance: number;
+  unbilledAmount: number;
+  outOfBundle: number;
 }
+
+/** VAT-inclusive total payable for a single old-line bill, clamped at 0. */
+const oldBillTotal = (b: DemoOldBill) => Math.max(0, Math.round((b.currentBalance + b.unbilledAmount + b.outOfBundle) * 100) / 100);
 
 interface DemoCustomer {
   msisdn: string;
@@ -120,15 +126,16 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
   { msisdn: "0501111166", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-postpaid" },
   { msisdn: "0501111177", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-total" },
-  { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBills: [{ number: "BL-2026-07-2201", cycle: "1st July – 31st July, 2026", amount: 170 }] },
+  // Client's canonical "Unpaid" breakdown: 300 current + 150 unbilled + 50 OOB = 500 total.
+  { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBills: [{ number: "BL-2026-07-2201", cycle: "1st July – 31st July, 2026", currentBalance: 300, unbilledAmount: 150, outOfBundle: 50 }] },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300" },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },
   { msisdn: "0502222244", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", simLimitReason: "max-prepaid" },
   { msisdn: "0502222255", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", simLimitReason: "max-total" },
   // Two open cycles — the bottom sheet lists both, each collapsed by default.
   { msisdn: "0502222266", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBills: [
-    { number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", amount: 245 },
-    { number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", amount: 130 },
+    { number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", currentBalance: 245, unbilledAmount: 0, outOfBundle: 0 },
+    { number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", currentBalance: 130, unbilledAmount: 0, outOfBundle: 0 },
   ] },
 ];
 
@@ -351,7 +358,7 @@ const SubscriptionMigration = () => {
   const deposit = depositWaiver ? 0 : planPrice;
   const creditLimit = Math.round(planPrice * 0.2 * 100) / 100;
   const outstandingBills = customer?.outstandingBills ?? [];
-  const outstandingBalance = outstandingBills.reduce((sum, b) => sum + b.amount, 0);
+  const outstandingBalance = outstandingBills.reduce((sum, b) => sum + oldBillTotal(b), 0);
   const total = direction === "pre-to-post" ? deposit : outstandingBalance;
 
   // ---------- OTP handlers (same behavior as the SIM Activation checkout OTP) ----------
@@ -746,9 +753,7 @@ const SubscriptionMigration = () => {
                     <div className="space-y-2">
                       {outstandingBills.map((b) => {
                         const open = expandedOldBillNumber === b.number;
-                        const currentBalance = 0;
-                        const unbilled = Math.round(b.amount * 0.88 * 100) / 100;
-                        const oob = Math.round((b.amount - currentBalance - unbilled) * 100) / 100;
+                        const total = oldBillTotal(b);
                         return (
                           <div key={b.number} className="rounded-xl border border-border/60 bg-background/40 p-3">
                             <div className="flex items-start justify-between gap-3">
@@ -757,7 +762,7 @@ const SubscriptionMigration = () => {
                                 <p className="text-[11px] text-muted-foreground mt-0.5">{b.cycle}</p>
                               </div>
                               <div className="text-end shrink-0">
-                                <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {b.amount.toFixed(2)}</p>
+                                <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {total.toFixed(2)}</p>
                                 <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
                                   {t("subscriptionMigration.notPaid")}
                                 </span>
@@ -773,10 +778,10 @@ const SubscriptionMigration = () => {
                             </button>
                             {open && (
                               <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-                                <SummaryRow label={t("subscriptionMigration.currentBalance")} value={<><RiyalSymbol /> {currentBalance.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.unbilledAmount")} value={<><RiyalSymbol /> {unbilled.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.oobUsage")} value={<><RiyalSymbol /> {oob.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.totalOutstanding")} value={<><RiyalSymbol /> {b.amount.toFixed(2)}</>} />
+                                <SummaryRow label={t("subscriptionMigration.currentBalance")} value={<><RiyalSymbol /> {b.currentBalance.toFixed(2)}</>} />
+                                <SummaryRow label={t("subscriptionMigration.unbilledAmount")} value={<><RiyalSymbol /> {b.unbilledAmount.toFixed(2)}</>} />
+                                <SummaryRow label={t("subscriptionMigration.oobUsage")} value={<><RiyalSymbol /> {b.outOfBundle.toFixed(2)}</>} />
+                                <SummaryRow label={t("subscriptionMigration.totalOutstanding")} value={<><RiyalSymbol /> {total.toFixed(2)}</>} />
                               </div>
                             )}
                           </div>

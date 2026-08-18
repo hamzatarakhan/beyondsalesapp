@@ -120,7 +120,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     msisdn: "0501110003",
     lineType: "switch-postpaid",
     bills: [
-      { status: "Unpaid", totalOutstanding: 345, currentBalance: 280, outstandingBalance: 45, outOfBundleUsage: 20, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", totalOutstanding: 500, currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
     ],
   },
   {
@@ -128,7 +128,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     lineType: "vnet",
     contactNumber: "0501110099",
     bills: [
-      { status: "Unpaid", totalOutstanding: 512.5, currentBalance: 440, outstandingBalance: 52.5, outOfBundleUsage: 20, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", totalOutstanding: 500, currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
     ],
   },
   // Friendi does carry a couple of legacy Switch Postpaid lines even though new activation is

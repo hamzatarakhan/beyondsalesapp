@@ -91,9 +91,9 @@ type AccountStatus = "active" | "sd" | "hd" | "terminated";
 interface Bill {
   number: string;
   cycle: string;
-  status: "Unpaid" | "Overdue" | "Partially Paid";
-  /** Total payable for this bill, VAT included. */
-  amount: number;
+  status: "Unpaid" | "Overdue" | "Partially Paid" | "Paid";
+  /** Can go negative when there's an advance payment balance — the total payable (below)
+   * clamps at 0 rather than showing a negative amount due. */
   currentBalance: number;
   unbilled: number;
   outOfBundle: number;
@@ -111,7 +111,7 @@ interface BillAccount {
 }
 
 // ---------- Demo data ----------
-const makeBill = (over: Partial<Bill> & Pick<Bill, "number" | "cycle" | "amount">): Bill => ({
+const makeBill = (over: Partial<Bill> & Pick<Bill, "number" | "cycle">): Bill => ({
   status: "Unpaid",
   currentBalance: 0,
   unbilled: 0,
@@ -120,14 +120,14 @@ const makeBill = (over: Partial<Bill> & Pick<Bill, "number" | "cycle" | "amount"
 });
 
 const DEMO_ACCOUNTS: BillAccount[] = [
-  // Single Switch Postpaid line, one open bill.
+  // Single Switch Postpaid line, one open bill — the client's canonical "Unpaid" breakdown.
   {
     msisdn: "0502222211",
     type: "switch-postpaid",
     status: "active",
     civilId: "1324567896",
     bills: [
-      makeBill({ number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026", amount: 345, currentBalance: 345 }),
+      makeBill({ number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026", currentBalance: 300 }),
     ],
   },
   // Switch Postpaid with two open cycles — the newest bill rolls up the older one.
@@ -137,8 +137,8 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     status: "active",
     civilId: "1876543210",
     bills: [
-      makeBill({ number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", status: "Overdue", amount: 780, currentBalance: 780 }),
-      makeBill({ number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 420, currentBalance: 420 }),
+      makeBill({ number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026", status: "Overdue", currentBalance: 780 }),
+      makeBill({ number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026", status: "Overdue", currentBalance: 420 }),
     ],
   },
   // Vnet line — 13-digit number, OTP goes to the associated contact number.
@@ -149,7 +149,7 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     civilId: "1876543210",
     contactNumber: "0502222222",
     bills: [
-      makeBill({ number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026", amount: 512.5, currentBalance: 512.5 }),
+      makeBill({ number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026", currentBalance: 512.5 }),
     ],
   },
   // Terminated line — can only be settled through the Civil ID flow.
@@ -159,7 +159,7 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     status: "terminated",
     civilId: "1876543210",
     bills: [
-      makeBill({ number: "BL-2026-05-3007", cycle: "1st May – 31st May, 2026", status: "Overdue", amount: 260, currentBalance: 260 }),
+      makeBill({ number: "BL-2026-05-3007", cycle: "1st May – 31st May, 2026", status: "Overdue", currentBalance: 260 }),
     ],
   },
   // Hard-disconnected line, still owes — also reachable only via Civil ID.
@@ -169,16 +169,38 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     status: "hd",
     civilId: "1876543210",
     bills: [
-      makeBill({ number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026", status: "Overdue", amount: 190, currentBalance: 190 }),
+      makeBill({ number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026", status: "Overdue", currentBalance: 190 }),
     ],
   },
-  // Settled line — nothing outstanding.
+  // Settled line — nothing outstanding at all (no bill record, not even a paid one).
   {
     msisdn: "0502222266",
     type: "switch-postpaid",
     status: "active",
     civilId: "2345678901",
     bills: [],
+  },
+  // Bill paid in full, no advance payment balance — the bill record still exists and shows
+  // a zeroed breakdown with "No Payment Required", distinct from having no bill at all.
+  {
+    msisdn: "0502222277",
+    type: "switch-postpaid",
+    status: "active",
+    civilId: "3456789012",
+    bills: [
+      makeBill({ number: "BL-2026-07-8842", cycle: "1st July – 31st July, 2026", status: "Paid" }),
+    ],
+  },
+  // Bill paid with a leftover advance payment balance — current balance goes negative, but
+  // the total payable clamps at 0 rather than showing a negative amount due.
+  {
+    msisdn: "0502222288",
+    type: "switch-postpaid",
+    status: "active",
+    civilId: "4567890123",
+    bills: [
+      makeBill({ number: "BL-2026-07-9915", cycle: "1st July – 31st July, 2026", status: "Paid", currentBalance: -100 }),
+    ],
   },
 ];
 
@@ -191,8 +213,13 @@ const MSISDN_MAX_PAY = 2500;
 
 const money = (n: number) => n.toFixed(2);
 
+/** VAT-inclusive total payable for a single bill — current balance + unbilled + out-of-
+ * bundle usage, clamped at 0 so an advance payment balance (a negative current balance)
+ * never shows as a negative amount due. */
+const billTotal = (b: Bill) => Math.max(0, Math.round((b.currentBalance + b.unbilled + b.outOfBundle) * 100) / 100);
+
 /** Total due is the sum of every unpaid bill on the account, not just the newest one. */
-const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + b.amount, 0);
+const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + billTotal(b), 0);
 
 const BillPayment = () => {
   const navigate = useNavigate();
@@ -221,12 +248,14 @@ const BillPayment = () => {
     Unpaid: t("billPayment.billStatusUnpaid"),
     Overdue: t("billPayment.billStatusOverdue"),
     "Partially Paid": t("billPayment.billStatusPartiallyPaid"),
+    Paid: t("billPayment.billStatusPaid"),
   };
 
   const BILL_STATUS_STYLE: Record<Bill["status"], string> = {
     Unpaid: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
     Overdue: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
     "Partially Paid": "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+    Paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   };
 
   // ---------- Flow state ----------
@@ -347,6 +376,9 @@ const BillPayment = () => {
   const maxFor = (a: BillAccount) => (isMulti ? totalDueOf(a) : MSISDN_MAX_PAY);
 
   const amountErrorFor = (a: BillAccount): string | null => {
+    // Nothing owed (fully paid, or paid with a leftover advance balance) — trivially valid,
+    // there's no amount to collect or validate.
+    if (totalDueOf(a) === 0) return null;
     const raw = amounts[a.msisdn] ?? "";
     if (raw.trim() === "") return t("billPayment.amountErrorEmpty");
     const n = Number(raw);
@@ -364,8 +396,10 @@ const BillPayment = () => {
 
   const totalToPay = payingAccounts.reduce((sum, a) => sum + (Number(amounts[a.msisdn]) || 0), 0);
 
+  // totalToPay > 0 keeps Continue disabled when every selected account has nothing owed —
+  // there'd be nothing to actually submit at checkout.
   const canContinueBills =
-    payingAccounts.length > 0 && payingAccounts.every((a) => amountErrorFor(a) === null);
+    payingAccounts.length > 0 && totalToPay > 0 && payingAccounts.every((a) => amountErrorFor(a) === null);
 
   const walletShort = payMethod === "wallet" && totalToPay > DEALER_WALLET_BALANCE;
   const canPay = otpVerified && !walletShort;
@@ -460,6 +494,7 @@ const BillPayment = () => {
   // ---------- Renderers ----------
   const renderBill = (bill: Bill) => {
     const open = expandedBill === bill.number;
+    const total = billTotal(bill);
     return (
       <div key={bill.number} className="rounded-xl border border-border/60 bg-background/60 p-3">
         <div className="flex items-start justify-between gap-3">
@@ -469,7 +504,7 @@ const BillPayment = () => {
           </div>
           <div className="text-end shrink-0">
             <p className="text-sm font-bold text-foreground">
-              <RiyalSymbol /> {money(bill.amount)}
+              <RiyalSymbol /> {money(total)}
             </p>
             <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", BILL_STATUS_STYLE[bill.status])}>
               {BILL_STATUS_LABEL[bill.status]}
@@ -489,7 +524,15 @@ const BillPayment = () => {
             <SummaryRow label={t("billPayment.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
             <SummaryRow label={t("billPayment.unbilledAmount")} value={<><RiyalSymbol /> {money(bill.unbilled)}</>} />
             <SummaryRow label={t("billPayment.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundle)}</>} />
-            <SummaryRow label={t("billPayment.totalVatIncl")} value={<><RiyalSymbol /> {money(bill.amount)}</>} />
+            <SummaryRow
+              label={t("billPayment.totalVatIncl")}
+              value={
+                <div className="text-end">
+                  <div><RiyalSymbol /> {money(total)}</div>
+                  {total === 0 && <div className="text-[10px] font-normal text-muted-foreground">({t("billPayment.noPaymentRequired")})</div>}
+                </div>
+              }
+            />
           </div>
         )}
       </div>
@@ -497,6 +540,10 @@ const BillPayment = () => {
   };
 
   const renderAmountInput = (a: BillAccount) => {
+    // Nothing owed — no amount to collect, so skip the input entirely.
+    if (totalDueOf(a) === 0) {
+      return <p className="text-[11px] text-muted-foreground">{t("billPayment.noPaymentRequired")}</p>;
+    }
     const err = amountErrorFor(a);
     const raw = amounts[a.msisdn] ?? "";
     const due = totalDueOf(a);
@@ -633,6 +680,8 @@ const BillPayment = () => {
                       { value: "0502222233444", note: t("billPayment.testNoteVnet") },
                       { value: "0502222244", note: t("billPayment.testNoteTerminated") },
                       { value: "0502222266", note: t("billPayment.testNoteNoOutstanding") },
+                      { value: "0502222277", note: t("billPayment.testNotePaidNoAdvance") },
+                      { value: "0502222288", note: t("billPayment.testNotePaidWithAdvance") },
                       { value: "0501111133", note: t("billPayment.testNotePrepaidIneligible") },
                       { value: "0500000099", note: t("billPayment.testNoteNotFound") },
                     ]
