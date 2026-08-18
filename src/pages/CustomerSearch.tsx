@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useEmblaCarousel from "embla-carousel-react";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useLanguage } from "@/contexts/LanguageContext";
 import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
 import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
 import { IdCard, User, AlertCircle, Smartphone } from "lucide-react";
@@ -139,10 +137,6 @@ const TYPE_STYLE: Record<SubscriptionType, string> = {
 const CustomerSearch = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { isRtl } = useLanguage();
-  // Same "peek next card" carousel PlanSelector.tsx uses — embla instead of plain CSS
-  // scroll-snap so it responds to mouse drag too, not just touch/trackpad gestures.
-  const [emblaRef] = useEmblaCarousel({ align: "start", containScroll: "trimSnaps", loop: false, direction: isRtl ? "rtl" : "ltr" });
 
   const TYPE_LABEL: Record<SubscriptionType, string> = {
     prepaid: t("customerSearch.typePrepaid"),
@@ -226,29 +220,14 @@ const CustomerSearch = () => {
                 <Smartphone className="w-3.5 h-3.5 text-primary" />
                 {t("customerSearch.subscriptions")}
               </p>
-              {customer.subscriptions.length === 1 ? (
-                // A single line has nothing to peek at — render it as a plain full-width
-                // card instead of a one-slide carousel.
-                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border/60">
-                  <SubscriptionCardContent sub={customer.subscriptions[0]} typeLabel={TYPE_LABEL} t={t} />
-                </div>
-              ) : (
-                // Horizontal carousel with a peek of the next card — same embla setup as
-                // PlanSelector.tsx, so it drags with the mouse as well as touch/trackpad.
-                <div className="-mx-4">
-                  <div className="overflow-hidden" ref={emblaRef}>
-                    <div className="flex touch-pan-y gap-3 ps-4">
-                      {customer.subscriptions.map((sub, i) => (
-                        <div key={i} className="shrink-0 grow-0 basis-[85%] bg-card rounded-2xl p-4 shadow-sm border border-border/60">
-                          <SubscriptionCardContent sub={sub} typeLabel={TYPE_LABEL} t={t} />
-                        </div>
-                      ))}
-                      {/* Trailing spacer so the last card's peek-gutter matches the leading ps-4. */}
-                      <div className="shrink-0 w-4" />
-                    </div>
+              {/* Stacked vertically, one card per line — no horizontal sliding. */}
+              <div className="space-y-3">
+                {customer.subscriptions.map((sub, i) => (
+                  <div key={i} className="bg-card rounded-2xl p-4 shadow-sm border border-border/60">
+                    <SubscriptionCardContent sub={sub} typeLabel={TYPE_LABEL} t={t} />
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           </>
         )}
