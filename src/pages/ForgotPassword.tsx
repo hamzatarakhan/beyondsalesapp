@@ -37,7 +37,7 @@ const ForgotPassword = () => {
   const [username, setUsername] = useState("");
 
   // OTP
-  const [otp, setOtp] = useState(["", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [seconds, setSeconds] = useState(30);
 
@@ -65,7 +65,7 @@ const ForgotPassword = () => {
   const handleOtpChange = (i: number, v: string) => {
     const digit = v.replace(/\D/g, "").slice(-1);
     setOtp((prev) => prev.map((d, idx) => (idx === i ? digit : d)));
-    if (digit && i < 4) otpRefs.current[i + 1]?.focus();
+    if (digit && i < 5) otpRefs.current[i + 1]?.focus();
   };
 
   const failedRule = RULES.find((r) => !r.test(pwd));

@@ -704,7 +704,7 @@ const NewActivationV2 = () => {
   const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
@@ -1006,7 +1006,7 @@ const NewActivationV2 = () => {
   // OTP sheet: reset digits/error and start the resend countdown whenever it opens
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -1020,10 +1020,10 @@ const NewActivationV2 = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 4) {
+      if (d && i === 5) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "11111") {
+          if (code === "111111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -1034,14 +1034,14 @@ const NewActivationV2 = () => {
       }
       return next;
     });
-    if (d && i < 4) {
+    if (d && i < 5) {
       const el = document.getElementById(`checkout-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("checkout-otp-0") as HTMLInputElement | null;

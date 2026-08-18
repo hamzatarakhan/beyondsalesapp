@@ -89,7 +89,7 @@ const CreditTransfer = () => {
   // Step 1 — Checkout
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -125,7 +125,7 @@ const CreditTransfer = () => {
   // ---------- OTP handlers ----------
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -139,10 +139,10 @@ const CreditTransfer = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 4) {
+      if (d && i === 5) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "11111") {
+          if (code === "111111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -153,14 +153,14 @@ const CreditTransfer = () => {
       }
       return next;
     });
-    if (d && i < 4) {
+    if (d && i < 5) {
       const el = document.getElementById(`credit-transfer-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", ""]);
+    setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("credit-transfer-otp-0") as HTMLInputElement | null;
