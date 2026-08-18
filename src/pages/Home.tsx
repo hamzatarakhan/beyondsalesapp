@@ -22,7 +22,7 @@ import {
   Zap,
   MessageSquareWarning,
   IdCard,
-  Activity,
+  Signal,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -188,7 +188,7 @@ const Home = () => {
     // Client requirements — applicable to both VM and FM, so no operator filter. Placed
     // after Bill Payment regardless of whether that tile is showing for this operator.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "sim-status-check", icon: Activity, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "sim-status-check", icon: Signal, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops

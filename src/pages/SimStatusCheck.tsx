@@ -9,7 +9,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Package, Phone, ScanLine, Activity, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { Package, Phone, ScanLine, Signal, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CustomerSearch.tsx / BillPayment.tsx) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -30,7 +30,7 @@ const MethodCard = ({
 }: {
   active: boolean;
   label: string;
-  icon: typeof Activity;
+  icon: typeof Signal;
   onClick: () => void;
 }) => (
   <button
@@ -62,7 +62,7 @@ const CardSection = ({
   children,
 }: {
   title: string;
-  icon: typeof Activity;
+  icon: typeof Signal;
   children: React.ReactNode;
 }) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -108,7 +108,7 @@ const STATUS_ICON_STYLE: Record<SimStatus, string> = {
   defected: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-const STATUS_ICON: Record<SimStatus, typeof Activity> = {
+const STATUS_ICON: Record<SimStatus, typeof Signal> = {
   active: CheckCircle2,
   "not-active": AlertTriangle,
   defected: XCircle,
@@ -267,7 +267,7 @@ const SimStatusCheck = () => {
         />
 
         {record && (
-          <CardSection title={t("simStatusCheck.simStatusDetails")} icon={Activity}>
+          <CardSection title={t("simStatusCheck.simStatusDetails")} icon={Signal}>
             <div className="flex flex-col items-center py-2">
               <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3", STATUS_ICON_STYLE[record.status])}>
                 {(() => {
