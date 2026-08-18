@@ -603,6 +603,8 @@
     "testNoteFriendiLine": "اشتراك فريندي",
     "testNoteNotFound": "الرقم غير موجود",
     "lookupErrorNotFound": "لم يتم العثور على رقم الهوية. يرجى التحقق من الرقم والمحاولة مرة أخرى.",
+    "notFoundTitle": "غير موجود",
+    "gotIt": "حسناً",
     "information": "المعلومات",
     "name": "الاسم",
     "nationality": "الجنسية",

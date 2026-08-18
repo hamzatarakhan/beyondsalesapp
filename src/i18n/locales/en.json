@@ -603,6 +603,8 @@
     "testNoteFriendiLine": "Friendi subscription",
     "testNoteNotFound": "ID not found",
     "lookupErrorNotFound": "ID number not found. Please check the number and try again.",
+    "notFoundTitle": "Not Found",
+    "gotIt": "Got It",
     "information": "Information",
     "name": "Name",
     "nationality": "Nationality",
