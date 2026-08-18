@@ -510,6 +510,7 @@
     "dataVoucherNote": "قسيمة الإنترنت غير مدعومة لشحن المحفظة.",
     "voucherCode": "رمز القسيمة",
     "voucherCodePlaceholder": "أدخل رمز القسيمة المكوّن من 14 رقماً",
+    "voucherDigitsHint": "أدخل رمز قسيمة مكوّناً من 14 رقماً فقط.",
     "voucherErrorInvalid": "رمز القسيمة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
     "voucherValue": "قيمة القسيمة: {{amount}} ريال",
     "testVouchersHeading": "قسائم تجريبية",

@@ -423,6 +423,9 @@ const WalletRecharge = () => {
                   </span>
                 )}
               </div>
+              {voucherCode.length > 0 && voucherCode.length < 14 && !voucherError && (
+                <p className="text-xs text-muted-foreground">{t("walletRecharge.voucherDigitsHint")}</p>
+              )}
               {voucherError && (
                 <p className="text-xs text-destructive flex items-center gap-1.5">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
