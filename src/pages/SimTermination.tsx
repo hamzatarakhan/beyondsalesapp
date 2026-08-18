@@ -101,8 +101,9 @@ interface DemoTerminationLine {
   lineType: LineType;
   /** Vnet lines aren't voice-reachable — their OTP goes to this associated contact number. */
   contactNumber?: string;
-  /** Only set for switch-postpaid/vnet — prepaid lines have nothing outstanding to show. */
-  bill?: TerminationBill;
+  /** Only set for switch-postpaid/vnet — prepaid lines have nothing outstanding to show.
+   * Newest cycle first — a line can carry more than one open bill. */
+  bills?: TerminationBill[];
 }
 
 // Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
@@ -118,20 +119,35 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
   {
     msisdn: "0501110003",
     lineType: "switch-postpaid",
-    bill: { status: "Unpaid", totalOutstanding: 345, currentBalance: 280, outstandingBalance: 45, outOfBundleUsage: 20, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
+    bills: [
+      { status: "Unpaid", totalOutstanding: 345, currentBalance: 280, outstandingBalance: 45, outOfBundleUsage: 20, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
+    ],
   },
   {
     msisdn: "0501110004",
     lineType: "vnet",
     contactNumber: "0501110099",
-    bill: { status: "Unpaid", totalOutstanding: 512.5, currentBalance: 440, outstandingBalance: 52.5, outOfBundleUsage: 20, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
+    bills: [
+      { status: "Unpaid", totalOutstanding: 512.5, currentBalance: 440, outstandingBalance: 52.5, outOfBundleUsage: 20, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
+    ],
   },
   // Friendi does carry a couple of legacy Switch Postpaid lines even though new activation is
   // prepaid/basic-postpaid only — this one has nothing left to pay, so it skips the payment step.
   {
     msisdn: "0501110005",
     lineType: "switch-postpaid",
-    bill: { status: "Paid", totalOutstanding: 0, currentBalance: 0, outstandingBalance: 0, outOfBundleUsage: 0, number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026" },
+    bills: [
+      { status: "Paid", totalOutstanding: 0, currentBalance: 0, outstandingBalance: 0, outOfBundleUsage: 0, number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026" },
+    ],
+  },
+  // Two open cycles — the bottom sheet lists both, each collapsed by default.
+  {
+    msisdn: "0501110006",
+    lineType: "switch-postpaid",
+    bills: [
+      { status: "Unpaid", totalOutstanding: 245, currentBalance: 200, outstandingBalance: 30, outOfBundleUsage: 15, number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", totalOutstanding: 130, currentBalance: 110, outstandingBalance: 15, outOfBundleUsage: 5, number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026" },
+    ],
   },
 ];
 
@@ -197,9 +213,14 @@ const SimTermination = () => {
   // found (set in handleSearch/handleContinueLookup), left as-is otherwise.
   const [amountToPay, setAmountToPay] = useState("");
   // All options — the Outstanding Bill card shows only the essentials (MSISDN, status,
-  // Total Due) by default; the bill number/cycle/status and full breakdown live in a bottom
-  // sheet opened via "View Details" instead of expanding inline.
+  // Total Due) by default; each bill's number/cycle/status and full breakdown live in a
+  // bottom sheet opened via "View Details" instead of expanding inline.
   const [billDetailsOpen, setBillDetailsOpen] = useState(false);
+  // Tracks which bill (by number) has its breakdown open inside the sheet — mirrors
+  // BillPayment.tsx's expandedBill. A single bill opens by default (set on lookup, below);
+  // 2+ bills start collapsed — same rule BillPayment.tsx uses for whether an account card
+  // itself starts expanded.
+  const [expandedBillNumber, setExpandedBillNumber] = useState<string | null>(null);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -228,15 +249,20 @@ const SimTermination = () => {
       setNationality("sa");
       setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
       setReason("");
-      setAmountToPay(found.bill && found.bill.totalOutstanding > 0 ? money(found.bill.totalOutstanding) : "");
+      const foundBills = found.bills ?? [];
+      const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+      setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
       setBillDetailsOpen(false);
+      // A single bill opens by default in the sheet; 2+ start collapsed.
+      setExpandedBillNumber(foundBills.length === 1 ? foundBills[0].number : null);
     }, 800);
   };
 
   const lineType = line?.lineType ?? "prepaid";
   const isPostpaid = lineType !== "prepaid";
-  const bill = line?.bill;
-  const needsPayment = isPostpaid && !!bill && bill.totalOutstanding > 0;
+  const bills = line?.bills ?? [];
+  const totalOutstanding = bills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+  const needsPayment = isPostpaid && bills.length > 0 && totalOutstanding > 0;
 
   // ---------- Identity validation (same rule set as SIM Activation's Identity step) ----------
   const idNumberRule = ID_TYPE_RULES[idType];
@@ -303,11 +329,11 @@ const SimTermination = () => {
     amountToPayIsZero ||
     (Number.isFinite(amountToPayNum) &&
       amountToPayNum >= MIN_PARTIAL_PAY &&
-      (!bill || amountToPayNum <= bill.totalOutstanding));
+      amountToPayNum <= totalOutstanding);
   // A resolved "pay"/"partial"/"skip" so the confirm/success copy below can stay shared
   // instead of duplicating it per case.
   const resolvedPayChoice: "pay" | "partial" | "skip" =
-    amountToPayIsZero ? "skip" : bill && amountToPayNum >= bill.totalOutstanding ? "pay" : "partial";
+    amountToPayIsZero ? "skip" : amountToPayNum >= totalOutstanding ? "pay" : "partial";
   const resolvedPaidAmount = amountToPayNum || 0;
 
   // ---------- Gates ----------
@@ -334,8 +360,12 @@ const SimTermination = () => {
       }
       setLine(found);
       setReason("");
-      setAmountToPay(found.bill && found.bill.totalOutstanding > 0 ? money(found.bill.totalOutstanding) : "");
+      const foundBills = found.bills ?? [];
+      const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+      setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
       setBillDetailsOpen(false);
+      // A single bill opens by default in the sheet; 2+ start collapsed.
+      setExpandedBillNumber(foundBills.length === 1 ? foundBills[0].number : null);
       setStep(1);
     }, 800);
   };
@@ -352,10 +382,10 @@ const SimTermination = () => {
   const successMessage = !needsPayment
     ? t("simTermination.successMsgNoPayment")
     : resolvedPayChoice === "pay"
-    ? t("simTermination.successMsgPay", { amount: money(bill!.totalOutstanding) })
+    ? t("simTermination.successMsgPay", { amount: money(totalOutstanding) })
     : resolvedPayChoice === "partial"
-    ? t("simTermination.successMsgPartial", { paid: money(resolvedPaidAmount), remaining: money(bill!.totalOutstanding - resolvedPaidAmount) })
-    : t("simTermination.successMsgSkip", { amount: money(bill!.totalOutstanding) });
+    ? t("simTermination.successMsgPartial", { paid: money(resolvedPaidAmount), remaining: money(totalOutstanding - resolvedPaidAmount) })
+    : t("simTermination.successMsgSkip", { amount: money(totalOutstanding) });
 
   const resolveTermination = () => {
     setConfirmOpen(false);
@@ -381,6 +411,7 @@ const SimTermination = () => {
     setOtpVerified(false);
     setAmountToPay("");
     setBillDetailsOpen(false);
+    setExpandedBillNumber(null);
     setPayMethod("wallet");
     setTerms(false);
   };
@@ -482,6 +513,7 @@ const SimTermination = () => {
                 { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid"), brand: "virgin" as const },
                 { value: "0501110004", note: t("simTermination.testNoteVirginVnet"), brand: "virgin" as const },
                 { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidPaid"), brand: "friendi" as const },
+                { value: "0501110006", note: t("simTermination.testNoteVirginTwoBills"), brand: "virgin" as const },
                 { value: "0501119999", note: t("simTermination.testNoteNotFound"), brand: null },
               ].filter((item) => item.brand === null || item.brand === brand)}
               onSelect={(v) => { setMsisdn(v); setLine(null); setLookupError(null); }}
@@ -609,12 +641,12 @@ const SimTermination = () => {
               )}
             </CardSection>
 
-            {isPostpaid && bill && (
+            {isPostpaid && bills.length > 0 && (
               <>
-                {/* Only the essentials show by default (MSISDN, status, Total Due) — the bill
-                    number/cycle/status and full breakdown live in the "View Details" bottom
-                    sheet below instead of expanding inline. Titled like the other sections on
-                    this page (Customer Verification, OTP Verification). */}
+                {/* Only the essentials show by default (MSISDN, status, Total Due) — each
+                    bill's number/cycle/status and full breakdown live in the "View Details"
+                    bottom sheet below instead of expanding inline. Titled like the other
+                    sections on this page (Customer Verification, OTP Verification). */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="space-y-3">
                   <div className="rounded-xl bg-background/40 border border-border/60 p-3">
@@ -630,7 +662,7 @@ const SimTermination = () => {
                       </div>
                       <div className="text-end shrink-0">
                         <p className="text-[10px] text-muted-foreground">{t("simTermination.totalDue")}</p>
-                        <p className="text-base font-bold text-primary"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
+                        <p className="text-base font-bold text-primary"><RiyalSymbol /> {money(totalOutstanding)}</p>
                       </div>
                     </div>
                     <button
@@ -663,17 +695,17 @@ const SimTermination = () => {
                       </Field>
                       {!amountToPayValid ? (
                         <p className="text-[11px] text-destructive">
-                          {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                          {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(totalOutstanding) })}
                         </p>
                       ) : amountToPayIsZero ? (
                         <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
-                      ) : amountToPayNum < bill.totalOutstanding ? (
+                      ) : amountToPayNum < totalOutstanding ? (
                         <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                          {t("simTermination.partialPaymentNote", { amount: money(bill.totalOutstanding - amountToPayNum) })}
+                          {t("simTermination.partialPaymentNote", { amount: money(totalOutstanding - amountToPayNum) })}
                         </p>
                       ) : (
                         <p className="text-[11px] text-muted-foreground">
-                          {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(bill.totalOutstanding) })}
+                          {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(totalOutstanding) })}
                         </p>
                       )}
                     </div>
@@ -693,35 +725,54 @@ const SimTermination = () => {
                   </CardSection>
                 )}
 
-                {/* Bill details — bottom sheet, opened from "View Details" above. */}
+                {/* Bill details — bottom sheet, opened from "View Details" above. Each bill
+                    starts collapsed (BillPayment.tsx's exact per-bill pattern) — a line with
+                    2+ open cycles doesn't dump every breakdown open at once. */}
                 <Drawer open={billDetailsOpen} onOpenChange={setBillDetailsOpen}>
                   <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
                     <div className="flex justify-center pt-1 pb-3"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
                     <h3 className="text-base font-bold text-foreground mb-3">{t("simTermination.billDetails")}</h3>
-                    <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-foreground">{bill.number}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
-                        </div>
-                        <div className="text-end shrink-0">
-                          <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(bill.totalOutstanding)}</p>
-                          <span className={cn(
-                            "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                            bill.status === "Paid"
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                          )}>
-                            {bill.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-2 pt-2 border-t border-border/40">
-                        <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
-                        <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(bill.outstandingBalance)}</>} />
-                        <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundleUsage)}</>} />
-                        <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(bill.totalOutstanding)}</>} />
-                      </div>
+                    <div className="space-y-2">
+                      {bills.map((b) => {
+                        const open = expandedBillNumber === b.number;
+                        return (
+                          <div key={b.number} className="rounded-xl border border-border/60 bg-background/40 p-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-foreground">{b.number}</p>
+                                <p className="text-[11px] text-muted-foreground mt-0.5">{b.cycle}</p>
+                              </div>
+                              <div className="text-end shrink-0">
+                                <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(b.totalOutstanding)}</p>
+                                <span className={cn(
+                                  "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                                  b.status === "Paid"
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                    : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+                                )}>
+                                  {b.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setExpandedBillNumber(open ? null : b.number)}
+                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
+                            >
+                              {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
+                              {t("simTermination.billBreakdown")}
+                            </button>
+                            {open && (
+                              <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
+                                <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(b.currentBalance)}</>} />
+                                <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(b.outstandingBalance)}</>} />
+                                <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(b.outOfBundleUsage)}</>} />
+                                <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(b.totalOutstanding)}</>} />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </DrawerContent>
                 </Drawer>
