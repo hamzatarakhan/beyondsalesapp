@@ -177,9 +177,6 @@ const Home = () => {
   const activities = [
     { id: "sim-3", icon: Sparkles, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    // Client requirements — applicable to both VM and FM, so no operator filter.
-    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "sim-status-check", icon: Activity, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     // Bill Payment is postpaid-related, so it's Virgin-only — Friendi has no postpaid
     // product. Credit Limit Adjustment and Subscription Migration moved to their own
     // "Options" widgets below, out of this grid.
@@ -188,6 +185,10 @@ const Home = () => {
       : [
           { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
         ]),
+    // Client requirements — applicable to both VM and FM, so no operator filter. Placed
+    // after Bill Payment regardless of whether that tile is showing for this operator.
+    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "sim-status-check", icon: Activity, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
