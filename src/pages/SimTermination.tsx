@@ -619,29 +619,6 @@ const SimTermination = () => {
               </Field>
             )}
 
-            <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
-              {verified ? (
-                <VerifiedBanner label={t("simTermination.customerVerified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
-              )}
-            </CardSection>
-
-            <CardSection title={t("activation.checkout.otp")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label="OTP Verified" />
-              ) : (
-                <>
-                  <Button variant="outline" className="w-full disabled:opacity-50" disabled={!verified} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
-                  {verified ? (
-                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.codeSentTo", { target: otpTarget })}</p>
-                  ) : (
-                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.completeVerificationFirst")}</p>
-                  )}
-                </>
-              )}
-            </CardSection>
-
             {isPostpaid && bills.length > 0 && (
               <>
                 {/* Only the essentials show by default (MSISDN, status, Total Due) — each
@@ -779,6 +756,29 @@ const SimTermination = () => {
                 </Drawer>
               </>
             )}
+
+            <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
+              {verified ? (
+                <VerifiedBanner label={t("simTermination.customerVerified")} />
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
+              )}
+            </CardSection>
+
+            <CardSection title={t("activation.checkout.otp")} icon={Phone}>
+              {otpVerified ? (
+                <VerifiedBanner label="OTP Verified" />
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full disabled:opacity-50" disabled={!verified} onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
+                  {verified ? (
+                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.codeSentTo", { target: otpTarget })}</p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground mt-2">{t("simTermination.completeVerificationFirst")}</p>
+                  )}
+                </>
+              )}
+            </CardSection>
 
             {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation / SIM Replacement */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
