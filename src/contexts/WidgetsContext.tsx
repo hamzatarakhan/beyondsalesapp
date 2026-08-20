@@ -49,7 +49,10 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Services were consolidated into one "Other Options" widget.
 // Bumped again to v13: SIM Services split back out into its own widget, positioned right
 // after Customer Activities, holding every SIM Replacement/Termination option tile.
-const STORAGE_KEY = "app-widgets-v13";
+// Bumped again to v14 to force a clean reset for any device whose stored order had SIM
+// Services (or any other widget added after their first save) stuck at the end — the
+// merge below now inserts new widgets at their default position instead of appending.
+const STORAGE_KEY = "app-widgets-v14";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
@@ -59,11 +62,24 @@ function getInitialWidgets(): WidgetConfig[] {
     // Merge with defaults so a newly-added widget (or one renamed/removed in code)
     // doesn't silently disappear or crash on a stale stored shape.
     const storedIds = new Set(stored.map((w) => w.id));
-    const known = stored
+    const result = stored
       .filter((w) => DEFAULT_WIDGETS.some((d) => d.id === w.id))
       .map((w) => ({ id: w.id, enabled: w.enabled }));
-    const missing = DEFAULT_WIDGETS.filter((d) => !storedIds.has(d.id));
-    return [...known, ...missing];
+    // Every widget missing from a dealer's stored order (i.e. added to DEFAULT_WIDGETS
+    // after they first saved theirs) is inserted right after the nearest earlier default
+    // widget they already have, instead of always tacking it onto the very end — so a
+    // newly introduced widget lands where it visually belongs on an existing dealer's
+    // Home, not buried at the bottom.
+    DEFAULT_WIDGETS.forEach((d, i) => {
+      if (storedIds.has(d.id)) return;
+      let insertAt = 0;
+      for (let j = i - 1; j >= 0; j--) {
+        const idx = result.findIndex((w) => w.id === DEFAULT_WIDGETS[j].id);
+        if (idx !== -1) { insertAt = idx + 1; break; }
+      }
+      result.splice(insertAt, 0, { id: d.id, enabled: d.enabled });
+    });
+    return result;
   } catch {
     return DEFAULT_WIDGETS;
   }
