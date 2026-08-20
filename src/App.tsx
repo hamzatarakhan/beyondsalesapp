@@ -90,7 +90,7 @@ const WalletTopUpOverlayHost = () => {
   const { open, closeTopUp } = useWalletTopUpOverlay();
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[200] bg-background">
+    <div className="fixed inset-0 z-[200] bg-background overflow-y-auto">
       <WalletRecharge onDone={closeTopUp} />
     </div>
   );
