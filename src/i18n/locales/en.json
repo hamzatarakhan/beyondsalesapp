@@ -339,6 +339,8 @@
     "freeReplacementNote": "This is the customer's free replacement — no payment required.",
     "customerVerified": "Customer Verified",
     "paymentMethod": "Payment Method",
+    "walletShort": "Wallet balance is short by {{amount}} SAR.",
+    "topUpWallet": "Top Up Wallet",
     "continue": "Continue",
     "pay": "Pay",
     "payAmountSar": "Pay {{amount}} SAR",

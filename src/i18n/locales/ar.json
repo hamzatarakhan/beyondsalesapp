@@ -339,6 +339,8 @@
     "freeReplacementNote": "هذا هو الاستبدال المجاني للعميل — لا يلزم أي دفع.",
     "customerVerified": "تم التحقق من العميل",
     "paymentMethod": "طريقة الدفع",
+    "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال.",
+    "topUpWallet": "اشحن المحفظة",
     "continue": "متابعة",
     "pay": "دفع",
     "payAmountSar": "دفع {{amount}} ريال",

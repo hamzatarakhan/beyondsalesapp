@@ -24,8 +24,9 @@ import { Drawer, DrawerContent, DrawerClose, DrawerHeader, DrawerTitle, DrawerDe
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import {
-  DEALER_WALLET_BALANCE,
   VerifiedBanner,
   NATIONALITY_CODES,
   ESIM_DEVICES,
@@ -117,6 +118,8 @@ const ESIM_FEE = 10;
 const SimReplacement = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Option 2 collects ID Type/Nationality/ID Number up front (before search), matching SIM
   // Activation's Identity step, instead of pre-filling them from the matched record after
@@ -226,7 +229,8 @@ const SimReplacement = () => {
   const canContinueDetails = eligible && idNumberValid && isKitValid;
   // Option 2 enters SIM type/KIT code on step 1 (no earlier gate enforces it), so it needs
   // checking here too — for option 1 it's already guaranteed true by canContinueDetails.
-  const canConfirm = verified && terms && isKitValid;
+  const walletShort = isChargeable && payMethod === "wallet" && fee > DEALER_WALLET_BALANCE;
+  const canConfirm = verified && terms && isKitValid && !walletShort;
 
   // Option 2 — Continue on step 0 looks the customer up AND advances to step 1 on success,
   // instead of a separate Search button plus a second Continue button.
@@ -631,6 +635,16 @@ const SimReplacement = () => {
                       <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
+                    {walletShort && (
+                      <div className="mt-2">
+                        <p className="text-[11px] text-destructive">
+                          {t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        </p>
+                        <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
+                          {t("simReplacement.topUpWallet")}
+                        </button>
+                      </div>
+                    )}
                   </CardSection>
                 )}
               </>
@@ -953,6 +967,8 @@ const SimReplacement = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>
