@@ -190,6 +190,15 @@ const Home = () => {
     // after Bill Payment regardless of whether that tile is showing for this operator.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    // Credit Limit option 5 and both Subscription Migration option-2 tiles moved in from
+    // their old "Options" widgets — Virgin-only, same as the rest of that group.
+    ...(activeOperator === "friendi"
+      ? []
+      : [creditLimitOptions[4], subscriptionMigrationOptions[1], subscriptionMigrationOptions[2]]),
+    // SIM Replacement option 2 and SIM Termination option 3 moved in the same way — both
+    // brands, matching their prior availability under the old SIM Services widget.
+    simReplacementOptions[1],
+    simTerminationOptions[2],
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
@@ -305,59 +314,19 @@ const Home = () => {
         </div>
       </div>
     ),
-    "sim-services": (
-      <div key="sim-services" className="px-4 mb-4">
+    // Consolidates the old separate SIM Services / Credit Limit Options / Subscription
+    // Migration Options widgets into one catch-all for every remaining "option" tile not
+    // promoted into Customer Activities. Credit Limit and Subscription Migration items stay
+    // Virgin-only; SIM Replacement/Termination options 1-2 are available to both brands,
+    // same as before.
+    "other-options": (
+      <div key="other-options" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
-          </div>
-
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t("home.simReplacement")}</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {simReplacementOptions.map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-
-          <div className="border-t border-border/50 my-4" />
-
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t("home.simTermination")}</p>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {simTerminationOptions.map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
-    // Credit Limit Adjustment lives here on its own instead of buried in the Customer
-    // Activities grid — Virgin-only (no postpaid product on Friendi). Four separate entry
-    // points, not one flow with an in-page toggle — each tile is fixed to its own way of
-    // picking the adjustment amount so they can be reviewed side by side.
-    "credit-limit-options": activeOperator === "friendi" ? <div key="credit-limit-options" /> : (
-      <div key="credit-limit-options" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.creditLimitOptions.title")}</h3>
+            <h3 className="font-semibold text-foreground">{t("home.otherOptions.title")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {creditLimitOptions.map((item) => (
+            {activeOperator !== "friendi" && creditLimitOptions.slice(0, 4).map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
@@ -368,22 +337,9 @@ const Home = () => {
                 onClick={() => navigate(item.path)}
               />
             ))}
-          </div>
-        </div>
-      </div>
-    ),
-    // Same idea as Credit Limit Options — the original auto-detect flow, plus a proposed
-    // split into two direction-locked services, so both approaches can be reviewed side by
-    // side. Virgin-only (no postpaid product on Friendi, so no migration at all).
-    "subscription-migration-options": activeOperator === "friendi" ? <div key="subscription-migration-options" /> : (
-      <div key="subscription-migration-options" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.subscriptionMigrationOptions.title")}</h3>
-          </div>
-          <div className="flex items-stretch">
-            <div className="flex-1 flex items-center justify-center">
+            {activeOperator !== "friendi" && (
               <ActivityIcon
+                key={subscriptionMigrationOptions[0].id}
                 icon={subscriptionMigrationOptions[0].icon}
                 label={subscriptionMigrationOptions[0].label}
                 color="teal"
@@ -391,21 +347,18 @@ const Home = () => {
                 badgeTone={subscriptionMigrationOptions[0].badgeTone}
                 onClick={() => handleActivityClick(subscriptionMigrationOptions[0].path)}
               />
-            </div>
-            <div className="w-px bg-border/60 mx-3" />
-            <div className="flex-[2] flex items-center justify-around">
-              {subscriptionMigrationOptions.slice(1).map((item) => (
-                <ActivityIcon
-                  key={item.id}
-                  icon={item.icon}
-                  label={item.label}
-                  color="teal"
-                  badge={item.badge}
-                  badgeTone={item.badgeTone}
-                  onClick={() => handleActivityClick(item.path)}
-                />
-              ))}
-            </div>
+            )}
+            {[simReplacementOptions[0], simTerminationOptions[0], simTerminationOptions[1]].map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
           </div>
         </div>
       </div>

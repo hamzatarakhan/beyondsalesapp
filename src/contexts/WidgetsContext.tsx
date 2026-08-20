@@ -11,9 +11,7 @@ export interface WidgetConfig {
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "e-wallets", enabled: true },
   { id: "customer-activities", enabled: true },
-  { id: "credit-limit-options", enabled: true },
-  { id: "subscription-migration-options", enabled: true },
-  { id: "sim-services", enabled: true },
+  { id: "other-options", enabled: true },
   { id: "other-services", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
@@ -28,9 +26,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "customer-activities": "home.customerActivities",
   "e-wallets": "home.eWallets",
   "other-services": "home.otherServices",
-  "credit-limit-options": "home.creditLimitOptions.title",
-  "subscription-migration-options": "home.subscriptionMigrationOptions.title",
-  "sim-services": "home.simServices",
+  "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",
   "dealer-visit": "home.dealerVisit.title",
   "tickets": "home.tickets.title",
@@ -47,7 +43,9 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped to v10 so devices pick up the new Other Services widget positioned right after
 // E Wallets, instead of it landing at the end via the missing-widget merge below.
 // Bumped again to v11 so devices pick up E Wallets moving to the very top of Home.
-const STORAGE_KEY = "app-widgets-v11";
+// Bumped again to v12: Credit Limit Options, Subscription Migration Options, and SIM
+// Services were consolidated into one "Other Options" widget.
+const STORAGE_KEY = "app-widgets-v12";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
