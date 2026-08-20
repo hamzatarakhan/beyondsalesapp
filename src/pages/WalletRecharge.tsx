@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -171,8 +171,12 @@ type CardEntry = { id: string; brand: string; last4: string; expiry: string; hol
 
 const WalletRecharge = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, topUp } = useWalletBalance();
+  // Arrived here via a "Top up now" prompt from an in-progress flow — after a successful
+  // recharge, send the dealer back to exactly that flow instead of Home.
+  const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
 
   const [method, setMethod] = useState<Method>("voucher");
 
@@ -581,7 +585,7 @@ const WalletRecharge = () => {
       </div>
 
       {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
+      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(returnTo || "/"))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
@@ -599,9 +603,9 @@ const WalletRecharge = () => {
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
-            onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
+            onClick={() => { setSuccessOpen(false); resetAll(); navigate(returnTo || "/"); }}
           >
-            {t("walletRecharge.goToHome")}
+            {returnTo ? t("walletRecharge.backToProcess") : t("walletRecharge.goToHome")}
           </Button>
         </DrawerContent>
       </Drawer>
