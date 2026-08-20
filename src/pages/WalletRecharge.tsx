@@ -271,6 +271,11 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
         setOrderId(`WR-${Math.floor(100000 + Math.random() * 900000)}`);
         if (rechargeAmount) topUp(rechargeAmount);
         setSuccessOpen(true);
+        // Embedded in another flow — show the charged amount briefly, then hand control
+        // straight back instead of waiting on a manual tap.
+        if (onDone) {
+          setTimeout(() => { setSuccessOpen(false); resetAll(); finish(); }, 1800);
+        }
       } else {
         setFailureOpen(true);
       }
