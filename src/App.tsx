@@ -10,6 +10,7 @@ import { BrandProvider } from "./contexts/BrandContext";
 import { WidgetsProvider } from "./contexts/WidgetsContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WalletBalanceProvider } from "./contexts/WalletBalanceContext";
+import { WalletTopUpOverlayProvider, useWalletTopUpOverlay } from "./contexts/WalletTopUpOverlayContext";
 import SplashScreen from "./components/SplashScreen";
 import BrandSwitchLoader from "./components/BrandSwitchLoader";
 import Login from "./pages/Login";
@@ -82,6 +83,19 @@ const LoginTransitionOverlay = () => {
   return loginTransition ? <SplashScreen onFinish={finishLoginTransition} /> : null;
 };
 
+// Renders eWallet Recharge full-screen on top of whatever route is active, triggered by a
+// "Top up now" prompt from an in-progress flow — that flow stays mounted underneath (no
+// navigation), so its state is untouched when the dealer finishes topping up.
+const WalletTopUpOverlayHost = () => {
+  const { open, closeTopUp } = useWalletTopUpOverlay();
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] bg-background">
+      <WalletRecharge onDone={closeTopUp} />
+    </div>
+  );
+};
+
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
   return (
@@ -91,6 +105,7 @@ const App = () => {
     <BrandProvider>
     <WidgetsProvider>
     <WalletBalanceProvider>
+    <WalletTopUpOverlayProvider>
     <AuthProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
@@ -99,6 +114,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+        <WalletTopUpOverlayHost />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -160,6 +176,7 @@ const App = () => {
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
+    </WalletTopUpOverlayProvider>
     </WalletBalanceProvider>
     </WidgetsProvider>
     </BrandProvider>

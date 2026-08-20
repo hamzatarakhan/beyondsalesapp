@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -6,34 +7,45 @@ interface Props {
   label: string;
   description?: string;
   selected: boolean;
+  disabled?: boolean;
   onClick: () => void;
+  /** Extra content rendered inside this same card, below the row — e.g. an insufficient-balance notice. */
+  children?: ReactNode;
 }
 
-const PayOption = ({ icon: Icon, label, description, selected, onClick }: Props) => (
-  <button
-    type="button"
-    onClick={onClick}
+const PayOption = ({ icon: Icon, label, description, selected, disabled, onClick, children }: Props) => (
+  <div
     className={cn(
-      "w-full flex items-center gap-3 p-3 rounded-xl transition-colors",
-      selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border",
+      "w-full rounded-xl transition-colors",
+      disabled
+        ? "border border-border bg-muted/60"
+        : selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border",
     )}
   >
-    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-      <Icon className="w-4 h-4 text-primary" />
-    </div>
-    <div className="flex-1 text-start">
-      <p className="text-sm font-medium text-foreground">{label}</p>
-      {description && <p className="text-xs text-muted-foreground">{description}</p>}
-    </div>
-    <span
-      className={cn(
-        "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-        selected ? "border-primary" : "border-primary/40",
-      )}
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full flex items-center gap-3 p-3 disabled:cursor-not-allowed"
     >
-      {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
-    </span>
-  </button>
+      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", disabled ? "bg-muted-foreground/10" : "bg-primary/10")}>
+        <Icon className={cn("w-4 h-4", disabled ? "text-muted-foreground" : "text-primary")} />
+      </div>
+      <div className="flex-1 text-start">
+        <p className={cn("text-sm font-medium", disabled ? "text-muted-foreground" : "text-foreground")}>{label}</p>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      <span
+        className={cn(
+          "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
+          disabled ? "border-muted-foreground/30" : selected ? "border-primary" : "border-primary/40",
+        )}
+      >
+        {selected && !disabled && <span className="w-2 h-2 rounded-full bg-primary" />}
+      </span>
+    </button>
+    {children && <div className="px-3 pb-3">{children}</div>}
+  </div>
 );
 
 export default PayOption;

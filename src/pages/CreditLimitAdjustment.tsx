@@ -299,8 +299,8 @@ const CreditLimitAdjustment = () => {
 
   // ---------- Gates ----------
   const canContinueAdjust = eligible && delta > 0 && newLimit >= 0;
-  const walletShort = direction === "increase" && payMethod === "wallet" && delta > DEALER_WALLET_BALANCE;
-  const canConfirm = otpVerified && !walletShort;
+  const walletShort = direction === "increase" && delta > DEALER_WALLET_BALANCE;
+  const canConfirm = otpVerified && !(payMethod === "wallet" && walletShort);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -639,15 +639,16 @@ const CreditLimitAdjustment = () => {
             {direction === "increase" && (
               <CardSection title={t("creditLimitAdjustment.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                    {walletShort && (
+                      <WalletShortNotice
+                        message={t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        buttonLabel={t("creditLimitAdjustment.topUpWallet")}
+                      />
+                    )}
+                  </PayOption>
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
-                {walletShort && (
-                  <WalletShortNotice
-                    message={t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    buttonLabel={t("creditLimitAdjustment.topUpWallet")}
-                  />
-                )}
               </CardSection>
             )}
           </>

@@ -398,8 +398,8 @@ const BillPayment = () => {
   const canContinueBills =
     payingAccounts.length > 0 && totalToPay > 0 && payingAccounts.every((a) => amountErrorFor(a) === null);
 
-  const walletShort = payMethod === "wallet" && totalToPay > DEALER_WALLET_BALANCE;
-  const canPay = otpVerified && !walletShort;
+  const walletShort = totalToPay > DEALER_WALLET_BALANCE;
+  const canPay = otpVerified && !(payMethod === "wallet" && walletShort);
 
   /** Where the OTP lands: Vnet uses its associated contact, Civil ID uses the registered number. */
   const otpTarget =
@@ -814,8 +814,16 @@ const BillPayment = () => {
                   label={t("billPayment.dealerWallet")}
                   description={t("billPayment.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })}
                   selected={payMethod === "wallet"}
+                  disabled={walletShort}
                   onClick={() => setPayMethod("wallet")}
-                />
+                >
+                  {walletShort && (
+                    <WalletShortNotice
+                      message={t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
+                      buttonLabel={t("billPayment.topUpWallet")}
+                    />
+                  )}
+                </PayOption>
                 <PayOption
                   icon={CreditCard}
                   label={t("billPayment.posTerminal")}
@@ -824,12 +832,6 @@ const BillPayment = () => {
                   onClick={() => setPayMethod("pos")}
                 />
               </div>
-              {walletShort && (
-                <WalletShortNotice
-                  message={t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
-                  buttonLabel={t("billPayment.topUpWallet")}
-                />
-              )}
             </CardSection>
 
             <CardSection title={t("billPayment.otpVerification")} icon={ShieldCheck}>

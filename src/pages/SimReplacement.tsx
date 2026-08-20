@@ -228,8 +228,8 @@ const SimReplacement = () => {
   const canContinueDetails = eligible && idNumberValid && isKitValid;
   // Option 2 enters SIM type/KIT code on step 1 (no earlier gate enforces it), so it needs
   // checking here too — for option 1 it's already guaranteed true by canContinueDetails.
-  const walletShort = isChargeable && payMethod === "wallet" && fee > DEALER_WALLET_BALANCE;
-  const canConfirm = verified && terms && isKitValid && !walletShort;
+  const walletShort = isChargeable && fee > DEALER_WALLET_BALANCE;
+  const canConfirm = verified && terms && isKitValid && !(payMethod === "wallet" && walletShort);
 
   // Option 2 — Continue on step 0 looks the customer up AND advances to step 1 on success,
   // instead of a separate Search button plus a second Continue button.
@@ -631,15 +631,16 @@ const SimReplacement = () => {
                 {isChargeable && (
                   <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
-                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                        {walletShort && (
+                          <WalletShortNotice
+                            message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
+                            buttonLabel={t("simReplacement.topUpWallet")}
+                          />
+                        )}
+                      </PayOption>
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
-                    {walletShort && (
-                      <WalletShortNotice
-                        message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
-                        buttonLabel={t("simReplacement.topUpWallet")}
-                      />
-                    )}
                   </CardSection>
                 )}
               </>

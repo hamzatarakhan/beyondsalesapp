@@ -2287,15 +2287,16 @@ const NewActivationV2 = () => {
                   <p className="text-sm font-semibold text-foreground">{t("activationV2.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
                 </div>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activationV2.checkout.dealerWallet")} description={t("activationV2.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} onClick={() => setPay("card")} />
+                  <PayOption icon={CreditCard} label={t("activationV2.checkout.dealerWallet")} description={t("activationV2.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} disabled={total > DEALER_WALLET_BALANCE} onClick={() => setPay("card")}>
+                    {total > DEALER_WALLET_BALANCE && (
+                      <WalletShortNotice
+                        message={t("activationV2.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        buttonLabel={t("activationV2.checkout.topUpWallet")}
+                      />
+                    )}
+                  </PayOption>
                   <PayOption icon={HandCoins} label={t("activationV2.checkout.posTerminal")} description={t("activationV2.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
-                {pay === "card" && total > DEALER_WALLET_BALANCE && (
-                  <WalletShortNotice
-                    message={t("activationV2.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    buttonLabel={t("activationV2.checkout.topUpWallet")}
-                  />
-                )}
               </section>
             )}
 

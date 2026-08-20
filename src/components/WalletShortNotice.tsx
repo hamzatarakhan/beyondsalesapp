@@ -1,5 +1,5 @@
-import { useNavigate, useLocation } from "react-router-dom";
 import { Info, Zap } from "lucide-react";
+import { useWalletTopUpOverlay } from "@/contexts/WalletTopUpOverlayContext";
 
 interface WalletShortNoticeProps {
   message: string;
@@ -7,28 +7,27 @@ interface WalletShortNoticeProps {
 }
 
 /**
- * Insufficient-wallet-balance banner + "Top up now" action, shared by every payment flow
- * that charges the Dealer Wallet. Navigates to the full eWallet Recharge page (passing the
- * current location so a successful recharge sends the dealer back to this exact flow)
- * rather than opening an inline sheet.
+ * Compact insufficient-balance notice + "Top up now" action, rendered inside the Dealer
+ * Wallet PayOption card itself (as its children). Opens eWallet Recharge as a full-screen
+ * overlay on top of the current flow instead of routing to it — the flow stays mounted
+ * underneath, so all of its state is exactly as left once the overlay closes.
  */
 const WalletShortNotice = ({ message, buttonLabel }: WalletShortNoticeProps) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { openTopUp } = useWalletTopUpOverlay();
 
   return (
-    <div className="mt-2 space-y-2">
-      <div className="rounded-xl bg-red-50 dark:bg-red-500/10 px-3 py-2.5 flex items-center gap-2">
-        <Info className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
-        <p className="text-[12px] font-medium text-red-600 dark:text-red-400">{message}</p>
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5">
+        <Info className="w-3.5 h-3.5 text-destructive shrink-0" />
+        <p className="text-[11px] font-medium text-destructive">{message}</p>
       </div>
       <button
         type="button"
-        onClick={() => navigate("/wallet-recharge", { state: { returnTo: location.pathname + location.search } })}
-        className="w-full py-2.5 rounded-full bg-violet-100 dark:bg-violet-500/15 border border-violet-300 dark:border-violet-500/30 text-violet-700 dark:text-violet-300 font-semibold text-sm flex items-center justify-center gap-1.5"
+        onClick={openTopUp}
+        className="w-full py-2 rounded-lg bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center gap-1"
       >
         {buttonLabel}
-        <Zap className="w-4 h-4" />
+        <Zap className="w-3.5 h-3.5" />
       </button>
     </div>
   );

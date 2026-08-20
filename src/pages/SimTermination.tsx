@@ -324,14 +324,14 @@ const SimTermination = () => {
   const resolvedPayChoice: "pay" | "partial" | "skip" =
     amountToPayIsZero ? "skip" : amountToPayNum >= totalOutstanding ? "pay" : "partial";
   const resolvedPaidAmount = amountToPayNum || 0;
-  const walletShort = payMethod === "wallet" && !amountToPayIsZero && amountToPayNum > DEALER_WALLET_BALANCE;
+  const walletShort = !amountToPayIsZero && amountToPayNum > DEALER_WALLET_BALANCE;
 
   // ---------- Gates ----------
   // Option 2 selects Termination Reason on the same page as this gate (no earlier step
   // requires it), so it needs checking here too — for option 1 it's already guaranteed by
   // canContinueDetails before step 1 is reachable.
   const canConfirm = verified && otpVerified && terms && !!reason && (
-    !needsPayment || (amountToPayValid && (amountToPayIsZero || !!payMethod) && !walletShort)
+    !needsPayment || (amountToPayValid && (amountToPayIsZero || !!payMethod) && !(payMethod === "wallet" && walletShort))
   );
 
   // Option 2 — Continue on step 0 looks the line up AND advances to step 1 on success,
@@ -675,15 +675,16 @@ const SimTermination = () => {
                 {needsPayment && !amountToPayIsZero && (
                   <CardSection title={t("simTermination.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
-                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                        {walletShort && (
+                          <WalletShortNotice
+                            message={t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}
+                            buttonLabel={t("simTermination.topUpWallet")}
+                          />
+                        )}
+                      </PayOption>
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
-                    {walletShort && (
-                      <WalletShortNotice
-                        message={t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}
-                        buttonLabel={t("simTermination.topUpWallet")}
-                      />
-                    )}
                   </CardSection>
                 )}
 

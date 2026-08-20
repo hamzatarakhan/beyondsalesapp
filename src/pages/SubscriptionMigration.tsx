@@ -353,7 +353,7 @@ const SubscriptionMigration = () => {
   // Actual amount charged — pre-to-post is deposit-only (no VAT); post-to-pre is plan +
   // VAT + any outstanding bill on the old line.
   const total = direction === "pre-to-post" ? deposit : Math.round((planPrice + vat + outstandingBalance) * 100) / 100;
-  const walletShort = payMethod === "wallet" && total > DEALER_WALLET_BALANCE;
+  const walletShort = total > DEALER_WALLET_BALANCE;
 
   // ---------- OTP handlers (same behavior as the SIM Activation checkout OTP) ----------
   useEffect(() => {
@@ -426,7 +426,7 @@ const SubscriptionMigration = () => {
     (direction === "post-to-pre" || customerVerified) &&
     otpVerified &&
     termsAccepted &&
-    (direction === "pre-to-post" && isWhitelisted ? true : !walletShort);
+    (direction === "pre-to-post" && isWhitelisted ? true : !(payMethod === "wallet" && walletShort));
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -798,15 +798,16 @@ const SubscriptionMigration = () => {
             {!(direction === "pre-to-post" && isWhitelisted) && (
               <CardSection title={t("subscriptionMigration.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
+                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                    {walletShort && (
+                      <WalletShortNotice
+                        message={t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        buttonLabel={t("subscriptionMigration.topUpWallet")}
+                      />
+                    )}
+                  </PayOption>
                   <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
-                {walletShort && (
-                  <WalletShortNotice
-                    message={t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    buttonLabel={t("subscriptionMigration.topUpWallet")}
-                  />
-                )}
               </CardSection>
             )}
 

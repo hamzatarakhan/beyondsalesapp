@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -169,14 +169,18 @@ const VOUCHER_AMOUNT = 100;
 type Method = "voucher" | "card";
 type CardEntry = { id: string; brand: string; last4: string; expiry: string; holder: string };
 
-const WalletRecharge = () => {
+interface WalletRechargeProps {
+  /** Set when rendered as the in-flow top-up overlay instead of the direct /wallet-recharge
+   * route — closes the overlay in place rather than navigating, so the flow that opened it
+   * (still mounted underneath) picks back up exactly where it was, state intact. */
+  onDone?: () => void;
+}
+
+const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, topUp } = useWalletBalance();
-  // Arrived here via a "Top up now" prompt from an in-progress flow — after a successful
-  // recharge, send the dealer back to exactly that flow instead of Home.
-  const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
+  const finish = () => (onDone ? onDone() : navigate("/"));
 
   const [method, setMethod] = useState<Method>("voucher");
 
@@ -369,7 +373,7 @@ const WalletRecharge = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("walletRecharge.title")} showBack onBackClick={() => navigate("/")} />
+      <AppHeader title={t("walletRecharge.title")} showBack onBackClick={finish} />
 
       <div className="px-4 space-y-4">
         <div className="space-y-2">
@@ -585,7 +589,7 @@ const WalletRecharge = () => {
       </div>
 
       {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(returnTo || "/"))}>
+      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), finish())}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
@@ -603,9 +607,9 @@ const WalletRecharge = () => {
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
-            onClick={() => { setSuccessOpen(false); resetAll(); navigate(returnTo || "/"); }}
+            onClick={() => { setSuccessOpen(false); resetAll(); finish(); }}
           >
-            {returnTo ? t("walletRecharge.backToProcess") : t("walletRecharge.goToHome")}
+            {onDone ? t("walletRecharge.backToProcess") : t("walletRecharge.goToHome")}
           </Button>
         </DrawerContent>
       </Drawer>

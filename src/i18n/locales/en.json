@@ -538,7 +538,7 @@
     "rechargedBy": "Your wallet has been recharged by {{amount}} SAR.",
     "reference": "Reference:",
     "goToHome": "Go to Home",
-    "backToProcess": "Back to what I was doing",
+    "backToProcess": "Done, Return to Complete Activation",
     "rechargeFailedTitle": "Recharge Failed",
     "rechargeFailedDesc": "Something went wrong while processing this recharge. No amount has been charged.",
     "retry": "Retry",
@@ -1028,7 +1028,6 @@
     "simActivationOptions": "SIM Activation Options",
     "oldApproaches": "Old approaches",
     "newPlanCardOptions": "New plan card options",
-    "simServices": "SIM Services",
     "memberOnboarding": "Member Onboarding",
     "channelOnboarding": "Channel Onboarding",
     "onboardingRequests": "Onboarding Requests",
@@ -1036,15 +1035,16 @@
     "simTermination": "SIM Termination",
     "subscriptionMigration": "Subscription Migration",
     "subscriptionMigrationOptions": {
-      "title": "Subscription Migration Options",
       "preToPost": "Prepaid to Postpaid",
       "postToPre": "Postpaid to Prepaid",
       "optionBadge": "Option {{number}}"
     },
     "creditLimitAdjustment": "Credit Limit Adjustment",
     "creditLimitOptions": {
-      "title": "Credit Limit Options",
       "optionBadge": "Option {{number}}"
+    },
+    "otherOptions": {
+      "title": "Other Options"
     },
     "billPayment": "Bill Payment",
     "customerSearch": "Customer Search",
