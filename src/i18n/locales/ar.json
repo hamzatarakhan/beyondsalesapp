@@ -278,6 +278,8 @@
     "partialPaymentNote": "سيبقى مبلغ {{amount}} ريال مستحقاً بعد هذا الدفع.",
     "fullAmountNote": "المبلغ المستحق بالكامل. الحد الأدنى {{min}} ريال، والحد الأقصى {{max}} ريال.",
     "paymentMethod": "طريقة الدفع",
+    "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال.",
+    "topUpWallet": "اشحن المحفظة",
     "continue": "متابعة",
     "payAndTerminate": "دفع {{amount}} ريال وإلغاء",
     "confirmTermination": "تأكيد الإلغاء",

@@ -22,8 +22,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useBrand } from "@/contexts/BrandContext";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import {
-  DEALER_WALLET_BALANCE,
   VerifiedBanner,
   NATIONALITY_CODES,
   ID_TYPE_ORDER,
@@ -157,6 +158,8 @@ const SimTermination = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { brand } = useBrand();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Options 2 & 3 collect ID Type/Nationality/ID Number/MSISDN up front (Continue does the
   // lookup and advances, no Search button), and bundle Termination Reason + Verification +
@@ -322,13 +325,14 @@ const SimTermination = () => {
   const resolvedPayChoice: "pay" | "partial" | "skip" =
     amountToPayIsZero ? "skip" : amountToPayNum >= totalOutstanding ? "pay" : "partial";
   const resolvedPaidAmount = amountToPayNum || 0;
+  const walletShort = payMethod === "wallet" && !amountToPayIsZero && amountToPayNum > DEALER_WALLET_BALANCE;
 
   // ---------- Gates ----------
   // Option 2 selects Termination Reason on the same page as this gate (no earlier step
   // requires it), so it needs checking here too — for option 1 it's already guaranteed by
   // canContinueDetails before step 1 is reachable.
   const canConfirm = verified && otpVerified && terms && !!reason && (
-    !needsPayment || (amountToPayValid && (amountToPayIsZero || !!payMethod))
+    !needsPayment || (amountToPayValid && (amountToPayIsZero || !!payMethod) && !walletShort)
   );
 
   // Option 2 — Continue on step 0 looks the line up AND advances to step 1 on success,
@@ -675,6 +679,16 @@ const SimTermination = () => {
                       <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
+                    {walletShort && (
+                      <div className="mt-2">
+                        <p className="text-[11px] text-destructive">
+                          {t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}
+                        </p>
+                        <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
+                          {t("simTermination.topUpWallet")}
+                        </button>
+                      </div>
+                    )}
                   </CardSection>
                 )}
 
@@ -987,6 +1001,8 @@ const SimTermination = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

@@ -278,6 +278,8 @@
     "partialPaymentNote": "{{amount}} SAR will remain outstanding after this payment.",
     "fullAmountNote": "Full amount due. Min {{min}} SAR, max {{max}} SAR.",
     "paymentMethod": "Payment Method",
+    "walletShort": "Wallet balance is short by {{amount}} SAR.",
+    "topUpWallet": "Top Up Wallet",
     "continue": "Continue",
     "payAndTerminate": "Pay {{amount}} SAR & Terminate",
     "confirmTermination": "Confirm Termination",
