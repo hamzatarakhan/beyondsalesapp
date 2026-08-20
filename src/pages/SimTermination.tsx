@@ -42,7 +42,6 @@ import {
   Check,
   XCircle,
   ChevronDown,
-  ChevronRight,
   X,
 } from "lucide-react";
 
@@ -212,15 +211,6 @@ const SimTermination = () => {
   // Full/Partial/Terminate Without Paying choice. Defaults to the full amount once a bill is
   // found (set in handleSearch/handleContinueLookup), left as-is otherwise.
   const [amountToPay, setAmountToPay] = useState("");
-  // All options — the Outstanding Bill card shows only the essentials (MSISDN, status,
-  // Total Due) by default; each bill's number/cycle/status and full breakdown live in a
-  // bottom sheet opened via "View Details" instead of expanding inline.
-  const [billDetailsOpen, setBillDetailsOpen] = useState(false);
-  // Tracks which bill (by number) has its breakdown open inside the sheet — mirrors
-  // BillPayment.tsx's expandedBill. A single bill opens by default (set on lookup, below);
-  // 2+ bills start collapsed — same rule BillPayment.tsx uses for whether an account card
-  // itself starts expanded.
-  const [expandedBillNumber, setExpandedBillNumber] = useState<string | null>(null);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -252,9 +242,6 @@ const SimTermination = () => {
       const foundBills = found.bills ?? [];
       const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
       setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
-      setBillDetailsOpen(false);
-      // A single bill opens by default in the sheet; 2+ start collapsed.
-      setExpandedBillNumber(foundBills.length === 1 ? foundBills[0].number : null);
     }, 800);
   };
 
@@ -363,9 +350,6 @@ const SimTermination = () => {
       const foundBills = found.bills ?? [];
       const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
       setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
-      setBillDetailsOpen(false);
-      // A single bill opens by default in the sheet; 2+ start collapsed.
-      setExpandedBillNumber(foundBills.length === 1 ? foundBills[0].number : null);
       setStep(1);
     }, 800);
   };
@@ -410,8 +394,6 @@ const SimTermination = () => {
     setVerified(false);
     setOtpVerified(false);
     setAmountToPay("");
-    setBillDetailsOpen(false);
-    setExpandedBillNumber(null);
     setPayMethod("wallet");
     setTerms(false);
   };
@@ -621,37 +603,30 @@ const SimTermination = () => {
 
             {isPostpaid && bills.length > 0 && (
               <>
-                {/* Only the essentials show by default (MSISDN, status, Total Due) — each
-                    bill's number/cycle/status and full breakdown live in the "View Details"
-                    bottom sheet below instead of expanding inline. Titled like the other
-                    sections on this page (Customer Verification, OTP Verification). */}
+                {/* Breakdown shows by default now — no "View Details" tap-through needed. */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
                   <div className="space-y-3">
-                  <div className="rounded-xl bg-background/40 border border-border/60 p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-semibold text-foreground">{line.msisdn}</p>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                            {t("simTermination.statusActive")}
+                  {bills.map((b) => (
+                    <div key={b.number}>
+                      {bills.length > 1 && (
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs font-semibold text-foreground">{b.number}</p>
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                            b.status === "Paid"
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+                          )}>
+                            {b.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{LINE_TYPE_LABEL[line.lineType]}</p>
-                      </div>
-                      <div className="text-end shrink-0">
-                        <p className="text-[10px] text-muted-foreground">{t("simTermination.totalDue")}</p>
-                        <p className="text-base font-bold text-primary"><RiyalSymbol /> {money(totalOutstanding)}</p>
-                      </div>
+                      )}
+                      <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(b.currentBalance)}</>} />
+                      <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(b.outstandingBalance)}</>} />
+                      <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(b.outOfBundleUsage)}</>} />
+                      <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(b.totalOutstanding)}</>} />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setBillDetailsOpen(true)}
-                      className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                    >
-                      {t("simTermination.viewDetails")}
-                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                    </button>
-                  </div>
+                  ))}
 
                   {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
                       choice; the entered amount tells the app which case it is. */}
@@ -703,57 +678,6 @@ const SimTermination = () => {
                   </CardSection>
                 )}
 
-                {/* Bill details — bottom sheet, opened from "View Details" above. Each bill
-                    starts collapsed (BillPayment.tsx's exact per-bill pattern) — a line with
-                    2+ open cycles doesn't dump every breakdown open at once. */}
-                <Drawer open={billDetailsOpen} onOpenChange={setBillDetailsOpen}>
-                  <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-                    <div className="flex justify-center pt-1 pb-3"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
-                    <h3 className="text-base font-bold text-foreground mb-3">{t("simTermination.billDetails")}</h3>
-                    <div className="space-y-2">
-                      {bills.map((b) => {
-                        const open = expandedBillNumber === b.number;
-                        return (
-                          <div key={b.number} className="rounded-xl border border-border/60 bg-background/40 p-3">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="text-xs font-semibold text-foreground">{b.number}</p>
-                                <p className="text-[11px] text-muted-foreground mt-0.5">{b.cycle}</p>
-                              </div>
-                              <div className="text-end shrink-0">
-                                <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {money(b.totalOutstanding)}</p>
-                                <span className={cn(
-                                  "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                                  b.status === "Paid"
-                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                    : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                                )}>
-                                  {b.status === "Paid" ? t("simTermination.statusPaid") : t("simTermination.statusUnpaid")}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => setExpandedBillNumber(open ? null : b.number)}
-                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                            >
-                              {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
-                              {t("simTermination.billBreakdown")}
-                            </button>
-                            {open && (
-                              <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-                                <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(b.currentBalance)}</>} />
-                                <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(b.outstandingBalance)}</>} />
-                                <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(b.outOfBundleUsage)}</>} />
-                                <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(b.totalOutstanding)}</>} />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </DrawerContent>
-                </Drawer>
               </>
             )}
 

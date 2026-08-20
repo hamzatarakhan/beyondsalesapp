@@ -44,8 +44,6 @@ import {
   Info,
   UserCheck,
   ArrowLeftRight,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import SematiVerification from "@/components/SematiVerification";
@@ -252,12 +250,6 @@ const SubscriptionMigration = () => {
   // Checkout — payment
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   // Post-to-pre only — the old line's outstanding bill card shows only the essentials
-  // (MSISDN, status, Total Due) by default; each bill's number/cycle/status and full
-  // breakdown live in a "View Details" bottom sheet, same pattern as SIM Termination. A
-  // single bill opens by default inside the sheet; 2+ bills start collapsed (set on lookup,
-  // below) — same rule BillPayment.tsx uses for whether an account card itself starts open.
-  const [oldBillDetailsOpen, setOldBillDetailsOpen] = useState(false);
-  const [expandedOldBillNumber, setExpandedOldBillNumber] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -271,7 +263,6 @@ const SubscriptionMigration = () => {
     setWrongDirectionModalOpen(false);
     setSimLimitCase(null);
     setDirection(null);
-    setExpandedOldBillNumber(null);
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
     const timer = setTimeout(() => {
@@ -310,10 +301,6 @@ const SubscriptionMigration = () => {
         return;
       }
       setDirection(dir);
-      // A single old bill opens by default in the sheet; 2+ start collapsed — same rule
-      // BillPayment.tsx uses for whether an account card itself starts expanded.
-      const foundOldBills = found.outstandingBills ?? [];
-      setExpandedOldBillNumber(foundOldBills.length === 1 ? foundOldBills[0].number : null);
       // Ineligible line types don't get an inline banner — the reason is surfaced in a
       // modal when the dealer presses Continue (same pattern as SIM Activation's
       // "Email Not Registered" dialog).
@@ -461,8 +448,6 @@ const SubscriptionMigration = () => {
     setOtpVerified(false);
     setPayMethod("wallet");
     setCustomerVerified(false);
-    setOldBillDetailsOpen(false);
-    setExpandedOldBillNumber(null);
   };
 
   const steps = [
@@ -713,83 +698,28 @@ const SubscriptionMigration = () => {
                 SIM Termination's separate "Outstanding Bill" / "Payment" cards. */}
             {direction === "post-to-pre" && outstandingBalance > 0 && (
               <CardSection title={t("subscriptionMigration.outstandingBill")} icon={ReceiptText}>
-                {/* Old line's account header — only the essentials show by default (MSISDN,
-                    status, Total Due); each bill's number/cycle/status and full breakdown
-                    live in the "View Details" bottom sheet below, same pattern as SIM
-                    Termination. */}
-                <div className="rounded-xl bg-background/40 border border-border/60 p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-foreground">{customer?.msisdn}</p>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                          {t("subscriptionMigration.statusActive")}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t("subscriptionMigration.postpaid")}</p>
-                    </div>
-                    <div className="text-end shrink-0">
-                      <p className="text-[10px] text-muted-foreground">{t("subscriptionMigration.totalDue")}</p>
-                      <p className="text-base font-bold text-primary"><RiyalSymbol /> {outstandingBalance.toFixed(2)}</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOldBillDetailsOpen(true)}
-                    className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                  >
-                    {t("subscriptionMigration.viewDetails")}
-                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                  </button>
-                </div>
-
-                {/* Bill details — bottom sheet. Each bill starts collapsed (same per-bill
-                    pattern as BillPayment.tsx / SIM Termination) so a line with 2+ open
-                    cycles doesn't dump every breakdown open at once. */}
-                <Drawer open={oldBillDetailsOpen} onOpenChange={setOldBillDetailsOpen}>
-                  <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-                    <div className="flex justify-center pt-1 pb-3"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
-                    <h3 className="text-base font-bold text-foreground mb-3">{t("subscriptionMigration.billDetails")}</h3>
-                    <div className="space-y-2">
-                      {outstandingBills.map((b) => {
-                        const open = expandedOldBillNumber === b.number;
-                        const total = oldBillTotal(b);
-                        return (
-                          <div key={b.number} className="rounded-xl border border-border/60 bg-background/40 p-3">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="text-xs font-semibold text-foreground">{b.number}</p>
-                                <p className="text-[11px] text-muted-foreground mt-0.5">{b.cycle}</p>
-                              </div>
-                              <div className="text-end shrink-0">
-                                <p className="text-sm font-bold text-foreground"><RiyalSymbol /> {total.toFixed(2)}</p>
-                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
-                                  {t("subscriptionMigration.notPaid")}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => setExpandedOldBillNumber(open ? null : b.number)}
-                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-primary"
-                            >
-                              {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
-                              {t("subscriptionMigration.billBreakdown")}
-                            </button>
-                            {open && (
-                              <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
-                                <SummaryRow label={t("subscriptionMigration.currentBalance")} value={<><RiyalSymbol /> {b.currentBalance.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.unbilledAmount")} value={<><RiyalSymbol /> {b.unbilledAmount.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.oobUsage")} value={<><RiyalSymbol /> {b.outOfBundle.toFixed(2)}</>} />
-                                <SummaryRow label={t("subscriptionMigration.totalOutstanding")} value={<><RiyalSymbol /> {total.toFixed(2)}</>} />
-                              </div>
-                            )}
+                {/* Breakdown shows by default now — no "View Details" tap-through needed. */}
+                <div className="space-y-3">
+                  {outstandingBills.map((b) => {
+                    const total = oldBillTotal(b);
+                    return (
+                      <div key={b.number}>
+                        {outstandingBills.length > 1 && (
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs font-semibold text-foreground">{b.number}</p>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+                              {t("subscriptionMigration.notPaid")}
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </DrawerContent>
-                </Drawer>
+                        )}
+                        <SummaryRow label={t("subscriptionMigration.currentBalance")} value={<><RiyalSymbol /> {b.currentBalance.toFixed(2)}</>} />
+                        <SummaryRow label={t("subscriptionMigration.unbilledAmount")} value={<><RiyalSymbol /> {b.unbilledAmount.toFixed(2)}</>} />
+                        <SummaryRow label={t("subscriptionMigration.oobUsage")} value={<><RiyalSymbol /> {b.outOfBundle.toFixed(2)}</>} />
+                        <SummaryRow label={t("subscriptionMigration.totalOutstanding")} value={<><RiyalSymbol /> {total.toFixed(2)}</>} />
+                      </div>
+                    );
+                  })}
+                </div>
               </CardSection>
             )}
 
