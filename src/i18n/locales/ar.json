@@ -2296,7 +2296,8 @@
       "aPlan": "باقة",
       "topupAmount": "قيمة الشحن",
       "topupMin": "شحن لا يقل عن 10 ريال",
-      "portContact": "رقم تواصل لطلب النقل"
+      "portContact": "رقم تواصل لطلب النقل",
+      "walletBalance": "رصيد محفظة كافٍ للدفع، أو التحويل إلى جهاز نقاط البيع"
     },
     "identity": {
       "title": "الهوية",
@@ -2633,6 +2634,8 @@
       "paymentMethod": "طريقة الدفع",
       "dealerWallet": "محفظة المندوب",
       "dealerWalletDesc": "رصيدك المتاح: {{balance}} ر.س",
+      "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال.",
+      "topUpWallet": "اشحن المحفظة",
       "posTerminal": "نقطة البيع",
       "posTerminalDesc": "تحصيل المبلغ نقداً من العميل",
       "promoCode": "كود العرض",
