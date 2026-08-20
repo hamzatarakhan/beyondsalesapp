@@ -606,7 +606,7 @@ const NewActivation5 = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
@@ -2430,7 +2430,7 @@ const NewActivation5 = () => {
                   <p className="text-sm font-semibold text-foreground">{t("activation5.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
                 </div>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation5.checkout.dealerWallet")} description={t("activation5.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} disabled={total > DEALER_WALLET_BALANCE} onClick={() => setPay("card")}>
+                  <PayOption icon={CreditCard} label={t("activation5.checkout.dealerWallet")} description={t("activation5.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} disabled={total > DEALER_WALLET_BALANCE} justToppedUp={justToppedUp} onClick={() => setPay("card")}>
                     {total > DEALER_WALLET_BALANCE && (
                       <WalletShortNotice
                         message={t("activation5.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}

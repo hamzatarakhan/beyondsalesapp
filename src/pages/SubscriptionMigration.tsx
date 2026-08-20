@@ -155,7 +155,7 @@ const SubscriptionMigration = () => {
   const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   // "Option 1" (no param) keeps today's behavior — direction is auto-detected from
   // whichever number the dealer looks up. "Option 2" is two separate Home entry points,
@@ -798,7 +798,7 @@ const SubscriptionMigration = () => {
             {!(direction === "pre-to-post" && isWhitelisted) && (
               <CardSection title={t("subscriptionMigration.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                  <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
                     {walletShort && (
                       <WalletShortNotice
                         message={t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}

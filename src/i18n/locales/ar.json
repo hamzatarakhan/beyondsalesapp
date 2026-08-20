@@ -1,4 +1,7 @@
 {
+  "common": {
+    "toppedUp": "تم الشحن"
+  },
   "myShifts": {
     "pageTitle": "دواماتي",
     "filters": "التصفية",

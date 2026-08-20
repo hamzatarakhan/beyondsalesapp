@@ -220,7 +220,7 @@ const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + billTota
 const BillPayment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
 
   const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
     "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
@@ -815,6 +815,7 @@ const BillPayment = () => {
                   description={t("billPayment.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })}
                   selected={payMethod === "wallet"}
                   disabled={walletShort}
+                  justToppedUp={justToppedUp}
                   onClick={() => setPayMethod("wallet")}
                 >
                   {walletShort && (

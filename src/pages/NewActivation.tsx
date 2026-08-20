@@ -573,7 +573,7 @@ const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWln
 const NewActivation = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
@@ -2178,7 +2178,7 @@ const NewActivation = () => {
                   <p className="text-sm font-semibold text-foreground">{t("activation.checkout.paymentMethod")} <span className="text-destructive">*</span></p>
                 </div>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} disabled={total > DEALER_WALLET_BALANCE} onClick={() => setPay("card")}>
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} disabled={total > DEALER_WALLET_BALANCE} justToppedUp={justToppedUp} onClick={() => setPay("card")}>
                     {total > DEALER_WALLET_BALANCE && (
                       <WalletShortNotice
                         message={t("activation.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}

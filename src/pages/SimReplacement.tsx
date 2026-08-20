@@ -118,7 +118,7 @@ const ESIM_FEE = 10;
 const SimReplacement = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   // Option 2 collects ID Type/Nationality/ID Number up front (before search), matching SIM
   // Activation's Identity step, instead of pre-filling them from the matched record after
@@ -631,7 +631,7 @@ const SimReplacement = () => {
                 {isChargeable && (
                   <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
-                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
                         {walletShort && (
                           <WalletShortNotice
                             message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}

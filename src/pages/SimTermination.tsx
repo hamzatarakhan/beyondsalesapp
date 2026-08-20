@@ -158,7 +158,7 @@ const SimTermination = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { brand } = useBrand();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   // Options 2 & 3 collect ID Type/Nationality/ID Number/MSISDN up front (Continue does the
   // lookup and advances, no Search button), and bundle Termination Reason + Verification +
@@ -675,7 +675,7 @@ const SimTermination = () => {
                 {needsPayment && !amountToPayIsZero && (
                   <CardSection title={t("simTermination.paymentMethod")} icon={CreditCard}>
                     <div className="space-y-2">
-                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
                         {walletShort && (
                           <WalletShortNotice
                             message={t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}

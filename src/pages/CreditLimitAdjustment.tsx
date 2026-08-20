@@ -93,7 +93,7 @@ const AMOUNT_SLOT = AMOUNT_ITEM_WIDTH + AMOUNT_ITEM_GAP;
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
   // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
@@ -639,7 +639,7 @@ const CreditLimitAdjustment = () => {
             {direction === "increase" && (
               <CardSection title={t("creditLimitAdjustment.paymentMethod")} icon={CreditCard}>
                 <div className="space-y-2">
-                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} onClick={() => setPayMethod("wallet")}>
+                  <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
                     {walletShort && (
                       <WalletShortNotice
                         message={t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}

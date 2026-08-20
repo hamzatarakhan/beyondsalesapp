@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,17 +12,26 @@ interface Props {
   onClick: () => void;
   /** Extra content rendered inside this same card, below the row — e.g. an insufficient-balance notice. */
   children?: ReactNode;
+  /** Small confirmation badge pinned to the card's top corner — e.g. right after a wallet top-up. */
+  justToppedUp?: boolean;
 }
 
-const PayOption = ({ icon: Icon, label, description, selected, disabled, onClick, children }: Props) => (
+const PayOption = ({ icon: Icon, label, description, selected, disabled, onClick, children, justToppedUp }: Props) => {
+  const { t } = useTranslation();
+  return (
   <div
     className={cn(
-      "w-full rounded-xl transition-colors",
+      "relative w-full rounded-xl transition-colors",
       disabled
         ? "border border-border bg-muted/60"
         : selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border",
     )}
   >
+    {justToppedUp && (
+      <span className="absolute -top-2 end-3 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-semibold shadow-sm">
+        {t("common.toppedUp")}
+      </span>
+    )}
     <button
       type="button"
       onClick={onClick}
@@ -46,6 +56,7 @@ const PayOption = ({ icon: Icon, label, description, selected, disabled, onClick
     </button>
     {children && <div className="px-3 pb-3">{children}</div>}
   </div>
-);
+  );
+};
 
 export default PayOption;
