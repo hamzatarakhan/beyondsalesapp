@@ -13,7 +13,9 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
+import { VerifiedBanner } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import {
   Phone,
   IdCard,
@@ -218,6 +220,8 @@ const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + billTota
 const BillPayment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
 
   const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
     "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
@@ -822,9 +826,14 @@ const BillPayment = () => {
                 />
               </div>
               {walletShort && (
-                <p className="text-[11px] text-destructive mt-2">
-                  {t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
-                </p>
+                <div className="mt-2">
+                  <p className="text-[11px] text-destructive">
+                    {t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
+                  </p>
+                  <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
+                    {t("billPayment.topUpWallet")}
+                  </button>
+                </div>
               )}
             </CardSection>
 
@@ -1019,6 +1028,8 @@ const BillPayment = () => {
           </button>
         </DialogContent>
       </Dialog>
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

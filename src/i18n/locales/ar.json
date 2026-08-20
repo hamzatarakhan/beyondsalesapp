@@ -427,6 +427,7 @@
     "posTerminal": "جهاز نقاط البيع",
     "posTerminalDesc": "تحصيل نقداً أو بالبطاقة من العميل",
     "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال. استخدم جهاز نقاط البيع بدلاً من ذلك.",
+    "topUpWallet": "اشحن المحفظة",
     "otpVerification": "التحقق برمز OTP",
     "otpVerified": "تم التحقق برمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من الرمز",

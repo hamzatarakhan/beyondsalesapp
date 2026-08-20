@@ -427,6 +427,7 @@
     "posTerminal": "POS Terminal",
     "posTerminalDesc": "Collect cash or card from the customer",
     "walletShort": "Wallet balance is short by {{amount}} SAR. Use the POS terminal instead.",
+    "topUpWallet": "Top Up Wallet",
     "otpVerification": "OTP Verification",
     "otpVerified": "OTP Verified",
     "sendVerifyOtp": "Send & verify OTP",
