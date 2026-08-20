@@ -127,7 +127,7 @@ const Home = () => {
   // badge pairing as Credit Limit Adjustment's options. Split into two arrays (rather than
   // one) so the SIM Services card can render them as two sub-sections separated by a divider.
   const simReplacementOptions = [
-    { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("simReplacement.optionBadge", { number: 1 }), badgeTone: "special" as const },
+    { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN before search),
     // no card wrapper, SIM type/checkout moved to page 2 with no summary.
     { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("simReplacement.optionBadge", { number: 2 }), badgeTone: "special" as const },
@@ -136,11 +136,11 @@ const Home = () => {
     // split across 3 stages. Still reachable directly at /sim-replacement?option=3.
   ];
   const simTerminationOptions = [
-    { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("simTermination.optionBadge", { number: 1 }), badgeTone: "special" as const },
+    { id: "sim-termination", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN), Continue does the
     // lookup and advances; Termination Reason + Verification + Bill/Payment + Terms all land
     // on one second page instead of being split across the reveal-after-lookup pattern.
-    { id: "sim-termination-2", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=2", badge: t("simTermination.optionBadge", { number: 2 }), badgeTone: "special" as const },
+    { id: "sim-termination-2", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=2", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Same layout as option 2 (identity up front, Continue does lookup+advance, Termination
     // Reason inline on page 2, no summary card), but the Outstanding Bill section is styled
     // like Bill Payment's bill card (always expanded, no collapse) with Payment Method
@@ -155,10 +155,10 @@ const Home = () => {
   // replacing the increase/decrease toggle), so they can be reviewed side by side.
   // "special" badge tone flags them as alternate options rather than a rollout-status badge.
   const creditLimitOptions = [
-    { id: "credit-limit-1", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=1", badge: t("home.creditLimitOptions.optionBadge", { number: 1 }), badgeTone: "special" as const },
-    { id: "credit-limit-2", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=2", badge: t("home.creditLimitOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
-    { id: "credit-limit-3", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=3", badge: t("home.creditLimitOptions.optionBadge", { number: 3 }), badgeTone: "special" as const },
-    { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.creditLimitOptions.optionBadge", { number: 4 }), badgeTone: "special" as const },
+    { id: "credit-limit-1", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=1", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "credit-limit-2", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=2", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "credit-limit-3", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=3", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "credit-limit-5", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5", badge: t("home.creditLimitOptions.optionBadge", { number: 5 }), badgeTone: "special" as const },
   ];
 
@@ -168,7 +168,7 @@ const Home = () => {
   // number can migrate. Both direction-locked tiles share the "Option 2" badge — they're
   // one design alternative split across two entry points, not two separate options.
   const subscriptionMigrationOptions = [
-    { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 1 }), badgeTone: "special" as const },
+    { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "migration-pre-to-post", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
     { id: "migration-post-to-pre", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre", badge: t("home.subscriptionMigrationOptions.optionBadge", { number: 2 }), badgeTone: "special" as const },
   ];
