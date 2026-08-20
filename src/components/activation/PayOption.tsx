@@ -28,7 +28,7 @@ const PayOption = ({ icon: Icon, label, description, selected, disabled, onClick
     )}
   >
     {justToppedUp && (
-      <span className="absolute -top-2 end-3 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-semibold shadow-sm">
+      <span className="absolute top-0 end-0 bg-emerald-600 text-white text-[9px] font-semibold px-2 py-1 rounded-se-xl rounded-es-md z-10">
         {t("common.toppedUp")}
       </span>
     )}
