@@ -14,7 +14,9 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
+import { VerifiedBanner } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import {
   Phone,
   TrendingUp,
@@ -91,6 +93,8 @@ const AMOUNT_SLOT = AMOUNT_ITEM_WIDTH + AMOUNT_ITEM_GAP;
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
@@ -296,7 +300,8 @@ const CreditLimitAdjustment = () => {
 
   // ---------- Gates ----------
   const canContinueAdjust = eligible && delta > 0 && newLimit >= 0;
-  const canConfirm = otpVerified;
+  const walletShort = direction === "increase" && payMethod === "wallet" && delta > DEALER_WALLET_BALANCE;
+  const canConfirm = otpVerified && !walletShort;
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -638,6 +643,16 @@ const CreditLimitAdjustment = () => {
                   <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
+                {walletShort && (
+                  <div className="mt-2">
+                    <p className="text-[11px] text-destructive">
+                      {t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    </p>
+                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
+                      {t("creditLimitAdjustment.topUpWallet")}
+                    </button>
+                  </div>
+                )}
               </CardSection>
             )}
           </>
@@ -785,6 +800,8 @@ const CreditLimitAdjustment = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

@@ -694,6 +694,8 @@
     "otpVerified": "OTP Verified",
     "sendVerifyOtp": "Send & verify OTP",
     "paymentMethod": "Payment Method",
+    "walletShort": "Wallet balance is short by {{amount}} SAR.",
+    "topUpWallet": "Top Up Wallet",
     "enterVerificationCode": "Enter Verification Code",
     "otpIncorrect": "The verification code you entered is incorrect. Please try again.",
     "otpSentViaSms": "We sent you a verification code via SMS",

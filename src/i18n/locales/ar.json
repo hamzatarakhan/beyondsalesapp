@@ -694,6 +694,8 @@
     "otpVerified": "تم التحقق برمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من الرمز",
     "paymentMethod": "طريقة الدفع",
+    "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال.",
+    "topUpWallet": "اشحن المحفظة",
     "enterVerificationCode": "أدخل رمز التحقق",
     "otpIncorrect": "رمز التحقق الذي أدخلته غير صحيح. يرجى المحاولة مرة أخرى.",
     "otpSentViaSms": "لقد أرسلنا لك رمز تحقق عبر رسالة نصية",
