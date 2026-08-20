@@ -240,7 +240,6 @@
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
     "notFoundTitle": "غير موجود",
     "gotIt": "حسناً",
-    "optionBadge": "خيار {{number}}",
     "lineDetails": "بيانات الخط",
     "subscriptionType": "نوع الاشتراك",
     "identityDetails": "بيانات الهوية",
@@ -323,7 +322,6 @@
     "replacementSummary": "ملخص الاستبدال",
     "replacementType": "نوع الاستبدال",
     "newSimTypeLabel": "نوع الشريحة الجديد",
-    "optionBadge": "خيار {{number}}",
     "kitCode": "رمز KIT",
     "fee": "الرسوم",
     "feeDetails": "تفاصيل الرسوم",
@@ -1028,6 +1026,7 @@
     "simActivationOptions": "خيارات تفعيل الشريحة",
     "oldApproaches": "الطرق القديمة",
     "newPlanCardOptions": "خيارات بطاقة الباقة الجديدة",
+    "simServices": "خدمات الشريحة",
     "memberOnboarding": "تأهيل الأعضاء",
     "channelOnboarding": "تأهيل القنوات",
     "onboardingRequests": "طلبات التأهيل",
@@ -1036,13 +1035,9 @@
     "subscriptionMigration": "ترحيل الاشتراك",
     "subscriptionMigrationOptions": {
       "preToPost": "مسبق الدفع إلى الفوترة",
-      "postToPre": "الفوترة إلى مسبق الدفع",
-      "optionBadge": "خيار {{number}}"
+      "postToPre": "الفوترة إلى مسبق الدفع"
     },
     "creditLimitAdjustment": "تعديل حد الائتمان",
-    "creditLimitOptions": {
-      "optionBadge": "خيار {{number}}"
-    },
     "otherOptions": {
       "title": "خيارات أخرى"
     },

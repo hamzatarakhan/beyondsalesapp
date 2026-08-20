@@ -240,7 +240,6 @@
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
     "notFoundTitle": "Not Found",
     "gotIt": "Got It",
-    "optionBadge": "Option {{number}}",
     "lineDetails": "Line Details",
     "subscriptionType": "Subscription Type",
     "identityDetails": "Identity Details",
@@ -323,7 +322,6 @@
     "replacementSummary": "Replacement Summary",
     "replacementType": "Replacement Type",
     "newSimTypeLabel": "New SIM Type",
-    "optionBadge": "Option {{number}}",
     "kitCode": "KIT Code",
     "fee": "Fee",
     "feeDetails": "Fee Details",
@@ -1028,6 +1026,7 @@
     "simActivationOptions": "SIM Activation Options",
     "oldApproaches": "Old approaches",
     "newPlanCardOptions": "New plan card options",
+    "simServices": "SIM Services",
     "memberOnboarding": "Member Onboarding",
     "channelOnboarding": "Channel Onboarding",
     "onboardingRequests": "Onboarding Requests",
@@ -1036,13 +1035,9 @@
     "subscriptionMigration": "Subscription Migration",
     "subscriptionMigrationOptions": {
       "preToPost": "Prepaid to Postpaid",
-      "postToPre": "Postpaid to Prepaid",
-      "optionBadge": "Option {{number}}"
+      "postToPre": "Postpaid to Prepaid"
     },
     "creditLimitAdjustment": "Credit Limit Adjustment",
-    "creditLimitOptions": {
-      "optionBadge": "Option {{number}}"
-    },
     "otherOptions": {
       "title": "Other Options"
     },

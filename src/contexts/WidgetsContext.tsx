@@ -11,6 +11,7 @@ export interface WidgetConfig {
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "e-wallets", enabled: true },
   { id: "customer-activities", enabled: true },
+  { id: "sim-services", enabled: true },
   { id: "other-options", enabled: true },
   { id: "other-services", enabled: true },
   { id: "member-onboarding", enabled: true },
@@ -26,6 +27,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "customer-activities": "home.customerActivities",
   "e-wallets": "home.eWallets",
   "other-services": "home.otherServices",
+  "sim-services": "home.simServices",
   "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",
   "dealer-visit": "home.dealerVisit.title",
@@ -45,7 +47,9 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped again to v11 so devices pick up E Wallets moving to the very top of Home.
 // Bumped again to v12: Credit Limit Options, Subscription Migration Options, and SIM
 // Services were consolidated into one "Other Options" widget.
-const STORAGE_KEY = "app-widgets-v12";
+// Bumped again to v13: SIM Services split back out into its own widget, positioned right
+// after Customer Activities, holding every SIM Replacement/Termination option tile.
+const STORAGE_KEY = "app-widgets-v13";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
