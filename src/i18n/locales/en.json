@@ -1,4 +1,10 @@
 {
+  "topUpSheet": {
+    "title": "Top Up Wallet",
+    "subtitle": "Add funds to the dealer wallet to continue.",
+    "customAmountPlaceholder": "Or enter a custom amount",
+    "topUpNow": "Top Up Now"
+  },
   "myShifts": {
     "pageTitle": "My Shifts",
     "filters": "Filters",
@@ -469,6 +475,7 @@
     "transferAmount": "Transfer Amount",
     "dealerWalletBalance": "Dealer Wallet Balance",
     "insufficientBalance": "Your wallet balance isn't enough to cover this transfer. Pick a smaller amount or top up your wallet.",
+    "topUpWallet": "Top Up Wallet",
     "continue": "Continue",
     "transferSummary": "Transfer Summary",
     "amount": "Amount",

@@ -10,7 +10,9 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE, VerifiedBanner } from "@/pages/NewActivation";
+import { VerifiedBanner } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import {
   Phone,
   ClipboardList,
@@ -76,6 +78,8 @@ const AMOUNT_PRESETS = [10, 20, 50, 100, 200, 600];
 const CreditTransfer = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -259,7 +263,12 @@ const CreditTransfer = () => {
                 {insufficientBalance && (
                   <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
                     <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                    <p className="text-[13px] text-destructive leading-snug">{t("creditTransfer.insufficientBalance")}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-destructive leading-snug">{t("creditTransfer.insufficientBalance")}</p>
+                      <button type="button" onClick={() => setTopUpOpen(true)} className="text-[13px] font-semibold text-primary mt-1">
+                        {t("creditTransfer.topUpWallet")}
+                      </button>
+                    </div>
                   </div>
                 )}
               </>
@@ -452,6 +461,8 @@ const CreditTransfer = () => {
           </button>
         </DialogContent>
       </Dialog>
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

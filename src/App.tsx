@@ -9,6 +9,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { BrandProvider } from "./contexts/BrandContext";
 import { WidgetsProvider } from "./contexts/WidgetsContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { WalletBalanceProvider } from "./contexts/WalletBalanceContext";
 import SplashScreen from "./components/SplashScreen";
 import BrandSwitchLoader from "./components/BrandSwitchLoader";
 import Login from "./pages/Login";
@@ -89,6 +90,7 @@ const App = () => {
     <LanguageProvider>
     <BrandProvider>
     <WidgetsProvider>
+    <WalletBalanceProvider>
     <AuthProvider>
       <TooltipProvider>
         {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
@@ -158,6 +160,7 @@ const App = () => {
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
+    </WalletBalanceProvider>
     </WidgetsProvider>
     </BrandProvider>
     </LanguageProvider>

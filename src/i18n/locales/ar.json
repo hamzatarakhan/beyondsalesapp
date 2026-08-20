@@ -1,4 +1,10 @@
 {
+  "topUpSheet": {
+    "title": "شحن المحفظة",
+    "subtitle": "أضف رصيداً إلى محفظة الموزّع للمتابعة.",
+    "customAmountPlaceholder": "أو أدخل مبلغاً مخصصاً",
+    "topUpNow": "اشحن الآن"
+  },
   "myShifts": {
     "pageTitle": "دواماتي",
     "filters": "التصفية",
@@ -469,6 +475,7 @@
     "transferAmount": "مبلغ التحويل",
     "dealerWalletBalance": "رصيد محفظة الموزّع",
     "insufficientBalance": "رصيد محفظتك غير كافٍ لتغطية هذا التحويل. اختر مبلغاً أصغر أو اشحن محفظتك.",
+    "topUpWallet": "اشحن المحفظة",
     "continue": "متابعة",
     "transferSummary": "ملخص التحويل",
     "amount": "المبلغ",
