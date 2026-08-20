@@ -593,8 +593,9 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
         </div>
       </div>
 
-      {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), finish())}>
+      {/* Success — not dismissible by backdrop tap/drag: a stray tap while it's showing
+          shouldn't silently swallow the confirmation and skip straight back. */}
+      <Drawer open={successOpen} dismissible={false} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), finish())}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
