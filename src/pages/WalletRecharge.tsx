@@ -585,7 +585,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
             <span className="text-[12px] text-muted-foreground">{t("walletRecharge.dealerWalletBalance")}</span>
             <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
           </div>
-          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveRecharge}>
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit || processing} onClick={resolveRecharge}>
             {method === "voucher"
               ? t("walletRecharge.topUp")
               : <>{t("walletRecharge.pay")} <RiyalSymbol /> {rechargeAmount?.toFixed(2)}</>}
@@ -594,9 +594,13 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
       </div>
 
       {/* Success — not dismissible by backdrop tap/drag: a stray tap while it's showing
-          shouldn't silently swallow the confirmation and skip straight back. */}
-      <Drawer open={successOpen} dismissible={false} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), finish())}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
+          shouldn't silently swallow the confirmation and skip straight back. z-[250] on the
+          content: when this component is rendered inside the top-up overlay (see
+          WalletTopUpOverlayHost in App.tsx, z-[200]), the sheet's default z-50 put it
+          *behind* that overlay's opaque background — technically "open" (correct DOM state,
+          correct geometry) but completely hidden from view the entire time it was shown. */}
+      <Drawer open={successOpen} dismissible={false} shouldScaleBackground={false} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), finish())}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 z-[250]">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
               <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
@@ -620,9 +624,9 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
         </DrawerContent>
       </Drawer>
 
-      {/* Failure */}
-      <Drawer open={failureOpen} onOpenChange={setFailureOpen}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
+      {/* Failure — same z-[250] fix as the success sheet above (see comment there). */}
+      <Drawer open={failureOpen} shouldScaleBackground={false} onOpenChange={setFailureOpen}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 z-[250]">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-destructive/15 p-3 mb-4">
               <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
