@@ -82,7 +82,7 @@ import { SignatureBox, SignaturePadSheet } from "@/components/activation/Signatu
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import { useBrand } from "@/contexts/BrandContext";
 
 // ---------- Types ----------
@@ -623,7 +623,6 @@ const NewActivation3 = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
@@ -2562,14 +2561,10 @@ const NewActivation3 = () => {
                   <PayOption icon={HandCoins} label={t("activation3.checkout.posTerminal")} description={t("activation3.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
                 {pay === "card" && total > DEALER_WALLET_BALANCE && (
-                  <div className="mt-2">
-                    <p className="text-[11px] text-destructive">
-                      {t("activation3.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    </p>
-                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                      {t("activation3.checkout.topUpWallet")}
-                    </button>
-                  </div>
+                  <WalletShortNotice
+                    message={t("activation3.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    buttonLabel={t("activation3.checkout.topUpWallet")}
+                  />
                 )}
               </section>
             )}
@@ -2826,7 +2821,6 @@ const NewActivation3 = () => {
 
       {/* Customer verification */}
       <SematiVerification open={customerVerifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setCustomerVerifyOpen(false)} onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }} />
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={optionSwitching || activationSubmitting} />
       <NafithVerificationModal open={nafithVerifyOpen} onClose={() => setNafithVerifyOpen(false)} onVerified={() => { setNafithVerifyOpen(false); setNafithVerified(true); }} />

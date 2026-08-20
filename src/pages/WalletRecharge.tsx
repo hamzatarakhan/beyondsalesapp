@@ -10,7 +10,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Ticket,
@@ -172,6 +172,7 @@ type CardEntry = { id: string; brand: string; last4: string; expiry: string; hol
 const WalletRecharge = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE, topUp } = useWalletBalance();
 
   const [method, setMethod] = useState<Method>("voucher");
 
@@ -260,6 +261,7 @@ const WalletRecharge = () => {
       const ok = Math.random() < 0.85;
       if (ok) {
         setOrderId(`WR-${Math.floor(100000 + Math.random() * 900000)}`);
+        if (rechargeAmount) topUp(rechargeAmount);
         setSuccessOpen(true);
       } else {
         setFailureOpen(true);

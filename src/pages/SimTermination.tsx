@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useBrand } from "@/contexts/BrandContext";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import {
   VerifiedBanner,
   NATIONALITY_CODES,
@@ -159,7 +159,6 @@ const SimTermination = () => {
   const { t } = useTranslation();
   const { brand } = useBrand();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Options 2 & 3 collect ID Type/Nationality/ID Number/MSISDN up front (Continue does the
   // lookup and advances, no Search button), and bundle Termination Reason + Verification +
@@ -680,14 +679,10 @@ const SimTermination = () => {
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
                     {walletShort && (
-                      <div className="mt-2">
-                        <p className="text-[11px] text-destructive">
-                          {t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}
-                        </p>
-                        <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                          {t("simTermination.topUpWallet")}
-                        </button>
-                      </div>
+                      <WalletShortNotice
+                        message={t("simTermination.walletShort", { amount: money(amountToPayNum - DEALER_WALLET_BALANCE) })}
+                        buttonLabel={t("simTermination.topUpWallet")}
+                      />
                     )}
                   </CardSection>
                 )}
@@ -1001,8 +996,6 @@ const SimTermination = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

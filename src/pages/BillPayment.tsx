@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { VerifiedBanner } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import {
   Phone,
   IdCard,
@@ -221,7 +221,6 @@ const BillPayment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
 
   const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
     "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
@@ -826,14 +825,10 @@ const BillPayment = () => {
                 />
               </div>
               {walletShort && (
-                <div className="mt-2">
-                  <p className="text-[11px] text-destructive">
-                    {t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
-                  </p>
-                  <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                    {t("billPayment.topUpWallet")}
-                  </button>
-                </div>
+                <WalletShortNotice
+                  message={t("billPayment.walletShort", { amount: money(totalToPay - DEALER_WALLET_BALANCE) })}
+                  buttonLabel={t("billPayment.topUpWallet")}
+                />
               )}
             </CardSection>
 
@@ -1028,8 +1023,6 @@ const BillPayment = () => {
           </button>
         </DialogContent>
       </Dialog>
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

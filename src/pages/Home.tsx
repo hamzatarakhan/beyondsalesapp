@@ -38,7 +38,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { DEALER_WALLET_BALANCE } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
 import virginMobileLogo from "@/assets/virgin-mobile-logo.svg";
 import friendiMobileLogo from "@/assets/friendi-mobile-logo.svg";
 import {
@@ -76,6 +76,7 @@ const Home = () => {
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const { widgets } = useWidgets();
   const { isRtl } = useLanguage();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
   const [operatorSheetOpen, setOperatorSheetOpen] = useState(false);
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
   const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true, direction: isRtl ? "rtl" : "ltr" });

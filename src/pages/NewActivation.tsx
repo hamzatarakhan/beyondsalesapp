@@ -79,6 +79,8 @@ import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useBrand } from "@/contexts/BrandContext";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import WalletShortNotice from "@/components/WalletShortNotice";
 
 // ---------- Types ----------
 type SimType = "psim" | "esim";
@@ -571,6 +573,7 @@ const DEALER_SAVED_SIG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWln
 const NewActivation = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
@@ -1096,8 +1099,9 @@ const NewActivation = () => {
     if (!customerSig) missing.push(t("activation.checkout.customerSig"));
     if (!dealerSig) missing.push(t("activation.checkout.dealerSig"));
     if (!terms) missing.push(t("activation.checkout.terms"));
+    if (pay === "card" && total > DEALER_WALLET_BALANCE) missing.push(t("activation.missing.walletBalance"));
     return missing;
-  }, [emailRequired, contactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, t]);
+  }, [emailRequired, contactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, pay, total, DEALER_WALLET_BALANCE, t]);
 
   const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
   const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
@@ -2177,6 +2181,12 @@ const NewActivation = () => {
                   <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={pay === "card"} onClick={() => setPay("card")} />
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
+                {pay === "card" && total > DEALER_WALLET_BALANCE && (
+                  <WalletShortNotice
+                    message={t("activation.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    buttonLabel={t("activation.checkout.topUpWallet")}
+                  />
+                )}
               </section>
             )}
 

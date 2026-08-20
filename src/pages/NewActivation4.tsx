@@ -83,7 +83,7 @@ import { SignatureBox, SignaturePadSheet } from "@/components/activation/Signatu
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useBrand } from "@/contexts/BrandContext";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 
 // ---------- Types ----------
 type SimType = "psim" | "esim";
@@ -607,7 +607,6 @@ const NewActivation4 = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
@@ -2435,14 +2434,10 @@ const NewActivation4 = () => {
                   <PayOption icon={HandCoins} label={t("activation4.checkout.posTerminal")} description={t("activation4.checkout.posTerminalDesc")} selected={pay === "pos"} onClick={() => setPay("pos")} />
                 </div>
                 {pay === "card" && total > DEALER_WALLET_BALANCE && (
-                  <div className="mt-2">
-                    <p className="text-[11px] text-destructive">
-                      {t("activation4.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    </p>
-                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                      {t("activation4.checkout.topUpWallet")}
-                    </button>
-                  </div>
+                  <WalletShortNotice
+                    message={t("activation4.checkout.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    buttonLabel={t("activation4.checkout.topUpWallet")}
+                  />
                 )}
               </section>
             )}
@@ -3230,8 +3225,6 @@ const NewActivation4 = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
     </div>
   );
 };

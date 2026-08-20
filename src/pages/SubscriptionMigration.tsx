@@ -9,7 +9,7 @@ import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, VerifiedBanner, type IdTypeRule } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,7 +156,6 @@ const SubscriptionMigration = () => {
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // "Option 1" (no param) keeps today's behavior — direction is auto-detected from
   // whichever number the dealer looks up. "Option 2" is two separate Home entry points,
@@ -803,14 +802,10 @@ const SubscriptionMigration = () => {
                   <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
                 {walletShort && (
-                  <div className="mt-2">
-                    <p className="text-[11px] text-destructive">
-                      {t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    </p>
-                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                      {t("subscriptionMigration.topUpWallet")}
-                    </button>
-                  </div>
+                  <WalletShortNotice
+                    message={t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    buttonLabel={t("subscriptionMigration.topUpWallet")}
+                  />
                 )}
               </CardSection>
             )}
@@ -1165,8 +1160,6 @@ const SubscriptionMigration = () => {
         onClose={() => setCustomerVerifyOpen(false)}
         onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
       />
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
     </div>
   );
 };

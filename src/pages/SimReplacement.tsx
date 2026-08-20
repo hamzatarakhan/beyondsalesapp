@@ -25,7 +25,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import {
   VerifiedBanner,
   NATIONALITY_CODES,
@@ -119,7 +119,6 @@ const SimReplacement = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Option 2 collects ID Type/Nationality/ID Number up front (before search), matching SIM
   // Activation's Identity step, instead of pre-filling them from the matched record after
@@ -636,14 +635,10 @@ const SimReplacement = () => {
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                     </div>
                     {walletShort && (
-                      <div className="mt-2">
-                        <p className="text-[11px] text-destructive">
-                          {t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
-                        </p>
-                        <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                          {t("simReplacement.topUpWallet")}
-                        </button>
-                      </div>
+                      <WalletShortNotice
+                        message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        buttonLabel={t("simReplacement.topUpWallet")}
+                      />
                     )}
                   </CardSection>
                 )}
@@ -967,8 +962,6 @@ const SimReplacement = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>

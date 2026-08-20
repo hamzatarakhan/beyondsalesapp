@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { VerifiedBanner } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
-import TopUpSheet from "@/components/TopUpSheet";
+import WalletShortNotice from "@/components/WalletShortNotice";
 import {
   Phone,
   TrendingUp,
@@ -94,7 +94,6 @@ const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
@@ -644,14 +643,10 @@ const CreditLimitAdjustment = () => {
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
                 {walletShort && (
-                  <div className="mt-2">
-                    <p className="text-[11px] text-destructive">
-                      {t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
-                    </p>
-                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
-                      {t("creditLimitAdjustment.topUpWallet")}
-                    </button>
-                  </div>
+                  <WalletShortNotice
+                    message={t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    buttonLabel={t("creditLimitAdjustment.topUpWallet")}
+                  />
                 )}
               </CardSection>
             )}
@@ -800,8 +795,6 @@ const CreditLimitAdjustment = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
 
       <BrandLoadingOverlay open={checking} />
     </div>
