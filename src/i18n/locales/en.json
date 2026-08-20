@@ -324,6 +324,7 @@
     "optionBadge": "Option {{number}}",
     "kitCode": "KIT Code",
     "fee": "Fee",
+    "feeDetails": "Fee Details",
     "free": "Free",
     "chargeableNotePsim": "This customer already used their free replacement. {{fee}} SAR will be charged for this physical SIM replacement.",
     "chargeableNoteEsim": "This customer already used their free replacement. {{fee}} SAR will be charged for this eSIM replacement.",

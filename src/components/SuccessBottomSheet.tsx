@@ -16,6 +16,8 @@ export interface SuccessBottomSheetProps {
   message?: string;
   /** Overrides the default "Activated Number:" label next to phoneNumber. */
   phoneNumberLabel?: string;
+  /** Hides the "Order ID:" line — off by default, some flows (e.g. SIM Replacement) don't want it shown. */
+  showOrderId?: boolean;
   children?: ReactNode;
 }
 
@@ -28,6 +30,7 @@ export function SuccessBottomSheet({
   title,
   message,
   phoneNumberLabel,
+  showOrderId = true,
   children,
 }: SuccessBottomSheetProps) {
   const { t } = useTranslation();
@@ -59,9 +62,11 @@ export function SuccessBottomSheet({
               {message ?? t("activation.success.message")}
             </p>
           )}
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("activation.success.orderId")} <span className="font-semibold text-foreground">{orderId}</span>
-          </p>
+          {showOrderId && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("activation.success.orderId")} <span className="font-semibold text-foreground">{orderId}</span>
+            </p>
+          )}
           {phoneNumber && (
             <p className="text-xs text-muted-foreground mt-1">
               {phoneNumberLabel ?? t("activation.success.mobileNumber")} <span className="font-semibold text-foreground" dir="ltr">{phoneNumber}</span>

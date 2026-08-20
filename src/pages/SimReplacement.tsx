@@ -40,7 +40,6 @@ import {
   ClipboardList,
   AlertCircle,
   Check,
-  CheckCircle2,
   XCircle,
   Smartphone,
   QrCode,
@@ -153,11 +152,6 @@ const SimReplacement = () => {
   // Step 2 — Checkout
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [otpOpen, setOtpOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [otpError, setOtpError] = useState(false);
-  const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsChain, setTermsChain] = useState(false);
@@ -217,51 +211,6 @@ const SimReplacement = () => {
 
   const isKitValid = newSimType === "esim" || /^\d{10}$/.test(kit);
 
-  // ---------- OTP handlers (same behavior as SIM Activation / Subscription Migration checkout OTP) ----------
-  useEffect(() => {
-    if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
-    setOtpError(false);
-    setOtpSecondsLeft(30);
-    const interval = setInterval(() => {
-      setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [otpOpen]);
-
-  const setOtpDigitAt = (i: number, v: string) => {
-    const d = v.replace(/\D/g, "").slice(-1);
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[i] = d;
-      if (d && i === 5) {
-        const code = next.join("");
-        setTimeout(() => {
-          if (code === "111111") {
-            setOtpError(true);
-          } else {
-            setOtpError(false);
-            setOtpVerified(true);
-            setOtpOpen(false);
-          }
-        }, 300);
-      }
-      return next;
-    });
-    if (d && i < 5) {
-      const el = document.getElementById(`sim-replacement-otp-${i + 1}`) as HTMLInputElement | null;
-      el?.focus();
-    }
-  };
-
-  const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
-    setOtpError(false);
-    setOtpSecondsLeft(30);
-    const el = document.getElementById("sim-replacement-otp-0") as HTMLInputElement | null;
-    el?.focus();
-  };
-
   // ---------- Gates ----------
   // ID Number must match the selected ID Type's full rule (start digit(s) + exact length),
   // same as SIM Activation's Identity step.
@@ -277,7 +226,7 @@ const SimReplacement = () => {
   const canContinueDetails = eligible && idNumberValid && isKitValid;
   // Option 2 enters SIM type/KIT code on step 1 (no earlier gate enforces it), so it needs
   // checking here too — for option 1 it's already guaranteed true by canContinueDetails.
-  const canConfirm = verified && otpVerified && terms && isKitValid;
+  const canConfirm = verified && terms && isKitValid;
 
   // Option 2 — Continue on step 0 looks the customer up AND advances to step 1 on success,
   // instead of a separate Search button plus a second Continue button.
@@ -318,7 +267,6 @@ const SimReplacement = () => {
     setLookupError(null);
     setNewSimType("psim");
     setVerified(false);
-    setOtpVerified(false);
     setTerms(false);
     setPayMethod("wallet");
   };
@@ -615,9 +563,14 @@ const SimReplacement = () => {
                     <SummaryRow label={t("simReplacement.customerName")} value={customer.name} />
                     <SummaryRow label={t("simReplacement.replacementType")} value={replacementTypeLabel} />
                     {newSimType === "psim" && <SummaryRow label={t("simReplacement.kitCode")} value={kit} />}
-                    <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
                   </CardSection>
                 )}
+
+                {/* Fee shown in its own section on every option (option 2's checkout had no
+                    fee display at all before this — no Replacement Summary card to hold it). */}
+                <CardSection title={t("simReplacement.feeDetails")} icon={Wallet}>
+                  <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
+                </CardSection>
 
                 {isChargeable ? (
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
@@ -640,20 +593,6 @@ const SimReplacement = () => {
                     <VerifiedBanner label={t("simReplacement.customerVerified")} />
                   ) : (
                     <Button variant="outline" className="w-full" onClick={() => setVerifyOpen(true)}>{t("activation.checkout.verifyCustomer")}</Button>
-                  )}
-                </CardSection>
-
-                <CardSection title={t("activation.checkout.otp")} icon={Phone}>
-                  {otpVerified ? (
-                    <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3 flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{t("activation.checkout.verifiedTitle")}</p>
-                        <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">{t("activation.checkout.verifiedDesc")}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("activation.checkout.sendOtp")}</Button>
                   )}
                 </CardSection>
 
@@ -750,52 +689,6 @@ const SimReplacement = () => {
 
       {/* Customer verification */}
       <SematiVerification open={verifyOpen} audience="customer" allowedMethods={ID_TYPE_VERIFICATION_METHODS[idType]} onClose={() => setVerifyOpen(false)} onVerified={() => { setVerifyOpen(false); setVerified(true); }} />
-
-      {/* OTP verification */}
-      <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">{t("activation.otpSheet.title")}</h3>
-            <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("activation.otpSheet.errorSubtitle") : t("activation.otpSheet.subtitle")}
-            </p>
-            <div className="flex gap-3" dir="ltr">
-              {otpDigits.map((d, i) => (
-                <input
-                  key={i}
-                  id={`sim-replacement-otp-${i}`}
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={d}
-                  onChange={(e) => setOtpDigitAt(i, e.target.value)}
-                  className={cn(
-                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none",
-                    otpError ? "border-destructive text-destructive" : "border-border focus:border-primary text-foreground",
-                  )}
-                />
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {otpError ? (
-                <>
-                  {t("activation.otpSheet.resendLabel")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
-                </>
-              ) : otpSecondsLeft > 0 ? (
-                <>
-                  {t("activation.otpSheet.noCode")}{" "}
-                  <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
-                </>
-              ) : (
-                <>
-                  {t("activation.otpSheet.noCode")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activation.otpSheet.resend")}</button>
-                </>
-              )}
-            </p>
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
@@ -965,6 +858,7 @@ const SimReplacement = () => {
         open={successOpen}
         onClose={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
         orderId={orderId}
+        showOrderId={false}
         phoneNumber={customer?.msisdn}
         title={t("simReplacement.replacementCompleteTitle")}
         showMessage={false}
