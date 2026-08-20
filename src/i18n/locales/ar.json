@@ -824,6 +824,8 @@
     "paymentMethod": "طريقة الدفع",
     "dealerWallet": "محفظة الموزع",
     "dealerWalletDesc": "الدفع من محفظتك (رصيد {{balance}} ريال)",
+    "walletShort": "رصيد المحفظة أقل بمقدار {{amount}} ريال.",
+    "topUpWallet": "اشحن المحفظة",
     "posTerminal": "جهاز نقاط البيع",
     "posTerminalDesc": "تحصيل نقداً أو بالبطاقة من العميل",
     "customerVerification": "التحقق من العميل",

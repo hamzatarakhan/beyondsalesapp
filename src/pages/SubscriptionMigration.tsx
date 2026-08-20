@@ -7,7 +7,9 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, DEALER_WALLET_BALANCE, VerifiedBanner, type IdTypeRule } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, VerifiedBanner, type IdTypeRule } from "@/pages/NewActivation";
+import { useWalletBalance } from "@/contexts/WalletBalanceContext";
+import TopUpSheet from "@/components/TopUpSheet";
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -153,6 +155,8 @@ const SubscriptionMigration = () => {
   const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
+  const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [searchParams] = useSearchParams();
   // "Option 1" (no param) keeps today's behavior — direction is auto-detected from
   // whichever number the dealer looks up. "Option 2" is two separate Home entry points,
@@ -346,7 +350,11 @@ const SubscriptionMigration = () => {
   const creditLimit = Math.round(planPrice * 0.2 * 100) / 100;
   const outstandingBills = customer?.outstandingBills ?? [];
   const outstandingBalance = outstandingBills.reduce((sum, b) => sum + oldBillTotal(b), 0);
-  const total = direction === "pre-to-post" ? deposit : outstandingBalance;
+  const vat = Math.round(planPrice * 0.15 * 100) / 100;
+  // Actual amount charged — pre-to-post is deposit-only (no VAT); post-to-pre is plan +
+  // VAT + any outstanding bill on the old line.
+  const total = direction === "pre-to-post" ? deposit : Math.round((planPrice + vat + outstandingBalance) * 100) / 100;
+  const walletShort = payMethod === "wallet" && total > DEALER_WALLET_BALANCE;
 
   // ---------- OTP handlers (same behavior as the SIM Activation checkout OTP) ----------
   useEffect(() => {
@@ -418,7 +426,8 @@ const SubscriptionMigration = () => {
   const canPay =
     (direction === "post-to-pre" || customerVerified) &&
     otpVerified &&
-    termsAccepted;
+    termsAccepted &&
+    (direction === "pre-to-post" && isWhitelisted ? true : !walletShort);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -793,6 +802,16 @@ const SubscriptionMigration = () => {
                   <PayOption icon={Wallet} label={t("subscriptionMigration.dealerWallet")} description={t("subscriptionMigration.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} onClick={() => setPayMethod("wallet")} />
                   <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
                 </div>
+                {walletShort && (
+                  <div className="mt-2">
+                    <p className="text-[11px] text-destructive">
+                      {t("subscriptionMigration.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                    </p>
+                    <button type="button" onClick={() => setTopUpOpen(true)} className="text-[11px] font-semibold text-primary mt-0.5">
+                      {t("subscriptionMigration.topUpWallet")}
+                    </button>
+                  </div>
+                )}
               </CardSection>
             )}
 
@@ -1146,6 +1165,8 @@ const SubscriptionMigration = () => {
         onClose={() => setCustomerVerifyOpen(false)}
         onVerified={() => { setCustomerVerifyOpen(false); setCustomerVerified(true); }}
       />
+
+      <TopUpSheet open={topUpOpen} onOpenChange={setTopUpOpen} />
     </div>
   );
 };

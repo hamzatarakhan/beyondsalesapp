@@ -824,6 +824,8 @@
     "paymentMethod": "Payment Method",
     "dealerWallet": "Dealer Wallet",
     "dealerWalletDesc": "Pay from your wallet ({{balance}} SAR balance)",
+    "walletShort": "Wallet balance is short by {{amount}} SAR.",
+    "topUpWallet": "Top Up Wallet",
     "posTerminal": "POS Terminal",
     "posTerminalDesc": "Collect cash or card from the customer",
     "customerVerification": "Customer Verification",
