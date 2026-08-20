@@ -3434,7 +3434,8 @@
       "aPlan": "a plan",
       "topupAmount": "a top-up amount",
       "topupMin": "a top-up of at least 10 SAR",
-      "portContact": "a contact number for the port request"
+      "portContact": "a contact number for the port request",
+      "walletBalance": "enough wallet balance to pay, or switch to POS Terminal"
     },
     "identity": {
       "title": "Identity",
@@ -3769,6 +3770,8 @@
       "paymentMethod": "Payment Method",
       "dealerWallet": "Dealer Wallet",
       "dealerWalletDesc": "Your Available Balance: SAR {{balance}}",
+      "walletShort": "Wallet balance is short by {{amount}} SAR.",
+      "topUpWallet": "Top Up Wallet",
       "posTerminal": "POS Terminal",
       "posTerminalDesc": "Collect cash from the customer",
       "promoCode": "Promo Code",
