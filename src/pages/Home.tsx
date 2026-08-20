@@ -311,8 +311,8 @@ const Home = () => {
       </div>
     ),
     // Catch-all for Credit Limit / Subscription Migration option tiles not promoted into
-    // Customer Activities — Virgin-only, same as the rest of that group. SIM Replacement/
-    // Termination live in their own SIM Services widget instead (see below).
+    // Customer Activities, plus SIM Replacement/Termination options that were never in
+    // Customer Activities to begin with — Virgin-only items stay gated, SIM items don't.
     "other-options": (
       <div key="other-options" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -342,12 +342,23 @@ const Home = () => {
                 onClick={() => handleActivityClick(subscriptionMigrationOptions[0].path)}
               />
             )}
+            {[simReplacementOptions[0], simTerminationOptions[0], simTerminationOptions[1]].map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
           </div>
         </div>
       </div>
     ),
-    // SIM Replacement and SIM Termination, every option, both brands — its own widget
-    // right under Customer Activities instead of split across it and Other Options.
+    // Only the SIM Replacement/Termination tiles that used to live in Customer Activities
+    // (option 2 and option 3) — the ones that were already in Other Options stay there.
     "sim-services": (
       <div key="sim-services" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -355,7 +366,7 @@ const Home = () => {
             <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {[...simReplacementOptions, ...simTerminationOptions].map((item) => (
+            {[simReplacementOptions[1], simTerminationOptions[2]].map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
