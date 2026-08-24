@@ -52,7 +52,10 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped again to v14 to force a clean reset for any device whose stored order had SIM
 // Services (or any other widget added after their first save) stuck at the end — the
 // merge below now inserts new widgets at their default position instead of appending.
-const STORAGE_KEY = "app-widgets-v14";
+// Bumped again to v15: some devices still had SIM Services stuck at the end — likely a
+// stale v14 snapshot saved before that fix went live. A version bump is the only reliable
+// way to force those devices to drop what they've got and re-read DEFAULT_WIDGETS fresh.
+const STORAGE_KEY = "app-widgets-v15";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
