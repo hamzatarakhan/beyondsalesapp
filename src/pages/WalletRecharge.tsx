@@ -46,35 +46,6 @@ const CardSection = ({
   </section>
 );
 
-// mada (Saudi domestic debit network) and Visa — the two card networks the "Select Payment
-// Method" section accepts. Simple wordmark badges rather than traced logo paths, same as a
-// typical "we accept" strip, in each brand's real colors.
-const MadaMark = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 60 24" className={className} aria-hidden="true">
-    <rect width="60" height="24" rx="4" fill="#046A38" />
-    <path d="M0 24 60 0v24H0Z" fill="#00263A" fillOpacity="0.55" />
-    <text x="30" y="16.5" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FFFFFF" fontFamily="Arial, sans-serif">mada</text>
-  </svg>
-);
-
-const VisaMark = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 60 24" className={className} aria-hidden="true">
-    <rect width="60" height="24" rx="4" fill="#1A1F71" />
-    <text x="30" y="16.5" textAnchor="middle" fontSize="11" fontWeight="800" fontStyle="italic" fill="#FFFFFF" fontFamily="Arial, sans-serif">VISA</text>
-  </svg>
-);
-
-const RadioDot = ({ selected }: { selected: boolean }) => (
-  <div
-    className={cn(
-      "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-      selected ? "border-primary" : "border-muted-foreground/40"
-    )}
-  >
-    {selected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
-  </div>
-);
-
 const SWIPE_DELETE_WIDTH = 84;
 
 // Drag the row left with a finger/mouse to reveal a Delete panel behind it — tap without
@@ -473,36 +444,35 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
 
             <CardSection title={t("walletRecharge.selectPaymentMethod")} icon={CreditCard}>
               <div className="space-y-2.5">
-                {/* Visa */}
+                {/* Visa / mada — same card-art treatment as the saved cards below (gradient
+                    tile, brand mark, checkmark when selected), each in its own brand color,
+                    instead of a plain icon+label row. */}
                 <button
                   type="button"
                   onClick={() => selectCard("visa")}
                   className={cn(
-                    "w-full rounded-xl p-3 flex items-center gap-3 transition-colors",
-                    paymentMethod === "visa" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#1A1F71] to-[#1A1F71]/70 text-white",
+                    paymentMethod === "visa" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
-                  <VisaMark className="h-7 w-auto rounded-md shrink-0" />
-                  <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "visa" ? "text-primary" : "text-foreground")}>
-                    {t("walletRecharge.visaCard")}
-                  </span>
-                  <RadioDot selected={paymentMethod === "visa"} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-extrabold italic tracking-wide">{t("walletRecharge.visaCard")}</span>
+                    {paymentMethod === "visa" && <Check className="w-4 h-4" />}
+                  </div>
                 </button>
 
-                {/* mada */}
                 <button
                   type="button"
                   onClick={() => selectCard("mada")}
                   className={cn(
-                    "w-full rounded-xl p-3 flex items-center gap-3 transition-colors",
-                    paymentMethod === "mada" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#046A38] to-[#046A38]/70 text-white",
+                    paymentMethod === "mada" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
-                  <MadaMark className="h-7 w-auto rounded-md shrink-0" />
-                  <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "mada" ? "text-primary" : "text-foreground")}>
-                    {t("walletRecharge.madaCard")}
-                  </span>
-                  <RadioDot selected={paymentMethod === "mada"} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-extrabold tracking-wide">{t("walletRecharge.madaCard")}</span>
+                    {paymentMethod === "mada" && <Check className="w-4 h-4" />}
+                  </div>
                 </button>
 
                 {/* Saved / newly-added cards — shown as real card art, swipe left to delete */}
