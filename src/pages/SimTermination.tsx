@@ -608,6 +608,7 @@ const SimTermination = () => {
               <>
                 {/* Breakdown shows by default now — no "View Details" tap-through needed. */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
+                  <p className="text-[11px] text-muted-foreground -mt-1 mb-2">{t("simTermination.vatInclusiveNote")}</p>
                   <div className="space-y-3">
                   {bills.map((b) => (
                     <div key={b.number}>
@@ -630,6 +631,14 @@ const SimTermination = () => {
                       <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(b.totalOutstanding)}</>} />
                     </div>
                   ))}
+
+                  {/* Combined total across every listed bill — only meaningful once there's
+                      more than one, since a single bill's own total row already covers it. */}
+                  {bills.length > 1 && (
+                    <div className="pt-2 border-t border-border/60">
+                      <SummaryRow label={t("simTermination.totalOutstandingAllBills")} value={<><RiyalSymbol /> {money(totalOutstanding)}</>} />
+                    </div>
+                  )}
 
                   {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
                       choice; the entered amount tells the app which case it is. */}

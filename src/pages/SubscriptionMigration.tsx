@@ -707,6 +707,7 @@ const SubscriptionMigration = () => {
             {direction === "post-to-pre" && outstandingBalance > 0 && (
               <CardSection title={t("subscriptionMigration.outstandingBill")} icon={ReceiptText}>
                 {/* Breakdown shows by default now — no "View Details" tap-through needed. */}
+                <p className="text-[11px] text-muted-foreground -mt-1 mb-2">{t("subscriptionMigration.vatInclusiveNote")}</p>
                 <div className="space-y-3">
                   {outstandingBills.map((b) => {
                     const total = oldBillTotal(b);
