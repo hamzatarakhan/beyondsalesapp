@@ -98,8 +98,10 @@ interface DemoOldBill {
   outOfBundle: number;
 }
 
+// Current Balance/Unbilled Amount/Out of Bundle are pre-tax figures — VAT is added once,
+// here, to get the actual amount due (mirrors SimTermination's billTotal).
 /** VAT-inclusive total payable for a single old-line bill, clamped at 0. */
-const oldBillTotal = (b: DemoOldBill) => Math.max(0, Math.round((b.currentBalance + b.unbilledAmount + b.outOfBundle) * 100) / 100);
+const oldBillTotal = (b: DemoOldBill) => Math.max(0, Math.round((b.currentBalance + b.unbilledAmount + b.outOfBundle) * 1.15 * 100) / 100);
 
 interface DemoCustomer {
   msisdn: string;
@@ -126,7 +128,8 @@ const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111155", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true, depositWaiver: true },
   { msisdn: "0501111166", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-postpaid" },
   { msisdn: "0501111177", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", simLimitReason: "max-total" },
-  // Client's canonical "Unpaid" breakdown: 300 current + 150 unbilled + 50 OOB = 500 total.
+  // Client's canonical "Unpaid" breakdown: 300 current + 150 unbilled + 50 OOB = 500
+  // subtotal, 575 total once VAT is applied (see oldBillTotal above).
   { msisdn: "0502222211", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 150", outstandingBills: [{ number: "BL-2026-07-2201", cycle: "1st July – 31st July, 2026", currentBalance: 300, unbilledAmount: 150, outOfBundle: 50 }] },
   { msisdn: "0502222222", subscriptionType: "postpaid", planCategory: "switch-postpaid", planName: "Switch Postpaid 300" },
   { msisdn: "0502222233", subscriptionType: "postpaid", planCategory: "vnet", planName: "Vnet 300 GB" },

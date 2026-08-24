@@ -86,8 +86,6 @@ type LineType = "prepaid" | "switch-postpaid" | "vnet";
 
 interface TerminationBill {
   status: "Paid" | "Unpaid";
-  /** VAT-inclusive total currently due. */
-  totalOutstanding: number;
   currentBalance: number;
   outstandingBalance: number;
   outOfBundleUsage: number;
@@ -120,7 +118,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     msisdn: "0501110003",
     lineType: "switch-postpaid",
     bills: [
-      { status: "Unpaid", totalOutstanding: 500, currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" },
     ],
   },
   {
@@ -128,7 +126,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     lineType: "vnet",
     contactNumber: "0501110099",
     bills: [
-      { status: "Unpaid", totalOutstanding: 500, currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
     ],
   },
   // Friendi does carry a couple of legacy Switch Postpaid lines even though new activation is
@@ -137,7 +135,7 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     msisdn: "0501110005",
     lineType: "switch-postpaid",
     bills: [
-      { status: "Paid", totalOutstanding: 0, currentBalance: 0, outstandingBalance: 0, outOfBundleUsage: 0, number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026" },
+      { status: "Paid", currentBalance: 0, outstandingBalance: 0, outOfBundleUsage: 0, number: "BL-2026-06-9120", cycle: "1st June – 30th June, 2026" },
     ],
   },
   // Two open cycles — the bottom sheet lists both, each collapsed by default.
@@ -145,14 +143,19 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
     msisdn: "0501110006",
     lineType: "switch-postpaid",
     bills: [
-      { status: "Unpaid", totalOutstanding: 245, currentBalance: 200, outstandingBalance: 30, outOfBundleUsage: 15, number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026" },
-      { status: "Unpaid", totalOutstanding: 130, currentBalance: 110, outstandingBalance: 15, outOfBundleUsage: 5, number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026" },
+      { status: "Unpaid", currentBalance: 200, outstandingBalance: 30, outOfBundleUsage: 15, number: "BL-2026-07-5590", cycle: "1st July – 31st July, 2026" },
+      { status: "Unpaid", currentBalance: 110, outstandingBalance: 15, outOfBundleUsage: 5, number: "BL-2026-06-5218", cycle: "1st June – 30th June, 2026" },
     ],
   },
 ];
 
 const money = (n: number) => n.toFixed(2);
 const MIN_PARTIAL_PAY = 10;
+const VAT_RATE = 0.15;
+// Current Balance/Unbilled Amount/Out of Bundle are pre-tax figures — VAT is added once,
+// here, to get the actual amount due (mirrors SubscriptionMigration's oldBillTotal).
+const billTotal = (b: TerminationBill) =>
+  Math.round((b.currentBalance + b.outstandingBalance + b.outOfBundleUsage) * (1 + VAT_RATE) * 100) / 100;
 
 const SimTermination = () => {
   const navigate = useNavigate();
@@ -242,7 +245,7 @@ const SimTermination = () => {
       setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
       setReason("");
       const foundBills = found.bills ?? [];
-      const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+      const foundTotal = foundBills.reduce((sum, b) => sum + billTotal(b), 0);
       setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
     }, 800);
   };
@@ -250,7 +253,7 @@ const SimTermination = () => {
   const lineType = line?.lineType ?? "prepaid";
   const isPostpaid = lineType !== "prepaid";
   const bills = line?.bills ?? [];
-  const totalOutstanding = bills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+  const totalOutstanding = bills.reduce((sum, b) => sum + billTotal(b), 0);
   const needsPayment = isPostpaid && bills.length > 0 && totalOutstanding > 0;
 
   // ---------- Identity validation (same rule set as SIM Activation's Identity step) ----------
@@ -351,7 +354,7 @@ const SimTermination = () => {
       setLine(found);
       setReason("");
       const foundBills = found.bills ?? [];
-      const foundTotal = foundBills.reduce((sum, b) => sum + b.totalOutstanding, 0);
+      const foundTotal = foundBills.reduce((sum, b) => sum + billTotal(b), 0);
       setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
       setStep(1);
     }, 800);
@@ -627,7 +630,7 @@ const SimTermination = () => {
                       <SummaryRow label={t("simTermination.currentBalance")} value={<><RiyalSymbol /> {money(b.currentBalance)}</>} />
                       <SummaryRow label={t("simTermination.outstandingBalance")} value={<><RiyalSymbol /> {money(b.outstandingBalance)}</>} />
                       <SummaryRow label={t("simTermination.outOfBundleUsage")} value={<><RiyalSymbol /> {money(b.outOfBundleUsage)}</>} />
-                      <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(b.totalOutstanding)}</>} />
+                      <SummaryRow label={t("simTermination.totalOutstandingVat")} value={<><RiyalSymbol /> {money(billTotal(b))}</>} />
                     </div>
                   ))}
 
