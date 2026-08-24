@@ -309,81 +309,6 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setNewCardHolder("");
   };
 
-  if (method === "card" && cardView === "addNew") {
-    return (
-      <div className="mobile-container min-h-screen bg-background pb-28">
-        <AppHeader title={t("walletRecharge.addNewCard")} showBack onBackClick={() => setCardView("list")} />
-        <div className="px-4 space-y-4 pt-2">
-          <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardNumber")}</label>
-              <Input
-                value={newCardNumber}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
-                  setNewCardNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
-                }}
-                placeholder="1234 5678 9012 3456"
-                inputMode="numeric"
-                dir="ltr"
-                className="h-12 bg-background rounded-xl"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardHolder")}</label>
-              <Input
-                value={newCardHolder}
-                onChange={(e) => setNewCardHolder(e.target.value)}
-                placeholder={t("walletRecharge.cardHolderPlaceholder")}
-                className="h-12 bg-background rounded-xl"
-              />
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-1 space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.expiry")}</label>
-                <Input
-                  value={newCardExpiry}
-                  onChange={(e) => {
-                    const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
-                    setNewCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
-                  }}
-                  placeholder="MM/YY"
-                  inputMode="numeric"
-                  dir="ltr"
-                  className="h-12 bg-background rounded-xl"
-                />
-              </div>
-              <div className="flex-1 space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
-                <Input
-                  value={newCardCvv}
-                  onChange={(e) => setNewCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                  placeholder="123"
-                  inputMode="numeric"
-                  dir="ltr"
-                  className="h-12 bg-background rounded-xl"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-card rounded-xl px-4 py-3.5 border border-border/60">
-            <Checkbox id="save-card" checked={saveForFuture} onCheckedChange={(c) => setSaveForFuture(c as boolean)} />
-            <label htmlFor="save-card" className="text-sm font-medium text-foreground">{t("walletRecharge.saveForFuture")}</label>
-          </div>
-        </div>
-
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <div className="max-w-[390px] mx-auto">
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!newCardValid} onClick={addNewCard}>
-              {t("walletRecharge.addCard")}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader title={t("walletRecharge.title")} showBack onBackClick={finish} />
@@ -654,6 +579,76 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
             onClick={() => setCvvSheetOpen(false)}
           >
             {t("walletRecharge.confirm")}
+          </Button>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Add New Card — bottom sheet instead of a full-page replacement, so "back" is just
+          closing the sheet rather than a route/step change. Same z-[249]/z-[250] boost as the
+          other sheets in this file (see the CVV sheet's comment above). */}
+      <Drawer open={cardView === "addNew"} shouldScaleBackground={false} onOpenChange={(o) => setCardView(o ? "addNew" : "list")}>
+        <DrawerContent overlayClassName="z-[249]" className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 z-[250] max-h-[90vh] overflow-y-auto">
+          <h3 className="font-semibold text-foreground text-base mb-4">{t("walletRecharge.addNewCard")}</h3>
+          <div className="space-y-3 mb-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardNumber")}</label>
+              <Input
+                value={newCardNumber}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+                  setNewCardNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
+                }}
+                placeholder="1234 5678 9012 3456"
+                inputMode="numeric"
+                dir="ltr"
+                className="h-12 bg-background rounded-xl"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cardHolder")}</label>
+              <Input
+                value={newCardHolder}
+                onChange={(e) => setNewCardHolder(e.target.value)}
+                placeholder={t("walletRecharge.cardHolderPlaceholder")}
+                className="h-12 bg-background rounded-xl"
+              />
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.expiry")}</label>
+                <Input
+                  value={newCardExpiry}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setNewCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+                  }}
+                  placeholder="MM/YY"
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="h-12 bg-background rounded-xl"
+                />
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{t("walletRecharge.cvv")}</label>
+                <Input
+                  value={newCardCvv}
+                  onChange={(e) => setNewCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                  placeholder="123"
+                  inputMode="numeric"
+                  dir="ltr"
+                  className="h-12 bg-background rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 bg-background rounded-xl px-4 py-3.5 border border-border/60 mb-4">
+            <Checkbox id="save-card" checked={saveForFuture} onCheckedChange={(c) => setSaveForFuture(c as boolean)} />
+            <label htmlFor="save-card" className="text-sm font-medium text-foreground">{t("walletRecharge.saveForFuture")}</label>
+          </div>
+
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!newCardValid} onClick={addNewCard}>
+            {t("walletRecharge.addCard")}
           </Button>
         </DrawerContent>
       </Drawer>
