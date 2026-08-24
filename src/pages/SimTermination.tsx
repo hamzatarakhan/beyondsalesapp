@@ -608,7 +608,6 @@ const SimTermination = () => {
               <>
                 {/* Breakdown shows by default now — no "View Details" tap-through needed. */}
                 <CardSection title={t("simTermination.outstandingBill")} icon={ReceiptText}>
-                  <p className="text-[11px] text-muted-foreground -mt-1 mb-2">{t("simTermination.vatInclusiveNote")}</p>
                   <div className="space-y-3">
                   {bills.map((b) => (
                     <div key={b.number}>
