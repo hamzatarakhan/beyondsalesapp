@@ -546,7 +546,10 @@
     "rechargeFailedTitle": "Recharge Failed",
     "rechargeFailedDesc": "Something went wrong while processing this recharge. No amount has been charged.",
     "retry": "Retry",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "removeCardTitle": "Remove this card?",
+    "removeCardDesc": "You can add it again later if you need it.",
+    "remove": "Remove"
   },
   "customerComplaint": {
     "title": "Raise Customer Complaint",

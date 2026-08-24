@@ -133,7 +133,7 @@ const SwipeableCardRow = ({
       <button
         type="button"
         onClick={onDelete}
-        className="absolute inset-y-0 right-0 flex flex-col items-center justify-center gap-0.5 bg-destructive text-destructive-foreground"
+        className="absolute inset-y-0 right-0 flex flex-col items-center justify-center gap-0.5 bg-destructive/15 text-destructive"
         style={{ width: SWIPE_DELETE_WIDTH }}
       >
         <Trash2 className="w-4 h-4" />
@@ -222,6 +222,9 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   // Visa/mada can be swiped away just like an added card, even though they aren't part of
   // the `cards` list — tracked separately since they're fixed tiles, not stored entries.
   const [removedNetworks, setRemovedNetworks] = useState<Set<"visa" | "mada">>(new Set());
+  // Whichever id (a card's id, or "visa"/"mada") is pending a delete confirmation — the swipe
+  // "Delete" tap opens this instead of removing immediately.
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [newCardNumber, setNewCardNumber] = useState("");
   const [newCardExpiry, setNewCardExpiry] = useState("");
   const [newCardCvv, setNewCardCvv] = useState("");
@@ -278,6 +281,17 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setSwipedCardId(null);
   };
 
+  const confirmDelete = () => {
+    if (deleteConfirmId === "visa" || deleteConfirmId === "mada") removeNetwork(deleteConfirmId);
+    else if (deleteConfirmId) deleteCard(deleteConfirmId);
+    setDeleteConfirmId(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
+    setSwipedCardId(null);
+  };
+
   // ---------- Result ----------
   const [processing, setProcessing] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -311,6 +325,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setCards([]);
     setPaymentMethod(null);
     setSwipedCardId(null);
+    setDeleteConfirmId(null);
     setNetworkCvv("");
     setCvvSheetOpen(false);
     setRemovedNetworks(new Set());
@@ -430,7 +445,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     isOpen={swipedCardId === "visa"}
                     onOpenChange={(open) => setSwipedCardId(open ? "visa" : null)}
                     onSelect={() => selectNetwork("visa")}
-                    onDelete={() => removeNetwork("visa")}
+                    onDelete={() => setDeleteConfirmId("visa")}
                     deleteLabel={t("walletRecharge.delete")}
                   >
                     <div
@@ -457,7 +472,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     isOpen={swipedCardId === "mada"}
                     onOpenChange={(open) => setSwipedCardId(open ? "mada" : null)}
                     onSelect={() => selectNetwork("mada")}
-                    onDelete={() => removeNetwork("mada")}
+                    onDelete={() => setDeleteConfirmId("mada")}
                     deleteLabel={t("walletRecharge.delete")}
                   >
                     <div
@@ -525,7 +540,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                       isOpen={swipedCardId === card.id}
                       onOpenChange={(open) => setSwipedCardId(open ? card.id : null)}
                       onSelect={() => selectCard(card.id)}
-                      onDelete={() => deleteCard(card.id)}
+                      onDelete={() => setDeleteConfirmId(card.id)}
                       deleteLabel={t("walletRecharge.delete")}
                     >
                       <div
@@ -678,6 +693,28 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
           <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!newCardValid} onClick={addNewCard}>
             {t("walletRecharge.addCard")}
           </Button>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Remove card confirmation — the swipe "Delete" tap opens this instead of removing
+          right away. Same z-[249]/z-[250] boost as the other sheets in this file. */}
+      <Drawer open={!!deleteConfirmId} shouldScaleBackground={false} onOpenChange={(o) => !o && cancelDelete()}>
+        <DrawerContent overlayClassName="z-[249]" className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 z-[250]">
+          <div className="flex flex-col items-center mb-4">
+            <div className="w-14 h-14 rounded-full bg-destructive/15 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6 text-destructive" />
+            </div>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("walletRecharge.removeCardTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("walletRecharge.removeCardDesc")}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button variant="destructive" className="w-full h-12 rounded-full font-semibold" onClick={confirmDelete}>
+              {t("walletRecharge.remove")}
+            </Button>
+            <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={cancelDelete}>
+              {t("walletRecharge.cancel")}
+            </button>
+          </div>
         </DrawerContent>
       </Drawer>
 

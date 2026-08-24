@@ -546,7 +546,10 @@
     "rechargeFailedTitle": "فشل الشحن",
     "rechargeFailedDesc": "حدث خطأ أثناء معالجة عملية الشحن. لم يتم خصم أي مبلغ.",
     "retry": "إعادة المحاولة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "removeCardTitle": "إزالة هذه البطاقة؟",
+    "removeCardDesc": "يمكنك إضافتها مرة أخرى لاحقًا إذا احتجت إليها.",
+    "remove": "إزالة"
   },
   "customerComplaint": {
     "title": "تقديم شكوى عميل",
