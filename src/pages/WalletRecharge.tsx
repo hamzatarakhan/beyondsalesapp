@@ -482,7 +482,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     paymentMethod === "visa" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
                   )}
                 >
-                  <VisaMark className="h-10 w-auto rounded-lg shrink-0" />
+                  <VisaMark className="h-7 w-auto rounded-md shrink-0" />
                   <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "visa" ? "text-primary" : "text-foreground")}>
                     {t("walletRecharge.visaCard")}
                   </span>
@@ -498,7 +498,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     paymentMethod === "mada" ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
                   )}
                 >
-                  <MadaMark className="h-10 w-auto rounded-lg shrink-0" />
+                  <MadaMark className="h-7 w-auto rounded-md shrink-0" />
                   <span className={cn("flex-1 text-start text-sm font-semibold", paymentMethod === "mada" ? "text-primary" : "text-foreground")}>
                     {t("walletRecharge.madaCard")}
                   </span>
