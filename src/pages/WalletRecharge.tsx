@@ -485,14 +485,14 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
 
             <CardSection title={t("walletRecharge.selectPaymentMethod")} icon={CreditCard}>
               <div className="space-y-2.5">
-                {/* Visa / mada — full card art, same red gradient as the app's own saved-card
-                    style (not each network's real brand color). Tapping one opens the CVV
-                    bottom sheet below instead of an inline field. */}
+                {/* Visa / mada — full card art, each in its own distinct color (Visa navy,
+                    mada green) so the two are easy to tell apart at a glance. Tapping one
+                    opens the CVV bottom sheet below instead of an inline field. */}
                 <button
                   type="button"
                   onClick={() => selectNetwork("visa")}
                   className={cn(
-                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-primary to-primary/70 text-primary-foreground",
+                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#1A1F71] to-[#1A1F71]/70 text-white",
                     paymentMethod === "visa" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
@@ -511,7 +511,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                   type="button"
                   onClick={() => selectNetwork("mada")}
                   className={cn(
-                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-primary to-primary/70 text-primary-foreground",
+                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#046A38] to-[#046A38]/70 text-white",
                     paymentMethod === "mada" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
