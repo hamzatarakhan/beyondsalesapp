@@ -206,9 +206,7 @@ const SimReplacement = () => {
   const eligible = !!customer && !lookupError;
 
   // ---------- Fee logic ----------
-  // Option 2 doesn't model the chargeable case yet — always treat it as the customer's
-  // free replacement, per spec.
-  const isChargeable = option === 2 ? false : !!customer?.freeReplacementUsed;
+  const isChargeable = !!customer?.freeReplacementUsed;
   const fee = newSimType === "psim" ? PHYSICAL_FEE : ESIM_FEE;
 
   const isKitValid = newSimType === "esim" || /^\d{10}$/.test(kit);
@@ -569,12 +567,8 @@ const SimReplacement = () => {
                   </CardSection>
                 )}
 
-                {/* Fee shown in its own section on every option (option 2's checkout had no
-                    fee display at all before this — no Replacement Summary card to hold it). */}
-                <CardSection title={t("simReplacement.feeDetails")} icon={Wallet}>
-                  <SummaryRow label={t("simReplacement.fee")} value={isChargeable ? <><RiyalSymbol /> {fee.toFixed(2)}</> : <span className="text-emerald-600">{t("simReplacement.free")}</span>} />
-                </CardSection>
-
+                {/* Fee status — a single info message covering both cases (amount baked into
+                    the chargeable copy) instead of a separate Fee Details card repeating it. */}
                 {isChargeable ? (
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                     <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
