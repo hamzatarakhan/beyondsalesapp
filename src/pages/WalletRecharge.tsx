@@ -132,6 +132,11 @@ const SwipeableCardRow = ({
 const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
 const SAVED_CARD_ID = "saved-1";
 const SAVED_CARD = { id: SAVED_CARD_ID, brand: "Visa", last4: "4242", expiry: "12/27", holder: "Ahmed Mohammed" };
+// Same demo details as the saved card above, reused on the Visa/mada network tiles so they
+// read as full card art too, not just a brand name — mada gets its own last4 so the two
+// tiles aren't pixel-identical.
+const VISA_DEMO = { last4: "4242", holder: "Ahmed Mohammed", expiry: "12/27" };
+const MADA_DEMO = { last4: "7788", holder: "Ahmed Mohammed", expiry: "12/27" };
 // Any other 14-digit code "succeeds" in this prototype — this one demos the rejected case.
 const INVALID_VOUCHER_CODE = "00000000000000";
 // Physical/digital vouchers are fixed-denomination — this prototype only has one valid
@@ -444,8 +449,8 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
 
             <CardSection title={t("walletRecharge.selectPaymentMethod")} icon={CreditCard}>
               <div className="space-y-2.5">
-                {/* Visa / mada — same card-art treatment as the saved cards below (gradient
-                    tile, brand mark, checkmark when selected), each in its own brand color,
+                {/* Visa / mada — full card art, same layout as the saved cards below (brand,
+                    checkmark, masked number, holder + expiry), each in its own brand color,
                     instead of a plain icon+label row. */}
                 <button
                   type="button"
@@ -455,9 +460,14 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     paymentMethod === "visa" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-extrabold italic tracking-wide">{t("walletRecharge.visaCard")}</span>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.visaCard")}</span>
                     {paymentMethod === "visa" && <Check className="w-4 h-4" />}
+                  </div>
+                  <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {VISA_DEMO.last4}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-[11px] opacity-90">{VISA_DEMO.holder}</span>
+                    <span className="text-[11px] opacity-90" dir="ltr">{VISA_DEMO.expiry}</span>
                   </div>
                 </button>
 
@@ -469,9 +479,14 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                     paymentMethod === "mada" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
                   )}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-extrabold tracking-wide">{t("walletRecharge.madaCard")}</span>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.madaCard")}</span>
                     {paymentMethod === "mada" && <Check className="w-4 h-4" />}
+                  </div>
+                  <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {MADA_DEMO.last4}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-[11px] opacity-90">{MADA_DEMO.holder}</span>
+                    <span className="text-[11px] opacity-90" dir="ltr">{MADA_DEMO.expiry}</span>
                   </div>
                 </button>
 
