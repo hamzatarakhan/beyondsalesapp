@@ -219,6 +219,9 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   // right after the tile is tapped, rather than inline.
   const [networkCvv, setNetworkCvv] = useState("");
   const [cvvSheetOpen, setCvvSheetOpen] = useState(false);
+  // Visa/mada can be swiped away just like an added card, even though they aren't part of
+  // the `cards` list — tracked separately since they're fixed tiles, not stored entries.
+  const [removedNetworks, setRemovedNetworks] = useState<Set<"visa" | "mada">>(new Set());
   const [newCardNumber, setNewCardNumber] = useState("");
   const [newCardExpiry, setNewCardExpiry] = useState("");
   const [newCardCvv, setNewCardCvv] = useState("");
@@ -238,6 +241,13 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setPaymentMethod(id);
     setNetworkCvv("");
     setCvvSheetOpen(true);
+    setSwipedCardId(null);
+  };
+
+  const removeNetwork = (id: "visa" | "mada") => {
+    setRemovedNetworks((prev) => new Set(prev).add(id));
+    setPaymentMethod((prev) => (prev === id ? null : prev));
+    setSwipedCardId((prev) => (prev === id ? null : prev));
   };
 
   const newCardValid =
@@ -303,6 +313,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setSwipedCardId(null);
     setNetworkCvv("");
     setCvvSheetOpen(false);
+    setRemovedNetworks(new Set());
     setNewCardNumber("");
     setNewCardExpiry("");
     setNewCardCvv("");
@@ -412,44 +423,61 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               <div className="space-y-2.5">
                 {/* Visa / mada — full card art, each in its own distinct color (Visa navy,
                     mada green) so the two are easy to tell apart at a glance. Tapping one
-                    opens the CVV bottom sheet below instead of an inline field. */}
-                <button
-                  type="button"
-                  onClick={() => selectNetwork("visa")}
-                  className={cn(
-                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#1A1F71] to-[#1A1F71]/70 text-white",
-                    paymentMethod === "visa" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
-                  )}
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.visaCard")}</span>
-                    {paymentMethod === "visa" && <Check className="w-4 h-4" />}
-                  </div>
-                  <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {VISA_DEMO.last4}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-[11px] opacity-90">{VISA_DEMO.holder}</span>
-                    <span className="text-[11px] opacity-90" dir="ltr">{VISA_DEMO.expiry}</span>
-                  </div>
-                </button>
+                    opens the CVV bottom sheet below instead of an inline field; swipe left to
+                    remove one the same way an added card can be removed. */}
+                {!removedNetworks.has("visa") && (
+                  <SwipeableCardRow
+                    isOpen={swipedCardId === "visa"}
+                    onOpenChange={(open) => setSwipedCardId(open ? "visa" : null)}
+                    onSelect={() => selectNetwork("visa")}
+                    onDelete={() => removeNetwork("visa")}
+                    deleteLabel={t("walletRecharge.delete")}
+                  >
+                    <div
+                      className={cn(
+                        "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#1A1F71] to-[#1A1F71]/70 text-white",
+                        paymentMethod === "visa" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.visaCard")}</span>
+                        {paymentMethod === "visa" && <Check className="w-4 h-4" />}
+                      </div>
+                      <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {VISA_DEMO.last4}</p>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-[11px] opacity-90">{VISA_DEMO.holder}</span>
+                        <span className="text-[11px] opacity-90" dir="ltr">{VISA_DEMO.expiry}</span>
+                      </div>
+                    </div>
+                  </SwipeableCardRow>
+                )}
 
-                <button
-                  type="button"
-                  onClick={() => selectNetwork("mada")}
-                  className={cn(
-                    "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#046A38] to-[#046A38]/70 text-white",
-                    paymentMethod === "mada" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
-                  )}
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.madaCard")}</span>
-                    {paymentMethod === "mada" && <Check className="w-4 h-4" />}
-                  </div>
-                  <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {MADA_DEMO.last4}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-[11px] opacity-90">{MADA_DEMO.holder}</span>
-                    <span className="text-[11px] opacity-90" dir="ltr">{MADA_DEMO.expiry}</span>
-                  </div>
-                </button>
+                {!removedNetworks.has("mada") && (
+                  <SwipeableCardRow
+                    isOpen={swipedCardId === "mada"}
+                    onOpenChange={(open) => setSwipedCardId(open ? "mada" : null)}
+                    onSelect={() => selectNetwork("mada")}
+                    onDelete={() => removeNetwork("mada")}
+                    deleteLabel={t("walletRecharge.delete")}
+                  >
+                    <div
+                      className={cn(
+                        "w-full rounded-xl p-4 text-start transition-all bg-gradient-to-br from-[#046A38] to-[#046A38]/70 text-white",
+                        paymentMethod === "mada" ? "ring-2 ring-offset-2 ring-primary ring-offset-background" : "opacity-90"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <span className="text-xs font-semibold tracking-wide uppercase">{t("walletRecharge.madaCard")}</span>
+                        {paymentMethod === "mada" && <Check className="w-4 h-4" />}
+                      </div>
+                      <p className="text-lg font-bold tracking-widest" dir="ltr">•••• •••• •••• {MADA_DEMO.last4}</p>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-[11px] opacity-90">{MADA_DEMO.holder}</span>
+                        <span className="text-[11px] opacity-90" dir="ltr">{MADA_DEMO.expiry}</span>
+                      </div>
+                    </div>
+                  </SwipeableCardRow>
+                )}
 
                 {/* Apple Pay */}
                 <button
