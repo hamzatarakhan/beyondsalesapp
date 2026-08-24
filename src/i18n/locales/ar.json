@@ -521,6 +521,7 @@
     "rechargeAmount": "مبلغ الشحن",
     "paymentCard": "بطاقة الدفع",
     "selectPaymentMethod": "اختر طريقة الدفع",
+    "cardsAccepted": "البطاقات المقبولة:",
     "applePay": "Apple Pay",
     "googlePay": "Google Pay",
     "delete": "حذف",

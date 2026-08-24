@@ -521,6 +521,7 @@
     "rechargeAmount": "Recharge Amount",
     "paymentCard": "Payment Card",
     "selectPaymentMethod": "Select Payment Method",
+    "cardsAccepted": "Cards accepted:",
     "applePay": "Apple Pay",
     "googlePay": "Google Pay",
     "delete": "Delete",

@@ -63,6 +63,24 @@ const GoogleMark = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// mada (Saudi domestic debit network) and Visa — the two card networks the "Select Payment
+// Method" section accepts. Simple wordmark badges rather than traced logo paths, same as a
+// typical "we accept" strip, in each brand's real colors.
+const MadaMark = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 60 24" className={className} aria-hidden="true">
+    <rect width="60" height="24" rx="4" fill="#046A38" />
+    <path d="M0 24 60 0v24H0Z" fill="#00263A" fillOpacity="0.55" />
+    <text x="30" y="16.5" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FFFFFF" fontFamily="Arial, sans-serif">mada</text>
+  </svg>
+);
+
+const VisaMark = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 60 24" className={className} aria-hidden="true">
+    <rect width="60" height="24" rx="4" fill="#1A1F71" />
+    <text x="30" y="16.5" textAnchor="middle" fontSize="11" fontWeight="800" fontStyle="italic" fill="#FFFFFF" fontFamily="Arial, sans-serif">VISA</text>
+  </svg>
+);
+
 const RadioDot = ({ selected }: { selected: boolean }) => (
   <div
     className={cn(
@@ -471,6 +489,11 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
             </CardSection>
 
             <CardSection title={t("walletRecharge.selectPaymentMethod")} icon={CreditCard}>
+              <div className="flex items-center gap-1.5 mb-3 -mt-1">
+                <span className="text-[11px] text-muted-foreground">{t("walletRecharge.cardsAccepted")}</span>
+                <MadaMark className="h-4 w-auto" />
+                <VisaMark className="h-4 w-auto" />
+              </div>
               <div className="space-y-2.5">
                 {/* Apple Pay */}
                 <button
