@@ -7,11 +7,18 @@ import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
-import { POSTPAID_PLANS, VerifiedBanner } from "@/pages/NewActivation";
+import { POSTPAID_PLANS, VerifiedBanner, ID_TYPE_ORDER, ID_TYPE_RULES } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
 import WalletShortNotice from "@/components/WalletShortNotice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -85,15 +92,38 @@ const DEMO_POSTPAID_LINES: DemoPostpaidLine[] = [
 
 const SWITCH_POSTPAID_PLANS: Plan[] = POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"));
 
+// Only Saudi National ID, Iqama ID and Premium Residency support postpaid (same business
+// rule NewActivation.tsx applies via ID_TYPE_RULES[...].postpaidAllowed) — this flow deals
+// exclusively with postpaid lines, so the other six ID types are never offered.
+const POSTPAID_ID_TYPES = ID_TYPE_ORDER.filter((key) => ID_TYPE_RULES[key].postpaidAllowed);
+
+// Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule
+// (mirrors SubscriptionMigration.tsx's demoIdFor) so the prototype hint is always valid.
+const DEMO_ID_SUFFIX = "324567896";
+const demoIdFor = (rule: { startDigits?: string[] } | undefined) => (rule?.startDigits?.[0] ?? "1") + DEMO_ID_SUFFIX;
+
 const ChangePostpaidPlan = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
 
+  // Plain-English labels for the shared ID_TYPE_RULES keys — translated via changePostpaidPlan.idType_*
+  const ID_TYPE_LABELS: Record<string, string> = {
+    saudiId: t("changePostpaidPlan.idType_saudiId"),
+    iqamaId: t("changePostpaidPlan.idType_iqamaId"),
+    premiumResidency: t("changePostpaidPlan.idType_premiumResidency"),
+  };
+  const ID_FIELD_LABELS: Record<string, string> = {
+    idNumber: t("changePostpaidPlan.idField_idNumber"),
+  };
+
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
 
+  const [idType, setIdType] = useState("saudi-id");
+  const [idNumber, setIdNumber] = useState("1324567896");
+  const [nationality, setNationality] = useState("sa");
   const [msisdn, setMsisdn] = useState("0503334444");
   const [checking, setChecking] = useState(false);
   const [line, setLine] = useState<DemoPostpaidLine | null>(null);
@@ -143,6 +173,18 @@ const ChangePostpaidPlan = () => {
   }, [msisdn]);
 
   const eligible = !!line && !lookupError;
+
+  // ID Number must match the selected ID Type's full rule (start digit(s) + exact length),
+  // enforced silently — same as SubscriptionMigration.tsx's Identity step.
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberValid = (() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
 
   const planList = SWITCH_POSTPAID_PLANS;
   const selectedPlanObj = selectedPlan != null ? planList[selectedPlan] : undefined;
@@ -234,7 +276,7 @@ const ChangePostpaidPlan = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueNumber = eligible;
+  const canContinueNumber = eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
   const canPay = otpVerified && !(total > 0 && payMethod === "wallet" && walletShort);
 
@@ -251,6 +293,9 @@ const ChangePostpaidPlan = () => {
 
   const resetAll = () => {
     setStep(0);
+    setIdType("saudi-id");
+    setIdNumber("1324567896");
+    setNationality("sa");
     setMsisdn("0503334444");
     setLine(null);
     setLookupError(null);
@@ -279,6 +324,48 @@ const ChangePostpaidPlan = () => {
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
+            <Field label={t("changePostpaidPlan.idType")}>
+              <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changePostpaidPlan.idTypePlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {POSTPAID_ID_TYPES.map((key) => (
+                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={ID_FIELD_LABELS[idNumberRule?.fieldLabelKey ?? "idNumber"]}>
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                placeholder={t("changePostpaidPlan.idNumberPlaceholder")}
+                className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+              />
+              {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                <p className="text-xs text-destructive">
+                  {idNumberRule.startDigits
+                    ? t("changePostpaidPlan.idNumberRuleStart", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                    : t("changePostpaidPlan.idNumberRuleLength", { length: idNumberRule.length })}
+                </p>
+              )}
+            </Field>
+            <Field label={t("changePostpaidPlan.nationality")}>
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changePostpaidPlan.nationalityPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  <SelectItem value="sa">{t("changePostpaidPlan.nationalitySaudi")}</SelectItem>
+                  <SelectItem value="om">{t("changePostpaidPlan.nationalityOmani")}</SelectItem>
+                  <SelectItem value="ae">{t("changePostpaidPlan.nationalityEmirati")}</SelectItem>
+                  <SelectItem value="eg">{t("changePostpaidPlan.nationalityEgyptian")}</SelectItem>
+                  <SelectItem value="in">{t("changePostpaidPlan.nationalityIndian")}</SelectItem>
+                  <SelectItem value="other">{t("changePostpaidPlan.nationalityOther")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label={t("changePostpaidPlan.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("changePostpaidPlan.checkingNumber")}</p>}
@@ -295,7 +382,10 @@ const ChangePostpaidPlan = () => {
                 { value: "0503334488", note: t("changePostpaidPlan.testNoteNotPostpaid"), group: t("changePostpaidPlan.testGroupErrors") },
                 { value: "0509999999", note: t("changePostpaidPlan.testNoteNotFound"), group: t("changePostpaidPlan.testGroupErrors") },
               ]}
-              onSelect={setMsisdn}
+              onSelect={(v) => {
+                setMsisdn(v);
+                setIdNumber(demoIdFor(idNumberRule));
+              }}
             />
           </>
         )}
