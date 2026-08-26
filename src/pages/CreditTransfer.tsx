@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -10,7 +11,6 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { VerifiedBanner } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
 import WalletShortNotice from "@/components/WalletShortNotice";
 import {
@@ -91,11 +91,6 @@ const CreditTransfer = () => {
   const [amount, setAmount] = useState<number | null>(null);
 
   // Step 1 — Checkout
-  const [otpOpen, setOtpOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [otpError, setOtpError] = useState(false);
-  const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -126,54 +121,8 @@ const CreditTransfer = () => {
   const eligible = !!customer && !lookupError;
   const insufficientBalance = amount != null && amount > DEALER_WALLET_BALANCE;
 
-  // ---------- OTP handlers ----------
-  useEffect(() => {
-    if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
-    setOtpError(false);
-    setOtpSecondsLeft(30);
-    const interval = setInterval(() => {
-      setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [otpOpen]);
-
-  const setOtpDigitAt = (i: number, v: string) => {
-    const d = v.replace(/\D/g, "").slice(-1);
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[i] = d;
-      if (d && i === 5) {
-        const code = next.join("");
-        setTimeout(() => {
-          if (code === "111111") {
-            setOtpError(true);
-          } else {
-            setOtpError(false);
-            setOtpVerified(true);
-            setOtpOpen(false);
-          }
-        }, 300);
-      }
-      return next;
-    });
-    if (d && i < 5) {
-      const el = document.getElementById(`credit-transfer-otp-${i + 1}`) as HTMLInputElement | null;
-      el?.focus();
-    }
-  };
-
-  const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
-    setOtpError(false);
-    setOtpSecondsLeft(30);
-    const el = document.getElementById("credit-transfer-otp-0") as HTMLInputElement | null;
-    el?.focus();
-  };
-
   // ---------- Gates ----------
   const canContinueStep0 = eligible && amount != null && amount > 0 && !insufficientBalance;
-  const canConfirm = otpVerified;
 
   const resolveTransfer = () => {
     setConfirmOpen(false);
@@ -192,7 +141,6 @@ const CreditTransfer = () => {
     setCustomer(null);
     setLookupError(null);
     setAmount(null);
-    setOtpVerified(false);
   };
 
   return (
@@ -236,26 +184,38 @@ const CreditTransfer = () => {
 
             {customer && (
               <>
-                <CardSection title={t("creditTransfer.customerDetails")} icon={ClipboardList}>
-                  <SummaryRow label={t("creditTransfer.customerName")} value={customer.name} />
-                  <SummaryRow label={t("creditTransfer.msisdn")} value={customer.msisdn} />
-                </CardSection>
-
                 <CardSection title={t("creditTransfer.transferAmount")} icon={Send}>
-                  <div className="grid grid-cols-3 gap-2">
-                    {AMOUNT_PRESETS.map((amt) => (
-                      <button
-                        key={amt}
-                        type="button"
-                        onClick={() => setAmount(amt)}
-                        className={cn(
-                          "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
-                          amount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
-                        )}
-                      >
-                        <RiyalSymbol /> {amt.toFixed(2)}
-                      </button>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Input
+                        value={amount != null ? String(amount) : ""}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                          setAmount(raw === "" ? null : Number(raw));
+                        }}
+                        placeholder="0.00"
+                        inputMode="decimal"
+                        className="h-12 bg-card rounded-xl ps-10"
+                      />
+                      <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                        <RiyalSymbol />
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {AMOUNT_PRESETS.map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => setAmount(amt)}
+                          className={cn(
+                            "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                            amount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
+                          )}
+                        >
+                          <RiyalSymbol /> {amt.toFixed(2)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </CardSection>
 
@@ -269,24 +229,10 @@ const CreditTransfer = () => {
 
         {/* ── Step 1: Checkout ── */}
         {step === 1 && customer && amount != null && (
-          <>
-            <CardSection title={t("creditTransfer.transferSummary")} icon={ClipboardList}>
-              <SummaryRow label={t("creditTransfer.customerName")} value={customer.name} />
-              <SummaryRow label={t("creditTransfer.msisdn")} value={customer.msisdn} />
-              <SummaryRow label={t("creditTransfer.amount")} value={<><RiyalSymbol /> {amount.toFixed(2)}</>} />
-            </CardSection>
-
-            <CardSection title={t("creditTransfer.otpVerification")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label={t("creditTransfer.otpVerified")} />
-              ) : (
-                <>
-                  <p className="text-xs text-muted-foreground mb-3">{t("creditTransfer.otpHint")}</p>
-                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("creditTransfer.sendVerifyOtp")}</Button>
-                </>
-              )}
-            </CardSection>
-          </>
+          <CardSection title={t("creditTransfer.transferSummary")} icon={ClipboardList}>
+            <SummaryRow label={t("creditTransfer.msisdn")} value={customer.msisdn} />
+            <SummaryRow label={t("creditTransfer.amount")} value={<><RiyalSymbol /> {amount.toFixed(2)}</>} />
+          </CardSection>
         )}
       </div>
 
@@ -306,58 +252,12 @@ const CreditTransfer = () => {
             </Button>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" onClick={() => setConfirmOpen(true)}>
               {t("creditTransfer.transfer")} <RiyalSymbol /> {amount?.toFixed(2)}
             </Button>
           )}
         </div>
       </div>
-
-      {/* OTP drawer */}
-      <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">{t("creditTransfer.enterVerificationCode")}</h3>
-            <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("creditTransfer.otpIncorrect") : t("creditTransfer.otpSentToCustomer")}
-            </p>
-            <div className="flex gap-2" dir="ltr">
-              {otpDigits.map((d, i) => (
-                <input
-                  key={i}
-                  id={`credit-transfer-otp-${i}`}
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={d}
-                  onChange={(e) => setOtpDigitAt(i, e.target.value)}
-                  className={cn(
-                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none",
-                    otpError ? "border-destructive text-destructive" : "border-border focus:border-primary text-foreground",
-                  )}
-                />
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {otpError ? (
-                <>
-                  {t("creditTransfer.resendCodeQuestion")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("creditTransfer.resend")}</button>
-                </>
-              ) : otpSecondsLeft > 0 ? (
-                <>
-                  {t("creditTransfer.didntReceiveCode")}{" "}
-                  <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
-                </>
-              ) : (
-                <>
-                  {t("creditTransfer.didntReceiveCode")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("creditTransfer.resend")}</button>
-                </>
-              )}
-            </p>
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* Confirm */}
       <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -369,7 +269,7 @@ const CreditTransfer = () => {
             <div>
               <h3 className="text-lg font-bold text-foreground mb-1">{t("creditTransfer.confirmTransferTitle")}</h3>
               <p className="text-sm text-muted-foreground">
-                {t("creditTransfer.confirmTransferDesc", { amount: amount?.toFixed(2) ?? "0.00", name: customer?.name ?? "" })}
+                {t("creditTransfer.confirmTransferDesc", { amount: amount?.toFixed(2) ?? "0.00", msisdn: customer?.msisdn ?? "" })}
               </p>
             </div>
             <div className="w-full flex flex-col gap-3">
@@ -391,7 +291,7 @@ const CreditTransfer = () => {
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("creditTransfer.transferSuccessful")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {t("creditTransfer.transferredTo", { amount: amount?.toFixed(2) ?? "0.00", name: customer?.name ?? "" })}
+              {t("creditTransfer.transferredTo", { amount: amount?.toFixed(2) ?? "0.00", msisdn: customer?.msisdn ?? "" })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {t("creditTransfer.reference")} <span className="font-semibold text-foreground">{orderId}</span>

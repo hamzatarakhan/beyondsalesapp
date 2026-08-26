@@ -98,6 +98,17 @@ const COMPLAINT_CATEGORIES: Record<string, string[]> = {
 };
 const CATEGORY_LEVEL1 = Object.keys(COMPLAINT_CATEGORIES);
 
+// Customer Details is a read-only review card, not an input — PII gets masked there rather
+// than shown in full. Editable fields (contact number, MSISDN lookup) stay unmasked.
+const maskName = (name: string) =>
+  name
+    .split(" ")
+    .map((word) => (word.length <= 2 ? word : word[0] + "*".repeat(word.length - 1)))
+    .join(" ");
+
+const maskMsisdn = (msisdn: string) =>
+  msisdn.length <= 5 ? msisdn : msisdn.slice(0, 3) + "*".repeat(msisdn.length - 5) + msisdn.slice(-2);
+
 const MAX_ATTACHMENTS = 3;
 interface Attachment {
   id: string;
@@ -310,8 +321,8 @@ const CustomerComplaint = () => {
             {customer && !limitReached && (
               <>
                 <CardSection title={t("customerComplaint.customerDetails")} icon={ClipboardList}>
-                  <SummaryRow label={t("customerComplaint.customerName")} value={customer.name} />
-                  <SummaryRow label={t("customerComplaint.msisdn")} value={customer.msisdn} />
+                  <SummaryRow label={t("customerComplaint.customerName")} value={maskName(customer.name)} />
+                  <SummaryRow label={t("customerComplaint.msisdn")} value={maskMsisdn(customer.msisdn)} />
                   <SummaryRow label={t("customerComplaint.lineType")} value={t(`customerComplaint.lineType_${customer.lineType}`)} />
                 </CardSection>
 
@@ -334,8 +345,8 @@ const CustomerComplaint = () => {
         {step === 1 && customer && (
           <>
             <CardSection title={t("customerComplaint.customerDetails")} icon={ClipboardList}>
-              <SummaryRow label={t("customerComplaint.customerName")} value={customer.name} />
-              <SummaryRow label={t("customerComplaint.msisdn")} value={customer.msisdn} />
+              <SummaryRow label={t("customerComplaint.customerName")} value={maskName(customer.name)} />
+              <SummaryRow label={t("customerComplaint.msisdn")} value={maskMsisdn(customer.msisdn)} />
             </CardSection>
 
             <Field label={t("customerComplaint.contactNumber")}>
