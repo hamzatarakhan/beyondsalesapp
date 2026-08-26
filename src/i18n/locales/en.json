@@ -715,6 +715,7 @@
     "msisdn": "MSISDN",
     "msisdnPlaceholder": "5XXXXXXXX",
     "checkingNumber": "Checking number…",
+    "lookupErrorTitle": "Unable to Look Up Number",
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
     "lookupErrorWrongDirectionPreToPost": "This number isn't a Prepaid line, so it isn't eligible for this service. Use Postpaid → Prepaid instead.",
     "lookupErrorWrongDirectionPostToPre": "This number isn't a Postpaid line, so it isn't eligible for this service. Use Prepaid → Postpaid instead.",

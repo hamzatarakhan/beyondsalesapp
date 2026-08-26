@@ -565,13 +565,6 @@ const SubscriptionMigration = () => {
               {checking && <p className="text-[11px] text-muted-foreground">{t("subscriptionMigration.checkingNumber")}</p>}
             </Field>
 
-            {lookupError && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-              </div>
-            )}
-
             <PrototypeTestBox
               heading={t("subscriptionMigration.testNumbersHeading")}
               description={t("subscriptionMigration.testNumbersDescription")}
@@ -1062,6 +1055,29 @@ const SubscriptionMigration = () => {
         </DrawerContent>
       </Drawer>
 
+
+      {/* Lookup error — same popup pattern used app-wide for a lookup failure (not found /
+          max-total SIM limit). Suppressed when the wrong-direction or postpaid/prepaid
+          SIM-limit dialogs below are already showing their own richer popup for the same
+          lookup, so only one dialog ever opens for a given error. */}
+      <Dialog open={!!lookupError && !wrongDirectionModalOpen && simLimitCase === null} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("subscriptionMigration.lookupErrorTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
+          <button
+            onClick={() => setLookupError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("subscriptionMigration.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       {/* Ineligible line type — shown when Continue is pressed, not inline (mirrors SIM
           Activation's "Email Not Registered" dialog pattern) */}
