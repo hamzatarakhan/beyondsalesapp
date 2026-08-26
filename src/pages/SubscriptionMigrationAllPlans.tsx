@@ -109,19 +109,21 @@ const SubscriptionMigrationAllPlans = () => {
               className="h-11 bg-card rounded-xl ps-9"
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setFilterOpen(true)}
-            aria-label={t("subscriptionMigration.filtersAria")}
-            className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
-          >
-            <SlidersHorizontal className="w-4 h-4 text-foreground" />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+          {showChips && (
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              aria-label={t("subscriptionMigration.filtersAria")}
+              className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-foreground" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -156,21 +158,23 @@ const SubscriptionMigrationAllPlans = () => {
         )}
       </div>
 
-      {/* Filters bottom sheet */}
-      <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
-          <button
-            onClick={() => setFilterOpen(false)}
-            aria-label={t("subscriptionMigration.close")}
-            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
-          >
-            <X className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("subscriptionMigration.filtersTitle")}</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-4 pb-8 space-y-5 overflow-y-auto">
-            {showChips && (
+      {/* Filters bottom sheet — only reachable when there's something to filter (Post to
+          Pre's several plan categories); Pre to Post's catalog is a single category, so
+          neither the trigger button above nor this sheet render for it. */}
+      {showChips && (
+        <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+          <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
+            <button
+              onClick={() => setFilterOpen(false)}
+              aria-label={t("subscriptionMigration.close")}
+              className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+            <DrawerHeader className="text-center pt-8">
+              <DrawerTitle className="text-lg font-semibold">{t("subscriptionMigration.filtersTitle")}</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-8 space-y-5 overflow-y-auto">
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("subscriptionMigration.planTypesTitle")}</h3>
                 <div className="flex flex-wrap gap-2">
@@ -189,17 +193,17 @@ const SubscriptionMigrationAllPlans = () => {
                   ))}
                 </div>
               </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setFilterOpen(false)}
-              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-            >
-              {t("subscriptionMigration.applyFilters")}
-            </button>
-          </div>
-        </DrawerContent>
-      </Drawer>
+              <button
+                type="button"
+                onClick={() => setFilterOpen(false)}
+                className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+              >
+                {t("subscriptionMigration.applyFilters")}
+              </button>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 };
