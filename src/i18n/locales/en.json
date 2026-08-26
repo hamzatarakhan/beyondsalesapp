@@ -1134,6 +1134,7 @@
     "idType_hajVisa": "Haj Visa",
     "idType_gccPassport": "GCC Passport",
     "idType_premiumResidency": "Premium Residency",
+    "newIdDetails": "New ID Details",
     "newIdType": "New ID Type",
     "newIdNumber": "New ID Number",
     "idNumberPlaceholder": "Enter ID number",

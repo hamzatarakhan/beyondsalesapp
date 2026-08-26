@@ -1134,6 +1134,7 @@
     "idType_hajVisa": "تأشيرة حج",
     "idType_gccPassport": "جواز سفر خليجي",
     "idType_premiumResidency": "الإقامة المميزة",
+    "newIdDetails": "بيانات الهوية الجديدة",
     "newIdType": "نوع الهوية الجديدة",
     "newIdNumber": "رقم الهوية الجديدة",
     "idNumberPlaceholder": "أدخل رقم الهوية",

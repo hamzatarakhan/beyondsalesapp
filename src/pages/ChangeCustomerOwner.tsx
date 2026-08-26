@@ -293,59 +293,62 @@ const ChangeCustomerOwner = () => {
               <SummaryRow label={t("changeCustomerOwner.address")} value={record.currentAddress} />
             </CardSection>
 
-            <h3 className="text-sm font-semibold text-foreground px-1">{t("changeCustomerOwner.newOwnerDetails")}</h3>
-
-            <Field label={t("changeCustomerOwner.idType")}>
-              <Select value={newIdType} onValueChange={setNewIdType}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("changeCustomerOwner.idTypePlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {ID_TYPE_ORDER.map((key) => (
-                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label={t("changeCustomerOwner.idNumber")}>
-              <Input
-                value={newIdNumber}
-                onChange={(e) => setNewIdNumber(e.target.value)}
-                placeholder={t("changeCustomerOwner.idNumberPlaceholder")}
-                className={cn("h-12 bg-card rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
-              />
-              {newIdNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
-                <p className="text-xs text-destructive">
-                  {idNumberRule.startDigits
-                    ? t("changeCustomerOwner.idNumberRuleStart", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
-                    : t("changeCustomerOwner.idNumberRuleLength", { length: idNumberRule.length })}
-                </p>
-              )}
-            </Field>
-            <Field label={t("changeCustomerOwner.nationality")}>
-              <Select value={newNationality} onValueChange={setNewNationality}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label={t("changeCustomerOwner.address")}>
-              <Select value={newAddress} onValueChange={setNewAddress}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("changeCustomerOwner.newOwnerDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
+                <Field label={t("changeCustomerOwner.idType")}>
+                  <Select value={newIdType} onValueChange={setNewIdType}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                      <SelectValue placeholder={t("changeCustomerOwner.idTypePlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {ID_TYPE_ORDER.map((key) => (
+                        <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("changeCustomerOwner.idNumber")}>
+                  <Input
+                    value={newIdNumber}
+                    onChange={(e) => setNewIdNumber(e.target.value)}
+                    placeholder={t("changeCustomerOwner.idNumberPlaceholder")}
+                    className={cn("h-12 bg-background rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {newIdNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                    <p className="text-xs text-destructive">
+                      {idNumberRule.startDigits
+                        ? t("changeCustomerOwner.idNumberRuleStart", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                        : t("changeCustomerOwner.idNumberRuleLength", { length: idNumberRule.length })}
+                    </p>
+                  )}
+                </Field>
+                <Field label={t("changeCustomerOwner.nationality")}>
+                  <Select value={newNationality} onValueChange={setNewNationality}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                      <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("changeCustomerOwner.address")}>
+                  <Select value={newAddress} onValueChange={setNewAddress}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                      <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {CITIES.map((city) => (
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            </div>
           </>
         )}
 
