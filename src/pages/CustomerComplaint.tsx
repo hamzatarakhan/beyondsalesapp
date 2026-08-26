@@ -217,8 +217,10 @@ const CustomerComplaint = () => {
   };
 
   // ---------- Gates ----------
-  const showForm = eligible && otpVerified;
-  const canSubmit = contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
+  // OTP now sits at the end of the form as the final step before submitting, rather than
+  // gating whether the form is visible at all — so it's part of canSubmit, not a separate
+  // reveal condition.
+  const canSubmit = eligible && otpVerified && contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
 
   const resolveSubmit = () => {
     setSubmitting(true);
@@ -293,28 +295,20 @@ const CustomerComplaint = () => {
           </div>
         )}
 
-        {/* OTP + complaint form both live under the same search, on this one page — the
-            form section reveals progressively once OTP is verified, instead of a separate
-            page/step. */}
+        {/* Complaint form lives under the same search, grouped into titled sections (same
+            pattern as Channel Onboarding's Business/Member/Location Information), with OTP
+            Verification last — the final step before Submit, not a gate on seeing the form. */}
         {customer && !limitReached && (
           <>
-            <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label={t("customerComplaint.otpVerified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
-              )}
-            </CardSection>
-
-            {/* Progressive reveal — nothing below shows until OTP is verified. */}
-            {showForm && (
-              <>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.contactInformation")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("customerComplaint.contactNumber")}>
                   <Input
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
                     inputMode="numeric"
-                    className="h-12 bg-card rounded-xl"
+                    className="h-12 bg-background rounded-xl"
                   />
                 </Field>
 
@@ -324,16 +318,21 @@ const CustomerComplaint = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     type="email"
                     placeholder={t("customerComplaint.emailPlaceholder")}
-                    className="h-12 bg-card rounded-xl"
+                    className="h-12 bg-background rounded-xl"
                   />
                 </Field>
+              </div>
+            </div>
 
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.complaintDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("customerComplaint.subject")}>
                   <Input
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder={t("customerComplaint.subjectPlaceholder")}
-                    className="h-12 bg-card rounded-xl"
+                    className="h-12 bg-background rounded-xl"
                   />
                 </Field>
 
@@ -349,7 +348,7 @@ const CustomerComplaint = () => {
                       setTimeout(() => setLevel2Open(true), 150);
                     }}
                   >
-                    <SelectTrigger className="h-12 rounded-xl bg-card">
+                    <SelectTrigger className="h-12 rounded-xl bg-background">
                       <SelectValue placeholder={t("customerComplaint.level1Placeholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -362,7 +361,7 @@ const CustomerComplaint = () => {
 
                 <Field label={t("customerComplaint.level2Category")}>
                   <Select value={level2} onValueChange={setLevel2} disabled={!level1} open={level2Open} onOpenChange={setLevel2Open}>
-                    <SelectTrigger className="h-12 rounded-xl bg-card">
+                    <SelectTrigger className="h-12 rounded-xl bg-background">
                       <SelectValue placeholder={t("customerComplaint.level2Placeholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -379,54 +378,65 @@ const CustomerComplaint = () => {
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
                     placeholder={t("customerComplaint.descriptionPlaceholder")}
-                    className="bg-card rounded-2xl resize-none"
+                    className="bg-background rounded-2xl resize-none"
                   />
                 </Field>
+              </div>
+            </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-2">
-                    {t("customerComplaint.attachments")} <span className="text-muted-foreground/70">({t("customerComplaint.attachmentsOptional")})</span>
-                  </label>
-                  {attachments.length === 0 ? (
-                    <button
-                      type="button"
-                      onClick={addAttachment}
-                      className="w-full rounded-2xl border border-dashed border-border bg-card py-8 flex flex-col items-center gap-2"
-                    >
-                      <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
-                        <Plus className="w-4 h-4" />
-                      </span>
-                      <span className="text-sm text-muted-foreground">{t("customerComplaint.uploadHint")}</span>
-                    </button>
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-border bg-card divide-y divide-border/60">
-                      {attachments.map((doc) => (
-                        <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
-                          {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
-                          <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
-                          <button type="button" className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label="Preview attachment">
-                            <Eye className="w-4 h-4 text-sky-500" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAttachments((prev) => prev.filter((d) => d.id !== doc.id))}
-                            className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center"
-                            aria-label="Delete attachment"
-                          >
-                            <Trash2 className="w-4 h-4 text-primary" />
-                          </button>
-                        </div>
-                      ))}
-                      {attachments.length < MAX_ATTACHMENTS && (
-                        <button type="button" onClick={addAttachment} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
-                          <Plus className="w-4 h-4" /> {t("customerComplaint.addAnotherFile")}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">
+                {t("customerComplaint.attachments")} <span className="text-muted-foreground/70 font-normal">({t("customerComplaint.attachmentsOptional")})</span>
+              </p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm">
+                {attachments.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={addAttachment}
+                    className="w-full rounded-2xl border border-dashed border-border bg-background py-8 flex flex-col items-center gap-2"
+                  >
+                    <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
+                      <Plus className="w-4 h-4" />
+                    </span>
+                    <span className="text-sm text-muted-foreground">{t("customerComplaint.uploadHint")}</span>
+                  </button>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-background divide-y divide-border/60">
+                    {attachments.map((doc) => (
+                      <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
+                        {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
+                        <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
+                        <button type="button" className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label="Preview attachment">
+                          <Eye className="w-4 h-4 text-sky-500" />
                         </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+                        <button
+                          type="button"
+                          onClick={() => setAttachments((prev) => prev.filter((d) => d.id !== doc.id))}
+                          className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center"
+                          aria-label="Delete attachment"
+                        >
+                          <Trash2 className="w-4 h-4 text-primary" />
+                        </button>
+                      </div>
+                    ))}
+                    {attachments.length < MAX_ATTACHMENTS && (
+                      <button type="button" onClick={addAttachment} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
+                        <Plus className="w-4 h-4" /> {t("customerComplaint.addAnotherFile")}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* OTP Verification — last section, the final step before Submit. */}
+            <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
+              {otpVerified ? (
+                <VerifiedBanner label={t("customerComplaint.otpVerified")} />
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
+              )}
+            </CardSection>
           </>
         )}
       </div>
@@ -434,7 +444,7 @@ const CustomerComplaint = () => {
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {showForm && (
+          {eligible && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveSubmit}>
               {t("customerComplaint.submit")}
             </Button>
