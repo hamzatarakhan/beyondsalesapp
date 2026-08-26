@@ -469,6 +469,7 @@
     "lookupErrorTitle": "تعذر التحويل",
     "gotIt": "حسناً",
     "transferAmount": "مبلغ التحويل",
+    "amountRangeHint": "الحد الأدنى {{min}} ريال – الحد الأقصى {{max}} ريال (رصيد محفظتك)",
     "dealerWalletBalance": "رصيد محفظة الموزّع",
     "insufficientBalance": "رصيد محفظتك غير كافٍ لتغطية هذا التحويل. اختر مبلغاً أصغر أو اشحن محفظتك.",
     "topUpWallet": "اشحن الآن",

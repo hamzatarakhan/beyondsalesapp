@@ -469,6 +469,7 @@
     "lookupErrorTitle": "Unable to Transfer",
     "gotIt": "Got It",
     "transferAmount": "Transfer Amount",
+    "amountRangeHint": "Min {{min}} SAR – Max {{max}} SAR (your wallet balance)",
     "dealerWalletBalance": "Dealer Wallet Balance",
     "insufficientBalance": "Your wallet balance isn't enough to cover this transfer. Pick a smaller amount or top up your wallet.",
     "topUpWallet": "Top up now",

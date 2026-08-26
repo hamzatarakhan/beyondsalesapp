@@ -67,6 +67,10 @@ const DEMO_TRANSFER_CUSTOMERS: DemoTransferCustomer[] = [
 // 600 deliberately exceeds DEALER_WALLET_BALANCE (550) so the insufficient-balance
 // case is actually reachable to demo, not just a dead code path.
 const AMOUNT_PRESETS = [10, 20, 50, 100, 200, 600];
+// Floor for a transfer — same convention as the minimum partial payment elsewhere in the
+// app (e.g. SIM Termination). The ceiling is the dealer's own wallet balance, not a fixed
+// number — you can't send more than you have.
+const MIN_TRANSFER_AMOUNT = 10;
 
 const CreditTransfer = () => {
   const navigate = useNavigate();
@@ -109,9 +113,10 @@ const CreditTransfer = () => {
 
   const eligible = !!customer && !lookupError;
   const insufficientBalance = amount != null && amount > DEALER_WALLET_BALANCE;
+  const belowMin = amount != null && amount > 0 && amount < MIN_TRANSFER_AMOUNT;
 
   // ---------- Gates ----------
-  const canTransfer = eligible && amount != null && amount > 0 && !insufficientBalance;
+  const canTransfer = eligible && amount != null && amount >= MIN_TRANSFER_AMOUNT && !insufficientBalance;
 
   const resolveTransfer = () => {
     setConfirmOpen(false);
@@ -186,6 +191,9 @@ const CreditTransfer = () => {
                     <RiyalSymbol />
                   </span>
                 </div>
+                <p className={cn("text-[11px]", belowMin || insufficientBalance ? "text-destructive" : "text-muted-foreground")}>
+                  {t("creditTransfer.amountRangeHint", { min: MIN_TRANSFER_AMOUNT.toFixed(2), max: DEALER_WALLET_BALANCE.toFixed(2) })}
+                </p>
                 <div className="grid grid-cols-3 gap-2">
                   {AMOUNT_PRESETS.map((amt) => (
                     <button
