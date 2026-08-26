@@ -25,6 +25,7 @@ import {
   BadgeCheck,
   Repeat,
   Ban,
+  ArrowUpDown,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -194,6 +195,11 @@ const Home = () => {
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "prepaid-change-bundle", icon: Repeat, label: t("home.prepaidChangeBundle"), path: "/prepaid-change-bundle", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
+    // credit-limit tiles above).
+    ...(activeOperator === "friendi"
+      ? []
+      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const }]),
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
