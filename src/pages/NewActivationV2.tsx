@@ -2608,7 +2608,7 @@ const NewActivationV2 = () => {
             onClick={() => setCustomerNotFoundOpen(false)}
             className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
           >
-            Got It
+            Done
           </button>
         </DialogContent>
       </Dialog>
