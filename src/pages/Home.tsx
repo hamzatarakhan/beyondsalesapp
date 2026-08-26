@@ -306,9 +306,10 @@ const Home = () => {
         </div>
       </div>
     ),
-    // Catch-all for Credit Limit / Subscription Migration option tiles not promoted into
-    // Customer Activities, plus SIM Replacement/Termination options that were never in
-    // Customer Activities to begin with — Virgin-only items stay gated, SIM items don't.
+    // "other-options" hidden per request — commented out (not deleted) until asked to bring
+    // it back. Matching DEFAULT_WIDGETS/WIDGET_LABEL_KEYS entries in WidgetsContext.tsx are
+    // commented out too, so it never renders on Home in the meantime.
+    /*
     "other-options": (
       <div key="other-options" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -353,6 +354,7 @@ const Home = () => {
         </div>
       </div>
     ),
+    */
     // Only the SIM Replacement/Termination tiles that used to live in Customer Activities
     // (option 2 and option 3) — the ones that were already in Other Options stay there.
     "sim-services": (
