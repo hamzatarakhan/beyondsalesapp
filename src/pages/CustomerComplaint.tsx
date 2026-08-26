@@ -102,10 +102,7 @@ const CustomerComplaint = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // ---------- Flow state ----------
-  const [step, setStep] = useState(0);
-
-  // Step 0 — Lookup + OTP
+  // ---------- Flow state (single page — no step navigation) ----------
   const [msisdn, setMsisdn] = useState("");
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoComplaintCustomer | null>(null);
@@ -117,7 +114,7 @@ const CustomerComplaint = () => {
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
-  // Step 1 — Complaint form
+  // Complaint form — revealed once OTP is verified, on the same page
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -220,7 +217,7 @@ const CustomerComplaint = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueStep0 = eligible && otpVerified;
+  const showForm = eligible && otpVerified;
   const canSubmit = contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
 
   const resolveSubmit = () => {
@@ -238,7 +235,6 @@ const CustomerComplaint = () => {
   };
 
   const resetAll = () => {
-    setStep(0);
     setMsisdn("");
     setCustomer(null);
     setLookupError(null);
@@ -255,182 +251,182 @@ const CustomerComplaint = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("customerComplaint.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title={t("customerComplaint.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
-        {/* ── Step 0: Lookup + OTP ── */}
-        {step === 0 && (
-          <>
-            <Field label={t("customerComplaint.msisdn")}>
-              <Input
-                value={msisdn}
-                onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13))}
-                placeholder={t("customerComplaint.msisdnPlaceholder")}
-                inputMode="numeric"
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
+        <Field label={t("customerComplaint.msisdn")}>
+          <Input
+            value={msisdn}
+            onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13))}
+            placeholder={t("customerComplaint.msisdnPlaceholder")}
+            inputMode="numeric"
+            className="h-12 bg-card rounded-xl"
+          />
+        </Field>
 
-            <PrototypeTestBox
-              heading={t("customerComplaint.testNumbersHeading")}
-              description={t("customerComplaint.testNumbersDescription")}
-              items={[
-                { value: "0501111133", note: t("customerComplaint.testNotePrepaid") },
-                { value: "0502222211", note: t("customerComplaint.testNotePostpaid") },
-                { value: "0502222233444", note: t("customerComplaint.testNoteVnet") },
-                { value: "0501111199", note: t("customerComplaint.testNoteLimitReached") },
-                { value: "0500000099", note: t("customerComplaint.testNoteNotFound") },
-              ]}
-              onSelect={setMsisdn}
-            />
+        <PrototypeTestBox
+          heading={t("customerComplaint.testNumbersHeading")}
+          description={t("customerComplaint.testNumbersDescription")}
+          items={[
+            { value: "0501111133", note: t("customerComplaint.testNotePrepaid") },
+            { value: "0502222211", note: t("customerComplaint.testNotePostpaid") },
+            { value: "0502222233444", note: t("customerComplaint.testNoteVnet") },
+            { value: "0501111199", note: t("customerComplaint.testNoteLimitReached") },
+            { value: "0500000099", note: t("customerComplaint.testNoteNotFound") },
+          ]}
+          onSelect={setMsisdn}
+        />
 
-            {lookupError && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-              </div>
-            )}
-
-            {customer && limitReached && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">
-                  {t("customerComplaint.limitReached", { limit: DAILY_TICKET_LIMIT })}
-                </p>
-              </div>
-            )}
-
-            {customer && !limitReached && (
-              <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
-                {otpVerified ? (
-                  <VerifiedBanner label={t("customerComplaint.otpVerified")} />
-                ) : (
-                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
-                )}
-              </CardSection>
-            )}
-          </>
+        {lookupError && (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
+          </div>
         )}
 
-        {/* ── Step 1: Complaint form ── */}
-        {step === 1 && customer && (
+        {customer && limitReached && (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+            <p className="text-[13px] text-destructive leading-snug">
+              {t("customerComplaint.limitReached", { limit: DAILY_TICKET_LIMIT })}
+            </p>
+          </div>
+        )}
+
+        {/* OTP + complaint form both live under the same search, on this one page — the
+            form section reveals progressively once OTP is verified, instead of a separate
+            page/step. */}
+        {customer && !limitReached && (
           <>
-            <Field label={t("customerComplaint.contactNumber")}>
-              <Input
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
-                inputMode="numeric"
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
-
-            <Field label={t("customerComplaint.email")}>
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                placeholder={t("customerComplaint.emailPlaceholder")}
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
-
-            <Field label={t("customerComplaint.subject")}>
-              <Input
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder={t("customerComplaint.subjectPlaceholder")}
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
-
-            <Field label={t("customerComplaint.level1Category")}>
-              <Select
-                value={level1}
-                onValueChange={(v) => {
-                  setLevel1(v);
-                  setLevel2("");
-                  // Auto-open Level 2 right after picking Level 1 — one tap to pick the
-                  // subcategory instead of tap-to-open, tap-to-pick. The short delay lets
-                  // Level 1's own closing animation finish first.
-                  setTimeout(() => setLevel2Open(true), 150);
-                }}
-              >
-                <SelectTrigger className="h-12 rounded-xl bg-card">
-                  <SelectValue placeholder={t("customerComplaint.level1Placeholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {CATEGORY_LEVEL1.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label={t("customerComplaint.level2Category")}>
-              <Select value={level2} onValueChange={setLevel2} disabled={!level1} open={level2Open} onOpenChange={setLevel2Open}>
-                <SelectTrigger className="h-12 rounded-xl bg-card">
-                  <SelectValue placeholder={t("customerComplaint.level2Placeholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {(COMPLAINT_CATEGORIES[level1] ?? []).map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label={t("customerComplaint.description")}>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                placeholder={t("customerComplaint.descriptionPlaceholder")}
-                className="bg-card rounded-2xl resize-none"
-              />
-            </Field>
-
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-2">
-                {t("customerComplaint.attachments")} <span className="text-muted-foreground/70">({t("customerComplaint.attachmentsOptional")})</span>
-              </label>
-              {attachments.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={addAttachment}
-                  className="w-full rounded-2xl border border-dashed border-border bg-card py-8 flex flex-col items-center gap-2"
-                >
-                  <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
-                    <Plus className="w-4 h-4" />
-                  </span>
-                  <span className="text-sm text-muted-foreground">{t("customerComplaint.uploadHint")}</span>
-                </button>
+            <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
+              {otpVerified ? (
+                <VerifiedBanner label={t("customerComplaint.otpVerified")} />
               ) : (
-                <div className="rounded-2xl border border-dashed border-border bg-card divide-y divide-border/60">
-                  {attachments.map((doc) => (
-                    <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
-                      {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
-                      <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
-                      <button type="button" className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label="Preview attachment">
-                        <Eye className="w-4 h-4 text-sky-500" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAttachments((prev) => prev.filter((d) => d.id !== doc.id))}
-                        className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center"
-                        aria-label="Delete attachment"
-                      >
-                        <Trash2 className="w-4 h-4 text-primary" />
-                      </button>
-                    </div>
-                  ))}
-                  {attachments.length < MAX_ATTACHMENTS && (
-                    <button type="button" onClick={addAttachment} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
-                      <Plus className="w-4 h-4" /> {t("customerComplaint.addAnotherFile")}
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
+              )}
+            </CardSection>
+
+            {/* Progressive reveal — nothing below shows until OTP is verified. */}
+            {showForm && (
+              <>
+                <Field label={t("customerComplaint.contactNumber")}>
+                  <Input
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                    inputMode="numeric"
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+
+                <Field label={t("customerComplaint.email")}>
+                  <Input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholder={t("customerComplaint.emailPlaceholder")}
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+
+                <Field label={t("customerComplaint.subject")}>
+                  <Input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder={t("customerComplaint.subjectPlaceholder")}
+                    className="h-12 bg-card rounded-xl"
+                  />
+                </Field>
+
+                <Field label={t("customerComplaint.level1Category")}>
+                  <Select
+                    value={level1}
+                    onValueChange={(v) => {
+                      setLevel1(v);
+                      setLevel2("");
+                      // Auto-open Level 2 right after picking Level 1 — one tap to pick the
+                      // subcategory instead of tap-to-open, tap-to-pick. The short delay lets
+                      // Level 1's own closing animation finish first.
+                      setTimeout(() => setLevel2Open(true), 150);
+                    }}
+                  >
+                    <SelectTrigger className="h-12 rounded-xl bg-card">
+                      <SelectValue placeholder={t("customerComplaint.level1Placeholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {CATEGORY_LEVEL1.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label={t("customerComplaint.level2Category")}>
+                  <Select value={level2} onValueChange={setLevel2} disabled={!level1} open={level2Open} onOpenChange={setLevel2Open}>
+                    <SelectTrigger className="h-12 rounded-xl bg-card">
+                      <SelectValue placeholder={t("customerComplaint.level2Placeholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {(COMPLAINT_CATEGORIES[level1] ?? []).map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label={t("customerComplaint.description")}>
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={4}
+                    placeholder={t("customerComplaint.descriptionPlaceholder")}
+                    className="bg-card rounded-2xl resize-none"
+                  />
+                </Field>
+
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-2">
+                    {t("customerComplaint.attachments")} <span className="text-muted-foreground/70">({t("customerComplaint.attachmentsOptional")})</span>
+                  </label>
+                  {attachments.length === 0 ? (
+                    <button
+                      type="button"
+                      onClick={addAttachment}
+                      className="w-full rounded-2xl border border-dashed border-border bg-card py-8 flex flex-col items-center gap-2"
+                    >
+                      <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
+                        <Plus className="w-4 h-4" />
+                      </span>
+                      <span className="text-sm text-muted-foreground">{t("customerComplaint.uploadHint")}</span>
                     </button>
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-border bg-card divide-y divide-border/60">
+                      {attachments.map((doc) => (
+                        <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
+                          {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
+                          <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
+                          <button type="button" className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label="Preview attachment">
+                            <Eye className="w-4 h-4 text-sky-500" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAttachments((prev) => prev.filter((d) => d.id !== doc.id))}
+                            className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center"
+                            aria-label="Delete attachment"
+                          >
+                            <Trash2 className="w-4 h-4 text-primary" />
+                          </button>
+                        </div>
+                      ))}
+                      {attachments.length < MAX_ATTACHMENTS && (
+                        <button type="button" onClick={addAttachment} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
+                          <Plus className="w-4 h-4" /> {t("customerComplaint.addAnotherFile")}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -438,12 +434,7 @@ const CustomerComplaint = () => {
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueStep0} onClick={() => setStep(1)}>
-              {t("customerComplaint.continue")}
-            </Button>
-          )}
-          {step === 1 && (
+          {showForm && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveSubmit}>
               {t("customerComplaint.submit")}
             </Button>

@@ -552,7 +552,6 @@
     "otpVerification": "OTP Verification",
     "otpVerified": "OTP Verified",
     "sendVerifyOtp": "Send & Verify OTP",
-    "continue": "Continue",
     "contactNumber": "Contact Number",
     "email": "Email",
     "emailPlaceholder": "customer@email.com (optional)",

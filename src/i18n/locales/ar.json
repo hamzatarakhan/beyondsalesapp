@@ -552,7 +552,6 @@
     "otpVerification": "التحقق برمز OTP",
     "otpVerified": "تم التحقق من رمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من رمز OTP",
-    "continue": "متابعة",
     "contactNumber": "رقم التواصل",
     "email": "البريد الإلكتروني",
     "emailPlaceholder": "customer@email.com (اختياري)",
