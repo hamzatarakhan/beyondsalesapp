@@ -656,9 +656,10 @@ const NewActivation3 = () => {
   // A well-formed email that doesn't match any online application — surfaced as an
   // error instead of silently falling back to "already paid".
   const fulfilmentEmailNotFound = !qrVerified && isValidEmail(fulfilmentEmail) && !fulfilmentRecord;
-  // Paid fulfilment requests already chose everything online — the Subscription step shows
-  // the same sections as usual but disabled, except SIM Type which can always be changed.
-  const fulfilmentLocked = isFulfilment && alreadyPaid;
+  // Continue Activation (fulfilment) requests — paid or not — already chose everything
+  // online, so the Subscription step always shows a read-only summary of it rather than an
+  // editable one; only SIM Type and the KIT code stay interactive.
+  const fulfilmentLocked = isFulfilment;
   // Whitelist status (VPPR class 5→6) is derived from which demo ID number is entered,
   // same pattern as fulfilment deriving it from email — no manual toggle.
   const isWhitelisted = isFulfilment ? (fulfilmentRecord?.whitelisted ?? false) : idNumber.trim().length === 10 && idNumber.trim().endsWith(WHITELISTED_TEST_ID_SUFFIX);
@@ -705,7 +706,9 @@ const NewActivation3 = () => {
   // Contact & Delivery
   const [contactCity, setContactCity] = useState("Riyadh");
   const [contactEmail, setContactEmail] = useState("test@beyondsales.com");
-  const [contactNumber, setContactNumber] = useState("0512345678");
+  // Continue Activation: contact number starts blank — the dealer collects it fresh at
+  // handover rather than it coming pre-filled with the demo default.
+  const [contactNumber, setContactNumber] = useState(() => (isFulfilment ? "" : "0512345678"));
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
   const [locationRegion, setLocationRegion] = useState("");
@@ -2370,7 +2373,10 @@ const NewActivation3 = () => {
               </div>
             )}
 
-            {/* Payment Summary */}
+            {/* Payment Summary — skipped entirely for a paid Continue Activation request:
+                nothing is owed and there's nothing left to summarize. Unpaid still shows the
+                real total, since the dealer still needs to collect payment. */}
+            {!(isFulfilment && alreadyPaid) && (
             <section className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -2379,56 +2385,11 @@ const NewActivation3 = () => {
                 <p className="text-sm font-semibold text-foreground">{t("activation3.checkout.paymentSummary")}</p>
               </div>
 
-              {/* Case 0: fulfilment already paid online → everything already settled, total 0 */}
-              {isFulfilment && alreadyPaid ? (() => {
-                const paidSubtotal = planPrice + simFee + numberFee + deviceFee;
-                const paidVat = vatWaived ? 0 : Math.round(paidSubtotal * 0.15);
-                const paidTotal = paidSubtotal + paidVat;
-                return (
-                <>
-                  <div className="space-y-2 pb-3">
-                    {showNumber && subType === "sim" && numberFee > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{t("activation3.checkout.numberPrice")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {numberFee.toFixed(2)}</span>
-                      </div>
-                    )}
-                    {showDevice && deviceFee > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{deviceObj?.name}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {deviceFee.toFixed(2)}</span>
-                      </div>
-                    )}
-                    {selectedPlanObj && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-muted-foreground">{payType === "postpaid" ? t("activation3.checkout.deposit") : t("activation3.checkout.planLabel")}</span>
-                        <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice.toFixed(2)}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="border-t border-border/60 space-y-2 py-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{t("activation3.checkout.subtotal")}</span>
-                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidSubtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-muted-foreground">{t("activation3.checkout.vat")}</span>
-                      <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {paidVat.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                    <span className="text-sm font-semibold text-foreground">{t("activation3.checkout.total")}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
-                        {t("activation3.checkout.alreadyPaidLabel")}
-                      </span>
-                      <span className="text-base font-bold text-muted-foreground line-through"><RiyalSymbol /> {paidTotal.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </>
-                );
-              })() : /* Case 1: whitelisted + free number → show waived rows, total 0 */
-              isWhitelisted && !isVipNumber ? (
+              {/* Case 1: whitelisted + free number → show waived rows, total 0. (A fulfilment
+                  "already paid" case used to be handled here too — that's gone now since the
+                  whole section is skipped for that case instead, see the wrapping condition
+                  below.) */}
+              {isWhitelisted && !isVipNumber ? (
                 <>
                   <div className="space-y-2 pb-3">
                     {showDevice && deviceFee > 0 && (
@@ -2545,6 +2506,7 @@ const NewActivation3 = () => {
                   </>
                 )}
             </section>
+            )}
 
             {/* Payment Method — hidden for whitelisted with free number, fulfilment already-paid,
                 or when the total is 0 (e.g. Friendi PAYG with no top-up selected). */}
@@ -2592,8 +2554,9 @@ const NewActivation3 = () => {
 
             {/* Address Details — superseded by Delivery Details when it's shown (Vnet with
                 delivery, not dealer handover), since that section already carries City and
-                National Address alongside Region/District/Address Line. */}
-            {!showDelivery && (
+                National Address alongside Region/District/Address Line. Also skipped
+                entirely on Continue Activation — the customer already gave this online. */}
+            {!showDelivery && !isFulfilment && (
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-foreground px-1">{t("activation3.checkout.addressDetails")}</p>
                 <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
