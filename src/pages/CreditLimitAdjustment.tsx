@@ -401,12 +401,7 @@ const CreditLimitAdjustment = () => {
 
             {customer && (
               <>
-                <CardSection title={t("creditLimitAdjustment.customerDetails")} icon={ClipboardList}>
-              <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
-              <SummaryRow label={t("creditLimitAdjustment.currentCreditLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
-            </CardSection>
-
-            {amountMode === "unified" && limitSummaryCard}
+                {amountMode === "unified" && limitSummaryCard}
 
             {amountMode !== "unified" && (
               <div className="flex gap-3">
