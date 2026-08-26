@@ -32,13 +32,6 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
-    <span className="text-[11px] text-muted-foreground">{label}</span>
-    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
-  </div>
-);
-
 const CardSection = ({
   title,
   icon: Icon,
@@ -97,17 +90,6 @@ const COMPLAINT_CATEGORIES: Record<string, string[]> = {
   eSIM: ["eSIM Activation Failed", "eSIM QR Not Working", "eSIM Compatibility Issue"],
 };
 const CATEGORY_LEVEL1 = Object.keys(COMPLAINT_CATEGORIES);
-
-// Customer Details is a read-only review card, not an input — PII gets masked there rather
-// than shown in full. Editable fields (contact number, MSISDN lookup) stay unmasked.
-const maskName = (name: string) =>
-  name
-    .split(" ")
-    .map((word) => (word.length <= 2 ? word : word[0] + "*".repeat(word.length - 1)))
-    .join(" ");
-
-const maskMsisdn = (msisdn: string) =>
-  msisdn.length <= 5 ? msisdn : msisdn.slice(0, 3) + "*".repeat(msisdn.length - 5) + msisdn.slice(-2);
 
 const MAX_ATTACHMENTS = 3;
 interface Attachment {
@@ -319,24 +301,13 @@ const CustomerComplaint = () => {
             )}
 
             {customer && !limitReached && (
-              <>
-                <CardSection title={t("customerComplaint.customerDetails")} icon={ClipboardList}>
-                  <SummaryRow label={t("customerComplaint.customerName")} value={maskName(customer.name)} />
-                  <SummaryRow label={t("customerComplaint.msisdn")} value={maskMsisdn(customer.msisdn)} />
-                  <SummaryRow label={t("customerComplaint.lineType")} value={t(`customerComplaint.lineType_${customer.lineType}`)} />
-                </CardSection>
-
-                <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
-                  {otpVerified ? (
-                    <VerifiedBanner label={t("customerComplaint.otpVerified")} />
-                  ) : (
-                    <>
-                      <p className="text-xs text-muted-foreground mb-3">{t("customerComplaint.otpHint")}</p>
-                      <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
-                    </>
-                  )}
-                </CardSection>
-              </>
+              <CardSection title={t("customerComplaint.otpVerification")} icon={Phone}>
+                {otpVerified ? (
+                  <VerifiedBanner label={t("customerComplaint.otpVerified")} />
+                ) : (
+                  <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
+                )}
+              </CardSection>
             )}
           </>
         )}
@@ -344,11 +315,6 @@ const CustomerComplaint = () => {
         {/* ── Step 1: Complaint form ── */}
         {step === 1 && customer && (
           <>
-            <CardSection title={t("customerComplaint.customerDetails")} icon={ClipboardList}>
-              <SummaryRow label={t("customerComplaint.customerName")} value={maskName(customer.name)} />
-              <SummaryRow label={t("customerComplaint.msisdn")} value={maskMsisdn(customer.msisdn)} />
-            </CardSection>
-
             <Field label={t("customerComplaint.contactNumber")}>
               <Input
                 value={contactNumber}
