@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -32,6 +32,7 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   RotateCw,
+  ChevronRight,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 
@@ -104,6 +105,7 @@ const DEMO_PREPAID_LINES: DemoPrepaidLine[] = [
 
 const PrepaidChangeBundle = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
@@ -182,6 +184,33 @@ const PrepaidChangeBundle = () => {
       : planCatalog.filter((p) => p.categories.some((c) => MOBILE_PREPAID_CATEGORIES.includes(c)));
   const selectedPlanObj = selectedPlan != null ? planList[selectedPlan] : undefined;
   const currentPlanObj = line ? planCatalog.find((p) => p.title === line.planName) : undefined;
+
+  // Picking up a selection made on the "View all plans" page: it navigates back here with
+  // the chosen plan title (and MSISDN, since /plans is a separate route/page that remounts
+  // this one) in navigation state — same round trip as Subscription Migration's own AllPlans
+  // page. The MSISDN re-triggers the debounced lookup above, which re-derives `line`; the
+  // plan pick itself can only be resolved against `planList` once that lookup settles, so
+  // it's staged in `pendingPlanPick` and applied by the effect below once `line` is set.
+  const [pendingPlanPick, setPendingPlanPick] = useState<{ chip: string; title: string } | null>(null);
+  useEffect(() => {
+    const state = location.state as { pickPlan?: { msisdn: string; chip: string; title: string } } | null;
+    const pick = state?.pickPlan;
+    if (!pick) return;
+    setMsisdn(pick.msisdn);
+    setPlanTypeChip(pick.chip);
+    setPendingPlanPick({ chip: pick.chip, title: pick.title });
+    setStep(1);
+    navigate(location.pathname + location.search, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
+  useEffect(() => {
+    if (!pendingPlanPick || !line) return;
+    const idx = planList.findIndex((p) => p.title === pendingPlanPick.title);
+    setSelectedPlan(idx >= 0 ? idx : null);
+    setPendingPlanPick(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPlanPick, line, planList]);
 
   const changeType: "upgrade" | "downgrade" | "renew" | null =
     !currentPlanObj || !selectedPlanObj
@@ -378,14 +407,36 @@ const PrepaidChangeBundle = () => {
               </div>
             )}
 
-            <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={planSearch}
-                onChange={(e) => setPlanSearch(e.target.value)}
-                placeholder={t("prepaidChangeBundle.searchPlans")}
-                className="h-11 bg-card rounded-xl ps-9"
-              />
+            {/* Search + View all plans, side by side — same pattern as SIM Activation's
+                Subscription step: search narrows the plan cards below (PlanSelector shows
+                its own "no plans match" state); View all plans opens the full vertical
+                browser with its own search + category filter. */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder={t("prepaidChangeBundle.searchPlans")}
+                  className="h-11 bg-card rounded-xl ps-9"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/prepaid-change-bundle/plans", {
+                  state: {
+                    lineType: line?.lineType,
+                    chip: planTypeChip,
+                    selectedPlanTitle: selectedPlanObj?.title,
+                    msisdn,
+                    backSearch: location.search,
+                  },
+                })}
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+              >
+                {t("prepaidChangeBundle.allPlansBtn")}
+                <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+              </button>
             </div>
 
             <PlanSelector

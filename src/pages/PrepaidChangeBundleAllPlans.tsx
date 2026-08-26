@@ -1,0 +1,204 @@
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft, Search, SlidersHorizontal, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import PlanCard from "@/components/PlanCard";
+import { Input } from "@/components/ui/input";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { useBrand } from "@/contexts/BrandContext";
+import { cn } from "@/lib/utils";
+import { PREPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
+
+type LineType = "mobile" | "mbb";
+
+// Same category list as PrepaidChangeBundle.tsx (not exported there, redeclared here).
+const MOBILE_PREPAID_CATEGORIES = (isFriendi: boolean) => (isFriendi ? ["combo", "flexi"] : ["aman", "base-plan", "flex"]);
+
+interface NavState {
+  lineType?: LineType;
+  chip?: string;
+  selectedPlanTitle?: string;
+  msisdn: string;
+  /** location.search from PrepaidChangeBundle — restored on the way back. */
+  backSearch?: string;
+}
+
+const PrepaidChangeBundleAllPlans = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation();
+  const { brand } = useBrand();
+  const isFriendi = brand === "friendi";
+
+  const initial = (location.state as NavState | null) ?? { msisdn: "" };
+  const lineType = initial.lineType ?? "mobile";
+  const [chip, setChip] = useState(initial.chip ?? "all");
+  const [search, setSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const planCatalog = isFriendi ? FRIENDI_PLANS : PREPAID_PLANS;
+  const planList = lineType === "mbb"
+    ? planCatalog.filter((p) => p.categories.includes("data"))
+    : planCatalog.filter((p) => p.categories.some((c) => MOBILE_PREPAID_CATEGORIES(isFriendi).includes(c)));
+
+  // Category chips only apply to mobile prepaid lines (several plan types); 5G MBB is a
+  // single "data" category, so there's nothing to filter.
+  const showChips = lineType === "mobile";
+  const chips = isFriendi
+    ? [
+        { value: "all", label: t("prepaidChangeBundle.chipAll") },
+        { value: "combo", label: t("prepaidChangeBundle.categoryCombo") },
+        { value: "flexi", label: t("prepaidChangeBundle.categoryFlexi") },
+      ]
+    : [
+        { value: "all", label: t("prepaidChangeBundle.chipAll") },
+        { value: "aman", label: t("prepaidChangeBundle.categoryAman") },
+        { value: "base-plan", label: t("prepaidChangeBundle.categoryBaqah") },
+        { value: "flex", label: t("prepaidChangeBundle.categoryBaqahFlex") },
+      ];
+
+  const activeFilterCount = chip !== "all" ? 1 : 0;
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const visiblePlans = planList
+    .filter((p) => !showChips || chip === "all" || p.categories.includes(chip as any))
+    .filter((p) => !normalizedSearch || p.title.toLowerCase().includes(normalizedSearch));
+
+  // Back restores the Plan step exactly as it was before this page opened — original chip
+  // and whatever plan was already selected, if any — rather than whatever the dealer may
+  // have changed while just browsing here.
+  const goBack = () => {
+    navigate(`/prepaid-change-bundle${initial.backSearch ?? ""}`, {
+      state: { pickPlan: { msisdn: initial.msisdn, chip: initial.chip ?? "all", title: initial.selectedPlanTitle ?? "" } },
+    });
+  };
+
+  const pickPlan = (title: string) => {
+    navigate(`/prepaid-change-bundle${initial.backSearch ?? ""}`, {
+      state: { pickPlan: { msisdn: initial.msisdn, chip, title } },
+    });
+  };
+
+  return (
+    <div className="mobile-container pb-8 min-h-screen bg-background">
+      <div className="sticky top-0 z-10 bg-background">
+        <header className="px-4 py-4 flex items-center gap-3">
+          <button
+            onClick={goBack}
+            aria-label={t("prepaidChangeBundle.backAria")}
+            className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
+          </button>
+          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("prepaidChangeBundle.allPlansTitle")}</h1>
+          <div className="w-10 shrink-0" />
+        </header>
+
+        <div className="px-4 flex items-center gap-2 pb-4">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("prepaidChangeBundle.searchPlans")}
+              className="h-11 bg-card rounded-xl ps-9"
+            />
+          </div>
+          {showChips && (
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              aria-label={t("prepaidChangeBundle.filtersAria")}
+              className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-foreground" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Vertical plan list */}
+      <div className="px-4 space-y-3">
+        {visiblePlans.length === 0 ? (
+          <div className="bg-card rounded-2xl p-6 text-center text-sm text-muted-foreground shadow-sm">
+            {t("prepaidChangeBundle.noPlansMatchSearch")}
+          </div>
+        ) : (
+          visiblePlans.map((p) => {
+            const cats = p.categories ?? [];
+            const layout = cats.includes("combo") ? "combo"
+              : cats.includes("flexi") ? "combo"
+              : cats.includes("aman") ? "aman"
+              : cats.includes("base-plan") ? "baqa"
+              : "flex";
+            return (
+              <PlanCard
+                key={`${p.title}-${p.price}`}
+                plan={p}
+                selected={false}
+                active
+                hideRadio
+                layout={layout as any}
+                onSelect={() => pickPlan(p.title)}
+              />
+            );
+          })
+        )}
+      </div>
+
+      {/* Filters bottom sheet — only reachable when there's something to filter (mobile
+          prepaid's several plan categories); 5G MBB's catalog is a single category, so
+          neither the trigger button above nor this sheet render for it. */}
+      {showChips && (
+        <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+          <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
+            <button
+              onClick={() => setFilterOpen(false)}
+              aria-label={t("prepaidChangeBundle.close")}
+              className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+            <DrawerHeader className="text-center pt-8">
+              <DrawerTitle className="text-lg font-semibold">{t("prepaidChangeBundle.filtersTitle")}</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-8 space-y-5 overflow-y-auto">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">{t("prepaidChangeBundle.planTypesTitle")}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {chips.map((c) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setChip(c.value)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                        chip === c.value ? "bg-primary text-white" : "bg-muted text-foreground",
+                      )}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFilterOpen(false)}
+                className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+              >
+                {t("prepaidChangeBundle.applyFilters")}
+              </button>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
+    </div>
+  );
+};
+
+export default PrepaidChangeBundleAllPlans;
