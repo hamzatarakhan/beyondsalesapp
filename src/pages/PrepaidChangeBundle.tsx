@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   ClipboardList,
@@ -301,13 +302,6 @@ const PrepaidChangeBundle = () => {
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("prepaidChangeBundle.checkingNumber")}</p>}
             </Field>
-
-            {lookupError && (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-              </div>
-            )}
 
             <PrototypeTestBox
               heading={t("prepaidChangeBundle.testNumbersHeading")}
@@ -655,6 +649,26 @@ const PrepaidChangeBundle = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Lookup error — same popup pattern used app-wide for a lookup failure. */}
+      <Dialog open={!!lookupError} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("prepaidChangeBundle.lookupErrorTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
+          <button
+            onClick={() => setLookupError(null)}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("prepaidChangeBundle.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

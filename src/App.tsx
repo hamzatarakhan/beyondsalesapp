@@ -58,6 +58,7 @@ import NewActivation4AllPlans from "./pages/NewActivation4AllPlans";
 import NewActivation5 from "./pages/NewActivation5";
 import NewActivation5AllPlans from "./pages/NewActivation5AllPlans";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
+import SubscriptionMigrationAllPlans from "./pages/SubscriptionMigrationAllPlans";
 import PrepaidChangeBundle from "./pages/PrepaidChangeBundle";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -163,6 +164,7 @@ const App = () => {
           <Route path="/new-activation-5" element={<NewActivation5 />} />
           <Route path="/new-activation-5/plans" element={<NewActivation5AllPlans />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
+          <Route path="/subscription-migration/plans" element={<SubscriptionMigrationAllPlans />} />
           <Route path="/prepaid-change-bundle" element={<PrepaidChangeBundle />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />

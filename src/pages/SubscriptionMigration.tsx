@@ -46,6 +46,8 @@ import {
   Info,
   UserCheck,
   ArrowLeftRight,
+  Search,
+  ChevronRight,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import SematiVerification from "@/components/SematiVerification";
@@ -237,6 +239,7 @@ const SubscriptionMigration = () => {
   // Plan
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [planTypeChip, setPlanTypeChip] = useState<string>("all");
+  const [planSearch, setPlanSearch] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsChain, setTermsChain] = useState(false);
@@ -343,6 +346,33 @@ const SubscriptionMigration = () => {
       ? FRIENDI_PLANS.filter((p) => p.categories.some((c) => FM_MIGRATION_CATEGORIES.includes(c)))
       : PREPAID_PLANS.filter((p) => p.categories.some((c) => ELIGIBLE_PREPAID_CATEGORIES.includes(c)));
   const selectedPlanObj = selectedPlan != null ? planList[selectedPlan] : undefined;
+
+  // Picking up a selection made on the "View all plans" page: it navigates back here with
+  // the chosen plan title (and MSISDN, since /plans is a separate route/page that remounts
+  // this one) in navigation state — same round trip as SIM Activation's own AllPlans page.
+  // The MSISDN re-triggers the debounced lookup above, which re-derives `direction`; the
+  // plan pick itself can only be resolved against `planList` once that lookup settles, so
+  // it's staged in `pendingPlanPick` and applied by the effect below once `direction` is set.
+  const [pendingPlanPick, setPendingPlanPick] = useState<{ chip: string; title: string } | null>(null);
+  useEffect(() => {
+    const state = location.state as { pickPlan?: { msisdn: string; chip: string; title: string } } | null;
+    const pick = state?.pickPlan;
+    if (!pick) return;
+    setMsisdn(pick.msisdn);
+    setPlanTypeChip(pick.chip);
+    setPendingPlanPick({ chip: pick.chip, title: pick.title });
+    setStep(1);
+    navigate(location.pathname + location.search, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
+  useEffect(() => {
+    if (!pendingPlanPick || !direction) return;
+    const idx = planList.findIndex((p) => p.title === pendingPlanPick.title);
+    setSelectedPlan(idx >= 0 ? idx : null);
+    setPendingPlanPick(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPlanPick, direction, planList]);
 
   // ---------- Pricing ----------
   const planPrice = selectedPlanObj?.price ?? 0;
@@ -651,12 +681,46 @@ const SubscriptionMigration = () => {
                 ))}
               </div>
             )}
+
+            {/* Search + View all plans, side by side — same pattern as SIM Activation's
+                Subscription step: search narrows the plan cards below (PlanSelector shows
+                its own "no plans match" state); View all plans opens the full vertical
+                browser with its own search + category filter. */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder={t("subscriptionMigration.searchPlans")}
+                  className="h-11 bg-card rounded-xl ps-9"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/subscription-migration/plans", {
+                  state: {
+                    direction,
+                    chip: planTypeChip,
+                    selectedPlanTitle: selectedPlanObj?.title,
+                    msisdn,
+                    backSearch: location.search,
+                  },
+                })}
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+              >
+                {t("subscriptionMigration.allPlansBtn")}
+                <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+              </button>
+            </div>
+
             <PlanSelector
               key={direction === "post-to-pre" ? planTypeChip : "pre-to-post"}
               plans={planList}
               selectedPlan={selectedPlan}
               onSelect={(idx) => setSelectedPlan(idx)}
               categoryFilter={direction === "post-to-pre" ? planTypeChip : undefined}
+              searchQuery={planSearch}
             />
           </>
         )}
