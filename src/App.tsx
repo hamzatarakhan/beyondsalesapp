@@ -61,6 +61,7 @@ import SubscriptionMigration from "./pages/SubscriptionMigration";
 import SubscriptionMigrationAllPlans from "./pages/SubscriptionMigrationAllPlans";
 import PrepaidChangeBundle from "./pages/PrepaidChangeBundle";
 import PrepaidChangeBundleAllPlans from "./pages/PrepaidChangeBundleAllPlans";
+import CancelPortInRequest from "./pages/CancelPortInRequest";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
@@ -168,6 +169,7 @@ const App = () => {
           <Route path="/subscription-migration/plans" element={<SubscriptionMigrationAllPlans />} />
           <Route path="/prepaid-change-bundle" element={<PrepaidChangeBundle />} />
           <Route path="/prepaid-change-bundle/plans" element={<PrepaidChangeBundleAllPlans />} />
+          <Route path="/cancel-port-in" element={<CancelPortInRequest />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />
