@@ -64,6 +64,9 @@ import PrepaidChangeBundleAllPlans from "./pages/PrepaidChangeBundleAllPlans";
 import CancelPortInRequest from "./pages/CancelPortInRequest";
 import ChangePostpaidPlan from "./pages/ChangePostpaidPlan";
 import ChangePostpaidPlanAllPlans from "./pages/ChangePostpaidPlanAllPlans";
+import ChangeOwnershipChooser from "./pages/ChangeOwnershipChooser";
+import UpdateCustomerId from "./pages/UpdateCustomerId";
+import ChangeCustomerOwner from "./pages/ChangeCustomerOwner";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
@@ -174,6 +177,9 @@ const App = () => {
           <Route path="/cancel-port-in" element={<CancelPortInRequest />} />
           <Route path="/change-postpaid-plan" element={<ChangePostpaidPlan />} />
           <Route path="/change-postpaid-plan/plans" element={<ChangePostpaidPlanAllPlans />} />
+          <Route path="/change-ownership" element={<ChangeOwnershipChooser />} />
+          <Route path="/change-ownership/update-id" element={<UpdateCustomerId />} />
+          <Route path="/change-ownership/change-owner" element={<ChangeCustomerOwner />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />
