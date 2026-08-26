@@ -31,13 +31,6 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
-    <span className="text-[11px] text-muted-foreground">{label}</span>
-    <span className="text-xs font-semibold text-foreground text-end">{value}</span>
-  </div>
-);
-
 const CardSection = ({
   title,
   icon: Icon,
@@ -80,17 +73,13 @@ const CreditTransfer = () => {
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
 
-  // ---------- Flow state ----------
-  const [step, setStep] = useState(0);
-
-  // Step 0 — Lookup + amount
+  // ---------- Flow state (single page — no step navigation) ----------
   const [msisdn, setMsisdn] = useState("0501111133");
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoTransferCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
 
-  // Step 1 — Checkout
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -122,7 +111,7 @@ const CreditTransfer = () => {
   const insufficientBalance = amount != null && amount > DEALER_WALLET_BALANCE;
 
   // ---------- Gates ----------
-  const canContinueStep0 = eligible && amount != null && amount > 0 && !insufficientBalance;
+  const canTransfer = eligible && amount != null && amount > 0 && !insufficientBalance;
 
   const resolveTransfer = () => {
     setConfirmOpen(false);
@@ -136,7 +125,6 @@ const CreditTransfer = () => {
   };
 
   const resetAll = () => {
-    setStep(0);
     setMsisdn("0501111133");
     setCustomer(null);
     setLookupError(null);
@@ -145,117 +133,97 @@ const CreditTransfer = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("creditTransfer.title")} showBack onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))} />
+      <AppHeader title={t("creditTransfer.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
-        {/* ── Step 0: Lookup + Amount ── */}
-        {step === 0 && (
-          <>
-            <Field label={t("creditTransfer.msisdn")}>
-              <div className="flex gap-2">
-                <PhoneNumberInput
-                  value={msisdn}
-                  onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setAmount(null); }}
-                  icon={<Phone className="w-4 h-4" />}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  className="h-12 w-20 rounded-xl shrink-0"
-                  disabled={!/^\d{10}$/.test(msisdn) || checking}
-                  onClick={handleSearch}
-                >
-                  {t("creditTransfer.search")}
-                </Button>
-              </div>
-            </Field>
-
-            <PrototypeTestBox
-              heading={t("creditTransfer.testNumbersHeading")}
-              description={t("creditTransfer.testNumbersDescription")}
-              items={[
-                { value: "0501111133", note: t("creditTransfer.testNoteActive") },
-                { value: "0501111122", note: t("creditTransfer.testNoteActive") },
-                { value: "0501111199", note: t("creditTransfer.testNoteTerminated") },
-                { value: "0500000099", note: t("creditTransfer.testNoteNotFound") },
-              ]}
-              onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setAmount(null); }}
+        <Field label={t("creditTransfer.msisdn")}>
+          <div className="flex gap-2">
+            <PhoneNumberInput
+              value={msisdn}
+              onChange={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setAmount(null); }}
+              icon={<Phone className="w-4 h-4" />}
+              className="flex-1"
             />
+            <Button
+              type="button"
+              className="h-12 w-20 rounded-xl shrink-0"
+              disabled={!/^\d{10}$/.test(msisdn) || checking}
+              onClick={handleSearch}
+            >
+              {t("creditTransfer.search")}
+            </Button>
+          </div>
+        </Field>
 
-            {customer && (
-              <>
-                <CardSection title={t("creditTransfer.transferAmount")} icon={Send}>
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <Input
-                        value={amount != null ? String(amount) : ""}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
-                          setAmount(raw === "" ? null : Number(raw));
-                        }}
-                        placeholder="0.00"
-                        inputMode="decimal"
-                        className="h-12 bg-card rounded-xl ps-10"
-                      />
-                      <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                        <RiyalSymbol />
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      {AMOUNT_PRESETS.map((amt) => (
-                        <button
-                          key={amt}
-                          type="button"
-                          onClick={() => setAmount(amt)}
-                          className={cn(
-                            "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
-                            amount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
-                          )}
-                        >
-                          <RiyalSymbol /> {amt.toFixed(2)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </CardSection>
+        <PrototypeTestBox
+          heading={t("creditTransfer.testNumbersHeading")}
+          description={t("creditTransfer.testNumbersDescription")}
+          items={[
+            { value: "0501111133", note: t("creditTransfer.testNoteActive") },
+            { value: "0501111122", note: t("creditTransfer.testNoteActive") },
+            { value: "0501111199", note: t("creditTransfer.testNoteTerminated") },
+            { value: "0500000099", note: t("creditTransfer.testNoteNotFound") },
+          ]}
+          onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setAmount(null); }}
+        />
 
-                {insufficientBalance && (
-                  <WalletShortNotice message={t("creditTransfer.insufficientBalance")} buttonLabel={t("creditTransfer.topUpWallet")} />
-                )}
-              </>
+        {customer && (
+          <>
+            <CardSection title={t("creditTransfer.transferAmount")} icon={Send}>
+              <div className="space-y-3">
+                <div className="relative">
+                  <Input
+                    value={amount != null ? String(amount) : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                      setAmount(raw === "" ? null : Number(raw));
+                    }}
+                    placeholder="0.00"
+                    inputMode="decimal"
+                    className="h-12 bg-card rounded-xl ps-10"
+                  />
+                  <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    <RiyalSymbol />
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {AMOUNT_PRESETS.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setAmount(amt)}
+                      className={cn(
+                        "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                        amount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
+                      )}
+                    >
+                      <RiyalSymbol /> {amt.toFixed(2)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardSection>
+
+            {insufficientBalance && (
+              <WalletShortNotice message={t("creditTransfer.insufficientBalance")} buttonLabel={t("creditTransfer.topUpWallet")} />
             )}
           </>
-        )}
-
-        {/* ── Step 1: Checkout ── */}
-        {step === 1 && customer && amount != null && (
-          <CardSection title={t("creditTransfer.transferSummary")} icon={ClipboardList}>
-            <SummaryRow label={t("creditTransfer.msisdn")} value={customer.msisdn} />
-            <SummaryRow label={t("creditTransfer.amount")} value={<><RiyalSymbol /> {amount.toFixed(2)}</>} />
-          </CardSection>
         )}
       </div>
 
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {step === 0 && customer && (
+          {customer && (
             <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
               <Wallet className="w-4 h-4 text-primary shrink-0" />
               <span className="text-[12px] text-muted-foreground">{t("creditTransfer.dealerWalletBalance")}</span>
               <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
             </div>
           )}
-          {step === 0 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueStep0} onClick={() => setStep(1)}>
-              {t("creditTransfer.continue")}
-            </Button>
-          )}
-          {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" onClick={() => setConfirmOpen(true)}>
-              {t("creditTransfer.transfer")} <RiyalSymbol /> {amount?.toFixed(2)}
-            </Button>
-          )}
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canTransfer} onClick={() => setConfirmOpen(true)}>
+            {t("creditTransfer.transfer")}{amount != null && <> <RiyalSymbol /> {amount.toFixed(2)}</>}
+          </Button>
         </div>
       </div>
 
