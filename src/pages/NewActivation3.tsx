@@ -1500,18 +1500,22 @@ const NewActivation3 = () => {
             {fulfilmentLocked && (
               <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700 px-4 py-3">
                 <p className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400">
-                  This customer already chose everything and paid online — just enter the KIT code (or change SIM Type, if needed) and hand over the SIM.
+                  This customer already chose everything and paid online — just enter the KIT code and hand over the SIM.
                 </p>
               </div>
             )}
-            {/* 1. SIM Type — always changeable, even on a paid fulfilment request */}
+            {/* 1. SIM Type — locked to P-SIM on Continue Activation, since it's always a
+                physical handover there; only the KIT code is entered. Interactive pSIM/eSIM
+                choice otherwise. */}
             <section>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation3.subscription.simType")} <span className="text-destructive">*</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} onClick={() => { flashSwitchLoader(); setSimType("psim"); }} />
-                  <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => { flashSwitchLoader(); setSimType("esim"); }} />
+                <div className={cn("grid gap-3", fulfilmentLocked ? "grid-cols-1" : "grid-cols-2")}>
+                  <SimCard active={simType === "psim"} label={t("activation3.subscription.psim")} icon={Microchip} disabled={fulfilmentLocked} onClick={() => { flashSwitchLoader(); setSimType("psim"); }} />
+                  {!fulfilmentLocked && (
+                    <SimCard active={simType === "esim"} label={t("activation3.subscription.esim")} icon={QrCode} onClick={() => { flashSwitchLoader(); setSimType("esim"); }} />
+                  )}
                 </div>
                 {simType === "esim" && (
                   <button type="button" onClick={() => setEsimInfoOpen(true)} className="w-full mt-3 flex items-center gap-3 text-start p-3.5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all group">
