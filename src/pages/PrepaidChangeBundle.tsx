@@ -371,6 +371,40 @@ const PrepaidChangeBundle = () => {
               </div>
             )}
 
+            {line && (
+              <CardSection title={t("prepaidChangeBundle.currentConsumption")} icon={Gauge}>
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-muted-foreground">{t("prepaidChangeBundle.dataUsedLabel")}</span>
+                      <span className="font-semibold text-foreground">
+                        {line.consumption.dataTotalGB == null
+                          ? t("prepaidChangeBundle.unlimited")
+                          : `${line.consumption.dataUsedGB} / ${line.consumption.dataTotalGB} GB`}
+                      </span>
+                    </div>
+                    {line.consumption.dataTotalGB != null && (
+                      <Progress value={Math.min(100, Math.round((line.consumption.dataUsedGB / line.consumption.dataTotalGB) * 100))} className="h-2" />
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-muted-foreground">{t("prepaidChangeBundle.minutesUsedLabel")}</span>
+                      <span className="font-semibold text-foreground">
+                        {line.consumption.minsTotal == null
+                          ? t("prepaidChangeBundle.unlimited")
+                          : `${line.consumption.minsUsed} / ${line.consumption.minsTotal} ${t("prepaidChangeBundle.min")}`}
+                      </span>
+                    </div>
+                    {line.consumption.minsTotal != null && (
+                      <Progress value={Math.min(100, Math.round((line.consumption.minsUsed / line.consumption.minsTotal) * 100))} className="h-2" />
+                    )}
+                  </div>
+                  <SummaryRow label={t("prepaidChangeBundle.validUntil")} value={line.consumption.validUntil} />
+                </div>
+              </CardSection>
+            )}
+
             <h3 className="text-sm font-semibold text-foreground px-1">
               {line?.lineType === "mbb" ? t("prepaidChangeBundle.availableMbbPlans") : t("prepaidChangeBundle.availableMobilePlans")}
             </h3>
@@ -480,40 +514,6 @@ const PrepaidChangeBundle = () => {
                 value={changeType ? t(`prepaidChangeBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`) : t("prepaidChangeBundle.dash")}
               />
             </CardSection>
-
-            {line && (
-              <CardSection title={t("prepaidChangeBundle.currentConsumption")} icon={Gauge}>
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">{t("prepaidChangeBundle.dataUsedLabel")}</span>
-                      <span className="font-semibold text-foreground">
-                        {line.consumption.dataTotalGB == null
-                          ? t("prepaidChangeBundle.unlimited")
-                          : `${line.consumption.dataUsedGB} / ${line.consumption.dataTotalGB} GB`}
-                      </span>
-                    </div>
-                    {line.consumption.dataTotalGB != null && (
-                      <Progress value={Math.min(100, Math.round((line.consumption.dataUsedGB / line.consumption.dataTotalGB) * 100))} className="h-2" />
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">{t("prepaidChangeBundle.minutesUsedLabel")}</span>
-                      <span className="font-semibold text-foreground">
-                        {line.consumption.minsTotal == null
-                          ? t("prepaidChangeBundle.unlimited")
-                          : `${line.consumption.minsUsed} / ${line.consumption.minsTotal} ${t("prepaidChangeBundle.min")}`}
-                      </span>
-                    </div>
-                    {line.consumption.minsTotal != null && (
-                      <Progress value={Math.min(100, Math.round((line.consumption.minsUsed / line.consumption.minsTotal) * 100))} className="h-2" />
-                    )}
-                  </div>
-                  <SummaryRow label={t("prepaidChangeBundle.validUntil")} value={line.consumption.validUntil} />
-                </div>
-              </CardSection>
-            )}
 
             <CardSection title={t("prepaidChangeBundle.paymentSummary")} icon={Receipt}>
               <div className="space-y-2 pb-3">
