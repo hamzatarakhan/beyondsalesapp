@@ -540,6 +540,7 @@
     "title": "تقديم شكوى عميل",
     "msisdn": "رقم جوال العميل",
     "msisdnPlaceholder": "أي نوع خط (10 أو 13 رقماً)",
+    "search": "بحث",
     "testNumbersHeading": "أرقام تجريبية",
     "testNumbersDescription": "استخدم هذه الأرقام لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
     "testNotePrepaid": "مسبق الدفع — مؤهل",

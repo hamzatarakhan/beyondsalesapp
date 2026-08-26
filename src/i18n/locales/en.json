@@ -540,6 +540,7 @@
     "title": "Raise Customer Complaint",
     "msisdn": "Customer MSISDN",
     "msisdnPlaceholder": "Any line type (10 or 13 digits)",
+    "search": "Search",
     "testNumbersHeading": "test numbers",
     "testNumbersDescription": "Use these to try every case. This box won't appear in the real implementation.",
     "testNotePrepaid": "Prepaid — eligible",

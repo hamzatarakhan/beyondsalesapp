@@ -130,17 +130,17 @@ const CustomerComplaint = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   const [ticketId, setTicketId] = useState("");
 
-  // ---------- MSISDN lookup — auto-triggers once the number is well-formed, debounced so
-  // it doesn't re-check on every keystroke. One fewer tap than a Search button. ----------
+  // ---------- MSISDN lookup — triggered by the Search button, same pattern as Credit
+  // Transfer/SIM Termination/etc. instead of auto-triggering on keystroke. ----------
   const msisdnValid = /^\d{10}$/.test(msisdn) || /^\d{13}$/.test(msisdn);
-  useEffect(() => {
-    setCustomer(null);
-    setLookupError(null);
-    setLimitReached(false);
-    setOtpVerified(false);
+  const handleSearch = () => {
     if (!msisdnValid) return;
     setChecking(true);
-    const timer = setTimeout(() => {
+    setLookupError(null);
+    setCustomer(null);
+    setLimitReached(false);
+    setOtpVerified(false);
+    setTimeout(() => {
       setChecking(false);
       const found = DEMO_COMPLAINT_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) {
@@ -155,9 +155,7 @@ const CustomerComplaint = () => {
         setLimitReached(true);
       }
     }, 800);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msisdn]);
+  };
 
   const eligible = !!customer && !lookupError && !limitReached;
 
@@ -257,13 +255,23 @@ const CustomerComplaint = () => {
 
       <div className="px-4 space-y-4">
         <Field label={t("customerComplaint.msisdn")}>
-          <Input
-            value={msisdn}
-            onChange={(e) => setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13))}
-            placeholder={t("customerComplaint.msisdnPlaceholder")}
-            inputMode="numeric"
-            className="h-12 bg-card rounded-xl"
-          />
+          <div className="flex gap-2">
+            <Input
+              value={msisdn}
+              onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13)); setCustomer(null); setLookupError(null); setLimitReached(false); setOtpVerified(false); }}
+              placeholder={t("customerComplaint.msisdnPlaceholder")}
+              inputMode="numeric"
+              className="h-12 bg-card rounded-xl flex-1"
+            />
+            <Button
+              type="button"
+              className="h-12 w-20 rounded-xl shrink-0"
+              disabled={!msisdnValid || checking}
+              onClick={handleSearch}
+            >
+              {t("customerComplaint.search")}
+            </Button>
+          </div>
         </Field>
 
         <PrototypeTestBox
@@ -276,7 +284,7 @@ const CustomerComplaint = () => {
             { value: "0501111199", note: t("customerComplaint.testNoteLimitReached") },
             { value: "0500000099", note: t("customerComplaint.testNoteNotFound") },
           ]}
-          onSelect={setMsisdn}
+          onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setLimitReached(false); setOtpVerified(false); }}
         />
 
         {lookupError && (
