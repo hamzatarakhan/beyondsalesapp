@@ -454,13 +454,22 @@ const ChangePostpaidPlan = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step < 2 ? (
-            <Button
-              className="w-full h-12 text-sm font-semibold rounded-full"
-              disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
-              onClick={() => setStep((s) => s + 1)}
-            >
-              {t("changePostpaidPlan.continue")}
-            </Button>
+            <>
+              {step === 1 && (
+                <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
+                  <Wallet className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-[12px] text-muted-foreground">{t("changePostpaidPlan.walletBalanceLabel")}</span>
+                  <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
+                </div>
+              )}
+              <Button
+                className="w-full h-12 text-sm font-semibold rounded-full"
+                disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
+                onClick={() => setStep((s) => s + 1)}
+              >
+                {t("changePostpaidPlan.continue")}
+              </Button>
+            </>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
               {total > 0 ? <>{t("changePostpaidPlan.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("changePostpaidPlan.submit")}
