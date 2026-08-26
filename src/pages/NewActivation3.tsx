@@ -1471,11 +1471,15 @@ const NewActivation3 = () => {
                   items={[
                     { value: FULFILMENT_PAID_EMAIL, note: "Standard number", group: "Prepaid (paid)" },
                     { value: FULFILMENT_POSTPAID_STANDARD_EMAIL, note: "Standard number, normal", group: "Postpaid (paid)" },
-                    { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Postpaid (paid)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Vanity paid, no commitment, normal", group: "Postpaid (paid)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Vanity paid, no commitment, whitelisted", group: "Postpaid (paid)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Vanity free w/ 18-mo commitment (Nafith verified), normal", group: "Postpaid (paid)" },
-                    { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
+                    // Other paid-postpaid variants hidden per request — commented out, not
+                    // deleted, until asked to bring them back. Their demo records in
+                    // FULFILMENT_DEMO_EMAILS are untouched, so typing one of these emails in
+                    // by hand still works exactly as before.
+                    // { value: FULFILMENT_POSTPAID_STANDARD_WHITELISTED_EMAIL, note: "Standard number, whitelisted", group: "Postpaid (paid)" },
+                    // { value: FULFILMENT_POSTPAID_VANITY_EMAIL, note: "Vanity paid, no commitment, normal", group: "Postpaid (paid)" },
+                    // { value: FULFILMENT_POSTPAID_VANITY_WHITELISTED_EMAIL, note: "Vanity paid, no commitment, whitelisted", group: "Postpaid (paid)" },
+                    // { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_EMAIL, note: "Vanity free w/ 18-mo commitment (Nafith verified), normal", group: "Postpaid (paid)" },
+                    // { value: FULFILMENT_POSTPAID_VANITY_COMMITTED_WHITELISTED_EMAIL, note: "Vanity free w/ commitment, whitelisted", group: "Postpaid (paid)" },
                     { value: FULFILMENT_UNPAID_EMAIL, note: "Normal", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_WHITELISTED_EMAIL, note: "Whitelisted", group: "Unpaid" },
                     { value: FULFILMENT_UNPAID_PREPAID_LIMIT_EMAIL, note: "Hit prepaid activation limit — Postpaid works fine, Prepaid blocks", group: "Unpaid" },
