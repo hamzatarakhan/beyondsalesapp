@@ -130,7 +130,7 @@ const Home = () => {
     { id: "sim-replacement", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Identity collected up front (ID Type/Nationality/ID Number + MSISDN before search),
     // no card wrapper, SIM type/checkout moved to page 2 with no summary.
-    { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "sim-replacement-2", icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Option 3 (?option=3) hidden from Home per request — same upfront fields as option 2
     // boxed with an explicit Search button, full Summary + Verification + TnC like option 1,
     // split across 3 stages. Still reachable directly at /sim-replacement?option=3.
@@ -145,7 +145,7 @@ const Home = () => {
     // Reason inline on page 2, no summary card), but the Outstanding Bill section is styled
     // like Bill Payment's bill card (always expanded, no collapse) with Payment Method
     // directly under it — the entered amount decides pay full/partial/skip.
-    { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
@@ -159,7 +159,7 @@ const Home = () => {
     { id: "credit-limit-2", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=2", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "credit-limit-3", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=3", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "credit-limit-4", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=4", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "credit-limit-5", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "credit-limit-5", icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // "Option 1" is the original flow (auto-detects direction from the looked-up number);
@@ -169,15 +169,15 @@ const Home = () => {
   // one design alternative split across two entry points, not two separate options.
   const subscriptionMigrationOptions = [
     { id: "migration-original", icon: ArrowLeftRight, label: t("home.subscriptionMigration"), path: "/subscription-migration", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "migration-pre-to-post", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "migration-post-to-pre", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "migration-pre-to-post", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "migration-post-to-pre", icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Rollout status per service: "approved" is signed off, "confirm" is awaiting sign-off,
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Pre to Post, Post to Pre, Bill Payment, and Credit Limit Adjustment are all
     // postpaid-related, so Virgin-only — Friendi has no postpaid product.
     ...(activeOperator === "friendi"
@@ -185,12 +185,12 @@ const Home = () => {
       : [
           subscriptionMigrationOptions[1],
           subscriptionMigrationOptions[2],
-          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
-    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
-    { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
