@@ -481,16 +481,6 @@ const PrepaidChangeBundle = () => {
               />
             </CardSection>
 
-            <CardSection title={t("prepaidChangeBundle.otpVerification")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label={t("prepaidChangeBundle.verified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
-                  {t("prepaidChangeBundle.sendVerifyOtp")}
-                </Button>
-              )}
-            </CardSection>
-
             {line && (
               <CardSection title={t("prepaidChangeBundle.currentConsumption")} icon={Gauge}>
                 <div className="space-y-3">
@@ -568,6 +558,16 @@ const PrepaidChangeBundle = () => {
                   onClick={() => setPayMethod("pos")}
                 />
               </div>
+            </CardSection>
+
+            <CardSection title={t("prepaidChangeBundle.otpVerification")} icon={Phone}>
+              {otpVerified ? (
+                <VerifiedBanner label={t("prepaidChangeBundle.verified")} />
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
+                  {t("prepaidChangeBundle.sendVerifyOtp")}
+                </Button>
+              )}
             </CardSection>
           </>
         )}
