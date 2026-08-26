@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, SlidersHorizontal, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PlanCard from "@/components/PlanCard";
 import { Input } from "@/components/ui/input";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useBrand } from "@/contexts/BrandContext";
 import { cn } from "@/lib/utils";
 import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
@@ -36,6 +37,7 @@ const SubscriptionMigrationAllPlans = () => {
   const direction = initial.direction;
   const [chip, setChip] = useState(initial.chip ?? "all");
   const [search, setSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const planList = direction === "pre-to-post"
     ? POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"))
@@ -59,6 +61,8 @@ const SubscriptionMigrationAllPlans = () => {
         { value: "base-plan", label: t("subscriptionMigration.categoryBaqah") },
         { value: "flex", label: t("subscriptionMigration.categoryBaqahFlex") },
       ];
+
+  const activeFilterCount = chip !== "all" ? 1 : 0;
 
   const normalizedSearch = search.trim().toLowerCase();
   const visiblePlans = planList
@@ -105,25 +109,20 @@ const SubscriptionMigrationAllPlans = () => {
               className="h-11 bg-card rounded-xl ps-9"
             />
           </div>
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
+            aria-label={t("subscriptionMigration.filtersAria")}
+            className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
+          >
+            <SlidersHorizontal className="w-4 h-4 text-foreground" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
-
-        {showChips && (
-          <div className="px-4 flex items-center gap-2 pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {chips.map((c) => (
-              <button
-                key={c.value}
-                type="button"
-                onClick={() => setChip(c.value)}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
-                  chip === c.value ? "bg-primary text-white" : "bg-card text-foreground shadow-sm",
-                )}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Vertical plan list */}
@@ -156,6 +155,51 @@ const SubscriptionMigrationAllPlans = () => {
           })
         )}
       </div>
+
+      {/* Filters bottom sheet */}
+      <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
+          <button
+            onClick={() => setFilterOpen(false)}
+            aria-label={t("subscriptionMigration.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("subscriptionMigration.filtersTitle")}</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-8 space-y-5 overflow-y-auto">
+            {showChips && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">{t("subscriptionMigration.planTypesTitle")}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {chips.map((c) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setChip(c.value)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                        chip === c.value ? "bg-primary text-white" : "bg-muted text-foreground",
+                      )}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setFilterOpen(false)}
+              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              {t("subscriptionMigration.applyFilters")}
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
