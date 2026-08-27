@@ -534,45 +534,6 @@ const SubscriptionMigration = () => {
         {/* ── Step 0: Identity ── */}
         {step === 0 && (
           <>
-            {/* Locked services (Pre to Post / Post to Pre) already know the direction, so the
-                customer's current subscription type is a foregone conclusion — shown for
-                context but not a real choice, unlike the interactive version of this same
-                toggle on the auto-detect (Option 1) flow. */}
-            {lockedDirection && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                    { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
-                    { value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt },
-                  ]).map(({ value, label, Icon }) => {
-                    const selected = (lockedDirection === "pre-to-post" ? "prepaid" : "postpaid") === value;
-                    return (
-                      <div
-                        key={value}
-                        aria-disabled
-                        className={cn(
-                          "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 opacity-60 cursor-not-allowed",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
-                        )}
-                      >
-                        <span className={cn(
-                          "absolute top-2 end-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                          selected ? "border-primary bg-primary" : "border-muted-foreground/30"
-                        )}>
-                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                        </span>
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-sm font-semibold text-center leading-snug", selected ? "text-foreground" : "text-muted-foreground")}>
-                          {label}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             <Field label={t("subscriptionMigration.idType")}>
               <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -666,6 +627,46 @@ const SubscriptionMigration = () => {
         {/* ── Step 1: Plan ── */}
         {step === 1 && (
           <>
+            {/* Locked services (Pre to Post / Post to Pre) already know the direction, so the
+                customer's current subscription type is a foregone conclusion — shown here for
+                context (same 2nd-stage placement as SIM Activation's Subscription step) but
+                not a real choice, unlike the interactive version of this same toggle on the
+                auto-detect (Option 1) flow. */}
+            {lockedDirection && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
+                    { value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt },
+                  ]).map(({ value, label, Icon }) => {
+                    const selected = (lockedDirection === "pre-to-post" ? "prepaid" : "postpaid") === value;
+                    return (
+                      <div
+                        key={value}
+                        aria-disabled
+                        className={cn(
+                          "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 opacity-60 cursor-not-allowed",
+                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                        )}
+                      >
+                        <span className={cn(
+                          "absolute top-2 end-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                          selected ? "border-primary bg-primary" : "border-muted-foreground/30"
+                        )}>
+                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
+                        </span>
+                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                        <p className={cn("text-sm font-semibold text-center leading-snug", selected ? "text-foreground" : "text-muted-foreground")}>
+                          {label}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {customer && (() => {
               const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
               const p = all.find((x) => x.title === customer.planName);
