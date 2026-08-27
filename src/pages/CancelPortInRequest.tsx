@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
+import FlowStepper from "@/components/FlowStepper";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   AlertCircle,
   Check,
   XCircle,
+  X,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors PrepaidChangeBundle.tsx's page-local helpers) ----------
@@ -92,7 +94,9 @@ const CancelPortInRequest = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // ---------- Flow state (single page — no step navigation) ----------
+  // ---------- Flow state (2 stages — Verify / Capture SIM — no visible stepper, same as
+  // SimReplacement.tsx) ----------
+  const [step, setStep] = useState(0);
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState(demoIdFor(ID_TYPE_RULES["saudi-id"]));
   const [msisdn, setMsisdn] = useState("0501112222");
@@ -109,6 +113,8 @@ const CancelPortInRequest = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   const [failureReason, setFailureReason] = useState("");
   const [referenceId, setReferenceId] = useState("");
+  // Top-right X, shown from stage 2 onward only — nothing to lose yet on stage 1.
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   // ID Number must match the selected ID Type's rule (start digit + exact length) — format
   // check only, same as SimTermination.tsx; not cross-checked against a customer record.
@@ -181,6 +187,7 @@ const CancelPortInRequest = () => {
   };
 
   const resetAll = () => {
+    setStep(0);
     setIdType("saudi-id");
     setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
     setMsisdn("0501112222");
@@ -188,6 +195,13 @@ const CancelPortInRequest = () => {
     setLookupError(null);
     setDocuments([]);
   };
+
+  // Hidden per UX decision: a 2-stage stepper adds chrome without adding real progress info.
+  // Kept in source in case we want it back — just uncomment the FlowStepper line below.
+  const steps = [
+    { label: "Verify", Icon: ClipboardList },
+    { label: "Capture SIM", Icon: Camera },
+  ];
 
   const renderAttachmentRow = (doc: Attachment, onRemove: () => void) => (
     <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
@@ -209,57 +223,75 @@ const CancelPortInRequest = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("cancelPortIn.title")} showBack onBackClick={() => navigate("/")} />
+      <AppHeader
+        title={t("cancelPortIn.title")}
+        showBack
+        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        rightElement={
+          step > 0 ? (
+            <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          ) : undefined
+        }
+      />
+      {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
-        <Field label={t("activation.identity.idType")}>
-          <Select value={idType} onValueChange={(v) => { setIdType(v); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
-            <SelectTrigger className="h-12 bg-card rounded-xl">
-              <SelectValue placeholder={t("activation.identity.idType")} />
-            </SelectTrigger>
-            <SelectContent>
-              {ID_TYPE_ORDER.map((key) => (
-                <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+        {/* ── Stage 1: Verify ── */}
+        {step === 0 && (
+          <>
+            <Field label={t("activation.identity.idType")}>
+              <Select value={idType} onValueChange={(v) => { setIdType(v); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+                <SelectTrigger className="h-12 bg-card rounded-xl">
+                  <SelectValue placeholder={t("activation.identity.idType")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ID_TYPE_ORDER.map((key) => (
+                    <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-        <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
-          <Input
-            value={idNumber}
-            onChange={(e) => setIdNumber(e.target.value)}
-            inputMode="numeric"
-            className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
-          />
-          {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
-            <p className="text-[11px] text-destructive">
-              {idNumberRule.startDigits
-                ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
-                : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
-            </p>
-          )}
-        </Field>
+            <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                inputMode="numeric"
+                className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+              />
+              {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+                <p className="text-[11px] text-destructive">
+                  {idNumberRule.startDigits
+                    ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                    : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+                </p>
+              )}
+            </Field>
 
-        <Field label={t("cancelPortIn.msisdn")}>
-          <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
-          {checking && <p className="text-[11px] text-muted-foreground">{t("cancelPortIn.checkingNumber")}</p>}
-        </Field>
+            <Field label={t("cancelPortIn.msisdn")}>
+              <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
+              {checking && <p className="text-[11px] text-muted-foreground">{t("cancelPortIn.checkingNumber")}</p>}
+            </Field>
 
-        <PrototypeTestBox
-          heading={t("cancelPortIn.testNumbersHeading")}
-          description={t("cancelPortIn.testNumbersDescription")}
-          items={[
-            { value: "0501112222", note: t("cancelPortIn.testNotePending"), group: t("cancelPortIn.testGroupValid") },
-            { value: "0501112233", note: t("cancelPortIn.testNoteEsim"), group: t("cancelPortIn.testGroupErrors") },
-            { value: "0501112244", note: t("cancelPortIn.testNoteCompleted"), group: t("cancelPortIn.testGroupErrors") },
-            { value: "0501112255", note: t("cancelPortIn.testNoteRejected"), group: t("cancelPortIn.testGroupErrors") },
-            { value: "0509999999", note: t("cancelPortIn.testNoteNotFound"), group: t("cancelPortIn.testGroupErrors") },
-          ]}
-          onSelect={setMsisdn}
-        />
+            <PrototypeTestBox
+              heading={t("cancelPortIn.testNumbersHeading")}
+              description={t("cancelPortIn.testNumbersDescription")}
+              items={[
+                { value: "0501112222", note: t("cancelPortIn.testNotePending"), group: t("cancelPortIn.testGroupValid") },
+                { value: "0501112233", note: t("cancelPortIn.testNoteEsim"), group: t("cancelPortIn.testGroupErrors") },
+                { value: "0501112244", note: t("cancelPortIn.testNoteCompleted"), group: t("cancelPortIn.testGroupErrors") },
+                { value: "0501112255", note: t("cancelPortIn.testNoteRejected"), group: t("cancelPortIn.testGroupErrors") },
+                { value: "0509999999", note: t("cancelPortIn.testNoteNotFound"), group: t("cancelPortIn.testGroupErrors") },
+              ]}
+              onSelect={setMsisdn}
+            />
+          </>
+        )}
 
-        {request && (
+        {/* ── Stage 2: Capture SIM ── */}
+        {step === 1 && (
           <>
             <CardSection title={t("cancelPortIn.portInRequest")} icon={ClipboardList}>
               <SummaryRow label={t("cancelPortIn.msisdn")} value={request?.msisdn ?? t("cancelPortIn.dash")} />
@@ -299,9 +331,15 @@ const CancelPortInRequest = () => {
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setConfirmOpen(true)}>
-            {t("cancelPortIn.submit")}
-          </Button>
+          {step === 0 ? (
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!eligible} onClick={() => setStep(1)}>
+              {t("cancelPortIn.continue")}
+            </Button>
+          ) : (
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setConfirmOpen(true)}>
+              {t("cancelPortIn.submit")}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -319,6 +357,25 @@ const CancelPortInRequest = () => {
             <div className="w-full flex flex-col gap-3">
               <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveCancel}>{t("cancelPortIn.yesConfirm")}</Button>
               <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("cancelPortIn.cancel")}</button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Cancel flow (top-right X) */}
+      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("cancelPortIn.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("cancelPortIn.cancelFlowDesc")}</p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("cancelPortIn.yesCancelFlow")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("cancelPortIn.keepEditing")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -380,12 +437,16 @@ const CancelPortInRequest = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("cancelPortIn.lookupErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
-          <button
-            onClick={() => setLookupError(null)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("cancelPortIn.gotIt")}
-          </button>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => setLookupError(null)}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("cancelPortIn.gotIt")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
