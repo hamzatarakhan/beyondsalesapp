@@ -1353,9 +1353,11 @@ const NewActivation3 = () => {
         showBack
         onBackClick={onBack}
         rightElement={
-          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
-            <X className="w-5 h-5 text-foreground" />
-          </button>
+          step > 0 ? (
+            <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          ) : undefined
         }
       />
       <FlowStepper current={step} steps={NEW_ACTIVATION_STEPS} />

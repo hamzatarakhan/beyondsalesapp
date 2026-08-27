@@ -33,6 +33,7 @@ import {
   ArrowDownCircle,
   RotateCw,
   ChevronRight,
+  X,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 
@@ -142,6 +143,8 @@ const PrepaidChangeBundle = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
+  // Top-right X, shown from stage 2 onward only — nothing to lose yet on stage 1.
+  const [cancelOpen, setCancelOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
 
   // ---------- MSISDN auto-lookup (mirrors SubscriptionMigration's debounced lookup) ----------
@@ -320,6 +323,13 @@ const PrepaidChangeBundle = () => {
         title={t("prepaidChangeBundle.title")}
         showBack
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        rightElement={
+          step > 0 ? (
+            <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          ) : undefined
+        }
       />
       <FlowStepper current={step} steps={steps} />
 
@@ -661,6 +671,25 @@ const PrepaidChangeBundle = () => {
             <div className="w-full flex flex-col gap-3">
               <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("prepaidChangeBundle.yesConfirm")}</Button>
               <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("prepaidChangeBundle.cancel")}</button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Cancel flow (top-right X) */}
+      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("prepaidChangeBundle.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("prepaidChangeBundle.cancelFlowDesc")}</p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("prepaidChangeBundle.yesCancelFlow")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("prepaidChangeBundle.keepEditing")}</button>
             </div>
           </div>
         </DrawerContent>

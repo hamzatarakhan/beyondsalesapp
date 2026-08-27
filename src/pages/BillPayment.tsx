@@ -32,6 +32,7 @@ import {
   FileText,
   LifeBuoy,
   ShieldCheck,
+  X,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx / SubscriptionMigration.tsx) ----------
@@ -287,6 +288,8 @@ const BillPayment = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   const [ticketOpen, setTicketOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
+  // Top-right X, shown from stage 2 onward only — nothing to lose yet on stage 1.
+  const [cancelOpen, setCancelOpen] = useState(false);
   const [ticketId, setTicketId] = useState("");
 
   // ---------- Input validity ----------
@@ -593,7 +596,18 @@ const BillPayment = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("billPayment.title")} showBack onBackClick={handleBack} />
+      <AppHeader
+        title={t("billPayment.title")}
+        showBack
+        onBackClick={handleBack}
+        rightElement={
+          step > 0 ? (
+            <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          ) : undefined
+        }
+      />
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
@@ -922,6 +936,25 @@ const BillPayment = () => {
             <div className="w-full flex flex-col gap-3">
               <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("billPayment.yesConfirm")}</Button>
               <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("billPayment.cancel")}</button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Cancel flow (top-right X) */}
+      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("billPayment.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("billPayment.cancelFlowDesc")}</p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); navigate("/"); }}>{t("billPayment.yesCancelFlow")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("billPayment.keepEditing")}</button>
             </div>
           </div>
         </DrawerContent>
