@@ -7,7 +7,7 @@ import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X, ChevronRight } from
 import { DEMO_TICKETS, TicketComment, TicketDoc } from "@/data/tickets";
 import { STATUS_LABEL, STATUS_STYLE } from "./Tickets";
 
-const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => void; compact?: boolean }) => (
+export const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => void; compact?: boolean }) => (
   <div className={cn("flex items-center gap-3", compact ? "px-3 py-2" : "px-4 py-3")}>
     {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
     <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
@@ -24,7 +24,7 @@ const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => v
 
 const COMMENTS_PREVIEW_LIMIT = 3;
 
-const CommentCard = ({ c, onClick }: { c: TicketComment; onClick: () => void }) => (
+export const CommentCard = ({ c, onClick }: { c: TicketComment; onClick: () => void }) => (
   <div
     role="button"
     tabIndex={0}
@@ -71,7 +71,6 @@ const TicketDetails = () => {
   const [commentDocs, setCommentDocs] = useState<TicketDoc[]>([]);
   const [comments, setComments] = useState<TicketComment[]>(ticket.comments ?? []);
   const [viewComment, setViewComment] = useState<TicketComment | null>(null);
-  const [allCommentsOpen, setAllCommentsOpen] = useState(false);
   const [closed, setClosed] = useState(false);
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const addCommentDoc = () => {
@@ -90,10 +89,11 @@ const TicketDetails = () => {
 
   const submitComment = () => {
     if (!comment.trim()) return;
-    setComments((prev) => [
-      { id: `${Date.now()}`, text: comment.trim(), documents: commentDocs, date: new Date().toLocaleDateString() },
-      ...prev,
-    ]);
+    const newComment: TicketComment = { id: `${Date.now()}`, text: comment.trim(), documents: commentDocs, date: new Date().toLocaleDateString() };
+    setComments((prev) => [newComment, ...prev]);
+    // Mutates the shared demo record directly (no backend/store here) so the full "All
+    // Comments" page — a separate route/mount — sees comments added in this session too.
+    ticket.comments = [newComment, ...(ticket.comments ?? [])];
     closeCommentSheet();
   };
 
@@ -143,7 +143,7 @@ const TicketDetails = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
               {comments.length > COMMENTS_PREVIEW_LIMIT && (
-                <button onClick={() => setAllCommentsOpen(true)} className="flex items-center gap-1 text-primary text-xs font-medium">
+                <button onClick={() => navigate(`/tickets/${ticket.id}/comments`)} className="flex items-center gap-1 text-primary text-xs font-medium">
                   See All ({comments.length}) <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               )}
@@ -202,22 +202,6 @@ const TicketDetails = () => {
           <button onClick={() => setCloseConfirmOpen(false)} className="mt-3 w-full h-11 text-primary font-semibold">
             Cancel
           </button>
-        </DrawerContent>
-      </Drawer>
-
-      <Drawer open={allCommentsOpen} onOpenChange={setAllCommentsOpen}>
-        <DrawerContent className="px-4 pb-8 max-h-[85vh] flex flex-col">
-          <button onClick={() => setAllCommentsOpen(false)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
-            <X className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-2 pb-1">
-            <DrawerTitle className="text-lg font-semibold">Comments ({comments.length})</DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-y-auto scrollbar-hide space-y-2 flex-1 min-h-0">
-            {comments.map((c) => (
-              <CommentCard key={c.id} c={c} onClick={() => { setAllCommentsOpen(false); setViewComment(c); }} />
-            ))}
-          </div>
         </DrawerContent>
       </Drawer>
 

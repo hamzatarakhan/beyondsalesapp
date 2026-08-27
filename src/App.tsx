@@ -74,6 +74,7 @@ import MyShifts from "./pages/MyShifts";
 import Tickets from "./pages/Tickets";
 import NewTicket from "./pages/NewTicket";
 import TicketDetails from "./pages/TicketDetails";
+import TicketComments from "./pages/TicketComments";
 import NotFound from "./pages/NotFound";
 
 
@@ -187,6 +188,7 @@ const App = () => {
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/tickets/new" element={<NewTicket />} />
           <Route path="/tickets/:id" element={<TicketDetails />} />
+          <Route path="/tickets/:id/comments" element={<TicketComments />} />
           </Route>
           <Route path="*" element={<NotFound />} />
 
