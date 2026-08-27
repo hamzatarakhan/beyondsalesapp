@@ -22,6 +22,36 @@ const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => v
   </div>
 );
 
+const COMMENTS_PREVIEW_LIMIT = 3;
+
+const CommentCard = ({ c, onClick }: { c: TicketComment; onClick: () => void }) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={onClick}
+    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick(); }}
+    className="w-full flex items-center gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5 text-left cursor-pointer active:bg-muted/60 transition-colors"
+  >
+    <div className="flex-1 min-w-0">
+      <div className="flex items-baseline gap-2">
+        <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
+        <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
+      </div>
+      {c.documents.length > 0 && (
+        <div className="mt-1.5 rounded-xl border border-dashed border-border bg-card">
+          <DocRow doc={c.documents[0]} compact />
+          {c.documents.length > 1 && (
+            <p className="px-3 py-1.5 text-[11px] text-muted-foreground border-t border-dashed border-border">
+              +{c.documents.length - 1} more file{c.documents.length > 2 ? "s" : ""}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
+  </div>
+);
+
 /* hexagon info badge — mirrors CreateVisit.tsx's confirmation-sheet icon */
 const HexIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="relative mx-auto flex items-center justify-center w-12 h-12">
@@ -41,6 +71,7 @@ const TicketDetails = () => {
   const [commentDocs, setCommentDocs] = useState<TicketDoc[]>([]);
   const [comments, setComments] = useState<TicketComment[]>(ticket.comments ?? []);
   const [viewComment, setViewComment] = useState<TicketComment | null>(null);
+  const [allCommentsOpen, setAllCommentsOpen] = useState(false);
   const [closed, setClosed] = useState(false);
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const addCommentDoc = () => {
@@ -109,30 +140,17 @@ const TicketDetails = () => {
 
         {comments.length > 0 && (
           <div className="mt-5">
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-2 space-y-2 max-h-[320px] overflow-y-auto scrollbar-thin-light">
-              {comments.map((c) => (
-                <div
-                  key={c.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setViewComment(c)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setViewComment(c); }}
-                  className="w-full flex items-center gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5 text-left cursor-pointer active:bg-muted/60 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
-                      <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
-                    </div>
-                    {c.documents.length > 0 && (
-                      <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60 bg-card">
-                        {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} compact />)}
-                      </div>
-                    )}
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
-                </div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
+              {comments.length > COMMENTS_PREVIEW_LIMIT && (
+                <button onClick={() => setAllCommentsOpen(true)} className="flex items-center gap-1 text-primary text-xs font-medium">
+                  See All ({comments.length}) <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                </button>
+              )}
+            </div>
+            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-2 space-y-2">
+              {comments.slice(0, COMMENTS_PREVIEW_LIMIT).map((c) => (
+                <CommentCard key={c.id} c={c} onClick={() => setViewComment(c)} />
               ))}
             </div>
           </div>
@@ -184,6 +202,22 @@ const TicketDetails = () => {
           <button onClick={() => setCloseConfirmOpen(false)} className="mt-3 w-full h-11 text-primary font-semibold">
             Cancel
           </button>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={allCommentsOpen} onOpenChange={setAllCommentsOpen}>
+        <DrawerContent className="px-4 pb-8 max-h-[85vh] flex flex-col">
+          <button onClick={() => setAllCommentsOpen(false)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-2 pb-1">
+            <DrawerTitle className="text-lg font-semibold">Comments ({comments.length})</DrawerTitle>
+          </DrawerHeader>
+          <div className="overflow-y-auto scrollbar-hide space-y-2 flex-1 min-h-0">
+            {comments.map((c) => (
+              <CommentCard key={c.id} c={c} onClick={() => { setAllCommentsOpen(false); setViewComment(c); }} />
+            ))}
+          </div>
         </DrawerContent>
       </Drawer>
 
