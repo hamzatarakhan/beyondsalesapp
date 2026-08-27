@@ -212,7 +212,7 @@ const Home = () => {
       : [
           subscriptionMigrationOptions[1],
           subscriptionMigrationOptions[2],
-          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
