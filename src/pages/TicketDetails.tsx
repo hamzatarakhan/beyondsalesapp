@@ -122,22 +122,24 @@ const TicketDetails = () => {
           </div>
         ))}
 
-        {comments.map((c) => (
-          <div key={c.id} className="mt-5">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Comment</h3>
-              <span className="text-xs text-muted-foreground">{c.date}</span>
-            </div>
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-              <p className="text-sm text-foreground">{c.text}</p>
-              {c.documents.length > 0 && (
-                <div className="mt-3 rounded-xl border border-dashed border-border divide-y divide-border/60">
-                  {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
+        {comments.length > 0 && (
+          <div className="mt-5">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">Comments</h3>
+            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60">
+              {comments.map((c) => (
+                <div key={c.id} className="p-4">
+                  <span className="block mb-1.5 text-xs text-muted-foreground">{c.date}</span>
+                  <p className="text-sm text-foreground">{c.text}</p>
+                  {c.documents.length > 0 && (
+                    <div className="mt-3 rounded-xl border border-dashed border-border divide-y divide-border/60">
+                      {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
           </div>
-        ))}
+        )}
 
         {actionable && (
           <div className="mt-6 space-y-3">
