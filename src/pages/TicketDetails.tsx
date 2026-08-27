@@ -119,7 +119,10 @@ const TicketDetails = () => {
         {comments.length > 0 && (
           <div className="mt-5">
             <h3 className="mb-2 text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
-            <div ref={commentsListRef} className="max-h-[320px] overflow-y-auto scrollbar-thin-light space-y-2 p-0.5">
+            <div
+              ref={commentsListRef}
+              className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-2 space-y-2 max-h-[320px] overflow-y-auto scrollbar-thin-light"
+            >
               {comments.map((c) => (
                 <div
                   key={c.id}
@@ -127,7 +130,7 @@ const TicketDetails = () => {
                   tabIndex={0}
                   onClick={() => setViewComment(c)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setViewComment(c); }}
-                  className="w-full flex items-center gap-2 rounded-2xl bg-muted/40 border border-border/60 px-4 py-3 text-left cursor-pointer active:bg-muted/60 transition-colors"
+                  className="w-full flex items-center gap-2 rounded-xl bg-muted/40 px-3 py-2.5 text-left cursor-pointer active:bg-muted/60 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
