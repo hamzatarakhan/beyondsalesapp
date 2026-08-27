@@ -257,6 +257,10 @@ const TicketDetails = () => {
               </>
             )}
           </div>
+
+          <button onClick={() => setViewComment(null)} className="mt-5 w-full h-11 text-primary font-semibold shrink-0">
+            Close
+          </button>
         </DrawerContent>
       </Drawer>
     </div>
