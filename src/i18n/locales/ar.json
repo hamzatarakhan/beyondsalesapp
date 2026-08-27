@@ -767,7 +767,7 @@
     "testNoteValidFor": "صالح لـ {{type}}",
     "testNoteNormalCustomer": "عميل عادي",
     "testNoteWhitelistedWaiver": "مدرج بالقائمة البيضاء + إعفاء من التأمين — مجاناً",
-    "testNoteOutstandingBills": "لديه فواتير مستحقة (500 ريال)",
+    "testNoteOutstandingBills": "لديه فواتير مستحقة (500 ريال) — يظهر تحذير التعليق",
     "testNoteTwoOutstandingBills": "فاتورتان مفتوحتان — لتجربة صفحة تفاصيل الفاتورة",
     "testNoteDataIneligible": "باقة 5G MBB — لا يمكن ترحيلها",
     "testNoteVnetIneligible": "خط Vnet — لا يمكن ترحيله",

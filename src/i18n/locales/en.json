@@ -767,7 +767,7 @@
     "testNoteValidFor": "Valid for {{type}}",
     "testNoteNormalCustomer": "Normal customer",
     "testNoteWhitelistedWaiver": "Whitelisted + deposit waiver — free",
-    "testNoteOutstandingBills": "With outstanding bills (500 SAR)",
+    "testNoteOutstandingBills": "With outstanding bills (500 SAR) — shows suspension warning",
     "testNoteTwoOutstandingBills": "Two open bills — test the bill details sheet",
     "testNoteDataIneligible": "5G MBB plan — can't migrate",
     "testNoteVnetIneligible": "Vnet line — can't migrate",
