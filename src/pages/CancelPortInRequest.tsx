@@ -5,9 +5,12 @@ import AppHeader from "@/components/AppHeader";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { ID_TYPE_ORDER, ID_TYPE_RULES, type IdTypeRule } from "@/pages/NewActivation";
 import {
   ClipboardList,
   Phone,
@@ -79,32 +82,51 @@ interface Attachment {
   name: string;
   kind: "file" | "image";
 }
-const MAX_EXTRA_ATTACHMENTS = 3;
+
+// Demo ID number — the leading digit adapts to the selected ID Type's start-digit rule,
+// same helper as SimReplacement.tsx / SimTermination.tsx.
+const DEMO_ID_SUFFIX = "029384756";
+const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "1") + DEMO_ID_SUFFIX;
 
 const CancelPortInRequest = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   // ---------- Flow state (single page — no step navigation) ----------
+  const [idType, setIdType] = useState("saudi-id");
+  const [idNumber, setIdNumber] = useState(demoIdFor(ID_TYPE_RULES["saudi-id"]));
   const [msisdn, setMsisdn] = useState("0501112222");
   const [checking, setChecking] = useState(false);
   const [request, setRequest] = useState<DemoPortInRequest | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
-  const [simPhoto, setSimPhoto] = useState<Attachment | null>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  // At least one SIM capture is mandatory — no separate "SIM photo" vs "attachments"
+  // buckets, just one list the dealer adds to.
+  const [documents, setDocuments] = useState<Attachment[]>([]);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
+  const [failureReason, setFailureReason] = useState("");
   const [referenceId, setReferenceId] = useState("");
+
+  // ID Number must match the selected ID Type's rule (start digit + exact length) — format
+  // check only, same as SimTermination.tsx; not cross-checked against a customer record.
+  const idNumberRule = ID_TYPE_RULES[idType];
+  const idNumberValid = (() => {
+    const v = idNumber.trim();
+    if (!v) return false;
+    if (!idNumberRule) return true;
+    if (idNumberRule.length != null && v.length !== idNumberRule.length) return false;
+    if (idNumberRule.startDigits && !idNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
 
   // ---------- MSISDN auto-lookup (mirrors Prepaid Change Bundle / Subscription Migration) ----------
   useEffect(() => {
     setRequest(null);
     setLookupError(null);
-    setSimPhoto(null);
-    setAttachments([]);
+    setDocuments([]);
     if (!/^\d{10}$/.test(msisdn)) return;
     setChecking(true);
     const timer = setTimeout(() => {
@@ -132,25 +154,19 @@ const CancelPortInRequest = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msisdn]);
 
-  const eligible = !!request && !lookupError;
+  const eligible = !!request && !lookupError && idNumberValid;
 
-  // ---------- Attachments ----------
-  const captureSimPhoto = () => {
-    if (simPhoto) return;
-    setSimPhoto({ id: `${Date.now()}`, name: t("cancelPortIn.imageTitle"), kind: "image" });
-  };
-
-  const addAttachment = () => {
-    if (attachments.length >= MAX_EXTRA_ATTACHMENTS) return;
-    const isImage = attachments.length % 2 === 0;
-    setAttachments((prev) => [
+  // ---------- SIM capture ----------
+  const addDocument = () => {
+    const isImage = documents.length % 2 === 0;
+    setDocuments((prev) => [
       ...prev,
       { id: `${Date.now()}`, name: isImage ? t("cancelPortIn.imageTitle") : t("cancelPortIn.fileTitle"), kind: isImage ? "image" : "file" },
     ]);
   };
 
   // ---------- Gates ----------
-  const canSubmit = eligible && !!simPhoto;
+  const canSubmit = eligible && documents.length > 0;
 
   const resolveCancel = () => {
     setConfirmOpen(false);
@@ -159,16 +175,18 @@ const CancelPortInRequest = () => {
       setReferenceId(`CPI-${Math.floor(100000 + Math.random() * 900000)}`);
       setSuccessOpen(true);
     } else {
+      setFailureReason(t("cancelPortIn.failureReasonGeneric"));
       setFailureOpen(true);
     }
   };
 
   const resetAll = () => {
+    setIdType("saudi-id");
+    setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
     setMsisdn("0501112222");
     setRequest(null);
     setLookupError(null);
-    setSimPhoto(null);
-    setAttachments([]);
+    setDocuments([]);
   };
 
   const renderAttachmentRow = (doc: Attachment, onRemove: () => void) => (
@@ -194,6 +212,35 @@ const CancelPortInRequest = () => {
       <AppHeader title={t("cancelPortIn.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
+        <Field label={t("activation.identity.idType")}>
+          <Select value={idType} onValueChange={(v) => { setIdType(v); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
+            <SelectTrigger className="h-12 bg-card rounded-xl">
+              <SelectValue placeholder={t("activation.identity.idType")} />
+            </SelectTrigger>
+            <SelectContent>
+              {ID_TYPE_ORDER.map((key) => (
+                <SelectItem key={key} value={key}>{t(`activation.identity.idTypes.${ID_TYPE_RULES[key].labelKey}`)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label={t(`activation.identity.idFieldLabels.${idNumberRule?.fieldLabelKey ?? "idNumber"}`)}>
+          <Input
+            value={idNumber}
+            onChange={(e) => setIdNumber(e.target.value)}
+            inputMode="numeric"
+            className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+          />
+          {idNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
+            <p className="text-[11px] text-destructive">
+              {idNumberRule.startDigits
+                ? t("activation.identity.idNumberErrors.startAndLength", { digits: idNumberRule.startDigits.join(", "), length: idNumberRule.length })
+                : t("activation.identity.idNumberErrors.lengthOnly", { length: idNumberRule.length })}
+            </p>
+          )}
+        </Field>
+
         <Field label={t("cancelPortIn.msisdn")}>
           <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
           {checking && <p className="text-[11px] text-muted-foreground">{t("cancelPortIn.checkingNumber")}</p>}
@@ -224,10 +271,10 @@ const CancelPortInRequest = () => {
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("cancelPortIn.captureSimPicture")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm">
-                {!simPhoto ? (
+                {documents.length === 0 ? (
                   <button
                     type="button"
-                    onClick={captureSimPhoto}
+                    onClick={addDocument}
                     className="w-full rounded-2xl border border-dashed border-border bg-background py-8 flex flex-col items-center gap-2"
                   >
                     <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
@@ -236,37 +283,11 @@ const CancelPortInRequest = () => {
                     <span className="text-sm text-muted-foreground">{t("cancelPortIn.simPictureHint")}</span>
                   </button>
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-border bg-background">
-                    {renderAttachmentRow(simPhoto, () => setSimPhoto(null))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">
-                {t("cancelPortIn.attachments")} <span className="text-muted-foreground/70 font-normal">({t("cancelPortIn.attachmentsOptional")})</span>
-              </p>
-              <div className="bg-card rounded-2xl p-4 shadow-sm">
-                {attachments.length === 0 ? (
-                  <button
-                    type="button"
-                    onClick={addAttachment}
-                    className="w-full rounded-2xl border border-dashed border-border bg-background py-8 flex flex-col items-center gap-2"
-                  >
-                    <span className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center">
-                      <Plus className="w-4 h-4" />
-                    </span>
-                    <span className="text-sm text-muted-foreground">{t("cancelPortIn.uploadHint")}</span>
-                  </button>
-                ) : (
                   <div className="rounded-2xl border border-dashed border-border bg-background divide-y divide-border/60">
-                    {attachments.map((doc) => renderAttachmentRow(doc, () => setAttachments((prev) => prev.filter((d) => d.id !== doc.id))))}
-                    {attachments.length < MAX_EXTRA_ATTACHMENTS && (
-                      <button type="button" onClick={addAttachment} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
-                        <Plus className="w-4 h-4" /> {t("cancelPortIn.addAnotherFile")}
-                      </button>
-                    )}
+                    {documents.map((doc) => renderAttachmentRow(doc, () => setDocuments((prev) => prev.filter((d) => d.id !== doc.id))))}
+                    <button type="button" onClick={addDocument} className="w-full py-3 text-sm font-medium text-primary flex items-center justify-center gap-1">
+                      <Plus className="w-4 h-4" /> {t("cancelPortIn.addAnotherFile")}
+                    </button>
                   </div>
                 )}
               </div>
@@ -312,10 +333,9 @@ const CancelPortInRequest = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("cancelPortIn.cancelSuccessful")}</h3>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold mt-1">
-              {t("cancelPortIn.cancelledStatus")}
-            </span>
+            <h3 className="font-semibold text-foreground text-base mb-1 text-center">
+              {t("cancelPortIn.cancelSuccessful", { msisdn: request?.msisdn ?? "" })}
+            </h3>
             <p className="text-xs text-muted-foreground mt-2">
               {t("cancelPortIn.reference")} <span className="font-semibold text-foreground">{referenceId}</span>
             </p>
@@ -336,7 +356,7 @@ const CancelPortInRequest = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("cancelPortIn.cancelFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("cancelPortIn.cancelFailedDesc")}</p>
+            <p className="text-sm text-muted-foreground text-center">{failureReason}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
