@@ -163,16 +163,16 @@ const TicketDetails = () => {
         {actionable && (
           <div className="mt-6 space-y-3">
             <button
-              onClick={() => setCloseConfirmOpen(true)}
+              onClick={() => setCommentOpen(true)}
               className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
             >
-              Close Ticket
+              Add Comment
             </button>
             <button
-              onClick={() => setCommentOpen(true)}
+              onClick={() => setCloseConfirmOpen(true)}
               className="w-full h-11 text-primary font-semibold"
             >
-              Add Comment
+              Close Ticket
             </button>
           </div>
         )}
