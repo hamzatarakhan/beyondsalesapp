@@ -233,6 +233,9 @@ const SubscriptionMigration = () => {
   // maxed-out line type instead of adding a new one. Max-total has no alternative action, so
   // it stays inline-only (see lookupError below), never opening this modal.
   const [simLimitCase, setSimLimitCase] = useState<"max-postpaid" | "max-prepaid" | null>(null);
+  // Post-to-pre with an outstanding bill on the old line — warn that the number goes into
+  // temporary suspension before letting the dealer continue past Identity.
+  const [suspensionWarningOpen, setSuspensionWarningOpen] = useState(false);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [depositWaiver, setDepositWaiver] = useState(false);
 
@@ -454,6 +457,10 @@ const SubscriptionMigration = () => {
   const onContinueStep0 = () => {
     if (ineligibleReason) {
       setIneligibleModalOpen(true);
+      return;
+    }
+    if (direction === "post-to-pre" && outstandingBalance > 0) {
+      setSuspensionWarningOpen(true);
       return;
     }
     setStep((s) => s + 1);
@@ -1103,6 +1110,25 @@ const SubscriptionMigration = () => {
             className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
           >
             {t("subscriptionMigration.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Post-to-pre with an outstanding bill — warn about temporary suspension before
+          advancing past Identity, then continue on Confirm (not a hard block like the
+          ineligible/SIM-limit modals above). */}
+      <Dialog open={suspensionWarningOpen} onOpenChange={setSuspensionWarningOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center">
+            <AlertCircle className="w-7 h-7 text-amber-600" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-foreground mb-1 text-lg">{t("subscriptionMigration.suspensionWarningTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t("subscriptionMigration.suspensionWarningDesc")}</p>
+          <button
+            onClick={() => { setSuspensionWarningOpen(false); setStep((s) => s + 1); }}
+            className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+          >
+            {t("subscriptionMigration.confirmButton")}
           </button>
         </DialogContent>
       </Dialog>
