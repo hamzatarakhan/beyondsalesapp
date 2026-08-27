@@ -64,17 +64,20 @@ const CardSection = ({
 
 // ---------- Demo data ----------
 interface DemoPortInRequest {
+  /** The number the dealer looks up — the customer's existing line on this carrier. */
   msisdn: string;
+  /** The number being ported in from the old carrier — not the same MSISDN. */
+  requestedNumber: string;
   simType: "psim" | "esim";
   status: "pending" | "completed" | "rejected";
   requestDate: string;
 }
 
 const DEMO_PORT_IN_REQUESTS: DemoPortInRequest[] = [
-  { msisdn: "0501112222", simType: "psim", status: "pending", requestDate: "18 Aug 2026" },
-  { msisdn: "0501112233", simType: "esim", status: "pending", requestDate: "20 Aug 2026" },
-  { msisdn: "0501112244", simType: "psim", status: "completed", requestDate: "10 Aug 2026" },
-  { msisdn: "0501112255", simType: "psim", status: "rejected", requestDate: "12 Aug 2026" },
+  { msisdn: "0501112222", requestedNumber: "0539981234", simType: "psim", status: "pending", requestDate: "18 Aug 2026" },
+  { msisdn: "0501112233", requestedNumber: "0549982345", simType: "esim", status: "pending", requestDate: "20 Aug 2026" },
+  { msisdn: "0501112244", requestedNumber: "0559983456", simType: "psim", status: "completed", requestDate: "10 Aug 2026" },
+  { msisdn: "0501112255", requestedNumber: "0569984567", simType: "psim", status: "rejected", requestDate: "12 Aug 2026" },
 ];
 
 // ---------- Fake attachment picker (mirrors CustomerComplaint.tsx's addAttachment pattern —
@@ -295,7 +298,7 @@ const CancelPortInRequest = () => {
           <>
             <CardSection title={t("cancelPortIn.portInRequest")} icon={ClipboardList}>
               <SummaryRow label={t("cancelPortIn.msisdn")} value={request?.msisdn ?? t("cancelPortIn.dash")} />
-              <SummaryRow label={t("cancelPortIn.requestedNumber")} value={request?.msisdn ?? t("cancelPortIn.dash")} />
+              <SummaryRow label={t("cancelPortIn.requestedNumber")} value={request?.requestedNumber ?? t("cancelPortIn.dash")} />
               <SummaryRow label={t("cancelPortIn.requestDate")} value={request?.requestDate ?? t("cancelPortIn.dash")} />
               <SummaryRow label={t("cancelPortIn.status")} value={t("cancelPortIn.statusPending")} />
             </CardSection>
