@@ -234,7 +234,7 @@ const SubscriptionMigration = () => {
   // it stays inline-only (see lookupError below), never opening this modal.
   const [simLimitCase, setSimLimitCase] = useState<"max-postpaid" | "max-prepaid" | null>(null);
   // Post-to-pre with an outstanding bill on the old line — warn that the number goes into
-  // temporary suspension before letting the dealer continue past Identity.
+  // temporary suspension before letting the dealer continue past the Plan stage.
   const [suspensionWarningOpen, setSuspensionWarningOpen] = useState(false);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [depositWaiver, setDepositWaiver] = useState(false);
@@ -459,6 +459,9 @@ const SubscriptionMigration = () => {
       setIneligibleModalOpen(true);
       return;
     }
+    setStep((s) => s + 1);
+  };
+  const onContinueStep1 = () => {
     if (direction === "post-to-pre" && outstandingBalance > 0) {
       setSuspensionWarningOpen(true);
       return;
@@ -958,7 +961,7 @@ const SubscriptionMigration = () => {
               <Button
                 className="w-full h-12 text-sm font-semibold rounded-full"
                 disabled={step === 0 ? !canContinueIdentity : !canContinuePlan}
-                onClick={step === 0 ? onContinueStep0 : () => setStep((s) => s + 1)}
+                onClick={step === 0 ? onContinueStep0 : onContinueStep1}
               >
                 {t("subscriptionMigration.continue")}
               </Button>
@@ -1115,8 +1118,8 @@ const SubscriptionMigration = () => {
       </Dialog>
 
       {/* Post-to-pre with an outstanding bill — warn about temporary suspension before
-          advancing past Identity, then continue on Confirm (not a hard block like the
-          ineligible/SIM-limit modals above). */}
+          advancing past the Plan stage (2nd stage), then continue on Confirm (not a hard
+          block like the ineligible/SIM-limit modals above). */}
       <Dialog open={suspensionWarningOpen} onOpenChange={setSuspensionWarningOpen}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
           <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center">
