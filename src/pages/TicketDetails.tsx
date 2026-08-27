@@ -299,10 +299,7 @@ const TicketDetails = () => {
 
             {viewComment && viewComment.documents.length > 0 && (
               <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-foreground">Documents</p>
-                  <AttachmentChip count={viewComment.documents.length} />
-                </div>
+                <p className="text-sm font-semibold text-foreground mb-2">Documents</p>
                 <div className="rounded-xl border border-dashed border-border divide-y divide-border/60">
                   {viewComment.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
                 </div>
@@ -310,7 +307,7 @@ const TicketDetails = () => {
             )}
           </div>
 
-          <button onClick={() => setViewComment(null)} className="mt-5 w-full h-11 text-primary font-semibold shrink-0">
+          <button onClick={() => setViewComment(null)} className="mt-5 w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold shrink-0">
             Close
           </button>
         </DrawerContent>
