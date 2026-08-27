@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -41,6 +41,14 @@ const TicketDetails = () => {
   const [commentDocs, setCommentDocs] = useState<TicketDoc[]>([]);
   const [comments, setComments] = useState<TicketComment[]>(ticket.comments ?? []);
   const [closed, setClosed] = useState(false);
+  const commentsListRef = useRef<HTMLDivElement>(null);
+
+  // Scroll the (capped-height) comments list to the newest entry whenever one is added,
+  // so it doesn't silently land off-screen below the scroll fold.
+  useEffect(() => {
+    const el = commentsListRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [comments.length]);
 
   const addCommentDoc = () => {
     const isImage = commentDocs.length % 2 === 1;
@@ -124,8 +132,11 @@ const TicketDetails = () => {
 
         {comments.length > 0 && (
           <div className="mt-5">
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Comments</h3>
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
+            <div
+              ref={commentsListRef}
+              className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60 max-h-[320px] overflow-y-auto scrollbar-thin-light"
+            >
               {comments.map((c) => (
                 <div key={c.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
