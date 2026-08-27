@@ -164,13 +164,13 @@ const TicketDetails = () => {
           <div className="mt-6 space-y-3">
             <button
               onClick={() => setCommentOpen(true)}
-              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
+              className="w-full h-11 text-primary font-semibold"
             >
               Add Comment
             </button>
             <button
               onClick={() => setCloseConfirmOpen(true)}
-              className="w-full h-11 text-primary font-semibold"
+              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
             >
               Close Ticket
             </button>
