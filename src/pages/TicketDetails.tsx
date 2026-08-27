@@ -22,6 +22,26 @@ const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => v
   </div>
 );
 
+/* Clamps to 2 lines and only offers "Read more" when the text actually overflows that. */
+const CommentText = ({ text, onExpand }: { text: string; onExpand: () => void }) => {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (el) setOverflowing(el.scrollHeight > el.clientHeight + 1);
+  }, [text]);
+
+  return (
+    <div className="flex-1 min-w-0">
+      <p ref={ref} className="text-sm text-foreground line-clamp-2">{text}</p>
+      {overflowing && (
+        <button onClick={onExpand} className="mt-0.5 text-xs font-medium text-primary">Read more</button>
+      )}
+    </div>
+  );
+};
+
 /* hexagon info badge — mirrors CreateVisit.tsx's confirmation-sheet icon */
 const HexIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="relative mx-auto flex items-center justify-center w-12 h-12">
@@ -40,6 +60,7 @@ const TicketDetails = () => {
   const [comment, setComment] = useState("");
   const [commentDocs, setCommentDocs] = useState<TicketDoc[]>([]);
   const [comments, setComments] = useState<TicketComment[]>(ticket.comments ?? []);
+  const [viewComment, setViewComment] = useState<TicketComment | null>(null);
   const [closed, setClosed] = useState(false);
   const commentsListRef = useRef<HTMLDivElement>(null);
 
@@ -140,7 +161,7 @@ const TicketDetails = () => {
               {comments.map((c) => (
                 <div key={c.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
-                    <p className="flex-1 text-sm text-foreground">{c.text}</p>
+                    <CommentText text={c.text} onExpand={() => setViewComment(c)} />
                     <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
                   </div>
                   {c.documents.length > 0 && (
@@ -227,6 +248,31 @@ const TicketDetails = () => {
           <button onClick={closeCommentSheet} className="mt-3 w-full h-11 text-primary font-semibold">
             Cancel
           </button>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={!!viewComment} onOpenChange={(o) => !o && setViewComment(null)}>
+        <DrawerContent className="px-4 pb-8 max-h-[80vh]">
+          <button onClick={() => setViewComment(null)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-2 pb-1">
+            <DrawerTitle className="text-lg font-semibold">Comment</DrawerTitle>
+          </DrawerHeader>
+
+          <div className="overflow-y-auto scrollbar-hide">
+            <span className="block mb-2 text-[11px] text-muted-foreground">{viewComment?.date}</span>
+            <p className="text-sm text-foreground whitespace-pre-wrap">{viewComment?.text}</p>
+
+            {viewComment && viewComment.documents.length > 0 && (
+              <>
+                <p className="text-sm font-semibold text-foreground mt-4 mb-2">Documents</p>
+                <div className="rounded-2xl border border-dashed border-border divide-y divide-border/60">
+                  {viewComment.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
+                </div>
+              </>
+            )}
+          </div>
         </DrawerContent>
       </Drawer>
     </div>
