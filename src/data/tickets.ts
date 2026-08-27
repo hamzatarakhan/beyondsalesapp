@@ -12,6 +12,13 @@ export interface TicketUpdate {
   description: string;
 }
 
+export interface TicketComment {
+  id: string;
+  text: string;
+  documents: TicketDoc[];
+  date: string;
+}
+
 export interface Ticket {
   id: string;
   category: string;
@@ -22,6 +29,7 @@ export interface Ticket {
   description: string;
   documents: TicketDoc[];
   updates?: TicketUpdate[];
+  comments?: TicketComment[];
 }
 
 export const TICKET_CATEGORIES = [
