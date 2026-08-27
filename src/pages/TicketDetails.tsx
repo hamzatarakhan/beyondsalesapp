@@ -119,10 +119,7 @@ const TicketDetails = () => {
         {comments.length > 0 && (
           <div className="mt-5">
             <h3 className="mb-2 text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
-            <div
-              ref={commentsListRef}
-              className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60 max-h-[320px] overflow-y-auto scrollbar-thin-light"
-            >
+            <div ref={commentsListRef} className="max-h-[320px] overflow-y-auto scrollbar-thin-light space-y-2 p-0.5">
               {comments.map((c) => (
                 <div
                   key={c.id}
@@ -130,7 +127,7 @@ const TicketDetails = () => {
                   tabIndex={0}
                   onClick={() => setViewComment(c)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setViewComment(c); }}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-left cursor-pointer active:bg-muted/40 transition-colors"
+                  className="w-full flex items-center gap-2 rounded-2xl bg-muted/40 border border-border/60 px-4 py-3 text-left cursor-pointer active:bg-muted/60 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
@@ -138,7 +135,7 @@ const TicketDetails = () => {
                       <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
                     </div>
                     {c.documents.length > 0 && (
-                      <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60">
+                      <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60 bg-card">
                         {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} compact />)}
                       </div>
                     )}
