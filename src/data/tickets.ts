@@ -7,11 +7,6 @@ export interface TicketDoc {
   kind: "file" | "image";
 }
 
-export interface TicketUpdate {
-  documents: TicketDoc[];
-  description: string;
-}
-
 export interface TicketComment {
   id: string;
   text: string;
@@ -28,7 +23,6 @@ export interface Ticket {
   priority: TicketPriority;
   description: string;
   documents: TicketDoc[];
-  updates?: TicketUpdate[];
   comments?: TicketComment[];
 }
 
@@ -58,6 +52,6 @@ export const DEMO_TICKETS: Ticket[] = [
   { id: "TCK-100234", category: "Billing", subCategory: "Invoice dispute", date: "29, 6, 2026", status: "resolved", priority: "high", description: "Customer disputes the last invoice amount.", documents: DEMO_DOCS },
   { id: "TCK-100235", category: "SIM Services", subCategory: "SIM replacement", date: "29, 6, 2026", status: "closed", priority: "medium", description: "SIM replacement request was completed.", documents: DEMO_DOCS },
   { id: "TCK-100236", category: "Network", subCategory: "Slow data", date: "29, 6, 2026", status: "progress", priority: "high", description: "Data speed is below expected in the area.", documents: DEMO_DOCS },
-  { id: "TCK-100237", category: "Device", subCategory: "Device registration", date: "29, 6, 2026", status: "pending", priority: "low", description: "Device registration pending review.", documents: DEMO_DOCS, updates: [{ documents: DEMO_DOCS, description: "Additional documents provided by the customer." }] },
+  { id: "TCK-100237", category: "Device", subCategory: "Device registration", date: "29, 6, 2026", status: "pending", priority: "low", description: "Device registration pending review.", documents: DEMO_DOCS },
   { id: "TCK-100238", category: "Account", subCategory: "Profile update", date: "29, 6, 2026", status: "pending", priority: "medium", description: "Customer requested a profile update.", documents: DEMO_DOCS },
 ];

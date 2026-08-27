@@ -135,22 +135,6 @@ const TicketDetails = () => {
           {ticket.description}
         </div>
 
-        {ticket.updates?.map((update, idx) => (
-          <div key={idx} className="mt-5">
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Update</h3>
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-              <p className="text-sm font-semibold text-foreground mb-2">Documents</p>
-              <div className="rounded-xl border border-dashed border-border divide-y divide-border/60">
-                {update.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
-              </div>
-              <p className="text-sm font-medium text-foreground mt-4 mb-2">Description</p>
-              <div className="rounded-xl bg-muted p-4 min-h-[80px] text-sm text-muted-foreground">
-                {update.description}
-              </div>
-            </div>
-          </div>
-        ))}
-
         {comments.length > 0 && (
           <div className="mt-5">
             <h3 className="mb-2 text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
