@@ -107,7 +107,7 @@ const TicketDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-4">
       <AppHeader title="View Details" showBack />
 
       <div className="px-4">
