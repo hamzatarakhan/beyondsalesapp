@@ -22,26 +22,6 @@ const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => v
   </div>
 );
 
-/* Clamps to 2 lines and only offers "Read more" when the text actually overflows that. */
-const CommentText = ({ text, onExpand }: { text: string; onExpand: () => void }) => {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const [overflowing, setOverflowing] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (el) setOverflowing(el.scrollHeight > el.clientHeight + 1);
-  }, [text]);
-
-  return (
-    <div className="flex-1 min-w-0">
-      <p ref={ref} className="text-sm text-foreground line-clamp-2">{text}</p>
-      {overflowing && (
-        <button onClick={onExpand} className="mt-0.5 text-xs font-medium text-primary">Read more</button>
-      )}
-    </div>
-  );
-};
-
 /* hexagon info badge — mirrors CreateVisit.tsx's confirmation-sheet icon */
 const HexIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="relative mx-auto flex items-center justify-center w-12 h-12">
@@ -144,9 +124,16 @@ const TicketDetails = () => {
               className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60 max-h-[320px] overflow-y-auto scrollbar-thin-light"
             >
               {comments.map((c) => (
-                <div key={c.id} className="px-4 py-2.5">
+                <div
+                  key={c.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setViewComment(c)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setViewComment(c); }}
+                  className="px-4 py-2.5 text-left cursor-pointer active:bg-muted/40 transition-colors"
+                >
                   <div className="flex items-baseline gap-2">
-                    <CommentText text={c.text} onExpand={() => setViewComment(c)} />
+                    <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
                     <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
                   </div>
                   {c.documents.length > 0 && (
