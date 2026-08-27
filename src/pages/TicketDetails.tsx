@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X, ChevronRight } from "lucide-react";
+import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X, ChevronRight, Paperclip } from "lucide-react";
 import { DEMO_TICKETS, TicketComment, TicketDoc } from "@/data/tickets";
 import { STATUS_LABEL, STATUS_STYLE } from "./Tickets";
 
@@ -24,13 +24,18 @@ export const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: 
 
 const COMMENTS_PREVIEW_LIMIT = 3;
 
-export const CommentCard = ({ c, onClick }: { c: TicketComment; onClick: () => void }) => (
+export const CommentCard = ({ c, onClick, tone = "muted" }: { c: TicketComment; onClick: () => void; tone?: "muted" | "white" }) => (
   <div
     role="button"
     tabIndex={0}
     onClick={onClick}
     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick(); }}
-    className="w-full flex items-center gap-2 rounded-xl bg-muted/40 border border-border/60 px-3 py-2.5 text-left cursor-pointer active:bg-muted/60 transition-colors"
+    className={cn(
+      "w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left cursor-pointer transition-colors",
+      tone === "white"
+        ? "bg-card border-border/60 shadow-[var(--card-shadow)] active:bg-muted/40"
+        : "bg-muted/40 border-border/60 active:bg-muted/60"
+    )}
   >
     <div className="flex-1 min-w-0">
       <div className="flex items-baseline gap-2">
@@ -38,14 +43,9 @@ export const CommentCard = ({ c, onClick }: { c: TicketComment; onClick: () => v
         <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
       </div>
       {c.documents.length > 0 && (
-        <div className="mt-1.5 rounded-xl border border-dashed border-border bg-card">
-          <DocRow doc={c.documents[0]} compact />
-          {c.documents.length > 1 && (
-            <p className="px-3 py-1.5 text-[11px] text-muted-foreground border-t border-dashed border-border">
-              +{c.documents.length - 1} more file{c.documents.length > 2 ? "s" : ""}
-            </p>
-          )}
-        </div>
+        <span className="mt-1.5 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium">
+          <Paperclip className="w-3 h-3" /> {c.documents.length} Attachment{c.documents.length > 1 ? "s" : ""}
+        </span>
       )}
     </div>
     <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
@@ -141,7 +141,7 @@ const TicketDetails = () => {
         {comments.length > 0 && (
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Comments ({comments.length})</h3>
+              <h3 className="text-sm font-semibold text-foreground">Comments</h3>
               {comments.length > COMMENTS_PREVIEW_LIMIT && (
                 <button onClick={() => navigate(`/tickets/${ticket.id}/comments`)} className="flex items-center gap-1 text-primary text-xs font-medium">
                   See All ({comments.length}) <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />

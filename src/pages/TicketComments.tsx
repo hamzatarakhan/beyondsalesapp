@@ -15,11 +15,11 @@ const TicketComments = () => {
 
   return (
     <div className="min-h-screen bg-background pb-4">
-      <AppHeader title={`Comments (${comments.length})`} showBack onBackClick={() => navigate(`/tickets/${ticket.id}`)} />
+      <AppHeader title="Comments" showBack onBackClick={() => navigate(`/tickets/${ticket.id}`)} />
 
       <div className="px-4 space-y-2">
         {comments.map((c) => (
-          <CommentCard key={c.id} c={c} onClick={() => setViewComment(c)} />
+          <CommentCard key={c.id} c={c} onClick={() => setViewComment(c)} tone="white" />
         ))}
       </div>
 
