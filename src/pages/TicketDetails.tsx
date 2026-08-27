@@ -62,6 +62,7 @@ const TicketDetails = () => {
   const [comments, setComments] = useState<TicketComment[]>(ticket.comments ?? []);
   const [viewComment, setViewComment] = useState<TicketComment | null>(null);
   const [closed, setClosed] = useState(false);
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const commentsListRef = useRef<HTMLDivElement>(null);
 
   // Scroll the (capped-height) comments list to the newest entry whenever one is added,
@@ -162,7 +163,7 @@ const TicketDetails = () => {
         {actionable && (
           <div className="mt-6 space-y-3">
             <button
-              onClick={() => setClosed(true)}
+              onClick={() => setCloseConfirmOpen(true)}
               className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
             >
               Close Ticket
@@ -176,6 +177,30 @@ const TicketDetails = () => {
           </div>
         )}
       </div>
+
+      <Drawer open={closeConfirmOpen} onOpenChange={setCloseConfirmOpen}>
+        <DrawerContent className="px-4 pb-8">
+          <DrawerHeader className="text-center pt-2 pb-1">
+            <DrawerTitle className="text-lg font-semibold">Confirmation Message</DrawerTitle>
+          </DrawerHeader>
+          <div className="flex flex-col items-center gap-2 mt-2 text-center">
+            <HexIcon><span className="text-lg font-bold leading-none">!</span></HexIcon>
+            <p className="text-base font-semibold text-sky-500">Close Ticket</p>
+            <p className="text-sm text-muted-foreground">
+              Do you want to close this ticket? This can't be undone.
+            </p>
+          </div>
+          <button
+            onClick={() => { setClosed(true); setCloseConfirmOpen(false); }}
+            className="mt-5 w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
+          >
+            Close Ticket
+          </button>
+          <button onClick={() => setCloseConfirmOpen(false)} className="mt-3 w-full h-11 text-primary font-semibold">
+            Cancel
+          </button>
+        </DrawerContent>
+      </Drawer>
 
       <Drawer open={commentOpen} onOpenChange={(o) => !o && closeCommentSheet()}>
         <DrawerContent className="px-4 pb-8">
