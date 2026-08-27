@@ -60,6 +60,51 @@ export const CommentCard = ({ c, onClick, tone = "muted" }: { c: TicketComment; 
   </div>
 );
 
+// Shared by TicketDetails.tsx and TicketComments.tsx so the two "view one comment"
+// entry points (inline preview vs. the full All Comments page) can't drift apart.
+export const CommentDetailSheet = ({ comment, onClose }: { comment: TicketComment | null; onClose: () => void }) => (
+  <Drawer open={!!comment} onOpenChange={(o) => !o && onClose()}>
+    <DrawerContent className="px-4 pb-8 max-h-[80vh]">
+      <button onClick={onClose} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+        <X className="w-4 h-4 text-foreground" />
+      </button>
+      <DrawerHeader className="text-center pt-2 pb-1">
+        <DrawerTitle className="text-lg font-semibold">Comment</DrawerTitle>
+      </DrawerHeader>
+
+      <div className="overflow-y-auto scrollbar-hide space-y-3">
+        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 flex items-center justify-center text-sm font-semibold shrink-0">
+            {comment ? initialsFor(comment.author) : ""}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground truncate">{comment?.author}</p>
+            <p className="text-xs text-muted-foreground">{comment?.role} · {comment?.date}</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+          <p className="text-sm font-semibold text-foreground mb-2">Comment</p>
+          <p className="text-sm text-foreground whitespace-pre-wrap">{comment?.text}</p>
+        </div>
+
+        {comment && comment.documents.length > 0 && (
+          <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+            <p className="text-sm font-semibold text-foreground mb-2">Documents</p>
+            <div className="rounded-xl border border-dashed border-border divide-y divide-border/60">
+              {comment.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <button onClick={onClose} className="mt-5 w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold shrink-0">
+        Close
+      </button>
+    </DrawerContent>
+  </Drawer>
+);
+
 /* hexagon info badge — mirrors CreateVisit.tsx's confirmation-sheet icon */
 const HexIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="relative mx-auto flex items-center justify-center w-12 h-12">
@@ -272,46 +317,7 @@ const TicketDetails = () => {
         </DrawerContent>
       </Drawer>
 
-      <Drawer open={!!viewComment} onOpenChange={(o) => !o && setViewComment(null)}>
-        <DrawerContent className="px-4 pb-8 max-h-[80vh]">
-          <button onClick={() => setViewComment(null)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
-            <X className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-2 pb-1">
-            <DrawerTitle className="text-lg font-semibold">Comment</DrawerTitle>
-          </DrawerHeader>
-
-          <div className="overflow-y-auto scrollbar-hide space-y-3">
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 flex items-center justify-center text-sm font-semibold shrink-0">
-                {viewComment ? initialsFor(viewComment.author) : ""}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{viewComment?.author}</p>
-                <p className="text-xs text-muted-foreground">{viewComment?.role} · {viewComment?.date}</p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-              <p className="text-sm font-semibold text-foreground mb-2">Comment</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{viewComment?.text}</p>
-            </div>
-
-            {viewComment && viewComment.documents.length > 0 && (
-              <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
-                <p className="text-sm font-semibold text-foreground mb-2">Documents</p>
-                <div className="rounded-xl border border-dashed border-border divide-y divide-border/60">
-                  {viewComment.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <button onClick={() => setViewComment(null)} className="mt-5 w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold shrink-0">
-            Close
-          </button>
-        </DrawerContent>
-      </Drawer>
+      <CommentDetailSheet comment={viewComment} onClose={() => setViewComment(null)} />
     </div>
   );
 };
