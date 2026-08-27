@@ -142,11 +142,9 @@ const TicketDetails = () => {
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground">Comments</h3>
-              {comments.length > COMMENTS_PREVIEW_LIMIT && (
-                <button onClick={() => navigate(`/tickets/${ticket.id}/comments`)} className="flex items-center gap-1 text-primary text-xs font-medium">
-                  See All ({comments.length}) <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                </button>
-              )}
+              <button onClick={() => navigate(`/tickets/${ticket.id}/comments`)} className="flex items-center gap-1 text-primary text-xs font-medium">
+                See All ({comments.length}) <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+              </button>
             </div>
             <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-2 space-y-2">
               {comments.slice(0, COMMENTS_PREVIEW_LIMIT).map((c) => (
