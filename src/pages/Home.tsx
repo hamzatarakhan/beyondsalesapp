@@ -37,7 +37,7 @@ import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
 import { useWidgets } from "@/contexts/WidgetsContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -86,6 +86,29 @@ const Home = () => {
   const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true, direction: isRtl ? "rtl" : "ltr" });
   const [heroActiveSnap, setHeroActiveSnap] = useState(0);
   const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollSaveScheduled = useRef(false);
+
+  // Restore Home's scroll position on mount — so navigating to a widget/service and back
+  // (e.g. Tickets) lands the dealer back on that same widget instead of the top of the page.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    try {
+      const saved = sessionStorage.getItem("home:scrollTop");
+      if (saved) el.scrollTop = Number(saved);
+    } catch {}
+  }, []);
+
+  const handleHomeScroll = () => {
+    if (scrollSaveScheduled.current) return;
+    scrollSaveScheduled.current = true;
+    requestAnimationFrame(() => {
+      scrollSaveScheduled.current = false;
+      const el = scrollRef.current;
+      if (el) { try { sessionStorage.setItem("home:scrollTop", String(el.scrollTop)); } catch {} }
+    });
+  };
   const activeOp = OPERATORS.find((o) => o.id === activeOperator) ?? OPERATORS[0];
   const [flowChoiceOpen, setFlowChoiceOpen] = useState(false);
 
@@ -445,7 +468,7 @@ const Home = () => {
   };
 
   return (
-    <div className="mobile-container pb-24 bg-background h-screen overflow-y-auto scrollbar-hide">
+    <div ref={scrollRef} onScroll={handleHomeScroll} className="mobile-container pb-24 bg-background h-screen overflow-y-auto scrollbar-hide">
       {/* Header */}
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
