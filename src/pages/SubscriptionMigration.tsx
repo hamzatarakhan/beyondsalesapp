@@ -1090,12 +1090,16 @@ const SubscriptionMigration = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("subscriptionMigration.lookupErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
-          <button
-            onClick={() => setLookupError(null)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("subscriptionMigration.gotIt")}
-          </button>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => setLookupError(null)}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("subscriptionMigration.gotIt")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1108,12 +1112,16 @@ const SubscriptionMigration = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("subscriptionMigration.notEligible")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{ineligibleReason}</p>
-          <button
-            onClick={() => setIneligibleModalOpen(false)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("subscriptionMigration.gotIt")}
-          </button>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => setIneligibleModalOpen(false)}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("subscriptionMigration.gotIt")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1127,12 +1135,16 @@ const SubscriptionMigration = () => {
           </div>
           <h4 className="font-semibold text-foreground mb-1 text-lg">{t("subscriptionMigration.suspensionWarningTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t("subscriptionMigration.suspensionWarningDesc")}</p>
-          <button
-            onClick={() => { setSuspensionWarningOpen(false); setStep((s) => s + 1); }}
-            className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-          >
-            {t("subscriptionMigration.confirmButton")}
-          </button>
+          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
+              auto-injected close button) would otherwise also hide this direct-child button. */}
+          <div>
+            <button
+              onClick={() => { setSuspensionWarningOpen(false); setStep((s) => s + 1); }}
+              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              {t("subscriptionMigration.confirmButton")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
