@@ -191,7 +191,14 @@ const TicketDetails = () => {
             </p>
           </div>
           <button
-            onClick={() => { setClosed(true); setCloseConfirmOpen(false); }}
+            onClick={() => {
+              // Mutates the shared demo record directly (no backend/store here) so the
+              // Tickets list reflects "Closed" immediately after the navigate below.
+              ticket.status = "closed";
+              setClosed(true);
+              setCloseConfirmOpen(false);
+              navigate("/tickets");
+            }}
             className="mt-5 w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold"
           >
             Close Ticket
