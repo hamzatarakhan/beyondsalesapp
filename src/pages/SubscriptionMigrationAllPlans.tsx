@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowLeft, Search, SlidersHorizontal, X, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PlanCard from "@/components/PlanCard";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,9 @@ const SubscriptionMigrationAllPlans = () => {
   const [chip, setChip] = useState(initial.chip ?? "all");
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  // Same top-right "leave the flow" X SubscriptionMigration.tsx has — this page is reached
+  // mid-flow from its Plan step, so it needs the same escape hatch.
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const planList = direction === "pre-to-post"
     ? POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"))
@@ -96,7 +99,13 @@ const SubscriptionMigrationAllPlans = () => {
             <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
           </button>
           <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("subscriptionMigration.allPlansTitle")}</h1>
-          <div className="w-10 shrink-0" />
+          <button
+            onClick={() => setCancelOpen(true)}
+            aria-label="Cancel"
+            className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
         </header>
 
         <div className="px-4 flex items-center gap-2 pb-4">
@@ -204,6 +213,29 @@ const SubscriptionMigrationAllPlans = () => {
           </DrawerContent>
         </Drawer>
       )}
+
+      {/* Cancel flow (top-right X) */}
+      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("subscriptionMigration.cancelFlowDesc")}</p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <button type="button" className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold" onClick={() => { setCancelOpen(false); navigate("/"); }}>
+                {t("subscriptionMigration.yesCancelFlow")}
+              </button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>
+                {t("subscriptionMigration.keepEditing")}
+              </button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
