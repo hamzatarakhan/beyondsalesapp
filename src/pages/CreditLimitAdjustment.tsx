@@ -98,15 +98,15 @@ const CreditLimitAdjustment = () => {
   // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
   // (mirrors Friendi's PAYG top-up), a boxed swipeable carousel, a plain typographic wheel
-  // picker paired with its own current→new limit summary, or a single zero-centered slider
+  // picker paired with its own current→new limit summary, or a single increase-only slider
   // that replaces the increase/decrease toggle entirely. Not a toggle the dealer switches
   // mid-flow; which one they get depends on which tile they tapped.
   const optionParam = searchParams.get("option");
   const amountMode: "slider" | "preset" | "carousel" | "wheel" | "unified" =
     optionParam === "2" ? "preset" : optionParam === "3" ? "carousel" : optionParam === "4" ? "wheel" : optionParam === "5" ? "unified" : "slider";
   // Carousel, wheel, and the unified (Option 5) picker are the same swipeable-strip
-  // mechanic underneath, just styled differently and (for Option 5) signed — every
-  // effect/handler that drives the strip keys off this instead of repeating the check.
+  // mechanic underneath, just styled differently — every effect/handler that drives the
+  // strip keys off this instead of repeating the check.
   const usesSwipeStrip = amountMode === "carousel" || amountMode === "wheel" || amountMode === "unified";
 
   // ---------- Flow state ----------
@@ -163,9 +163,6 @@ const CreditLimitAdjustment = () => {
   const newLimit = direction === "increase" ? currentLimit + delta : currentLimit - effectiveDelta;
   // Can't decrease by more than the customer already has.
   const deltaMax = direction === "decrease" ? Math.max(DELTA_MIN, Math.min(DELTA_MAX, currentLimit)) : DELTA_MAX;
-  // Option 5's slider spans both directions at once — same "can't decrease past what the
-  // customer has" cap as above, just as the negative end of one continuous range.
-  const unifiedMinBound = -Math.max(DELTA_MIN, Math.min(DELTA_MAX, currentLimit));
 
   // Options 1-4: reset the delta step whenever direction or customer changes, so it never
   // starts out-of-range. Option 5 is excluded — there direction is a side-effect of the
@@ -189,16 +186,14 @@ const CreditLimitAdjustment = () => {
     for (let v = DELTA_MIN; v <= deltaMax; v += DELTA_STEP) vals.push(v);
     return vals;
   }, [deltaMax]);
-  // ---------- Option 5: same strip, but signed and running through zero ----------
+  // ---------- Option 5: same strip, increase-only, starting from "no change" ----------
   const unifiedValues = useMemo(() => {
     const vals: number[] = [];
-    for (let v = unifiedMinBound; v <= DELTA_MAX; v += DELTA_STEP) vals.push(v);
+    for (let v = 0; v <= DELTA_MAX; v += DELTA_STEP) vals.push(v);
     return vals;
-  }, [unifiedMinBound]);
-  // Which value set + "where on it are we" the shared strip effects below track, since
-  // Option 5's is signed (direction folded into the sign) while 3/4's is a plain magnitude.
+  }, []);
   const stripValues = amountMode === "unified" ? unifiedValues : carouselValues;
-  const currentStripValue = amountMode === "unified" ? (direction === "decrease" ? -delta : delta) : delta;
+  const currentStripValue = delta;
   const carouselDrag = useDragScroll<HTMLDivElement>();
   const [carouselScroll, setCarouselScroll] = useState(0);
 
@@ -239,18 +234,12 @@ const CreditLimitAdjustment = () => {
       clearTimeout(settleTimer);
       settleTimer = setTimeout(() => {
         const idx = Math.max(0, Math.min(stripValues.length - 1, Math.round(el.scrollLeft / AMOUNT_SLOT)));
-        const v = stripValues[idx];
-        if (amountMode === "unified") {
-          setDirection(v < 0 ? "decrease" : "increase");
-          setDelta(Math.abs(v));
-        } else {
-          setDelta(v);
-        }
+        setDelta(stripValues[idx]);
       }, 100);
     };
     el.addEventListener("scroll", onScroll);
     return () => { el.removeEventListener("scroll", onScroll); clearTimeout(settleTimer); };
-  }, [usesSwipeStrip, stripValues, carouselDrag.ref, customer, amountMode, step]);
+  }, [usesSwipeStrip, stripValues, carouselDrag.ref, customer, step]);
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -521,9 +510,9 @@ const CreditLimitAdjustment = () => {
                 </div>
               ) : amountMode === "unified" ? (
                 <div className="space-y-2">
-                  {/* dir="ltr" pins left = decrease / right = increase regardless of app
-                      language, same reason as the label row below — native scroll containers
-                      can otherwise reverse their scrollLeft convention under the Arabic rtl dir. */}
+                  {/* dir="ltr" keeps the strip's low→high order stable regardless of app
+                      language — native scroll containers can otherwise reverse their
+                      scrollLeft convention under the Arabic rtl dir. */}
                   <div
                     ref={carouselDrag.ref}
                     dir="ltr"
@@ -544,7 +533,7 @@ const CreditLimitAdjustment = () => {
                       const dist = Math.abs(i * AMOUNT_SLOT - carouselScroll) / AMOUNT_SLOT;
                       const isCenter = dist < 0.5;
                       const opacity = Math.max(0.3, 1 - dist * 0.45);
-                      const tone = v === 0 ? "text-foreground" : v > 0 ? "value-positive" : "value-negative";
+                      const tone = v === 0 ? "text-foreground" : "value-positive";
                       return (
                         <div
                           key={v}
@@ -556,20 +545,13 @@ const CreditLimitAdjustment = () => {
                               "font-bold whitespace-nowrap transition-all flex items-center gap-0.5",
                               isCenter ? cn("text-2xl", tone) : "text-lg text-muted-foreground"
                             )}>
-                              {v !== 0 && (v > 0 ? "+" : "−")}<RiyalSymbol className={isCenter ? undefined : "text-muted-foreground"} /> {Math.abs(v).toFixed(0)}
+                              {v !== 0 && "+"}<RiyalSymbol className={isCenter ? undefined : "text-muted-foreground"} /> {v.toFixed(0)}
                             </span>
                           </span>
                           <span className={cn("w-6 h-0.5 rounded-full", isCenter ? "bg-primary" : "bg-transparent")} />
                         </div>
                       );
                     })}
-                  </div>
-                  {/* dir="ltr" pins left/right physically, same reason as the strip above —
-                      a plain flex row would otherwise mirror under the Arabic layout's rtl dir
-                      and put "Increase" on the same side the strip still treats as decrease. */}
-                  <div dir="ltr" className="flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span className="flex items-center gap-1"><TrendingDown className="w-3 h-3" /> {t("creditLimitAdjustment.decrease")}</span>
-                    <span className="flex items-center gap-1">{t("creditLimitAdjustment.increase")} <TrendingUp className="w-3 h-3" /></span>
                   </div>
                 </div>
               ) : (

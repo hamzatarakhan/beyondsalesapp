@@ -155,7 +155,7 @@ const Home = () => {
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
   // its own way of picking the adjustment amount (?option=1 → slider, ?option=2 →
   // predefined amounts, ?option=3 → boxed swipeable carousel, ?option=4 → plain wheel
-  // picker with its own current→new summary, ?option=5 → single zero-centered slider
+  // picker with its own current→new summary, ?option=5 → single increase-only slider
   // replacing the increase/decrease toggle), so they can be reviewed side by side.
   // "special" badge tone flags them as alternate options rather than a rollout-status badge.
   const creditLimitOptions = [
