@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
-import FlowStepper from "@/components/FlowStepper";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Button } from "@/components/ui/button";
@@ -86,9 +85,7 @@ const CancelPortInRequest = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // ---------- Flow state ----------
-  const [step, setStep] = useState(0);
-
+  // ---------- Flow state (single page — no step navigation) ----------
   const [msisdn, setMsisdn] = useState("0501112222");
   const [checking, setChecking] = useState(false);
   const [request, setRequest] = useState<DemoPortInRequest | null>(null);
@@ -153,8 +150,7 @@ const CancelPortInRequest = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueNumber = eligible;
-  const canSubmit = !!simPhoto;
+  const canSubmit = eligible && !!simPhoto;
 
   const resolveCancel = () => {
     setConfirmOpen(false);
@@ -168,18 +164,12 @@ const CancelPortInRequest = () => {
   };
 
   const resetAll = () => {
-    setStep(0);
     setMsisdn("0501112222");
     setRequest(null);
     setLookupError(null);
     setSimPhoto(null);
     setAttachments([]);
   };
-
-  const steps = [
-    { label: t("cancelPortIn.stepNumber", "Number"), Icon: Phone },
-    { label: t("cancelPortIn.stepCancel", "Cancel Request"), Icon: ClipboardList },
-  ];
 
   const renderAttachmentRow = (doc: Attachment, onRemove: () => void) => (
     <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
@@ -201,39 +191,28 @@ const CancelPortInRequest = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader
-        title={t("cancelPortIn.title")}
-        showBack
-        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
-      />
-      <FlowStepper current={step} steps={steps} />
+      <AppHeader title={t("cancelPortIn.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
-        {/* ── Step 0: Number ── */}
-        {step === 0 && (
-          <>
-            <Field label={t("cancelPortIn.msisdn")}>
-              <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
-              {checking && <p className="text-[11px] text-muted-foreground">{t("cancelPortIn.checkingNumber")}</p>}
-            </Field>
+        <Field label={t("cancelPortIn.msisdn")}>
+          <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
+          {checking && <p className="text-[11px] text-muted-foreground">{t("cancelPortIn.checkingNumber")}</p>}
+        </Field>
 
-            <PrototypeTestBox
-              heading={t("cancelPortIn.testNumbersHeading")}
-              description={t("cancelPortIn.testNumbersDescription")}
-              items={[
-                { value: "0501112222", note: t("cancelPortIn.testNotePending"), group: t("cancelPortIn.testGroupValid") },
-                { value: "0501112233", note: t("cancelPortIn.testNoteEsim"), group: t("cancelPortIn.testGroupErrors") },
-                { value: "0501112244", note: t("cancelPortIn.testNoteCompleted"), group: t("cancelPortIn.testGroupErrors") },
-                { value: "0501112255", note: t("cancelPortIn.testNoteRejected"), group: t("cancelPortIn.testGroupErrors") },
-                { value: "0509999999", note: t("cancelPortIn.testNoteNotFound"), group: t("cancelPortIn.testGroupErrors") },
-              ]}
-              onSelect={setMsisdn}
-            />
-          </>
-        )}
+        <PrototypeTestBox
+          heading={t("cancelPortIn.testNumbersHeading")}
+          description={t("cancelPortIn.testNumbersDescription")}
+          items={[
+            { value: "0501112222", note: t("cancelPortIn.testNotePending"), group: t("cancelPortIn.testGroupValid") },
+            { value: "0501112233", note: t("cancelPortIn.testNoteEsim"), group: t("cancelPortIn.testGroupErrors") },
+            { value: "0501112244", note: t("cancelPortIn.testNoteCompleted"), group: t("cancelPortIn.testGroupErrors") },
+            { value: "0501112255", note: t("cancelPortIn.testNoteRejected"), group: t("cancelPortIn.testGroupErrors") },
+            { value: "0509999999", note: t("cancelPortIn.testNoteNotFound"), group: t("cancelPortIn.testGroupErrors") },
+          ]}
+          onSelect={setMsisdn}
+        />
 
-        {/* ── Step 1: Cancel Request ── */}
-        {step === 1 && (
+        {request && (
           <>
             <CardSection title={t("cancelPortIn.portInRequest")} icon={ClipboardList}>
               <SummaryRow label={t("cancelPortIn.msisdn")} value={request?.msisdn ?? t("cancelPortIn.dash")} />
@@ -299,19 +278,9 @@ const CancelPortInRequest = () => {
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {step === 0 ? (
-            <Button
-              className="w-full h-12 text-sm font-semibold rounded-full"
-              disabled={!canContinueNumber}
-              onClick={() => setStep(1)}
-            >
-              {t("cancelPortIn.continue")}
-            </Button>
-          ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setConfirmOpen(true)}>
-              {t("cancelPortIn.submit")}
-            </Button>
-          )}
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setConfirmOpen(true)}>
+            {t("cancelPortIn.submit")}
+          </Button>
         </div>
       </div>
 
