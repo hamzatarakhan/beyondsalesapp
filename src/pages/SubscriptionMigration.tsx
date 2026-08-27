@@ -242,6 +242,10 @@ const SubscriptionMigration = () => {
   // Plan
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [planTypeChip, setPlanTypeChip] = useState<string>("all");
+  // Target subscription type shown under Current Plan (locked services only) — a real
+  // choice on post-to-pre (Prepaid or Basic Postpaid), a single pre-selected Postpaid pill
+  // on pre-to-post since that's the only destination type in that direction.
+  const [targetSubType, setTargetSubType] = useState<"prepaid" | "basic-postpaid">("prepaid");
   const [planSearch, setPlanSearch] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -627,46 +631,6 @@ const SubscriptionMigration = () => {
         {/* ── Step 1: Plan ── */}
         {step === 1 && (
           <>
-            {/* Locked services (Pre to Post / Post to Pre) already know the direction, so the
-                customer's current subscription type is a foregone conclusion — shown here for
-                context (same 2nd-stage placement as SIM Activation's Subscription step) but
-                not a real choice, unlike the interactive version of this same toggle on the
-                auto-detect (Option 1) flow. */}
-            {lockedDirection && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                    { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
-                    { value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt },
-                  ]).map(({ value, label, Icon }) => {
-                    const selected = (lockedDirection === "pre-to-post" ? "prepaid" : "postpaid") === value;
-                    return (
-                      <div
-                        key={value}
-                        aria-disabled
-                        className={cn(
-                          "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 opacity-60 cursor-not-allowed",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
-                        )}
-                      >
-                        <span className={cn(
-                          "absolute top-2 end-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                          selected ? "border-primary bg-primary" : "border-muted-foreground/30"
-                        )}>
-                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                        </span>
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-sm font-semibold text-center leading-snug", selected ? "text-foreground" : "text-muted-foreground")}>
-                          {label}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {customer && (() => {
               const all = [...PREPAID_PLANS, ...POSTPAID_PLANS];
               const p = all.find((x) => x.title === customer.planName);
@@ -700,6 +664,50 @@ const SubscriptionMigration = () => {
                 </div>
               );
             })()}
+
+            {/* Target subscription type — a real choice on post-to-pre (Prepaid or Basic
+                Postpaid); pre-to-post only ever migrates to Postpaid, so it's a single
+                pre-selected pill instead of a toggle. */}
+            {lockedDirection && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
+                <div className={cn("grid gap-2", lockedDirection === "post-to-pre" ? "grid-cols-2" : "grid-cols-1")}>
+                  {(lockedDirection === "post-to-pre"
+                    ? [
+                        { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
+                        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: Receipt },
+                      ]
+                    : [{ value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt }]
+                  ).map(({ value, label, Icon }) => {
+                    const selected = lockedDirection === "post-to-pre" ? targetSubType === value : true;
+                    const Wrapper = lockedDirection === "post-to-pre" ? "button" : "div";
+                    return (
+                      <Wrapper
+                        key={value}
+                        type={lockedDirection === "post-to-pre" ? "button" : undefined}
+                        onClick={lockedDirection === "post-to-pre" ? () => setTargetSubType(value as "prepaid" | "basic-postpaid") : undefined}
+                        className={cn(
+                          "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 transition-all",
+                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                        )}
+                      >
+                        <span className={cn(
+                          "absolute top-2 end-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                          selected ? "border-primary bg-primary" : "border-muted-foreground/30"
+                        )}>
+                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
+                        </span>
+                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                        <p className={cn("text-sm font-semibold text-center leading-snug", selected ? "text-foreground" : "text-muted-foreground")}>
+                          {label}
+                        </p>
+                      </Wrapper>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <h3 className="text-sm font-semibold text-foreground px-1">
               {direction === "pre-to-post" ? t("subscriptionMigration.availablePostpaidPlans") : t("subscriptionMigration.availablePrepaidPlans")}
             </h3>
