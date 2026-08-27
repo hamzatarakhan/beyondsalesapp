@@ -7,15 +7,15 @@ import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X } from "lucide-react
 import { DEMO_TICKETS, TicketComment, TicketDoc } from "@/data/tickets";
 import { STATUS_LABEL, STATUS_STYLE } from "./Tickets";
 
-const DocRow = ({ doc, onDelete }: { doc: TicketDoc; onDelete?: () => void }) => (
-  <div className="flex items-center gap-3 px-4 py-3">
+const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: () => void; compact?: boolean }) => (
+  <div className={cn("flex items-center gap-3", compact ? "px-3 py-2" : "px-4 py-3")}>
     {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
     <span className="flex-1 text-sm text-muted-foreground">{doc.name}</span>
-    <button className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label="Preview document">
+    <button className={cn("rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center", compact ? "w-7 h-7" : "w-8 h-8")} aria-label="Preview document">
       <Eye className="w-4 h-4 text-sky-500" />
     </button>
     {onDelete && (
-      <button onClick={onDelete} className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center" aria-label="Delete document">
+      <button onClick={onDelete} className={cn("rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center", compact ? "w-7 h-7" : "w-8 h-8")} aria-label="Delete document">
         <Trash2 className="w-4 h-4 text-primary" />
       </button>
     )}
@@ -127,12 +127,14 @@ const TicketDetails = () => {
             <h3 className="mb-2 text-sm font-semibold text-foreground">Comments</h3>
             <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] divide-y divide-border/60">
               {comments.map((c) => (
-                <div key={c.id} className="p-4">
-                  <span className="block mb-1.5 text-xs text-muted-foreground">{c.date}</span>
-                  <p className="text-sm text-foreground">{c.text}</p>
+                <div key={c.id} className="px-4 py-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <p className="flex-1 text-sm text-foreground">{c.text}</p>
+                    <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
+                  </div>
                   {c.documents.length > 0 && (
-                    <div className="mt-3 rounded-xl border border-dashed border-border divide-y divide-border/60">
-                      {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
+                    <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60">
+                      {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} compact />)}
                     </div>
                   )}
                 </div>
