@@ -668,45 +668,53 @@ const SubscriptionMigration = () => {
             {/* Target subscription type — a real choice on post-to-pre (Prepaid or Basic
                 Postpaid); pre-to-post only ever migrates to Postpaid, so it's a single
                 pre-selected pill instead of a toggle. */}
-            {lockedDirection && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
-                <div className={cn("grid gap-2", lockedDirection === "post-to-pre" ? "grid-cols-2" : "grid-cols-1")}>
-                  {(lockedDirection === "post-to-pre"
-                    ? [
-                        { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
-                        { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: Receipt },
-                      ]
-                    : [{ value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt }]
-                  ).map(({ value, label, Icon }) => {
-                    const selected = lockedDirection === "post-to-pre" ? targetSubType === value : true;
-                    const Wrapper = lockedDirection === "post-to-pre" ? "button" : "div";
-                    return (
-                      <Wrapper
-                        key={value}
-                        type={lockedDirection === "post-to-pre" ? "button" : undefined}
-                        onClick={lockedDirection === "post-to-pre" ? () => setTargetSubType(value as "prepaid" | "basic-postpaid") : undefined}
-                        className={cn(
-                          "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 px-2 transition-all",
-                          selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
-                        )}
-                      >
-                        <span className={cn(
-                          "absolute top-2 end-2 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                          selected ? "border-primary bg-primary" : "border-muted-foreground/30"
-                        )}>
-                          {selected && <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />}
-                        </span>
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-sm font-semibold text-center leading-snug", selected ? "text-foreground" : "text-muted-foreground")}>
-                          {label}
-                        </p>
-                      </Wrapper>
-                    );
-                  })}
+            {lockedDirection && (() => {
+              const subTypeOptions = lockedDirection === "post-to-pre"
+                ? [
+                    { value: "prepaid" as const, label: t("activation.subscription.prepaid"), Icon: Wallet },
+                    { value: "basic-postpaid" as const, label: t("activation.subscription.basicPostpaid"), Icon: Receipt },
+                  ]
+                : [{ value: "postpaid" as const, label: t("activation.subscription.postpaid"), Icon: Receipt }];
+              // Same tile-size rule as SIM Activation's own Subscription Type step: 2+
+              // options scale everything down a notch so a 2-option row matches the
+              // 3-option tile size instead of rendering visibly bigger.
+              const compact = subTypeOptions.length >= 2;
+              return (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">{t("activation.subscription.subscriptionTypeTitle")}</h3>
+                  <div className={cn("grid gap-2", lockedDirection === "post-to-pre" ? "grid-cols-2" : "grid-cols-1")}>
+                    {subTypeOptions.map(({ value, label, Icon }) => {
+                      const selected = lockedDirection === "post-to-pre" ? targetSubType === value : true;
+                      const Wrapper = lockedDirection === "post-to-pre" ? "button" : "div";
+                      return (
+                        <Wrapper
+                          key={value}
+                          type={lockedDirection === "post-to-pre" ? "button" : undefined}
+                          onClick={lockedDirection === "post-to-pre" ? () => setTargetSubType(value as "prepaid" | "basic-postpaid") : undefined}
+                          className={cn(
+                            "relative min-w-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl transition-all",
+                            compact ? "py-3.5 px-1.5" : "py-4 px-2",
+                            selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60"
+                          )}
+                        >
+                          <span className={cn(
+                            "absolute top-2 end-2 rounded-full border-2 flex items-center justify-center",
+                            compact ? "w-3.5 h-3.5" : "w-4 h-4",
+                            selected ? "border-primary bg-primary" : "border-muted-foreground/30"
+                          )}>
+                            {selected && <span className={cn("rounded-full bg-primary-foreground", compact ? "w-1 h-1" : "w-1.5 h-1.5")} />}
+                          </span>
+                          <Icon className={cn(compact ? "w-5 h-5" : "w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                          <p className={cn("font-semibold text-center leading-snug", compact ? "text-xs" : "text-sm", selected ? "text-foreground" : "text-muted-foreground")}>
+                            {label}
+                          </p>
+                        </Wrapper>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             <h3 className="text-sm font-semibold text-foreground px-1">
               {direction === "pre-to-post" ? t("subscriptionMigration.availablePostpaidPlans") : t("subscriptionMigration.availablePrepaidPlans")}
