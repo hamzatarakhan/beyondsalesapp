@@ -24,6 +24,16 @@ export const DocRow = ({ doc, onDelete, compact }: { doc: TicketDoc; onDelete?: 
 
 const COMMENTS_PREVIEW_LIMIT = 3;
 
+// "Sarah Ahmad" -> "SA" — up to the first two words' initials.
+const initialsFor = (name: string) =>
+  name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+
+export const AttachmentChip = ({ count }: { count: number }) => (
+  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium">
+    <Paperclip className="w-3 h-3" /> {count} Attachment{count > 1 ? "s" : ""}
+  </span>
+);
+
 export const CommentCard = ({ c, onClick, tone = "muted" }: { c: TicketComment; onClick: () => void; tone?: "muted" | "white" }) => (
   <div
     role="button"
@@ -31,24 +41,22 @@ export const CommentCard = ({ c, onClick, tone = "muted" }: { c: TicketComment; 
     onClick={onClick}
     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick(); }}
     className={cn(
-      "w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left cursor-pointer transition-colors",
+      "w-full flex items-start gap-3 rounded-xl border px-3 py-3 text-left cursor-pointer transition-colors",
       tone === "white"
         ? "bg-card border-border/60 shadow-[var(--card-shadow)] active:bg-muted/40"
         : "bg-muted/40 border-border/60 active:bg-muted/60"
     )}
   >
-    <div className="flex-1 min-w-0">
-      <div className="flex items-baseline gap-2">
-        <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
-        <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
-      </div>
-      {c.documents.length > 0 && (
-        <span className="mt-1.5 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium">
-          <Paperclip className="w-3 h-3" /> {c.documents.length} Attachment{c.documents.length > 1 ? "s" : ""}
-        </span>
-      )}
+    <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 flex items-center justify-center text-xs font-semibold shrink-0">
+      {initialsFor(c.author)}
     </div>
-    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-semibold text-foreground truncate">{c.author}</p>
+      <p className="text-xs text-muted-foreground">{c.role} · {c.date}</p>
+      <p className="mt-1 text-sm text-foreground line-clamp-2">{c.text}</p>
+      {c.documents.length > 0 && <div className="mt-1.5"><AttachmentChip count={c.documents.length} /></div>}
+    </div>
+    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1.5 rtl:rotate-180" />
   </div>
 );
 
@@ -89,7 +97,10 @@ const TicketDetails = () => {
 
   const submitComment = () => {
     if (!comment.trim()) return;
-    const newComment: TicketComment = { id: `${Date.now()}`, text: comment.trim(), documents: commentDocs, date: new Date().toLocaleDateString() };
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const newComment: TicketComment = {
+      id: `${Date.now()}`, author: "Hamza Tarkan", role: "Dealer", text: comment.trim(), documents: commentDocs, date: `Today, ${time}`,
+    };
     setComments((prev) => [newComment, ...prev]);
     // Mutates the shared demo record directly (no backend/store here) so the full "All
     // Comments" page — a separate route/mount — sees comments added in this session too.
@@ -270,17 +281,32 @@ const TicketDetails = () => {
             <DrawerTitle className="text-lg font-semibold">Comment</DrawerTitle>
           </DrawerHeader>
 
-          <div className="overflow-y-auto scrollbar-hide">
-            <span className="block mb-2 text-[11px] text-muted-foreground">{viewComment?.date}</span>
-            <p className="text-sm text-foreground whitespace-pre-wrap">{viewComment?.text}</p>
+          <div className="overflow-y-auto scrollbar-hide space-y-3">
+            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 flex items-center justify-center text-sm font-semibold shrink-0">
+                {viewComment ? initialsFor(viewComment.author) : ""}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{viewComment?.author}</p>
+                <p className="text-xs text-muted-foreground">{viewComment?.role} · {viewComment?.date}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+              <p className="text-sm font-semibold text-foreground mb-2">Comment</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">{viewComment?.text}</p>
+            </div>
 
             {viewComment && viewComment.documents.length > 0 && (
-              <>
-                <p className="text-sm font-semibold text-foreground mt-4 mb-2">Documents</p>
-                <div className="rounded-2xl border border-dashed border-border divide-y divide-border/60">
+              <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-foreground">Documents</p>
+                  <AttachmentChip count={viewComment.documents.length} />
+                </div>
+                <div className="rounded-xl border border-dashed border-border divide-y divide-border/60">
                   {viewComment.documents.map((doc) => <DocRow key={doc.id} doc={doc} />)}
                 </div>
-              </>
+              </div>
             )}
           </div>
 

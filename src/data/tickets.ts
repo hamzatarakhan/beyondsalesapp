@@ -9,6 +9,8 @@ export interface TicketDoc {
 
 export interface TicketComment {
   id: string;
+  author: string;
+  role: string;
   text: string;
   documents: TicketDoc[];
   date: string;
@@ -52,6 +54,11 @@ export const DEMO_TICKETS: Ticket[] = [
   { id: "TCK-100234", category: "Billing", subCategory: "Invoice dispute", date: "29, 6, 2026", status: "resolved", priority: "high", description: "Customer disputes the last invoice amount.", documents: DEMO_DOCS },
   { id: "TCK-100235", category: "SIM Services", subCategory: "SIM replacement", date: "29, 6, 2026", status: "closed", priority: "medium", description: "SIM replacement request was completed.", documents: DEMO_DOCS },
   { id: "TCK-100236", category: "Network", subCategory: "Slow data", date: "29, 6, 2026", status: "progress", priority: "high", description: "Data speed is below expected in the area.", documents: DEMO_DOCS },
-  { id: "TCK-100237", category: "Device", subCategory: "Device registration", date: "29, 6, 2026", status: "pending", priority: "low", description: "Device registration pending review.", documents: DEMO_DOCS },
+  {
+    id: "TCK-100237", category: "Device", subCategory: "Device registration", date: "29, 6, 2026", status: "pending", priority: "low", description: "Device registration pending review.", documents: DEMO_DOCS,
+    comments: [
+      { id: "c1", author: "Sarah Ahmad", role: "Support Team", text: "We reviewed the reported issue and updated the status accordingly. Please check the attached documents for details.", documents: DEMO_DOCS, date: "Yesterday, 03:10 PM" },
+    ],
+  },
   { id: "TCK-100238", category: "Account", subCategory: "Profile update", date: "29, 6, 2026", status: "pending", priority: "medium", description: "Customer requested a profile update.", documents: DEMO_DOCS },
 ];
