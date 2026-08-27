@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X } from "lucide-react";
+import { FileText, Image as ImageIcon, Eye, Plus, Trash2, X, ChevronRight } from "lucide-react";
 import { DEMO_TICKETS, TicketComment, TicketDoc } from "@/data/tickets";
 import { STATUS_LABEL, STATUS_STYLE } from "./Tickets";
 
@@ -130,17 +130,20 @@ const TicketDetails = () => {
                   tabIndex={0}
                   onClick={() => setViewComment(c)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setViewComment(c); }}
-                  className="px-4 py-2.5 text-left cursor-pointer active:bg-muted/40 transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-left cursor-pointer active:bg-muted/40 transition-colors"
                 >
-                  <div className="flex items-baseline gap-2">
-                    <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
-                    <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
-                  </div>
-                  {c.documents.length > 0 && (
-                    <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60">
-                      {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} compact />)}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <p className="flex-1 min-w-0 text-sm text-foreground line-clamp-2">{c.text}</p>
+                      <span className="shrink-0 text-[11px] text-muted-foreground">{c.date}</span>
                     </div>
-                  )}
+                    {c.documents.length > 0 && (
+                      <div className="mt-1.5 rounded-xl border border-dashed border-border divide-y divide-border/60">
+                        {c.documents.map((doc) => <DocRow key={doc.id} doc={doc} compact />)}
+                      </div>
+                    )}
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
                 </div>
               ))}
             </div>
