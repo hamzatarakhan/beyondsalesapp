@@ -263,6 +263,9 @@ const SubscriptionMigration = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
+  // Top-right X — same "leave the flow" affordance NewActivation's flows have, but a plain
+  // Yes/Cancel confirm instead of a cancellation-reason picker.
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   // ---------- MSISDN auto-lookup (mirrors the KIT-code auto-check pattern) ----------
   useEffect(() => {
@@ -507,6 +510,11 @@ const SubscriptionMigration = () => {
         }
         showBack
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        rightElement={
+          <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
+            <XIcon className="w-5 h-5 text-foreground" />
+          </button>
+        }
       />
       <FlowStepper current={step} steps={steps} />
 
@@ -1175,6 +1183,25 @@ const SubscriptionMigration = () => {
             <div className="w-full flex flex-col gap-3">
               <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("subscriptionMigration.yesConfirm")}</Button>
               <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("subscriptionMigration.cancel")}</button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Cancel flow (top-right X) */}
+      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-sky-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("subscriptionMigration.cancelFlowDesc")}</p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("subscriptionMigration.yesCancelFlow")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("subscriptionMigration.keepEditing")}</button>
             </div>
           </div>
         </DrawerContent>
