@@ -27,7 +27,7 @@ import {
   X,
 } from "lucide-react";
 
-// ---------- Local UI primitives (mirrors PrepaidChangeBundle.tsx's page-local helpers) ----------
+// ---------- Local UI primitives (mirrors ChangePrepaidBundle.tsx's page-local helpers) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1.5">
     <label className="text-xs font-medium text-muted-foreground">{label}</label>

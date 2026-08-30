@@ -11,7 +11,7 @@ import { PREPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
 
 type LineType = "mobile" | "mbb";
 
-// Same category list as PrepaidChangeBundle.tsx (not exported there, redeclared here).
+// Same category list as ChangePrepaidBundle.tsx (not exported there, redeclared here).
 const MOBILE_PREPAID_CATEGORIES = (isFriendi: boolean) => (isFriendi ? ["combo", "flexi"] : ["aman", "base-plan", "flex"]);
 
 interface NavState {
@@ -19,11 +19,11 @@ interface NavState {
   chip?: string;
   selectedPlanTitle?: string;
   msisdn: string;
-  /** location.search from PrepaidChangeBundle — restored on the way back. */
+  /** location.search from ChangePrepaidBundle — restored on the way back. */
   backSearch?: string;
 }
 
-const PrepaidChangeBundleAllPlans = () => {
+const ChangePrepaidBundleAllPlans = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -46,15 +46,15 @@ const PrepaidChangeBundleAllPlans = () => {
   const showChips = lineType === "mobile";
   const chips = isFriendi
     ? [
-        { value: "all", label: t("prepaidChangeBundle.chipAll") },
-        { value: "combo", label: t("prepaidChangeBundle.categoryCombo") },
-        { value: "flexi", label: t("prepaidChangeBundle.categoryFlexi") },
+        { value: "all", label: t("changePrepaidBundle.chipAll") },
+        { value: "combo", label: t("changePrepaidBundle.categoryCombo") },
+        { value: "flexi", label: t("changePrepaidBundle.categoryFlexi") },
       ]
     : [
-        { value: "all", label: t("prepaidChangeBundle.chipAll") },
-        { value: "aman", label: t("prepaidChangeBundle.categoryAman") },
-        { value: "base-plan", label: t("prepaidChangeBundle.categoryBaqah") },
-        { value: "flex", label: t("prepaidChangeBundle.categoryBaqahFlex") },
+        { value: "all", label: t("changePrepaidBundle.chipAll") },
+        { value: "aman", label: t("changePrepaidBundle.categoryAman") },
+        { value: "base-plan", label: t("changePrepaidBundle.categoryBaqah") },
+        { value: "flex", label: t("changePrepaidBundle.categoryBaqahFlex") },
       ];
 
   const activeFilterCount = chip !== "all" ? 1 : 0;
@@ -68,13 +68,13 @@ const PrepaidChangeBundleAllPlans = () => {
   // and whatever plan was already selected, if any — rather than whatever the dealer may
   // have changed while just browsing here.
   const goBack = () => {
-    navigate(`/prepaid-change-bundle${initial.backSearch ?? ""}`, {
+    navigate(`/change-prepaid-bundle${initial.backSearch ?? ""}`, {
       state: { pickPlan: { msisdn: initial.msisdn, chip: initial.chip ?? "all", title: initial.selectedPlanTitle ?? "" } },
     });
   };
 
   const pickPlan = (title: string) => {
-    navigate(`/prepaid-change-bundle${initial.backSearch ?? ""}`, {
+    navigate(`/change-prepaid-bundle${initial.backSearch ?? ""}`, {
       state: { pickPlan: { msisdn: initial.msisdn, chip, title } },
     });
   };
@@ -85,12 +85,12 @@ const PrepaidChangeBundleAllPlans = () => {
         <header className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={goBack}
-            aria-label={t("prepaidChangeBundle.backAria")}
+            aria-label={t("changePrepaidBundle.backAria")}
             className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center shrink-0"
           >
             <ArrowLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
           </button>
-          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("prepaidChangeBundle.allPlansTitle")}</h1>
+          <h1 className="flex-1 text-center text-lg font-semibold text-foreground truncate">{t("changePrepaidBundle.allPlansTitle")}</h1>
           <div className="w-10 shrink-0" />
         </header>
 
@@ -100,7 +100,7 @@ const PrepaidChangeBundleAllPlans = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("prepaidChangeBundle.searchPlans")}
+              placeholder={t("changePrepaidBundle.searchPlans")}
               className="h-11 bg-card rounded-xl ps-9"
             />
           </div>
@@ -108,7 +108,7 @@ const PrepaidChangeBundleAllPlans = () => {
             <button
               type="button"
               onClick={() => setFilterOpen(true)}
-              aria-label={t("prepaidChangeBundle.filtersAria")}
+              aria-label={t("changePrepaidBundle.filtersAria")}
               className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
             >
               <SlidersHorizontal className="w-4 h-4 text-foreground" />
@@ -126,7 +126,7 @@ const PrepaidChangeBundleAllPlans = () => {
       <div className="px-4 space-y-3">
         {visiblePlans.length === 0 ? (
           <div className="bg-card rounded-2xl p-6 text-center text-sm text-muted-foreground shadow-sm">
-            {t("prepaidChangeBundle.noPlansMatchSearch")}
+            {t("changePrepaidBundle.noPlansMatchSearch")}
           </div>
         ) : (
           visiblePlans.map((p) => {
@@ -159,17 +159,17 @@ const PrepaidChangeBundleAllPlans = () => {
           <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
             <button
               onClick={() => setFilterOpen(false)}
-              aria-label={t("prepaidChangeBundle.close")}
+              aria-label={t("changePrepaidBundle.close")}
               className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
             >
               <X className="w-4 h-4 text-foreground" />
             </button>
             <DrawerHeader className="text-center pt-8">
-              <DrawerTitle className="text-lg font-semibold">{t("prepaidChangeBundle.filtersTitle")}</DrawerTitle>
+              <DrawerTitle className="text-lg font-semibold">{t("changePrepaidBundle.filtersTitle")}</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-8 space-y-5 overflow-y-auto">
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">{t("prepaidChangeBundle.planTypesTitle")}</h3>
+                <h3 className="text-sm font-semibold text-foreground">{t("changePrepaidBundle.planTypesTitle")}</h3>
                 <div className="flex flex-wrap gap-2">
                   {chips.map((c) => (
                     <button
@@ -191,7 +191,7 @@ const PrepaidChangeBundleAllPlans = () => {
                 onClick={() => setFilterOpen(false)}
                 className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
               >
-                {t("prepaidChangeBundle.applyFilters")}
+                {t("changePrepaidBundle.applyFilters")}
               </button>
             </div>
           </DrawerContent>
@@ -201,4 +201,4 @@ const PrepaidChangeBundleAllPlans = () => {
   );
 };
 
-export default PrepaidChangeBundleAllPlans;
+export default ChangePrepaidBundleAllPlans;

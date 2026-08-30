@@ -104,7 +104,7 @@ const DEMO_PREPAID_LINES: DemoPrepaidLine[] = [
   { msisdn: "0502234567", status: "active", subscriptionType: "postpaid", lineType: "mobile", planName: "Switch Postpaid 150", consumption: { dataUsedGB: 0, dataTotalGB: null, minsUsed: 0, minsTotal: null, validUntil: "—" } },
 ];
 
-const PrepaidChangeBundle = () => {
+const ChangePrepaidBundle = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -113,12 +113,12 @@ const PrepaidChangeBundle = () => {
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
 
   const CATEGORY_LABEL: Record<string, string> = {
-    aman: t("prepaidChangeBundle.categoryAman"),
-    "base-plan": t("prepaidChangeBundle.categoryBaqah"),
-    flex: t("prepaidChangeBundle.categoryBaqahFlex"),
-    data: t("prepaidChangeBundle.category5gMbb"),
-    combo: t("prepaidChangeBundle.categoryCombo"),
-    flexi: t("prepaidChangeBundle.categoryFlexi"),
+    aman: t("changePrepaidBundle.categoryAman"),
+    "base-plan": t("changePrepaidBundle.categoryBaqah"),
+    flex: t("changePrepaidBundle.categoryBaqahFlex"),
+    data: t("changePrepaidBundle.category5gMbb"),
+    combo: t("changePrepaidBundle.categoryCombo"),
+    flexi: t("changePrepaidBundle.categoryFlexi"),
   };
 
   // ---------- Flow state ----------
@@ -159,15 +159,15 @@ const PrepaidChangeBundle = () => {
       setChecking(false);
       const found = DEMO_PREPAID_LINES.find((l) => l.msisdn === msisdn);
       if (!found) {
-        setLookupError(t("prepaidChangeBundle.lookupErrorNotFound"));
+        setLookupError(t("changePrepaidBundle.lookupErrorNotFound"));
         return;
       }
       if (found.subscriptionType !== "prepaid") {
-        setLookupError(t("prepaidChangeBundle.lookupErrorNotPrepaid"));
+        setLookupError(t("changePrepaidBundle.lookupErrorNotPrepaid"));
         return;
       }
       if (found.status === "terminated") {
-        setLookupError(t("prepaidChangeBundle.lookupErrorTerminated"));
+        setLookupError(t("changePrepaidBundle.lookupErrorTerminated"));
         return;
       }
       setLine(found);
@@ -312,15 +312,15 @@ const PrepaidChangeBundle = () => {
   };
 
   const steps = [
-    { label: t("prepaidChangeBundle.stepNumber", "Number"), Icon: Phone },
-    { label: t("prepaidChangeBundle.stepPlan", "Plan"), Icon: Receipt },
-    { label: t("prepaidChangeBundle.stepCheckout", "Checkout"), Icon: Wallet },
+    { label: t("changePrepaidBundle.stepNumber", "Number"), Icon: Phone },
+    { label: t("changePrepaidBundle.stepPlan", "Plan"), Icon: Receipt },
+    { label: t("changePrepaidBundle.stepCheckout", "Checkout"), Icon: Wallet },
   ];
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
-        title={t("prepaidChangeBundle.title")}
+        title={t("changePrepaidBundle.title")}
         showBack
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
@@ -337,21 +337,21 @@ const PrepaidChangeBundle = () => {
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
-            <Field label={t("prepaidChangeBundle.msisdn")}>
+            <Field label={t("changePrepaidBundle.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
-              {checking && <p className="text-[11px] text-muted-foreground">{t("prepaidChangeBundle.checkingNumber")}</p>}
+              {checking && <p className="text-[11px] text-muted-foreground">{t("changePrepaidBundle.checkingNumber")}</p>}
             </Field>
 
             <PrototypeTestBox
-              heading={t("prepaidChangeBundle.testNumbersHeading")}
-              description={t("prepaidChangeBundle.testNumbersDescription")}
+              heading={t("changePrepaidBundle.testNumbersHeading")}
+              description={t("changePrepaidBundle.testNumbersDescription")}
               items={[
-                { value: "0501234567", note: t("prepaidChangeBundle.testNoteMobilePrepaid"), group: t("prepaidChangeBundle.testGroupValid") },
-                { value: "0501234580", note: t("prepaidChangeBundle.testNoteMbb"), group: t("prepaidChangeBundle.testGroupValid") },
-                { value: "0501234544", note: t("prepaidChangeBundle.testNoteFriendiCombo"), group: t("prepaidChangeBundle.testGroupValid") },
-                { value: "0501234533", note: t("prepaidChangeBundle.testNoteTerminated"), group: t("prepaidChangeBundle.testGroupErrors") },
-                { value: "0502234567", note: t("prepaidChangeBundle.testNoteNotPrepaid"), group: t("prepaidChangeBundle.testGroupErrors") },
-                { value: "0509999999", note: t("prepaidChangeBundle.testNoteNotFound"), group: t("prepaidChangeBundle.testGroupErrors") },
+                { value: "0501234567", note: t("changePrepaidBundle.testNoteMobilePrepaid"), group: t("changePrepaidBundle.testGroupValid") },
+                { value: "0501234580", note: t("changePrepaidBundle.testNoteMbb"), group: t("changePrepaidBundle.testGroupValid") },
+                { value: "0501234544", note: t("changePrepaidBundle.testNoteFriendiCombo"), group: t("changePrepaidBundle.testGroupValid") },
+                { value: "0501234533", note: t("changePrepaidBundle.testNoteTerminated"), group: t("changePrepaidBundle.testGroupErrors") },
+                { value: "0502234567", note: t("changePrepaidBundle.testNoteNotPrepaid"), group: t("changePrepaidBundle.testGroupErrors") },
+                { value: "0509999999", note: t("changePrepaidBundle.testNoteNotFound"), group: t("changePrepaidBundle.testGroupErrors") },
               ]}
               onSelect={setMsisdn}
             />
@@ -364,10 +364,10 @@ const PrepaidChangeBundle = () => {
             {currentPlanObj && (
               <div>
                 <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
-                  <h3 className="text-sm font-semibold text-foreground">{t("prepaidChangeBundle.currentPlan")}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{t("changePrepaidBundle.currentPlan")}</h3>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold">
                     <ClipboardList className="w-3 h-3" />
-                    {line?.lineType === "mbb" ? t("prepaidChangeBundle.category5gMbb") : t("prepaidChangeBundle.mobilePrepaid")} · {currentPlanObj.title}
+                    {line?.lineType === "mbb" ? t("changePrepaidBundle.category5gMbb") : t("changePrepaidBundle.mobilePrepaid")} · {currentPlanObj.title}
                   </span>
                 </div>
                 <PlanCard
@@ -382,14 +382,14 @@ const PrepaidChangeBundle = () => {
             )}
 
             {line && (
-              <CardSection title={t("prepaidChangeBundle.currentConsumption")} icon={Gauge}>
+              <CardSection title={t("changePrepaidBundle.currentConsumption")} icon={Gauge}>
                 <div className="space-y-3">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">{t("prepaidChangeBundle.dataUsedLabel")}</span>
+                      <span className="text-muted-foreground">{t("changePrepaidBundle.dataUsedLabel")}</span>
                       <span className="font-semibold text-foreground">
                         {line.consumption.dataTotalGB == null
-                          ? t("prepaidChangeBundle.unlimited")
+                          ? t("changePrepaidBundle.unlimited")
                           : `${line.consumption.dataUsedGB} / ${line.consumption.dataTotalGB} GB`}
                       </span>
                     </div>
@@ -399,39 +399,39 @@ const PrepaidChangeBundle = () => {
                   </div>
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">{t("prepaidChangeBundle.minutesUsedLabel")}</span>
+                      <span className="text-muted-foreground">{t("changePrepaidBundle.minutesUsedLabel")}</span>
                       <span className="font-semibold text-foreground">
                         {line.consumption.minsTotal == null
-                          ? t("prepaidChangeBundle.unlimited")
-                          : `${line.consumption.minsUsed} / ${line.consumption.minsTotal} ${t("prepaidChangeBundle.min")}`}
+                          ? t("changePrepaidBundle.unlimited")
+                          : `${line.consumption.minsUsed} / ${line.consumption.minsTotal} ${t("changePrepaidBundle.min")}`}
                       </span>
                     </div>
                     {line.consumption.minsTotal != null && (
                       <Progress value={Math.min(100, Math.round((line.consumption.minsUsed / line.consumption.minsTotal) * 100))} className="h-2" />
                     )}
                   </div>
-                  <SummaryRow label={t("prepaidChangeBundle.validUntil")} value={line.consumption.validUntil} />
+                  <SummaryRow label={t("changePrepaidBundle.validUntil")} value={line.consumption.validUntil} />
                 </div>
               </CardSection>
             )}
 
             <h3 className="text-sm font-semibold text-foreground px-1">
-              {line?.lineType === "mbb" ? t("prepaidChangeBundle.availableMbbPlans") : t("prepaidChangeBundle.availableMobilePlans")}
+              {line?.lineType === "mbb" ? t("changePrepaidBundle.availableMbbPlans") : t("changePrepaidBundle.availableMobilePlans")}
             </h3>
 
             {line?.lineType === "mobile" && (
               <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {(isFriendi
                   ? [
-                      { value: "all", label: t("prepaidChangeBundle.chipAll") },
-                      { value: "combo", label: t("prepaidChangeBundle.categoryCombo") },
-                      { value: "flexi", label: t("prepaidChangeBundle.categoryFlexi") },
+                      { value: "all", label: t("changePrepaidBundle.chipAll") },
+                      { value: "combo", label: t("changePrepaidBundle.categoryCombo") },
+                      { value: "flexi", label: t("changePrepaidBundle.categoryFlexi") },
                     ]
                   : [
-                      { value: "all", label: t("prepaidChangeBundle.chipAll") },
-                      { value: "aman", label: t("prepaidChangeBundle.categoryAman") },
-                      { value: "base-plan", label: t("prepaidChangeBundle.categoryBaqah") },
-                      { value: "flex", label: t("prepaidChangeBundle.categoryBaqahFlex") },
+                      { value: "all", label: t("changePrepaidBundle.chipAll") },
+                      { value: "aman", label: t("changePrepaidBundle.categoryAman") },
+                      { value: "base-plan", label: t("changePrepaidBundle.categoryBaqah") },
+                      { value: "flex", label: t("changePrepaidBundle.categoryBaqahFlex") },
                     ]
                 ).map((chip) => (
                   <button
@@ -461,13 +461,13 @@ const PrepaidChangeBundle = () => {
                 <Input
                   value={planSearch}
                   onChange={(e) => setPlanSearch(e.target.value)}
-                  placeholder={t("prepaidChangeBundle.searchPlans")}
+                  placeholder={t("changePrepaidBundle.searchPlans")}
                   className="h-11 bg-card rounded-xl ps-9"
                 />
               </div>
               <button
                 type="button"
-                onClick={() => navigate("/prepaid-change-bundle/plans", {
+                onClick={() => navigate("/change-prepaid-bundle/plans", {
                   state: {
                     lineType: line?.lineType,
                     chip: planTypeChip,
@@ -478,7 +478,7 @@ const PrepaidChangeBundle = () => {
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               >
-                {t("prepaidChangeBundle.allPlansBtn")}
+                {t("changePrepaidBundle.allPlansBtn")}
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
@@ -505,7 +505,7 @@ const PrepaidChangeBundle = () => {
                   {changeType === "upgrade" && <ArrowUpCircle className="w-3.5 h-3.5" />}
                   {changeType === "downgrade" && <ArrowDownCircle className="w-3.5 h-3.5" />}
                   {changeType === "renew" && <RotateCw className="w-3.5 h-3.5" />}
-                  {t(`prepaidChangeBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`)}
+                  {t(`changePrepaidBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`)}
                 </span>
               </div>
             )}
@@ -515,39 +515,39 @@ const PrepaidChangeBundle = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 2 && (
           <>
-            <CardSection title={t("prepaidChangeBundle.planChangeSummary")} icon={ClipboardList}>
-              <SummaryRow label={t("prepaidChangeBundle.msisdn")} value={line?.msisdn ?? t("prepaidChangeBundle.dash")} />
-              <SummaryRow label={t("prepaidChangeBundle.currentPlan")} value={currentPlanObj?.title ?? t("prepaidChangeBundle.dash")} />
-              <SummaryRow label={t("prepaidChangeBundle.newPlan")} value={selectedPlanObj?.title ?? t("prepaidChangeBundle.dash")} />
+            <CardSection title={t("changePrepaidBundle.planChangeSummary")} icon={ClipboardList}>
+              <SummaryRow label={t("changePrepaidBundle.msisdn")} value={line?.msisdn ?? t("changePrepaidBundle.dash")} />
+              <SummaryRow label={t("changePrepaidBundle.currentPlan")} value={currentPlanObj?.title ?? t("changePrepaidBundle.dash")} />
+              <SummaryRow label={t("changePrepaidBundle.newPlan")} value={selectedPlanObj?.title ?? t("changePrepaidBundle.dash")} />
               <SummaryRow
-                label={t("prepaidChangeBundle.changeType")}
-                value={changeType ? t(`prepaidChangeBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`) : t("prepaidChangeBundle.dash")}
+                label={t("changePrepaidBundle.changeType")}
+                value={changeType ? t(`changePrepaidBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`) : t("changePrepaidBundle.dash")}
               />
             </CardSection>
 
-            <CardSection title={t("prepaidChangeBundle.paymentSummary")} icon={Receipt}>
+            <CardSection title={t("changePrepaidBundle.paymentSummary")} icon={Receipt}>
               <div className="space-y-2 pb-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">{t("prepaidChangeBundle.plan")}</span>
+                  <span className="text-[11px] text-muted-foreground">{t("changePrepaidBundle.plan")}</span>
                   <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">{t("prepaidChangeBundle.vat")}</span>
+                  <span className="text-[11px] text-muted-foreground">{t("changePrepaidBundle.vat")}</span>
                   <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat.toFixed(2)}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                <span className="text-sm font-semibold text-foreground">{t("prepaidChangeBundle.total")}</span>
+                <span className="text-sm font-semibold text-foreground">{t("changePrepaidBundle.total")}</span>
                 <span className="text-base font-bold text-primary"><RiyalSymbol /> {total.toFixed(2)}</span>
               </div>
             </CardSection>
 
-            <CardSection title={t("prepaidChangeBundle.paymentMethod")} icon={CreditCard}>
+            <CardSection title={t("changePrepaidBundle.paymentMethod")} icon={CreditCard}>
               <div className="space-y-2">
                 <PayOption
                   icon={Wallet}
-                  label={t("prepaidChangeBundle.dealerWallet")}
-                  description={t("prepaidChangeBundle.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })}
+                  label={t("changePrepaidBundle.dealerWallet")}
+                  description={t("changePrepaidBundle.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })}
                   selected={payMethod === "wallet"}
                   disabled={walletShort}
                   justToppedUp={justToppedUp}
@@ -555,27 +555,27 @@ const PrepaidChangeBundle = () => {
                 >
                   {walletShort && (
                     <WalletShortNotice
-                      message={t("prepaidChangeBundle.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
-                      buttonLabel={t("prepaidChangeBundle.topUpWallet")}
+                      message={t("changePrepaidBundle.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
+                      buttonLabel={t("changePrepaidBundle.topUpWallet")}
                     />
                   )}
                 </PayOption>
                 <PayOption
                   icon={CreditCard}
-                  label={t("prepaidChangeBundle.posTerminal")}
-                  description={t("prepaidChangeBundle.posTerminalDesc")}
+                  label={t("changePrepaidBundle.posTerminal")}
+                  description={t("changePrepaidBundle.posTerminalDesc")}
                   selected={payMethod === "pos"}
                   onClick={() => setPayMethod("pos")}
                 />
               </div>
             </CardSection>
 
-            <CardSection title={t("prepaidChangeBundle.otpVerification")} icon={Phone}>
+            <CardSection title={t("changePrepaidBundle.otpVerification")} icon={Phone}>
               {otpVerified ? (
-                <VerifiedBanner label={t("prepaidChangeBundle.verified")} />
+                <VerifiedBanner label={t("changePrepaidBundle.verified")} />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
-                  {t("prepaidChangeBundle.sendVerifyOtp")}
+                  {t("changePrepaidBundle.sendVerifyOtp")}
                 </Button>
               )}
             </CardSection>
@@ -591,7 +591,7 @@ const PrepaidChangeBundle = () => {
               {step === 1 && (
                 <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
                   <Wallet className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-[12px] text-muted-foreground">{t("prepaidChangeBundle.walletBalanceLabel")}</span>
+                  <span className="text-[12px] text-muted-foreground">{t("changePrepaidBundle.walletBalanceLabel")}</span>
                   <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
                 </div>
               )}
@@ -600,12 +600,12 @@ const PrepaidChangeBundle = () => {
                 disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
                 onClick={() => setStep((s) => s + 1)}
               >
-                {t("prepaidChangeBundle.continue")}
+                {t("changePrepaidBundle.continue")}
               </Button>
             </>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {t("prepaidChangeBundle.pay")} <RiyalSymbol /> {total.toFixed(2)}
+              {t("changePrepaidBundle.pay")} <RiyalSymbol /> {total.toFixed(2)}
             </Button>
           )}
         </div>
@@ -615,9 +615,9 @@ const PrepaidChangeBundle = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">{t("prepaidChangeBundle.enterVerificationCode")}</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("changePrepaidBundle.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("prepaidChangeBundle.otpIncorrect") : t("prepaidChangeBundle.otpSentViaSms")}
+              {otpError ? t("changePrepaidBundle.otpIncorrect") : t("changePrepaidBundle.otpSentViaSms")}
             </p>
             <div className="flex gap-3" dir="ltr">
               {otpDigits.map((d, i) => (
@@ -638,18 +638,18 @@ const PrepaidChangeBundle = () => {
             <p className="text-xs text-muted-foreground">
               {otpError ? (
                 <>
-                  {t("prepaidChangeBundle.resendCodeQuestion")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("prepaidChangeBundle.resend")}</button>
+                  {t("changePrepaidBundle.resendCodeQuestion")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("changePrepaidBundle.resend")}</button>
                 </>
               ) : otpSecondsLeft > 0 ? (
                 <>
-                  {t("prepaidChangeBundle.didntReceiveCode")}{" "}
+                  {t("changePrepaidBundle.didntReceiveCode")}{" "}
                   <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
                 </>
               ) : (
                 <>
-                  {t("prepaidChangeBundle.didntReceiveCode")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("prepaidChangeBundle.resend")}</button>
+                  {t("changePrepaidBundle.didntReceiveCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("changePrepaidBundle.resend")}</button>
                 </>
               )}
             </p>
@@ -665,12 +665,12 @@ const PrepaidChangeBundle = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("prepaidChangeBundle.confirmTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("prepaidChangeBundle.confirmDesc")}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("changePrepaidBundle.confirmTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("changePrepaidBundle.confirmDesc")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("prepaidChangeBundle.yesConfirm")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("prepaidChangeBundle.cancel")}</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("changePrepaidBundle.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("changePrepaidBundle.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -684,12 +684,12 @@ const PrepaidChangeBundle = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("prepaidChangeBundle.cancelFlowTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("prepaidChangeBundle.cancelFlowDesc")}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("changePrepaidBundle.cancelFlowTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("changePrepaidBundle.cancelFlowDesc")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("prepaidChangeBundle.yesCancelFlow")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("prepaidChangeBundle.keepEditing")}</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("changePrepaidBundle.yesCancelFlow")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("changePrepaidBundle.keepEditing")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -704,14 +704,14 @@ const PrepaidChangeBundle = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("prepaidChangeBundle.changeSuccessful")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("prepaidChangeBundle.appliedImmediately")}</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("changePrepaidBundle.changeSuccessful")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("changePrepaidBundle.appliedImmediately")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {t("prepaidChangeBundle.reference")} <span className="font-semibold text-foreground">{orderId}</span>
+              {t("changePrepaidBundle.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
           </div>
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}>
-            {t("prepaidChangeBundle.done")}
+            {t("changePrepaidBundle.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -725,15 +725,15 @@ const PrepaidChangeBundle = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("prepaidChangeBundle.changeFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("prepaidChangeBundle.changeFailedDesc")}</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("changePrepaidBundle.changeFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("changePrepaidBundle.changeFailedDesc")}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              {t("prepaidChangeBundle.tryAgain")}
+              {t("changePrepaidBundle.tryAgain")}
             </Button>
             <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setFailureOpen(false)}>
-              {t("prepaidChangeBundle.cancel")}
+              {t("changePrepaidBundle.cancel")}
             </button>
           </div>
         </DrawerContent>
@@ -748,13 +748,13 @@ const PrepaidChangeBundle = () => {
             </svg>
             <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("prepaidChangeBundle.lookupErrorTitle")}</h4>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("changePrepaidBundle.lookupErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
           <button
             onClick={() => setLookupError(null)}
             className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
           >
-            {t("prepaidChangeBundle.gotIt")}
+            {t("changePrepaidBundle.gotIt")}
           </button>
         </DialogContent>
       </Dialog>
@@ -762,4 +762,4 @@ const PrepaidChangeBundle = () => {
   );
 };
 
-export default PrepaidChangeBundle;
+export default ChangePrepaidBundle;

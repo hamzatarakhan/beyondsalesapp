@@ -895,8 +895,8 @@
     "migrationFailedDesc": "Something went wrong while processing this request. No charge was made.",
     "tryAgain": "Try Again"
   },
-  "prepaidChangeBundle": {
-    "title": "Prepaid Change Bundle",
+  "changePrepaidBundle": {
+    "title": "Change Prepaid Bundle",
     "stepNumber": "Number",
     "stepPlan": "Plan",
     "stepCheckout": "Checkout",
@@ -1467,7 +1467,7 @@
     "billPayment": "Bill Payment",
     "customerSearch": "Customer Search",
     "simStatusCheck": "SIM Status Check",
-    "prepaidChangeBundle": "Prepaid Change Bundle",
+    "changePrepaidBundle": "Change Prepaid Bundle",
     "changePostpaidPlan": "Change Postpaid Plan",
     "cancelPortIn": "Cancel Port In Request",
     "changeOwnershipUpdateId": "Change Ownership / Update ID",

@@ -59,8 +59,8 @@ import NewActivation5 from "./pages/NewActivation5";
 import NewActivation5AllPlans from "./pages/NewActivation5AllPlans";
 import SubscriptionMigration from "./pages/SubscriptionMigration";
 import SubscriptionMigrationAllPlans from "./pages/SubscriptionMigrationAllPlans";
-import PrepaidChangeBundle from "./pages/PrepaidChangeBundle";
-import PrepaidChangeBundleAllPlans from "./pages/PrepaidChangeBundleAllPlans";
+import ChangePrepaidBundle from "./pages/ChangePrepaidBundle";
+import ChangePrepaidBundleAllPlans from "./pages/ChangePrepaidBundleAllPlans";
 import CancelPortInRequest from "./pages/CancelPortInRequest";
 import ChangePostpaidPlan from "./pages/ChangePostpaidPlan";
 import ChangePostpaidPlanAllPlans from "./pages/ChangePostpaidPlanAllPlans";
@@ -173,8 +173,8 @@ const App = () => {
           <Route path="/new-activation-5/plans" element={<NewActivation5AllPlans />} />
           <Route path="/subscription-migration" element={<SubscriptionMigration />} />
           <Route path="/subscription-migration/plans" element={<SubscriptionMigrationAllPlans />} />
-          <Route path="/prepaid-change-bundle" element={<PrepaidChangeBundle />} />
-          <Route path="/prepaid-change-bundle/plans" element={<PrepaidChangeBundleAllPlans />} />
+          <Route path="/change-prepaid-bundle" element={<ChangePrepaidBundle />} />
+          <Route path="/change-prepaid-bundle/plans" element={<ChangePrepaidBundleAllPlans />} />
           <Route path="/cancel-port-in" element={<CancelPortInRequest />} />
           <Route path="/change-postpaid-plan" element={<ChangePostpaidPlan />} />
           <Route path="/change-postpaid-plan/plans" element={<ChangePostpaidPlanAllPlans />} />

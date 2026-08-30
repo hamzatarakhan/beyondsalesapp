@@ -895,7 +895,7 @@
     "migrationFailedDesc": "حدث خطأ أثناء معالجة هذا الطلب. لم يتم خصم أي مبلغ.",
     "tryAgain": "المحاولة مرة أخرى"
   },
-  "prepaidChangeBundle": {
+  "changePrepaidBundle": {
     "title": "تغيير باقة الدفع المسبق",
     "stepNumber": "الرقم",
     "stepPlan": "الباقة",
@@ -1467,7 +1467,7 @@
     "billPayment": "دفع الفاتورة",
     "customerSearch": "البحث عن عميل",
     "simStatusCheck": "التحقق من حالة الشريحة",
-    "prepaidChangeBundle": "تغيير باقة الدفع المسبق",
+    "changePrepaidBundle": "تغيير باقة الدفع المسبق",
     "changePostpaidPlan": "تغيير باقة الفوترة",
     "cancelPortIn": "إلغاء طلب نقل الرقم",
     "changeOwnershipUpdateId": "تغيير الملكية / تحديث الهوية",
