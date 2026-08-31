@@ -11,6 +11,7 @@ import { PREPAID_PLANS, FRIENDI_PLANS, VerifiedBanner } from "@/pages/NewActivat
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
 import WalletShortNotice from "@/components/WalletShortNotice";
 import { useBrand } from "@/contexts/BrandContext";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -120,6 +121,9 @@ const ChangePrepaidBundle = () => {
     combo: t("changePrepaidBundle.categoryCombo"),
     flexi: t("changePrepaidBundle.categoryFlexi"),
   };
+
+  // Lets the plan-type chip row be dragged with the mouse on desktop, same as SIM Activation's.
+  const planChipsDragScroll = useDragScroll<HTMLDivElement>();
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
@@ -424,7 +428,10 @@ const ChangePrepaidBundle = () => {
             </h3>
 
             {line?.lineType === "mobile" && (
-              <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div
+                {...planChipsDragScroll}
+                className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", planChipsDragScroll.className)}
+              >
                 {(isFriendi
                   ? [
                       { value: "all", label: t("changePrepaidBundle.chipAll") },
