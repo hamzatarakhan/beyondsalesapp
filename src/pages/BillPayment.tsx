@@ -260,7 +260,7 @@ const BillPayment = () => {
   const [step, setStep] = useState(0);
 
   // Step 0 — Lookup
-  const [method, setMethod] = useState<LookupMethod>("msisdn");
+  const [method, setMethod] = useState<LookupMethod>("civil-id");
   const [msisdn, setMsisdn] = useState("0502222211");
   const [civilId, setCivilId] = useState("1876543210");
   const [checking, setChecking] = useState(false);
@@ -467,7 +467,7 @@ const BillPayment = () => {
 
   const resetAll = () => {
     setStep(0);
-    setMethod("msisdn");
+    setMethod("civil-id");
     setMsisdn("0502222211");
     setCivilId("1876543210");
     resetLookup();
