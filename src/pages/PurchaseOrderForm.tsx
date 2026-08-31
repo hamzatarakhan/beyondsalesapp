@@ -141,7 +141,7 @@ const PurchaseOrderForm = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 mobile-container bg-background/95 backdrop-blur border-t border-border/60 px-4 py-3">
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <button
           type="button"
           disabled={!canSubmit}
