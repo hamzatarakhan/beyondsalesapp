@@ -66,6 +66,7 @@ import ChangePostpaidPlan from "./pages/ChangePostpaidPlan";
 import ChangePostpaidPlanAllPlans from "./pages/ChangePostpaidPlanAllPlans";
 import UpdateCustomerId from "./pages/UpdateCustomerId";
 import ChangeCustomerOwner from "./pages/ChangeCustomerOwner";
+import OrdersHistory from "./pages/OrdersHistory";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
@@ -179,6 +180,7 @@ const App = () => {
           <Route path="/change-postpaid-plan/plans" element={<ChangePostpaidPlanAllPlans />} />
           <Route path="/update-id" element={<UpdateCustomerId />} />
           <Route path="/change-owner" element={<ChangeCustomerOwner />} />
+          <Route path="/order-history" element={<OrdersHistory />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
           <Route path="/onboarding-requests" element={<OnboardingRequests />} />

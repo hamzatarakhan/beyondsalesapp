@@ -27,6 +27,7 @@ import {
   Ban,
   ArrowUpDown,
   UserCog,
+  History,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -227,6 +228,7 @@ const Home = () => {
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
