@@ -769,7 +769,14 @@ const BillPayment = () => {
                           role="checkbox"
                           aria-checked={isOn}
                           aria-label={t("billPayment.payForAria", { msisdn: a.msisdn })}
-                          onClick={(e) => { e.stopPropagation(); setSelected((prev) => ({ ...prev, [a.msisdn]: !prev[a.msisdn] })); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const turningOn = !isOn;
+                            setSelected((prev) => ({ ...prev, [a.msisdn]: turningOn }));
+                            // Checking a collapsed account opens it too — no point selecting
+                            // one for payment while its bills/amount stay tucked away.
+                            if (turningOn && !isExpanded) toggleAccountExpanded(a.msisdn);
+                          }}
                           className={cn(
                             "w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
                             isOn ? "bg-primary border-primary" : "border-primary/40",
