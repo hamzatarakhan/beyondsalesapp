@@ -66,19 +66,24 @@ interface Props {
 
 // Discounted price display — the promotional `discount` field is a display string like
 // "Discount 50%"/"30%", so the percentage is parsed out of it to back-compute the original
-// (pre-discount) price shown struck through above the actual price. Shared by every layout
-// branch below instead of duplicating the price markup per-branch.
+// (pre-discount) price shown struck through inline beside the "VAT Incl." label, not on its
+// own line, so a discounted card stays exactly as tall as a regular one. Shared by every
+// layout branch below instead of duplicating the price markup per-branch.
 const PriceDisplay = ({ plan, showVatLabel = true }: { plan: PlanCardData; showVatLabel?: boolean }) => {
   const { t } = useTranslation();
   const discountPercent = plan.discount ? Number(plan.discount.match(/(\d+)/)?.[0]) : null;
   const originalPrice = discountPercent ? plan.price / (1 - discountPercent / 100) : null;
   return (
     <div className="text-right">
-      {showVatLabel && <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>}
-      {originalPrice != null && (
-        <p className="text-[11px] text-muted-foreground line-through">
-          <RiyalSymbol /> {originalPrice.toFixed(2)}
-        </p>
+      {(showVatLabel || originalPrice != null) && (
+        <div className="flex items-center justify-end gap-1.5">
+          {showVatLabel && <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>}
+          {originalPrice != null && (
+            <p className="text-[11px] text-muted-foreground line-through">
+              <RiyalSymbol /> {originalPrice.toFixed(2)}
+            </p>
+          )}
+        </div>
       )}
       <p className="text-xl font-bold text-foreground">
         <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
