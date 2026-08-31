@@ -570,7 +570,7 @@
     "otpVerified": "تم التحقق من رمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من رمز OTP",
     "contactInformation": "بيانات التواصل",
-    "contactNumber": "رقم التواصل",
+    "contactNumber": "الرقم المتأثر بالمشكلة",
     "email": "البريد الإلكتروني",
     "emailPlaceholder": "customer@email.com (اختياري)",
     "complaintDetails": "تفاصيل الشكوى",
