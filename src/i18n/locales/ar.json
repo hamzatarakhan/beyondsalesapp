@@ -401,7 +401,7 @@
     "amountErrorInvalid": "أدخل مبلغاً صحيحاً.",
     "amountErrorMin": "الحد الأدنى للدفع هو {{min}} ريال.",
     "amountErrorMax": "الحد الأقصى للدفع هو {{max}} ريال.",
-    "outstandingBillsHeading": "{{count}} حسابات لديها فواتير مستحقة",
+    "outstandingBillsHeading": "الفواتير المستحقة ({{count}} حسابات)",
     "totalBillsCount": "إجمالي {{count}} فاتورة",
     "totalDueAllBills": "إجمالي المستحق (كل الفواتير)",
     "accountTypeSwitchPostpaid": "سويتش فوترة",

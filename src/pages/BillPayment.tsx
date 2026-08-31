@@ -716,32 +716,32 @@ const BillPayment = () => {
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
             {/* Results land inline, right under the search — no page hop to review bills. One
-                shared "Outstanding Bill(s)" heading now, instead of every account card below
-                repeating its own copy of the same icon+title. */}
+                shared "Outstanding Bill(s)" card now, instead of every account card below
+                repeating its own copy of the same icon+title — title on top, bill count +
+                combined total due underneath, in one container. */}
             {accounts && accounts.length > 0 && (
-              <div className="flex items-center gap-2 px-1">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <ReceiptText className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">
-                  {isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
-                </p>
-              </div>
-            )}
-
-            {/* Combined overview across every account/bill this lookup returned — separate
-                from the per-account cards below, which stay focused on one line at a time. */}
-            {accounts && accounts.length > 0 && (isMulti || totalBillsCount > 1) && (
-              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5 flex items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground">
-                  {t("billPayment.totalBillsCount", { count: totalBillsCount })}
-                </p>
-                <div className="text-end shrink-0">
-                  <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDueAllBills")}</p>
-                  <p className="text-base font-bold text-primary">
-                    <RiyalSymbol /> {money(grandTotalDue)}
+              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ReceiptText className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
                   </p>
                 </div>
+                {(isMulti || totalBillsCount > 1) && (
+                  <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-primary/10">
+                    <p className="text-xs text-muted-foreground">
+                      {t("billPayment.totalBillsCount", { count: totalBillsCount })}
+                    </p>
+                    <div className="text-end shrink-0">
+                      <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDueAllBills")}</p>
+                      <p className="text-base font-bold text-primary">
+                        <RiyalSymbol /> {money(grandTotalDue)}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -752,14 +752,12 @@ const BillPayment = () => {
               const isExpanded = expandedAccounts.has(a.msisdn);
               return (
                 <section key={a.msisdn} className="space-y-3">
-                  {/* Same muted background used by SIM Termination option 3 / Subscription
-                      Migration's old-line bill card — wraps the account header and (once
-                      expanded) the bills list together. No outer white card anymore — this
-                      panel sits directly on the page background; selection uses the app-wide
-                      soft-primary treatment instead of a card border. */}
+                  {/* One white card per account now, instead of the old double-nested
+                      white-card-inside-white-card. Selection uses the app-wide soft-primary
+                      treatment instead of a second border layer. */}
                   <div className={cn(
                     "rounded-xl p-3 space-y-3 transition-colors",
-                    isMulti && isOn ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-background/40 border border-border/60",
+                    isMulti && isOn ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-card border-[0.5px] border-border/60",
                   )}>
                     <div
                       className="flex items-center gap-3 cursor-pointer"
@@ -805,9 +803,9 @@ const BillPayment = () => {
                     {isExpanded && (
                       <div className="space-y-2">{a.bills.map(renderBill)}</div>
                     )}
-                  </div>
 
-                  {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
+                    {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
+                  </div>
                 </section>
               );
             })}
