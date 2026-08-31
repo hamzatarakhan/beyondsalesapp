@@ -426,15 +426,18 @@ const OrdersHistory = () => {
     </div>
   );
 
-  // Each commission entry is its own separate light-blue card, not rows sharing one box.
+  // One shared box, not separate cards: only the first row — the dealer's own direct
+  // commission, "me" — gets the highlighted tint, so it's the one that draws the eye.
+  // Whatever their parent/team leader takes underneath stays plain white, set off from
+  // "me" by a single divider line rather than its own colored background.
   const renderCommissionRows = (rows: { member: string; type: string; code: string; amount: number }[]) => (
-    <div className="space-y-2">
+    <div className="rounded-2xl overflow-hidden bg-card">
       {rows.map((b, i) => (
-        <div key={i} className="flex items-center justify-between gap-3 rounded-2xl bg-primary/10 px-3.5 py-3">
+        <div key={i} className={cn("flex items-center justify-between gap-3 px-3.5 py-3", i === 0 ? "bg-primary/10" : "border-t border-border/60")}>
           <div className="min-w-0">
             <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
               {b.member}
-              <span className="px-1.5 py-0.5 rounded bg-card text-[10px] text-muted-foreground font-medium">{b.type}</span>
+              <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] text-muted-foreground font-medium">{b.type}</span>
             </p>
             <p className="text-[11px] text-muted-foreground">{b.code}</p>
           </div>
@@ -527,16 +530,17 @@ const OrdersHistory = () => {
                     <StatusBadge status={o.status} />
                   </div>
                   <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${o.type}`)}</p>
-                  {/* Who-owns-it attribution and the cross-member commission split are a
-                      Parent/manager concern — a member already knows these are their own
-                      orders and just earns a flat commission, no breakdown to show. */}
+                  {/* Who-owns-it attribution is a Parent/manager concern — a member already
+                      knows these are their own orders. The commission breakdown itself
+                      (their cut, highlighted, vs. what their parent takes) still applies
+                      to both views. */}
                   {view === "parent" && (
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <User className="w-3.5 h-3.5 shrink-0" />
                       {o.customer} <span className="text-muted-foreground/50">•</span> {o.memberCode}
                     </div>
                   )}
-                  {view === "parent" && o.commission > 0 && (
+                  {o.commission > 0 && (
                     <span
                       role="button"
                       tabIndex={0}
