@@ -309,10 +309,9 @@ const BillPayment = () => {
     setExpandedAccounts(new Set());
   };
 
-  // Account cards start expanded when there are 2 or fewer; beyond that they default closed
-  // so a long list of accounts isn't an overwhelming wall of bills on first load.
+  // Account cards all start expanded, regardless of how many there are.
   const initExpandedAccounts = (found: BillAccount[]) => {
-    setExpandedAccounts(found.length <= 2 ? new Set(found.map((a) => a.msisdn)) : new Set());
+    setExpandedAccounts(new Set(found.map((a) => a.msisdn)));
   };
 
   // ---------- Lookup ----------
@@ -739,9 +738,8 @@ const BillPayment = () => {
               </div>
             )}
 
-            {/* Beyond 2 accounts, cards collapse to just their header by default; the expand/
-                collapse arrow is always shown (both MSISDN and Civil ID lookups) so a dealer can
-                tuck any card away, not only when there happen to be more than 2. */}
+            {/* Every account card starts expanded (checked + open by default) — the expand/
+                collapse arrow lets a dealer tuck any one away if they don't want it in view. */}
             {(accounts ?? []).map((a) => {
               const isOn = !!selected[a.msisdn];
               const isExpanded = expandedAccounts.has(a.msisdn);
