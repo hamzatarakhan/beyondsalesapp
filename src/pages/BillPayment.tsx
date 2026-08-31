@@ -746,7 +746,10 @@ const BillPayment = () => {
             )}
 
             {/* Every account card starts expanded (checked + open by default) — the expand/
-                collapse arrow lets a dealer tuck any one away if they don't want it in view. */}
+                collapse arrow lets a dealer tuck any one away if they don't want it in view.
+                Own tighter gap here (space-y-2) instead of inheriting the page's space-y-4,
+                since a stack of account cards reads better closer together. */}
+            <div className="space-y-2">
             {(accounts ?? []).map((a) => {
               const isOn = !!selected[a.msisdn];
               const isExpanded = expandedAccounts.has(a.msisdn);
@@ -816,6 +819,7 @@ const BillPayment = () => {
                 </section>
               );
             })}
+            </div>
           </>
         )}
 
