@@ -808,8 +808,11 @@ const BillPayment = () => {
                       </div>
                     </div>
 
+                    {/* White is reserved for "this is the one I've actively picked among
+                        several" — a single-account lookup has no such choice being made,
+                        so it stays soft grey like an unselected multi-account one would. */}
                     {isExpanded && (
-                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, isMulti && !isOn))}</div>
+                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, !(isMulti && isOn)))}</div>
                     )}
 
                     {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
