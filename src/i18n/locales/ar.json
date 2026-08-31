@@ -429,6 +429,7 @@
     "total": "الإجمالي",
     "paymentMethod": "طريقة الدفع",
     "dealerWallet": "محفظة الموزع",
+    "dealerWalletBalance": "رصيد محفظة الموزّع",
     "dealerWalletDesc": "الدفع من محفظتك (رصيد {{balance}} ريال)",
     "posTerminal": "جهاز نقاط البيع",
     "posTerminalDesc": "تحصيل نقداً أو بالبطاقة من العميل",

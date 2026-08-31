@@ -429,6 +429,7 @@
     "total": "Total",
     "paymentMethod": "Payment Method",
     "dealerWallet": "Dealer Wallet",
+    "dealerWalletBalance": "Dealer Wallet Balance",
     "dealerWalletDesc": "Pay from your wallet ({{balance}} SAR balance)",
     "posTerminal": "POS Terminal",
     "posTerminalDesc": "Collect cash or card from the customer",
