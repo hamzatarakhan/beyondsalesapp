@@ -524,7 +524,8 @@ const SimTermination = () => {
                 { value: "0501110002", note: t("simTermination.testNoteFriendiPrepaid"), brand: "friendi" as const },
                 { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid"), brand: "virgin" as const },
                 { value: "0501110004", note: t("simTermination.testNoteVirginVnet"), brand: "virgin" as const },
-                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidNotEligible"), brand: "friendi" as const },
+                // FM postpaid-not-eligible case (0501110005) hidden from this list per request —
+                // the demo data and eligibility check stay in place, just not advertised.
                 // Two-bill case (0501110006) hidden from this list for now per request —
                 // the demo data and multi-bill rendering stay in place, just not advertised.
                 { value: "0501119999", note: t("simTermination.testNoteNotFound"), brand: null },
