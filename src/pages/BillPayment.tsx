@@ -718,25 +718,23 @@ const BillPayment = () => {
 
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
-            {/* Results land inline, right under the search — no page hop to review bills. One
-                shared "Outstanding Bill(s)" card, one row: icon + title on the start side,
-                the combined total due on the end side — no separate bill-count line. */}
+            {/* Results land inline, right under the search — no page hop to review bills. Same
+                CardSection treatment as every other section header on this page (and app-wide)
+                instead of a one-off tinted banner. */}
             {accounts && accounts.length > 0 && (
-              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <ReceiptText className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
-                  </p>
-                </div>
+              <CardSection
+                title={isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
+                icon={ReceiptText}
+              >
                 {(isMulti || totalBillsCount > 1) && (
-                  <p className="text-base font-bold text-primary shrink-0">
-                    <RiyalSymbol /> {money(grandTotalDue)}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">{t("billPayment.total")}</span>
+                    <span className="text-base font-bold text-primary">
+                      <RiyalSymbol /> {money(grandTotalDue)}
+                    </span>
+                  </div>
                 )}
-              </div>
+              </CardSection>
             )}
 
             {/* Every account card starts expanded (checked + open by default) — the expand/
