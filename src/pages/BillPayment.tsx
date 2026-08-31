@@ -718,23 +718,31 @@ const BillPayment = () => {
 
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
-            {/* Results land inline, right under the search — no page hop to review bills. Same
-                CardSection treatment as every other section header on this page (and app-wide)
-                instead of a one-off tinted banner. */}
+            {/* Results land inline, right under the search — no page hop to review bills. Only
+                wrapped in the CardSection card when there's an actual Total row to show inside
+                it (multi-account or multi-bill); otherwise it's just a plain title — no empty
+                box around a lone heading. */}
             {accounts && accounts.length > 0 && (
-              <CardSection
-                title={isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
-                icon={ReceiptText}
-              >
-                {(isMulti || totalBillsCount > 1) && (
+              (isMulti || totalBillsCount > 1) ? (
+                <CardSection
+                  title={isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
+                  icon={ReceiptText}
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">{t("billPayment.total")}</span>
                     <span className="text-base font-bold text-primary">
                       <RiyalSymbol /> {money(grandTotalDue)}
                     </span>
                   </div>
-                )}
-              </CardSection>
+                </CardSection>
+              ) : (
+                <div className="flex items-center gap-2 px-1">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ReceiptText className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{t("billPayment.outstandingBill")}</p>
+                </div>
+              )
             )}
 
             {/* Every account card starts expanded (checked + open by default) — the expand/
