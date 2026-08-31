@@ -805,7 +805,7 @@ const BillPayment = () => {
                     </div>
 
                     {isExpanded && (
-                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, isMulti && isOn))}</div>
+                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, isMulti && !isOn))}</div>
                     )}
 
                     {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
