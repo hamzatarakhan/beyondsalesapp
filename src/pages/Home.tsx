@@ -28,6 +28,7 @@ import {
   ArrowUpDown,
   UserCog,
   History,
+  User,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -247,9 +248,23 @@ const Home = () => {
     { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
+  // Order History is a browse-only/reporting service, not a customer-record action — skip
+  // the dealer Nafath gate for it and offer a Member/Parent view picker instead, so the
+  // client can preview both without needing two separate demo logins.
+  const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
+
   const handleActivityClick = (path: string) => {
+    if (path === "/order-history") {
+      setOrderHistoryViewOpen(true);
+      return;
+    }
     setPendingPath(path);
     setVerifyOpen(true);
+  };
+
+  const goToOrderHistory = (view: "member" | "parent") => {
+    setOrderHistoryViewOpen(false);
+    navigate(`/order-history?view=${view}`);
   };
 
   const goWithMode = (mode: "classic" | "staged") => {
@@ -648,6 +663,50 @@ const Home = () => {
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {t("home.multiStepFlowSub")}
                 </p>
+              </div>
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={orderHistoryViewOpen} onOpenChange={setOrderHistoryViewOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setOrderHistoryViewOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.chooseOrderHistoryView")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">
+              {t("home.chooseOrderHistoryViewSub")}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3">
+            <button
+              onClick={() => goToOrderHistory("member")}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <User className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.memberView")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.memberViewSub")}</p>
+              </div>
+            </button>
+            <button
+              onClick={() => goToOrderHistory("parent")}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.parentView")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.parentViewSub")}</p>
               </div>
             </button>
           </div>

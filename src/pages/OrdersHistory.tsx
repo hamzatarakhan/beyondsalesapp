@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
 import AppHeader from "@/components/AppHeader";
@@ -31,6 +31,8 @@ import {
   Package,
   CheckCircle2,
   ClipboardList,
+  Info,
+  Users,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors every other flow's page-local helpers) ----------
@@ -87,6 +89,7 @@ export interface DemoOrder {
   date: string;
   dateObj: Date;
   commission: number;
+  rejectedReason?: string;
 }
 
 // "Today" reference — the demo dates are fixed relative to this, not the real device clock,
@@ -97,7 +100,7 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0 },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5 },
   { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0 },
-  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0 },
+  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details." },
   { id: "ORD-2026-000042", status: "approved", commissionStatus: "approved", type: "hbb", customer: "Mona Al-Qahtani", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0567891234", idType: "National ID", date: "10 Aug 2026 - 11:50 AM", dateObj: new Date(2026, 7, 10), commission: 18.0 },
   { id: "ORD-2026-000041", status: "approved", commissionStatus: "approved", type: "topUp", customer: "Abdullah Al-Zahrani", memberCode: "DST001", member: "Sara Ahmad", phone: "0512345678", idType: "Iqama ID", date: "2 Aug 2026 - 5:30 PM", dateObj: new Date(2026, 7, 2), commission: 3.25 },
 ];
@@ -108,6 +111,10 @@ interface Dealer {
   commission: number;
   orders: number;
 }
+
+// The demo dealer "logged in" for Member View — Member View scopes Orders/Commission down
+// to just this dealer's own records and hides the cross-dealer leaderboard/search.
+export const SELF_MEMBER_CODE = "DST001";
 
 const DEALERS: Dealer[] = [
   { name: "Sara Ahmad", code: "DST001", commission: 145.0, orders: 30 },
@@ -147,6 +154,12 @@ const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", mo
 const OrdersHistory = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Set by Home's Member/Parent View picker (?view=member|parent) — Member View scopes
+  // everything below to SELF_MEMBER_CODE's own records; Parent View (the default) keeps
+  // the full cross-dealer picture.
+  const view = searchParams.get("view") === "member" ? "member" : "parent";
+  const baseOrders = useMemo(() => (view === "member" ? ORDERS.filter((o) => o.memberCode === SELF_MEMBER_CODE) : ORDERS), [view]);
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
 
@@ -160,34 +173,41 @@ const OrdersHistory = () => {
   const [draftStatus, setDraftStatus] = useState<OrderStatus | null>(null);
   const [draftCommissionStatus, setDraftCommissionStatus] = useState<OrderStatus | null>(null);
   const [draftDateKey, setDraftDateKey] = useState<DateRangeKey>(null);
+  // Parent-view only — a member has no one else's orders to search by member name/code.
+  const [draftMemberQuery, setDraftMemberQuery] = useState("");
 
   const [appliedTypes, setAppliedTypes] = useState<OrderType[]>([]);
   const [appliedStatus, setAppliedStatus] = useState<OrderStatus | null>(null);
   const [appliedCommissionStatus, setAppliedCommissionStatus] = useState<OrderStatus | null>(null);
   const [appliedRange, setAppliedRange] = useState<{ from: Date; to: Date; label: string } | null>(null);
+  const [appliedMemberQuery, setAppliedMemberQuery] = useState("");
 
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
-  const activeFilterCount = (appliedTypes.length > 0 ? 1 : 0) + (appliedStatus ? 1 : 0) + (appliedCommissionStatus ? 1 : 0) + (appliedRange ? 1 : 0);
+  const activeFilterCount =
+    (appliedTypes.length > 0 ? 1 : 0) + (appliedStatus ? 1 : 0) + (appliedCommissionStatus ? 1 : 0) + (appliedRange ? 1 : 0) + (appliedMemberQuery.trim() ? 1 : 0);
 
   const filteredOrders = useMemo(() => {
     const q = orderSearch.trim().toLowerCase();
-    return ORDERS.filter((o) => {
+    const mq = appliedMemberQuery.trim().toLowerCase();
+    return baseOrders.filter((o) => {
       if (q && !(o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.phone.includes(q))) return false;
+      if (mq && !(o.member.toLowerCase().includes(mq) || o.memberCode.toLowerCase().includes(mq))) return false;
       if (appliedTypes.length > 0 && !appliedTypes.includes(o.type)) return false;
       if (appliedStatus && o.status !== appliedStatus) return false;
       if (appliedCommissionStatus && o.commissionStatus !== appliedCommissionStatus) return false;
       if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
       return true;
     });
-  }, [orderSearch, appliedTypes, appliedStatus, appliedCommissionStatus, appliedRange]);
+  }, [baseOrders, orderSearch, appliedMemberQuery, appliedTypes, appliedStatus, appliedCommissionStatus, appliedRange]);
 
   const openFilter = () => {
     setDraftTypes(appliedTypes);
     setDraftStatus(appliedStatus);
     setDraftCommissionStatus(appliedCommissionStatus);
     setDraftDateKey(appliedRange ? "custom" : null);
+    setDraftMemberQuery(appliedMemberQuery);
     setFilterOpen(true);
   };
 
@@ -199,6 +219,7 @@ const OrdersHistory = () => {
     setAppliedTypes(draftTypes);
     setAppliedStatus(draftStatus);
     setAppliedCommissionStatus(draftCommissionStatus);
+    setAppliedMemberQuery(view === "parent" ? draftMemberQuery : "");
     setFilterOpen(false);
   };
 
@@ -207,10 +228,12 @@ const OrdersHistory = () => {
     setDraftStatus(null);
     setDraftCommissionStatus(null);
     setDraftDateKey(null);
+    setDraftMemberQuery("");
     setAppliedTypes([]);
     setAppliedStatus(null);
     setAppliedCommissionStatus(null);
     setAppliedRange(null);
+    setAppliedMemberQuery("");
     setFilterOpen(false);
   };
 
@@ -260,7 +283,7 @@ const OrdersHistory = () => {
     const from = scopeRangeKey === "today" ? TODAY_REF : daysAgo(scopeRangeKey === "last7" ? 6 : 29);
     return { from, to };
   }, [scopeRangeKey, scopeCustomRange]);
-  const scopedOrders = useMemo(() => ORDERS.filter((o) => inRange(o.dateObj, scopeRange.from, scopeRange.to)), [scopeRange]);
+  const scopedOrders = useMemo(() => baseOrders.filter((o) => inRange(o.dateObj, scopeRange.from, scopeRange.to)), [baseOrders, scopeRange]);
 
   const openScopePickDate = () => {
     setDraftRange(scopeCustomRange ?? undefined);
@@ -388,14 +411,24 @@ const OrdersHistory = () => {
     </div>
   );
 
+  // Plain bold heading + a soft-tinted box underneath — the Order Type sheet's own look,
+  // distinct from CardSection's icon-header card used elsewhere on this page.
+  const DetailBlock = ({ title, tone = "grey", children }: { title: string; tone?: "grey" | "blue"; children: React.ReactNode }) => (
+    <div className="space-y-2">
+      <p className="text-sm font-bold text-foreground">{title}</p>
+      <div className={cn("rounded-2xl px-3.5", tone === "blue" ? "bg-primary/10" : "bg-muted/60")}>{children}</div>
+    </div>
+  );
+
+  // Each commission entry is its own separate light-blue card, not rows sharing one box.
   const renderCommissionRows = (rows: { member: string; type: string; code: string; amount: number }[]) => (
-    <div>
+    <div className="space-y-2">
       {rows.map((b, i) => (
-        <div key={i} className="flex items-center justify-between py-2.5 border-b border-border/40 last:border-0">
+        <div key={i} className="flex items-center justify-between gap-3 rounded-2xl bg-primary/10 px-3.5 py-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
               {b.member}
-              <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] text-muted-foreground font-medium">{b.type}</span>
+              <span className="px-1.5 py-0.5 rounded bg-card text-[10px] text-muted-foreground font-medium">{b.type}</span>
             </p>
             <p className="text-[11px] text-muted-foreground">{b.code}</p>
           </div>
@@ -418,6 +451,13 @@ const OrdersHistory = () => {
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
       <AppHeader title={t("ordersHistory.title")} showBack />
+
+      <div className="px-4 pb-3 -mt-1">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">
+          {view === "member" ? <User className="w-3 h-3" /> : <Users className="w-3 h-3" />}
+          {t(view === "member" ? "ordersHistory.viewingAsMember" : "ordersHistory.viewingAsParent")}
+        </span>
+      </div>
 
       <div className="px-4">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
@@ -455,8 +495,9 @@ const OrdersHistory = () => {
               </button>
             </div>
 
-            {(appliedStatus || appliedRange) && (
+            {(appliedStatus || appliedRange || appliedMemberQuery.trim()) && (
               <div className="flex items-center gap-2 flex-wrap">
+                {appliedMemberQuery.trim() && <FilterChip label={appliedMemberQuery.trim()} onRemove={() => setAppliedMemberQuery("")} />}
                 {appliedStatus && <FilterChip label={t(`ordersHistory.status.${appliedStatus}`)} onRemove={() => setAppliedStatus(null)} />}
                 {appliedRange && <FilterChip label={appliedRange.label} onRemove={removeDateFilter} />}
               </div>
@@ -480,11 +521,16 @@ const OrdersHistory = () => {
                     <StatusBadge status={o.status} />
                   </div>
                   <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${o.type}`)}</p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <User className="w-3.5 h-3.5 shrink-0" />
-                    {o.customer} <span className="text-muted-foreground/50">•</span> {o.memberCode}
-                  </div>
-                  {o.commission > 0 && (
+                  {/* Who-owns-it attribution and the cross-member commission split are a
+                      Parent/manager concern — a member already knows these are their own
+                      orders and just earns a flat commission, no breakdown to show. */}
+                  {view === "parent" && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <User className="w-3.5 h-3.5 shrink-0" />
+                      {o.customer} <span className="text-muted-foreground/50">•</span> {o.memberCode}
+                    </div>
+                  )}
+                  {view === "parent" && o.commission > 0 && (
                     <span
                       role="button"
                       tabIndex={0}
@@ -600,26 +646,29 @@ const OrdersHistory = () => {
 
           {/* ---------- Commission ---------- */}
           <TabsContent value="commission" className="mt-0 space-y-4 pb-4">
-            <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                readOnly
-                onClick={() => setSearchDealersOpen(true)}
-                value={selectedDealer ? selectedDealer.name : ""}
-                placeholder={t("ordersHistory.searchByMember")}
-                className="h-11 bg-card rounded-xl ps-9 cursor-pointer"
-              />
-              {selectedDealer && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedDealer(null)}
-                  aria-label={t("ordersHistory.removeFilter")}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center"
-                >
-                  <XIcon className="w-3 h-3 text-foreground" />
-                </button>
-              )}
-            </div>
+            {/* A member has no one else to search across — Parent View only. */}
+            {view === "parent" && (
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  readOnly
+                  onClick={() => setSearchDealersOpen(true)}
+                  value={selectedDealer ? selectedDealer.name : ""}
+                  placeholder={t("ordersHistory.searchByMember")}
+                  className="h-11 bg-card rounded-xl ps-9 cursor-pointer"
+                />
+                {selectedDealer && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDealer(null)}
+                    aria-label={t("ordersHistory.removeFilter")}
+                    className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center"
+                  >
+                    <XIcon className="w-3 h-3 text-foreground" />
+                  </button>
+                )}
+              </div>
+            )}
 
             <div className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -651,48 +700,51 @@ const OrdersHistory = () => {
               <StatCard icon={Clock} label={t("ordersHistory.summary.pending")} value={String(summary.pending)} tone="bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" />
             </div>
 
-            <CardSection
-              title={t("ordersHistory.dealers")}
-              icon={User}
-              right={
-                <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-                  {(["top", "lowest"] as const).map((k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => setDealerRankTab(k)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors",
-                        dealerRankTab === k ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
-                      )}
-                    >
-                      {t(`ordersHistory.${k === "top" ? "top5" : "lowest5"}`)}
-                    </button>
-                  ))}
-                </div>
-              }
-            >
-              {rankedDealers.map((d, i) => (
-                <div key={d.code} className="flex items-center justify-between py-2.5 border-b border-border/40 last:border-0">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-foreground truncate">{d.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{t("ordersHistory.ordersCount", { count: d.orders })}</p>
-                    </div>
+            {/* Ranking against other dealers only makes sense from the Parent View. */}
+            {view === "parent" && (
+              <CardSection
+                title={t("ordersHistory.dealers")}
+                icon={User}
+                right={
+                  <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
+                    {(["top", "lowest"] as const).map((k) => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => setDealerRankTab(k)}
+                        className={cn(
+                          "px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors",
+                          dealerRankTab === k ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
+                        )}
+                      >
+                        {t(`ordersHistory.${k === "top" ? "top5" : "lowest5"}`)}
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-sm font-bold text-primary shrink-0">
-                    <RiyalSymbol /> {d.commission.toFixed(2)}
-                  </span>
-                </div>
-              ))}
-            </CardSection>
+                }
+              >
+                {rankedDealers.map((d, i) => (
+                  <div key={d.code} className="flex items-center justify-between py-2.5 border-b border-border/40 last:border-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">{d.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{t("ordersHistory.ordersCount", { count: d.orders })}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-primary shrink-0">
+                      <RiyalSymbol /> {d.commission.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </CardSection>
+            )}
 
             <CardSection
               title={t("ordersHistory.commissionHistory")}
               icon={Wallet}
               right={
-                <button type="button" onClick={() => navigate("/order-history/commission-history")} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
+                <button type="button" onClick={() => navigate(`/order-history/commission-history?view=${view}`)} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
                   {t("ordersHistory.seeAll")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               }
@@ -738,6 +790,17 @@ const OrdersHistory = () => {
             <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.filter.subtitle")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-5">
+            {view === "parent" && (
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={draftMemberQuery}
+                  onChange={(e) => setDraftMemberQuery(e.target.value)}
+                  placeholder={t("ordersHistory.searchByMember")}
+                  className="h-11 bg-background rounded-xl ps-9"
+                />
+              </div>
+            )}
             <div>
               <p className="text-xs font-semibold text-foreground mb-2 px-1">{t("ordersHistory.filter.dateRange")}</p>
               <DateChips
@@ -858,7 +921,24 @@ const OrdersHistory = () => {
             <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.pickDate.subtitle")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-4">
-            <Calendar mode="range" selected={draftRange} onSelect={setDraftRange} numberOfMonths={1} defaultMonth={TODAY_REF} className="mx-auto w-fit" />
+            <Calendar
+              mode="range"
+              selected={draftRange}
+              onSelect={setDraftRange}
+              numberOfMonths={1}
+              defaultMonth={TODAY_REF}
+              className="w-full p-0"
+              classNames={{
+                months: "w-full",
+                month: "w-full space-y-4",
+                table: "w-full border-collapse",
+                head_row: "flex w-full",
+                head_cell: "text-muted-foreground flex-1 font-normal text-[0.8rem]",
+                row: "flex w-full mt-1",
+                cell: "flex-1 text-center text-sm p-0 relative",
+                day: "h-10 w-10 mx-auto p-0 font-normal rounded-full aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+              }}
+            />
             <div className="space-y-2">
               <SummaryRow label={t("ordersHistory.pickDate.dateFrom")} value={draftRange?.from ? fmtShort(draftRange.from) : "—"} />
               <SummaryRow label={t("ordersHistory.pickDate.dateTo")} value={draftRange?.to ? fmtShort(draftRange.to) : "—"} />
@@ -893,24 +973,35 @@ const OrdersHistory = () => {
               </div>
               <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${selectedOrder.type}`)}</p>
 
-              <CardSection title={t("ordersHistory.customerDetails")} icon={User}>
+              {selectedOrder.status === "rejected" && selectedOrder.rejectedReason && (
+                <div className="flex items-start gap-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 p-3.5">
+                  <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t("ordersHistory.rejectedReason")}</p>
+                    <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{selectedOrder.rejectedReason}</p>
+                  </div>
+                </div>
+              )}
+
+              <DetailBlock title={t("ordersHistory.customerDetails")}>
                 <SummaryRow label={t("ordersHistory.name")} value={selectedOrder.customer} />
                 <SummaryRow label={t("ordersHistory.msisdn")} value={selectedOrder.phone} />
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.idType} />
-              </CardSection>
+              </DetailBlock>
 
-              <CardSection title={t("ordersHistory.orderDetails")} icon={Package}>
+              <DetailBlock title={t("ordersHistory.orderDetails")}>
                 <SummaryRow label={t("ordersHistory.member")} value={selectedOrder.member} />
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
-              </CardSection>
+              </DetailBlock>
 
-              <CardSection title={t("ordersHistory.commissions")} icon={Wallet}>
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-foreground">{t("ordersHistory.commissions")}</p>
                 {breakdownFor(selectedOrder).length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-2">{t("ordersHistory.noOrders")}</p>
+                  <p className="text-xs text-muted-foreground text-center py-4 bg-muted/60 rounded-2xl">{t("ordersHistory.noOrders")}</p>
                 ) : (
                   renderCommissionRows(breakdownFor(selectedOrder))
                 )}
-              </CardSection>
+              </div>
             </div>
           )}
         </DrawerContent>

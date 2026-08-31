@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Search, ArrowUpRight, Clock } from "lucide-react";
-import { ORDERS, type OrderStatus } from "@/pages/OrdersHistory";
+import { ORDERS, SELF_MEMBER_CODE, type OrderStatus } from "@/pages/OrdersHistory";
 
 // Full list behind the Commission tab's "See all" — same rows the tab already renders,
 // just every commission-bearing order instead of the tab's date-scoped subset, plus search.
@@ -19,14 +19,17 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
 const OrdersHistoryCommissionHistory = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const view = searchParams.get("view") === "member" ? "member" : "parent";
   const [search, setSearch] = useState("");
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
     return ORDERS.filter((o) => o.commission > 0)
+      .filter((o) => view === "parent" || o.memberCode === SELF_MEMBER_CODE)
       .filter((o) => !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.phone.includes(q))
       .map((o, i) => ({ ...o, kind: i % 2 === 0 ? ("instance" as const) : ("scheduled" as const) }));
-  }, [search]);
+  }, [search, view]);
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
