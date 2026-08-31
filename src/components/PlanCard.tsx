@@ -64,6 +64,30 @@ interface Props {
   mnpEligible?: boolean;
 }
 
+// Discounted price display — the promotional `discount` field is a display string like
+// "Discount 50%"/"30%", so the percentage is parsed out of it to back-compute the original
+// (pre-discount) price shown struck through above the actual price. Shared by every layout
+// branch below instead of duplicating the price markup per-branch.
+const PriceDisplay = ({ plan, showVatLabel = true }: { plan: PlanCardData; showVatLabel?: boolean }) => {
+  const { t } = useTranslation();
+  const discountPercent = plan.discount ? Number(plan.discount.match(/(\d+)/)?.[0]) : null;
+  const originalPrice = discountPercent ? plan.price / (1 - discountPercent / 100) : null;
+  return (
+    <div className="text-right">
+      {showVatLabel && <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>}
+      {originalPrice != null && (
+        <p className="text-[11px] text-muted-foreground line-through">
+          <RiyalSymbol /> {originalPrice.toFixed(2)}
+        </p>
+      )}
+      <p className="text-xl font-bold text-foreground">
+        <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
+        {Number(plan.price).toFixed(2)}
+      </p>
+    </div>
+  );
+};
+
 const FeatureRow = ({
   icon: Icon,
   label,
@@ -526,15 +550,7 @@ const PlanCard = ({
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{t("activation.plan.payg.title")}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold"><RiyalSymbol /> {Number(plan.payg?.perMb).toFixed(2)}</span> {t("activation.plan.payg.perMb")}</>} />
@@ -547,15 +563,7 @@ const PlanCard = ({
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.coreData ?? plan.internet}</span> {t("activation.plan.coreData")}</>} />
@@ -589,15 +597,7 @@ const PlanCard = ({
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
                 </p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 {/* Friendi Calls is exclusively international minute bundles (no standalone
@@ -613,17 +613,7 @@ const PlanCard = ({
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    {!plan.categories?.includes("vnet") && (
-                      <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    )}
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={!plan.categories?.includes("vnet")} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-bold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
@@ -641,15 +631,7 @@ const PlanCard = ({
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
@@ -682,15 +664,7 @@ const PlanCard = ({
               )}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
@@ -729,14 +703,7 @@ const PlanCard = ({
               )}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={false} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
@@ -773,15 +740,7 @@ const PlanCard = ({
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
                   <span className="text-xl">{resolvedMinsLabel}</span>
                 </p>
-                {!hideTitleRow && (
-                  <div className="text-right">
-                    <p className="text-[11px] text-muted-foreground">{t("activation.plan.vatIncl")}</p>
-                    <p className="text-xl font-bold text-foreground">
-                      <span className="text-muted-foreground font-normal text-sm"><RiyalSymbol /></span>{" "}
-                      {Number(plan.price).toFixed(2)}
-                    </p>
-                  </div>
-                )}
+                {!hideTitleRow && <PriceDisplay plan={plan} />}
               </div>
               <div className="space-y-2.5 mb-4">
                 <FeatureRow icon={Signal} label={<><span className="font-semibold">{plan.internet}</span> {t("activation.plan.coreData")}</>} />
