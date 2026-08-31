@@ -16,6 +16,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   // it back. widgetNodes["other-options"] in Home.tsx is commented out to match.
   // { id: "other-options", enabled: true },
   { id: "other-services", enabled: true },
+  { id: "other-widgets", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
@@ -29,6 +30,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "customer-activities": "home.customerActivities",
   "e-wallets": "home.eWallets",
   "other-services": "home.otherServices",
+  "other-widgets": "home.otherWidgets",
   "sim-services": "home.simServices",
   // "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",

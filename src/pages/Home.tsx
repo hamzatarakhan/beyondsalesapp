@@ -229,7 +229,6 @@ const Home = () => {
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
@@ -246,6 +245,12 @@ const Home = () => {
   // just Raise Customer Complaint.
   const otherServicesOptions = [
     { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+  ];
+
+  // Its own widget, separate from Customer Activities — a reporting/browse service
+  // rather than a customer-record action.
+  const otherWidgetsOptions = [
+    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Order History is a browse-only/reporting service, not a customer-record action — skip
@@ -345,6 +350,28 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {otherServicesOptions.map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    "other-widgets": (
+      <div key="other-widgets" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{t("home.otherWidgets")}</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {otherWidgetsOptions.map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
