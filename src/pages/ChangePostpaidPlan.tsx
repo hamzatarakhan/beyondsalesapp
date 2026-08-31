@@ -495,15 +495,11 @@ const ChangePostpaidPlan = () => {
             <CardSection title={t("changePostpaidPlan.paymentSummary")} icon={Receipt}>
               <div className="flex items-center justify-between pb-3">
                 <span className="text-[11px] text-muted-foreground">{t("changePostpaidPlan.depositFee")}</span>
-                <span className="text-xs font-semibold text-foreground">
-                  {total > 0 ? <><RiyalSymbol /> {total.toFixed(2)}</> : t("changePostpaidPlan.free")}
-                </span>
+                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {total.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between border-t border-border/60 pt-3">
                 <span className="text-sm font-semibold text-foreground">{t("changePostpaidPlan.total")}</span>
-                <span className="text-base font-bold text-primary">
-                  {total > 0 ? <><RiyalSymbol /> {total.toFixed(2)}</> : t("changePostpaidPlan.free")}
-                </span>
+                <span className="text-base font-bold text-primary"><RiyalSymbol /> {total.toFixed(2)}</span>
               </div>
             </CardSection>
 

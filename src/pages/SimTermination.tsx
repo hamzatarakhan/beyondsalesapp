@@ -129,8 +129,9 @@ const DEMO_TERMINATION_LINES: DemoTerminationLine[] = [
       { status: "Unpaid", currentBalance: 300, outstandingBalance: 150, outOfBundleUsage: 50, number: "BL-2026-07-7731", cycle: "1st July – 31st July, 2026" },
     ],
   },
-  // Friendi does carry a couple of legacy Switch Postpaid lines even though new activation is
-  // prepaid/basic-postpaid only — this one has nothing left to pay, so it skips the payment step.
+  // Friendi only supports terminating prepaid lines (checked in handleSearch/
+  // handleContinueLookup) — this legacy Switch Postpaid line exists purely to demo that
+  // ineligibility error for FM, not to be terminated itself.
   {
     msisdn: "0501110005",
     lineType: "switch-postpaid",
@@ -239,6 +240,11 @@ const SimTermination = () => {
       const found = DEMO_TERMINATION_LINES.find((l) => l.msisdn === msisdn);
       if (!found) {
         setLookupError(t("simTermination.lookupErrorNotFound"));
+        return;
+      }
+      // Friendi only supports prepaid line termination — no postpaid/vnet flow for FM.
+      if (brand === "friendi" && found.lineType !== "prepaid") {
+        setLookupError(t("simTermination.lookupErrorFriendiPrepaidOnly"));
         return;
       }
       setLine(found);
@@ -351,6 +357,11 @@ const SimTermination = () => {
       const found = DEMO_TERMINATION_LINES.find((l) => l.msisdn === msisdn);
       if (!found) {
         setLookupError(t("simTermination.lookupErrorNotFound"));
+        return;
+      }
+      // Friendi only supports prepaid line termination — no postpaid/vnet flow for FM.
+      if (brand === "friendi" && found.lineType !== "prepaid") {
+        setLookupError(t("simTermination.lookupErrorFriendiPrepaidOnly"));
         return;
       }
       setLine(found);
@@ -513,7 +524,7 @@ const SimTermination = () => {
                 { value: "0501110002", note: t("simTermination.testNoteFriendiPrepaid"), brand: "friendi" as const },
                 { value: "0501110003", note: t("simTermination.testNoteVirginPostpaidUnpaid"), brand: "virgin" as const },
                 { value: "0501110004", note: t("simTermination.testNoteVirginVnet"), brand: "virgin" as const },
-                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidPaid"), brand: "friendi" as const },
+                { value: "0501110005", note: t("simTermination.testNoteFriendiPostpaidNotEligible"), brand: "friendi" as const },
                 // Two-bill case (0501110006) hidden from this list for now per request —
                 // the demo data and multi-bill rendering stay in place, just not advertised.
                 { value: "0501119999", note: t("simTermination.testNoteNotFound"), brand: null },
