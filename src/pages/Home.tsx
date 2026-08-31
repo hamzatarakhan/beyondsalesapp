@@ -31,6 +31,7 @@ import {
   User,
   ShoppingCart,
   MapPin,
+  Building2,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -262,9 +263,10 @@ const Home = () => {
   // the dealer Nafath gate for it and offer a Member/Parent view picker instead, so the
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
-  // Sales Orders spans multiple locations — offer a location picker instead of the
-  // Nafath gate, same reasoning as Purchase Orders (dealer-ops tool, not a customer
-  // action) plus this extra step since which location the dealer means isn't implicit.
+  // Sales Orders: tapping the tile first asks One Location vs Multiple Locations — One
+  // Location drops into the single-location picker (the flow already built) and Multiple
+  // Locations goes to its own distinct flow (business pending — see SalesOrdersMulti.tsx).
+  const [salesOrdersEntryOpen, setSalesOrdersEntryOpen] = useState(false);
   const [salesOrdersLocationOpen, setSalesOrdersLocationOpen] = useState(false);
 
   const handleActivityClick = (path: string) => {
@@ -278,7 +280,7 @@ const Home = () => {
       return;
     }
     if (path === "/sales-orders") {
-      setSalesOrdersLocationOpen(true);
+      setSalesOrdersEntryOpen(true);
       return;
     }
     setPendingPath(path);
@@ -757,6 +759,48 @@ const Home = () => {
               <div className="flex-1">
                 <p className="font-semibold text-sm text-foreground">{t("home.parentView")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t("home.parentViewSub")}</p>
+              </div>
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={salesOrdersEntryOpen} onOpenChange={setSalesOrdersEntryOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setSalesOrdersEntryOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.chooseSalesOrdersMode")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("home.chooseSalesOrdersModeSub")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3">
+            <button
+              onClick={() => { setSalesOrdersEntryOpen(false); setSalesOrdersLocationOpen(true); }}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.oneLocation")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.oneLocationSub")}</p>
+              </div>
+            </button>
+            <button
+              onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders/multi-location"); }}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.multipleLocations")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.multipleLocationsSub")}</p>
               </div>
             </button>
           </div>

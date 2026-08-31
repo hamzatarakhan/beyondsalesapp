@@ -74,6 +74,7 @@ import PurchaseOrderForm from "./pages/PurchaseOrderForm";
 import PurchaseOrderView from "./pages/PurchaseOrderView";
 import PurchaseOrderScan from "./pages/PurchaseOrderScan";
 import SalesOrders from "./pages/SalesOrders";
+import SalesOrdersMulti from "./pages/SalesOrdersMulti";
 import SalesOrderForm from "./pages/SalesOrderForm";
 import SalesOrderView from "./pages/SalesOrderView";
 import SalesOrderScan from "./pages/SalesOrderScan";
@@ -198,6 +199,7 @@ const App = () => {
           <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/scan/:productId" element={<PurchaseOrderScan />} />
           <Route path="/sales-orders" element={<SalesOrders />} />
+          <Route path="/sales-orders/multi-location" element={<SalesOrdersMulti />} />
           <Route path="/sales-orders/new" element={<SalesOrderForm />} />
           <Route path="/sales-orders/:id/edit" element={<SalesOrderForm />} />
           <Route path="/sales-orders/:id/scan/:productId" element={<SalesOrderScan />} />
