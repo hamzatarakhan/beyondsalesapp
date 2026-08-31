@@ -751,14 +751,16 @@ const BillPayment = () => {
               const isOn = !!selected[a.msisdn];
               const isExpanded = expandedAccounts.has(a.msisdn);
               return (
-                <section key={a.msisdn} className={cn(
-                  "bg-card rounded-2xl p-4 shadow-sm space-y-3 transition-colors",
-                  isMulti && (isOn ? "!border !border-primary/20" : "border border-border/60"),
-                )}>
+                <section key={a.msisdn} className="space-y-3">
                   {/* Same muted background used by SIM Termination option 3 / Subscription
                       Migration's old-line bill card — wraps the account header and (once
-                      expanded) the bills list together. */}
-                  <div className="rounded-xl bg-background/40 border border-border/60 p-3 space-y-3">
+                      expanded) the bills list together. No outer white card anymore — this
+                      panel sits directly on the page background; selection uses the app-wide
+                      soft-primary treatment instead of a card border. */}
+                  <div className={cn(
+                    "rounded-xl p-3 space-y-3 transition-colors",
+                    isMulti && isOn ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-background/40 border border-border/60",
+                  )}>
                     <div
                       className="flex items-center gap-3 cursor-pointer"
                       onClick={() => toggleAccountExpanded(a.msisdn)}
