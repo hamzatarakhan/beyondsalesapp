@@ -180,7 +180,10 @@ const ChangePrepaidBundle = () => {
 
   // ---------- Plan catalogue ----------
   const planCatalog = isFriendi ? FRIENDI_PLANS : PREPAID_PLANS;
-  const MOBILE_PREPAID_CATEGORIES = isFriendi ? ["combo", "flexi"] : ["aman", "base-plan", "flex"];
+  // Friendi's mobile-line catalog mirrors the activation flow's own chip set (Combo/Flexi/
+  // Internet/International), just without PAYG — Internet and International aren't split
+  // into their own line type for FM the way 5G MBB is for VM.
+  const MOBILE_PREPAID_CATEGORIES = isFriendi ? ["combo", "flexi", "data", "calls"] : ["aman", "base-plan", "flex"];
   const planList: Plan[] =
     line?.lineType === "mbb"
       ? planCatalog.filter((p) => p.categories.includes("data"))
@@ -228,6 +231,7 @@ const ChangePrepaidBundle = () => {
     categories.includes("switch-postpaid") ? "postpaid" as const
     : categories.includes("combo") ? "combo" as const
     : categories.includes("flexi") ? "combo" as const
+    : categories.includes("calls") ? "calls" as const
     : categories.includes("aman") ? "aman" as const
     : categories.includes("base-plan") ? "baqa" as const
     : "flex" as const;
@@ -426,6 +430,8 @@ const ChangePrepaidBundle = () => {
                       { value: "all", label: t("changePrepaidBundle.chipAll") },
                       { value: "combo", label: t("changePrepaidBundle.categoryCombo") },
                       { value: "flexi", label: t("changePrepaidBundle.categoryFlexi") },
+                      { value: "data", label: t("changePrepaidBundle.categoryInternet") },
+                      { value: "calls", label: t("changePrepaidBundle.categoryInternational") },
                     ]
                   : [
                       { value: "all", label: t("changePrepaidBundle.chipAll") },

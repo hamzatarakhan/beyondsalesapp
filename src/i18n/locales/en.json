@@ -942,6 +942,8 @@
     "category5gMbb": "5G MBB",
     "categoryCombo": "Combo Plans",
     "categoryFlexi": "Flexi Plans",
+    "categoryInternet": "Internet",
+    "categoryInternational": "International",
     "changeTypeUpgrade": "Upgrade",
     "changeTypeDowngrade": "Downgrade",
     "changeTypeRenew": "Renew",

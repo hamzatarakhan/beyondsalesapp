@@ -12,7 +12,7 @@ import { PREPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
 type LineType = "mobile" | "mbb";
 
 // Same category list as ChangePrepaidBundle.tsx (not exported there, redeclared here).
-const MOBILE_PREPAID_CATEGORIES = (isFriendi: boolean) => (isFriendi ? ["combo", "flexi"] : ["aman", "base-plan", "flex"]);
+const MOBILE_PREPAID_CATEGORIES = (isFriendi: boolean) => (isFriendi ? ["combo", "flexi", "data", "calls"] : ["aman", "base-plan", "flex"]);
 
 interface NavState {
   lineType?: LineType;
@@ -49,6 +49,8 @@ const ChangePrepaidBundleAllPlans = () => {
         { value: "all", label: t("changePrepaidBundle.chipAll") },
         { value: "combo", label: t("changePrepaidBundle.categoryCombo") },
         { value: "flexi", label: t("changePrepaidBundle.categoryFlexi") },
+        { value: "data", label: t("changePrepaidBundle.categoryInternet") },
+        { value: "calls", label: t("changePrepaidBundle.categoryInternational") },
       ]
     : [
         { value: "all", label: t("changePrepaidBundle.chipAll") },
@@ -133,6 +135,7 @@ const ChangePrepaidBundleAllPlans = () => {
             const cats = p.categories ?? [];
             const layout = cats.includes("combo") ? "combo"
               : cats.includes("flexi") ? "combo"
+              : cats.includes("calls") ? "calls"
               : cats.includes("aman") ? "aman"
               : cats.includes("base-plan") ? "baqa"
               : "flex";
