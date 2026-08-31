@@ -981,6 +981,8 @@
     "pay": "ادفع",
     "confirmTitle": "تأكيد تغيير الباقة",
     "confirmDesc": "ستفقد جميع مزايا الباقة الحالية.",
+    "confirmAddTitle": "تأكيد إضافة الباقة",
+    "confirmAddDesc": "هل أنت متأكد أنك تريد إضافة هذه الباقة؟",
     "yesConfirm": "نعم، تأكيد",
     "cancel": "إلغاء",
     "cancelFlowTitle": "إلغاء تغيير الباقة؟",

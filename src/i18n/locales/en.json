@@ -981,6 +981,8 @@
     "pay": "Pay",
     "confirmTitle": "Confirm Plan Change",
     "confirmDesc": "You will lose all current plan benefits.",
+    "confirmAddTitle": "Confirm Add Plan",
+    "confirmAddDesc": "Are you sure you want to add this plan?",
     "yesConfirm": "Yes, Confirm",
     "cancel": "Cancel",
     "cancelFlowTitle": "Cancel Plan Change?",

@@ -670,7 +670,9 @@ const ChangePrepaidBundle = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Confirm Payment — lose-benefits warning, per the client's spec copy */}
+      {/* Confirm Payment — lose-benefits warning, per the client's spec copy. Friendi
+          customers can hold multiple plans at once (a new plan is added, not swapped in for
+          the old one), so FM gets its own "add this plan" copy instead of the loss warning. */}
       <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4 text-center">
@@ -678,8 +680,12 @@ const ChangePrepaidBundle = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("changePrepaidBundle.confirmTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("changePrepaidBundle.confirmDesc")}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">
+                {isFriendi ? t("changePrepaidBundle.confirmAddTitle") : t("changePrepaidBundle.confirmTitle")}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {isFriendi ? t("changePrepaidBundle.confirmAddDesc") : t("changePrepaidBundle.confirmDesc")}
+              </p>
             </div>
             <div className="w-full flex flex-col gap-3">
               <Button className="w-full h-12 rounded-full font-semibold" onClick={resolvePayment}>{t("changePrepaidBundle.yesConfirm")}</Button>
