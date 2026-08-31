@@ -686,7 +686,6 @@
     "payAmountSar": "دفع {{amount}} ريال",
     "confirmAdjustment": "تأكيد التعديل",
     "adjustmentSummary": "ملخص التعديل",
-    "direction": "الاتجاه",
     "otpVerification": "التحقق برمز OTP",
     "otpVerified": "تم التحقق برمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من الرمز",

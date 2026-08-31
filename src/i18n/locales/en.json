@@ -686,7 +686,6 @@
     "payAmountSar": "Pay {{amount}} SAR",
     "confirmAdjustment": "Confirm Adjustment",
     "adjustmentSummary": "Adjustment Summary",
-    "direction": "Direction",
     "otpVerification": "OTP Verification",
     "otpVerified": "OTP Verified",
     "sendVerifyOtp": "Send & verify OTP",

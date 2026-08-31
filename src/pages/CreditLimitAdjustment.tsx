@@ -614,17 +614,8 @@ const CreditLimitAdjustment = () => {
           <>
             <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
               <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
-              <SummaryRow label={t("creditLimitAdjustment.direction")} value={direction === "increase" ? t("creditLimitAdjustment.increase") : t("creditLimitAdjustment.decrease")} />
               <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
               <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit.toFixed(2)}</>} />
-            </CardSection>
-
-            <CardSection title={t("creditLimitAdjustment.otpVerification")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label={t("creditLimitAdjustment.otpVerified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("creditLimitAdjustment.sendVerifyOtp")}</Button>
-              )}
             </CardSection>
 
             {direction === "increase" && (
@@ -642,6 +633,14 @@ const CreditLimitAdjustment = () => {
                 </div>
               </CardSection>
             )}
+
+            <CardSection title={t("creditLimitAdjustment.otpVerification")} icon={Phone}>
+              {otpVerified ? (
+                <VerifiedBanner label={t("creditLimitAdjustment.otpVerified")} />
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("creditLimitAdjustment.sendVerifyOtp")}</Button>
+              )}
+            </CardSection>
           </>
         )}
       </div>
