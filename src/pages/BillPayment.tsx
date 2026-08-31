@@ -500,7 +500,7 @@ const BillPayment = () => {
     const open = expandedBill === bill.number;
     const total = billTotal(bill);
     return (
-      <div key={bill.number} className="rounded-xl border border-border/60 bg-background/60 p-3">
+      <div key={bill.number} className="rounded-xl border border-border/60 bg-card p-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-foreground">{bill.number}</p>
@@ -716,13 +716,12 @@ const BillPayment = () => {
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
             {/* Results land inline, right under the search — no page hop to review bills. One
-                shared "Outstanding Bill(s)" card now, instead of every account card below
-                repeating its own copy of the same icon+title — title on top, bill count +
-                combined total due underneath, in one container. */}
+                shared "Outstanding Bill(s)" card, one row: icon + title on the start side,
+                the combined total due on the end side — no separate bill-count line. */}
             {accounts && accounts.length > 0 && (
-              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5">
+              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <ReceiptText className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-foreground">
@@ -730,17 +729,9 @@ const BillPayment = () => {
                   </p>
                 </div>
                 {(isMulti || totalBillsCount > 1) && (
-                  <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-primary/10">
-                    <p className="text-xs text-muted-foreground">
-                      {t("billPayment.totalBillsCount", { count: totalBillsCount })}
-                    </p>
-                    <div className="text-end shrink-0">
-                      <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDueAllBills")}</p>
-                      <p className="text-base font-bold text-primary">
-                        <RiyalSymbol /> {money(grandTotalDue)}
-                      </p>
-                    </div>
-                  </div>
+                  <p className="text-base font-bold text-primary shrink-0">
+                    <RiyalSymbol /> {money(grandTotalDue)}
+                  </p>
                 )}
               </div>
             )}

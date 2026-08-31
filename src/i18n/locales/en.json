@@ -402,8 +402,6 @@
     "amountErrorMin": "Minimum payment is {{min}} SAR.",
     "amountErrorMax": "Maximum payment is {{max}} SAR.",
     "outstandingBillsHeading": "Outstanding Bills ({{count}} Accounts)",
-    "totalBillsCount": "{{count}} bills total",
-    "totalDueAllBills": "Total Due (All Bills)",
     "accountTypeSwitchPostpaid": "Switch Postpaid",
     "accountTypeVnet": "Vnet",
     "statusActive": "Active",
