@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -137,6 +137,13 @@ const UpdateCustomerId = () => {
   const [sigEditorOpen, setSigEditorOpen] = useState(false);
   const [confirmedIdCheck, setConfirmedIdCheck] = useState(false);
 
+  // Terms & Conditions + Privacy Policy — same combined consent as SIM Activation /
+  // Subscription Migration.
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -229,7 +236,7 @@ const UpdateCustomerId = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible;
   const canContinueDetails = idNumberValid;
-  const canSubmit = customerVerified && otpVerified && !!signature && confirmedIdCheck;
+  const canSubmit = customerVerified && otpVerified && !!signature && confirmedIdCheck && termsAccepted;
 
   const resolveSubmit = () => {
     setConfirmOpen(false);
@@ -446,6 +453,35 @@ const UpdateCustomerId = () => {
                 </p>
               </div>
             </section>
+
+            {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start gap-3 select-none">
+                <div
+                  role="checkbox"
+                  aria-checked={termsAccepted}
+                  tabIndex={0}
+                  onClick={() => { if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                    termsAccepted ? "bg-primary border-primary" : "border-primary",
+                  )}
+                >
+                  {termsAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                  {t("updateCustomerId.agreeToThe")}{" "}
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                    {t("updateCustomerId.termsAndConditions")}
+                  </button>{" "}
+                  {t("updateCustomerId.andAcknowledge")}{" "}
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                    {t("updateCustomerId.privacyPolicy")}
+                  </button>.
+                </p>
+              </div>
+            </section>
           </>
         )}
       </div>
@@ -512,6 +548,61 @@ const UpdateCustomerId = () => {
               )}
             </p>
           </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Terms & Conditions */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("updateCustomerId.termsAndConditions")}</DrawerTitle>
+            <DrawerDescription>{t("updateCustomerId.termsDrawerDesc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("updateCustomerId.termsParagraph1")}</p>
+            <p>{t("updateCustomerId.termsParagraph2")}</p>
+            <p>{t("updateCustomerId.termsParagraph3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTermsAccepted(true); } }} className="w-full h-12 rounded-full">
+                {t("updateCustomerId.accept")}
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                {t("updateCustomerId.cancel")}
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Privacy Policy */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("updateCustomerId.privacyPolicy")}</DrawerTitle>
+            <DrawerDescription>{t("updateCustomerId.privacyDrawerDesc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("updateCustomerId.privacyParagraph1")}</p>
+            <p>{t("updateCustomerId.privacyParagraph2")}</p>
+            <p>{t("updateCustomerId.privacyParagraph3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
+                {t("updateCustomerId.close")}
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 

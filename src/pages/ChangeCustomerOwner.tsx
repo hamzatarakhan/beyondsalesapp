@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -134,6 +134,13 @@ const ChangeCustomerOwner = () => {
   const [sigEditor, setSigEditor] = useState<"old" | "new" | null>(null);
   const [confirmedIdCheck, setConfirmedIdCheck] = useState(false);
 
+  // Terms & Conditions + Privacy Policy — same combined consent as SIM Activation /
+  // Subscription Migration.
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsChain, setTermsChain] = useState(false);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -221,7 +228,7 @@ const ChangeCustomerOwner = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible;
   const canContinueDetails = idNumberValid;
-  const canSubmit = customerVerified && otpVerified && !!oldSignature && !!newSignature && confirmedIdCheck;
+  const canSubmit = customerVerified && otpVerified && !!oldSignature && !!newSignature && confirmedIdCheck && termsAccepted;
 
   const resolveSubmit = () => {
     setConfirmOpen(false);
@@ -437,6 +444,35 @@ const ChangeCustomerOwner = () => {
                 </p>
               </div>
             </section>
+
+            {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start gap-3 select-none">
+                <div
+                  role="checkbox"
+                  aria-checked={termsAccepted}
+                  tabIndex={0}
+                  onClick={() => { if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (termsAccepted) { setTermsAccepted(false); } else { setTermsChain(true); setTermsOpen(true); } } }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
+                    termsAccepted ? "bg-primary border-primary" : "border-primary",
+                  )}
+                >
+                  {termsAccepted && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <p className="text-sm text-foreground text-start flex-1 leading-snug">
+                  {t("changeCustomerOwner.agreeToThe")}{" "}
+                  <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold">
+                    {t("changeCustomerOwner.termsAndConditions")}
+                  </button>{" "}
+                  {t("changeCustomerOwner.andAcknowledge")}{" "}
+                  <button type="button" onClick={() => setPrivacyOpen(true)} className="text-primary font-semibold">
+                    {t("changeCustomerOwner.privacyPolicy")}
+                  </button>.
+                </p>
+              </div>
+            </section>
           </>
         )}
       </div>
@@ -503,6 +539,61 @@ const ChangeCustomerOwner = () => {
               )}
             </p>
           </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Terms & Conditions */}
+      <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("changeCustomerOwner.termsAndConditions")}</DrawerTitle>
+            <DrawerDescription>{t("changeCustomerOwner.termsDrawerDesc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("changeCustomerOwner.termsParagraph1")}</p>
+            <p>{t("changeCustomerOwner.termsParagraph2")}</p>
+            <p>{t("changeCustomerOwner.termsParagraph3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { setTermsOpen(false); if (termsChain) { setPrivacyOpen(true); } else { setTermsAccepted(true); } }} className="w-full h-12 rounded-full">
+                {t("changeCustomerOwner.accept")}
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" className="text-sm font-semibold text-primary">
+                {t("changeCustomerOwner.cancel")}
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Privacy Policy */}
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
+            <X className="h-5 w-5 text-foreground" />
+          </DrawerClose>
+          <DrawerHeader className="text-center">
+            <DrawerTitle>{t("changeCustomerOwner.privacyPolicy")}</DrawerTitle>
+            <DrawerDescription>{t("changeCustomerOwner.privacyDrawerDesc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+            <p>{t("changeCustomerOwner.privacyParagraph1")}</p>
+            <p>{t("changeCustomerOwner.privacyParagraph2")}</p>
+            <p>{t("changeCustomerOwner.privacyParagraph3")}</p>
+          </div>
+          <DrawerFooter className="flex-col gap-3">
+            <DrawerClose asChild>
+              <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
+                {t("changeCustomerOwner.close")}
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
