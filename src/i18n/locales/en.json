@@ -1149,13 +1149,16 @@
       "total": "Total"
     },
     "teamAchievements": "Team Achievements",
+    "achievementsTitle": "Achievements",
     "text": "Text",
     "seeAll": "See all",
     "achievementTarget": "Achievement / Target",
     "teamAchievement": {
       "prepaidActivations": "Prepaid Activations",
       "postpaidActivations": "Postpaid Activations",
-      "billPaymentVolume": "Bill Payment Volume"
+      "billPaymentVolume": "Bill Payment Volume",
+      "hbbConnections": "HBB Connections",
+      "simReplacements": "SIM Replacements"
     },
     "dealers": "Dealers",
     "top5": "Top 5",

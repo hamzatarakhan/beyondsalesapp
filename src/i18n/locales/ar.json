@@ -1149,13 +1149,16 @@
       "total": "الإجمالي"
     },
     "teamAchievements": "إنجازات الفريق",
+    "achievementsTitle": "الإنجازات",
     "text": "نص",
     "seeAll": "عرض الكل",
     "achievementTarget": "الإنجاز / الهدف",
     "teamAchievement": {
       "prepaidActivations": "تفعيلات مسبقة الدفع",
       "postpaidActivations": "تفعيلات آجلة الدفع",
-      "billPaymentVolume": "حجم دفع الفواتير"
+      "billPaymentVolume": "حجم دفع الفواتير",
+      "hbbConnections": "اتصالات الإنترنت المنزلي",
+      "simReplacements": "استبدال الشرائح"
     },
     "dealers": "الموزعون",
     "top5": "الأعلى 5",

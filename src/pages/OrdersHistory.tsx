@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
 import AppHeader from "@/components/AppHeader";
@@ -66,12 +67,14 @@ const CardSection = ({
 );
 
 // ---------- Demo data ----------
-type OrderStatus = "approved" | "pending" | "rejected";
-type OrderType = "prepaid" | "postpaid" | "hbb" | "simReplacement" | "topUp" | "billPayment";
+// Exported (not just page-local) so the "See all" sub-pages below can reuse the same
+// records instead of duplicating them — this file stays the single source of truth.
+export type OrderStatus = "approved" | "pending" | "rejected";
+export type OrderType = "prepaid" | "postpaid" | "hbb" | "simReplacement" | "topUp" | "billPayment";
 
 const ORDER_TYPES: OrderType[] = ["prepaid", "postpaid", "hbb", "simReplacement", "topUp", "billPayment"];
 
-interface DemoOrder {
+export interface DemoOrder {
   id: string;
   status: OrderStatus;
   commissionStatus: OrderStatus;
@@ -90,7 +93,7 @@ interface DemoOrder {
 // so the Today/Last 7/Last 30 buckets below stay meaningful regardless of when this runs.
 const TODAY_REF = new Date(2026, 7, 31);
 
-const ORDERS: DemoOrder[] = [
+export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0 },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5 },
   { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0 },
@@ -115,10 +118,14 @@ const DEALERS: Dealer[] = [
   { name: "Abdullah Al-Zahrani", code: "DST006", commission: 12.0, orders: 4 },
 ];
 
-const TEAM_ACHIEVEMENTS = [
+// Only the first 3 show inline on the Commission tab card — the full list lives on the
+// dedicated "See all" page.
+export const TEAM_ACHIEVEMENTS = [
   { key: "prepaidActivations", achievement: 27, target: 30 },
   { key: "postpaidActivations", achievement: 18, target: 20 },
   { key: "billPaymentVolume", achievement: 9, target: 10 },
+  { key: "hbbConnections", achievement: 12, target: 15 },
+  { key: "simReplacements", achievement: 22, target: 25 },
 ];
 
 type DateRangeKey = "today" | "last7" | "last30" | "custom" | null;
@@ -139,6 +146,7 @@ const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", mo
 
 const OrdersHistory = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
 
@@ -619,12 +627,12 @@ const OrdersHistory = () => {
                   <p className="text-sm font-semibold text-foreground">{t("ordersHistory.teamAchievements")}</p>
                   <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground font-medium">{t("ordersHistory.text")}</span>
                 </div>
-                <button type="button" className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
+                <button type="button" onClick={() => navigate("/order-history/achievements")} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
                   {t("ordersHistory.seeAll")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               </div>
               <div className="space-y-3.5">
-                {TEAM_ACHIEVEMENTS.map((a) => (
+                {TEAM_ACHIEVEMENTS.slice(0, 3).map((a) => (
                   <div key={a.key} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{t(`ordersHistory.teamAchievement.${a.key}`)}</p>
@@ -684,7 +692,7 @@ const OrdersHistory = () => {
               title={t("ordersHistory.commissionHistory")}
               icon={Wallet}
               right={
-                <button type="button" className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
+                <button type="button" onClick={() => navigate("/order-history/commission-history")} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
                   {t("ordersHistory.seeAll")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               }
