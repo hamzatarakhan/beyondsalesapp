@@ -719,10 +719,11 @@ const BillPayment = () => {
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
             {/* Results land inline, right under the search — no page hop to review bills. Plain
-                heading, no card/box around it either way — the Total row underneath (when
-                there's more than one account/bill) is plain too, not boxed. */}
+                heading, no card/box around it either way. The Total row underneath (when
+                there's more than one account/bill) is plain too, not boxed — but set off with
+                the same top-border divider the checkout step's own Total row uses. */}
             {accounts && accounts.length > 0 && (
-              <div className="space-y-2">
+              <div>
                 <div className="flex items-center gap-2 px-1">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                     <ReceiptText className="w-3.5 h-3.5 text-primary" />
@@ -732,7 +733,7 @@ const BillPayment = () => {
                   </p>
                 </div>
                 {(isMulti || totalBillsCount > 1) && (
-                  <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center justify-between px-1 pt-3 mt-2 border-t border-border">
                     <span className="text-sm font-semibold text-foreground">{t("billPayment.total")}</span>
                     <span className="text-base font-bold text-primary">
                       <RiyalSymbol /> {money(grandTotalDue)}
