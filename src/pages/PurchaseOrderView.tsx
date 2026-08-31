@@ -94,8 +94,13 @@ const PurchaseOrderView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
+  // Statuses with a fixed action bar need scroll-room underneath the summary card so the
+  // bar never overlaps it — statuses with no actions (awaitingApproval/received/
+  // cancelled/rejected) don't render a bar at all, so they keep the plain padding.
+  const hasActionBar = ["rfq", "quotationSent", "awaitingDelivery", "awaitingScanning"].includes(order.status);
+
   return (
-    <div className="mobile-container min-h-screen bg-background pb-8">
+    <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
       <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate("/purchase-orders")} />
 
       <div className="px-4 space-y-3">
@@ -183,56 +188,60 @@ const PurchaseOrderView = () => {
           </div>
         </div>
 
-        {order.status === "rfq" && (
-          <div className="space-y-3 pt-1">
-            <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-              {t("purchaseOrders.edit")}
-            </button>
-            <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-              {t("purchaseOrders.cancelOrder")}
-            </button>
-          </div>
-        )}
-
-        {order.status === "quotationSent" && (
-          <div className="space-y-3 pt-1">
-            <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-              {t("purchaseOrders.approve")}
-            </button>
-            <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
-              {t("purchaseOrders.rejectOrder")}
-            </button>
-            <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-              {t("purchaseOrders.cancelOrder")}
-            </button>
-          </div>
-        )}
-
-        {order.status === "awaitingDelivery" && (
-          <div className="space-y-3 pt-1">
-            <button type="button" onClick={() => openConfirm("receive")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-              {t("purchaseOrders.received")}
-            </button>
-            <button type="button" onClick={() => openConfirm("partiallyReserved")} className="w-full text-center text-sm font-semibold text-primary">
-              {t("purchaseOrders.partiallyReserved")}
-            </button>
-          </div>
-        )}
-
-        {order.status === "awaitingScanning" && (
-          <div className="pt-1">
-            {order.partiallyReserved && <p className="text-[11px] text-muted-foreground text-center mb-2">{t("purchaseOrders.partiallyReservedNote")}</p>}
-            <button
-              type="button"
-              disabled={!fullyScanned}
-              onClick={() => openConfirm("submitScanning")}
-              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
-            >
-              {t("purchaseOrders.submit")}
-            </button>
-          </div>
-        )}
       </div>
+
+      {/* Action buttons pinned to the bottom of the screen, not scrolling with the
+          content — matches the reference design (and the "+ New order" FAB elsewhere
+          in this flow being a fixed control rather than part of the scroll). */}
+      {order.status === "rfq" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.edit")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "quotationSent" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.approve")}
+          </button>
+          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+            {t("purchaseOrders.rejectOrder")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "awaitingDelivery" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => openConfirm("receive")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.received")}
+          </button>
+          <button type="button" onClick={() => openConfirm("partiallyReserved")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.partiallyReserved")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "awaitingScanning" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+          {order.partiallyReserved && <p className="text-[11px] text-muted-foreground text-center mb-2">{t("purchaseOrders.partiallyReservedNote")}</p>}
+          <button
+            type="button"
+            disabled={!fullyScanned}
+            onClick={() => openConfirm("submitScanning")}
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
+          >
+            {t("purchaseOrders.submit")}
+          </button>
+        </div>
+      )}
 
       <ConfirmMessageDrawer
         open={!!confirmAction}
