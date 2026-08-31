@@ -1172,6 +1172,28 @@
     "scheduledCommission": "عمولة مجدولة",
     "searchDealers": "البحث عن الموزعين"
   },
+  "salesOrders": {
+    "title": "طلبات المبيعات",
+    "noOrders": "لا توجد طلبات مبيعات مطابقة للفلاتر المحددة",
+    "channelMember": "عضو القناة",
+    "selectChannelMember": "اختر عضو القناة",
+    "dealerCode": "رمز الموزع",
+    "orTapToScan": "أو",
+    "tapToScanCard": "اضغط لفتح الكاميرا للمسح",
+    "scanQr": "مسح رمز QR",
+    "continue": "متابعة",
+    "viewingLocation": "العرض حسب: {{location}}",
+    "status": {
+      "rfq": "طلب عرض سعر",
+      "quotationSent": "تم إرسال عرض السعر",
+      "awaitingApproval": "بانتظار الموافقة",
+      "awaitingScanning": "ممسوح جزئيًا",
+      "awaitingDelivery": "بانتظار التسليم",
+      "received": "تم الاستلام",
+      "rejected": "مرفوض",
+      "cancelled": "ملغي"
+    }
+  },
   "purchaseOrders": {
     "title": "طلبات الشراء",
     "searchPlaceholder": "بحث",
@@ -1679,6 +1701,9 @@
     "otherServices": "خدمات أخرى",
     "otherWidgets": "أدوات أخرى",
     "purchaseOrders": "طلبات الشراء",
+    "salesOrders": "طلبات المبيعات",
+    "selectLocation": "اختر الموقع",
+    "selectLocationSub": "اختر الموقع الذي تريد إدارة طلبات المبيعات له",
     "creditTransfer": "تحويل رصيد",
     "walletRecharge": "شحن المحفظة الإلكترونية",
     "customerComplaint": "تقديم شكوى",

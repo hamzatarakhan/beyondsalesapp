@@ -73,6 +73,10 @@ import PurchaseOrders from "./pages/PurchaseOrders";
 import PurchaseOrderForm from "./pages/PurchaseOrderForm";
 import PurchaseOrderView from "./pages/PurchaseOrderView";
 import PurchaseOrderScan from "./pages/PurchaseOrderScan";
+import SalesOrders from "./pages/SalesOrders";
+import SalesOrderForm from "./pages/SalesOrderForm";
+import SalesOrderView from "./pages/SalesOrderView";
+import SalesOrderScan from "./pages/SalesOrderScan";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
 import OnboardingRequests from "./pages/OnboardingRequests";
@@ -193,6 +197,11 @@ const App = () => {
           <Route path="/purchase-orders/new" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/scan/:productId" element={<PurchaseOrderScan />} />
+          <Route path="/sales-orders" element={<SalesOrders />} />
+          <Route path="/sales-orders/new" element={<SalesOrderForm />} />
+          <Route path="/sales-orders/:id/edit" element={<SalesOrderForm />} />
+          <Route path="/sales-orders/:id/scan/:productId" element={<SalesOrderScan />} />
+          <Route path="/sales-orders/:id" element={<SalesOrderView />} />
           <Route path="/purchase-orders/:id" element={<PurchaseOrderView />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />

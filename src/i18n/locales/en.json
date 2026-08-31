@@ -1172,6 +1172,28 @@
     "scheduledCommission": "Scheduled Commission",
     "searchDealers": "Search Dealers"
   },
+  "salesOrders": {
+    "title": "Sales Orders",
+    "noOrders": "No sales orders match your filters",
+    "channelMember": "Channel Member",
+    "selectChannelMember": "Select the channel member",
+    "dealerCode": "Dealer Code",
+    "orTapToScan": "Or",
+    "tapToScanCard": "Tap to open camera scan",
+    "scanQr": "Scan QR",
+    "continue": "Continue",
+    "viewingLocation": "Viewing: {{location}}",
+    "status": {
+      "rfq": "RFQ",
+      "quotationSent": "Quotation Sent",
+      "awaitingApproval": "Awaiting Approval",
+      "awaitingScanning": "Partially Scanned",
+      "awaitingDelivery": "Awaiting Delivery",
+      "received": "Received",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
+  },
   "purchaseOrders": {
     "title": "Purchase Orders",
     "searchPlaceholder": "Search",
@@ -1679,6 +1701,9 @@
     "otherServices": "Other Services",
     "otherWidgets": "Other Widgets",
     "purchaseOrders": "Purchase Orders",
+    "salesOrders": "Sales Orders",
+    "selectLocation": "Select Location",
+    "selectLocationSub": "Choose which location to manage Sales Orders for",
     "creditTransfer": "Credit Transfer",
     "walletRecharge": "eWallet Recharge",
     "customerComplaint": "Raise Complaint",
