@@ -715,11 +715,18 @@ const BillPayment = () => {
 
             {noBillsMessage && <NoBillsBanner message={noBillsMessage} />}
 
-            {/* Results land inline, right under the search — no page hop to review bills. */}
-            {isMulti && accounts && (
-              <p className="text-xs text-muted-foreground px-1">
-                {t("billPayment.accountsRegisteredToId", { count: accounts.length })}
-              </p>
+            {/* Results land inline, right under the search — no page hop to review bills. One
+                shared "Outstanding Bill(s)" heading now, instead of every account card below
+                repeating its own copy of the same icon+title. */}
+            {accounts && accounts.length > 0 && (
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ReceiptText className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">
+                  {isMulti ? t("billPayment.outstandingBillsHeading", { count: accounts.length }) : t("billPayment.outstandingBill")}
+                </p>
+              </div>
             )}
 
             {/* Combined overview across every account/bill this lookup returned — separate
@@ -748,13 +755,6 @@ const BillPayment = () => {
                   "bg-card rounded-2xl p-4 shadow-sm space-y-3 transition-colors",
                   isMulti && (isOn ? "!border !border-primary/20" : "border border-border/60"),
                 )}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <ReceiptText className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <p className="text-sm font-semibold text-foreground">{t("billPayment.outstandingBill")}</p>
-                  </div>
-
                   {/* Same muted background used by SIM Termination option 3 / Subscription
                       Migration's old-line bill card — wraps the account header and (once
                       expanded) the bills list together. */}

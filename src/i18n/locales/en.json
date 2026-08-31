@@ -401,7 +401,7 @@
     "amountErrorInvalid": "Enter a valid amount.",
     "amountErrorMin": "Minimum payment is {{min}} SAR.",
     "amountErrorMax": "Maximum payment is {{max}} SAR.",
-    "accountsRegisteredToId": "{{count}} accounts with outstanding bills are registered to this ID. Select the ones to pay for and set each amount.",
+    "outstandingBillsHeading": "{{count}} Accounts with Outstanding Bills",
     "totalBillsCount": "{{count}} bills total",
     "totalDueAllBills": "Total Due (All Bills)",
     "accountTypeSwitchPostpaid": "Switch Postpaid",
