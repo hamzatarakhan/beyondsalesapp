@@ -91,7 +91,7 @@ const PurchaseOrders = () => {
       .join(" , ");
 
   return (
-    <div className="mobile-container min-h-screen bg-background pb-28">
+    <div className="mobile-container min-h-screen bg-background pb-24">
       <AppHeader title={t("purchaseOrders.title")} showBack />
 
       <div className="px-4 space-y-3">
@@ -163,15 +163,13 @@ const PurchaseOrders = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-        <button
-          type="button"
-          onClick={() => navigate("/purchase-orders/new")}
-          className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" /> {t("purchaseOrders.newOrder")}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => navigate("/purchase-orders/new")}
+        className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5 shadow-lg shadow-primary/30"
+      >
+        <Plus className="w-4 h-4" /> {t("purchaseOrders.newOrder")}
+      </button>
 
       {/* ---------- Filter drawer ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
