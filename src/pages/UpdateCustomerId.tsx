@@ -135,8 +135,6 @@ const UpdateCustomerId = () => {
 
   const [signature, setSignature] = useState<string | null>(null);
   const [sigEditorOpen, setSigEditorOpen] = useState(false);
-  const [confirmedIdCheck, setConfirmedIdCheck] = useState(false);
-
   // Terms & Conditions + Privacy Policy — same combined consent as SIM Activation /
   // Subscription Migration.
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -236,7 +234,7 @@ const UpdateCustomerId = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible;
   const canContinueDetails = idNumberValid;
-  const canSubmit = customerVerified && otpVerified && !!signature && confirmedIdCheck && termsAccepted;
+  const canSubmit = customerVerified && otpVerified && !!signature && termsAccepted;
 
   const resolveSubmit = () => {
     setConfirmOpen(false);
@@ -267,7 +265,7 @@ const UpdateCustomerId = () => {
     setCustomerVerified(false);
     setOtpVerified(false);
     setSignature(null);
-    setConfirmedIdCheck(false);
+    setTermsAccepted(false);
   };
 
   const steps = [
@@ -433,26 +431,6 @@ const UpdateCustomerId = () => {
               onClear={() => setSignature(null)}
             />
 
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-start gap-3 select-none">
-                <div
-                  role="checkbox"
-                  aria-checked={confirmedIdCheck}
-                  tabIndex={0}
-                  onClick={() => setConfirmedIdCheck((v) => !v)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmedIdCheck((v) => !v); } }}
-                  className={cn(
-                    "w-4 h-4 mt-0.5 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer",
-                    confirmedIdCheck ? "bg-primary border-primary" : "border-primary",
-                  )}
-                >
-                  {confirmedIdCheck && <Check className="w-3 h-3 text-primary-foreground" />}
-                </div>
-                <p className="text-sm text-foreground text-start flex-1 leading-snug">
-                  {t("updateCustomerId.confirmIdCheckbox")}
-                </p>
-              </div>
-            </section>
 
             {/* Terms & Conditions + Privacy Policy — same combined consent as SIM Activation */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
