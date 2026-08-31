@@ -402,6 +402,8 @@
     "amountErrorMin": "الحد الأدنى للدفع هو {{min}} ريال.",
     "amountErrorMax": "الحد الأقصى للدفع هو {{max}} ريال.",
     "accountsRegisteredToId": "يوجد {{count}} حسابات لديها فواتير مستحقة مسجلة على هذه الهوية. اختر الحسابات التي تريد دفعها وحدد مبلغ كل منها.",
+    "totalBillsCount": "إجمالي {{count}} فاتورة",
+    "totalDueAllBills": "إجمالي المستحق (كل الفواتير)",
     "accountTypeSwitchPostpaid": "سويتش فوترة",
     "accountTypeVnet": "Vnet",
     "statusActive": "نشط",

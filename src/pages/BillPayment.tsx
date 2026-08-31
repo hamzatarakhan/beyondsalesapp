@@ -372,6 +372,11 @@ const BillPayment = () => {
   const isMulti = (accounts?.length ?? 0) > 1;
   const primary = accounts?.[0];
 
+  // Combined overview across every account/bill this lookup returned — separate from
+  // payingAccounts/totalToPay below, which only cover what's actually selected for payment.
+  const totalBillsCount = (accounts ?? []).reduce((sum, a) => sum + a.bills.length, 0);
+  const grandTotalDue = (accounts ?? []).reduce((sum, a) => sum + totalDueOf(a), 0);
+
   /** Single account (either entry path) uses the flat 2500 ceiling; multi-account rows cap per bill. */
   const maxFor = (a: BillAccount) => (isMulti ? totalDueOf(a) : MSISDN_MAX_PAY);
 
@@ -716,6 +721,22 @@ const BillPayment = () => {
               <p className="text-xs text-muted-foreground px-1">
                 {t("billPayment.accountsRegisteredToId", { count: accounts.length })}
               </p>
+            )}
+
+            {/* Combined overview across every account/bill this lookup returned — separate
+                from the per-account cards below, which stay focused on one line at a time. */}
+            {accounts && accounts.length > 0 && (isMulti || totalBillsCount > 1) && (
+              <div className="rounded-2xl bg-primary/5 border border-primary/15 p-3.5 flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">
+                  {t("billPayment.totalBillsCount", { count: totalBillsCount })}
+                </p>
+                <div className="text-end shrink-0">
+                  <p className="text-[10px] text-muted-foreground">{t("billPayment.totalDueAllBills")}</p>
+                  <p className="text-base font-bold text-primary">
+                    <RiyalSymbol /> {money(grandTotalDue)}
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Beyond 2 accounts, cards collapse to just their header by default; the expand/
