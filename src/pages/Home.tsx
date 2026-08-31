@@ -251,6 +251,7 @@ const Home = () => {
   // rather than a customer-record action.
   const otherWidgetsOptions = [
     { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Order History is a browse-only/reporting service, not a customer-record action — skip
@@ -261,6 +262,11 @@ const Home = () => {
   const handleActivityClick = (path: string) => {
     if (path === "/order-history") {
       setOrderHistoryViewOpen(true);
+      return;
+    }
+    // Dealer stock/inventory ordering, not a customer-record action — no Nafath gate.
+    if (path === "/purchase-orders") {
+      navigate(path);
       return;
     }
     setPendingPath(path);
