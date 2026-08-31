@@ -274,6 +274,12 @@ const OrdersHistory = () => {
     setDraftDateKey(null);
   };
 
+  // Dealer picker — shared by the Summary and Commission tabs' "Search by member" fields
+  // (Parent View only; declared up here so scopedOrders below can filter by it).
+  const [dealerSearch, setDealerSearch] = useState("");
+  const [searchDealersOpen, setSearchDealersOpen] = useState(false);
+  const [selectedDealer, setSelectedDealer] = useState<Dealer | null>(null);
+
   // ---------- Shared date-range chips (Summary + Commission tabs) ----------
   const [scopeRangeKey, setScopeRangeKey] = useState<"today" | "last7" | "last30" | "custom">("last30");
   const [scopeCustomRange, setScopeCustomRange] = useState<{ from: Date; to: Date } | null>(null);
@@ -283,7 +289,10 @@ const OrdersHistory = () => {
     const from = scopeRangeKey === "today" ? TODAY_REF : daysAgo(scopeRangeKey === "last7" ? 6 : 29);
     return { from, to };
   }, [scopeRangeKey, scopeCustomRange]);
-  const scopedOrders = useMemo(() => baseOrders.filter((o) => inRange(o.dateObj, scopeRange.from, scopeRange.to)), [baseOrders, scopeRange]);
+  const scopedOrders = useMemo(
+    () => baseOrders.filter((o) => inRange(o.dateObj, scopeRange.from, scopeRange.to) && (!selectedDealer || o.memberCode === selectedDealer.code)),
+    [baseOrders, scopeRange, selectedDealer],
+  );
 
   const openScopePickDate = () => {
     setDraftRange(scopeCustomRange ?? undefined);
@@ -314,9 +323,6 @@ const OrdersHistory = () => {
   const maxTypeCommission = Math.max(1, ...summary.byType.map((r) => r.commission));
 
   // ---------- Commission tab ----------
-  const [dealerSearch, setDealerSearch] = useState("");
-  const [searchDealersOpen, setSearchDealersOpen] = useState(false);
-  const [selectedDealer, setSelectedDealer] = useState<Dealer | null>(null);
   const [dealerRankTab, setDealerRankTab] = useState<"top" | "lowest">("top");
 
   const filteredDealers = useMemo(() => {
@@ -566,10 +572,28 @@ const OrdersHistory = () => {
 
           {/* ---------- Summary ---------- */}
           <TabsContent value="summary" className="mt-0 space-y-4 pb-4">
-            <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder={t("ordersHistory.searchByMember")} className="h-11 bg-card rounded-xl ps-9" />
-            </div>
+            {view === "parent" && (
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  readOnly
+                  onClick={() => setSearchDealersOpen(true)}
+                  value={selectedDealer ? selectedDealer.name : ""}
+                  placeholder={t("ordersHistory.searchByMember")}
+                  className="h-11 bg-card rounded-xl ps-9 cursor-pointer"
+                />
+                {selectedDealer && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDealer(null)}
+                    aria-label={t("ordersHistory.removeFilter")}
+                    className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center"
+                  >
+                    <XIcon className="w-3 h-3 text-foreground" />
+                  </button>
+                )}
+              </div>
+            )}
             <DateChips activeKey={scopeRangeKey} onPick={setScopeRangeKey} onCustom={openScopePickDate} />
 
             <div className="grid grid-cols-2 gap-3">
