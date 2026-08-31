@@ -496,24 +496,27 @@ const BillPayment = () => {
   };
 
   // ---------- Renderers ----------
-  const renderBill = (bill: Bill) => {
+  // `soft` mirrors SIM Termination/Subscription Migration's own bill-row treatment: white
+  // once its account is selected for payment, a soft grey card otherwise.
+  const renderBill = (bill: Bill, soft: boolean) => {
     const open = expandedBill === bill.number;
     const total = billTotal(bill);
     return (
-      <div key={bill.number} className="rounded-xl border border-border/60 bg-card p-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-foreground">{bill.number}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{bill.cycle}</p>
-          </div>
-          <div className="text-end shrink-0">
-            <p className="text-sm font-bold text-foreground">
-              <RiyalSymbol /> {money(total)}
-            </p>
-            <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", BILL_STATUS_STYLE[bill.status])}>
-              {BILL_STATUS_LABEL[bill.status]}
-            </span>
-          </div>
+      <div key={bill.number} className={cn("rounded-xl border border-border/60 p-3", soft ? "bg-muted/50" : "bg-card")}>
+        {/* Bill number + status badge share the top row, same as every other outstanding-
+            bill list in the app (SIM Termination, Subscription Migration) — not stacked
+            under the amount. */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-foreground">{bill.number}</p>
+          <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0", BILL_STATUS_STYLE[bill.status])}>
+            {BILL_STATUS_LABEL[bill.status]}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3 mt-0.5">
+          <p className="text-[11px] text-muted-foreground">{bill.cycle}</p>
+          <p className="text-sm font-bold text-foreground shrink-0">
+            <RiyalSymbol /> {money(total)}
+          </p>
         </div>
         <button
           type="button"
@@ -802,7 +805,7 @@ const BillPayment = () => {
                     </div>
 
                     {isExpanded && (
-                      <div className="space-y-2">{a.bills.map(renderBill)}</div>
+                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, isMulti && isOn))}</div>
                     )}
 
                     {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
