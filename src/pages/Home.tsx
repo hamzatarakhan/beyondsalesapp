@@ -225,7 +225,8 @@ const Home = () => {
       ? []
       : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const }]),
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "change-ownership", icon: UserCog, label: t("home.changeOwnershipUpdateId"), path: "/change-ownership", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops

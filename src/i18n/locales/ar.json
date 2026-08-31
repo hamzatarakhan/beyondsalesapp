@@ -1130,13 +1130,6 @@
     "failureReasonGeneric": "حدث خطأ أثناء معالجة هذا الطلب. يرجى المحاولة مرة أخرى.",
     "tryAgain": "المحاولة مرة أخرى"
   },
-  "changeOwnershipChooser": {
-    "title": "تغيير الملكية / تحديث الهوية",
-    "updateIdTitle": "تحديث الهوية",
-    "updateIdDesc": "استبدال هوية العميل بهوية جديدة تعود لنفس الشخص.",
-    "changeOwnerTitle": "تغيير المالك",
-    "changeOwnerDesc": "نقل ملكية هذا الخط إلى شخص آخر."
-  },
   "updateCustomerId": {
     "title": "تحديث الهوية",
     "stepNumber": "الرقم",
@@ -1471,7 +1464,8 @@
     "changePrepaidBundle": "تغيير باقة الدفع المسبق",
     "changePostpaidPlan": "تغيير باقة الفوترة",
     "cancelPortIn": "إلغاء طلب نقل الرقم",
-    "changeOwnershipUpdateId": "تغيير الملكية / تحديث الهوية",
+    "updateId": "تحديث الهوية",
+    "changeOwner": "تغيير المالك",
     "eWallets": "المحافظ الإلكترونية",
     "dealerWalletBalance": "رصيد محفظة الموزّع",
     "otherServices": "خدمات أخرى",

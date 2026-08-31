@@ -261,7 +261,7 @@ const ChangeCustomerOwner = () => {
       <AppHeader
         title={t("changeCustomerOwner.title")}
         showBack
-        onBackClick={() => (step === 0 ? navigate("/change-ownership") : setStep((s) => s - 1))}
+        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
           step > 0 ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">

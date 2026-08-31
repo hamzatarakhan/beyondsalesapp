@@ -1130,13 +1130,6 @@
     "failureReasonGeneric": "Something went wrong while processing this request. Please try again.",
     "tryAgain": "Try Again"
   },
-  "changeOwnershipChooser": {
-    "title": "Change Ownership / Update ID",
-    "updateIdTitle": "Update ID",
-    "updateIdDesc": "Replace the customer's ID with a new one that belongs to the same person.",
-    "changeOwnerTitle": "Change Owner",
-    "changeOwnerDesc": "Transfer ownership of this line to a different person."
-  },
   "updateCustomerId": {
     "title": "Update ID",
     "stepNumber": "Number",
@@ -1471,7 +1464,8 @@
     "changePrepaidBundle": "Change Prepaid Bundle",
     "changePostpaidPlan": "Change Postpaid Plan",
     "cancelPortIn": "Cancel Port In Request",
-    "changeOwnershipUpdateId": "Change Ownership / Update ID",
+    "updateId": "Update ID",
+    "changeOwner": "Change Owner",
     "eWallets": "E Wallets",
     "dealerWalletBalance": "Dealer Wallet Balance",
     "otherServices": "Other Services",
