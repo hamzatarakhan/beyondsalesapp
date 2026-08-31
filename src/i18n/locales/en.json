@@ -517,6 +517,7 @@
     "testNoteInvalid": "Invalid code",
     "topUp": "Top Up",
     "rechargeAmount": "Recharge Amount",
+    "amountRangeHint": "Min {{min}} SAR – Max {{max}} SAR",
     "paymentCard": "Payment Card",
     "selectPaymentMethod": "Select Payment Method",
     "visaCard": "Visa",

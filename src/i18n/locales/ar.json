@@ -517,6 +517,7 @@
     "testNoteInvalid": "رمز غير صالح",
     "topUp": "شحن",
     "rechargeAmount": "مبلغ الشحن",
+    "amountRangeHint": "الحد الأدنى {{min}} ريال – الحد الأقصى {{max}} ريال",
     "paymentCard": "بطاقة الدفع",
     "selectPaymentMethod": "اختر طريقة الدفع",
     "visaCard": "فيزا",

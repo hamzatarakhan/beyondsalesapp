@@ -158,6 +158,10 @@ const SwipeableCardRow = ({
 
 // ---------- Demo data ----------
 const CARD_AMOUNTS = [50, 100, 150, 250, 350, 500];
+// Floor/ceiling for a card top-up — same editable-input + hint + presets pattern as Credit
+// Transfer, just bounded by this recharge's own preset range instead of a wallet balance.
+const MIN_RECHARGE_AMOUNT = 50;
+const MAX_RECHARGE_AMOUNT = 500;
 // Demo details shown on the Visa/mada network tiles so they read as full card art, not just
 // a brand name — mada gets its own last4 so the two tiles aren't pixel-identical.
 const VISA_DEMO = { last4: "4242", holder: "Ahmed Mohammed", expiry: "12/27" };
@@ -232,8 +236,12 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   const [saveForFuture, setSaveForFuture] = useState(true);
 
   const selectedCard = cards.find((c) => c.id === paymentMethod);
+  const belowMinRecharge = cardAmount != null && cardAmount > 0 && cardAmount < MIN_RECHARGE_AMOUNT;
+  const aboveMaxRecharge = cardAmount != null && cardAmount > MAX_RECHARGE_AMOUNT;
   const cardValid =
     cardAmount != null &&
+    cardAmount >= MIN_RECHARGE_AMOUNT &&
+    cardAmount <= MAX_RECHARGE_AMOUNT &&
     (paymentMethod === "applepay" || paymentMethod === "googlepay"
       ? true
       : paymentMethod === "visa" || paymentMethod === "mada"
@@ -417,20 +425,40 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
         {method === "card" && (
           <>
             <CardSection title={t("walletRecharge.rechargeAmount")} icon={Wallet}>
-              <div className="grid grid-cols-3 gap-2">
-                {CARD_AMOUNTS.map((amt) => (
-                  <button
-                    key={amt}
-                    type="button"
-                    onClick={() => setCardAmount(amt)}
-                    className={cn(
-                      "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
-                      cardAmount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
-                    )}
-                  >
-                    <RiyalSymbol /> {amt.toFixed(2)}
-                  </button>
-                ))}
+              <div className="space-y-3">
+                <div className="relative">
+                  <Input
+                    value={cardAmount != null ? String(cardAmount) : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                      setCardAmount(raw === "" ? null : Number(raw));
+                    }}
+                    placeholder="0.00"
+                    inputMode="decimal"
+                    className="h-12 bg-card rounded-xl ps-10"
+                  />
+                  <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    <RiyalSymbol />
+                  </span>
+                </div>
+                <p className={cn("text-[11px]", belowMinRecharge || aboveMaxRecharge ? "text-destructive" : "text-muted-foreground")}>
+                  {t("walletRecharge.amountRangeHint", { min: MIN_RECHARGE_AMOUNT.toFixed(2), max: MAX_RECHARGE_AMOUNT.toFixed(2) })}
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {CARD_AMOUNTS.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setCardAmount(amt)}
+                      className={cn(
+                        "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                        cardAmount === amt ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground"
+                      )}
+                    >
+                      <RiyalSymbol /> {amt.toFixed(2)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </CardSection>
 
