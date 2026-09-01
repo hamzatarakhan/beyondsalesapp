@@ -59,7 +59,6 @@ import {
 } from "@/components/ui/drawer";
 import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";
-import { DEMO_SALES_LOCATIONS } from "@/data/salesOrdersStore";
 
 // labels resolved dynamically inside component via t()
 
@@ -264,10 +263,10 @@ const Home = () => {
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
   // Sales Orders: tapping the tile first asks One Location vs Multiple Locations — One
-  // Location drops into the single-location picker (the flow already built) and Multiple
-  // Locations goes to its own distinct flow (business pending — see SalesOrdersMulti.tsx).
+  // Location goes straight into the flow already built (no location picker, single
+  // shared context) and Multiple Locations goes to its own distinct flow (business
+  // pending — see SalesOrdersMulti.tsx).
   const [salesOrdersEntryOpen, setSalesOrdersEntryOpen] = useState(false);
-  const [salesOrdersLocationOpen, setSalesOrdersLocationOpen] = useState(false);
 
   const handleActivityClick = (path: string) => {
     if (path === "/order-history") {
@@ -285,11 +284,6 @@ const Home = () => {
     }
     setPendingPath(path);
     setVerifyOpen(true);
-  };
-
-  const goToSalesOrders = (loc: string) => {
-    setSalesOrdersLocationOpen(false);
-    navigate(`/sales-orders?location=${encodeURIComponent(loc)}`);
   };
 
   const goToOrderHistory = (view: "member" | "parent") => {
@@ -780,7 +774,7 @@ const Home = () => {
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-3">
             <button
-              onClick={() => { setSalesOrdersEntryOpen(false); setSalesOrdersLocationOpen(true); }}
+              onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders"); }}
               className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -803,36 +797,6 @@ const Home = () => {
                 <p className="text-xs text-muted-foreground mt-0.5">{t("home.multipleLocationsSub")}</p>
               </div>
             </button>
-          </div>
-        </DrawerContent>
-      </Drawer>
-
-      <Drawer open={salesOrdersLocationOpen} onOpenChange={setSalesOrdersLocationOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
-          <button
-            onClick={() => setSalesOrdersLocationOpen(false)}
-            aria-label={t("settings.close")}
-            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
-          >
-            <XIcon className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("home.selectLocation")}</DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground">{t("home.selectLocationSub")}</DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-8 space-y-2">
-            {DEMO_SALES_LOCATIONS.map((loc) => (
-              <button
-                key={loc}
-                onClick={() => goToSalesOrders(loc)}
-                className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-border bg-card text-start"
-              >
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <MapPin className="w-4 h-4 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">{loc}</p>
-              </button>
-            ))}
           </div>
         </DrawerContent>
       </Drawer>

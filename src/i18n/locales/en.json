@@ -1729,8 +1729,6 @@
     "otherWidgets": "Other Widgets",
     "purchaseOrders": "Purchase Orders",
     "salesOrders": "Sales Orders",
-    "selectLocation": "Select Location",
-    "selectLocationSub": "Choose which location to manage Sales Orders for",
     "chooseSalesOrdersMode": "Sales Orders",
     "chooseSalesOrdersModeSub": "Choose how you'd like to manage Sales Orders",
     "oneLocation": "One Location",

@@ -1729,8 +1729,6 @@
     "otherWidgets": "أدوات أخرى",
     "purchaseOrders": "طلبات الشراء",
     "salesOrders": "طلبات المبيعات",
-    "selectLocation": "اختر الموقع",
-    "selectLocationSub": "اختر الموقع الذي تريد إدارة طلبات المبيعات له",
     "chooseSalesOrdersMode": "طلبات المبيعات",
     "chooseSalesOrdersModeSub": "اختر كيف تريد إدارة طلبات المبيعات",
     "oneLocation": "موقع واحد",
