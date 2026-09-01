@@ -11,13 +11,14 @@ import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Boxes, User, MapPin, Plus } from "lucide-react";
 import { salesOrders, PURCHASE_ORDER_PRODUCTS, DEMO_CHANNEL_MEMBERS, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
-const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "rejected", "cancelled"];
+const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery", "received", "rejected", "cancelled"];
 
 const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   quotationSent: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   awaitingApproval: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  partiallyScanned: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",

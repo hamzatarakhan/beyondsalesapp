@@ -317,23 +317,39 @@ const SalesOrderForm = () => {
       </div>
 
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-        <button
-          type="button"
-          disabled={!canSubmit}
-          onClick={() => setConfirmOpen(true)}
-          className={cn(
-            "w-full h-12 rounded-full font-semibold text-sm flex items-center justify-between px-5 transition-colors",
-            canSubmit ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-          )}
-        >
-          <span className="flex items-center gap-2">
-            <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", canSubmit ? "bg-white/20" : "bg-background")}>{totalQty}</span>
-            {t(isEdit ? "purchaseOrders.save" : "purchaseOrders.submitOrder")}
-          </span>
-          <span className="flex items-center gap-1">
-            <RiyalSymbol /> {totals.total.toFixed(2)}
-          </span>
-        </button>
+        {isEdit ? (
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={() => setConfirmOpen(true)}
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
+          >
+            {t("purchaseOrders.save")}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={() => setConfirmOpen(true)}
+            className={cn(
+              "w-full h-12 rounded-full font-semibold text-sm flex items-center justify-between px-5 transition-colors",
+              canSubmit ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+            )}
+          >
+            <span className="flex items-center gap-2">
+              <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", canSubmit ? "bg-white/20" : "bg-background")}>{totalQty}</span>
+              {t("purchaseOrders.submitOrder")}
+            </span>
+            <span className="flex items-center gap-1">
+              <RiyalSymbol /> {totals.total.toFixed(2)}
+            </span>
+          </button>
+        )}
+        {isEdit && (
+          <button type="button" onClick={() => navigate(-1)} className="w-full mt-3 text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancel")}
+          </button>
+        )}
       </div>
 
       {/* ---------- Destinations picker ---------- */}
