@@ -786,7 +786,7 @@ const Home = () => {
               </div>
             </button>
             <button
-              onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders/multi-location"); }}
+              onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders-multi"); }}
               className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">

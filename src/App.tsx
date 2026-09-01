@@ -74,7 +74,11 @@ import PurchaseOrderForm from "./pages/PurchaseOrderForm";
 import PurchaseOrderView from "./pages/PurchaseOrderView";
 import PurchaseOrderScan from "./pages/PurchaseOrderScan";
 import SalesOrders from "./pages/SalesOrders";
-import SalesOrdersMulti from "./pages/SalesOrdersMulti";
+import SalesOrdersMultiList from "./pages/SalesOrdersMultiList";
+import SalesOrdersMultiForm from "./pages/SalesOrdersMultiForm";
+import SalesOrdersMultiView from "./pages/SalesOrdersMultiView";
+import SalesOrdersMultiSelectLocation from "./pages/SalesOrdersMultiSelectLocation";
+import SalesOrdersMultiScan from "./pages/SalesOrdersMultiScan";
 import SalesOrderForm from "./pages/SalesOrderForm";
 import SalesOrderView from "./pages/SalesOrderView";
 import SalesOrderScan from "./pages/SalesOrderScan";
@@ -199,11 +203,16 @@ const App = () => {
           <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/scan/:productId" element={<PurchaseOrderScan />} />
           <Route path="/sales-orders" element={<SalesOrders />} />
-          <Route path="/sales-orders/multi-location" element={<SalesOrdersMulti />} />
           <Route path="/sales-orders/new" element={<SalesOrderForm />} />
           <Route path="/sales-orders/:id/edit" element={<SalesOrderForm />} />
           <Route path="/sales-orders/:id/scan/:productId" element={<SalesOrderScan />} />
           <Route path="/sales-orders/:id" element={<SalesOrderView />} />
+          <Route path="/sales-orders-multi" element={<SalesOrdersMultiList />} />
+          <Route path="/sales-orders-multi/new" element={<SalesOrdersMultiForm />} />
+          <Route path="/sales-orders-multi/:id/edit" element={<SalesOrdersMultiForm />} />
+          <Route path="/sales-orders-multi/:id/select-location" element={<SalesOrdersMultiSelectLocation />} />
+          <Route path="/sales-orders-multi/:id/scan/:productId/:sourceIndex" element={<SalesOrdersMultiScan />} />
+          <Route path="/sales-orders-multi/:id" element={<SalesOrdersMultiView />} />
           <Route path="/purchase-orders/:id" element={<PurchaseOrderView />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
