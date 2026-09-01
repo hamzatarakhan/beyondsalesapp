@@ -245,6 +245,9 @@ const SalesOrdersMultiView = () => {
           <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
             {t("purchaseOrders.rejectOrder")}
           </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
         </div>
       )}
 
