@@ -17,8 +17,8 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   // { id: "other-options", enabled: true },
   { id: "other-services", enabled: true },
   { id: "other-widgets", enabled: true },
-  { id: "member-onboarding", enabled: true },
   { id: "kpis", enabled: true },
+  { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
   { id: "working-shift", enabled: true },
@@ -61,7 +61,8 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // Bumped again to v15: some devices still had SIM Services stuck at the end — likely a
 // stale v14 snapshot saved before that fix went live. A version bump is the only reliable
 // way to force those devices to drop what they've got and re-read DEFAULT_WIDGETS fresh.
-const STORAGE_KEY = "app-widgets-v15";
+// Bumped again to v16: KPI's moved to sit right before Member Onboarding instead of after.
+const STORAGE_KEY = "app-widgets-v16";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;
