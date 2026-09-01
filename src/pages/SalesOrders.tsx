@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Boxes, User, MapPin, Plus } from "lucide-react";
 import { salesOrders, PURCHASE_ORDER_PRODUCTS, DEMO_CHANNEL_MEMBERS, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
-const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery", "received", "rejected", "cancelled"];
+const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery", "received", "cancelled", "rejected"];
 
 const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
