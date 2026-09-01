@@ -70,7 +70,9 @@ const SalesOrderView = () => {
       case "submitScanning": {
         const fullyDone = order.lines.every((l) => l.productId === "esim" || l.scanned >= l.qty);
         updateSalesOrder(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
-        break;
+        setConfirmAction(null);
+        navigate("/sales-orders");
+        return;
       }
     }
     setConfirmAction(null);
