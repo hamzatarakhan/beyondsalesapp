@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon } from "lucide-react";
+import { MapPin, Info, Eye, Plus, Smartphone, CreditCard, Router as RouterIcon, X as XIcon } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getSalesOrder, updateSalesOrder, type ProductId, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
 const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
@@ -26,10 +26,12 @@ const STATUS_STYLE: Record<SalesOrderStatus, string> = {
 
 const REASON_OPTIONS = ["budget", "incorrectItems", "duplicateRequest", "pricingNotApproved", "other"] as const;
 
-// Distinct from Purchase Order's action set — Sales Orders lets the dealer submit an RFQ
-// draft, and Awaiting Delivery here only offers Cancel (no Received/Partially Reserved;
-// that's a Purchase Order-only concept since Sales Orders ship stock out, not receive it).
-type Action = "submitRfq" | "approve" | "reject" | "cancel" | "submitScanning";
+// Distinct from Purchase Order's action set — RFQ here is just Edit/Cancel (no separate
+// Submit step), Awaiting Delivery offers View Invoice/Cancel with a per-item "+" to start
+// scanning right there (no Received/Partially Reserved — that's a Purchase Order-only
+// receiving concept, Sales Orders ship stock out). E-SIM lines never get scan UI — they're
+// provisioned, not physically scanned.
+type Action = "approve" | "reject" | "cancel" | "submitScanning";
 
 const SalesOrderView = () => {
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ const SalesOrderView = () => {
   const [reasonKey, setReasonKey] = useState<string>("");
   const [remark, setRemark] = useState("");
   const [serialsProduct, setSerialsProduct] = useState<ProductId | null>(null);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
 
   const needsReason = confirmAction === "reject" || confirmAction === "cancel";
 
@@ -54,9 +57,6 @@ const SalesOrderView = () => {
   const resolve = () => {
     if (!order) return;
     switch (confirmAction) {
-      case "submitRfq":
-        updateSalesOrder(order.id, { status: "quotationSent" });
-        break;
       case "approve":
         updateSalesOrder(order.id, { status: "awaitingDelivery" });
         break;
@@ -86,7 +86,6 @@ const SalesOrderView = () => {
   }
 
   const confirmCopy: Record<Action, { title: string; desc: string; confirm: string }> = {
-    submitRfq: { title: t("purchaseOrders.submitRequestTitle"), desc: t("purchaseOrders.submitRequestDesc"), confirm: t("purchaseOrders.submit") },
     approve: { title: t("purchaseOrders.approveRequestTitle"), desc: t("purchaseOrders.approveRequestDesc"), confirm: t("purchaseOrders.approve") },
     reject: { title: t("purchaseOrders.rejectRequestTitle"), desc: t("purchaseOrders.rejectRequestDesc"), confirm: t("purchaseOrders.submit") },
     cancel: { title: t("purchaseOrders.cancelRequestTitle"), desc: t("purchaseOrders.cancelRequestDesc"), confirm: t("purchaseOrders.submit") },
@@ -124,7 +123,12 @@ const SalesOrderView = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground px-1">
-            {order.date} <span className="text-muted-foreground/50">•</span> <span className="text-primary font-semibold">{order.channelMember.name}</span>
+            {order.date}
+            {order.status !== "rfq" && (
+              <>
+                {" "}<span className="text-muted-foreground/50">•</span> <span className="text-primary font-semibold">{order.channelMember.name}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -146,7 +150,8 @@ const SalesOrderView = () => {
                   </span>
                 </div>
               </div>
-              {order.status === "awaitingScanning" && (
+              {/* E-SIM is provisioned, not physically scanned — it never gets this UI. */}
+              {l.productId !== "esim" && order.status === "awaitingScanning" && (
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                     {t("purchaseOrders.scannedCount", { scanned: l.scanned, qty: l.qty })}
@@ -157,12 +162,19 @@ const SalesOrderView = () => {
                     </button>
                   ) : (
                     <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/scan/${l.productId}`)} aria-label={t("purchaseOrders.scanAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center">
-                      <ScanLine className="w-4 h-4 text-primary" />
+                      <Plus className="w-4 h-4 text-primary" />
                     </button>
                   )}
                 </div>
               )}
-              {(order.status === "received" || order.status === "awaitingDelivery") && l.scanned > 0 && (
+              {/* Awaiting Delivery — scanning can start right here, no separate "mark
+                  received" step first. */}
+              {l.productId !== "esim" && order.status === "awaitingDelivery" && (
+                <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/scan/${l.productId}`)} aria-label={t("purchaseOrders.scanAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center shrink-0">
+                  <Plus className="w-4 h-4 text-primary" />
+                </button>
+              )}
+              {l.productId !== "esim" && order.status === "received" && l.scanned > 0 && (
                 <button type="button" onClick={() => setSerialsProduct(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center shrink-0">
                   <Eye className="w-4 h-4 text-foreground" />
                 </button>
@@ -187,17 +199,13 @@ const SalesOrderView = () => {
         </div>
       </div>
 
-      {/* Action buttons pinned to the bottom of the screen, matching Purchase Order's View
-          Order — but a different set per status: RFQ is still a dealer-side draft here
-          (Submit/Edit/Cancel), Quotation Sent only allows Edit/Cancel, Awaiting Approval
-          is where the dealer Approves/Rejects, and Awaiting Delivery has no
-          Received/Partially Reserved (that's a receiving concept, Sales Orders ship out). */}
+      {/* Action buttons pinned to the bottom of the screen — RFQ is just Edit/Cancel (no
+          separate Submit step), Awaiting Approval is where the dealer Approves/Rejects,
+          Awaiting Delivery offers View Invoice/Cancel (scanning starts per-item instead of
+          a separate Received step), and Awaiting Scanning adds Cancel next to Submit. */}
       {order.status === "rfq" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => openConfirm("submitRfq")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.submit")}
-          </button>
-          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.edit")}
           </button>
           <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
@@ -232,15 +240,18 @@ const SalesOrderView = () => {
       )}
 
       {order.status === "awaitingDelivery" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => setInvoiceOpen(true)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("salesOrders.viewInvoice")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
             {t("purchaseOrders.cancelOrder")}
           </button>
         </div>
       )}
 
       {order.status === "awaitingScanning" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button
             type="button"
             disabled={!fullyScanned}
@@ -248,6 +259,9 @@ const SalesOrderView = () => {
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
           >
             {t("purchaseOrders.submit")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
           </button>
         </div>
       )}
@@ -300,6 +314,52 @@ const SalesOrderView = () => {
                 <span className="text-sm font-mono text-foreground">{s}</span>
               </div>
             ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* ---------- View Invoice ---------- */}
+      <Drawer open={invoiceOpen} onOpenChange={setInvoiceOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-y-auto">
+          <button onClick={() => setInvoiceOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("salesOrders.viewInvoice")}</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-8 space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-sm font-bold text-foreground">{order.id}</span>
+              <span className="text-xs text-muted-foreground">{order.date}</span>
+            </div>
+            <p className="text-xs text-muted-foreground px-1">{order.channelMember.name}</p>
+            <div className="bg-muted/60 rounded-2xl p-3.5 space-y-1">
+              {order.lines.map((l) => {
+                const product = PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)!;
+                return (
+                  <div key={l.productId} className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
+                    <span className="text-xs text-foreground">{t(`purchaseOrders.product.${product.nameKey}`)} × {l.qty}</span>
+                    <span className="text-xs font-semibold text-foreground">
+                      <RiyalSymbol /> {(product.price * l.qty).toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-xs text-muted-foreground">{t("purchaseOrders.untaxedAmount")}</span>
+                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.untaxed.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between py-1.5 border-b border-border/40">
+                <span className="text-xs text-muted-foreground">{t("purchaseOrders.tax")}</span>
+                <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.tax.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs font-bold text-primary">{t("purchaseOrders.total")}</span>
+                <span className="text-xs font-bold text-primary"><RiyalSymbol /> {order.total.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>

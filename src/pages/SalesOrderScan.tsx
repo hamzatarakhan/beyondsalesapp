@@ -60,6 +60,9 @@ const SalesOrderScan = () => {
     }
     const mergedSerials = [...line.serials, ...newSerials].slice(0, line.qty);
     updateSalesOrder(order.id, {
+      // Scanning can start straight from Awaiting Delivery (no separate "mark received"
+      // step) — the first scan is what actually moves the order into Awaiting Scanning.
+      status: order.status === "awaitingDelivery" ? "awaitingScanning" : order.status,
       lines: order.lines.map((l) => (l.productId === productId ? { ...l, serials: mergedSerials, scanned: mergedSerials.length } : l)),
     });
     navigate(`/sales-orders/${order.id}`);

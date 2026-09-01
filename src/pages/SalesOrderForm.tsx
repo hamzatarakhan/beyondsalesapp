@@ -254,13 +254,13 @@ const SalesOrderForm = () => {
 
       <div className="px-4 space-y-4">
         <div className="space-y-1.5">
-          <p className="text-sm font-medium text-foreground px-1">{t("purchaseOrders.destinations")}</p>
+          <p className="text-sm font-medium text-foreground px-1">{t("salesOrders.destination")}</p>
           <button
             type="button"
             onClick={() => setDestinationOpen(true)}
             className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm"
           >
-            <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("purchaseOrders.selectDestination")}</span>
+            <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("salesOrders.selectDestinations")}</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
           </button>
         </div>
@@ -340,12 +340,12 @@ const SalesOrderForm = () => {
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("purchaseOrders.destinations")}</DrawerTitle>
+            <DrawerTitle className="text-lg font-semibold">{t("salesOrders.destinations")}</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-3">
             <div className="relative">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input value={destinationSearch} onChange={(e) => setDestinationSearch(e.target.value)} placeholder={t("purchaseOrders.searchPlaceholder")} className="h-11 bg-muted/40 rounded-xl ps-9" />
+              <Input value={destinationSearch} onChange={(e) => setDestinationSearch(e.target.value)} placeholder={t("salesOrders.searchByDestination")} className="h-11 bg-muted/40 rounded-xl ps-9" />
             </div>
           </div>
           <div className="px-4 pb-8 space-y-2 overflow-y-auto flex-1">
