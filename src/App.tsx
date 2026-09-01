@@ -71,6 +71,7 @@ import OrdersHistoryAchievements from "./pages/OrdersHistoryAchievements";
 import OrdersHistoryCommissionHistory from "./pages/OrdersHistoryCommissionHistory";
 import SalesKpis from "./pages/SalesKpis";
 import PerformanceAtGlance from "./pages/PerformanceAtGlance";
+import InventoryDashboard from "./pages/InventoryDashboard";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import PurchaseOrderForm from "./pages/PurchaseOrderForm";
 import PurchaseOrderView from "./pages/PurchaseOrderView";
@@ -202,6 +203,7 @@ const App = () => {
           <Route path="/order-history/commission-history" element={<OrdersHistoryCommissionHistory />} />
           <Route path="/sales-kpis" element={<SalesKpis />} />
           <Route path="/performance-at-glance" element={<PerformanceAtGlance />} />
+          <Route path="/inventory-dashboard" element={<InventoryDashboard />} />
           <Route path="/purchase-orders" element={<PurchaseOrders />} />
           <Route path="/purchase-orders/new" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
