@@ -9,12 +9,12 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } f
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon } from "lucide-react";
 
-// Demo only — every card is the same generic "MNP" trend line, matching the design mock.
+// Demo only — same trend shape under every card, one metric name each.
 const CHART_DATA = [180, 400, 150, 90, 90, 20, 350].map((value, i) => ({ day: "Mon", value, i }));
 const PEAK_INDEX = 1;
 
-const DEMO_METRICS = ["metric-1", "metric-2", "metric-3"];
 const FILTER_OPTIONS = ["mnp", "grossAdds", "churnRate", "arpu"] as const;
+const DEMO_METRICS = FILTER_OPTIONS;
 
 const TrendDot = (props: { cx?: number; cy?: number; payload?: { i: number } }) => {
   if (!props.payload || props.payload.i !== PEAK_INDEX) return null;
@@ -84,7 +84,7 @@ const PerformanceAtGlance = () => {
         {DEMO_METRICS.map((id) => (
           <div key={id} className="rounded-2xl overflow-hidden bg-card border border-border/60 shadow-sm">
             <div className="bg-rose-50 dark:bg-rose-500/10 px-4 py-3">
-              <p className="text-sm font-bold text-foreground">{t("performanceAtGlance.metricName")}</p>
+              <p className="text-sm font-bold text-foreground">{t(`performanceAtGlance.filter.options.${id}`)}</p>
             </div>
             <div className="p-4 h-64">
               <ResponsiveContainer width="100%" height="100%">

@@ -1619,7 +1619,6 @@
   "performanceAtGlance": {
     "title": "الأداء في لمحة",
     "searchPlaceholder": "بحث",
-    "metricName": "نقل رقم الجوال",
     "filter": {
       "title": "تصفية",
       "subtitle": "الرجاء اختيار خيار التصفية",

@@ -1619,7 +1619,6 @@
   "performanceAtGlance": {
     "title": "Performance at Glance",
     "searchPlaceholder": "Search",
-    "metricName": "MNP",
     "filter": {
       "title": "Filter",
       "subtitle": "Please choose your filter option",
