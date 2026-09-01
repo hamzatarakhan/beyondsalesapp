@@ -83,7 +83,7 @@ const SalesOrdersMultiScan = () => {
   }
 
   return (
-    <div className="mobile-container min-h-screen bg-background pb-8">
+    <div className="mobile-container min-h-screen bg-background pb-28">
       <AppHeader title={t("purchaseOrders.scanIdTitle")} showBack onBackClick={() => navigate(-1)} />
 
       <div className="px-4 space-y-4">
@@ -139,7 +139,10 @@ const SalesOrdersMultiScan = () => {
             ))}
           </div>
         )}
+      </div>
 
+      {/* Pinned to the bottom of the screen, matching every other flow's action bar. */}
+      <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
         <button type="button" disabled={!canSubmit} onClick={submit} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
           {t("purchaseOrders.submit")}
         </button>

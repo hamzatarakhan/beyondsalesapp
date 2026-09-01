@@ -114,6 +114,17 @@ const SalesOrderForm = () => {
         <div className="px-4 space-y-4">
           <div className="space-y-1.5">
             <p className="text-sm font-medium text-foreground px-1">{t("salesOrders.channelMember")}</p>
+            {/* The trigger always stays — picking a member shows their card underneath it
+                instead of swapping the field out for a different layout, and the QR
+                fallback only makes sense before anything's picked. */}
+            <button
+              type="button"
+              onClick={() => setMemberPickerOpen(true)}
+              className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm"
+            >
+              <span className={channelMember ? "text-foreground font-medium" : "text-muted-foreground"}>{channelMember ? channelMember.name : t("salesOrders.selectChannelMember")}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+            </button>
             {channelMember ? (
               <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-[0.5px] bg-primary/10 border-primary/20">
                 <div className="flex items-center gap-3 min-w-0">
@@ -131,14 +142,6 @@ const SalesOrderForm = () => {
               </div>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => setMemberPickerOpen(true)}
-                  className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm"
-                >
-                  <span className="text-muted-foreground">{t("salesOrders.selectChannelMember")}</span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
-                </button>
                 <div className="flex items-center gap-3 py-1">
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-xs text-muted-foreground">{t("salesOrders.orTapToScan")}</span>
@@ -147,7 +150,7 @@ const SalesOrderForm = () => {
                 <button
                   type="button"
                   onClick={() => setCameraOpen(true)}
-                  className="w-full rounded-2xl border-2 border-dashed border-border py-8 flex flex-col items-center gap-2"
+                  className="w-full rounded-2xl border-2 border-dashed border-border bg-card py-8 flex flex-col items-center gap-2"
                 >
                   <QrCode className="w-8 h-8 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">{t("salesOrders.tapToScanCard")}</p>

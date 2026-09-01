@@ -1310,7 +1310,7 @@
       "pricingNotApproved": "Supplier pricing not approved",
       "other": "Other"
     },
-    "scanIdTitle": "Scan ID",
+    "scanIdTitle": "Scan Items",
     "rangeScan": "Range Scan",
     "itemByItemScan": "Item by item scan",
     "startRange": "Start Range",
