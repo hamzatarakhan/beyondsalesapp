@@ -513,11 +513,8 @@ const Home = () => {
     kpis: (
       <div key="kpis" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3">
             <h3 className="font-semibold text-foreground">{t("home.kpis.title")}</h3>
-            <button onClick={() => navigate("/coming-soon", { state: { feature: t("home.kpis.title") } })} className="flex items-center gap-1 text-link text-sm font-medium">
-              {t("home.kpis.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
-            </button>
           </div>
 
           <div className="flex items-center gap-2 mb-3">
