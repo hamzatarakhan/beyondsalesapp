@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, X, Eye, EyeOff, Check, Circle, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import SplashScreen from "@/components/SplashScreen";
 
 type Step = "username" | "otp" | "reset";
 
@@ -47,6 +48,7 @@ const ForgotPassword = () => {
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
     if (step !== "otp") return;
@@ -75,7 +77,7 @@ const ForgotPassword = () => {
   const handleReset = () => {
     setSubmitted(true);
     if (RULES.every((r) => r.test(pwd)) && pwd === confirm) {
-      navigate("/login", { replace: true, state: { passwordReset: true } });
+      setShowLoader(true);
     }
   };
 
@@ -258,6 +260,10 @@ const ForgotPassword = () => {
           </>
         )}
       </div>
+
+      {showLoader && (
+        <SplashScreen onFinish={() => navigate("/login", { replace: true, state: { passwordReset: true } })} />
+      )}
     </div>
   );
 };

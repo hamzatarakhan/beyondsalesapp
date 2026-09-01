@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import SplashScreen from "@/components/SplashScreen";
 
 // Prototype only — no real device APIs are reachable from a web app, so these mirror
 // the design mock's example values.
@@ -27,6 +28,7 @@ const DeviceRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(""));
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
@@ -45,7 +47,7 @@ const DeviceRegistration = () => {
     if (code.every((d) => d !== "")) {
       const timer = setTimeout(() => {
         setVerifyOpen(false);
-        setSuccessOpen(true);
+        setShowLoader(true);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -185,6 +187,10 @@ const DeviceRegistration = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {showLoader && (
+        <SplashScreen onFinish={() => { setShowLoader(false); setSuccessOpen(true); }} />
+      )}
     </div>
   );
 };
