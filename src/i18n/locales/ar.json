@@ -1742,6 +1742,7 @@
     "salesOrders": "طلبات المبيعات",
     "chooseSalesOrdersMode": "طلبات المبيعات",
     "chooseSalesOrdersModeSub": "اختر كيف تريد إدارة طلبات المبيعات",
+    "salesOrdersDemoNote": "هذا عرض تجريبي — البيانات المعروضة لأغراض العرض فقط.",
     "oneLocation": "موقع واحد",
     "oneLocationSub": "إذا كان لديك موقع واحد",
     "multipleLocations": "مواقع متعددة",

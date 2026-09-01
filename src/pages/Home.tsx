@@ -32,6 +32,7 @@ import {
   ShoppingCart,
   MapPin,
   Building2,
+  Info,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -773,6 +774,12 @@ const Home = () => {
             <DrawerDescription className="text-xs text-muted-foreground">{t("home.chooseSalesOrdersModeSub")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-3">
+            <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+              </div>
+              <p className="text-[12px] leading-snug text-blue-900/70 dark:text-blue-300/80">{t("home.salesOrdersDemoNote")}</p>
+            </div>
             <button
               onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders"); }}
               className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"

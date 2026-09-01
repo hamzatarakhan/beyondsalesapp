@@ -1742,6 +1742,7 @@
     "salesOrders": "Sales Orders",
     "chooseSalesOrdersMode": "Sales Orders",
     "chooseSalesOrdersModeSub": "Choose how you'd like to manage Sales Orders",
+    "salesOrdersDemoNote": "This is a demo — data shown is for demonstration purposes only.",
     "oneLocation": "One Location",
     "oneLocationSub": "If you have one location",
     "multipleLocations": "Multiple Locations",
