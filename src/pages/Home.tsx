@@ -58,8 +58,10 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { ListChecks, LayoutList, X as XIcon } from "lucide-react";
+import { ListChecks, LayoutList, X as XIcon, Target, BarChart3 } from "lucide-react";
 import QRCode from "react-qr-code";
+import { BarChart, Bar, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
+import { cn } from "@/lib/utils";
 
 // labels resolved dynamically inside component via t()
 
@@ -78,11 +80,18 @@ const OPERATORS = [
   { id: "friendi", name: "Friendi", logo: friendiMobileLogo },
 ];
 
+// KPI's widget — Gross Adds demo figures (in thousands), one bar per period.
+const GROSS_ADDS_DATA = [
+  { period: "MTD", value: 100, color: "#f59e0b" },
+  { period: "LMTD", value: 160, color: "#dc2626" },
+];
+
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const [kpiTab, setKpiTab] = useState<"acquisition" | "revenue" | "distributions">("acquisition");
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const { widgets } = useWidgets();
   const { isRtl } = useLanguage();
@@ -496,6 +505,82 @@ const Home = () => {
                 badgeTone={item.badgeTone}
                 onClick={() => navigate(item.path)}
               />
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+    kpis: (
+      <div key="kpis" className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground">{t("home.kpis.title")}</h3>
+            <button onClick={() => navigate("/coming-soon", { state: { feature: t("home.kpis.title") } })} className="flex items-center gap-1 text-link text-sm font-medium">
+              {t("home.kpis.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 mb-3">
+            {(["acquisition", "revenue", "distributions"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setKpiTab(tab)}
+                className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", kpiTab === tab ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
+              >
+                {t(`home.kpis.tabs.${tab}`)}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-muted/40 rounded-2xl p-3">
+            <p className="text-xs font-semibold text-foreground mb-2">{t("home.kpis.grossAdds")}</p>
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={GROSS_ADDS_DATA} barGap={16}>
+                  <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
+                  <YAxis ticks={[10, 50, 150, 500]} domain={[0, 500]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={28} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                    {GROSS_ADDS_DATA.map((d) => (
+                      <Cell key={d.period} fill={d.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex items-center justify-center gap-4 mt-1">
+              {GROSS_ADDS_DATA.map((d) => (
+                <span key={d.period} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
+                  {d.period}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className={cn("w-1.5 h-1.5 rounded-full", i === 1 ? "bg-primary" : "bg-muted-foreground/30")} />
+              ))}
+            </div>
+          </div>
+
+          <p className="text-xs font-semibold text-foreground mt-4 mb-2">{t("home.kpis.salesKpisTitle")}</p>
+          <div className="space-y-2">
+            {[
+              { icon: Target, label: t("menu.salesKpis") },
+              { icon: BarChart3, label: t("menu.performanceAtGlance") },
+            ].map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => navigate("/coming-soon", { state: { feature: item.label } })}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/40"
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <item.icon className="w-4 h-4 text-primary" />
+                </div>
+                <span className="flex-1 text-sm text-foreground text-start">{item.label}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 rtl:rotate-180" />
+              </button>
             ))}
           </div>
         </div>

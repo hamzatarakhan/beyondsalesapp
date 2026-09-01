@@ -1712,6 +1712,17 @@
     "newPlanCardOptions": "خيارات بطاقة الباقة الجديدة",
     "simServices": "خدمات الشريحة",
     "memberOnboarding": "تأهيل الأعضاء",
+    "kpis": {
+      "title": "مؤشرات الأداء",
+      "seeAll": "عرض الكل",
+      "tabs": {
+        "acquisition": "الاستحواذ",
+        "revenue": "الإيرادات",
+        "distributions": "التوزيعات"
+      },
+      "grossAdds": "إجمالي الإضافات (بالآلاف)",
+      "salesKpisTitle": "مؤشرات أداء المبيعات"
+    },
     "channelOnboarding": "تأهيل القنوات",
     "onboardingRequests": "طلبات التأهيل",
     "simReplacement": "استبدال الشريحة",

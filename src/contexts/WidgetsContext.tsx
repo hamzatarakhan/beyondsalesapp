@@ -18,6 +18,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "other-services", enabled: true },
   { id: "other-widgets", enabled: true },
   { id: "member-onboarding", enabled: true },
+  { id: "kpis", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
   { id: "working-shift", enabled: true },
@@ -34,6 +35,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "sim-services": "home.simServices",
   // "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",
+  "kpis": "home.kpis.title",
   "dealer-visit": "home.dealerVisit.title",
   "tickets": "home.tickets.title",
 };

@@ -1712,6 +1712,17 @@
     "newPlanCardOptions": "New plan card options",
     "simServices": "SIM Services",
     "memberOnboarding": "Member Onboarding",
+    "kpis": {
+      "title": "KPI's",
+      "seeAll": "See all",
+      "tabs": {
+        "acquisition": "Acquisition",
+        "revenue": "Revenue",
+        "distributions": "Distributions"
+      },
+      "grossAdds": "Gross Adds (000)",
+      "salesKpisTitle": "Sales KPIs"
+    },
     "channelOnboarding": "Channel Onboarding",
     "onboardingRequests": "Onboarding Requests",
     "simReplacement": "SIM Replacement",
