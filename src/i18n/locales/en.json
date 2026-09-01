@@ -1229,7 +1229,7 @@
       "rfq": "RFQ",
       "quotationSent": "Quotation Sent",
       "awaitingApproval": "Awaiting Approval",
-      "awaitingScanning": "Awaiting Scanning",
+      "awaitingScanning": "Partially Received",
       "awaitingDelivery": "Awaiting Delivery",
       "received": "Received",
       "rejected": "Rejected",
