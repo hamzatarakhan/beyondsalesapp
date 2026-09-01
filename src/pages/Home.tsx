@@ -566,13 +566,13 @@ const Home = () => {
           <p className="text-xs font-semibold text-foreground mt-4 mb-2">{t("home.kpis.salesKpisTitle")}</p>
           <div className="space-y-2">
             {[
-              { icon: Target, label: t("menu.salesKpis") },
-              { icon: BarChart3, label: t("menu.performanceAtGlance") },
+              { icon: Target, label: t("menu.salesKpis"), path: "/sales-kpis" },
+              { icon: BarChart3, label: t("menu.performanceAtGlance"), path: "/performance-at-glance" },
             ].map((item) => (
               <button
                 key={item.label}
                 type="button"
-                onClick={() => navigate("/coming-soon", { state: { feature: item.label } })}
+                onClick={() => navigate(item.path)}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/40"
               >
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

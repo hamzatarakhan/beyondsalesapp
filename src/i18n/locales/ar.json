@@ -1577,6 +1577,58 @@
     "myShifts": "نوبات عملي",
     "tickets": "التذاكر"
   },
+  "salesKpis": {
+    "title": "مؤشرات الأداء",
+    "tabs": {
+      "revenue": "الإيرادات",
+      "acquisition": "الاستحواذ",
+      "geography": "الجغرافيا",
+      "distribution": "التوزيع"
+    },
+    "searchPlaceholder": "بحث",
+    "kpiName": "اسم المؤشر",
+    "updatedOn": "آخر تحديث : {{date}}",
+    "degrowth": "تراجع - {{value}}",
+    "achievementTarget": "الإنجاز / الهدف",
+    "target": "الهدف",
+    "achievement": "الإنجاز",
+    "lm": "الشهر الماضي",
+    "mtd": "من بداية الشهر",
+    "lmtd": "نفس الفترة الماضية",
+    "filter": {
+      "title": "تصفية",
+      "subtitle": "الرجاء اختيار خيار التصفية",
+      "accountManager": "مدير الحساب",
+      "accountManagerPlaceholder": "اختر مدير الحساب",
+      "dms": "نظام إدارة الوكلاء",
+      "dmsPlaceholder": "اختر نظام إدارة الوكلاء",
+      "dealer": "الموزع",
+      "dealerPlaceholder": "اختر الموزع",
+      "area": "المنطقة",
+      "areaPlaceholder": "اختر المنطقة",
+      "region": "الإقليم",
+      "regionPlaceholder": "اختر الإقليم",
+      "willaya": "الولاية",
+      "willayaPlaceholder": "اختر الولاية",
+      "location": "الموقع",
+      "locationPlaceholder": "اختر الموقع",
+      "apply": "تطبيق",
+      "clear": "مسح التصفية"
+    }
+  },
+  "performanceAtGlance": {
+    "title": "الأداء في لمحة",
+    "searchPlaceholder": "بحث",
+    "metricName": "نقل رقم الجوال",
+    "filter": {
+      "title": "تصفية",
+      "subtitle": "الرجاء اختيار خيار التصفية",
+      "searchPlaceholder": "بحث",
+      "label": "تسمية",
+      "select": "اختيار",
+      "clear": "مسح التصفية"
+    }
+  },
   "login": {
     "welcome": "أهلاً، مرحباً بك في بيوند ون",
     "usernamePlaceholder": "اسم المستخدم",

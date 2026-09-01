@@ -1577,6 +1577,58 @@
     "myShifts": "My Shifts",
     "tickets": "Tickets"
   },
+  "salesKpis": {
+    "title": "KPI's",
+    "tabs": {
+      "revenue": "Revenue",
+      "acquisition": "Acquisition",
+      "geography": "Geography",
+      "distribution": "Distribution"
+    },
+    "searchPlaceholder": "Search",
+    "kpiName": "KPI Name",
+    "updatedOn": "Update on : {{date}}",
+    "degrowth": "Degrowth - {{value}}",
+    "achievementTarget": "Achievement / Target",
+    "target": "Target",
+    "achievement": "Achievement",
+    "lm": "LM",
+    "mtd": "MTD",
+    "lmtd": "LMTD",
+    "filter": {
+      "title": "Filter",
+      "subtitle": "Please choose your filter option",
+      "accountManager": "Account Manager",
+      "accountManagerPlaceholder": "Select account manager",
+      "dms": "DMS",
+      "dmsPlaceholder": "Select the DMS",
+      "dealer": "Dealer",
+      "dealerPlaceholder": "Select the dealer",
+      "area": "Area",
+      "areaPlaceholder": "Select the area",
+      "region": "Region",
+      "regionPlaceholder": "Select the region",
+      "willaya": "Willaya",
+      "willayaPlaceholder": "Select the willaya",
+      "location": "Location",
+      "locationPlaceholder": "Select the location",
+      "apply": "Apply",
+      "clear": "Clear Filter"
+    }
+  },
+  "performanceAtGlance": {
+    "title": "Performance at Glance",
+    "searchPlaceholder": "Search",
+    "metricName": "MNP",
+    "filter": {
+      "title": "Filter",
+      "subtitle": "Please choose your filter option",
+      "searchPlaceholder": "Search",
+      "label": "Label",
+      "select": "Select",
+      "clear": "Clear Filter"
+    }
+  },
   "login": {
     "welcome": "Hello, Welcome to Beyond One",
     "usernamePlaceholder": "Username",
