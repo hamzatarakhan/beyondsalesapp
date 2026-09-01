@@ -32,7 +32,6 @@ import {
   CheckCircle2,
   ClipboardList,
   Info,
-  Users,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors every other flow's page-local helpers) ----------
@@ -461,13 +460,6 @@ const OrdersHistory = () => {
     <div className="mobile-container min-h-screen bg-background pb-8">
       <AppHeader title={t("ordersHistory.title")} showBack />
 
-      <div className="px-4 pb-3 -mt-1">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">
-          {view === "member" ? <User className="w-3 h-3" /> : <Users className="w-3 h-3" />}
-          {t(view === "member" ? "ordersHistory.viewingAsMember" : "ordersHistory.viewingAsParent")}
-        </span>
-      </div>
-
       <div className="px-4">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
           <TabsList className="w-full grid grid-cols-3 bg-transparent p-0 h-auto border-b border-border rounded-none mb-4">
@@ -530,17 +522,17 @@ const OrdersHistory = () => {
                     <StatusBadge status={o.status} />
                   </div>
                   <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${o.type}`)}</p>
-                  {/* Who-owns-it attribution is a Parent/manager concern — a member already
-                      knows these are their own orders. The commission breakdown itself
-                      (their cut, highlighted, vs. what their parent takes) still applies
-                      to both views. */}
+                  {/* Both the attribution line and the Commission Breakdown link on the
+                      list are Parent/manager concerns — a member already knows these are
+                      their own orders, and sees their own commission via the full order
+                      detail sheet instead. */}
                   {view === "parent" && (
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <User className="w-3.5 h-3.5 shrink-0" />
                       {o.customer} <span className="text-muted-foreground/50">•</span> {o.memberCode}
                     </div>
                   )}
-                  {o.commission > 0 && (
+                  {view === "parent" && o.commission > 0 && (
                     <span
                       role="button"
                       tabIndex={0}

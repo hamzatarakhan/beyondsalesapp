@@ -1089,8 +1089,6 @@
   },
   "ordersHistory": {
     "title": "سجل الطلبات",
-    "viewingAsMember": "عرض كعضو",
-    "viewingAsParent": "عرض كمدير",
     "tabs": { "orders": "الطلبات", "summary": "الملخص", "commission": "العمولة" },
     "searchOrdersPlaceholder": "البحث برقم الطلب أو العميل أو الجوال",
     "searchByMember": "البحث حسب العضو",

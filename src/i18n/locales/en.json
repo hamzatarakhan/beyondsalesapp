@@ -1089,8 +1089,6 @@
   },
   "ordersHistory": {
     "title": "Orders History",
-    "viewingAsMember": "Viewing as Member",
-    "viewingAsParent": "Viewing as Parent",
     "tabs": { "orders": "Orders", "summary": "Summary", "commission": "Commission" },
     "searchOrdersPlaceholder": "Search by Order ID, customer, mobile",
     "searchByMember": "Search by member",
