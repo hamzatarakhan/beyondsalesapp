@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -18,6 +18,7 @@ const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   quotationSent: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   awaitingApproval: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  partiallyScanned: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
@@ -63,18 +64,17 @@ const SalesOrdersMultiView = () => {
       case "cancel":
         updateSalesOrderMulti(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
-      case "submitScanning":
-        updateSalesOrderMulti(order.id, { status: "received" });
-        break;
+      case "submitScanning": {
+        const fullyDone = order.lines.every((l) => l.sources.every((s) => s.scanned >= s.qty));
+        updateSalesOrderMulti(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
+        setConfirmAction(null);
+        navigate("/sales-orders-multi");
+        return;
+      }
     }
     setConfirmAction(null);
     forceRerender((n) => n + 1);
   };
-
-  const fullyScanned = useMemo(
-    () => order?.lines.every((l) => l.sources.every((s) => s.scanned >= s.qty)) ?? false,
-    [order],
-  );
 
   if (!order) {
     return (
@@ -92,7 +92,7 @@ const SalesOrdersMultiView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
-  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingDelivery", "awaitingScanning"].includes(order.status);
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingDelivery", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -166,7 +166,7 @@ const SalesOrdersMultiView = () => {
                             <p className="text-[11px] text-muted-foreground">{t("purchaseOrders.pcs", { count: s.qty })}</p>
                           </div>
                         </div>
-                        {order.status === "awaitingScanning" && (
+                        {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
                           <div className="flex items-center gap-2 shrink-0">
                             <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                               {t("purchaseOrders.scannedCount", { scanned: s.scanned, qty: s.qty })}
@@ -259,14 +259,9 @@ const SalesOrdersMultiView = () => {
         </div>
       )}
 
-      {order.status === "awaitingScanning" && (
+      {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <button
-            type="button"
-            disabled={!fullyScanned}
-            onClick={() => openConfirm("submitScanning")}
-            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
-          >
+          <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.submit")}
           </button>
         </div>

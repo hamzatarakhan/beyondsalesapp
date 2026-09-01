@@ -13,8 +13,9 @@ export type SalesOrderStatus =
   | "rfq"
   | "quotationSent"
   | "awaitingApproval"
-  | "awaitingDelivery"
   | "awaitingScanning"
+  | "partiallyScanned"
+  | "awaitingDelivery"
   | "received"
   | "cancelled"
   | "rejected";

@@ -86,7 +86,7 @@ const SalesOrdersMultiSelectLocation = () => {
 
   const submit = () => {
     updateSalesOrderMulti(order.id, {
-      status: "awaitingDelivery",
+      status: "awaitingScanning",
       lines: order.lines.map((l) => ({
         ...l,
         sources: (draftSources[l.productId] ?? []).map((s) => ({ location: s.location, qty: s.qty, scanned: 0, serials: [] })),
