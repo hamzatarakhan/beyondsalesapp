@@ -1624,7 +1624,12 @@
       "title": "Filter",
       "subtitle": "Please choose your filter option",
       "searchPlaceholder": "Search",
-      "label": "Label",
+      "options": {
+        "mnp": "MNP",
+        "grossAdds": "Gross Adds",
+        "churnRate": "Churn Rate",
+        "arpu": "ARPU"
+      },
       "select": "Select",
       "clear": "Clear Filter"
     }

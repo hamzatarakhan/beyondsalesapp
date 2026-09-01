@@ -14,7 +14,7 @@ const CHART_DATA = [180, 400, 150, 90, 90, 20, 350].map((value, i) => ({ day: "M
 const PEAK_INDEX = 1;
 
 const DEMO_METRICS = ["metric-1", "metric-2", "metric-3"];
-const FILTER_LABEL_COUNT = 4;
+const FILTER_OPTIONS = ["mnp", "grossAdds", "churnRate", "arpu"] as const;
 
 const TrendDot = (props: { cx?: number; cy?: number; payload?: { i: number } }) => {
   if (!props.payload || props.payload.i !== PEAK_INDEX) return null;
@@ -28,36 +28,35 @@ const PerformanceAtGlance = () => {
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterSearch, setFilterSearch] = useState("");
-  const [appliedLabels, setAppliedLabels] = useState<Set<number>>(new Set());
-  const [draftLabels, setDraftLabels] = useState<Set<number>>(new Set());
+  const [appliedOptions, setAppliedOptions] = useState<Set<string>>(new Set());
+  const [draftOptions, setDraftOptions] = useState<Set<string>>(new Set());
 
-  const activeFilterCount = appliedLabels.size;
+  const activeFilterCount = appliedOptions.size;
 
   const openFilter = () => {
-    setDraftLabels(new Set(appliedLabels));
+    setDraftOptions(new Set(appliedOptions));
     setFilterSearch("");
     setFilterOpen(true);
   };
 
-  const toggleDraftLabel = (i: number) => {
-    setDraftLabels((prev) => {
+  const toggleDraftOption = (key: string) => {
+    setDraftOptions((prev) => {
       const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
 
   const selectFilter = () => {
-    setAppliedLabels(draftLabels);
+    setAppliedOptions(draftOptions);
     setFilterOpen(false);
   };
 
-  const clearFilter = () => setDraftLabels(new Set());
+  const clearFilter = () => setDraftOptions(new Set());
 
-  const filterLabels = Array.from({ length: FILTER_LABEL_COUNT }, (_, i) => i).filter((i) =>
-    t("performanceAtGlance.filter.label").toLowerCase().includes(filterSearch.trim().toLowerCase()),
-  );
+  const q = filterSearch.trim().toLowerCase();
+  const filteredOptions = FILTER_OPTIONS.filter((key) => t(`performanceAtGlance.filter.options.${key}`).toLowerCase().includes(q));
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
@@ -123,10 +122,10 @@ const PerformanceAtGlance = () => {
             </div>
 
             <div className="divide-y divide-border/60">
-              {filterLabels.map((i) => (
-                <label key={i} className="flex items-center gap-3 py-3.5 cursor-pointer">
-                  <Checkbox checked={draftLabels.has(i)} onCheckedChange={() => toggleDraftLabel(i)} className="w-5 h-5 rounded-md" />
-                  <span className="text-sm text-foreground">{t("performanceAtGlance.filter.label")}</span>
+              {filteredOptions.map((key) => (
+                <label key={key} className="flex items-center gap-3 py-3.5 cursor-pointer">
+                  <Checkbox checked={draftOptions.has(key)} onCheckedChange={() => toggleDraftOption(key)} className="w-5 h-5 rounded-md" />
+                  <span className="text-sm text-foreground">{t(`performanceAtGlance.filter.options.${key}`)}</span>
                 </label>
               ))}
             </div>
