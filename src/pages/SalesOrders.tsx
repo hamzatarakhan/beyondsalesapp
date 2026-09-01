@@ -52,13 +52,15 @@ const SalesOrders = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return salesOrders.filter((o) => {
-      if (q && !o.id.toLowerCase().includes(q)) return false;
-      if (appliedStatus && o.status !== appliedStatus) return false;
-      if (appliedMemberCode && o.channelMember.code !== appliedMemberCode) return false;
-      if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
-      return true;
-    });
+    return salesOrders
+      .filter((o) => {
+        if (q && !o.id.toLowerCase().includes(q)) return false;
+        if (appliedStatus && o.status !== appliedStatus) return false;
+        if (appliedMemberCode && o.channelMember.code !== appliedMemberCode) return false;
+        if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
+        return true;
+      })
+      .sort((a, b) => STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status));
   }, [search, appliedStatus, appliedMemberCode, appliedRange]);
 
   const openFilter = () => {
