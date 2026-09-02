@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, QrCode, User } from "lucide-react";
+import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, QrCode, User, MapPin } from "lucide-react";
 import {
   PURCHASE_ORDER_PRODUCTS,
   DEMO_DESTINATIONS,
@@ -284,23 +284,33 @@ const SalesOrderForm = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center h-11 rounded-full bg-primary/10 overflow-hidden">
                 <button
                   type="button"
                   disabled={qty <= 0}
                   onClick={() => setQty(p.id, qty - 1)}
                   aria-label={t("purchaseOrders.decreaseAria", { product: t(`purchaseOrders.product.${p.nameKey}`) })}
-                  className="flex-1 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center disabled:opacity-40"
+                  className="flex-1 h-full flex items-center justify-center text-primary disabled:opacity-40"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-14 text-center text-sm font-bold text-foreground">{qty}</span>
+                <div className="w-px h-6 bg-primary/20 shrink-0" />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={qty === 0 ? "" : String(qty)}
+                  onChange={(e) => setQty(p.id, parseInt(e.target.value.replace(/\D/g, "") || "0", 10))}
+                  placeholder="0"
+                  aria-label={t(`purchaseOrders.product.${p.nameKey}`)}
+                  className="flex-1 h-full bg-transparent text-center text-sm font-bold text-foreground outline-none"
+                />
+                <div className="w-px h-6 bg-primary/20 shrink-0" />
                 <button
                   type="button"
                   disabled={qty >= p.availableStocks}
                   onClick={() => setQty(p.id, qty + 1)}
                   aria-label={t("purchaseOrders.increaseAria", { product: t(`purchaseOrders.product.${p.nameKey}`) })}
-                  className="flex-1 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center disabled:opacity-40"
+                  className="flex-1 h-full flex items-center justify-center text-primary disabled:opacity-40"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -374,12 +384,14 @@ const SalesOrderForm = () => {
                 type="button"
                 onClick={() => { setDestination(d); setDestinationOpen(false); }}
                 className={cn(
-                  "w-full flex items-center justify-between gap-3 p-3.5 rounded-2xl border transition text-start",
-                  destination === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "border-border bg-card",
+                  "w-full flex items-center gap-3 p-3.5 rounded-2xl transition text-start",
+                  destination === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-muted/50",
                 )}
               >
-                <span className="text-sm font-medium text-foreground">{d}</span>
-                {destination === d && <Check className="w-4 h-4 text-primary shrink-0" />}
+                <div className="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+                </div>
+                <span className="text-sm font-semibold text-foreground flex-1">{d}</span>
               </button>
             ))}
           </div>
