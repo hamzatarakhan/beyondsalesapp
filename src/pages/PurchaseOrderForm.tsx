@@ -109,7 +109,7 @@ const PurchaseOrderForm = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center h-11 rounded-full bg-card overflow-hidden">
+              <div className="flex items-center h-11 rounded-full bg-card border border-border overflow-hidden">
                 <button
                   type="button"
                   disabled={qty <= 0}
