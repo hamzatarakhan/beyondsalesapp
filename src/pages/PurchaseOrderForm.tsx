@@ -109,17 +109,16 @@ const PurchaseOrderForm = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center h-11 rounded-full bg-primary/10 overflow-hidden">
+              <div className="flex items-center h-11 rounded-full bg-card overflow-hidden">
                 <button
                   type="button"
                   disabled={qty <= 0}
                   onClick={() => setQty(p.id, qty - 1)}
                   aria-label={t("purchaseOrders.decreaseAria", { product: t(`purchaseOrders.product.${p.nameKey}`) })}
-                  className="flex-1 h-full flex items-center justify-center text-primary disabled:opacity-40"
+                  className="flex-1 h-full flex items-center justify-center text-primary bg-primary/10 disabled:opacity-40"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <div className="w-px h-6 bg-primary/20 shrink-0" />
                 <input
                   type="text"
                   inputMode="numeric"
@@ -127,15 +126,14 @@ const PurchaseOrderForm = () => {
                   onChange={(e) => setQty(p.id, parseInt(e.target.value.replace(/\D/g, "") || "0", 10))}
                   placeholder="0"
                   aria-label={t(`purchaseOrders.product.${p.nameKey}`)}
-                  className="flex-1 h-full bg-transparent text-center text-sm font-bold text-foreground outline-none"
+                  className="flex-1 h-full bg-card text-center text-sm font-bold text-foreground outline-none"
                 />
-                <div className="w-px h-6 bg-primary/20 shrink-0" />
                 <button
                   type="button"
                   disabled={qty >= p.availableStocks}
                   onClick={() => setQty(p.id, qty + 1)}
                   aria-label={t("purchaseOrders.increaseAria", { product: t(`purchaseOrders.product.${p.nameKey}`) })}
-                  className="flex-1 h-full flex items-center justify-center text-primary disabled:opacity-40"
+                  className="flex-1 h-full flex items-center justify-center text-primary bg-primary/10 disabled:opacity-40"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
