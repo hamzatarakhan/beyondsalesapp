@@ -27,13 +27,13 @@ const STATUS_STYLE: Record<SalesOrderStatus, string> = {
 
 const REASON_OPTIONS = ["budget", "incorrectItems", "duplicateRequest", "pricingNotApproved", "other"] as const;
 
-// Distinct from Purchase Order's action set — RFQ is just Edit/Cancel (no separate Submit
-// step). Approve moves an order into Awaiting Scanning (not straight to Awaiting Delivery
-// — scanning has to happen first, unlike Purchase Orders' receiving flow). Submitting from
+// RFQ offers Submit/Edit/Cancel — same as the multi-location view. Approve moves an order
+// into Awaiting Scanning (not straight to Awaiting Delivery — scanning has to happen first,
+// unlike Purchase Orders' receiving flow). Submitting from
 // Awaiting Scanning/Partially Scanned always works, even incomplete: fully scanned lands
 // on Awaiting Delivery, anything left over lands (or stays) on Partially Scanned. E-SIM
 // lines never get scan UI — they're provisioned, not physically scanned.
-type Action = "approve" | "reject" | "cancel" | "submitScanning";
+type Action = "submitRfq" | "approve" | "reject" | "cancel" | "submitScanning";
 
 const SalesOrderView = () => {
   const navigate = useNavigate();
@@ -57,6 +57,9 @@ const SalesOrderView = () => {
   const resolve = () => {
     if (!order) return;
     switch (confirmAction) {
+      case "submitRfq":
+        updateSalesOrder(order.id, { status: "quotationSent" });
+        break;
       case "approve":
         updateSalesOrder(order.id, { status: "awaitingScanning" });
         break;
@@ -86,6 +89,7 @@ const SalesOrderView = () => {
   }
 
   const confirmCopy: Record<Action, { title: string; desc: string; confirm: string }> = {
+    submitRfq: { title: t("purchaseOrders.submitRequestTitle"), desc: t("purchaseOrders.submitRequestDesc"), confirm: t("purchaseOrders.submit") },
     approve: { title: t("purchaseOrders.approveRequestTitle"), desc: t("purchaseOrders.approveRequestDesc"), confirm: t("purchaseOrders.approve") },
     reject: { title: t("purchaseOrders.rejectRequestTitle"), desc: t("purchaseOrders.rejectRequestDesc"), confirm: t("purchaseOrders.submit") },
     cancel: { title: t("purchaseOrders.cancelRequestTitle"), desc: t("purchaseOrders.cancelRequestDesc"), confirm: t("purchaseOrders.submit") },
@@ -123,12 +127,7 @@ const SalesOrderView = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground px-1">
-            {order.date}
-            {order.status !== "rfq" && (
-              <>
-                {" "}<span className="text-muted-foreground/50">•</span> <span className="text-primary font-semibold">{order.channelMember.name}</span>
-              </>
-            )}
+            {order.date} <span className="text-muted-foreground/50">•</span> <span className="text-primary font-semibold">{order.channelMember.name}</span>
           </p>
         </div>
 
@@ -196,15 +195,17 @@ const SalesOrderView = () => {
         </div>
       </div>
 
-      {/* Action buttons pinned to the bottom of the screen — RFQ is just Edit/Cancel (no
-          separate Submit step), Awaiting Approval is where the dealer Approves/Rejects,
-          Awaiting Delivery offers View Invoice/Cancel (scanning starts per-item instead of
-          Awaiting Delivery only Cancel (scanning's already done by the time an order gets
-          here), and Awaiting Scanning/Partially Scanned are just Submit — always enabled,
-          submitting with leftover unscanned units is allowed and expected. */}
+      {/* Action buttons pinned to the bottom of the screen — RFQ offers Submit/Edit/Cancel,
+          Awaiting Approval is where the dealer Approves/Rejects, Awaiting Delivery only
+          Cancel (scanning's already done by the time an order gets here), and Awaiting
+          Scanning/Partially Scanned are just Submit — always enabled, submitting with
+          leftover unscanned units is allowed and expected. */}
       {order.status === "rfq" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+          <button type="button" onClick={() => openConfirm("submitRfq")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.submit")}
+          </button>
+          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
             {t("purchaseOrders.edit")}
           </button>
           <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">

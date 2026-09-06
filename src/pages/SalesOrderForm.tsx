@@ -41,6 +41,11 @@ const SalesOrderForm = () => {
   const location = searchParams.get("location");
   const isEdit = !!id;
   const existing = isEdit ? getSalesOrder(id!) : undefined;
+  // Editing an RFQ submits it (button reads "Submit Order"/"Discard"); editing anything
+  // past that just saves the changes in place ("Save"/"Cancel"). Captured once at mount —
+  // submit() itself flips the order's status to quotationSent, so deriving this live off
+  // existing.status would flip the wording out from under the still-open success message.
+  const [editingRfq] = useState(() => isEdit && existing?.status === "rfq");
 
   // Editing an order never re-asks for the channel member — it's fixed to the order
   // already, so edit mode starts straight on the destination/products step.
@@ -93,7 +98,10 @@ const SalesOrderForm = () => {
     setConfirmOpen(false);
     const nonZeroLines = lines.filter((l) => l.qty > 0).map((l) => ({ ...l, scanned: 0, serials: [] }));
     if (isEdit && existing) {
-      updateSalesOrder(existing.id, { destination, lines: nonZeroLines, ...computeTotals(lines) });
+      // Editing an RFQ submits it into Quotation Sent (button reads "Submit Order" there);
+      // editing anything past that just saves the changes in place.
+      const statusPatch = existing.status === "rfq" ? ({ status: "quotationSent" } as const) : {};
+      updateSalesOrder(existing.id, { destination, lines: nonZeroLines, ...computeTotals(lines), ...statusPatch });
     } else if (channelMember) {
       addSalesOrder(destination, channelMember, nonZeroLines);
     }
@@ -332,7 +340,7 @@ const SalesOrderForm = () => {
             onClick={() => setConfirmOpen(true)}
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
           >
-            {t("purchaseOrders.save")}
+            {t(editingRfq ? "purchaseOrders.submitOrder" : "purchaseOrders.save")}
           </button>
         ) : (
           <button
@@ -355,7 +363,7 @@ const SalesOrderForm = () => {
         )}
         {isEdit && (
           <button type="button" onClick={() => navigate(-1)} className="w-full mt-3 text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancel")}
+            {t(editingRfq ? "purchaseOrders.discard" : "purchaseOrders.cancel")}
           </button>
         )}
       </div>
@@ -399,9 +407,9 @@ const SalesOrderForm = () => {
       <ConfirmMessageDrawer
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        title={t(isEdit ? "purchaseOrders.saveRequestTitle" : "purchaseOrders.submitRequestTitle")}
-        description={t(isEdit ? "purchaseOrders.saveRequestDesc" : "purchaseOrders.submitRequestDesc")}
-        confirmLabel={t(isEdit ? "purchaseOrders.save" : "purchaseOrders.submit")}
+        title={t(isEdit && !editingRfq ? "purchaseOrders.saveRequestTitle" : "purchaseOrders.submitRequestTitle")}
+        description={t(isEdit && !editingRfq ? "purchaseOrders.saveRequestDesc" : "purchaseOrders.submitRequestDesc")}
+        confirmLabel={t(isEdit && !editingRfq ? "purchaseOrders.save" : "purchaseOrders.submit")}
         onConfirm={submit}
         cancelLabel={t("purchaseOrders.cancel")}
       />
@@ -415,8 +423,8 @@ const SalesOrderForm = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1 text-center">{t(isEdit ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")}</h3>
-            <p className="text-xs text-muted-foreground mt-2 text-center">{t(isEdit ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")}</p>
+            <h3 className="font-semibold text-foreground text-base mb-1 text-center">{t(isEdit && !editingRfq ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")}</h3>
+            <p className="text-xs text-muted-foreground mt-2 text-center">{t(isEdit && !editingRfq ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")}</p>
           </div>
           <button type="button" onClick={() => { setSuccessOpen(false); backToList(); }} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.done")}

@@ -1260,6 +1260,7 @@
     "submit": "Submit",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "discard": "Discard",
     "confirmMessage": "Confirmation Message",
     "submitRequestTitle": "Submit Request",
     "submitRequestDesc": "Do you want to submit the order request?",

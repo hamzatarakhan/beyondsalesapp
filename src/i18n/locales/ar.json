@@ -1260,6 +1260,7 @@
     "submit": "إرسال",
     "confirm": "تأكيد",
     "cancel": "إلغاء",
+    "discard": "تجاهل",
     "confirmMessage": "رسالة التأكيد",
     "submitRequestTitle": "إرسال الطلب",
     "submitRequestDesc": "هل ترغب في إرسال طلب الشراء؟",
