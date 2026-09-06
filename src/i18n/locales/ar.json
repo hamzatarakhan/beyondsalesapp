@@ -1837,7 +1837,7 @@
     "multiStepFlowSub": "الشريحة والعلبة ← التفاصيل ← المراجعة والدفع.",
     "chooseOrderHistoryView": "اختر طريقة العرض",
     "chooseOrderHistoryViewSub": "معاينة سجل الطلبات بأي من الدورين",
-    "orderHistoryDemoNote": "هذا عرض تجريبي — البيانات المعروضة لأغراض العرض فقط.",
+    "orderHistoryDemoNote": "لأغراض العرض التجريبي فقط، لإظهار كيف تبدو الخدمة في عرض العضو وعرض الأب.",
     "memberView": "عرض العضو",
     "memberViewSub": "عرض طلباتك وعمولتك الخاصة فقط",
     "parentView": "عرض المدير",
