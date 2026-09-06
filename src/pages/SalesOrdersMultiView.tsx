@@ -37,7 +37,6 @@ const SalesOrdersMultiView = () => {
   const { id } = useParams<{ id: string }>();
   const order = id ? getSalesOrderMulti(id) : undefined;
 
-  const [, forceRerender] = useState(0);
   const [confirmAction, setConfirmAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState<string>("");
   const [remark, setRemark] = useState("");
@@ -67,13 +66,11 @@ const SalesOrdersMultiView = () => {
       case "submitScanning": {
         const fullyDone = order.lines.every((l) => l.sources.every((s) => s.scanned >= s.qty));
         updateSalesOrderMulti(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
-        setConfirmAction(null);
-        navigate("/sales-orders-multi");
-        return;
+        break;
       }
     }
     setConfirmAction(null);
-    forceRerender((n) => n + 1);
+    navigate("/sales-orders-multi");
   };
 
   if (!order) {

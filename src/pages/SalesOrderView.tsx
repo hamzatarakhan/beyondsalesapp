@@ -41,7 +41,6 @@ const SalesOrderView = () => {
   const { id } = useParams<{ id: string }>();
   const order = id ? getSalesOrder(id) : undefined;
 
-  const [, forceRerender] = useState(0);
   const [confirmAction, setConfirmAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState<string>("");
   const [remark, setRemark] = useState("");
@@ -70,13 +69,11 @@ const SalesOrderView = () => {
       case "submitScanning": {
         const fullyDone = order.lines.every((l) => l.productId === "esim" || l.scanned >= l.qty);
         updateSalesOrder(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
-        setConfirmAction(null);
-        navigate("/sales-orders");
-        return;
+        break;
       }
     }
     setConfirmAction(null);
-    forceRerender((n) => n + 1);
+    navigate("/sales-orders");
   };
 
   if (!order) {
