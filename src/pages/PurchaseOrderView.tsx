@@ -34,7 +34,6 @@ const PurchaseOrderView = () => {
   const { id } = useParams<{ id: string }>();
   const order = id ? getPurchaseOrder(id) : undefined;
 
-  const [, forceRerender] = useState(0);
   const [confirmAction, setConfirmAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState<string>("");
   const [remark, setRemark] = useState("");
@@ -73,7 +72,7 @@ const PurchaseOrderView = () => {
         break;
     }
     setConfirmAction(null);
-    forceRerender((n) => n + 1);
+    navigate("/purchase-orders");
   };
 
   const fullyScanned = useMemo(() => order?.lines.every((l) => l.scanned >= l.qty) ?? false, [order]);
