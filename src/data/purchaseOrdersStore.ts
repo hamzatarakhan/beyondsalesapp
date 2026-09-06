@@ -7,8 +7,8 @@ export type PurchaseOrderStatus =
   | "rfq"
   | "quotationSent"
   | "awaitingApproval"
-  | "awaitingDelivery"
   | "awaitingScanning"
+  | "partiallyScanned"
   | "received"
   | "cancelled"
   | "rejected";
@@ -50,7 +50,6 @@ export interface PurchaseOrder {
   tax: number;
   total: number;
   reason?: string;
-  partiallyReserved?: boolean;
 }
 
 export const computeTotals = (lines: { productId: ProductId; qty: number }[]) => {
@@ -78,8 +77,8 @@ export const purchaseOrders: PurchaseOrder[] = [
   mk("PO-2026-1007", "rfq", "Riyadh Main Warehouse", "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("esim", 5), line("psim", 6), line("router", 4)]),
   mk("PO-2026-1006", "quotationSent", "Jeddah Branch", "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("esim", 5), line("psim", 6), line("router", 4)]),
   mk("PO-2026-1005", "awaitingApproval", "Dammam Branch", "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("PO-2026-1004", "awaitingDelivery", "Mecca Branch", "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("PO-2026-1003", "awaitingScanning", "Medina Branch", "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("esim", 5, 5), line("psim", 6, 6), line("router", 4, 1)]),
+  mk("PO-2026-1004", "awaitingScanning", "Mecca Branch", "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("esim", 5), line("psim", 6), line("router", 4)]),
+  mk("PO-2026-1003", "partiallyScanned", "Medina Branch", "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("esim", 5, 5), line("psim", 6, 6), line("router", 4, 1)]),
   mk("PO-2026-1002", "received", "Khobar Branch", "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [line("esim", 5, 5), line("psim", 6, 6), line("router", 4, 4)]),
   mk("PO-2026-1001", "cancelled", "Riyadh Main Warehouse", "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("esim", 5), line("psim", 6), line("router", 4)], {
     reason: "Budget for this quarter's stock replenishment was already exhausted.",

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -18,7 +18,7 @@ const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   quotationSent: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   awaitingApproval: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
-  awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
+  partiallyScanned: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
   cancelled: "bg-muted text-muted-foreground",
@@ -26,7 +26,7 @@ const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
 
 const REASON_OPTIONS = ["budget", "incorrectItems", "duplicateRequest", "pricingNotApproved", "other"] as const;
 
-type Action = "approve" | "reject" | "cancel" | "receive" | "partiallyReserved" | "submitScanning";
+type Action = "approve" | "reject" | "cancel" | "submitScanning";
 
 const PurchaseOrderView = () => {
   const navigate = useNavigate();
@@ -52,8 +52,8 @@ const PurchaseOrderView = () => {
     switch (confirmAction) {
       case "approve":
         // Quotation Sent approves into Awaiting Approval; Awaiting Approval approves
-        // into Awaiting Delivery — same action/button, next stage depends on where it's called from.
-        updatePurchaseOrder(order.id, { status: order.status === "quotationSent" ? "awaitingApproval" : "awaitingDelivery" });
+        // into Awaiting Scanning — same action/button, next stage depends on where it's called from.
+        updatePurchaseOrder(order.id, { status: order.status === "quotationSent" ? "awaitingApproval" : "awaitingScanning" });
         break;
       case "reject":
         updatePurchaseOrder(order.id, { status: "rejected", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
@@ -61,21 +61,15 @@ const PurchaseOrderView = () => {
       case "cancel":
         updatePurchaseOrder(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
-      case "receive":
-        updatePurchaseOrder(order.id, { status: "awaitingScanning", partiallyReserved: false });
+      case "submitScanning": {
+        const fullyDone = order.lines.every((l) => l.scanned >= l.qty);
+        updatePurchaseOrder(order.id, { status: fullyDone ? "received" : "partiallyScanned" });
         break;
-      case "partiallyReserved":
-        updatePurchaseOrder(order.id, { status: "awaitingScanning", partiallyReserved: true });
-        break;
-      case "submitScanning":
-        updatePurchaseOrder(order.id, { status: "received" });
-        break;
+      }
     }
     setConfirmAction(null);
     navigate("/purchase-orders");
   };
-
-  const fullyScanned = useMemo(() => order?.lines.every((l) => l.scanned >= l.qty) ?? false, [order]);
 
   if (!order) {
     return (
@@ -90,15 +84,13 @@ const PurchaseOrderView = () => {
     approve: { title: t("purchaseOrders.approveRequestTitle"), desc: t("purchaseOrders.approveRequestDesc"), confirm: t("purchaseOrders.approve") },
     reject: { title: t("purchaseOrders.rejectRequestTitle"), desc: t("purchaseOrders.rejectRequestDesc"), confirm: t("purchaseOrders.submit") },
     cancel: { title: t("purchaseOrders.cancelRequestTitle"), desc: t("purchaseOrders.cancelRequestDesc"), confirm: t("purchaseOrders.submit") },
-    receive: { title: t("purchaseOrders.receiveRequestTitle"), desc: t("purchaseOrders.receiveRequestDesc"), confirm: t("purchaseOrders.confirm") },
-    partiallyReserved: { title: t("purchaseOrders.partiallyReservedRequestTitle"), desc: t("purchaseOrders.partiallyReservedRequestDesc"), confirm: t("purchaseOrders.confirm") },
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
   // Statuses with a fixed action bar need scroll-room underneath the summary card so the
   // bar never overlaps it — statuses with no actions (received/cancelled/rejected) don't
   // render a bar at all, so they keep the plain padding.
-  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingDelivery", "awaitingScanning"].includes(order.status);
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -149,7 +141,7 @@ const PurchaseOrderView = () => {
                   </span>
                 </div>
               </div>
-              {order.status === "awaitingScanning" && (
+              {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                     {t("purchaseOrders.scannedCount", { scanned: l.scanned, qty: l.qty })}
@@ -233,26 +225,9 @@ const PurchaseOrderView = () => {
         </div>
       )}
 
-      {order.status === "awaitingDelivery" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => openConfirm("receive")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.received")}
-          </button>
-          <button type="button" onClick={() => openConfirm("partiallyReserved")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.partiallyReserved")}
-          </button>
-        </div>
-      )}
-
-      {order.status === "awaitingScanning" && (
+      {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          {order.partiallyReserved && <p className="text-[11px] text-muted-foreground text-center mb-2">{t("purchaseOrders.partiallyReservedNote")}</p>}
-          <button
-            type="button"
-            disabled={!fullyScanned}
-            onClick={() => openConfirm("submitScanning")}
-            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
-          >
+          <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.submit")}
           </button>
         </div>
