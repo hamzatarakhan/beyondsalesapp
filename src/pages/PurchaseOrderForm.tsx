@@ -35,12 +35,12 @@ const PurchaseOrderForm = () => {
   const existing = isEdit ? getPurchaseOrder(id!) : undefined;
 
   const [destination, setDestination] = useState(existing?.destination ?? "");
-  // Multiple Locations (chosen from Home's Purchase Orders entry sheet) hides the
-  // Destination field entirely — same flow otherwise, no separate multi-location list.
-  // An existing order without a destination was created that way, so editing it keeps it hidden.
+  // One Location (chosen from Home's Purchase Orders entry sheet) hides the Destination
+  // field entirely — same flow otherwise, no separate multi-location list. An existing
+  // order without a destination was created that way, so editing it keeps it hidden.
   const [hideDestination] = useState(() => {
     if (isEdit) return !existing?.destination;
-    try { return sessionStorage.getItem("purchaseOrdersMode") === "multi"; } catch { return false; }
+    try { return sessionStorage.getItem("purchaseOrdersMode") === "single"; } catch { return false; }
   });
   const [qtys, setQtys] = useState<Record<ProductId, number>>(() => {
     const initial: Record<ProductId, number> = { esim: 0, psim: 0, router: 0 };
