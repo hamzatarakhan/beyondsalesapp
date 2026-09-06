@@ -46,12 +46,14 @@ const PurchaseOrders = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return purchaseOrders.filter((o) => {
-      if (q && !o.id.toLowerCase().includes(q)) return false;
-      if (appliedStatus && o.status !== appliedStatus) return false;
-      if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
-      return true;
-    });
+    return purchaseOrders
+      .filter((o) => {
+        if (q && !o.id.toLowerCase().includes(q)) return false;
+        if (appliedStatus && o.status !== appliedStatus) return false;
+        if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
+        return true;
+      })
+      .sort((a, b) => STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status));
   }, [search, appliedStatus, appliedRange]);
 
   const openFilter = () => {
