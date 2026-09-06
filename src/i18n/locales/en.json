@@ -1837,6 +1837,7 @@
     "multiStepFlowSub": "SIM & KIT → Details → Review & pay.",
     "chooseOrderHistoryView": "Choose a View",
     "chooseOrderHistoryViewSub": "Preview Order History as either role",
+    "orderHistoryDemoNote": "This is a demo — data shown is for demonstration purposes only.",
     "memberView": "Member View",
     "memberViewSub": "See only your own orders and commission",
     "parentView": "Parent View",
