@@ -35,6 +35,13 @@ const PurchaseOrderForm = () => {
   const existing = isEdit ? getPurchaseOrder(id!) : undefined;
 
   const [destination, setDestination] = useState(existing?.destination ?? "");
+  // Multiple Locations (chosen from Home's Purchase Orders entry sheet) hides the
+  // Destination field entirely — same flow otherwise, no separate multi-location list.
+  // An existing order without a destination was created that way, so editing it keeps it hidden.
+  const [hideDestination] = useState(() => {
+    if (isEdit) return !existing?.destination;
+    try { return sessionStorage.getItem("purchaseOrdersMode") === "multi"; } catch { return false; }
+  });
   const [qtys, setQtys] = useState<Record<ProductId, number>>(() => {
     const initial: Record<ProductId, number> = { esim: 0, psim: 0, router: 0 };
     existing?.lines.forEach((l) => { initial[l.productId] = l.qty; });
@@ -55,7 +62,7 @@ const PurchaseOrderForm = () => {
   const lines = useMemo(() => PURCHASE_ORDER_PRODUCTS.map((p) => ({ productId: p.id, qty: qtys[p.id] })), [qtys]);
   const totals = useMemo(() => computeTotals(lines), [lines]);
   const totalQty = lines.reduce((sum, l) => sum + l.qty, 0);
-  const canSubmit = totalQty > 0 && !!destination;
+  const canSubmit = totalQty > 0 && (hideDestination || !!destination);
 
   const filteredDestinations = useMemo(() => {
     const q = destinationSearch.trim().toLowerCase();
@@ -81,17 +88,19 @@ const PurchaseOrderForm = () => {
       <AppHeader title={t(isEdit ? "purchaseOrders.editOrderTitle" : "purchaseOrders.createOrderTitle")} showBack onBackClick={() => navigate(-1)} />
 
       <div className="px-4 space-y-4">
-        <div className="space-y-1.5">
-          <p className="text-sm font-medium text-foreground px-1">{t("purchaseOrders.destinations")}</p>
-          <button
-            type="button"
-            onClick={() => setDestinationOpen(true)}
-            className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm"
-          >
-            <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("purchaseOrders.selectDestination")}</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
-          </button>
-        </div>
+        {!hideDestination && (
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium text-foreground px-1">{t("purchaseOrders.destinations")}</p>
+            <button
+              type="button"
+              onClick={() => setDestinationOpen(true)}
+              className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm"
+            >
+              <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("purchaseOrders.selectDestination")}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+            </button>
+          </div>
+        )}
 
         {PURCHASE_ORDER_PRODUCTS.map((p) => {
           const Icon = PRODUCT_ICON[p.id];

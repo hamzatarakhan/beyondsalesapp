@@ -278,6 +278,16 @@ const Home = () => {
   // shared context) and Multiple Locations goes to its own distinct flow (business
   // pending — see SalesOrdersMulti.tsx).
   const [salesOrdersEntryOpen, setSalesOrdersEntryOpen] = useState(false);
+  // Purchase Orders: same One Location vs Multiple Locations chooser as Sales Orders, but
+  // both options land on the same existing Purchase Orders flow — Multiple Locations just
+  // hides the Destination field on Create/Edit Order (see purchaseOrdersMode in
+  // PurchaseOrderForm.tsx), there's no separate multi-location list/flow like Sales Orders has.
+  const [purchaseOrdersEntryOpen, setPurchaseOrdersEntryOpen] = useState(false);
+  const choosePurchaseOrdersMode = (mode: "single" | "multi") => {
+    try { sessionStorage.setItem("purchaseOrdersMode", mode); } catch {}
+    setPurchaseOrdersEntryOpen(false);
+    navigate("/purchase-orders");
+  };
 
   const handleActivityClick = (path: string) => {
     if (path === "/order-history") {
@@ -285,7 +295,11 @@ const Home = () => {
       return;
     }
     // Dealer stock/inventory browsing, not a customer-record action — no Nafath gate.
-    if (path === "/purchase-orders" || path === "/inventory-dashboard") {
+    if (path === "/purchase-orders") {
+      setPurchaseOrdersEntryOpen(true);
+      return;
+    }
+    if (path === "/inventory-dashboard") {
       navigate(path);
       return;
     }
@@ -877,6 +891,54 @@ const Home = () => {
             </button>
             <button
               onClick={() => { setSalesOrdersEntryOpen(false); navigate("/sales-orders-multi"); }}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.multipleLocations")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.multipleLocationsSub")}</p>
+              </div>
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={purchaseOrdersEntryOpen} onOpenChange={setPurchaseOrdersEntryOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setPurchaseOrdersEntryOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.choosePurchaseOrdersMode")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("home.choosePurchaseOrdersModeSub")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3">
+            <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+              </div>
+              <p className="text-[12px] leading-snug text-blue-900/70 dark:text-blue-300/80">{t("home.purchaseOrdersDemoNote")}</p>
+            </div>
+            <button
+              onClick={() => choosePurchaseOrdersMode("single")}
+              className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">{t("home.oneLocation")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("home.oneLocationSub")}</p>
+              </div>
+            </button>
+            <button
+              onClick={() => choosePurchaseOrdersMode("multi")}
               className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
