@@ -52,7 +52,9 @@ const PurchaseOrderView = () => {
     if (!order) return;
     switch (confirmAction) {
       case "approve":
-        updatePurchaseOrder(order.id, { status: "awaitingApproval" });
+        // Quotation Sent approves into Awaiting Approval; Awaiting Approval approves
+        // into Awaiting Delivery — same action/button, next stage depends on where it's called from.
+        updatePurchaseOrder(order.id, { status: order.status === "quotationSent" ? "awaitingApproval" : "awaitingDelivery" });
         break;
       case "reject":
         updatePurchaseOrder(order.id, { status: "rejected", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
@@ -95,9 +97,9 @@ const PurchaseOrderView = () => {
   };
 
   // Statuses with a fixed action bar need scroll-room underneath the summary card so the
-  // bar never overlaps it — statuses with no actions (awaitingApproval/received/
-  // cancelled/rejected) don't render a bar at all, so they keep the plain padding.
-  const hasActionBar = ["rfq", "quotationSent", "awaitingDelivery", "awaitingScanning"].includes(order.status);
+  // bar never overlaps it — statuses with no actions (received/cancelled/rejected) don't
+  // render a bar at all, so they keep the plain padding.
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingDelivery", "awaitingScanning"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -205,6 +207,20 @@ const PurchaseOrderView = () => {
       )}
 
       {order.status === "quotationSent" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.approve")}
+          </button>
+          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+            {t("purchaseOrders.rejectOrder")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "awaitingApproval" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.approve")}
