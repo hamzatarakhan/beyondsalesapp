@@ -1088,7 +1088,7 @@
     "tryAgain": "المحاولة مرة أخرى"
   },
   "ordersHistory": {
-    "title": "سجل الطلبات",
+    "title": "سجل المعاملات",
     "tabs": { "orders": "الطلبات", "summary": "الملخص", "commission": "العمولة" },
     "searchOrdersPlaceholder": "البحث برقم الطلب أو العميل أو الجوال",
     "searchByMember": "البحث حسب العضو",
@@ -1798,7 +1798,7 @@
     "cancelPortIn": "إلغاء طلب نقل الرقم",
     "updateId": "تحديث الهوية",
     "changeOwner": "تغيير المالك",
-    "orderHistory": "سجل الطلبات",
+    "orderHistory": "سجل المعاملات",
     "eWallets": "المحافظ الإلكترونية",
     "dealerWalletBalance": "رصيد محفظة الموزّع",
     "otherServices": "خدمات أخرى",
@@ -1830,7 +1830,7 @@
     "multiStepFlow": "الخيار 2 -- خطوات متعددة",
     "multiStepFlowSub": "الشريحة والعلبة ← التفاصيل ← المراجعة والدفع.",
     "chooseOrderHistoryView": "اختر طريقة العرض",
-    "chooseOrderHistoryViewSub": "معاينة سجل الطلبات بأي من الدورين",
+    "chooseOrderHistoryViewSub": "معاينة سجل المعاملات بأي من الدورين",
     "orderHistoryDemoNote": "لأغراض العرض التجريبي فقط، لإظهار كيف تبدو الخدمة في عرض العضو وعرض الأب.",
     "memberView": "عرض العضو",
     "memberViewSub": "عرض طلباتك وعمولتك الخاصة فقط",
