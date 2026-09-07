@@ -669,6 +669,8 @@
     "testNoteNotFound": "Number not found",
     "lookupErrorNotFound": "Number not found. Please check the MSISDN and try again.",
     "lookupErrorNotEligible": "This number isn't a Switch Postpaid line. Credit limit adjustment isn't available for it.",
+    "lookupErrorTitle": "Unable to Look Up Number",
+    "gotIt": "Done",
     "customerName": "Customer Name",
     "increase": "Increase",
     "decrease": "Decrease",

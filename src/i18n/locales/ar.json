@@ -669,6 +669,8 @@
     "testNoteNotFound": "الرقم غير موجود",
     "lookupErrorNotFound": "لم يتم العثور على الرقم. يرجى التحقق من رقم الجوال والمحاولة مرة أخرى.",
     "lookupErrorNotEligible": "هذا الرقم ليس خط سويتش فوترة. تعديل حد الائتمان غير متاح له.",
+    "lookupErrorTitle": "تعذر البحث عن الرقم",
+    "gotIt": "تم",
     "customerName": "اسم العميل",
     "increase": "زيادة",
     "decrease": "تخفيض",
