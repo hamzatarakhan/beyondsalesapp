@@ -208,6 +208,10 @@ const SubscriptionMigration = () => {
   // ---------- Flow state ----------
   const [direction, setDirection] = useState<Direction | null>(null);
   const [step, setStep] = useState(0);
+  // Once past step 0, going back to it no longer offers an easy back-to-Home — only
+  // Close (with the cancel-reason prompt), so real progress can't be discarded silently.
+  const [everProgressed, setEverProgressed] = useState(false);
+  useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
 
   // Identity
   const [idType, setIdType] = useState("saudi-id");
@@ -522,10 +526,10 @@ const SubscriptionMigration = () => {
           : lockedDirection === "post-to-pre" ? t("subscriptionMigration.migrationPostToPre")
           : t("subscriptionMigration.title")
         }
-        showBack
+        showBack={step > 0 || !everProgressed}
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
-          step > 0 ? (
+          (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
               <XIcon className="w-5 h-5 text-foreground" />
             </button>

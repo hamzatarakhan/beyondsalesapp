@@ -113,6 +113,10 @@ const CreditLimitAdjustment = () => {
 
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
+  // Once past step 0, going back to it no longer offers an easy back-to-Home — only
+  // Close (with the cancel-reason prompt), so real progress can't be discarded silently.
+  const [everProgressed, setEverProgressed] = useState(false);
+  useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
 
   // Step 0 — Lookup
   const [msisdn, setMsisdn] = useState("0502222211");
@@ -348,10 +352,10 @@ const CreditLimitAdjustment = () => {
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
         title={t("creditLimitAdjustment.title")}
-        showBack
+        showBack={step > 0 || !everProgressed}
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
-          step > 0 ? (
+          (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
               <X className="w-5 h-5 text-foreground" />
             </button>
