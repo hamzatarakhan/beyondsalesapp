@@ -231,8 +231,8 @@ const Home = () => {
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
-    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
