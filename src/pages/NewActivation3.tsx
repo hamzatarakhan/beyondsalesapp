@@ -632,6 +632,11 @@ const NewActivation3 = () => {
   const isFriendi = brand === "friendi";
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
+  // Once the dealer has reached step 1 or 2, going back to step 0 no longer offers an easy
+  // back-to-Home — only Close (with the cancel-reason prompt), so real progress can't be
+  // discarded silently. A fresh entry (never past step 0) still gets the plain back arrow.
+  const [everProgressed, setEverProgressed] = useState(false);
+  useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
 
   // Stage 1 — Identity
   const [idType, setIdType] = useState("saudi-id");
@@ -1350,10 +1355,10 @@ const NewActivation3 = () => {
     <div className="mobile-container bg-background min-h-screen pb-32">
       <AppHeader
         title={pageTitle}
-        showBack
+        showBack={step > 0 || !everProgressed}
         onBackClick={onBack}
         rightElement={
-          step > 0 ? (
+          (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
               <X className="w-5 h-5 text-foreground" />
             </button>
