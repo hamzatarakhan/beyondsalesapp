@@ -227,37 +227,37 @@ const Home = () => {
       : [
           subscriptionMigrationOptions[1],
           subscriptionMigrationOptions[2],
-          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+          { id: "bill-payment", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
     ...(activeOperator === "friendi"
       ? []
-      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const }]),
-    { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeLpReview"), badgeTone: "review" as const }]),
+    { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
   // that same wallet up — both are dealer-wallet actions rather than customer activities,
   // for VM and FM alike.
   const eWalletOptions = [
-    { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
-    { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
+    { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
   ];
 
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
   // just Raise Customer Complaint.
   const otherServicesOptions = [
-    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
   ];
 
   // Its own widget, separate from Customer Activities — a reporting/browse service
