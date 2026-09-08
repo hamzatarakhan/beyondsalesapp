@@ -1181,25 +1181,21 @@ const SubscriptionMigration = () => {
       {/* Post-to-pre with an outstanding bill — warn about temporary suspension before
           advancing past the Plan stage (2nd stage), then continue on Confirm (not a hard
           block like the ineligible/SIM-limit modals above). */}
-      <Dialog open={suspensionWarningOpen} onOpenChange={setSuspensionWarningOpen}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+      <Drawer open={suspensionWarningOpen} onOpenChange={setSuspensionWarningOpen}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 text-center">
           <div className="mx-auto mb-2 w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center">
             <AlertCircle className="w-7 h-7 text-amber-600" strokeWidth={2} />
           </div>
           <h4 className="font-semibold text-foreground mb-1 text-lg">{t("subscriptionMigration.suspensionWarningTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t("subscriptionMigration.suspensionWarningDesc")}</p>
-          {/* Wrapped in a div — DialogContent's [&>button]:hidden (meant only for Radix's
-              auto-injected close button) would otherwise also hide this direct-child button. */}
-          <div>
-            <button
-              onClick={() => { setSuspensionWarningOpen(false); setStep((s) => s + 1); }}
-              className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-            >
-              {t("subscriptionMigration.confirmButton")}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          <button
+            onClick={() => { setSuspensionWarningOpen(false); setStep((s) => s + 1); }}
+            className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+          >
+            {t("subscriptionMigration.confirmButton")}
+          </button>
+        </DrawerContent>
+      </Drawer>
 
       {/* Max postpaid/prepaid SIMs reached — CTA points at changing the existing plan on the
           maxed-out line type instead of adding a new one. No real "change plan" flow exists
