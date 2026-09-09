@@ -2597,36 +2597,12 @@ const NewActivation3 = () => {
             {/* Delivery Details — Vnet only */}
             {showDelivery && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between px-1">
-                  <p className="text-sm font-semibold text-foreground">{t("activation3.checkout.deliveryDetails")}</p>
-                  <button
-                    type="button"
-                    onClick={() => setMapOpen(true)}
-                    className="flex items-center gap-1 text-xs font-semibold text-primary"
-                  >
-                    {t("activation3.checkout.map")}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                  </button>
-                </div>
+                <p className="text-sm font-semibold text-foreground px-1">{t("activation3.checkout.deliveryDetails")}</p>
                 <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
-                  <Field label={`${t("activation3.checkout.region")} *`}>
-                    <Select value={locationRegion} onValueChange={(v) => { setLocationRegion(v); setLocationDistrict(""); }}>
-                      <SelectTrigger><SelectValue placeholder={t("activation3.checkout.selectRegion")} /></SelectTrigger>
-                      <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
                   <Field label={`${t("activation3.subscription.city")} *`}>
                     <Select value={contactCity} onValueChange={(v) => { setContactCity(v); setLocationDistrict(""); }}>
                       <SelectTrigger><SelectValue placeholder={t("activation3.checkout.selectCity")} /></SelectTrigger>
                       <SelectContent>{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label={`${t("activation3.subscription.district")} *`}>
-                    <Select value={locationDistrict} onValueChange={setLocationDistrict}>
-                      <SelectTrigger><SelectValue placeholder={t("activation3.checkout.selectDistrict")} /></SelectTrigger>
-                      <SelectContent>
-                        {(DISTRICTS[contactCity] ?? []).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                      </SelectContent>
                     </Select>
                   </Field>
                   <Field label={isVnetMode ? `${t("activation3.subscription.nationalAddress")} *` : t("activation3.subscription.nationalAddress")}>
