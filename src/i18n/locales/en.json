@@ -651,10 +651,9 @@
     "lookupErrorInvalid": "This value doesn't match any SIM on file. Please check it and try again.",
     "invalidTitle": "Invalid",
     "gotIt": "Done",
-    "simStatusDetails": "SIM Status",
-    "statusActive": "Active",
-    "statusNotActive": "Not Active",
-    "statusDefected": "Defected"
+    "numberIsActive": "The Number is Active",
+    "numberIsNotActive": "The Number is Not Active",
+    "numberIsDefected": "The Number is Defected"
   },
   "creditLimitAdjustment": {
     "title": "Credit Limit Adjustment",

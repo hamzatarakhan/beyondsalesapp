@@ -651,10 +651,9 @@
     "lookupErrorInvalid": "هذه القيمة لا تطابق أي شريحة مسجلة. يرجى التحقق منها والمحاولة مرة أخرى.",
     "invalidTitle": "غير صالح",
     "gotIt": "تم",
-    "simStatusDetails": "حالة الشريحة",
-    "statusActive": "نشطة",
-    "statusNotActive": "غير نشطة",
-    "statusDefected": "تالفة"
+    "numberIsActive": "الرقم نشط",
+    "numberIsNotActive": "الرقم غير نشط",
+    "numberIsDefected": "الرقم تالف"
   },
   "creditLimitAdjustment": {
     "title": "تعديل حد الائتمان",

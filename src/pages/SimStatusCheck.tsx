@@ -9,7 +9,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Package, Phone, ScanLine, BadgeCheck, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { Package, Phone, ScanLine, BadgeCheck, AlertCircle, CheckCircle2, AlertTriangle, Ban } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CustomerSearch.tsx / BillPayment.tsx) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -56,26 +56,6 @@ const MethodCard = ({
   </button>
 );
 
-const CardSection = ({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon: typeof BadgeCheck;
-  children: React.ReactNode;
-}) => (
-  <section className="bg-card rounded-2xl p-4 shadow-sm">
-    <div className="flex items-center gap-2 mb-3">
-      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-        <Icon className="w-3.5 h-3.5 text-primary" />
-      </div>
-      <p className="text-sm font-semibold text-foreground">{title}</p>
-    </div>
-    {children}
-  </section>
-);
-
 // ---------- Domain types ----------
 type LookupMethod = "kit" | "msisdn" | "imsi";
 type SimStatus = "active" | "not-active" | "defected";
@@ -96,32 +76,41 @@ const DEMO_SIM_RECORDS: DemoSimRecord[] = [
   { kit: "3456789012", msisdn: "0501110003", imsi: "420011234567892", status: "defected" },
 ];
 
-const STATUS_STYLE: Record<SimStatus, string> = {
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-  "not-active": "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-  defected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+// Inline result banner — same colored-card pattern as ExistingCustomerFound.tsx, one row
+// directly under the input instead of a separate "SIM Status Details" card with a big
+// circular badge.
+const STATUS_BANNER_STYLE: Record<SimStatus, string> = {
+  active: "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  "not-active": "bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20",
+  defected: "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/20",
+};
+
+const STATUS_TEXT_STYLE: Record<SimStatus, string> = {
+  active: "text-emerald-800 dark:text-emerald-300",
+  "not-active": "text-amber-800 dark:text-amber-300",
+  defected: "text-rose-800 dark:text-rose-300",
 };
 
 const STATUS_ICON_STYLE: Record<SimStatus, string> = {
-  active: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
-  "not-active": "bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300",
-  defected: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
+  active: "text-emerald-600 dark:text-emerald-400",
+  "not-active": "text-amber-600 dark:text-amber-400",
+  defected: "text-rose-600 dark:text-rose-400",
 };
 
 const STATUS_ICON: Record<SimStatus, typeof BadgeCheck> = {
   active: CheckCircle2,
-  "not-active": AlertTriangle,
-  defected: XCircle,
+  "not-active": Ban,
+  defected: AlertTriangle,
 };
 
 const SimStatusCheck = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const STATUS_LABEL: Record<SimStatus, string> = {
-    active: t("simStatusCheck.statusActive"),
-    "not-active": t("simStatusCheck.statusNotActive"),
-    defected: t("simStatusCheck.statusDefected"),
+  const STATUS_MESSAGE: Record<SimStatus, string> = {
+    active: t("simStatusCheck.numberIsActive"),
+    "not-active": t("simStatusCheck.numberIsNotActive"),
+    defected: t("simStatusCheck.numberIsDefected"),
   };
 
   // ---------- Lookup ----------
@@ -233,6 +222,16 @@ const SimStatusCheck = () => {
           </Field>
         )}
 
+        {record && (() => {
+          const StatusIcon = STATUS_ICON[record.status];
+          return (
+            <div className={cn("rounded-2xl border p-3 flex items-center gap-2", STATUS_BANNER_STYLE[record.status])}>
+              <StatusIcon className={cn("w-5 h-5 shrink-0", STATUS_ICON_STYLE[record.status])} />
+              <p className={cn("text-sm font-semibold", STATUS_TEXT_STYLE[record.status])}>{STATUS_MESSAGE[record.status]}</p>
+            </div>
+          );
+        })()}
+
         <PrototypeTestBox
           heading={t("simStatusCheck.testValuesHeading")}
           description={t("simStatusCheck.testValuesDescription")}
@@ -265,22 +264,6 @@ const SimStatusCheck = () => {
             resetLookup();
           }}
         />
-
-        {record && (
-          <CardSection title={t("simStatusCheck.simStatusDetails")} icon={BadgeCheck}>
-            <div className="flex flex-col items-center py-2">
-              <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3", STATUS_ICON_STYLE[record.status])}>
-                {(() => {
-                  const StatusIcon = STATUS_ICON[record.status];
-                  return <StatusIcon className="w-8 h-8" strokeWidth={2} />;
-                })()}
-              </div>
-              <span className={cn("px-3 py-1.5 rounded-full text-sm font-semibold", STATUS_STYLE[record.status])}>
-                {STATUS_LABEL[record.status]}
-              </span>
-            </div>
-          </CardSection>
-        )}
       </div>
 
       {/* Invalid / not found — same popup pattern used app-wide for a lookup failure. */}
