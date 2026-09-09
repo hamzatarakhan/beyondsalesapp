@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useDragScroll } from "@/hooks/useDragScroll";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
@@ -140,6 +142,8 @@ const CreditLimitAdjustment = () => {
   const [failureOpen, setFailureOpen] = useState(false);
   // Top-right X, shown from stage 2 onward only — nothing to lose yet on stage 1.
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelOtherText, setCancelOtherText] = useState("");
   const [orderId, setOrderId] = useState("");
 
   // ---------- MSISDN lookup — triggered by the Search button, not on every keystroke ----------
@@ -730,21 +734,39 @@ const CreditLimitAdjustment = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Cancel flow (top-right X) */}
-      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+      {/* Cancel flow (top-right X) — same cancel-reason sheet as SIM Activation. */}
+      <Drawer open={cancelOpen} onOpenChange={(o) => { setCancelOpen(o); if (!o) { setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
-              <AlertCircle className="w-7 h-7 text-sky-500" />
+          <DrawerHeader className="text-start px-0 pb-4">
+            <DrawerTitle>{t("creditLimitAdjustment.cancelSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("creditLimitAdjustment.cancelSheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">{t("creditLimitAdjustment.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
+              <Select value={cancelReason} onValueChange={setCancelReason}>
+                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
+                  <SelectValue placeholder={t("creditLimitAdjustment.cancelSheet.selectReason")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border/60 rounded-xl">
+                  <SelectItem value="customer-changed-mind">{t("creditLimitAdjustment.cancelSheet.reasons.customerChangedMind")}</SelectItem>
+                  <SelectItem value="missing-documents">{t("creditLimitAdjustment.cancelSheet.reasons.missingDocuments")}</SelectItem>
+                  <SelectItem value="request-declined">{t("creditLimitAdjustment.cancelSheet.reasons.requestDeclined")}</SelectItem>
+                  <SelectItem value="system-issue">{t("creditLimitAdjustment.cancelSheet.reasons.systemIssue")}</SelectItem>
+                  <SelectItem value="other">{t("creditLimitAdjustment.cancelSheet.reasons.other")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("creditLimitAdjustment.cancelFlowTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("creditLimitAdjustment.cancelFlowDesc")}</p>
-            </div>
-            <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("creditLimitAdjustment.yesCancelFlow")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("creditLimitAdjustment.keepEditing")}</button>
-            </div>
+            {cancelReason === "other" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="text-sm font-semibold text-foreground">{t("creditLimitAdjustment.cancelSheet.specify")} <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("creditLimitAdjustment.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); resetAll(); navigate("/"); }} className="w-full h-11 rounded-full">{t("creditLimitAdjustment.cancelSheet.confirm")}</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("creditLimitAdjustment.cancelSheet.keepEditing")}</Button>
           </div>
         </DrawerContent>
       </Drawer>

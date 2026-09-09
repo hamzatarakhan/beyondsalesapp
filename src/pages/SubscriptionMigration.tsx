@@ -13,6 +13,7 @@ import WalletShortNotice from "@/components/WalletShortNotice";
 import { useBrand } from "@/contexts/BrandContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import {
   Select,
@@ -277,6 +278,8 @@ const SubscriptionMigration = () => {
   // Top-right X — same "leave the flow" affordance NewActivation's flows have, but a plain
   // Yes/Cancel confirm instead of a cancellation-reason picker.
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelOtherText, setCancelOtherText] = useState("");
 
   // ---------- MSISDN auto-lookup (mirrors the KIT-code auto-check pattern) ----------
   useEffect(() => {
@@ -1280,21 +1283,40 @@ const SubscriptionMigration = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Cancel flow (top-right X) */}
-      <Drawer open={cancelOpen} onOpenChange={setCancelOpen}>
+      {/* Cancel flow (top-right X) — same cancel-reason sheet as SIM Activation. */}
+      <Drawer open={cancelOpen} onOpenChange={(o) => { setCancelOpen(o); if (!o) { setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
-              <AlertCircle className="w-7 h-7 text-sky-500" />
+          <DrawerHeader className="text-start px-0 pb-4">
+            <DrawerTitle>{t("subscriptionMigration.cancelSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("subscriptionMigration.cancelSheet.subtitle")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">{t("subscriptionMigration.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
+              <Select value={cancelReason} onValueChange={setCancelReason}>
+                <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
+                  <SelectValue placeholder={t("subscriptionMigration.cancelSheet.selectReason")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border/60 rounded-xl">
+                  <SelectItem value="customer-changed-mind">{t("subscriptionMigration.cancelSheet.reasons.customerChangedMind")}</SelectItem>
+                  <SelectItem value="missing-documents">{t("subscriptionMigration.cancelSheet.reasons.missingDocuments")}</SelectItem>
+                  <SelectItem value="not-eligible">{t("subscriptionMigration.cancelSheet.reasons.notEligible")}</SelectItem>
+                  <SelectItem value="system-issue">{t("subscriptionMigration.cancelSheet.reasons.systemIssue")}</SelectItem>
+                  <SelectItem value="wrong-plan-selected">{t("subscriptionMigration.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
+                  <SelectItem value="other">{t("subscriptionMigration.cancelSheet.reasons.other")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.cancelFlowTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("subscriptionMigration.cancelFlowDesc")}</p>
-            </div>
-            <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setCancelOpen(false); resetAll(); navigate("/"); }}>{t("subscriptionMigration.yesCancelFlow")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>{t("subscriptionMigration.keepEditing")}</button>
-            </div>
+            {cancelReason === "other" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="text-sm font-semibold text-foreground">{t("subscriptionMigration.cancelSheet.specify")} <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("subscriptionMigration.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); resetAll(); navigate("/"); }} className="w-full h-11 rounded-full">{t("subscriptionMigration.cancelSheet.confirm")}</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("subscriptionMigration.cancelSheet.keepEditing")}</Button>
           </div>
         </DrawerContent>
       </Drawer>
