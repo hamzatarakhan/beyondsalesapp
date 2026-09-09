@@ -124,6 +124,11 @@ const UpdateCustomerId = () => {
   const [record, setRecord] = useState<DemoOwnerRecord | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
+  // Current identity — collected up front on step 0, same as SIM Replacement's option
+  // 2/3 (ID Type, Nationality, ID Number, MSISDN), instead of shown read-only on step 1.
+  const [idType, setIdType] = useState("saudi-id");
+  const [idNumber, setIdNumber] = useState("");
+
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
   const [nationality, setNationality] = useState("sa");
@@ -172,6 +177,8 @@ const UpdateCustomerId = () => {
         return;
       }
       setRecord(found);
+      setIdType(found.currentIdType);
+      setIdNumber(found.currentIdNumber);
       setNewIdType(found.currentIdType);
       setNewIdNumber(found.linkedNewIdNumber);
       setNationality(found.currentNationality);
@@ -182,6 +189,16 @@ const UpdateCustomerId = () => {
   }, [msisdn]);
 
   const eligible = !!record && !lookupError;
+
+  const currentIdNumberRule = ID_TYPE_RULES[idType];
+  const currentIdNumberValid = (() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!currentIdNumberRule) return true;
+    if (currentIdNumberRule.length != null && v.length !== currentIdNumberRule.length) return false;
+    if (currentIdNumberRule.startDigits && !currentIdNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
 
   const idNumberRule = ID_TYPE_RULES[newIdType];
   const idNumberValid = (() => {
@@ -239,7 +256,7 @@ const UpdateCustomerId = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueNumber = eligible;
+  const canContinueNumber = eligible && currentIdNumberValid;
   const canContinueDetails = idNumberValid;
   const canSubmit = customerVerified && otpVerified && !!signature && termsAccepted;
 
@@ -301,6 +318,45 @@ const UpdateCustomerId = () => {
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
+            <Field label={t("updateCustomerId.idType")}>
+              <Select value={idType} onValueChange={(v) => setIdType(v)}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("updateCustomerId.idTypePlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {ID_TYPE_ORDER.map((key) => (
+                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={t("updateCustomerId.nationality")}>
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={t("updateCustomerId.idNumber")}>
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                placeholder={t("updateCustomerId.idNumberPlaceholder")}
+                className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !currentIdNumberValid && "border-destructive focus-visible:ring-destructive")}
+              />
+              {idNumber.trim().length > 0 && !currentIdNumberValid && currentIdNumberRule && (
+                <p className="text-xs text-destructive">
+                  {currentIdNumberRule.startDigits
+                    ? t("updateCustomerId.idNumberRuleStart", { digits: currentIdNumberRule.startDigits.join(", "), length: currentIdNumberRule.length })
+                    : t("updateCustomerId.idNumberRuleLength", { length: currentIdNumberRule.length })}
+                </p>
+              )}
+            </Field>
             <Field label={t("updateCustomerId.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("updateCustomerId.checkingNumber")}</p>}
@@ -322,13 +378,8 @@ const UpdateCustomerId = () => {
         {/* ── Step 1: Details ── */}
         {step === 1 && record && (
           <>
-            <CardSection title={t("updateCustomerId.currentId")} icon={IdCard}>
-              <SummaryRow label={t("updateCustomerId.idType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[record.currentIdType].labelKey]} />
-              <SummaryRow label={t("updateCustomerId.idNumber")} value={record.currentIdNumber} />
-              <SummaryRow label={t("updateCustomerId.nationality")} value={NATIONALITY_LABELS[record.currentNationality] ?? record.currentNationality} />
-              <SummaryRow label={t("updateCustomerId.address")} value={record.currentAddress} />
-            </CardSection>
-
+            {/* Current ID (Type/Nationality/ID Number) is already collected on step 0 —
+                not repeated here. */}
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("updateCustomerId.newIdDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
@@ -358,18 +409,6 @@ const UpdateCustomerId = () => {
                         : t("updateCustomerId.idNumberRuleLength", { length: idNumberRule.length })}
                     </p>
                   )}
-                </Field>
-                <Field label={t("updateCustomerId.nationality")}>
-                  <Select value={nationality} onValueChange={setNationality}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
-                      <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card">
-                      {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </Field>
                 <Field label={t("updateCustomerId.address")}>
                   <Select value={address} onValueChange={setAddress}>

@@ -23,7 +23,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   ClipboardList,
-  IdCard,
   Users,
   UserCheck,
   Phone,
@@ -74,14 +73,15 @@ interface DemoOwnerRecord {
   lineType: "mobile" | "data";
   currentIdType: string;
   currentIdNumber: string;
+  currentNationality: string;
   currentAddress: string;
 }
 
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const DEMO_OWNER_RECORDS: DemoOwnerRecord[] = [
-  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentAddress: "Riyadh" },
-  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentAddress: "Jeddah" },
+  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentNationality: "sa", currentAddress: "Riyadh" },
+  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentNationality: "eg", currentAddress: "Jeddah" },
 ];
 
 const ChangeCustomerOwner = () => {
@@ -119,6 +119,12 @@ const ChangeCustomerOwner = () => {
   const [checking, setChecking] = useState(false);
   const [record, setRecord] = useState<DemoOwnerRecord | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
+
+  // Current owner's identity — collected up front on step 0, same as SIM Replacement's
+  // option 2/3 (ID Type, Nationality, ID Number, MSISDN), instead of shown read-only on step 1.
+  const [idType, setIdType] = useState("saudi-id");
+  const [idNumber, setIdNumber] = useState("");
+  const [nationality, setNationality] = useState("sa");
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
@@ -168,12 +174,25 @@ const ChangeCustomerOwner = () => {
         return;
       }
       setRecord(found);
+      setIdType(found.currentIdType);
+      setIdNumber(found.currentIdNumber);
+      setNationality(found.currentNationality);
     }, 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msisdn]);
 
   const eligible = !!record && !lookupError;
+
+  const currentIdNumberRule = ID_TYPE_RULES[idType];
+  const currentIdNumberValid = (() => {
+    const v = idNumber.trim();
+    if (v.length === 0) return false;
+    if (!currentIdNumberRule) return true;
+    if (currentIdNumberRule.length != null && v.length !== currentIdNumberRule.length) return false;
+    if (currentIdNumberRule.startDigits && !currentIdNumberRule.startDigits.includes(v[0])) return false;
+    return true;
+  })();
 
   const idNumberRule = ID_TYPE_RULES[newIdType];
   const idNumberValid = (() => {
@@ -231,7 +250,7 @@ const ChangeCustomerOwner = () => {
   };
 
   // ---------- Gates ----------
-  const canContinueNumber = eligible;
+  const canContinueNumber = eligible && currentIdNumberValid;
   const canContinueDetails = idNumberValid;
   const canSubmit = customerVerified && otpVerified && !!oldSignature && !!newSignature && termsAccepted;
 
@@ -288,6 +307,45 @@ const ChangeCustomerOwner = () => {
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
+            <Field label={t("changeCustomerOwner.idType")}>
+              <Select value={idType} onValueChange={(v) => setIdType(v)}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.idTypePlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {ID_TYPE_ORDER.map((key) => (
+                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={t("changeCustomerOwner.nationality")}>
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={t("changeCustomerOwner.idNumber")}>
+              <Input
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
+                placeholder={t("changeCustomerOwner.idNumberPlaceholder")}
+                className={cn("h-12 bg-card rounded-xl", idNumber.trim().length > 0 && !currentIdNumberValid && "border-destructive focus-visible:ring-destructive")}
+              />
+              {idNumber.trim().length > 0 && !currentIdNumberValid && currentIdNumberRule && (
+                <p className="text-xs text-destructive">
+                  {currentIdNumberRule.startDigits
+                    ? t("changeCustomerOwner.idNumberRuleStart", { digits: currentIdNumberRule.startDigits.join(", "), length: currentIdNumberRule.length })
+                    : t("changeCustomerOwner.idNumberRuleLength", { length: currentIdNumberRule.length })}
+                </p>
+              )}
+            </Field>
             <Field label={t("changeCustomerOwner.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("changeCustomerOwner.checkingNumber")}</p>}
@@ -309,12 +367,8 @@ const ChangeCustomerOwner = () => {
         {/* ── Step 1: Owner Details ── */}
         {step === 1 && record && (
           <>
-            <CardSection title={t("changeCustomerOwner.currentOwnerDetails")} icon={IdCard}>
-              <SummaryRow label={t("changeCustomerOwner.idType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[record.currentIdType].labelKey]} />
-              <SummaryRow label={t("changeCustomerOwner.idNumber")} value={record.currentIdNumber} />
-              <SummaryRow label={t("changeCustomerOwner.address")} value={record.currentAddress} />
-            </CardSection>
-
+            {/* Current owner details (Type/Nationality/ID Number) are already collected on
+                step 0 — not repeated here. */}
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("changeCustomerOwner.newOwnerDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
