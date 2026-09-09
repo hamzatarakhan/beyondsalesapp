@@ -73,15 +73,14 @@ interface DemoOwnerRecord {
   lineType: "mobile" | "data";
   currentIdType: string;
   currentIdNumber: string;
-  currentNationality: string;
   currentAddress: string;
 }
 
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const DEMO_OWNER_RECORDS: DemoOwnerRecord[] = [
-  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentNationality: "sa", currentAddress: "Riyadh" },
-  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentNationality: "eg", currentAddress: "Jeddah" },
+  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentAddress: "Riyadh" },
+  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentAddress: "Jeddah" },
 ];
 
 const ChangeCustomerOwner = () => {
@@ -120,11 +119,11 @@ const ChangeCustomerOwner = () => {
   const [record, setRecord] = useState<DemoOwnerRecord | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
-  // Current owner's identity — collected up front on step 0, same as SIM Replacement's
-  // option 2/3 (ID Type, Nationality, ID Number, MSISDN), instead of shown read-only on step 1.
+  // Current owner's identity — collected up front on step 0 (ID Type, ID Number, MSISDN,
+  // Address), instead of shown read-only on step 1.
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("");
-  const [nationality, setNationality] = useState("sa");
+  const [address, setAddress] = useState(CITIES[0]);
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
@@ -176,7 +175,7 @@ const ChangeCustomerOwner = () => {
       setRecord(found);
       setIdType(found.currentIdType);
       setIdNumber(found.currentIdNumber);
-      setNationality(found.currentNationality);
+      setAddress(found.currentAddress);
     }, 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -270,6 +269,9 @@ const ChangeCustomerOwner = () => {
     setMsisdn("0505556677");
     setRecord(null);
     setLookupError(null);
+    setIdType("saudi-id");
+    setIdNumber("");
+    setAddress(CITIES[0]);
     setNewIdType("saudi-id");
     setNewIdNumber("");
     setNewNationality("sa");
@@ -319,18 +321,6 @@ const ChangeCustomerOwner = () => {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label={t("changeCustomerOwner.nationality")}>
-              <Select value={nationality} onValueChange={setNationality}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
             <Field label={t("changeCustomerOwner.idNumber")}>
               <Input
                 value={idNumber}
@@ -350,6 +340,18 @@ const ChangeCustomerOwner = () => {
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("changeCustomerOwner.checkingNumber")}</p>}
             </Field>
+            <Field label={t("changeCustomerOwner.address")}>
+              <Select value={address} onValueChange={setAddress}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
             <PrototypeTestBox
               heading={t("changeCustomerOwner.testNumbersHeading")}
@@ -367,8 +369,8 @@ const ChangeCustomerOwner = () => {
         {/* ── Step 1: Owner Details ── */}
         {step === 1 && record && (
           <>
-            {/* Current owner details (Type/Nationality/ID Number) are already collected on
-                step 0 — not repeated here. */}
+            {/* Current owner details (ID Type/ID Number/MSISDN/Address) are already
+                collected on step 0 — not repeated here. */}
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("changeCustomerOwner.newOwnerDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">

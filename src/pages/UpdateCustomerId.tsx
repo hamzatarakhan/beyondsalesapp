@@ -73,7 +73,6 @@ interface DemoOwnerRecord {
   lineType: "mobile" | "data";
   currentIdType: string;
   currentIdNumber: string;
-  currentNationality: string;
   currentAddress: string;
   /** The one new-ID value treated as belonging to the same person as currentIdNumber —
    * typing anything else and submitting simulates the "don't belong to the same person"
@@ -84,8 +83,8 @@ interface DemoOwnerRecord {
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const DEMO_OWNER_RECORDS: DemoOwnerRecord[] = [
-  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentNationality: "sa", currentAddress: "Riyadh", linkedNewIdNumber: "1122334456" },
-  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentNationality: "eg", currentAddress: "Jeddah", linkedNewIdNumber: "2233445567" },
+  { msisdn: "0505556677", lineType: "mobile", currentIdType: "saudi-id", currentIdNumber: "1122334455", currentAddress: "Riyadh", linkedNewIdNumber: "1122334456" },
+  { msisdn: "0505556688", lineType: "data", currentIdType: "iqama-id", currentIdNumber: "2233445566", currentAddress: "Jeddah", linkedNewIdNumber: "2233445567" },
 ];
 
 const UpdateCustomerId = () => {
@@ -103,15 +102,6 @@ const UpdateCustomerId = () => {
     gccPassport: t("updateCustomerId.idType_gccPassport"),
     premiumResidency: t("updateCustomerId.idType_premiumResidency"),
   };
-  const NATIONALITY_LABELS: Record<string, string> = {
-    sa: t("updateCustomerId.nationalitySaudi"),
-    om: t("updateCustomerId.nationalityOmani"),
-    ae: t("updateCustomerId.nationalityEmirati"),
-    eg: t("updateCustomerId.nationalityEgyptian"),
-    in: t("updateCustomerId.nationalityIndian"),
-    other: t("updateCustomerId.nationalityOther"),
-  };
-
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
   // Once past step 0, going back to it no longer offers an easy back-to-Home — only
@@ -124,14 +114,14 @@ const UpdateCustomerId = () => {
   const [record, setRecord] = useState<DemoOwnerRecord | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
-  // Current identity — collected up front on step 0, same as SIM Replacement's option
-  // 2/3 (ID Type, Nationality, ID Number, MSISDN), instead of shown read-only on step 1.
+  // Current ID Number/MSISDN/Address are collected up front on step 0, instead of shown
+  // read-only on step 1. idType isn't its own field — auto-filled from the lookup, only
+  // used to validate idNumber against the right rule.
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("");
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
-  const [nationality, setNationality] = useState("sa");
   const [address, setAddress] = useState(CITIES[0]);
 
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
@@ -181,7 +171,6 @@ const UpdateCustomerId = () => {
       setIdNumber(found.currentIdNumber);
       setNewIdType(found.currentIdType);
       setNewIdNumber(found.linkedNewIdNumber);
-      setNationality(found.currentNationality);
       setAddress(found.currentAddress);
     }, 800);
     return () => clearTimeout(timer);
@@ -282,9 +271,10 @@ const UpdateCustomerId = () => {
     setMsisdn("0505556677");
     setRecord(null);
     setLookupError(null);
+    setIdType("saudi-id");
+    setIdNumber("");
     setNewIdType("saudi-id");
     setNewIdNumber("");
-    setNationality("sa");
     setAddress(CITIES[0]);
     setCustomerVerified(false);
     setOtpVerified(false);
@@ -318,30 +308,6 @@ const UpdateCustomerId = () => {
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
-            <Field label={t("updateCustomerId.idType")}>
-              <Select value={idType} onValueChange={(v) => setIdType(v)}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("updateCustomerId.idTypePlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {ID_TYPE_ORDER.map((key) => (
-                    <SelectItem key={key} value={key}>{ID_TYPE_LABELS[ID_TYPE_RULES[key].labelKey]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label={t("updateCustomerId.nationality")}>
-              <Select value={nationality} onValueChange={setNationality}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
             <Field label={t("updateCustomerId.idNumber")}>
               <Input
                 value={idNumber}
@@ -361,6 +327,18 @@ const UpdateCustomerId = () => {
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("updateCustomerId.checkingNumber")}</p>}
             </Field>
+            <Field label={t("updateCustomerId.address")}>
+              <Select value={address} onValueChange={setAddress}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("updateCustomerId.addressPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
             <PrototypeTestBox
               heading={t("updateCustomerId.testNumbersHeading")}
@@ -378,7 +356,7 @@ const UpdateCustomerId = () => {
         {/* ── Step 1: Details ── */}
         {step === 1 && record && (
           <>
-            {/* Current ID (Type/Nationality/ID Number) is already collected on step 0 —
+            {/* Current ID (ID Number/MSISDN/Address) is already collected on step 0 —
                 not repeated here. */}
             <div className="space-y-2">
               <p className="text-sm font-semibold text-foreground px-1">{t("updateCustomerId.newIdDetails")}</p>
@@ -410,18 +388,6 @@ const UpdateCustomerId = () => {
                     </p>
                   )}
                 </Field>
-                <Field label={t("updateCustomerId.address")}>
-                  <Select value={address} onValueChange={setAddress}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
-                      <SelectValue placeholder={t("updateCustomerId.addressPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card">
-                      {CITIES.map((city) => (
-                        <SelectItem key={city} value={city}>{city}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
               </div>
             </div>
           </>
@@ -436,7 +402,6 @@ const UpdateCustomerId = () => {
               <SummaryRow label={t("updateCustomerId.oldIdNumber")} value={record?.currentIdNumber ?? t("updateCustomerId.dash")} />
               <SummaryRow label={t("updateCustomerId.newIdType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[newIdType].labelKey]} />
               <SummaryRow label={t("updateCustomerId.newIdNumber")} value={newIdNumber} />
-              <SummaryRow label={t("updateCustomerId.nationality")} value={NATIONALITY_LABELS[nationality]} />
               <SummaryRow label={t("updateCustomerId.address")} value={address} />
             </CardSection>
 
