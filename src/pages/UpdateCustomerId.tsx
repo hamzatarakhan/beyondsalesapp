@@ -102,6 +102,14 @@ const UpdateCustomerId = () => {
     gccPassport: t("updateCustomerId.idType_gccPassport"),
     premiumResidency: t("updateCustomerId.idType_premiumResidency"),
   };
+  const NATIONALITY_LABELS: Record<string, string> = {
+    sa: t("updateCustomerId.nationalitySaudi"),
+    om: t("updateCustomerId.nationalityOmani"),
+    ae: t("updateCustomerId.nationalityEmirati"),
+    eg: t("updateCustomerId.nationalityEgyptian"),
+    in: t("updateCustomerId.nationalityIndian"),
+    other: t("updateCustomerId.nationalityOther"),
+  };
   // ---------- Flow state ----------
   const [step, setStep] = useState(0);
   // Once past step 0, going back to it no longer offers an easy back-to-Home — only
@@ -122,6 +130,8 @@ const UpdateCustomerId = () => {
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
+  const [newNationality, setNewNationality] = useState("sa");
+  const [newAddress, setNewAddress] = useState(CITIES[0]);
   const [address, setAddress] = useState(CITIES[0]);
 
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
@@ -171,6 +181,8 @@ const UpdateCustomerId = () => {
       setIdNumber(found.currentIdNumber);
       setNewIdType(found.currentIdType);
       setNewIdNumber(found.linkedNewIdNumber);
+      setNewNationality("sa");
+      setNewAddress(found.currentAddress);
       setAddress(found.currentAddress);
     }, 800);
     return () => clearTimeout(timer);
@@ -275,6 +287,8 @@ const UpdateCustomerId = () => {
     setIdNumber("");
     setNewIdType("saudi-id");
     setNewIdNumber("");
+    setNewNationality("sa");
+    setNewAddress(CITIES[0]);
     setAddress(CITIES[0]);
     setCustomerVerified(false);
     setOtpVerified(false);
@@ -373,6 +387,18 @@ const UpdateCustomerId = () => {
                     </SelectContent>
                   </Select>
                 </Field>
+                <Field label={t("updateCustomerId.nationality")}>
+                  <Select value={newNationality} onValueChange={setNewNationality}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                      <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
                 <Field label={t("updateCustomerId.newIdNumber")}>
                   <Input
                     value={newIdNumber}
@@ -388,6 +414,18 @@ const UpdateCustomerId = () => {
                     </p>
                   )}
                 </Field>
+                <Field label={t("updateCustomerId.newAddress")}>
+                  <Select value={newAddress} onValueChange={setNewAddress}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                      <SelectValue placeholder={t("updateCustomerId.addressPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {CITIES.map((city) => (
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
             </div>
           </>
@@ -401,8 +439,9 @@ const UpdateCustomerId = () => {
               <SummaryRow label={t("updateCustomerId.oldIdType")} value={record ? ID_TYPE_LABELS[ID_TYPE_RULES[record.currentIdType].labelKey] : t("updateCustomerId.dash")} />
               <SummaryRow label={t("updateCustomerId.oldIdNumber")} value={record?.currentIdNumber ?? t("updateCustomerId.dash")} />
               <SummaryRow label={t("updateCustomerId.newIdType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[newIdType].labelKey]} />
+              <SummaryRow label={t("updateCustomerId.nationality")} value={NATIONALITY_LABELS[newNationality]} />
               <SummaryRow label={t("updateCustomerId.newIdNumber")} value={newIdNumber} />
-              <SummaryRow label={t("updateCustomerId.address")} value={address} />
+              <SummaryRow label={t("updateCustomerId.newAddress")} value={newAddress} />
             </CardSection>
 
             <CardSection title={t("updateCustomerId.idVerification")} icon={UserCheck}>

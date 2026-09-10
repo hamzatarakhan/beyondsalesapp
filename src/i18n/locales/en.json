@@ -1502,6 +1502,7 @@
     "newIdDetails": "New ID Details",
     "newIdType": "New ID Type",
     "newIdNumber": "New ID Number",
+    "newAddress": "New Customer Address",
     "idNumberPlaceholder": "Enter ID number",
     "idNumberRuleStart": "Must start with {{digits}} and be exactly {{length}} digits",
     "idNumberRuleLength": "Must be exactly {{length}} digits",
