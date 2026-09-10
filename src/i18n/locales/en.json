@@ -3181,6 +3181,10 @@
     },
     "continue": "Continue",
     "back": "Back",
+    "iosUnsupported": {
+      "title": "Not Available on iOS",
+      "description": "GCC ID and Passport activations require Fingerprint verification, which isn't supported on iOS devices. Please use an Android device to complete this activation."
+    },
     "missing": {
       "prefix": "Complete {{items}} to continue.",
       "and": "and",

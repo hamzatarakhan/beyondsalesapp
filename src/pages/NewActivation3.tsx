@@ -298,6 +298,11 @@ export const ID_TYPE_VERIFICATION_METHODS: Record<string, VerificationMethod[]> 
 // identifies which demo case it is (normal, whitelisted, PAYG top-up required, etc.).
 const demoIdFor = (rule: IdTypeRule | undefined, suffix: string) => (rule?.startDigits?.[0] ?? "1") + suffix;
 
+// GCC ID / Passport allow Fingerprint only (see ID_TYPE_VERIFICATION_METHODS below), which iOS
+// doesn't support — so those two ID types can't complete Customer Verification on an iOS device.
+const isIOSDevice = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+const IOS_UNSUPPORTED_ID_TYPES = ["gcc-id", "gcc-passport"];
+
 // Fulfilment demo emails — stand in for the real backend already knowing everything
 // the customer chose online once we look it up, instead of manual toggles. A paid
 // record seeds the subscription/number/commitment state so the locked view actually
@@ -653,6 +658,7 @@ const NewActivation3 = () => {
   const [qrVerified, setQrVerified] = useState(false);
   const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
   const [prepaidLimitOpen, setPrepaidLimitOpen] = useState(false);
+  const [iosUnsupportedOpen, setIosUnsupportedOpen] = useState(false);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -2648,7 +2654,17 @@ const NewActivation3 = () => {
               {customerVerified ? (
                 <VerifiedBanner label="Customer Verified" />
               ) : (
-                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
+                <Button
+                  variant="outline"
+                  className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full"
+                  onClick={() => {
+                    if (isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType)) {
+                      setIosUnsupportedOpen(true);
+                      return;
+                    }
+                    setCustomerVerifyOpen(true);
+                  }}
+                >
                   {t("activation3.checkout.verifyCustomer")}
                 </Button>
               )}
@@ -2866,6 +2882,31 @@ const NewActivation3 = () => {
               className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
             >
               {t("activation.prepaidLimit.cta")}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* GCC ID / Passport only allow Fingerprint verification, which isn't available on iOS —
+          blocks Customer Verification on those two ID types when the dealer's device is iOS. */}
+      <Dialog open={iosUnsupportedOpen} onOpenChange={setIosUnsupportedOpen}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <Smartphone className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
+          </div>
+          <DialogTitle className="font-semibold text-[#E30613] mb-1 text-lg">{t("activation3.iosUnsupported.title")}</DialogTitle>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+            {t("activation3.iosUnsupported.description")}
+          </p>
+          <div>
+            <button
+              onClick={() => setIosUnsupportedOpen(false)}
+              className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
+            >
+              {t("activation.fulfilment.gotIt")}
             </button>
           </div>
         </DialogContent>
