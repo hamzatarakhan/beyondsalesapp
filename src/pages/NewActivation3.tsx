@@ -658,7 +658,6 @@ const NewActivation3 = () => {
   const [qrVerified, setQrVerified] = useState(false);
   const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
   const [prepaidLimitOpen, setPrepaidLimitOpen] = useState(false);
-  const [iosUnsupportedOpen, setIosUnsupportedOpen] = useState(false);
   // Payment & whitelist status come back automatically once we look up the fulfilment
   // application by email — no manual toggles. Demo data only recognizes the 4 seeded
   // addresses above (covering paid/unpaid x whitelisted/not-whitelisted).
@@ -1278,6 +1277,7 @@ const NewActivation3 = () => {
     if (isFulfilment) return qrVerified || isValidEmail(fulfilmentEmail) ? [] : [t("activation3.missing.qrOrEmail")];
     const missing: string[] = [];
     if (!idType) missing.push(t("activation3.identity.idType"));
+    if (isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType)) missing.push(t("activation3.iosUnsupported.title"));
     if (!nationality) missing.push(t("activation3.identity.nationality"));
     // Full rule (start digit + exact length) already has its own inline error under the field
     // itself, so this just names the field rather than repeating the exact rule.
@@ -1392,6 +1392,17 @@ const NewActivation3 = () => {
                     </SelectContent>
                   </Select>
                 </Field>
+
+                {/* GCC ID / Passport only allow Fingerprint verification, which iOS doesn't
+                    support — block the flow right here instead of letting the dealer fill out
+                    every stage before hitting a dead end at Customer Verification. */}
+                {isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType) && (
+                  <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-3 flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-[12.5px] font-medium text-foreground">{t("activation3.iosUnsupported.description")}</p>
+                  </div>
+                )}
+
                 <Field label={t("activation3.identity.nationality")}>
                   <button
                     type="button"
@@ -2654,17 +2665,7 @@ const NewActivation3 = () => {
               {customerVerified ? (
                 <VerifiedBanner label="Customer Verified" />
               ) : (
-                <Button
-                  variant="outline"
-                  className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full"
-                  onClick={() => {
-                    if (isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType)) {
-                      setIosUnsupportedOpen(true);
-                      return;
-                    }
-                    setCustomerVerifyOpen(true);
-                  }}
-                >
+                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
                   {t("activation3.checkout.verifyCustomer")}
                 </Button>
               )}
@@ -2882,31 +2883,6 @@ const NewActivation3 = () => {
               className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
             >
               {t("activation.prepaidLimit.cta")}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* GCC ID / Passport only allow Fingerprint verification, which isn't available on iOS —
-          blocks Customer Verification on those two ID types when the dealer's device is iOS. */}
-      <Dialog open={iosUnsupportedOpen} onOpenChange={setIosUnsupportedOpen}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" fill="none" stroke="#E30613" strokeWidth="6" strokeLinejoin="round">
-              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
-            </svg>
-            <Smartphone className="w-7 h-7 text-[#E30613] relative" strokeWidth={2} />
-          </div>
-          <DialogTitle className="font-semibold text-[#E30613] mb-1 text-lg">{t("activation3.iosUnsupported.title")}</DialogTitle>
-          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-            {t("activation3.iosUnsupported.description")}
-          </p>
-          <div>
-            <button
-              onClick={() => setIosUnsupportedOpen(false)}
-              className="w-full py-3 rounded-full bg-[#E30613] text-white font-semibold text-sm"
-            >
-              {t("activation.fulfilment.gotIt")}
             </button>
           </div>
         </DialogContent>
