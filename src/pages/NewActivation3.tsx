@@ -1392,17 +1392,6 @@ const NewActivation3 = () => {
                     </SelectContent>
                   </Select>
                 </Field>
-
-                {/* GCC ID / Passport only allow Fingerprint verification, which iOS doesn't
-                    support — block the flow right here instead of letting the dealer fill out
-                    every stage before hitting a dead end at Customer Verification. */}
-                {isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType) && (
-                  <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-3 flex items-start gap-2.5">
-                    <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                    <p className="text-[12.5px] font-medium text-foreground">{t("activation3.iosUnsupported.description")}</p>
-                  </div>
-                )}
-
                 <Field label={t("activation3.identity.nationality")}>
                   <button
                     type="button"
@@ -1428,6 +1417,16 @@ const NewActivation3 = () => {
                     </p>
                   )}
                 </Field>
+
+                {/* GCC ID / Passport only allow Fingerprint verification, which iOS doesn't
+                    support — block the flow right here instead of letting the dealer fill out
+                    every stage before hitting a dead end at Customer Verification. */}
+                {isIOSDevice && IOS_UNSUPPORTED_ID_TYPES.includes(idType) && (
+                  <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-3 flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-[12.5px] font-medium text-foreground">{t("activation3.iosUnsupported.description")}</p>
+                  </div>
+                )}
               </>
             ) : (
               <>
