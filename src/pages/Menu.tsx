@@ -6,7 +6,6 @@ import {
   QrCode,
   Network,
   ClipboardCheck,
-  ArrowLeftRight,
   UserPlus,
   ClipboardList,
   Target,
@@ -38,7 +37,6 @@ const Menu = () => {
     {
       title: t("menu.stockManagement"),
       items: [
-        { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
         { icon: Network, label: t("menu.myHierarchy") },
         { icon: ClipboardCheck, label: t("menu.checkIn") },
       ],
