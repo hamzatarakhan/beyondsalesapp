@@ -605,6 +605,24 @@ const SimReplacement = () => {
                   </div>
                 )}
 
+                {/* Payment Method — same position as SIM Activation's checkout: right after
+                    the summary/fee note, ahead of Verification and Terms (was after Terms). */}
+                {isChargeable && (
+                  <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
+                    <div className="space-y-2">
+                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
+                        {walletShort && (
+                          <WalletShortNotice
+                            message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
+                            buttonLabel={t("simReplacement.topUpWallet")}
+                          />
+                        )}
+                      </PayOption>
+                      <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                    </div>
+                  </CardSection>
+                )}
+
                 <CardSection title={t("activation.checkout.customerVerification")} icon={Phone}>
                   {verified ? (
                     <VerifiedBanner label={t("simReplacement.customerVerified")} />
@@ -641,22 +659,6 @@ const SimReplacement = () => {
                     </p>
                   </div>
                 </section>
-
-                {isChargeable && (
-                  <CardSection title={t("simReplacement.paymentMethod")} icon={CreditCard}>
-                    <div className="space-y-2">
-                      <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
-                        {walletShort && (
-                          <WalletShortNotice
-                            message={t("simReplacement.walletShort", { amount: (fee - DEALER_WALLET_BALANCE).toFixed(2) })}
-                            buttonLabel={t("simReplacement.topUpWallet")}
-                          />
-                        )}
-                      </PayOption>
-                      <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-                    </div>
-                  </CardSection>
-                )}
               </>
             )}
           </>
