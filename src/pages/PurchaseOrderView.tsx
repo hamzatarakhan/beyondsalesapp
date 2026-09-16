@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
@@ -30,9 +30,13 @@ type Action = "approve" | "reject" | "cancel" | "submitScanning";
 
 const PurchaseOrderView = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const order = id ? getPurchaseOrder(id) : undefined;
+  // Opened from a notification's deep link → back returns to Notifications instead of the
+  // Purchase Orders list.
+  const backTo = (location.state as { from?: string } | null)?.from === "notifications" ? "/notifications" : "/purchase-orders";
 
   const [confirmAction, setConfirmAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState<string>("");
@@ -73,7 +77,7 @@ const PurchaseOrderView = () => {
   if (!order) {
     return (
       <div className="mobile-container min-h-screen bg-background">
-        <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate("/purchase-orders")} />
+        <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate(backTo)} />
         <p className="text-center text-sm text-muted-foreground py-16">{t("purchaseOrders.noOrders")}</p>
       </div>
     );
@@ -93,7 +97,7 @@ const PurchaseOrderView = () => {
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
-      <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate("/purchase-orders")} />
+      <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate(backTo)} />
 
       <div className="px-4 space-y-3">
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">

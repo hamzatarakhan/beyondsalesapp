@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -96,9 +96,13 @@ const AMOUNT_SLOT = AMOUNT_ITEM_WIDTH + AMOUNT_ITEM_GAP;
 
 const CreditLimitAdjustment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   const [searchParams] = useSearchParams();
+  // Opened from a notification's deep link → backing out of the whole flow (step 0) returns
+  // to Notifications instead of Home.
+  const backTo = (location.state as { from?: string } | null)?.from === "notifications" ? "/notifications" : "/";
   // Five separate Home entry points ("Option 1-5") land on this same flow, each fixed to
   // its own way of choosing the adjustment amount — a slider, a predefined-amount pill grid
   // (mirrors Friendi's PAYG top-up), a boxed swipeable carousel, a plain typographic wheel
@@ -357,7 +361,7 @@ const CreditLimitAdjustment = () => {
       <AppHeader
         title={t("creditLimitAdjustment.title")}
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        onBackClick={() => (step === 0 ? navigate(backTo) : setStep((s) => s - 1))}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">

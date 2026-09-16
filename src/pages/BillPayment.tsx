@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -222,8 +222,12 @@ const totalDueOf = (a: BillAccount) => a.bills.reduce((sum, b) => sum + billTota
 
 const BillPayment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
+  // Opened from a notification's deep link → backing out of the whole flow (step 0) returns
+  // to Notifications instead of Home.
+  const backTo = (location.state as { from?: string } | null)?.from === "notifications" ? "/notifications" : "/";
 
   const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
     "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
@@ -489,7 +493,7 @@ const BillPayment = () => {
 
   const handleBack = () => {
     if (step === 0) {
-      navigate("/");
+      navigate(backTo);
       return;
     }
     setStep((s) => s - 1);

@@ -90,7 +90,9 @@ const Notifications = () => {
     // customer's credit page); a "general" announcement has no single record to jump to, so
     // it opens the plain in-app notification detail view instead, same as it always has.
     if (n.linkTo) {
-      navigate(n.linkTo);
+      // Flag where this came from so the destination page's back button returns here
+      // instead of its usual default (its own list, or home).
+      navigate(n.linkTo, { state: { from: "notifications" } });
       return;
     }
     setActiveNotification({ ...n, read: true });
