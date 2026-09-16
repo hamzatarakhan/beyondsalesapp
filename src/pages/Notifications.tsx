@@ -237,18 +237,20 @@ const Notifications = () => {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {!n.read && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
-                          <p className="text-sm font-semibold text-foreground truncate">{n.title}</p>
+                      {/* No detail screen to fall back on now — the card itself has to carry the
+                          whole title and body, so neither is truncated/clamped here. */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-1.5 min-w-0">
+                          {!n.read && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1.5" />}
+                          <p className="text-sm font-semibold text-foreground">{n.title}</p>
                         </div>
                         <div className="flex items-baseline gap-1 shrink-0">
                           <span className="text-[10px] text-muted-foreground">{n.date}</span>
                           <span className="text-[11px] text-muted-foreground">{n.time}</span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between gap-3 mt-1.5">
-                        <p className="text-xs text-muted-foreground line-clamp-2 flex-1">{n.body}</p>
+                      <div className="flex items-start justify-between gap-3 mt-1.5">
+                        <p className="text-xs text-muted-foreground flex-1">{n.body}</p>
                         <img src={officePhoto} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
                       </div>
                     </div>
