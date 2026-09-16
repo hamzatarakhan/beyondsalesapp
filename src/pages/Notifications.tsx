@@ -27,20 +27,26 @@ interface NotificationItem {
   time: string;
   read: boolean;
   category: Category;
+  // Where pressing this notification should take the dealer — a specific order/bill/etc. page.
+  // Absent for "general" notices (announcements), which have no single related record to open
+  // and so still fall back to the in-app detail view.
+  linkTo?: string;
 }
 
-// Prototype-only static notifications — no backend to source these from yet.
+// Prototype-only static notifications — no backend to source these from yet. "orders",
+// "payment" and "unpaid" each point at a real seeded record so the deep link actually opens
+// something; "general" is a plain announcement with nothing to link to.
 const LOREM =
   "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
 
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   { id: "1", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "22 Dec", time: "8:52 AM", read: false, category: "general" },
-  { id: "2", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21 Dec", time: "8:52 AM", read: false, category: "payment" },
-  { id: "3", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "21 Dec", time: "8:52 AM", read: false, category: "orders" },
-  { id: "4", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20 Dec", time: "8:52 AM", read: true, category: "unpaid" },
+  { id: "2", title: "Bill payment reminder", subtitle: "Action required", body: "A channel member has an upcoming bill due. Tap to process the payment now.", date: "21 Dec", time: "8:52 AM", read: false, category: "payment", linkTo: "/bill-payment" },
+  { id: "3", title: "Sales Order SO-2026-2005 awaiting your approval", subtitle: "Dammam Branch", body: "This sales order has been quoted and is now waiting on your approval before it moves to scanning.", date: "21 Dec", time: "8:52 AM", read: false, category: "orders", linkTo: "/sales-orders/SO-2026-2005" },
+  { id: "4", title: "Outstanding balance flagged for review", subtitle: "Credit limit check", body: "A customer's outstanding balance is close to their credit limit. Tap to review and adjust.", date: "20 Dec", time: "8:52 AM", read: true, category: "unpaid", linkTo: "/credit-limit-adjustment" },
   { id: "5", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "20 Dec", time: "8:52 AM", read: true, category: "general" },
-  { id: "6", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19 Dec", time: "8:52 AM", read: true, category: "payment" },
-  { id: "7", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: LOREM, date: "19 Dec", time: "8:52 AM", read: true, category: "orders" },
+  { id: "6", title: "Payment received", subtitle: "Confirmation", body: "A payment was recorded against a channel member's account. Tap to view or record another payment.", date: "19 Dec", time: "8:52 AM", read: true, category: "payment", linkTo: "/bill-payment" },
+  { id: "7", title: "Purchase Order PO-2026-1006 — quotation received", subtitle: "Jeddah Branch", body: "The supplier has sent a quotation for this purchase order. Tap to review and approve or reject it.", date: "19 Dec", time: "8:52 AM", read: true, category: "orders", linkTo: "/purchase-orders/PO-2026-1006" },
 ];
 
 const Notifications = () => {
@@ -78,6 +84,13 @@ const Notifications = () => {
       return;
     }
     setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    // Deep link straight to the related page (the order, the bill payment flow, etc.) when
+    // there is one — only a plain "general" announcement has no single page to jump to, so
+    // it falls back to the in-app detail view below.
+    if (n.linkTo) {
+      navigate(n.linkTo);
+      return;
+    }
     setActiveNotification({ ...n, read: true });
     setView("detail");
   };
