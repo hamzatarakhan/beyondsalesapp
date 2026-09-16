@@ -27,21 +27,27 @@ interface NotificationItem {
   time: string;
   read: boolean;
   category: Category;
-  // Every notification is about something — pressing it goes straight to that process (an
-  // order, a bill payment, a shift schedule, ...) instead of a separate notification-detail
-  // screen, so there's no in-app "read the notification" step to skip past.
-  linkTo: string;
+  // Where pressing this notification should take the dealer — a specific order/bill/customer
+  // page. Absent for "general" announcements, which aren't about any one record — those still
+  // open the in-app notification detail view instead.
+  linkTo?: string;
 }
 
-// Prototype-only static notifications — no backend to source these from yet. Each one points
-// at a real seeded record so the deep link actually opens something real.
+// Prototype-only static notifications — no backend to source these from yet, but each one
+// references a real seeded record (an actual order id, bill number, or credit customer already
+// used elsewhere in the app) so both the deep link and the detail view show something real.
+const RAMADAN_HOURS_BODY =
+  "Starting next week, all branches will operate on adjusted Ramadan hours: 10:00 AM – 4:00 PM, Saturday to Thursday. Please update your team's schedules accordingly.";
+const COMMISSION_UPDATE_BODY =
+  "The updated commission tiers for postpaid and Vnet activations are now live. Review the new payout percentages in your dealer portal before submitting this month's claims.";
+
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  { id: "1", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: "This week's shift schedule has been published. Tap to view your shifts.", date: "22 Dec", time: "8:52 AM", read: false, category: "general", linkTo: "/my-shifts" },
-  { id: "2", title: "Bill payment reminder", subtitle: "Action required", body: "A channel member has an upcoming bill due. Tap to process the payment now.", date: "21 Dec", time: "8:52 AM", read: false, category: "payment", linkTo: "/bill-payment" },
-  { id: "3", title: "Sales Order SO-2026-2005 awaiting your approval", subtitle: "Dammam Branch", body: "This sales order has been quoted and is now waiting on your approval before it moves to scanning.", date: "21 Dec", time: "8:52 AM", read: false, category: "orders", linkTo: "/sales-orders/SO-2026-2005" },
-  { id: "4", title: "Outstanding balance flagged for review", subtitle: "Credit limit check", body: "A customer's outstanding balance is close to their credit limit. Tap to review and adjust.", date: "20 Dec", time: "8:52 AM", read: true, category: "unpaid", linkTo: "/credit-limit-adjustment" },
-  { id: "5", title: "New week at the office – attached schedule", subtitle: "Subtitle here", body: "Next week's shift schedule has been published. Tap to view your shifts.", date: "20 Dec", time: "8:52 AM", read: true, category: "general", linkTo: "/my-shifts" },
-  { id: "6", title: "Payment received", subtitle: "Confirmation", body: "A payment was recorded against a channel member's account. Tap to view or record another payment.", date: "19 Dec", time: "8:52 AM", read: true, category: "payment", linkTo: "/bill-payment" },
+  { id: "1", title: "Ramadan working hours update", subtitle: "Operations Announcement", body: RAMADAN_HOURS_BODY, date: "22 Dec", time: "8:52 AM", read: false, category: "general" },
+  { id: "2", title: "Bill payment reminder", subtitle: "MSISDN 0502222222", body: "Bill BL-2026-07-5590 (780.00 SAR) is overdue. Tap to collect payment now.", date: "21 Dec", time: "8:52 AM", read: false, category: "payment", linkTo: "/bill-payment" },
+  { id: "3", title: "Sales Order SO-2026-2005 awaiting your approval", subtitle: "Noura Al-Harbi · Dammam Branch", body: "This sales order has been quoted and is now waiting on your approval before it moves to scanning.", date: "21 Dec", time: "8:52 AM", read: false, category: "orders", linkTo: "/sales-orders/SO-2026-2005" },
+  { id: "4", title: "Outstanding balance flagged for review", subtitle: "Sara Al-Otaibi", body: "Sara Al-Otaibi's outstanding balance is approaching her 500 SAR credit limit. Tap to review and adjust.", date: "20 Dec", time: "8:52 AM", read: true, category: "unpaid", linkTo: "/credit-limit-adjustment" },
+  { id: "5", title: "New commission structure effective this month", subtitle: "Finance Announcement", body: COMMISSION_UPDATE_BODY, date: "20 Dec", time: "8:52 AM", read: true, category: "general" },
+  { id: "6", title: "Payment received", subtitle: "MSISDN 0502222211", body: "A payment was recorded against bill BL-2026-07-4412. Tap to view the payment history or record another payment.", date: "19 Dec", time: "8:52 AM", read: true, category: "payment", linkTo: "/bill-payment" },
   { id: "7", title: "Purchase Order PO-2026-1006 — quotation received", subtitle: "Jeddah Branch", body: "The supplier has sent a quotation for this purchase order. Tap to review and approve or reject it.", date: "19 Dec", time: "8:52 AM", read: true, category: "orders", linkTo: "/purchase-orders/PO-2026-1006" },
 ];
 
@@ -50,6 +56,8 @@ const Notifications = () => {
   const { t } = useTranslation();
 
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const [view, setView] = useState<"list" | "detail">("list");
+  const [activeNotification, setActiveNotification] = useState<NotificationItem | null>(null);
   const [search, setSearch] = useState("");
   const [activeChip, setActiveChip] = useState<ChipValue>("all");
   const [selectMode, setSelectMode] = useState(false);
@@ -78,7 +86,15 @@ const Notifications = () => {
       return;
     }
     setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-    navigate(n.linkTo);
+    // Deep link straight to the related record when there is one (an order, a bill, a
+    // customer's credit page); a "general" announcement has no single record to jump to, so
+    // it opens the plain in-app notification detail view instead, same as it always has.
+    if (n.linkTo) {
+      navigate(n.linkTo);
+      return;
+    }
+    setActiveNotification({ ...n, read: true });
+    setView("detail");
   };
 
   const toggleSelected = (id: string) => {
@@ -110,6 +126,10 @@ const Notifications = () => {
   };
 
   const handleBack = () => {
+    if (view === "detail") {
+      setView("list");
+      return;
+    }
     if (selectMode) {
       exitSelectMode();
       return;
@@ -150,9 +170,31 @@ const Notifications = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
-      <AppHeader title={t("notifications.title")} showBack onBackClick={handleBack} rightElement={headerMenu} />
+      {/* Select/Read-all only act on the list, so the menu is hidden while reading one notification. */}
+      <AppHeader
+        title={t("notifications.title")}
+        showBack
+        onBackClick={handleBack}
+        rightElement={view === "detail" ? undefined : headerMenu}
+      />
 
-      {notifications.length === 0 ? (
+      {view === "detail" && activeNotification ? (
+        <div className="px-4 space-y-4">
+          <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">{activeNotification.title}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{activeNotification.subtitle}</p>
+            </div>
+            <img
+              src={officePhoto}
+              alt=""
+              className="w-full h-48 object-cover rounded-xl"
+            />
+            <p className="text-xs text-muted-foreground">{activeNotification.date}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{activeNotification.body}</p>
+          </div>
+        </div>
+      ) : notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-8 py-24 text-center">
           <Inbox className="w-14 h-14 text-primary mb-4" strokeWidth={1.5} />
           <p className="font-semibold text-foreground">{t("notifications.emptyTitle")}</p>
