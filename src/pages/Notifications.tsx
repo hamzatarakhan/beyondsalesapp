@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search, X, MoreVertical, Inbox, ListChecks, CheckCheck, Trash2, Check } from "lucide-react";
+import { Search, X, MoreVertical, Inbox, ListChecks, CheckCheck, Trash2, Check, Package, HandCoins, Wallet } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +17,21 @@ import officePhoto from "@/assets/hero-banner.jpg";
 
 type Category = "general" | "payment" | "orders" | "unpaid";
 type ChipValue = "all" | "unread" | "payment" | "orders" | "unpaid";
+
+// Deep-linking notifications (orders/payment/unpaid) don't have a real photo of their own —
+// tapping one navigates straight to the real record, so the generic office photo never made
+// sense there. A category icon in the same spot instead; only "general" announcements (which
+// still open the in-app detail view) keep the actual photo.
+const CATEGORY_ICON: Record<Exclude<Category, "general">, typeof Package> = {
+  orders: Package,
+  payment: HandCoins,
+  unpaid: Wallet,
+};
+const CATEGORY_ICON_TONE: Record<Exclude<Category, "general">, string> = {
+  orders: "bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300",
+  payment: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  unpaid: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
+};
 
 interface NotificationItem {
   id: string;
@@ -299,7 +314,18 @@ const Notifications = () => {
                       </div>
                       <div className="flex items-start justify-between gap-3 mt-1.5">
                         <p className="text-xs text-muted-foreground flex-1 min-w-0 break-words">{n.body}</p>
-                        <img src={officePhoto} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                        {n.category === "general" ? (
+                          <img src={officePhoto} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                        ) : (
+                          (() => {
+                            const CategoryIcon = CATEGORY_ICON[n.category];
+                            return (
+                              <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center shrink-0", CATEGORY_ICON_TONE[n.category])}>
+                                <CategoryIcon className="w-5 h-5" />
+                              </div>
+                            );
+                          })()
+                        )}
                       </div>
                     </div>
                   </div>
