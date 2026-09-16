@@ -5023,7 +5023,9 @@
     "selectInbox": "Select Inbox",
     "readAll": "Read All",
     "read": "Read",
-    "delete": "Delete"
+    "delete": "Delete",
+    "viewImageAria": "View image",
+    "imagePreviewTitle": "Notification image"
   },
   "visits": {
     "title": "Visit Management",

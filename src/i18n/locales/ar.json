@@ -5056,7 +5056,9 @@
     "selectInbox": "تحديد الوارد",
     "readAll": "تعليم الكل كمقروء",
     "read": "مقروء",
-    "delete": "حذف"
+    "delete": "حذف",
+    "viewImageAria": "عرض الصورة",
+    "imagePreviewTitle": "صورة الإشعار"
   },
   "visits": {
     "title": "إدارة الزيارات",
