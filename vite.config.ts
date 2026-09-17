@@ -5,9 +5,10 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // GitHub Pages serves this as a project site at /beyondsalesapp/, not the domain root — local
-  // dev keeps the plain "/" base so it still runs the same at localhost:8080.
-  base: mode === "production" ? "/beyondsalesapp/" : "/",
+  // Only the GitHub Pages deploy (npm run deploy, which sets GH_PAGES=1) is served from the
+  // /beyondsalesapp/ sub-path. Lovable hosting and local dev serve from the domain root, so
+  // they must keep "/" — otherwise every asset 404s and the page renders blank.
+  base: process.env.GH_PAGES ? "/beyondsalesapp/" : "/",
   server: {
     host: "::",
     port: process.env.PORT ? parseInt(process.env.PORT) : 8080,
