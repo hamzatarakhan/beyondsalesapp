@@ -190,6 +190,8 @@ const Home = () => {
     { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
+  const simStatusCheckOption = { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeLpReview"), badgeTone: "review" as const };
+
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
   // its own way of picking the adjustment amount (?option=1 → slider, ?option=2 →
   // predefined amounts, ?option=3 → boxed swipeable carousel, ?option=4 → plain wheel
@@ -232,7 +234,6 @@ const Home = () => {
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
@@ -480,7 +481,8 @@ const Home = () => {
     ),
     */
     // Only the SIM Replacement/Termination tiles that used to live in Customer Activities
-    // (option 2 and option 3) — the ones that were already in Other Options stay there.
+    // (option 2 and option 3) — the ones that were already in Other Options stay there —
+    // plus SIM Status Check, also moved over from Customer Activities.
     "sim-services": (
       <div key="sim-services" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -488,7 +490,7 @@ const Home = () => {
             <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {[simReplacementOptions[1], simTerminationOptions[2]].map((item) => (
+            {[simReplacementOptions[1], simTerminationOptions[2], simStatusCheckOption].map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
