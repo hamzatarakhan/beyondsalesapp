@@ -355,6 +355,18 @@ const ChangeCustomerOwner = () => {
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("changeCustomerOwner.checkingNumber")}</p>}
             </Field>
+            <Field label={t("changeCustomerOwner.address")}>
+              <Select value={address} onValueChange={setAddress}>
+                <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
             <PrototypeTestBox
               heading={t("changeCustomerOwner.testNumbersHeading")}
