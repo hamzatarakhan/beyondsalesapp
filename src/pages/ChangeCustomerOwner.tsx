@@ -124,6 +124,8 @@ const ChangeCustomerOwner = () => {
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("");
   const [address, setAddress] = useState(CITIES[0]);
+  const [nationality, setNationality] = useState("sa");
+
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
@@ -321,7 +323,20 @@ const ChangeCustomerOwner = () => {
                 </SelectContent>
               </Select>
             </Field>
+            <Field label={t("changeCustomerOwner.nationality")}>
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {Object.entries(NATIONALITY_LABELS).map(([code, label]) => (
+                    <SelectItem key={code} value={code}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label={t("changeCustomerOwner.idNumber")}>
+
               <Input
                 value={idNumber}
                 onChange={(e) => setIdNumber(e.target.value)}
@@ -339,18 +354,6 @@ const ChangeCustomerOwner = () => {
             <Field label={t("changeCustomerOwner.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
               {checking && <p className="text-[11px] text-muted-foreground">{t("changeCustomerOwner.checkingNumber")}</p>}
-            </Field>
-            <Field label={t("changeCustomerOwner.address")}>
-              <Select value={address} onValueChange={setAddress}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </Field>
 
             <PrototypeTestBox
