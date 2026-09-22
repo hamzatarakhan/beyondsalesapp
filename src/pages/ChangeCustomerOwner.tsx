@@ -512,6 +512,7 @@ const ChangeCustomerOwner = () => {
               title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
               tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}
+              tagTone="green"
               value={newSignature}
               onEdit={() => setSigEditor("new")}
               onClear={() => setNewSignature(null)}
