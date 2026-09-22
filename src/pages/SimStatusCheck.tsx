@@ -174,13 +174,23 @@ const SimStatusCheck = () => {
         {method === "kit" && (
           <Field label={t("simStatusCheck.kitCode")}>
             <div className="flex gap-2">
-              <Input
-                value={kit}
-                onChange={(e) => { setKit(e.target.value.replace(/\D/g, "").slice(0, 10)); resetLookup(); }}
-                placeholder={t("simStatusCheck.kitCodePlaceholder")}
-                inputMode="numeric"
-                className="h-12 bg-card rounded-xl flex-1"
-              />
+              <div className="relative flex-1">
+                <Input
+                  value={kit}
+                  onChange={(e) => { setKit(e.target.value.replace(/\D/g, "").slice(0, 10)); resetLookup(); }}
+                  placeholder={t("simStatusCheck.kitCodePlaceholder")}
+                  inputMode="numeric"
+                  className="h-12 bg-card rounded-xl w-full pe-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setKit("1234567890"); resetLookup(); }}
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
+                  aria-label="Scan KIT Code"
+                >
+                  <ScanLine className="w-5 h-5" />
+                </button>
+              </div>
               <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!kitValid || checking} onClick={handleSearch}>
                 {t("simStatusCheck.search")}
               </Button>
@@ -205,13 +215,23 @@ const SimStatusCheck = () => {
         {method === "imsi" && (
           <Field label={t("simStatusCheck.imsiCode")}>
             <div className="flex gap-2">
-              <Input
-                value={imsi}
-                onChange={(e) => { setImsi(e.target.value.replace(/\D/g, "").slice(0, 15)); resetLookup(); }}
-                placeholder={t("simStatusCheck.imsiCodePlaceholder")}
-                inputMode="numeric"
-                className="h-12 bg-card rounded-xl flex-1"
-              />
+              <div className="relative flex-1">
+                <Input
+                  value={imsi}
+                  onChange={(e) => { setImsi(e.target.value.replace(/\D/g, "").slice(0, 15)); resetLookup(); }}
+                  placeholder={t("simStatusCheck.imsiCodePlaceholder")}
+                  inputMode="numeric"
+                  className="h-12 bg-card rounded-xl w-full pe-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setImsi("420011234567890"); resetLookup(); }}
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
+                  aria-label="Scan IMSI"
+                >
+                  <ScanLine className="w-5 h-5" />
+                </button>
+              </div>
               <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!imsiValid || checking} onClick={handleSearch}>
                 {t("simStatusCheck.search")}
               </Button>
