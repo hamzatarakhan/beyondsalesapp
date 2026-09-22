@@ -275,7 +275,7 @@ const ChangeCustomerOwner = () => {
     setIdNumber("");
     setAddress(CITIES[0]);
     setNewIdType("saudi-id");
-    setNewIdNumber("");
+    setNewIdNumber("1098765432");
     setNewNationality("sa");
     setNewAddress(CITIES[0]);
     setCustomerVerified(false);
