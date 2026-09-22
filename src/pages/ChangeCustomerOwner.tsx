@@ -357,7 +357,7 @@ const ChangeCustomerOwner = () => {
             </Field>
             <Field label={t("changeCustomerOwner.address")}>
               <Select value={address} onValueChange={setAddress}>
-                <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                   <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
