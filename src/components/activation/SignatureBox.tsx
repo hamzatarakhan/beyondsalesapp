@@ -12,6 +12,7 @@ export const SignatureBox = ({
   required = false,
   disabled = false,
   tag,
+  tagTone = "blue",
 }: {
   title: string;
   value: string | null;
@@ -20,6 +21,7 @@ export const SignatureBox = ({
   required?: boolean;
   disabled?: boolean;
   tag?: string;
+  tagTone?: "green" | "blue";
 }) => {
   const { t } = useTranslation();
   return (
@@ -39,7 +41,13 @@ export const SignatureBox = ({
           </button>
         )}
         {tag && (
-          <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+          <span
+            className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              tagTone === "green"
+                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
+                : "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+            }`}
+          >
             {tag}
           </span>
         )}
