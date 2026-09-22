@@ -286,6 +286,7 @@ const UpdateCustomerId = () => {
     setLookupError(null);
     setIdType("saudi-id");
     setIdNumber("");
+    setNationality("sa");
     setNewIdType("saudi-id");
     setNewIdNumber("");
     setNewNationality("sa");
@@ -298,8 +299,8 @@ const UpdateCustomerId = () => {
   };
 
   const steps = [
-    { label: t("updateCustomerId.stepNumber", "Number"), Icon: Phone },
-    { label: t("updateCustomerId.stepDetails", "Details"), Icon: IdCard },
+    { label: t("updateCustomerId.stepCurrentId", "Current ID"), Icon: Phone },
+    { label: t("updateCustomerId.stepNewId", "New ID"), Icon: IdCard },
     { label: t("updateCustomerId.stepCheckout", "Checkout"), Icon: ClipboardList },
   ];
 
