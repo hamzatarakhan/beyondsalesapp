@@ -11,6 +11,7 @@ export const SignatureBox = ({
   onClear,
   required = false,
   disabled = false,
+  tag,
 }: {
   title: string;
   value: string | null;
@@ -18,23 +19,31 @@ export const SignatureBox = ({
   onClear: () => void;
   required?: boolean;
   disabled?: boolean;
+  tag?: string;
 }) => {
   const { t } = useTranslation();
   return (
   <section className={disabled ? "opacity-50" : undefined}>
-    <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center justify-between mb-2 gap-2">
       <h3 className="text-sm font-semibold text-foreground">
         {title}
         {required && <span className="text-destructive"> *</span>}
       </h3>
-      {value && !disabled && (
-        <button
-          onClick={onEdit}
-          className="text-xs text-primary font-semibold flex items-center gap-1"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> {t("activation.signature.change")}
-        </button>
-      )}
+      <div className="flex items-center gap-2">
+        {value && !disabled && (
+          <button
+            onClick={onEdit}
+            className="text-xs text-primary font-semibold flex items-center gap-1"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> {t("activation.signature.change")}
+          </button>
+        )}
+        {tag && (
+          <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+            {tag}
+          </span>
+        )}
+      </div>
     </div>
     {value ? (
       <button
