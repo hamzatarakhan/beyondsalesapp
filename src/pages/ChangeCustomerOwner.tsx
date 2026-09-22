@@ -391,7 +391,7 @@ const ChangeCustomerOwner = () => {
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("changeCustomerOwner.idType")}>
                   <Select value={newIdType} onValueChange={setNewIdType}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                       <SelectValue placeholder={t("changeCustomerOwner.idTypePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -406,7 +406,7 @@ const ChangeCustomerOwner = () => {
                     value={newIdNumber}
                     onChange={(e) => setNewIdNumber(e.target.value)}
                     placeholder={t("changeCustomerOwner.idNumberPlaceholder")}
-                    className={cn("h-12 bg-background rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("h-12 bg-card border-border rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
                   />
                   {newIdNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
                     <p className="text-xs text-destructive">
@@ -418,7 +418,7 @@ const ChangeCustomerOwner = () => {
                 </Field>
                 <Field label={t("changeCustomerOwner.nationality")}>
                   <Select value={newNationality} onValueChange={setNewNationality}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                       <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -430,7 +430,7 @@ const ChangeCustomerOwner = () => {
                 </Field>
                 <Field label={t("changeCustomerOwner.address")}>
                   <Select value={newAddress} onValueChange={setNewAddress}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                       <SelectValue placeholder={t("changeCustomerOwner.addressPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
