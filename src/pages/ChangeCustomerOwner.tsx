@@ -450,9 +450,21 @@ const ChangeCustomerOwner = () => {
           <>
             <CardSection title={t("changeCustomerOwner.summary")} icon={ClipboardList}>
               <SummaryRow label={t("changeCustomerOwner.msisdn")} value={record?.msisdn ?? t("changeCustomerOwner.dash")} />
-              <SummaryRow label={t("changeCustomerOwner.currentOwnerId")} value={record ? `${ID_TYPE_LABELS[ID_TYPE_RULES[record.currentIdType].labelKey]} · ${record.currentIdNumber}` : t("changeCustomerOwner.dash")} />
-              <SummaryRow label={t("changeCustomerOwner.newOwnerId")} value={`${ID_TYPE_LABELS[ID_TYPE_RULES[newIdType].labelKey]} · ${newIdNumber}`} />
+
+              <div className="pt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}
+              </div>
+              <SummaryRow label={t("changeCustomerOwner.idType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[record?.currentIdType ?? idType].labelKey]} />
+              <SummaryRow label={t("changeCustomerOwner.nationality")} value={NATIONALITY_LABELS[nationality]} />
+              <SummaryRow label={t("changeCustomerOwner.idNumber")} value={record?.currentIdNumber ?? idNumber ?? t("changeCustomerOwner.dash")} />
+              <SummaryRow label={t("changeCustomerOwner.address")} value={address} />
+
+              <div className="pt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("changeCustomerOwner.stepNewOwner", "New Owner")}
+              </div>
+              <SummaryRow label={t("changeCustomerOwner.idType")} value={ID_TYPE_LABELS[ID_TYPE_RULES[newIdType].labelKey]} />
               <SummaryRow label={t("changeCustomerOwner.nationality")} value={NATIONALITY_LABELS[newNationality]} />
+              <SummaryRow label={t("changeCustomerOwner.idNumber")} value={newIdNumber} />
               <SummaryRow label={t("changeCustomerOwner.address")} value={newAddress} />
             </CardSection>
 
