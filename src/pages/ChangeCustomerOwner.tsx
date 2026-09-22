@@ -464,7 +464,7 @@ const ChangeCustomerOwner = () => {
               <SummaryRow label={t("changeCustomerOwner.newIdNumber", "New ID Number")} value={newIdNumber} />
             </CardSection>
 
-            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck}>
+            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck} tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}>
               {customerVerified ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -477,7 +477,7 @@ const ChangeCustomerOwner = () => {
               )}
             </CardSection>
 
-            <CardSection title={t("changeCustomerOwner.otpVerification")} icon={Phone}>
+            <CardSection title={t("changeCustomerOwner.otpVerification")} icon={Phone} tag={t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}>
               {otpVerified ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -494,15 +494,17 @@ const ChangeCustomerOwner = () => {
             </CardSection>
 
             <SignatureBox
-              title={t("changeCustomerOwner.oldCustomerSignature")}
+              title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
+              tag={t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}
               value={oldSignature}
               onEdit={() => setSigEditor("old")}
               onClear={() => setOldSignature(null)}
             />
             <SignatureBox
-              title={t("changeCustomerOwner.newCustomerSignature")}
+              title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
+              tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}
               value={newSignature}
               onEdit={() => setSigEditor("new")}
               onClear={() => setNewSignature(null)}
