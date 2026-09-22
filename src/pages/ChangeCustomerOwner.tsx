@@ -471,7 +471,7 @@ const ChangeCustomerOwner = () => {
               <SummaryRow label={t("changeCustomerOwner.newIdNumber", "New ID Number")} value={newIdNumber} />
             </CardSection>
 
-            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck} tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}>
+            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck} tag={t("changeCustomerOwner.stepNewOwner", "New Owner")} tagTone="green">
               {customerVerified ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
