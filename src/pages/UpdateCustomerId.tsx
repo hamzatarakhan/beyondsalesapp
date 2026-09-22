@@ -402,7 +402,7 @@ const UpdateCustomerId = () => {
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("updateCustomerId.newIdType")}>
                   <Select value={newIdType} onValueChange={(v) => setNewIdType(v)}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                       <SelectValue placeholder={t("updateCustomerId.idTypePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -412,24 +412,12 @@ const UpdateCustomerId = () => {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label={t("updateCustomerId.nationality")}>
-                  <Select value={newNationality} onValueChange={setNewNationality}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
-                      <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card">
-                      {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
                 <Field label={t("updateCustomerId.newIdNumber")}>
                   <Input
                     value={newIdNumber}
                     onChange={(e) => setNewIdNumber(e.target.value)}
                     placeholder={t("updateCustomerId.idNumberPlaceholder")}
-                    className={cn("h-12 bg-background rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("h-12 bg-card border-border rounded-xl", newIdNumber.trim().length > 0 && !idNumberValid && "border-destructive focus-visible:ring-destructive")}
                   />
                   {newIdNumber.trim().length > 0 && !idNumberValid && idNumberRule && (
                     <p className="text-xs text-destructive">
@@ -439,9 +427,21 @@ const UpdateCustomerId = () => {
                     </p>
                   )}
                 </Field>
+                <Field label={t("updateCustomerId.nationality")}>
+                  <Select value={newNationality} onValueChange={setNewNationality}>
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
+                      <SelectValue placeholder={t("updateCustomerId.nationalityPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {Object.entries(NATIONALITY_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
                 <Field label={t("updateCustomerId.newAddress")}>
                   <Select value={newAddress} onValueChange={setNewAddress}>
-                    <SelectTrigger className="w-full bg-background rounded-xl h-12">
+                    <SelectTrigger className="w-full bg-card border-border rounded-xl h-12">
                       <SelectValue placeholder={t("updateCustomerId.addressPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
