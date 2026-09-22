@@ -32,14 +32,6 @@ export const SignatureBox = ({
         {required && <span className="text-destructive"> *</span>}
       </h3>
       <div className="flex items-center gap-2">
-        {value && !disabled && (
-          <button
-            onClick={onEdit}
-            className="text-xs text-primary font-semibold flex items-center gap-1"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> {t("activation.signature.change")}
-          </button>
-        )}
         {tag && (
           <span
             className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
@@ -50,6 +42,14 @@ export const SignatureBox = ({
           >
             {tag}
           </span>
+        )}
+        {value && !disabled && (
+          <button
+            onClick={onEdit}
+            className="text-xs text-primary font-semibold flex items-center gap-1"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> {t("activation.signature.change")}
+          </button>
         )}
       </div>
     </div>
