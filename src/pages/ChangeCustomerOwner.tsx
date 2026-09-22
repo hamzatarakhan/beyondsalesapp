@@ -128,7 +128,7 @@ const ChangeCustomerOwner = () => {
 
 
   const [newIdType, setNewIdType] = useState("saudi-id");
-  const [newIdNumber, setNewIdNumber] = useState("");
+  const [newIdNumber, setNewIdNumber] = useState("1098765432");
   const [newNationality, setNewNationality] = useState("sa");
   const [newAddress, setNewAddress] = useState(CITIES[0]);
 
@@ -275,7 +275,7 @@ const ChangeCustomerOwner = () => {
     setIdNumber("");
     setAddress(CITIES[0]);
     setNewIdType("saudi-id");
-    setNewIdNumber("");
+    setNewIdNumber("1098765432");
     setNewNationality("sa");
     setNewAddress(CITIES[0]);
     setCustomerVerified(false);
