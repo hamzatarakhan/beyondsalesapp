@@ -286,7 +286,7 @@ const ChangeCustomerOwner = () => {
     setRecord(null);
     setLookupError(null);
     setIdType("saudi-id");
-    setIdNumber("");
+    setIdNumber("1087654321");
     setAddress(CITIES[0]);
     setNewIdType("saudi-id");
     setNewIdNumber("1098765432");
