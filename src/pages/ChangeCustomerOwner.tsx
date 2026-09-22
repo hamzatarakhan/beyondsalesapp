@@ -286,8 +286,8 @@ const ChangeCustomerOwner = () => {
   };
 
   const steps = [
-    { label: t("changeCustomerOwner.stepNumber", "Number"), Icon: Phone },
-    { label: t("changeCustomerOwner.stepOwnerDetails", "Owner Details"), Icon: Users },
+    { label: t("changeCustomerOwner.stepCurrentOwner", "Current Owner"), Icon: Phone },
+    { label: t("changeCustomerOwner.stepNewOwner", "New Owner"), Icon: Users },
     { label: t("changeCustomerOwner.stepCheckout", "Checkout"), Icon: ClipboardList },
   ];
 
