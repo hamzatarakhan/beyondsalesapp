@@ -47,16 +47,23 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
   </div>
 );
 
+export const OWNER_TAG_TONE = {
+  green: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
+  blue: "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400",
+} as const;
+
 const CardSection = ({
   title,
   icon: Icon,
   children,
   tag,
+  tagTone = "blue",
 }: {
   title: string;
   icon: typeof ClipboardList;
   children: React.ReactNode;
   tag?: string;
+  tagTone?: keyof typeof OWNER_TAG_TONE;
 }) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
     <div className="flex items-center gap-2 mb-3">
@@ -65,7 +72,7 @@ const CardSection = ({
       </div>
       <p className="text-sm font-semibold text-foreground">{title}</p>
       {tag && (
-        <span className="ms-auto shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+        <span className={`ms-auto shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${OWNER_TAG_TONE[tagTone]}`}>
           {tag}
         </span>
       )}
