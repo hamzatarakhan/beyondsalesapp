@@ -127,6 +127,7 @@ const UpdateCustomerId = () => {
   // used to validate idNumber against the right rule.
   const [idType, setIdType] = useState("saudi-id");
   const [idNumber, setIdNumber] = useState("");
+  const [nationality, setNationality] = useState("sa");
 
   const [newIdType, setNewIdType] = useState("saudi-id");
   const [newIdNumber, setNewIdNumber] = useState("");
