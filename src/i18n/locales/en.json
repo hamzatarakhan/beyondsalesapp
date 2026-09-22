@@ -1993,6 +1993,7 @@
     "badgeNeedsConfirm": "Needs Confirm",
     "badgeInProgress": "In Progress",
     "badgeConfirmed": "Confirmed",
+    "badgeDevReady": "Development Ready",
     "badgeLpReview": "LP Review",
     "chooseActivationFlow": "Choose Activation Flow",
     "chooseActivationFlowSub": "Select how you want to complete this activation",

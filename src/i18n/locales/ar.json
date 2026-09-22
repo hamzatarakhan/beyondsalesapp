@@ -1993,6 +1993,7 @@
     "badgeNeedsConfirm": "بانتظار التأكيد",
     "badgeInProgress": "قيد التنفيذ",
     "badgeConfirmed": "مؤكد",
+    "badgeDevReady": "جاهز للتطوير",
     "badgeLpReview": "مراجعة LP",
     "chooseActivationFlow": "اختر طريقة التفعيل",
     "chooseActivationFlowSub": "اختر الطريقة التي تريد بها إتمام هذا التفعيل",

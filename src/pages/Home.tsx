@@ -190,7 +190,7 @@ const Home = () => {
     { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
-  const simStatusCheckOption = { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeLpReview"), badgeTone: "review" as const };
+  const simStatusCheckOption = { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeDevReady"), badgeTone: "devready" as const };
 
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
   // its own way of picking the adjustment amount (?option=1 → slider, ?option=2 →
@@ -233,7 +233,7 @@ const Home = () => {
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
-    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
     { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
@@ -241,8 +241,8 @@ const Home = () => {
       ? []
       : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeLpReview"), badgeTone: "review" as const }]),
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
+    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
@@ -258,7 +258,7 @@ const Home = () => {
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
   // just Raise Customer Complaint.
   const otherServicesOptions = [
-    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "customer-complaint", icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
   ];
 
   // Its own widget, separate from Customer Activities — a reporting/browse service

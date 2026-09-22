@@ -4,7 +4,7 @@ import { LucideIcon } from "lucide-react";
  * "special" is a standalone highlight tone (e.g. flagging alternate options), not a rollout stage.
  * "review" flags a service under LP (Leading Point) review, distinct from "confirm" (awaiting
  * the client's own sign-off). */
-export type BadgeTone = "progress" | "confirm" | "approved" | "special" | "review";
+export type BadgeTone = "progress" | "confirm" | "approved" | "special" | "review" | "devready";
 
 interface ActivityIconProps {
   icon: LucideIcon;
@@ -20,6 +20,7 @@ const badgeToneMap: Record<BadgeTone, string> = {
   confirm: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30",
   approved: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30",
   special: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/30",
+  devready: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-500/30",
   review: "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30",
 };
 
