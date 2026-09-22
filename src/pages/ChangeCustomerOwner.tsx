@@ -321,7 +321,20 @@ const ChangeCustomerOwner = () => {
                 </SelectContent>
               </Select>
             </Field>
+            <Field label={t("changeCustomerOwner.nationality")}>
+              <Select value={nationality} onValueChange={setNationality}>
+                <SelectTrigger className="w-full bg-card rounded-xl h-12">
+                  <SelectValue placeholder={t("changeCustomerOwner.nationalityPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card">
+                  {Object.entries(NATIONALITY_LABELS).map(([code, label]) => (
+                    <SelectItem key={code} value={code}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label={t("changeCustomerOwner.idNumber")}>
+
               <Input
                 value={idNumber}
                 onChange={(e) => setIdNumber(e.target.value)}
