@@ -136,7 +136,7 @@ const ChangeCustomerOwner = () => {
   // Current owner's identity — collected up front on step 0 (ID Type, ID Number, MSISDN,
   // Address), instead of shown read-only on step 1.
   const [idType, setIdType] = useState("saudi-id");
-  const [idNumber, setIdNumber] = useState("");
+  const [idNumber, setIdNumber] = useState("1087654321");
   const [address, setAddress] = useState(CITIES[0]);
   const [nationality, setNationality] = useState("sa");
 
@@ -286,7 +286,7 @@ const ChangeCustomerOwner = () => {
     setRecord(null);
     setLookupError(null);
     setIdType("saudi-id");
-    setIdNumber("");
+    setIdNumber("1087654321");
     setAddress(CITIES[0]);
     setNewIdType("saudi-id");
     setNewIdNumber("1098765432");
