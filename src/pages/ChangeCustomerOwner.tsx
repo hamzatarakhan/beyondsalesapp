@@ -51,10 +51,12 @@ const CardSection = ({
   title,
   icon: Icon,
   children,
+  tag,
 }: {
   title: string;
   icon: typeof ClipboardList;
   children: React.ReactNode;
+  tag?: string;
 }) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
     <div className="flex items-center gap-2 mb-3">
@@ -62,6 +64,11 @@ const CardSection = ({
         <Icon className="w-3.5 h-3.5 text-primary" />
       </div>
       <p className="text-sm font-semibold text-foreground">{title}</p>
+      {tag && (
+        <span className="ms-auto shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+          {tag}
+        </span>
+      )}
     </div>
     {children}
   </section>
