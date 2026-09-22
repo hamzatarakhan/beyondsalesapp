@@ -51,10 +51,12 @@ const CardSection = ({
   title,
   icon: Icon,
   children,
+  tag,
 }: {
   title: string;
   icon: typeof ClipboardList;
   children: React.ReactNode;
+  tag?: string;
 }) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
     <div className="flex items-center gap-2 mb-3">
@@ -62,6 +64,11 @@ const CardSection = ({
         <Icon className="w-3.5 h-3.5 text-primary" />
       </div>
       <p className="text-sm font-semibold text-foreground">{title}</p>
+      {tag && (
+        <span className="ms-auto shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+          {tag}
+        </span>
+      )}
     </div>
     {children}
   </section>
@@ -457,7 +464,7 @@ const ChangeCustomerOwner = () => {
               <SummaryRow label={t("changeCustomerOwner.newIdNumber", "New ID Number")} value={newIdNumber} />
             </CardSection>
 
-            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck}>
+            <CardSection title={t("changeCustomerOwner.idVerification")} icon={UserCheck} tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}>
               {customerVerified ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -470,7 +477,7 @@ const ChangeCustomerOwner = () => {
               )}
             </CardSection>
 
-            <CardSection title={t("changeCustomerOwner.otpVerification")} icon={Phone}>
+            <CardSection title={t("changeCustomerOwner.otpVerification")} icon={Phone} tag={t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}>
               {otpVerified ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -487,15 +494,17 @@ const ChangeCustomerOwner = () => {
             </CardSection>
 
             <SignatureBox
-              title={t("changeCustomerOwner.oldCustomerSignature")}
+              title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
+              tag={t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}
               value={oldSignature}
               onEdit={() => setSigEditor("old")}
               onClear={() => setOldSignature(null)}
             />
             <SignatureBox
-              title={t("changeCustomerOwner.newCustomerSignature")}
+              title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
+              tag={t("changeCustomerOwner.stepNewOwner", "New Owner")}
               value={newSignature}
               onEdit={() => setSigEditor("new")}
               onClear={() => setNewSignature(null)}
