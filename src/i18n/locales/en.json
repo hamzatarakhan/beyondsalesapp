@@ -5027,7 +5027,11 @@
     "delete": "Delete",
     "viewImageAria": "View image",
     "imagePreviewTitle": "Notification image",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "ctaViewBill": "View Bill",
+    "ctaViewOrder": "View Order",
+    "ctaReviewAccount": "Review Account",
+    "ctaViewDetails": "View Details"
   },
   "visits": {
     "title": "Visit Management",

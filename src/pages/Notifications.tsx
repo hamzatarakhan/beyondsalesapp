@@ -91,6 +91,14 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  // CTA label for notifications with a linked record — keyed by category since that's what
+  // determines which kind of record linkTo points at. "general" has no linkTo, so no entry.
+  const CTA_LABEL: Partial<Record<Category, string>> = {
+    payment: t("notifications.ctaViewBill"),
+    orders: t("notifications.ctaViewOrder"),
+    unpaid: t("notifications.ctaReviewAccount"),
+  };
+
   const CHIPS: { value: ChipValue; label: string; count?: number }[] = [
     { value: "all", label: t("notifications.chips.all") },
     { value: "unread", label: t("notifications.chips.unread"), count: unreadCount },
@@ -105,34 +113,24 @@ const Notifications = () => {
     return matchesChip && matchesSearch;
   });
 
-  const openNotification = (n: NotificationItem) => {
-    if (selectMode) {
-      toggleSelected(n.id);
-      return;
-    }
-    setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-    // Deep link straight to the related record when there is one (an order, a bill, a
-    // customer's credit page); a "general" announcement has no single record to jump to, so
-    // it opens the plain in-app notification detail view instead, same as it always has.
-    if (n.linkTo) {
-      // Flag where this came from so the destination page's back button returns here
-      // instead of its usual default (its own list, or home).
-      navigate(n.linkTo, { state: { from: "notifications" } });
-      return;
-    }
-    setActiveNotification({ ...n, read: true });
-    setView("detail");
-  };
-
-  // Deep-link notifications (payment/orders/unpaid) never reach the detail view via the card
-  // tap — that always navigates straight to the linked record. So a long body needs its own
-  // way in: tapping "Read more" opens the full-text detail view regardless of linkTo, without
-  // triggering the card's own tap (deep link / select-mode toggle).
+  // The card itself is no longer a tap target (it was ambiguous — "read this" and "act on
+  // this" were the same gesture). Reading and acting are now two explicit buttons below the
+  // body: "Read more" always opens the full-text detail view; the CTA (only for notifications
+  // with a linked record) navigates straight there instead.
   const openFullText = (n: NotificationItem, e: React.MouseEvent) => {
     e.stopPropagation();
     setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
     setActiveNotification({ ...n, read: true });
     setView("detail");
+  };
+
+  const goToLinkedAction = (n: NotificationItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!n.linkTo) return;
+    setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    // Flag where this came from so the destination page's back button returns here instead
+    // of its usual default (its own list, or home).
+    navigate(n.linkTo, { state: { from: "notifications" } });
   };
 
   const toggleSelected = (id: string) => {
@@ -305,8 +303,8 @@ const Notifications = () => {
                 return (
                   <div
                     key={n.id}
-                    onClick={() => openNotification(n)}
-                    className="bg-card rounded-2xl p-4 shadow-sm flex items-start gap-3 cursor-pointer"
+                    onClick={selectMode ? () => toggleSelected(n.id) : undefined}
+                    className={cn("bg-card rounded-2xl p-4 shadow-sm flex items-start gap-3", selectMode && "cursor-pointer")}
                   >
                     {selectMode && (
                       <Checkbox
@@ -334,25 +332,9 @@ const Notifications = () => {
                         </div>
                       </div>
                       <div className="flex items-start justify-between gap-3 mt-1.5">
-                        {/* Clamped to 3 lines — a long body (e.g. the policy-update fixture above)
-                            previews here. "Read more" opens the full text regardless of category,
-                            so a deep-linking card (whose own tap navigates away to the linked
-                            record, never to the detail view) still has a way to read the rest. */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] leading-relaxed text-muted-foreground break-words line-clamp-3">{n.body}</p>
-                          {/* ponytail: char-count heuristic for "does this overflow 3 lines" rather
-                              than measuring scrollHeight — good enough at this card width; swap for
-                              a ref-based overflow check if body copy ever varies the width. */}
-                          {!selectMode && n.body.length > 140 && (
-                            <button
-                              type="button"
-                              onClick={(e) => openFullText(n, e)}
-                              className="text-[11px] font-medium text-primary mt-0.5"
-                            >
-                              {t("notifications.readMore")}
-                            </button>
-                          )}
-                        </div>
+                        {/* Clamped to 3 lines — the card is no longer a tap target, "Read more"
+                            below is the only way to reach the rest, so this always previews. */}
+                        <p className="text-[11px] leading-relaxed text-muted-foreground flex-1 min-w-0 break-words line-clamp-3">{n.body}</p>
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setPreviewOpen(true); }}
@@ -362,6 +344,33 @@ const Notifications = () => {
                           <img src={officePhoto} alt="" className="w-12 h-12 rounded-lg object-cover" />
                         </button>
                       </div>
+
+                      {/* Reading the notification and acting on it are separate, and weighted
+                          differently: the CTA (only when there's a linked record) is the primary
+                          action, but tinted rather than solid-filled — a small card in a dense
+                          list is the wrong place for a loud, fully-filled button. "Read more" is
+                          the quiet fallback for the full text. Both get real padding (not just
+                          font size) so they clear a comfortable touch target. */}
+                      {!selectMode && (
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => openFullText(n, e)}
+                            className="text-[11px] font-medium text-primary py-1.5 active:opacity-60 transition-opacity"
+                          >
+                            {t("notifications.readMore")}
+                          </button>
+                          {n.linkTo && (
+                            <button
+                              type="button"
+                              onClick={(e) => goToLinkedAction(n, e)}
+                              className="text-[11px] font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full active:bg-primary/20 transition-colors"
+                            >
+                              {CTA_LABEL[n.category] ?? t("notifications.ctaViewDetails")}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
