@@ -5026,7 +5026,8 @@
     "read": "Read",
     "delete": "Delete",
     "viewImageAria": "View image",
-    "imagePreviewTitle": "Notification image"
+    "imagePreviewTitle": "Notification image",
+    "readMore": "Read more"
   },
   "visits": {
     "title": "Visit Management",

@@ -41,8 +41,29 @@ const RAMADAN_HOURS_BODY =
   "Starting next week, all branches will operate on adjusted Ramadan hours: 10:00 AM – 4:00 PM, Saturday to Thursday. Please update your team's schedules accordingly.";
 const COMMISSION_UPDATE_BODY =
   "The updated commission tiers for postpaid and Vnet activations are now live. Review the new payout percentages in your dealer portal before submitting this month's claims.";
+// Test fixture for a long-form announcement (~10 lines at card width) — demonstrates the
+// list card's clamp-to-3-lines + tap-through-to-full-detail pattern (see the card render
+// below and the detail view's whitespace-pre-line body).
+const POLICY_UPDATE_BODY =
+  "Effective next billing cycle, the dealer commission and compliance policy is being revised across all product lines.\n\n" +
+  "1. Postpaid activations now require Nafath verification to be completed before the sale is marked complete, with no manual override.\n\n" +
+  "2. Prepaid-to-postpaid migrations must include an updated proof of address on file, refreshed at least once every 12 months.\n\n" +
+  "3. Commission payout on Vnet and 5G Data plans moves to a tiered structure based on the dealer's rolling 90-day activation volume.\n\n" +
+  "4. SIM replacement requests flagged as high-risk by the fraud model will require branch manager approval before completion.\n\n" +
+  "Full policy details and the updated payout tables are available in the dealer portal. Please review before your next activation.";
+// Test fixture for a long body on a *deep-linking* notification (has linkTo, so the card's
+// own tap navigates straight to Bill Payment and never opens the detail view) — demonstrates
+// that "Read more" still reaches the full text even when the card tap goes elsewhere.
+const OVERDUE_BILL_BODY =
+  "Bill BL-2026-07-5590 for MSISDN 0502222222 is now 14 days overdue.\n\n" +
+  "Outstanding amount: 780.00 SAR, including a 25.00 SAR late fee applied after the 10-day grace period.\n\n" +
+  "The line has been placed on a payment hold: outgoing calls, SMS, and mobile data are suspended until the balance is cleared.\n\n" +
+  "If payment isn't received within 7 days, the line will move to the disconnection queue per the standard postpaid dunning schedule.\n\n" +
+  "Tap to open Bill Payment and collect the outstanding balance, or a partial payment, from the customer now.";
 
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
+  { id: "0a", title: "Bill payment reminder", subtitle: "MSISDN 0502222222", body: OVERDUE_BILL_BODY, date: "23 Dec", time: "9:30 AM", read: false, category: "payment", linkTo: "/bill-payment" },
+  { id: "0", title: "Dealer commission & compliance policy update", subtitle: "Operations Announcement", body: POLICY_UPDATE_BODY, date: "23 Dec", time: "9:10 AM", read: false, category: "general" },
   { id: "1", title: "Ramadan working hours update", subtitle: "Operations Announcement", body: RAMADAN_HOURS_BODY, date: "22 Dec", time: "8:52 AM", read: false, category: "general" },
   { id: "2", title: "Bill payment reminder", subtitle: "MSISDN 0502222222", body: "Bill BL-2026-07-5590 (780.00 SAR) is overdue. Tap to collect payment now.", date: "21 Dec", time: "8:52 AM", read: false, category: "payment", linkTo: "/bill-payment" },
   { id: "3", title: "Sales Order SO-2026-2005 awaiting your approval", subtitle: "Noura Al-Harbi · Dammam Branch", body: "This sales order has been quoted and is now waiting on your approval before it moves to scanning.", date: "21 Dec", time: "8:52 AM", read: false, category: "orders", linkTo: "/sales-orders/SO-2026-2005" },
@@ -99,6 +120,17 @@ const Notifications = () => {
       navigate(n.linkTo, { state: { from: "notifications" } });
       return;
     }
+    setActiveNotification({ ...n, read: true });
+    setView("detail");
+  };
+
+  // Deep-link notifications (payment/orders/unpaid) never reach the detail view via the card
+  // tap — that always navigates straight to the linked record. So a long body needs its own
+  // way in: tapping "Read more" opens the full-text detail view regardless of linkTo, without
+  // triggering the card's own tap (deep link / select-mode toggle).
+  const openFullText = (n: NotificationItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
     setActiveNotification({ ...n, read: true });
     setView("detail");
   };
@@ -302,7 +334,25 @@ const Notifications = () => {
                         </div>
                       </div>
                       <div className="flex items-start justify-between gap-3 mt-1.5">
-                        <p className="text-xs text-muted-foreground flex-1 min-w-0 break-words">{n.body}</p>
+                        {/* Clamped to 3 lines — a long body (e.g. the policy-update fixture above)
+                            previews here. "Read more" opens the full text regardless of category,
+                            so a deep-linking card (whose own tap navigates away to the linked
+                            record, never to the detail view) still has a way to read the rest. */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] leading-relaxed text-muted-foreground break-words line-clamp-3">{n.body}</p>
+                          {/* ponytail: char-count heuristic for "does this overflow 3 lines" rather
+                              than measuring scrollHeight — good enough at this card width; swap for
+                              a ref-based overflow check if body copy ever varies the width. */}
+                          {!selectMode && n.body.length > 140 && (
+                            <button
+                              type="button"
+                              onClick={(e) => openFullText(n, e)}
+                              className="text-[11px] font-medium text-primary mt-0.5"
+                            >
+                              {t("notifications.readMore")}
+                            </button>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setPreviewOpen(true); }}
