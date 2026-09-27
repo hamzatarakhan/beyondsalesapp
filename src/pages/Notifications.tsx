@@ -91,14 +91,6 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // CTA label for notifications with a linked record — keyed by category since that's what
-  // determines which kind of record linkTo points at. "general" has no linkTo, so no entry.
-  const CTA_LABEL: Partial<Record<Category, string>> = {
-    payment: t("notifications.ctaViewBill"),
-    orders: t("notifications.ctaViewOrder"),
-    unpaid: t("notifications.ctaReviewAccount"),
-  };
-
   const CHIPS: { value: ChipValue; label: string; count?: number }[] = [
     { value: "all", label: t("notifications.chips.all") },
     { value: "unread", label: t("notifications.chips.unread"), count: unreadCount },
@@ -236,7 +228,7 @@ const Notifications = () => {
                 onClick={(e) => goToLinkedAction(activeNotification, e)}
                 className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
               >
-                {CTA_LABEL[activeNotification.category] ?? t("notifications.ctaViewDetails")}
+                {t("notifications.ctaTakeAction")}
               </button>
             )}
           </div>
@@ -377,7 +369,7 @@ const Notifications = () => {
                               onClick={(e) => goToLinkedAction(n, e)}
                               className="text-[11px] font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full active:bg-primary/20 transition-colors"
                             >
-                              {CTA_LABEL[n.category] ?? t("notifications.ctaViewDetails")}
+                              {t("notifications.ctaTakeAction")}
                             </button>
                           )}
                         </div>

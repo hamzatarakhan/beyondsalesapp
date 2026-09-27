@@ -5028,10 +5028,7 @@
     "viewImageAria": "View image",
     "imagePreviewTitle": "Notification image",
     "readMore": "Read more",
-    "ctaViewBill": "View Bill",
-    "ctaViewOrder": "View Order",
-    "ctaReviewAccount": "Review Account",
-    "ctaViewDetails": "View Details"
+    "ctaTakeAction": "Take Action"
   },
   "visits": {
     "title": "Visit Management",
