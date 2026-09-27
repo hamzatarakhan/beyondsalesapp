@@ -228,6 +228,17 @@ const Notifications = () => {
             />
             <p className="text-xs text-muted-foreground">{activeNotification.date}</p>
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{activeNotification.body}</p>
+            {/* Same CTA as the list card, for a notification opened here via "Read more" —
+                reading the full text shouldn't be a dead end for one with a linked record. */}
+            {activeNotification.linkTo && (
+              <button
+                type="button"
+                onClick={(e) => goToLinkedAction(activeNotification, e)}
+                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
+              >
+                {CTA_LABEL[activeNotification.category] ?? t("notifications.ctaViewDetails")}
+              </button>
+            )}
           </div>
         </div>
       ) : notifications.length === 0 ? (
