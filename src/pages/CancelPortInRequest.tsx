@@ -305,7 +305,6 @@ const CancelPortInRequest = () => {
           <>
             <CardSection title={t("cancelPortIn.portInRequest")} icon={ClipboardList}>
               <SummaryRow label={t("cancelPortIn.msisdn")} value={request?.msisdn ?? t("cancelPortIn.dash")} />
-              <SummaryRow label={t("cancelPortIn.requestedNumber")} value={request?.requestedNumber ?? t("cancelPortIn.dash")} />
               <SummaryRow label={t("cancelPortIn.requestDate")} value={request?.requestDate ?? t("cancelPortIn.dash")} />
               <SummaryRow label={t("cancelPortIn.status")} value={t("cancelPortIn.statusPending")} />
             </CardSection>
