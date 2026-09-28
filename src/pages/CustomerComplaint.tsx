@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import { VerifiedBanner } from "@/pages/NewActivation";
 import {
   Phone,
   ClipboardList,
-  AlertCircle,
+  ShieldCheck,
   Check,
   XCircle,
   Plus,
@@ -52,26 +51,6 @@ const CardSection = ({
   </section>
 );
 
-// ---------- Demo data ----------
-interface DemoComplaintCustomer {
-  msisdn: string;
-  name: string;
-  lineType: "prepaid" | "postpaid" | "vnet";
-  /** Complaints already raised today — checked against DAILY_TICKET_LIMIT. */
-  ticketsToday: number;
-}
-
-// All line types are supported here (unlike Bill Payment etc., which restrict to
-// postpaid) — a complaint can be raised for any prepaid, postpaid, or Vnet line.
-const DEMO_COMPLAINT_CUSTOMERS: DemoComplaintCustomer[] = [
-  { msisdn: "0501111133", name: "Faisal Al-Harbi", lineType: "prepaid", ticketsToday: 2 },
-  { msisdn: "0502222211", name: "Ahmed Mohammed", lineType: "postpaid", ticketsToday: 0 },
-  { msisdn: "0502222233444", name: "Sara Al-Otaibi", lineType: "vnet", ticketsToday: 1 },
-  { msisdn: "0501111199", name: "Khalid Al-Dossary", lineType: "prepaid", ticketsToday: 10 },
-];
-
-const DAILY_TICKET_LIMIT = 10;
-
 // VM-KSA complaint taxonomy — reused for Friendi too until a separate FM list is
 // provided. Level 2 options are a reasonable draft per category; swap freely once the
 // client shares the real subcategory breakdown.
@@ -102,19 +81,16 @@ const CustomerComplaint = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // ---------- Flow state (single page — no step navigation) ----------
-  const [msisdn, setMsisdn] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [customer, setCustomer] = useState<DemoComplaintCustomer | null>(null);
-  const [lookupError, setLookupError] = useState<string | null>(null);
-  const [limitReached, setLimitReached] = useState(false);
+  // ---------- Flow state (single page — all sections shown by default, no customer
+  // lookup gate) ----------
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
-  // Complaint form — revealed once OTP is verified, on the same page
+  // Complaint form
+  const [issueNumber, setIssueNumber] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -129,35 +105,6 @@ const CustomerComplaint = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
   const [ticketId, setTicketId] = useState("");
-
-  // ---------- MSISDN lookup — triggered by the Search button, same pattern as Credit
-  // Transfer/SIM Termination/etc. instead of auto-triggering on keystroke. ----------
-  const msisdnValid = /^\d{10}$/.test(msisdn) || /^\d{13}$/.test(msisdn);
-  const handleSearch = () => {
-    if (!msisdnValid) return;
-    setChecking(true);
-    setLookupError(null);
-    setCustomer(null);
-    setLimitReached(false);
-    setOtpVerified(false);
-    setTimeout(() => {
-      setChecking(false);
-      const found = DEMO_COMPLAINT_CUSTOMERS.find((c) => c.msisdn === msisdn);
-      if (!found) {
-        setLookupError(t("customerComplaint.lookupErrorNotFound"));
-        return;
-      }
-      setCustomer(found);
-      setContactNumber(found.msisdn);
-      // Daily per-customer cap — checked right after lookup, before sending an OTP,
-      // since there's no point verifying a customer who can't submit anyway.
-      if (found.ticketsToday >= DAILY_TICKET_LIMIT) {
-        setLimitReached(true);
-      }
-    }, 800);
-  };
-
-  const eligible = !!customer && !lookupError && !limitReached;
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -215,10 +162,11 @@ const CustomerComplaint = () => {
   };
 
   // ---------- Gates ----------
-  // OTP now sits at the end of the form as the final step before submitting, rather than
-  // gating whether the form is visible at all — so it's part of canSubmit, not a separate
-  // reveal condition.
-  const canSubmit = eligible && otpVerified && contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
+  // No customer lookup gate — every section is visible by default. OTP sits at the end
+  // of the form as the final step before submitting, so it's part of canSubmit rather
+  // than a separate reveal condition.
+  const issueNumberValid = /^\d{10}$/.test(issueNumber) || /^\d{13}$/.test(issueNumber);
+  const canSubmit = otpVerified && issueNumberValid && contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
 
   const resolveSubmit = () => {
     setSubmitting(true);
@@ -235,11 +183,8 @@ const CustomerComplaint = () => {
   };
 
   const resetAll = () => {
-    setMsisdn("");
-    setCustomer(null);
-    setLookupError(null);
-    setLimitReached(false);
     setOtpVerified(false);
+    setIssueNumber("");
     setContactNumber("");
     setEmail("");
     setSubject("");
@@ -254,87 +199,47 @@ const CustomerComplaint = () => {
       <AppHeader title={t("customerComplaint.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
-        <Field label={t("customerComplaint.msisdn")}>
-          <div className="flex gap-2">
-            <Input
-              value={msisdn}
-              onChange={(e) => { setMsisdn(e.target.value.replace(/\D/g, "").slice(0, 13)); setCustomer(null); setLookupError(null); setLimitReached(false); setOtpVerified(false); }}
-              placeholder={t("customerComplaint.msisdnPlaceholder")}
-              inputMode="numeric"
-              className="h-12 bg-card rounded-xl flex-1"
-            />
-            <Button
-              type="button"
-              className="h-12 w-20 rounded-xl shrink-0"
-              disabled={!msisdnValid || checking}
-              onClick={handleSearch}
-            >
-              {t("customerComplaint.search")}
-            </Button>
+        {/* No customer lookup gate — every section below is visible by default. */}
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.contactInformation")}</p>
+          <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
+            <Field label={t("customerComplaint.contactNumber")}>
+              <Input
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                inputMode="numeric"
+                className="h-12 bg-background rounded-xl"
+              />
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 shrink-0" /> {t("customerComplaint.contactNumberOtpHint")}
+              </p>
+            </Field>
+
+            <Field label={t("customerComplaint.email")}>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder={t("customerComplaint.emailPlaceholder")}
+                className="h-12 bg-background rounded-xl"
+              />
+            </Field>
           </div>
-        </Field>
+        </div>
 
-        <PrototypeTestBox
-          heading={t("customerComplaint.testNumbersHeading")}
-          description={t("customerComplaint.testNumbersDescription")}
-          items={[
-            { value: "0501111133", note: t("customerComplaint.testNotePrepaid") },
-            { value: "0502222211", note: t("customerComplaint.testNotePostpaid") },
-            { value: "0502222233444", note: t("customerComplaint.testNoteVnet") },
-            { value: "0501111199", note: t("customerComplaint.testNoteLimitReached") },
-            { value: "0500000099", note: t("customerComplaint.testNoteNotFound") },
-          ]}
-          onSelect={(v) => { setMsisdn(v); setCustomer(null); setLookupError(null); setLimitReached(false); setOtpVerified(false); }}
-        />
-
-        {lookupError && (
-          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-            <p className="text-[13px] text-destructive leading-snug">{lookupError}</p>
-          </div>
-        )}
-
-        {customer && limitReached && (
-          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
-            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-            <p className="text-[13px] text-destructive leading-snug">
-              {t("customerComplaint.limitReached", { limit: DAILY_TICKET_LIMIT })}
-            </p>
-          </div>
-        )}
-
-        {/* Complaint form lives under the same search, grouped into titled sections (same
-            pattern as Channel Onboarding's Business/Member/Location Information), with OTP
-            Verification last — the final step before Submit, not a gate on seeing the form. */}
-        {customer && !limitReached && (
-          <>
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.contactInformation")}</p>
+        <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.complaintDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
-                <Field label={t("customerComplaint.contactNumber")}>
+                <Field label={t("customerComplaint.issueNumber")}>
                   <Input
-                    value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                    value={issueNumber}
+                    onChange={(e) => setIssueNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                    placeholder={t("customerComplaint.issueNumberPlaceholder")}
                     inputMode="numeric"
                     className="h-12 bg-background rounded-xl"
                   />
                 </Field>
 
-                <Field label={t("customerComplaint.email")}>
-                  <Input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    placeholder={t("customerComplaint.emailPlaceholder")}
-                    className="h-12 bg-background rounded-xl"
-                  />
-                </Field>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.complaintDetails")}</p>
-              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("customerComplaint.subject")}>
                   <Input
                     value={subject}
@@ -442,21 +347,17 @@ const CustomerComplaint = () => {
               {otpVerified ? (
                 <VerifiedBanner label={t("customerComplaint.otpVerified")} />
               ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
+                <Button variant="outline" className="w-full" disabled={!contactNumber.trim()} onClick={() => setOtpOpen(true)}>{t("customerComplaint.sendVerifyOtp")}</Button>
               )}
             </CardSection>
-          </>
-        )}
       </div>
 
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
-          {eligible && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveSubmit}>
-              {t("customerComplaint.submit")}
-            </Button>
-          )}
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={resolveSubmit}>
+            {t("customerComplaint.submit")}
+          </Button>
         </div>
       </div>
 
@@ -466,7 +367,7 @@ const CustomerComplaint = () => {
           <div className="flex flex-col items-center gap-4 py-4">
             <h3 className="text-lg font-bold text-foreground">{t("customerComplaint.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("customerComplaint.otpIncorrect") : t("customerComplaint.otpSentToCustomer")}
+              {otpError ? t("customerComplaint.otpIncorrect") : t("customerComplaint.otpSentTo", { number: contactNumber || "—" })}
             </p>
             <div className="flex gap-2" dir="ltr">
               {otpDigits.map((d, i) => (
@@ -557,7 +458,7 @@ const CustomerComplaint = () => {
         </DrawerContent>
       </Drawer>
 
-      <BrandLoadingOverlay open={checking || submitting} />
+      <BrandLoadingOverlay open={submitting} />
     </div>
   );
 };
