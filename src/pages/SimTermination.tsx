@@ -45,6 +45,7 @@ import {
   XCircle,
   ChevronDown,
   X,
+  SkipForward,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors SimReplacement.tsx / BillPayment.tsx) ----------
@@ -674,38 +675,58 @@ const SimTermination = () => {
                     </div>
                   )}
 
-                  {/* Single amount field — no Pay Full/Partial/Terminate Without Paying
-                      choice; the entered amount tells the app which case it is. */}
+                  {/* One amount field — whatever the dealer types decides full vs. partial,
+                      same as before. "Skip Payment" sits right next to the field's own label
+                      (same slot a "Forgot password?" link would take), so it reads as this
+                      field's alternative rather than a stray link floating below the form.
+                      Exactly one caption shows under the input at a time — the range hint,
+                      or whichever note is more specific once there's something to say. */}
                   {needsPayment && (
                     <div className="space-y-1.5">
-                      <Field label={t("simTermination.amountToPay")}>
-                        <div className="relative">
-                          <Input
-                            value={amountToPay}
-                            onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-                            placeholder="0.00"
-                            inputMode="decimal"
-                            className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
-                          />
-                          <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                            <RiyalSymbol />
-                          </span>
-                        </div>
-                      </Field>
-                      {!amountToPayValid ? (
-                        <p className="text-[11px] text-destructive">
-                          {t("simTermination.amountToPayError", { min: MIN_PARTIAL_PAY, max: money(totalOutstanding) })}
-                        </p>
-                      ) : amountToPayIsZero ? (
-                        <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
-                      ) : amountToPayNum < totalOutstanding ? (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                          {t("simTermination.partialPaymentNote", { amount: money(totalOutstanding - amountToPayNum) })}
-                        </p>
+                      {amountToPayIsZero ? (
+                        <>
+                          <div className="rounded-xl bg-muted/50 px-3 py-2.5 flex items-center gap-2">
+                            <SkipForward className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <p className="text-[11px] text-muted-foreground">{t("simTermination.amountToPaySkipNote")}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setAmountToPay(money(totalOutstanding))}
+                            className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary active:bg-primary/20 transition-colors"
+                          >
+                            {t("simTermination.enterAmountInstead")}
+                          </button>
+                        </>
                       ) : (
-                        <p className="text-[11px] text-muted-foreground">
-                          {t("simTermination.fullAmountNote", { min: MIN_PARTIAL_PAY, max: money(totalOutstanding) })}
-                        </p>
+                        <>
+                          <Field label={t("simTermination.amountToPay")}>
+                            <div className="relative">
+                              <Input
+                                value={amountToPay}
+                                onChange={(e) => setAmountToPay(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                                placeholder="0.00"
+                                inputMode="decimal"
+                                className={cn("h-12 bg-card rounded-xl ps-10", !amountToPayValid && "border-destructive focus-visible:ring-destructive")}
+                              />
+                              <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                <RiyalSymbol />
+                              </span>
+                            </div>
+                          </Field>
+                          {/* Caption stays the same range hint regardless of what's typed —
+                              an invalid (below-min) amount is flagged by the input's red
+                              border alone, not by swapping the message underneath it. */}
+                          <p className="text-[11px] text-muted-foreground">
+                            {t("simTermination.amountRangeHint", { min: MIN_PARTIAL_PAY, max: money(totalOutstanding) })}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setAmountToPay("0")}
+                            className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary flex items-center justify-center gap-1.5 active:bg-primary/20 transition-colors"
+                          >
+                            <SkipForward className="w-3.5 h-3.5" /> {t("simTermination.skipPaymentChip")}
+                          </button>
+                        </>
                       )}
                     </div>
                   )}
