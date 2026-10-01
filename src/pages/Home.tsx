@@ -33,6 +33,7 @@ import {
   MapPin,
   Building2,
   Info,
+  Ticket,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
@@ -234,6 +235,9 @@ const Home = () => {
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // Physical-SIM prepaid/basic-postpaid connection via a pre-booked KIT — client ticket,
+    // both VM and FM.
+    { id: "booking-activation", icon: Ticket, label: t("home.bookingActivation"), path: "/booking-activation", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
