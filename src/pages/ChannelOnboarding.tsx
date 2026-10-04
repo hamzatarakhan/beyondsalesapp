@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   ChevronRight,
@@ -336,6 +337,11 @@ const ChannelOnboarding = () => {
   const [filesByDoc, setFilesByDoc] = useState<Record<string, { title: string }[]>>({});
   const [signature, setSignature] = useState<string | null>(null);
   const [sigOpen, setSigOpen] = useState(false);
+
+  // Email OTP verification: tracks verified emails and the field currently being verified.
+  const [verifiedEmails, setVerifiedEmails] = useState<Record<string, string>>({});
+  const [otpFieldKey, setOtpFieldKey] = useState<string | null>(null);
+  const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""));
 
   const [dateDrawerKey, setDateDrawerKey] = useState<string | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
