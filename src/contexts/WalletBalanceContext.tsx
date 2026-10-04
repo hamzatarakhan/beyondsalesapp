@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Single source of truth for the dealer's wallet balance, shared across every flow that
 // charges against it (Bill Payment, Credit Transfer, SIM Termination, Subscription
@@ -18,6 +18,13 @@ const WalletBalanceContext = createContext<WalletBalanceContextValue | undefined
 export const WalletBalanceProvider = ({ children }: { children: ReactNode }) => {
   const [balance, setBalance] = useState(INITIAL_DEALER_WALLET_BALANCE);
   const [justToppedUp, setJustToppedUp] = useState(false);
+
+  // Badge is transient — clear it shortly after the dealer is back in their flow.
+  useEffect(() => {
+    if (!justToppedUp) return;
+    const id = setTimeout(() => setJustToppedUp(false), 20000);
+    return () => clearTimeout(id);
+  }, [justToppedUp, balance]);
 
   const topUp = (amount: number) => {
     setBalance((prev) => Math.round((prev + amount) * 100) / 100);

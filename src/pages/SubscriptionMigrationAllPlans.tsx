@@ -222,15 +222,15 @@ const SubscriptionMigrationAllPlans = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.cancelFlowTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("subscriptionMigration.cancelFlowDesc")}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("subscriptionMigration.cancelSheet.title")}</h3>
+              
             </div>
             <div className="w-full flex flex-col gap-3">
               <button type="button" className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold" onClick={() => { setCancelOpen(false); navigate("/"); }}>
-                {t("subscriptionMigration.yesCancelFlow")}
+                {t("subscriptionMigration.cancelSheet.confirm")}
               </button>
               <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setCancelOpen(false)}>
-                {t("subscriptionMigration.keepEditing")}
+                {t("subscriptionMigration.cancelSheet.keepEditing")}
               </button>
             </div>
           </div>

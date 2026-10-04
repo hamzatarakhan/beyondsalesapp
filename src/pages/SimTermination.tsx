@@ -223,6 +223,8 @@ const SimTermination = () => {
   // Full/Partial/Terminate Without Paying choice. Defaults to the full amount once a bill is
   // found (set in handleSearch/handleContinueLookup), left as-is otherwise.
   const [amountToPay, setAmountToPay] = useState("");
+  // Explicit "Skip Payment" choice — clearing the input mid-edit must not hide it.
+  const [skipPayment, setSkipPayment] = useState(false);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -262,7 +264,7 @@ const SimTermination = () => {
       setReason("");
       const foundBills = found.bills ?? [];
       const foundTotal = foundBills.reduce((sum, b) => sum + billTotal(b), 0);
-      setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
+      setAmountToPay(foundTotal > 0 ? money(foundTotal) : ""); setSkipPayment(false);
     }, 800);
   };
 
@@ -376,7 +378,7 @@ const SimTermination = () => {
       setReason("");
       const foundBills = found.bills ?? [];
       const foundTotal = foundBills.reduce((sum, b) => sum + billTotal(b), 0);
-      setAmountToPay(foundTotal > 0 ? money(foundTotal) : "");
+      setAmountToPay(foundTotal > 0 ? money(foundTotal) : ""); setSkipPayment(false);
       setStep(1);
     }, 800);
   };
@@ -421,6 +423,7 @@ const SimTermination = () => {
     setVerified(false);
     setOtpVerified(false);
     setAmountToPay("");
+    setSkipPayment(false);
     setPayMethod("wallet");
     setTerms(false);
   };
@@ -683,7 +686,7 @@ const SimTermination = () => {
                       or whichever note is more specific once there's something to say. */}
                   {needsPayment && (
                     <div className="space-y-1.5">
-                      {amountToPayIsZero ? (
+                      {skipPayment ? (
                         <>
                           <div className="rounded-xl bg-muted/50 px-3 py-2.5 flex items-center gap-2">
                             <SkipForward className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
@@ -691,7 +694,7 @@ const SimTermination = () => {
                           </div>
                           <button
                             type="button"
-                            onClick={() => setAmountToPay(money(totalOutstanding))}
+                            onClick={() => { setSkipPayment(false); setAmountToPay(money(totalOutstanding)); }}
                             className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary active:bg-primary/20 transition-colors"
                           >
                             {t("simTermination.enterAmountInstead")}
@@ -721,7 +724,7 @@ const SimTermination = () => {
                           </p>
                           <button
                             type="button"
-                            onClick={() => setAmountToPay("0")}
+                            onClick={() => { setSkipPayment(true); setAmountToPay("0"); }}
                             className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary flex items-center justify-center gap-1.5 active:bg-primary/20 transition-colors"
                           >
                             <SkipForward className="w-3.5 h-3.5" /> {t("simTermination.skipPaymentChip")}

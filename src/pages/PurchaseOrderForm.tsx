@@ -76,9 +76,10 @@ const PurchaseOrderForm = () => {
     setConfirmOpen(false);
     const nonZeroLines = lines.filter((l) => l.qty > 0).map((l) => ({ ...l, scanned: 0, serials: [] }));
     if (isEdit && existing) {
-      updatePurchaseOrder(existing.id, { destination, lines: nonZeroLines, ...computeTotals(lines) });
+      updatePurchaseOrder(existing.id, { destination: destination || DEMO_DESTINATIONS[0], lines: nonZeroLines, ...computeTotals(lines) });
     } else {
-      addPurchaseOrder(destination, nonZeroLines);
+      // One Location orders ship to the dealer's default location.
+      addPurchaseOrder(destination || DEMO_DESTINATIONS[0], nonZeroLines);
     }
     setSuccessOpen(true);
   };

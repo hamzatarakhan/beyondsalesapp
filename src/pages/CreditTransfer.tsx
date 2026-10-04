@@ -83,6 +83,8 @@ const CreditTransfer = () => {
   const [customer, setCustomer] = useState<DemoTransferCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
+  // Raw typed text so intermediate values like "10." keep their decimal point.
+  const [amountText, amountTextSet] = useState<string | null>(null);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -178,9 +180,10 @@ const CreditTransfer = () => {
               <div className="space-y-3">
                 <div className="relative">
                   <Input
-                    value={amount != null ? String(amount) : ""}
+                    value={amountText !== null && Number(amountText) === amount ? amountText : amount != null ? String(amount) : ""}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                      amountTextSet(raw);
                       setAmount(raw === "" ? null : Number(raw));
                     }}
                     placeholder="0.00"

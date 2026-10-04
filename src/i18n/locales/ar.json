@@ -321,7 +321,10 @@
     "terminationFailedDesc": "حدث خطأ أثناء معالجة هذا الطلب. لم يتم خصم أي مبلغ.",
     "tryAgain": "المحاولة مرة أخرى",
     "otpTargetContact": "رقم التواصل المسجل {{number}}",
-    "otpTargetEntered": "الرقم المدخل {{number}}"
+    "otpTargetEntered": "الرقم المدخل {{number}}",
+    "amountRangeHint": "ادفع أي مبلغ بين {{min}} و {{max}} ريال، أو تخطَّ الدفع بالكامل.",
+    "skipPaymentChip": "تخطي الدفع",
+    "enterAmountInstead": "أدخل مبلغاً بدلاً من ذلك"
   },
   "simReplacement": {
     "title": "استبدال الشريحة",
@@ -614,7 +617,7 @@
     "otpVerified": "تم التحقق من رمز OTP",
     "sendVerifyOtp": "إرسال والتحقق من رمز OTP",
     "contactInformation": "بيانات التواصل",
-    "contactNumber": "الرقم المتأثر بالمشكلة",
+    "contactNumber": "رقم التواصل",
     "email": "البريد الإلكتروني",
     "emailPlaceholder": "customer@email.com (اختياري)",
     "complaintDetails": "تفاصيل الشكوى",
@@ -646,7 +649,11 @@
     "submitFailedTitle": "فشل الإرسال",
     "submitFailedDesc": "حدث خطأ أثناء إرسال هذه الشكوى. يرجى المحاولة مرة أخرى.",
     "retry": "إعادة المحاولة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "contactNumberOtpHint": "سيتم إرسال رمز التحقق إلى هذا الرقم",
+    "issueNumber": "الرقم المتأثر بالمشكلة",
+    "issueNumberPlaceholder": "أي نوع خط (10 أو 13 رقماً)",
+    "otpSentTo": "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى {{number}}."
   },
   "customerSearch": {
     "title": "البحث عن عميل",
@@ -1189,7 +1196,11 @@
   },
   "ordersHistory": {
     "title": "سجل المعاملات",
-    "tabs": { "orders": "الطلبات", "summary": "الملخص", "commission": "العمولة" },
+    "tabs": {
+      "orders": "الطلبات",
+      "summary": "الملخص",
+      "commission": "العمولة"
+    },
     "searchOrdersPlaceholder": "البحث برقم الطلب أو العميل أو الجوال",
     "searchByMember": "البحث حسب العضو",
     "removeFilter": "إزالة الفلتر",
@@ -1203,7 +1214,11 @@
       "topUp": "تعبئة رصيد",
       "billPayment": "دفع فاتورة"
     },
-    "status": { "approved": "مقبول", "pending": "قيد الانتظار", "rejected": "مرفوض" },
+    "status": {
+      "approved": "مقبول",
+      "pending": "قيد الانتظار",
+      "rejected": "مرفوض"
+    },
     "filter": {
       "title": "تصفية",
       "subtitle": "الرجاء اختيار خيارات التصفية",
