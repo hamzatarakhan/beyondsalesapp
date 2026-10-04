@@ -354,6 +354,9 @@ const ChannelOnboarding = () => {
     setErrors({});
     setFilesByDoc(buildDefaultFiles(role));
     setSignature(role.documents.some((d) => d.signature) ? generatePlaceholderSignature() : null);
+    setVerifiedEmails({});
+    setOtpFieldKey(null);
+    setOtpDigits(Array(6).fill(""));
     setView("form");
   };
 
@@ -377,6 +380,33 @@ const ChannelOnboarding = () => {
       return next;
     });
     setErrors((prev) => ({ ...prev, [key]: undefined }));
+    // Editing an already-verified email invalidates its verification.
+    setVerifiedEmails((prev) => (prev[key] && prev[key] !== val ? { ...prev, [key]: undefined as unknown as string } : prev));
+  };
+
+  const openEmailOtp = (fieldKey: string) => {
+    setOtpFieldKey(fieldKey);
+    setOtpDigits(Array(6).fill(""));
+  };
+
+  const setOtpDigit = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setOtpDigits((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      return next;
+    });
+    if (d && i < 5) {
+      (document.getElementById(`co-email-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
+    }
+  };
+
+  const otpComplete = otpDigits.every((d) => d !== "");
+
+  const confirmEmailOtp = () => {
+    if (!otpFieldKey || !otpComplete) return;
+    setVerifiedEmails((prev) => ({ ...prev, [otpFieldKey]: values[otpFieldKey] }));
+    setOtpFieldKey(null);
   };
 
   const handleBlur = (field: FieldDef) => {
