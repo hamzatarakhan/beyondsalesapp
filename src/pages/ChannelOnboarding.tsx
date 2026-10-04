@@ -741,6 +741,36 @@ const ChannelOnboarding = () => {
         onSave={(dataUrl) => { setSignature(dataUrl); setSigOpen(false); }}
       />
 
+      {/* Email OTP verification */}
+      <Dialog open={!!otpFieldKey} onOpenChange={(o) => !o && setOtpFieldKey(null)}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <h3 className="font-semibold text-foreground text-lg">{t("channelOnboarding.emailOtpTitle")}</h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-5">
+            {t("channelOnboarding.emailOtpSubtitle", { email: otpFieldKey ? values[otpFieldKey] : "" })}
+          </p>
+          <div className="flex gap-3 justify-center" dir="ltr">
+            {otpDigits.map((d, i) => (
+              <input
+                key={i}
+                id={`co-email-otp-${i}`}
+                inputMode="numeric"
+                maxLength={1}
+                value={d}
+                onChange={(e) => setOtpDigit(i, e.target.value)}
+                className="w-11 h-12 rounded-xl border border-border bg-card text-center text-lg font-semibold text-foreground focus:outline-none focus:border-primary"
+              />
+            ))}
+          </div>
+          <Button
+            className="w-full h-12 rounded-full font-semibold mt-5"
+            disabled={!otpComplete}
+            onClick={confirmEmailOtp}
+          >
+            {t("channelOnboarding.verify")}
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       {/* Success */}
       <Drawer open={successOpen} onOpenChange={(o) => { if (!o) { setSuccessOpen(false); closeForm(); } }}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
