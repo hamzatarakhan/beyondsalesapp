@@ -761,13 +761,15 @@ const ChannelOnboarding = () => {
               />
             ))}
           </div>
-          <Button
-            className="w-full h-12 rounded-full font-semibold mt-5"
-            disabled={!otpComplete}
-            onClick={confirmEmailOtp}
-          >
-            {t("channelOnboarding.verify")}
-          </Button>
+          <div>
+            <Button
+              className="w-full h-12 rounded-full font-semibold mt-5"
+              disabled={!otpComplete}
+              onClick={confirmEmailOtp}
+            >
+              {t("channelOnboarding.verify")}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
