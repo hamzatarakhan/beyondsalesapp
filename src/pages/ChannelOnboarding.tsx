@@ -534,7 +534,7 @@ const ChannelOnboarding = () => {
       default:
         return (
           <Input
-            type={field.type === "email" ? "email" : "text"}
+            type="text"
             value={values[field.key] || ""}
             onChange={(e) => handleChange(field.key, e.target.value)}
             onBlur={() => handleBlur(field)}
