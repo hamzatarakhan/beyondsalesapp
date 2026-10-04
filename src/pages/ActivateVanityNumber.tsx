@@ -139,7 +139,7 @@ const SUBSCRIPTION_TYPES = ["Basic", "Baqa", "Aman", "Flex"];
 // Same preset amounts as the Top Up flow.
 const TOPUP_PRESETS = [10, 20, 30, 50, 100, 200];
 
-const BookingActivation = () => {
+const ActivateVanityNumber = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -175,6 +175,7 @@ const BookingActivation = () => {
   const [rechargeCardCode, setRechargeCardCode] = useState("");
 
   // Step 2 — Checkout
+  const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [idVerifyOpen, setIdVerifyOpen] = useState(false);
@@ -209,11 +210,11 @@ const BookingActivation = () => {
       setCheckingKit(false);
       const found = DEMO_KITS.find((k) => k.code === kit);
       if (!found) {
-        setKitError(t("bookingActivation.kitErrorNotFound"));
+        setKitError(t("activateVanityNumber.kitErrorNotFound"));
         return;
       }
       if (found.status === "used") {
-        setKitError(t("bookingActivation.kitErrorUsed"));
+        setKitError(t("activateVanityNumber.kitErrorUsed"));
         return;
       }
       setKitUnused(true);
@@ -241,7 +242,7 @@ const BookingActivation = () => {
     (showOption === "recharge-card" && rechargeCardCode.trim().length > 0);
   const canContinueDetails = msisdnValid && priceValid && showOptionValid;
 
-  const canSubmit = idVerified && otpVerified && verificationConfirmed && address.trim().length > 0;
+  const canSubmit = idVerified && otpVerified && verificationConfirmed && contactNumber.trim().length > 0 && address.trim().length > 0;
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -275,7 +276,7 @@ const BookingActivation = () => {
       return next;
     });
     if (d && i < 5) {
-      (document.getElementById(`booking-activation-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
+      (document.getElementById(`activate-vanity-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
     }
   };
 
@@ -283,17 +284,17 @@ const BookingActivation = () => {
     setOtpDigits(["", "", "", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
-    (document.getElementById("booking-activation-otp-0") as HTMLInputElement | null)?.focus();
+    (document.getElementById("activate-vanity-otp-0") as HTMLInputElement | null)?.focus();
   };
 
   const resolveSubmit = () => {
     setConfirmOpen(false);
     const ok = Math.random() < 0.85;
     if (ok) {
-      setOrderId(`BK-${Math.floor(100000 + Math.random() * 900000)}`);
+      setOrderId(`VN-${Math.floor(100000 + Math.random() * 900000)}`);
       setSuccessOpen(true);
     } else {
-      setFailureReason(t("bookingActivation.failureReasonGeneric"));
+      setFailureReason(t("activateVanityNumber.failureReasonGeneric"));
       setFailureOpen(true);
     }
   };
@@ -315,6 +316,7 @@ const BookingActivation = () => {
     setShowOption("none");
     setTopupAmount(null);
     setRechargeCardCode("");
+    setContactNumber("");
     setEmail("");
     setAddress("");
     setIdVerified(false);
@@ -323,15 +325,15 @@ const BookingActivation = () => {
   };
 
   const STEPS = [
-    { label: t("bookingActivation.stepKit", "KIT Code"), Icon: ScanLine },
-    { label: t("bookingActivation.stepDetails", "Details"), Icon: FileText },
-    { label: t("bookingActivation.stepCheckout", "Checkout"), Icon: Wallet },
+    { label: t("activateVanityNumber.stepIdentity", "Identity"), Icon: ScanLine },
+    { label: t("activateVanityNumber.stepDetails", "Details"), Icon: FileText },
+    { label: t("activateVanityNumber.stepCheckout", "Checkout"), Icon: Wallet },
   ];
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
-        title={t("bookingActivation.title")}
+        title={t("activateVanityNumber.title")}
         showBack={step > 0 || !everProgressed}
         onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
@@ -348,36 +350,36 @@ const BookingActivation = () => {
         {/* ── Step 0: KIT Code, then Identity + Booking Code once it's valid/unused ── */}
         {step === 0 && (
           <>
-            <Field label={t("bookingActivation.kitCode")}>
+            <Field label={t("activateVanityNumber.kitCode")}>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
                     value={kit}
                     onChange={(e) => { setKit(e.target.value.replace(/\D/g, "").slice(0, 10)); setKitUnused(false); setKitError(null); }}
-                    placeholder={t("bookingActivation.kitCodePlaceholder")}
+                    placeholder={t("activateVanityNumber.kitCodePlaceholder")}
                     inputMode="numeric"
                     className="h-12 bg-card rounded-xl pe-10"
                   />
-                  <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("bookingActivation.scanKitAria")}>
+                  <button type="button" onClick={() => setKit("1234567890")} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("activateVanityNumber.scanKitAria")}>
                     <ScanLine className="w-5 h-5" />
                   </button>
                 </div>
                 <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!kitFormatValid || checkingKit} onClick={checkKit}>
-                  {t("bookingActivation.check")}
+                  {t("activateVanityNumber.check")}
                 </Button>
               </div>
               {kitUnused && (
-                <p className="text-[11px] text-emerald-600 dark:text-emerald-400">{t("bookingActivation.kitValidNote")}</p>
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400">{t("activateVanityNumber.kitValidNote")}</p>
               )}
             </Field>
 
             <PrototypeTestBox
-              heading={t("bookingActivation.testKitsHeading")}
-              description={t("bookingActivation.testDescription")}
+              heading={t("activateVanityNumber.testKitsHeading")}
+              description={t("activateVanityNumber.testDescription")}
               items={[
-                { value: "1234567890", note: t("bookingActivation.testNoteUnused") },
-                { value: "9999999990", note: t("bookingActivation.testNoteUsed") },
-                { value: "0000000000", note: t("bookingActivation.testNoteNotFound") },
+                { value: "1234567890", note: t("activateVanityNumber.testNoteUnused") },
+                { value: "9999999990", note: t("activateVanityNumber.testNoteUsed") },
+                { value: "0000000000", note: t("activateVanityNumber.testNoteNotFound") },
               ]}
               onSelect={(v) => { setKit(v); setKitUnused(false); setKitError(null); }}
             />
@@ -387,7 +389,7 @@ const BookingActivation = () => {
                 following fields"). */}
             {kitUnused && (
               <>
-                <h3 className="text-sm font-semibold text-foreground px-1">{t("bookingActivation.identityDetails")}</h3>
+                <h3 className="text-sm font-semibold text-foreground px-1">{t("activateVanityNumber.identityDetails")}</h3>
                 <Field label={t("activation.identity.idType")}>
                     <Select value={idType} onValueChange={(v) => { setIdType(v); if (v === "saudi-id") setNationality("sa"); setIdNumber(demoIdFor(ID_TYPE_RULES[v])); }}>
                       <SelectTrigger className="w-full bg-card rounded-xl h-12">
@@ -425,16 +427,16 @@ const BookingActivation = () => {
                       </p>
                     )}
                   </Field>
-                  <Field label={t("bookingActivation.bookingCode")}>
+                  <Field label={t("activateVanityNumber.bookingCode")}>
                     <Input
                       value={bookingCode}
                       onChange={(e) => setBookingCode(e.target.value.replace(/\D/g, "").slice(0, BOOKING_CODE_LENGTH))}
-                      placeholder={t("bookingActivation.bookingCodePlaceholder", { count: BOOKING_CODE_LENGTH })}
+                      placeholder={t("activateVanityNumber.bookingCodePlaceholder", { count: BOOKING_CODE_LENGTH })}
                       inputMode="numeric"
                       className={cn("h-12 bg-card rounded-xl", bookingCode.length > 0 && !bookingCodeValid && "border-destructive focus-visible:ring-destructive")}
                     />
                     {bookingCode.length > 0 && !bookingCodeValid && (
-                      <p className="text-xs text-destructive">{t("bookingActivation.bookingCodeError", { count: BOOKING_CODE_LENGTH })}</p>
+                      <p className="text-xs text-destructive">{t("activateVanityNumber.bookingCodeError", { count: BOOKING_CODE_LENGTH })}</p>
                     )}
                   </Field>
               </>
@@ -445,23 +447,23 @@ const BookingActivation = () => {
         {/* ── Step 1: Details ── */}
         {step === 1 && (
           <>
-            <Field label={t("bookingActivation.msisdn")}>
+            <Field label={t("activateVanityNumber.msisdn")}>
               <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
             </Field>
 
-            <Field label={t("bookingActivation.paymentStatus")}>
+            <Field label={t("activateVanityNumber.paymentStatus")}>
               <Select value={paymentStatus} onValueChange={(v: "paid" | "unpaid") => setPaymentStatus(v)}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-card">
-                  <SelectItem value="paid">{t("bookingActivation.paid")}</SelectItem>
-                  <SelectItem value="unpaid">{t("bookingActivation.unpaid")}</SelectItem>
+                  <SelectItem value="paid">{t("activateVanityNumber.paid")}</SelectItem>
+                  <SelectItem value="unpaid">{t("activateVanityNumber.unpaid")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
 
-            <Field label={t("bookingActivation.price")}>
+            <Field label={t("activateVanityNumber.price")}>
               <div className="relative">
                 <Input
                   value={price}
@@ -476,7 +478,7 @@ const BookingActivation = () => {
               </div>
             </Field>
 
-            <Field label={t("bookingActivation.subscriptionType")}>
+            <Field label={t("activateVanityNumber.subscriptionType")}>
               <Select value={subscriptionType} onValueChange={setSubscriptionType}>
                 <SelectTrigger className="w-full bg-card rounded-xl h-12">
                   <SelectValue />
@@ -490,20 +492,20 @@ const BookingActivation = () => {
             </Field>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
-              <p className="text-sm font-medium text-foreground">{t("bookingActivation.isPrimary")}</p>
+              <p className="text-sm font-medium text-foreground">{t("activateVanityNumber.isPrimary")}</p>
               <Switch checked={isPrimary} onCheckedChange={setIsPrimary} />
             </section>
 
             {/* Show Option — Top Up / Recharge Card / None, mutually exclusive. */}
             <section className="space-y-2">
               <div className="px-1">
-                <h3 className="text-sm font-semibold text-foreground">{t("bookingActivation.showOption")}</h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{t("bookingActivation.showOptionSub")}</p>
+                <h3 className="text-sm font-semibold text-foreground">{t("activateVanityNumber.showOption")}</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{t("activateVanityNumber.showOptionSub")}</p>
               </div>
               <div className="flex gap-2">
-                <OptionTile active={showOption === "topup"} label={t("bookingActivation.topUp")} icon={Coins} onClick={() => setShowOption("topup")} />
-                <OptionTile active={showOption === "recharge-card"} label={t("bookingActivation.rechargeCard")} icon={CreditCard} onClick={() => setShowOption("recharge-card")} />
-                <OptionTile active={showOption === "none"} label={t("bookingActivation.none")} icon={Ban} onClick={() => { setShowOption("none"); setTopupAmount(null); setRechargeCardCode(""); }} />
+                <OptionTile active={showOption === "topup"} label={t("activateVanityNumber.topUp")} icon={Coins} onClick={() => setShowOption("topup")} />
+                <OptionTile active={showOption === "recharge-card"} label={t("activateVanityNumber.rechargeCard")} icon={CreditCard} onClick={() => setShowOption("recharge-card")} />
+                <OptionTile active={showOption === "none"} label={t("activateVanityNumber.none")} icon={Ban} onClick={() => { setShowOption("none"); setTopupAmount(null); setRechargeCardCode(""); }} />
               </div>
 
               {showOption === "topup" && (
@@ -533,21 +535,21 @@ const BookingActivation = () => {
 
               {showOption === "recharge-card" && (
                 <div className="bg-card rounded-2xl p-4 shadow-sm">
-                  <Field label={t("bookingActivation.rechargeCardCode")}>
+                  <Field label={t("activateVanityNumber.rechargeCardCode")}>
                     <Input
                       value={rechargeCardCode}
                       onChange={(e) => setRechargeCardCode(e.target.value.replace(/\D/g, "").slice(0, 16))}
-                      placeholder={t("bookingActivation.rechargeCardCodePlaceholder")}
+                      placeholder={t("activateVanityNumber.rechargeCardCodePlaceholder")}
                       inputMode="numeric"
                       className="h-12 bg-background rounded-xl"
                     />
-                    <p className="text-[11px] text-muted-foreground">{t("bookingActivation.rechargeCardCodeHint")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activateVanityNumber.rechargeCardCodeHint")}</p>
                   </Field>
                 </div>
               )}
 
               {showOption === "none" && (
-                <p className="text-[11px] text-muted-foreground px-1">{t("bookingActivation.noneSelectedNote")}</p>
+                <p className="text-[11px] text-muted-foreground px-1">{t("activateVanityNumber.noneSelectedNote")}</p>
               )}
             </section>
           </>
@@ -556,55 +558,71 @@ const BookingActivation = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 2 && (
           <>
-            <CardSection title={t("bookingActivation.summary")} icon={ClipboardList}>
-              <SummaryRow label={t("bookingActivation.kitCode")} value={kit} />
-              <SummaryRow label={t("bookingActivation.bookingCode")} value={bookingCode} />
-              <SummaryRow label={t("bookingActivation.msisdn")} value={msisdn} />
-              <SummaryRow label={t("bookingActivation.subscriptionType")} value={subscriptionType} />
-              <SummaryRow label={t("bookingActivation.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
+            <CardSection title={t("activateVanityNumber.summary")} icon={ClipboardList}>
+              <SummaryRow label={t("activateVanityNumber.kitCode")} value={kit} />
+              <SummaryRow label={t("activateVanityNumber.bookingCode")} value={bookingCode} />
+              <SummaryRow label={t("activateVanityNumber.msisdn")} value={msisdn} />
+              <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
+              <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
             </CardSection>
 
-            <Field label={t("bookingActivation.email")}>
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                placeholder={t("bookingActivation.emailPlaceholder")}
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
+            {/* Contact Information — same boxed Contact Number + Email pairing as Raise
+                Customer Complaint, instead of two separate unboxed fields. */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activateVanityNumber.contactInformation")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
+                <Field label={t("activateVanityNumber.contactNumber")}>
+                  <Input
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                    inputMode="numeric"
+                    className="h-12 bg-background rounded-xl"
+                  />
+                </Field>
+                <Field label={t("activateVanityNumber.email")}>
+                  <Input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholder={t("activateVanityNumber.emailPlaceholder")}
+                    className="h-12 bg-background rounded-xl"
+                  />
+                </Field>
+              </div>
+            </div>
 
-            <Field label={t("bookingActivation.address")}>
+            <Field label={t("activateVanityNumber.address")}>
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder={t("bookingActivation.addressPlaceholder")}
+                placeholder={t("activateVanityNumber.addressPlaceholder")}
                 className="h-12 bg-card rounded-xl"
               />
             </Field>
 
-            <p className="text-sm font-semibold text-foreground px-1">{t("bookingActivation.customerVerification")}</p>
-
-            <CardSection title={t("bookingActivation.idVerification")} icon={UserCheck}>
+            {/* Same "Customer Verification" step every other flow uses for this exact
+                SematiVerification call (NewActivation/SimReplacement/SimTermination) —
+                not a bespoke "ID Verification" label for the same underlying component. */}
+            <CardSection title={t("activation.checkout.customerVerification")} icon={UserCheck}>
               {idVerified ? (
-                <VerifiedBanner label={t("bookingActivation.verified")} />
+                <VerifiedBanner label={t("activateVanityNumber.verified")} />
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => setIdVerifyOpen(true)}>
-                  {t("bookingActivation.verifyId")}
+                  {t("activation.checkout.verifyCustomer")}
                 </Button>
               )}
             </CardSection>
 
-            <CardSection title={t("bookingActivation.otpVerification")} icon={Phone}>
+            <CardSection title={t("activateVanityNumber.otpVerification")} icon={Phone}>
               {otpVerified ? (
-                <VerifiedBanner label={t("bookingActivation.verified")} />
+                <VerifiedBanner label={t("activateVanityNumber.verified")} />
               ) : (
                 <Button variant="outline" className="w-full" disabled={!idVerified} onClick={() => setOtpOpen(true)}>
-                  {t("bookingActivation.sendVerifyOtp")}
+                  {t("activateVanityNumber.sendVerifyOtp")}
                 </Button>
               )}
               {!idVerified && (
-                <p className="text-[11px] text-muted-foreground mt-2">{t("bookingActivation.completeIdVerificationFirst")}</p>
+                <p className="text-[11px] text-muted-foreground mt-2">{t("activateVanityNumber.completeIdVerificationFirst")}</p>
               )}
             </CardSection>
 
@@ -626,7 +644,7 @@ const BookingActivation = () => {
                   {verificationConfirmed && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
                 <p className="text-sm text-foreground text-start flex-1 leading-snug">
-                  {t("bookingActivation.confirmVerification")}
+                  {t("activateVanityNumber.confirmVerification")}
                 </p>
               </div>
             </section>
@@ -643,11 +661,11 @@ const BookingActivation = () => {
               disabled={step === 0 ? !canContinueKit : !canContinueDetails}
               onClick={() => setStep((s) => s + 1)}
             >
-              {t("bookingActivation.continue")}
+              {t("activateVanityNumber.continue")}
             </Button>
           ) : (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setConfirmOpen(true)}>
-              {t("bookingActivation.submit")}
+              {t("activateVanityNumber.submit")}
             </Button>
           )}
         </div>
@@ -662,10 +680,10 @@ const BookingActivation = () => {
             </svg>
             <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
           </div>
-          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("bookingActivation.kitErrorTitle")}</h4>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("activateVanityNumber.kitErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{kitError}</p>
           <button onClick={() => setKitError(null)} className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm">
-            {t("bookingActivation.gotIt")}
+            {t("activateVanityNumber.gotIt")}
           </button>
         </DialogContent>
       </Dialog>
@@ -722,15 +740,15 @@ const BookingActivation = () => {
       <Drawer open={otpOpen} onOpenChange={setOtpOpen}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <div className="flex flex-col items-center gap-4 py-4">
-            <h3 className="text-lg font-bold text-foreground">{t("bookingActivation.enterVerificationCode")}</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("activateVanityNumber.enterVerificationCode")}</h3>
             <p className="text-sm text-muted-foreground text-center px-4">
-              {otpError ? t("bookingActivation.otpIncorrect") : t("bookingActivation.otpSentViaSms")}
+              {otpError ? t("activateVanityNumber.otpIncorrect") : t("activateVanityNumber.otpSentViaSms")}
             </p>
             <div className="flex gap-3" dir="ltr">
               {otpDigits.map((d, i) => (
                 <input
                   key={i}
-                  id={`booking-activation-otp-${i}`}
+                  id={`activate-vanity-otp-${i}`}
                   inputMode="numeric"
                   maxLength={1}
                   value={d}
@@ -745,18 +763,18 @@ const BookingActivation = () => {
             <p className="text-xs text-muted-foreground">
               {otpError ? (
                 <>
-                  {t("bookingActivation.resendCodeQuestion")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("bookingActivation.resend")}</button>
+                  {t("activateVanityNumber.resendCodeQuestion")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activateVanityNumber.resend")}</button>
                 </>
               ) : otpSecondsLeft > 0 ? (
                 <>
-                  {t("bookingActivation.didntReceiveCode")}{" "}
+                  {t("activateVanityNumber.didntReceiveCode")}{" "}
                   <span className="text-foreground font-medium">00:{String(otpSecondsLeft).padStart(2, "0")}</span>
                 </>
               ) : (
                 <>
-                  {t("bookingActivation.didntReceiveCode")}{" "}
-                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("bookingActivation.resend")}</button>
+                  {t("activateVanityNumber.didntReceiveCode")}{" "}
+                  <button type="button" onClick={resendOtp} className="text-primary font-semibold">{t("activateVanityNumber.resend")}</button>
                 </>
               )}
             </p>
@@ -772,12 +790,12 @@ const BookingActivation = () => {
               <AlertCircle className="w-7 h-7 text-sky-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("bookingActivation.confirmTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("bookingActivation.confirmDesc")}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("activateVanityNumber.confirmTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("activateVanityNumber.confirmDesc")}</p>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveSubmit}>{t("bookingActivation.yesConfirm")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("bookingActivation.cancel")}</button>
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveSubmit}>{t("activateVanityNumber.yesConfirm")}</Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("activateVanityNumber.cancel")}</button>
             </div>
           </div>
         </DrawerContent>
@@ -787,35 +805,35 @@ const BookingActivation = () => {
       <Drawer open={cancelOpen} onOpenChange={(o) => { setCancelOpen(o); if (!o) { setCancelReason(""); setCancelOtherText(""); } }}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
           <DrawerHeader className="text-start px-0 pb-4">
-            <DrawerTitle>{t("bookingActivation.cancelSheet.title")}</DrawerTitle>
-            <DrawerDescription>{t("bookingActivation.cancelSheet.subtitle")}</DrawerDescription>
+            <DrawerTitle>{t("activateVanityNumber.cancelSheet.title")}</DrawerTitle>
+            <DrawerDescription>{t("activateVanityNumber.cancelSheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">{t("bookingActivation.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
+              <label className="text-sm font-semibold text-foreground">{t("activateVanityNumber.cancelSheet.reasonLabel")} <span className="text-destructive">*</span></label>
               <Select value={cancelReason} onValueChange={setCancelReason}>
                 <SelectTrigger className="h-12 px-4 bg-white border border-border/60 rounded-xl text-sm">
-                  <SelectValue placeholder={t("bookingActivation.cancelSheet.selectReason")} />
+                  <SelectValue placeholder={t("activateVanityNumber.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("bookingActivation.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("bookingActivation.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="kit-not-available">{t("bookingActivation.cancelSheet.reasons.kitNotAvailable")}</SelectItem>
-                  <SelectItem value="system-issue">{t("bookingActivation.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="other">{t("bookingActivation.cancelSheet.reasons.other")}</SelectItem>
+                  <SelectItem value="customer-changed-mind">{t("activateVanityNumber.cancelSheet.reasons.customerChangedMind")}</SelectItem>
+                  <SelectItem value="missing-documents">{t("activateVanityNumber.cancelSheet.reasons.missingDocuments")}</SelectItem>
+                  <SelectItem value="kit-not-available">{t("activateVanityNumber.cancelSheet.reasons.kitNotAvailable")}</SelectItem>
+                  <SelectItem value="system-issue">{t("activateVanityNumber.cancelSheet.reasons.systemIssue")}</SelectItem>
+                  <SelectItem value="other">{t("activateVanityNumber.cancelSheet.reasons.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {cancelReason === "other" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label className="text-sm font-semibold text-foreground">{t("bookingActivation.cancelSheet.specify")} <span className="text-destructive">*</span></label>
-                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("bookingActivation.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
+                <label className="text-sm font-semibold text-foreground">{t("activateVanityNumber.cancelSheet.specify")} <span className="text-destructive">*</span></label>
+                <Textarea value={cancelOtherText} onChange={(e) => setCancelOtherText(e.target.value)} placeholder={t("activateVanityNumber.cancelSheet.specifyPlaceholder")} className="min-h-[100px] px-4 py-3 bg-white border border-border/60 rounded-xl text-sm resize-none rtl:text-right" />
               </div>
             )}
           </div>
           <div className="flex flex-col gap-2 mt-6">
-            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); resetAll(); navigate("/"); }} className="w-full h-11 rounded-full">{t("bookingActivation.cancelSheet.confirm")}</Button>
-            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("bookingActivation.cancelSheet.keepEditing")}</Button>
+            <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); resetAll(); navigate("/"); }} className="w-full h-11 rounded-full">{t("activateVanityNumber.cancelSheet.confirm")}</Button>
+            <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("activateVanityNumber.cancelSheet.keepEditing")}</Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -829,14 +847,14 @@ const BookingActivation = () => {
                 <Check className="w-8 h-8 text-white" strokeWidth={3} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("bookingActivation.connectedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("bookingActivation.connectedDesc")}</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("activateVanityNumber.connectedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("activateVanityNumber.connectedDesc")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {t("bookingActivation.reference")} <span className="font-semibold text-foreground">{orderId}</span>
+              {t("activateVanityNumber.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
           </div>
           <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}>
-            {t("bookingActivation.done")}
+            {t("activateVanityNumber.done")}
           </Button>
         </DrawerContent>
       </Drawer>
@@ -850,15 +868,15 @@ const BookingActivation = () => {
                 <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
               </div>
             </div>
-            <h3 className="font-semibold text-foreground text-base mb-1">{t("bookingActivation.failedTitle")}</h3>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("activateVanityNumber.failedTitle")}</h3>
             <p className="text-sm text-muted-foreground text-center">{failureReason}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
-              {t("bookingActivation.tryAgain")}
+              {t("activateVanityNumber.tryAgain")}
             </Button>
             <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setFailureOpen(false)}>
-              {t("bookingActivation.cancel")}
+              {t("activateVanityNumber.cancel")}
             </button>
           </div>
         </DrawerContent>
@@ -869,4 +887,4 @@ const BookingActivation = () => {
   );
 };
 
-export default BookingActivation;
+export default ActivateVanityNumber;

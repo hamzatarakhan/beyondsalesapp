@@ -5,7 +5,6 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
-import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { PREPAID_PLANS, FRIENDI_PLANS, VerifiedBanner } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
@@ -239,15 +238,6 @@ const ChangePrepaidBundle = () => {
       ? "downgrade"
       : "upgrade";
 
-  const layoutFor = (categories: string[] = []) =>
-    categories.includes("switch-postpaid") ? "postpaid" as const
-    : categories.includes("combo") ? "combo" as const
-    : categories.includes("flexi") ? "combo" as const
-    : categories.includes("calls") ? "calls" as const
-    : categories.includes("aman") ? "aman" as const
-    : categories.includes("base-plan") ? "baqa" as const
-    : "flex" as const;
-
   // ---------- Pricing — full plan price + VAT, no deposit/proration ----------
   const planPrice = selectedPlanObj?.price ?? 0;
   const vat = Math.round(planPrice * 0.15 * 100) / 100;
@@ -280,6 +270,9 @@ const ChangePrepaidBundle = () => {
             setOtpError(false);
             setOtpVerified(true);
             setOtpOpen(false);
+            // Verifying from step 1's Continue is what unlocks checkout/pricing —
+            // the Send & Verify OTP button on checkout itself only re-verifies.
+            if (step === 1) setStep(2);
           }
         }, 300);
       }
@@ -377,29 +370,21 @@ const ChangePrepaidBundle = () => {
         {/* ── Step 1: Plan ── */}
         {step === 1 && (
           <>
-            {currentPlanObj && (
-              <div>
-                <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
-                  <h3 className="text-sm font-semibold text-foreground">{t("changePrepaidBundle.currentPlan")}</h3>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold">
-                    <ClipboardList className="w-3 h-3" />
-                    {line?.lineType === "mbb" ? t("changePrepaidBundle.category5gMbb") : t("changePrepaidBundle.mobilePrepaid")} · {currentPlanObj.title}
-                  </span>
-                </div>
-                <PlanCard
-                  plan={{ ...currentPlanObj, badge: undefined }}
-                  selected
-                  active
-                  onSelect={() => {}}
-                  hideRadio
-                  layout={layoutFor(currentPlanObj.categories)}
-                />
-              </div>
-            )}
+            {/* Current Plan section hidden — the real API response doesn't carry the data
+                this card needs. */}
 
             {line && (
               <CardSection title={t("changePrepaidBundle.currentConsumption")} icon={Gauge}>
                 <div className="space-y-3">
+                  {/* Best-UX rewrite of the app's existing "customer will lose his plan"
+                      warning — short, specific, no second-person blame, states the actual
+                      date instead of a generic "active plan". */}
+                  <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-3 py-2.5 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-snug">
+                      {t("changePrepaidBundle.planChangeWarning", { date: line.consumption.validUntil })}
+                    </p>
+                  </div>
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-muted-foreground">{t("changePrepaidBundle.dataUsedLabel")}</span>
@@ -536,14 +521,10 @@ const ChangePrepaidBundle = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 2 && (
           <>
+            {/* Current Plan and Change Type hidden — the real API doesn't return either. */}
             <CardSection title={t("changePrepaidBundle.planChangeSummary")} icon={ClipboardList}>
               <SummaryRow label={t("changePrepaidBundle.msisdn")} value={line?.msisdn ?? t("changePrepaidBundle.dash")} />
-              <SummaryRow label={t("changePrepaidBundle.currentPlan")} value={currentPlanObj?.title ?? t("changePrepaidBundle.dash")} />
               <SummaryRow label={t("changePrepaidBundle.newPlan")} value={selectedPlanObj?.title ?? t("changePrepaidBundle.dash")} />
-              <SummaryRow
-                label={t("changePrepaidBundle.changeType")}
-                value={changeType ? t(`changePrepaidBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`) : t("changePrepaidBundle.dash")}
-              />
             </CardSection>
 
             <CardSection title={t("changePrepaidBundle.paymentSummary")} icon={Receipt}>
@@ -619,9 +600,12 @@ const ChangePrepaidBundle = () => {
               <Button
                 className="w-full h-12 text-sm font-semibold rounded-full"
                 disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
-                onClick={() => setStep((s) => s + 1)}
+                // Step 1 → Checkout goes through OTP first — the real API doesn't return
+                // pricing until the customer's verified, so there's nothing to show on
+                // the checkout page before that.
+                onClick={() => (step === 1 ? setOtpOpen(true) : setStep((s) => s + 1))}
               >
-                {t("changePrepaidBundle.continue")}
+                {step === 1 ? t("changePrepaidBundle.verifyAndContinue") : t("changePrepaidBundle.continue")}
               </Button>
             </>
           ) : (

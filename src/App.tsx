@@ -65,7 +65,7 @@ import CancelPortInRequest from "./pages/CancelPortInRequest";
 import ChangePostpaidPlan from "./pages/ChangePostpaidPlan";
 import ChangePostpaidPlanAllPlans from "./pages/ChangePostpaidPlanAllPlans";
 import UpdateCustomerId from "./pages/UpdateCustomerId";
-import BookingActivation from "./pages/BookingActivation";
+import ActivateVanityNumber from "./pages/ActivateVanityNumber";
 import ChangeCustomerOwner from "./pages/ChangeCustomerOwner";
 import OrdersHistory from "./pages/OrdersHistory";
 import OrdersHistoryAchievements from "./pages/OrdersHistoryAchievements";
@@ -201,7 +201,7 @@ const App = () => {
           <Route path="/change-postpaid-plan" element={<ChangePostpaidPlan />} />
           <Route path="/change-postpaid-plan/plans" element={<ChangePostpaidPlanAllPlans />} />
           <Route path="/update-id" element={<UpdateCustomerId />} />
-          <Route path="/booking-activation" element={<BookingActivation />} />
+          <Route path="/activate-vanity-number" element={<ActivateVanityNumber />} />
           <Route path="/change-owner" element={<ChangeCustomerOwner />} />
           <Route path="/order-history" element={<OrdersHistory />} />
           <Route path="/order-history/achievements" element={<OrdersHistoryAchievements />} />
