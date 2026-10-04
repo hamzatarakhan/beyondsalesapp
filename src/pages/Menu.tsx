@@ -14,6 +14,7 @@ import {
   Calendar,
   Headphones,
   ChevronRight,
+  ArrowLeftRight,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -39,6 +40,7 @@ const Menu = () => {
       items: [
         { icon: Network, label: t("menu.myHierarchy") },
         { icon: ClipboardCheck, label: t("menu.checkIn") },
+        { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
       ],
     },
     {

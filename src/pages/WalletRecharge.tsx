@@ -214,6 +214,8 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
+  // Raw typed text so intermediate values like "10." keep their decimal point.
+  const [cardAmountText, cardAmountTextSet] = useState<string | null>(null);
   const [cardView, setCardView] = useState<"list" | "addNew">("list");
   // Demo saved card hidden by default — Visa/mada are the primary network tiles now.
   const [cards, setCards] = useState<CardEntry[]>([]);
@@ -428,9 +430,10 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               <div className="space-y-3">
                 <div className="relative">
                   <Input
-                    value={cardAmount != null ? String(cardAmount) : ""}
+                    value={cardAmountText !== null && Number(cardAmountText) === cardAmount ? cardAmountText : cardAmount != null ? String(cardAmount) : ""}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                      cardAmountTextSet(raw);
                       setCardAmount(raw === "" ? null : Number(raw));
                     }}
                     placeholder="0.00"
