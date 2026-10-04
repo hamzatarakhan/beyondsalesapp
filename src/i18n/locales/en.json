@@ -130,6 +130,11 @@
     "requestSubmitted": "Request Submitted",
     "requestSubmittedDesc": "{{role}} onboarding request has been submitted for review.",
     "done": "Done",
+    "verifyEmail": "Verify",
+    "emailVerified": "Verified",
+    "emailOtpTitle": "Verify Email",
+    "emailOtpSubtitle": "Enter the 6-digit code sent to {{email}}",
+    "verify": "Verify",
     "roles": {
       "salesPartner": {
         "listLabel": "Sales Partner",
