@@ -130,6 +130,11 @@
     "requestSubmitted": "تم إرسال الطلب",
     "requestSubmittedDesc": "تم إرسال طلب تأهيل {{role}} للمراجعة.",
     "done": "تم",
+    "verifyEmail": "تحقق",
+    "emailVerified": "تم التحقق",
+    "emailOtpTitle": "التحقق من البريد الإلكتروني",
+    "emailOtpSubtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",
+    "verify": "تحقق",
     "roles": {
       "salesPartner": {
         "listLabel": "شريك مبيعات",
