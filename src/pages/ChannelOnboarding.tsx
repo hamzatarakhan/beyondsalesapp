@@ -500,6 +500,37 @@ const ChannelOnboarding = () => {
             error={!!errors[field.key]}
           />
         );
+      case "email": {
+        const emailVal = values[field.key] || "";
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+        const verified = !!verifiedEmails[field.key] && verifiedEmails[field.key] === emailVal;
+        return (
+          <div className="flex items-center gap-2">
+            <Input
+              type="email"
+              value={emailVal}
+              onChange={(e) => handleChange(field.key, e.target.value)}
+              onBlur={() => handleBlur(field)}
+              placeholder={field.placeholder}
+              className={cn("h-12 rounded-xl bg-card flex-1", errors[field.key] ? "border-destructive focus-visible:ring-destructive" : "border-input")}
+            />
+            {verified ? (
+              <span className="shrink-0 flex items-center gap-1 px-3 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
+                <Check className="w-3.5 h-3.5" /> {t("channelOnboarding.emailVerified")}
+              </span>
+            ) : (
+              <button
+                type="button"
+                disabled={!emailValid}
+                onClick={() => openEmailOtp(field.key)}
+                className="shrink-0 px-4 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
+              >
+                {t("channelOnboarding.verifyEmail")}
+              </button>
+            )}
+          </div>
+        );
+      }
       default:
         return (
           <Input
