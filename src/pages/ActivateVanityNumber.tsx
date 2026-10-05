@@ -125,8 +125,8 @@ interface DemoKit {
   subscriptionType?: string;
 }
 const DEMO_KITS: DemoKit[] = [
-  { code: "1234567890", status: "unused", msisdn: "5512345678", paymentStatus: "unpaid", price: "0.00", subscriptionType: "Basic" },
-  { code: "2234567890", status: "unused", msisdn: "5587654321", paymentStatus: "paid", price: "150.00", subscriptionType: "Baqa" },
+  { code: "1234567890", status: "unused", msisdn: "5512345678", paymentStatus: "unpaid", price: "0.00", subscriptionType: "Digital Prepaid" },
+  { code: "2234567890", status: "unused", msisdn: "5587654321", paymentStatus: "paid", price: "150.00", subscriptionType: "Digital Prepaid" },
   { code: "9999999990", status: "used" },
 ];
 
