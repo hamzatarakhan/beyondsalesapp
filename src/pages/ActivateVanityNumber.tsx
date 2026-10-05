@@ -142,6 +142,8 @@ const BOOKING_CODE_LENGTH = 6;
 
 // Values pending Waley — placeholder list so the dropdown isn't empty until the real
 // subscription types are shared.
+const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
+
 const SUBSCRIPTION_TYPES = ["Digital Prepaid"];
 
 // Same preset amounts as the Top Up flow.
@@ -185,6 +187,7 @@ const ActivateVanityNumber = () => {
   // Step 2 — Checkout
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [city, setCity] = useState("Riyadh");
   const [address, setAddress] = useState("");
   const [idVerifyOpen, setIdVerifyOpen] = useState(false);
   const [idVerified, setIdVerified] = useState(false);
@@ -330,6 +333,7 @@ const ActivateVanityNumber = () => {
     setRechargeCardCode("");
     setContactNumber("");
     setEmail("");
+    setCity("Riyadh");
     setAddress("");
     setIdVerified(false);
     setOtpVerified(false);
@@ -575,14 +579,26 @@ const ActivateVanityNumber = () => {
               </div>
             </div>
 
-            <Field label={t("activateVanityNumber.address")}>
-              <Input
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder={t("activateVanityNumber.addressPlaceholder")}
-                className="h-12 bg-card rounded-xl"
-              />
-            </Field>
+            {/* Address Details — same City + National Address card as the activation flows. */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.addressDetails")}</p>
+              <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
+                <Field label={`${t("activation.subscription.city")} *`}>
+                  <Select value={city} onValueChange={setCity}>
+                    <SelectTrigger className="w-full bg-background rounded-xl h-12"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-card">{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label={`${t("activation.subscription.nationalAddress")} *`}>
+                  <Input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. RRRD1234"
+                    className="h-12 bg-background rounded-xl"
+                  />
+                </Field>
+              </div>
+            </div>
 
             {/* Same "Customer Verification" step every other flow uses for this exact
                 SematiVerification call (NewActivation/SimReplacement/SimTermination) —
