@@ -179,7 +179,7 @@ const ActivateVanityNumber = () => {
   const [paymentStatus, setPaymentStatus] = useState<"paid" | "unpaid">("unpaid");
   const [price, setPrice] = useState("");
   const [subscriptionType, setSubscriptionType] = useState(SUBSCRIPTION_TYPES[0]);
-  const [isPrimary, setIsPrimary] = useState(true);
+  const [isPrimary, setIsPrimary] = useState(false);
   const [showOption, setShowOption] = useState<"topup" | "recharge-card" | "none">("none");
   const [topupAmount, setTopupAmount] = useState<number | null>(null);
   const [rechargeCardCode, setRechargeCardCode] = useState("");
@@ -327,7 +327,7 @@ const ActivateVanityNumber = () => {
     setPaymentStatus("unpaid");
     setPrice("");
     setSubscriptionType(SUBSCRIPTION_TYPES[0]);
-    setIsPrimary(true);
+    setIsPrimary(false);
     setShowOption("none");
     setTopupAmount(null);
     setRechargeCardCode("");
@@ -464,24 +464,10 @@ const ActivateVanityNumber = () => {
         {step === 1 && (
           <>
             {/* Read-only: these come from the KIT and can never be edited here. */}
-            <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div>
-                <SummaryRow label={t("activateVanityNumber.msisdn")} value={<span dir="ltr">966 {msisdn}</span>} />
-                <SummaryRow
-                  label={t("activateVanityNumber.paymentStatus")}
-                  value={
-                    <span className={cn(
-                      "inline-flex items-center h-5 px-2 rounded-full text-[11px] font-semibold",
-                      paymentStatus === "paid" ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
-                    )}>
-                      {t(paymentStatus === "paid" ? "activateVanityNumber.paid" : "activateVanityNumber.unpaid")}
-                    </span>
-                  }
-                />
-                <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
-                <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
-              </div>
-            </section>
+            <CardSection title={t("activateVanityNumber.stepDetails", "Details")} icon={FileText}>
+              <SummaryRow label={t("activateVanityNumber.msisdn")} value={<span dir="ltr">+966 {msisdn}</span>} />
+              <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
+            </CardSection>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
               <p className="text-sm font-medium text-foreground">{t("activateVanityNumber.isPrimary")}</p>
