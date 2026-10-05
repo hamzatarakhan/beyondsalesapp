@@ -79,10 +79,13 @@ const OptionTile = ({
     type="button"
     onClick={onClick}
     className={cn(
-      "flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-colors",
+      "relative flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-colors",
       active ? "border-primary bg-primary/10" : "border-border bg-card",
     )}
   >
+    <span className={cn("absolute top-2 end-2 w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center")}>
+      {active && <span className="w-2 h-2 rounded-full bg-primary" />}
+    </span>
     <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", active ? "bg-primary/15" : "bg-muted")}>
       <Icon className={cn("w-4 h-4", active ? "text-primary" : "text-muted-foreground")} />
     </div>
@@ -142,7 +145,7 @@ const BOOKING_CODE_LENGTH = 6;
 const SUBSCRIPTION_TYPES = ["Basic", "Baqa", "Aman", "Flex"];
 
 // Same preset amounts as the Top Up flow.
-const TOPUP_PRESETS = [10, 20, 30, 50, 100, 200];
+const TOPUP_PRESETS = [10, 15, 20, 30, 50, 100];
 
 const ActivateVanityNumber = () => {
   const navigate = useNavigate();
@@ -503,6 +506,7 @@ const ActivateVanityNumber = () => {
                       ? <span className="text-base font-bold text-foreground"><RiyalSymbol /> {topupAmount.toFixed(2)}</span>
                       : <span className="text-sm text-muted-foreground">{t("activation.subscription.topupSelectAmount")}</span>}
                   </div>
+                  <p className="text-xs text-muted-foreground mb-3">{t("activateVanityNumber.vatNote")}</p>
                   <div className="grid grid-cols-3 gap-2">
                     {TOPUP_PRESETS.map((v) => (
                       <button
