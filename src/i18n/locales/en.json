@@ -1522,6 +1522,7 @@
     "bookingCodePlaceholder": "{{count}}-digit code",
     "bookingCodeError": "Enter a {{count}}-digit Booking Code.",
     "msisdn": "MSISDN",
+    "fromKit": "Details come from the KIT and cannot be edited",
     "paymentStatus": "Payment Status",
     "paid": "Paid",
     "unpaid": "Unpaid",

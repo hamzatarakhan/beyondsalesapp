@@ -44,7 +44,7 @@ import {
   Coins,
   CreditCard,
   Ban,
-  X,
+  X, Lock
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors SimReplacement.tsx / UpdateCustomerId.tsx) ----------
@@ -115,10 +115,15 @@ const CardSection = ({
 interface DemoKit {
   code: string;
   status: "unused" | "used";
+  // Details come with the KIT, so they are shown read-only on the Details step.
+  msisdn?: string;
+  paymentStatus?: "paid" | "unpaid";
+  price?: string;
+  subscriptionType?: string;
 }
 const DEMO_KITS: DemoKit[] = [
-  { code: "1234567890", status: "unused" },
-  { code: "2234567890", status: "unused" },
+  { code: "1234567890", status: "unused", msisdn: "5512345678", paymentStatus: "unpaid", price: "0.00", subscriptionType: "Basic" },
+  { code: "2234567890", status: "unused", msisdn: "5587654321", paymentStatus: "paid", price: "150.00", subscriptionType: "Baqa" },
   { code: "9999999990", status: "used" },
 ];
 
@@ -217,6 +222,10 @@ const ActivateVanityNumber = () => {
         setKitError(t("activateVanityNumber.kitErrorUsed"));
         return;
       }
+      setMsisdn(found.msisdn ?? "");
+      setPaymentStatus(found.paymentStatus ?? "unpaid");
+      setPrice(found.price ?? "");
+      setSubscriptionType(found.subscriptionType ?? SUBSCRIPTION_TYPES[0]);
       setKitUnused(true);
     }, 800);
   };
@@ -447,49 +456,28 @@ const ActivateVanityNumber = () => {
         {/* ── Step 1: Details ── */}
         {step === 1 && (
           <>
-            <Field label={t("activateVanityNumber.msisdn")}>
-              <PhoneNumberInput value={msisdn} onChange={setMsisdn} icon={<Phone className="w-4 h-4" />} />
-            </Field>
-
-            <Field label={t("activateVanityNumber.paymentStatus")}>
-              <Select value={paymentStatus} onValueChange={(v: "paid" | "unpaid") => setPaymentStatus(v)}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  <SelectItem value="paid">{t("activateVanityNumber.paid")}</SelectItem>
-                  <SelectItem value="unpaid">{t("activateVanityNumber.unpaid")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label={t("activateVanityNumber.price")}>
-              <div className="relative">
-                <Input
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-                  placeholder="0.00"
-                  inputMode="decimal"
-                  className="h-12 bg-card rounded-xl ps-10"
-                />
-                <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                  <RiyalSymbol />
+            {/* Read-only: these come from the KIT and can never be edited here. */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] text-muted-foreground">{t("activateVanityNumber.msisdn")}</p>
+                  <p dir="ltr" className="text-xl font-bold text-foreground tracking-wide mt-0.5">966 {msisdn}</p>
+                </div>
+                <span className={cn(
+                  "inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-semibold",
+                  paymentStatus === "paid" ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
+                )}>
+                  {t(paymentStatus === "paid" ? "activateVanityNumber.paid" : "activateVanityNumber.unpaid")}
                 </span>
               </div>
-            </Field>
-
-            <Field label={t("activateVanityNumber.subscriptionType")}>
-              <Select value={subscriptionType} onValueChange={setSubscriptionType}>
-                <SelectTrigger className="w-full bg-card rounded-xl h-12">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card">
-                  {SUBSCRIPTION_TYPES.map((v) => (
-                    <SelectItem key={v} value={v}>{v}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
+              <div className="mt-3 pt-1 border-t border-border/40">
+                <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
+                <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
+              </div>
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-2">
+                <Lock className="w-3 h-3" /> {t("activateVanityNumber.fromKit")}
+              </p>
+            </section>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
               <p className="text-sm font-medium text-foreground">{t("activateVanityNumber.isPrimary")}</p>
