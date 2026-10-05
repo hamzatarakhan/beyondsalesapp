@@ -142,7 +142,7 @@ const BOOKING_CODE_LENGTH = 6;
 
 // Values pending Waley — placeholder list so the dropdown isn't empty until the real
 // subscription types are shared.
-const SUBSCRIPTION_TYPES = ["Basic", "Baqa", "Aman", "Flex"];
+const SUBSCRIPTION_TYPES = ["Digital Prepaid"];
 
 // Same preset amounts as the Top Up flow.
 const TOPUP_PRESETS = [10, 15, 20, 30, 50, 100];
