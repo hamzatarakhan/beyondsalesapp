@@ -124,12 +124,7 @@ const NewActivation5AllPlans = () => {
             aria-label={t("activation5.subscription.filtersAria")}
             className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
           >
-            <SlidersHorizontal className="w-4 h-4 text-foreground" />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
+            <SlidersHorizontal className="w-4 h-4 text-foreground" />
           </button>
         </div>
       </div>
