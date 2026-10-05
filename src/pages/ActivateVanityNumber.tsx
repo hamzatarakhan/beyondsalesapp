@@ -44,7 +44,7 @@ import {
   Coins,
   CreditCard,
   Ban,
-  X, Lock
+  X
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors SimReplacement.tsx / UpdateCustomerId.tsx) ----------
@@ -477,9 +477,6 @@ const ActivateVanityNumber = () => {
                 <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
                 <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
               </div>
-              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-2">
-                <Lock className="w-3 h-3" /> {t("activateVanityNumber.fromKit")}
-              </p>
             </section>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
