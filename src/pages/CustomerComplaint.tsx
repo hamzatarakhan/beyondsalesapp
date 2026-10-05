@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -204,12 +205,7 @@ const CustomerComplaint = () => {
           <p className="text-sm font-semibold text-foreground px-1">{t("customerComplaint.contactInformation")}</p>
           <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
             <Field label={t("customerComplaint.contactNumber")}>
-              <Input
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
-                inputMode="numeric"
-                className="h-12 bg-background rounded-xl"
-              />
+              <PhoneNumberInput value={contactNumber} onChange={setContactNumber} className="bg-background" />
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 shrink-0" /> {t("customerComplaint.contactNumberOtpHint")}
               </p>

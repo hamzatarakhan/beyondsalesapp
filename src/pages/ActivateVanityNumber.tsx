@@ -561,12 +561,7 @@ const ActivateVanityNumber = () => {
               <p className="text-sm font-semibold text-foreground px-1">{t("activateVanityNumber.contactInformation")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3.5">
                 <Field label={t("activateVanityNumber.contactNumber")}>
-                  <Input
-                    value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
-                    inputMode="numeric"
-                    className="h-12 bg-background rounded-xl"
-                  />
+                  <PhoneNumberInput value={contactNumber} onChange={setContactNumber} className="bg-background" />
                 </Field>
                 <Field label={t("activateVanityNumber.email")}>
                   <Input
