@@ -458,19 +458,19 @@ const ActivateVanityNumber = () => {
           <>
             {/* Read-only: these come from the KIT and can never be edited here. */}
             <section className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] text-muted-foreground">{t("activateVanityNumber.msisdn")}</p>
-                  <p dir="ltr" className="text-xl font-bold text-foreground tracking-wide mt-0.5">966 {msisdn}</p>
-                </div>
-                <span className={cn(
-                  "inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-semibold",
-                  paymentStatus === "paid" ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
-                )}>
-                  {t(paymentStatus === "paid" ? "activateVanityNumber.paid" : "activateVanityNumber.unpaid")}
-                </span>
-              </div>
-              <div className="mt-3 pt-1 border-t border-border/40">
+              <div>
+                <SummaryRow label={t("activateVanityNumber.msisdn")} value={<span dir="ltr">966 {msisdn}</span>} />
+                <SummaryRow
+                  label={t("activateVanityNumber.paymentStatus")}
+                  value={
+                    <span className={cn(
+                      "inline-flex items-center h-5 px-2 rounded-full text-[11px] font-semibold",
+                      paymentStatus === "paid" ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
+                    )}>
+                      {t(paymentStatus === "paid" ? "activateVanityNumber.paid" : "activateVanityNumber.unpaid")}
+                    </span>
+                  }
+                />
                 <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
                 <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
               </div>
