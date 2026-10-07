@@ -294,6 +294,24 @@ const Home = () => {
     navigate("/purchase-orders");
   };
 
+  // Only these services need the dealer Nafath check before opening; every other tile
+  // navigates straight in. Matched on the route (query strings ignored), so all variants
+  // of a service (options, fulfilment, directions) are covered.
+  const NAFATH_REQUIRED_ROUTES = [
+    "/activate-vanity-number", // Vanity Activation
+    "/new-activation", // all SIM activation flows (incl. /new-activation-3, ?flow=fulfilment)
+    "/prepaid-search", // prepaid activation
+    "/sim-replacement",
+    "/bill-payment", // postpaid bill payment
+    "/change-owner",
+    "/update-id",
+    "/credit-limit-adjustment", // postpaid credit limit
+    "/change-postpaid-plan", // upgrade & downgrade
+    "/sim-termination",
+    "/subscription-migration", // pre-to-post and post-to-pre
+  ];
+  const needsNafath = (path: string) => NAFATH_REQUIRED_ROUTES.some((r) => path.split("?")[0].startsWith(r));
+
   const handleActivityClick = (path: string) => {
     if (path === "/order-history") {
       setOrderHistoryViewOpen(true);
@@ -310,6 +328,10 @@ const Home = () => {
     }
     if (path === "/sales-orders") {
       setSalesOrdersEntryOpen(true);
+      return;
+    }
+    if (!needsNafath(path)) {
+      navigate(path);
       return;
     }
     setPendingPath(path);
@@ -384,7 +406,7 @@ const Home = () => {
                 color="teal"
                 badge={item.badge}
                 badgeTone={item.badgeTone}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleActivityClick(item.path)}
               />
             ))}
           </div>
@@ -454,7 +476,7 @@ const Home = () => {
                 color="teal"
                 badge={item.badge}
                 badgeTone={item.badgeTone}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleActivityClick(item.path)}
               />
             ))}
             {activeOperator !== "friendi" && (
