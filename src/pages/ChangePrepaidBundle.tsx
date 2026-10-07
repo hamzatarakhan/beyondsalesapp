@@ -140,7 +140,9 @@ const ChangePrepaidBundle = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
 
   const [otpOpen, setOtpOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  // OTP happens on step 0 against a specific number — editing the number invalidates it.
+  const [verifiedMsisdn, setVerifiedMsisdn] = useState("");
+  const otpVerified = !!msisdn && verifiedMsisdn === msisdn;
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
@@ -207,10 +209,11 @@ const ChangePrepaidBundle = () => {
   // it's staged in `pendingPlanPick` and applied by the effect below once `line` is set.
   const [pendingPlanPick, setPendingPlanPick] = useState<{ chip: string; title: string } | null>(null);
   useEffect(() => {
-    const state = location.state as { pickPlan?: { msisdn: string; chip: string; title: string } } | null;
+    const state = location.state as { pickPlan?: { msisdn: string; chip: string; title: string; verifiedMsisdn?: string } } | null;
     const pick = state?.pickPlan;
     if (!pick) return;
     setMsisdn(pick.msisdn);
+    setVerifiedMsisdn(pick.verifiedMsisdn ?? "");
     setPlanTypeChip(pick.chip);
     setPendingPlanPick({ chip: pick.chip, title: pick.title });
     setStep(1);
@@ -256,11 +259,10 @@ const ChangePrepaidBundle = () => {
             setOtpError(true);
           } else {
             setOtpError(false);
-            setOtpVerified(true);
+            setVerifiedMsisdn(msisdn);
             setOtpOpen(false);
-            // Verifying from step 1's Continue is what unlocks checkout/pricing —
-            // the Send & Verify OTP button on checkout itself only re-verifies.
-            if (step === 1) setStep(2);
+            // Step 0's "Verify & Continue" — verifying is what moves on to the plan step.
+            if (step === 0) setStep(1);
           }
         }, 300);
       }
@@ -283,7 +285,7 @@ const ChangePrepaidBundle = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible;
   const canContinuePlan = selectedPlan != null;
-  const canPay = otpVerified && !(payMethod === "wallet" && walletShort);
+  const canPay = !(payMethod === "wallet" && walletShort);
 
   const resolvePayment = () => {
     setConfirmOpen(false);
@@ -304,7 +306,7 @@ const ChangePrepaidBundle = () => {
     setSelectedPlan(null);
     setPlanSearch("");
     setPlanTypeChip("all");
-    setOtpVerified(false);
+    setVerifiedMsisdn("");
     setPayMethod("wallet");
   };
 
@@ -467,6 +469,7 @@ const ChangePrepaidBundle = () => {
                     chip: planTypeChip,
                     selectedPlanTitle: selectedPlanObj?.title,
                     msisdn,
+                    verifiedMsisdn,
                     backSearch: location.search,
                   },
                 })}
@@ -542,16 +545,6 @@ const ChangePrepaidBundle = () => {
                 />
               </div>
             </CardSection>
-
-            <CardSection title={t("changePrepaidBundle.otpVerification")} icon={Phone}>
-              {otpVerified ? (
-                <VerifiedBanner label={t("changePrepaidBundle.verified")} />
-              ) : (
-                <Button variant="outline" className="w-full" onClick={() => setOtpOpen(true)}>
-                  {t("changePrepaidBundle.sendVerifyOtp")}
-                </Button>
-              )}
-            </CardSection>
           </>
         )}
       </div>
@@ -571,12 +564,10 @@ const ChangePrepaidBundle = () => {
               <Button
                 className="w-full h-12 text-sm font-semibold rounded-full"
                 disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
-                // Step 1 → Checkout goes through OTP first — the real API doesn't return
-                // pricing until the customer's verified, so there's nothing to show on
-                // the checkout page before that.
-                onClick={() => (step === 1 ? setOtpOpen(true) : setStep((s) => s + 1))}
+                // Step 0 verifies the customer first (skipped if this number is already verified).
+                onClick={() => (step === 0 && !otpVerified ? setOtpOpen(true) : setStep((s) => s + 1))}
               >
-                {step === 1 ? t("changePrepaidBundle.verifyAndContinue") : t("changePrepaidBundle.continue")}
+                {step === 0 && !otpVerified ? t("changePrepaidBundle.verifyAndContinue") : t("changePrepaidBundle.continue")}
               </Button>
             </>
           ) : (

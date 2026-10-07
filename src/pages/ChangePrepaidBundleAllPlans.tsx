@@ -19,6 +19,8 @@ interface NavState {
   chip?: string;
   selectedPlanTitle?: string;
   msisdn: string;
+  /** Number the dealer already OTP-verified — handed back so verification survives the remount. */
+  verifiedMsisdn?: string;
   /** location.search from ChangePrepaidBundle — restored on the way back. */
   backSearch?: string;
 }
@@ -71,13 +73,13 @@ const ChangePrepaidBundleAllPlans = () => {
   // have changed while just browsing here.
   const goBack = () => {
     navigate(`/change-prepaid-bundle${initial.backSearch ?? ""}`, {
-      state: { pickPlan: { msisdn: initial.msisdn, chip: initial.chip ?? "all", title: initial.selectedPlanTitle ?? "" } },
+      state: { pickPlan: { msisdn: initial.msisdn, chip: initial.chip ?? "all", title: initial.selectedPlanTitle ?? "", verifiedMsisdn: initial.verifiedMsisdn } },
     });
   };
 
   const pickPlan = (title: string) => {
     navigate(`/change-prepaid-bundle${initial.backSearch ?? ""}`, {
-      state: { pickPlan: { msisdn: initial.msisdn, chip, title } },
+      state: { pickPlan: { msisdn: initial.msisdn, chip, title, verifiedMsisdn: initial.verifiedMsisdn } },
     });
   };
 
