@@ -622,6 +622,12 @@ const CreditLimitAdjustment = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 1 && customer && (
           <>
+            <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
+              <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
+              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
+              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit.toFixed(2)}</>} />
+            </CardSection>
+
             {direction === "increase" && (
               <CardSection title={t("creditLimitAdjustment.paymentSummary")} icon={Receipt}>
                 <div className="space-y-2 pb-3">
@@ -646,12 +652,6 @@ const CreditLimitAdjustment = () => {
                 </div>
               </CardSection>
             )}
-
-            <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
-              <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
-              <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
-              <SummaryRow label={t("creditLimitAdjustment.newLimit")} value={<><RiyalSymbol /> {newLimit.toFixed(2)}</>} />
-            </CardSection>
 
             {direction === "increase" && (
               <CardSection title={t("creditLimitAdjustment.paymentMethod")} icon={CreditCard}>
