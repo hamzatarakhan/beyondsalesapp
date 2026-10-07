@@ -28,6 +28,7 @@ import {
   CreditCard,
   HandCoins,
   ClipboardList,
+  Receipt,
   AlertCircle,
   Check,
   XCircle,
@@ -304,7 +305,10 @@ const CreditLimitAdjustment = () => {
 
   // ---------- Gates ----------
   const canContinueAdjust = eligible && delta > 0 && newLimit >= 0;
-  const walletShort = direction === "increase" && delta > DEALER_WALLET_BALANCE;
+  // Only the increase is paid for: the increased amount + 20% VAT on it.
+  const vat = Math.round(delta * 0.2 * 100) / 100;
+  const total = Math.round((delta + vat) * 100) / 100;
+  const walletShort = direction === "increase" && total > DEALER_WALLET_BALANCE;
   const canConfirm = otpVerified && !(payMethod === "wallet" && walletShort);
 
   const resolvePayment = () => {
@@ -599,7 +603,7 @@ const CreditLimitAdjustment = () => {
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  {t("creditLimitAdjustment.increaseNote", { delta: delta.toFixed(2) })}
+                  {t("creditLimitAdjustment.increaseNote", { delta: total.toFixed(2) })}
                 </p>
               </div>
             ) : (
@@ -618,6 +622,31 @@ const CreditLimitAdjustment = () => {
         {/* ── Step 2: Checkout ── */}
         {step === 1 && customer && (
           <>
+            {direction === "increase" && (
+              <CardSection title={t("creditLimitAdjustment.paymentSummary")} icon={Receipt}>
+                <div className="space-y-2 pb-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.increasedAmount")}</span>
+                    <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {delta.toFixed(2)}</span>
+                  </div>
+                </div>
+                <div className="border-t border-border/60 space-y-2 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.subtotal")}</span>
+                    <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {delta.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.vat")}</span>
+                    <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat.toFixed(2)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                  <span className="text-sm font-semibold text-foreground">{t("creditLimitAdjustment.total")}</span>
+                  <span className="text-base font-bold text-primary"><RiyalSymbol /> {total.toFixed(2)}</span>
+                </div>
+              </CardSection>
+            )}
+
             <CardSection title={t("creditLimitAdjustment.adjustmentSummary")} icon={ClipboardList}>
               <SummaryRow label={t("creditLimitAdjustment.customerName")} value={customer.name} />
               <SummaryRow label={t("creditLimitAdjustment.currentLimit")} value={<><RiyalSymbol /> {currentLimit.toFixed(2)}</>} />
@@ -630,7 +659,7 @@ const CreditLimitAdjustment = () => {
                   <PayOption icon={CreditCard} label={t("activation.checkout.dealerWallet")} description={t("activation.checkout.dealerWalletDesc", { balance: DEALER_WALLET_BALANCE.toFixed(2) })} selected={payMethod === "wallet"} disabled={walletShort} justToppedUp={justToppedUp} onClick={() => setPayMethod("wallet")}>
                     {walletShort && (
                       <WalletShortNotice
-                        message={t("creditLimitAdjustment.walletShort", { amount: (delta - DEALER_WALLET_BALANCE).toFixed(2) })}
+                        message={t("creditLimitAdjustment.walletShort", { amount: (total - DEALER_WALLET_BALANCE).toFixed(2) })}
                         buttonLabel={t("creditLimitAdjustment.topUpWallet")}
                       />
                     )}
@@ -661,7 +690,7 @@ const CreditLimitAdjustment = () => {
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {direction === "increase" ? <>{t("creditLimitAdjustment.pay")} <RiyalSymbol /> {delta.toFixed(2)}</> : t("creditLimitAdjustment.confirmAdjustment")}
+              {direction === "increase" ? <>{t("creditLimitAdjustment.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("creditLimitAdjustment.confirmAdjustment")}
             </Button>
           )}
         </div>
