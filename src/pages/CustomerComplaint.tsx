@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import EmailVerifyInput, { isValidEmail, isEmailVerified } from "@/components/EmailVerifyInput";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,7 +94,8 @@ const CustomerComplaint = () => {
   // Complaint form
   const [issueNumber, setIssueNumber] = useState("");
   const [contactNumber, setContactNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("test@beyondsales.com"); // prefilled for testing
+  const [verifiedEmail, setVerifiedEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [level1, setLevel1] = useState("");
   const [level2, setLevel2] = useState("");
@@ -167,7 +169,9 @@ const CustomerComplaint = () => {
   // of the form as the final step before submitting, so it's part of canSubmit rather
   // than a separate reveal condition.
   const issueNumberValid = /^\d{10}$/.test(issueNumber) || /^\d{13}$/.test(issueNumber);
-  const canSubmit = otpVerified && issueNumberValid && contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
+  // Optional, but once an email is entered it must be a valid, OTP-verified one.
+  const emailOk = !email.trim() || (isValidEmail(email) && isEmailVerified(email, verifiedEmail));
+  const canSubmit = emailOk && otpVerified && issueNumberValid && contactNumber.trim().length > 0 && subject.trim().length > 0 && level1 && level2 && description.trim().length > 0;
 
   const resolveSubmit = () => {
     setSubmitting(true);
@@ -188,6 +192,7 @@ const CustomerComplaint = () => {
     setIssueNumber("");
     setContactNumber("");
     setEmail("");
+    setVerifiedEmail("");
     setSubject("");
     setLevel1("");
     setLevel2("");
@@ -212,12 +217,13 @@ const CustomerComplaint = () => {
             </Field>
 
             <Field label={t("customerComplaint.email")}>
-              <Input
+              <EmailVerifyInput
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
+                onChange={setEmail}
+                verifiedEmail={verifiedEmail}
+                onVerifiedChange={setVerifiedEmail}
                 placeholder={t("customerComplaint.emailPlaceholder")}
-                className="h-12 bg-background rounded-xl"
+                className="bg-background"
               />
             </Field>
           </div>

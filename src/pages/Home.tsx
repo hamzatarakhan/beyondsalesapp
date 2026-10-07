@@ -237,16 +237,16 @@ const Home = () => {
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Physical-SIM prepaid/basic-postpaid vanity-number activation via a pre-booked KIT —
     // client ticket, both VM and FM.
-    { id: "activate-vanity-number", icon: Ticket, label: t("home.activateVanityNumber"), path: "/activate-vanity-number", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "activate-vanity-number", icon: Ticket, label: t("home.activateVanityNumber"), path: "/activate-vanity-number", badge: t("home.badgePendingClearReq"), badgeTone: "confirm" as const },
+    { id: "change-prepaid-bundle", icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // VM only — Friendi has no postpaid product (same reasoning as the migration/bill-payment/
     // credit-limit tiles above).
     ...(activeOperator === "friendi"
       ? []
-      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeLpReview"), badgeTone: "review" as const }]),
+      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeDevReady"), badgeTone: "devready" as const }]),
     { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
-    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
+    { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops

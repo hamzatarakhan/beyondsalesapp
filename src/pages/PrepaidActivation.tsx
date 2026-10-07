@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import EmailVerifyInput, { isValidEmail, isEmailVerified } from "@/components/EmailVerifyInput";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
@@ -541,6 +542,7 @@ const PrepaidActivation = () => {
     }
   };
   const [email, setEmail] = useState<string>(d("email", prefill?.email ?? "test@example.com"));
+  const [verifiedEmail, setVerifiedEmail] = useState<string>("");
   const [city, setCity] = useState<string>(d("city", prefill?.city ?? "Riyadh"));
   const [contactPhone, setContactPhone] = useState<string>(d("contactPhone", "0555555555"));
 
@@ -1116,12 +1118,13 @@ const PrepaidActivation = () => {
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email <span className="text-destructive">*</span></label>
-            <Input
-              type="email"
+            <EmailVerifyInput
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={setEmail}
+              verifiedEmail={verifiedEmail}
+              onVerifiedChange={setVerifiedEmail}
               placeholder={simType === "esim" ? "Email for eSIM QR code" : "customer@example.com"}
-              className="h-11 bg-muted/40 border-0 rounded-xl"
+              className="h-11 bg-muted/40 border-0"
             />
             {simType === "esim" && (
               <p className="text-[11px] text-muted-foreground mt-1.5">
@@ -1388,7 +1391,8 @@ const PrepaidActivation = () => {
             const detailsReady =
               (simType === "psim" ? kit.trim().length > 0 : true) &&
               !!city &&
-              !!email &&
+              isValidEmail(email) &&
+              isEmailVerified(email, verifiedEmail) &&
               (numberSource === "new" || (portNumber && portOperator)) &&
               (numberMode === "plan" ? !!currentPlan : !!topupValue) &&
               (!SHOW_CUSTOMER_SIGNATURE || !!customerSig) &&

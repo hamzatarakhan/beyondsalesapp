@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
 import { useDragScroll } from "@/hooks/useDragScroll";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -638,7 +639,8 @@ const NewActivation = () => {
   const [topupManual, setTopupManual] = useState("");
   // Contact & Delivery
   const [contactCity, setContactCity] = useState("Riyadh");
-  const [contactEmail, setContactEmail] = useState("test@beyondsales.com");
+  const [contactEmail, setContactEmail] = useState("test@beyondsales.com"); // prefilled for testing; still needs OTP verify
+  const [verifiedContactEmail, setVerifiedContactEmail] = useState("");
   const [contactNumber, setContactNumber] = useState("0512345678");
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
@@ -1043,6 +1045,8 @@ const NewActivation = () => {
 
   const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
   const emailRequired = isPrepaidInternet;
+  // Fulfilment reads the email off the already-identified online application; otherwise any entered email must be OTP-verified.
+  const emailNeedsVerify = !isFulfilment;
   const cityRequired = true;
   // Nafith promissory-note verification: always required for Vnet, and for Switch Postpaid
   // whenever a vanity commitment is ON.
@@ -1088,6 +1092,7 @@ const NewActivation = () => {
   const step2Missing = useMemo(() => {
     const missing: string[] = [];
     if (emailRequired && !contactEmail.trim()) missing.push(t("activation.checkout.email"));
+    if (emailNeedsVerify && contactEmail.trim() && !(isValidEmail(contactEmail) && isEmailVerified(contactEmail, verifiedContactEmail))) missing.push(t("emailVerify.mustVerify"));
     if (cityRequired && !contactCity.trim()) missing.push(t("activation.subscription.city"));
     if (contactNumberRequired && !contactNumber.trim()) missing.push(t("activation.checkout.contactNumber"));
     if (isVnetMode && !nationalAddress.trim()) missing.push(t("activation.subscription.nationalAddress"));
@@ -1101,7 +1106,7 @@ const NewActivation = () => {
     if (!terms) missing.push(t("activation.checkout.terms"));
     if (pay === "card" && total > DEALER_WALLET_BALANCE) missing.push(t("activation.missing.walletBalance"));
     return missing;
-  }, [emailRequired, contactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, pay, total, DEALER_WALLET_BALANCE, t]);
+  }, [emailRequired, emailNeedsVerify, contactEmail, verifiedContactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, pay, total, DEALER_WALLET_BALANCE, t]);
 
   const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
   const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
@@ -2196,14 +2201,17 @@ const NewActivation = () => {
               <p className="text-sm font-semibold text-foreground px-1">{t("activation.checkout.contactDetails")}</p>
               <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] space-y-3 border border-border/60">
                 <Field label={emailRequired ? `${t("activation.checkout.email")} *` : t("activation.checkout.email")}>
-                  <Input
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="example@email.com"
-                    inputMode="email"
-                    readOnly={isFulfilment}
-                    className={cn("h-12 bg-card rounded-xl", isFulfilment && "bg-muted/40 text-muted-foreground cursor-not-allowed")}
-                  />
+                  {isFulfilment ? (
+                    <Input value={contactEmail} readOnly inputMode="email" className="h-12 bg-muted/40 text-muted-foreground cursor-not-allowed rounded-xl" />
+                  ) : (
+                    <EmailVerifyInput
+                      value={contactEmail}
+                      onChange={setContactEmail}
+                      verifiedEmail={verifiedContactEmail}
+                      onVerifiedChange={setVerifiedContactEmail}
+                      placeholder="example@email.com"
+                    />
+                  )}
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation.checkout.contactNumber")} *` : t("activation.checkout.contactNumber")}>
                   <PhoneNumberInput value={contactNumber} onChange={setContactNumber} />

@@ -1,4 +1,14 @@
 {
+  "emailVerify": {
+    "title": "Verify Email",
+    "subtitle": "Enter the 6-digit code sent to {{email}}",
+    "didntReceive": "Didn't receive the OTP ?",
+    "resend": "Resend",
+    "verify": "Submit",
+    "verifyBtn": "Verify",
+    "verified": "Verified",
+    "mustVerify": "Verify the email to continue"
+  },
   "common": {
     "toppedUp": "Topped up"
   },
@@ -134,6 +144,8 @@
     "emailVerified": "Verified",
     "emailOtpTitle": "Verify Email",
     "emailOtpSubtitle": "Enter the 6-digit code sent to {{email}}",
+    "otpDidntReceive": "Didn't receive the OTP ?",
+    "otpResend": "Resend",
     "verify": "Verify",
     "roles": {
       "salesPartner": {
@@ -2081,6 +2093,7 @@
     "badgeConfirmed": "Confirmed",
     "badgeDevReady": "Dev Ready",
     "badgeLpReview": "LP Review",
+    "badgePendingClearReq": "Pending clear req.",
     "chooseActivationFlow": "Choose Activation Flow",
     "chooseActivationFlowSub": "Select how you want to complete this activation",
     "stcFlow": "STC Flow",

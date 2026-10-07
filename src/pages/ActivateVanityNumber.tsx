@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import EmailVerifyInput, { isValidEmail, isEmailVerified } from "@/components/EmailVerifyInput";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
@@ -186,7 +187,8 @@ const ActivateVanityNumber = () => {
 
   // Step 2 — Checkout
   const [contactNumber, setContactNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("test@beyondsales.com"); // prefilled for testing
+  const [verifiedEmail, setVerifiedEmail] = useState("");
   const [city, setCity] = useState("Riyadh");
   const [address, setAddress] = useState("");
   const [idVerifyOpen, setIdVerifyOpen] = useState(false);
@@ -257,7 +259,9 @@ const ActivateVanityNumber = () => {
     (showOption === "recharge-card" && rechargeCardCode.trim().length > 0);
   const canContinueDetails = msisdnValid && priceValid && showOptionValid;
 
-  const canSubmit = idVerified && otpVerified && verificationConfirmed && contactNumber.trim().length > 0 && address.trim().length > 0;
+  // Optional, but once an email is entered it must be a valid, OTP-verified one.
+  const emailOk = !email.trim() || (isValidEmail(email) && isEmailVerified(email, verifiedEmail));
+  const canSubmit = idVerified && otpVerified && verificationConfirmed && contactNumber.trim().length > 0 && address.trim().length > 0 && emailOk;
 
   // ---------- OTP handlers ----------
   useEffect(() => {
@@ -334,6 +338,7 @@ const ActivateVanityNumber = () => {
     setContactNumber("");
     setEmail("");
     setCity("Riyadh");
+    setVerifiedEmail("");
     setAddress("");
     setIdVerified(false);
     setOtpVerified(false);
@@ -554,12 +559,13 @@ const ActivateVanityNumber = () => {
                   <PhoneNumberInput value={contactNumber} onChange={setContactNumber} className="bg-background" />
                 </Field>
                 <Field label={t("activateVanityNumber.email")}>
-                  <Input
+                  <EmailVerifyInput
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
+                    onChange={setEmail}
+                    verifiedEmail={verifiedEmail}
+                    onVerifiedChange={setVerifiedEmail}
                     placeholder={t("activateVanityNumber.emailPlaceholder")}
-                    className="h-12 bg-background rounded-xl"
+                    className="bg-background"
                   />
                 </Field>
               </div>

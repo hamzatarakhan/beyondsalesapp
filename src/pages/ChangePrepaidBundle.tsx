@@ -31,9 +31,6 @@ import {
   Phone,
   Search,
   Gauge,
-  ArrowUpCircle,
-  ArrowDownCircle,
-  RotateCw,
   ChevronRight,
   X,
 } from "lucide-react";
@@ -228,15 +225,6 @@ const ChangePrepaidBundle = () => {
     setPendingPlanPick(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingPlanPick, line, planList]);
-
-  const changeType: "upgrade" | "downgrade" | "renew" | null =
-    !currentPlanObj || !selectedPlanObj
-      ? null
-      : selectedPlanObj.title === currentPlanObj.title
-      ? "renew"
-      : selectedPlanObj.price < currentPlanObj.price
-      ? "downgrade"
-      : "upgrade";
 
   // ---------- Pricing — full plan price + VAT, no deposit/proration ----------
   const planPrice = selectedPlanObj?.price ?? 0;
@@ -498,23 +486,6 @@ const ChangePrepaidBundle = () => {
               searchQuery={planSearch}
             />
 
-            {changeType && (
-              <div className="flex justify-center">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
-                    changeType === "upgrade" && "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
-                    changeType === "downgrade" && "bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300",
-                    changeType === "renew" && "bg-sky-50 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300",
-                  )}
-                >
-                  {changeType === "upgrade" && <ArrowUpCircle className="w-3.5 h-3.5" />}
-                  {changeType === "downgrade" && <ArrowDownCircle className="w-3.5 h-3.5" />}
-                  {changeType === "renew" && <RotateCw className="w-3.5 h-3.5" />}
-                  {t(`changePrepaidBundle.changeType${changeType[0].toUpperCase()}${changeType.slice(1)}`)}
-                </span>
-              </div>
-            )}
           </>
         )}
 

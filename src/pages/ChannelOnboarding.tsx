@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import AppHeader from "@/components/AppHeader";
+import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   ChevronRight,
@@ -68,25 +68,6 @@ const generateNationalAddress = () => {
   const letters = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("");
   const digits = Array.from({ length: 4 }, () => Math.floor(Math.random() * 10)).join("");
   return `${letters}${digits}`;
-};
-
-// A quick squiggle used to pre-fill the Member Signature box for demo purposes.
-const generatePlaceholderSignature = () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 300;
-  canvas.height = 120;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.strokeStyle = "#111827";
-  ctx.lineWidth = 3;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(20, 80);
-  ctx.bezierCurveTo(60, 20, 100, 100, 140, 40);
-  ctx.bezierCurveTo(170, 10, 200, 90, 240, 50);
-  ctx.bezierCurveTo(260, 30, 270, 70, 290, 45);
-  ctx.stroke();
-  return canvas.toDataURL("image/png");
 };
 
 // ---------- Config-driven form model ----------
@@ -296,33 +277,6 @@ const roleAllFields = (role: RoleConfig): FieldDef[] => [
   ...(role.locationFields ?? []),
 ];
 
-const buildDefaultValues = (role: RoleConfig): Record<string, string> => {
-  const result: Record<string, string> = {};
-  roleAllFields(role).forEach((f) => {
-    if (f.demoValue) result[f.key] = f.demoValue;
-  });
-  return result;
-};
-
-const buildDefaultDates = (role: RoleConfig): Record<string, Date | undefined> => {
-  const result: Record<string, Date | undefined> = {};
-  roleAllFields(role).forEach((f) => {
-    if (f.type === "date" && f.demoOffsetDays !== undefined) {
-      result[f.key] = new Date(Date.now() + f.demoOffsetDays * 86400000);
-    }
-  });
-  return result;
-};
-
-const buildDefaultFiles = (role: RoleConfig): Record<string, { title: string }[]> => {
-  const result: Record<string, { title: string }[]> = {};
-  role.documents.forEach((d) => {
-    if (d.signature) return;
-    result[d.key] = d.multi ? [{ title: "File Title" }, { title: "Image Title" }] : [{ title: `${d.label.replace(/\s+/g, "_")}.pdf` }];
-  });
-  return result;
-};
-
 const ChannelOnboarding = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -338,10 +292,8 @@ const ChannelOnboarding = () => {
   const [signature, setSignature] = useState<string | null>(null);
   const [sigOpen, setSigOpen] = useState(false);
 
-  // Email OTP verification: tracks verified emails and the field currently being verified.
+  // Verified emails per field key (the value the OTP sheet last confirmed).
   const [verifiedEmails, setVerifiedEmails] = useState<Record<string, string>>({});
-  const [otpFieldKey, setOtpFieldKey] = useState<string | null>(null);
-  const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""));
 
   const [dateDrawerKey, setDateDrawerKey] = useState<string | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
@@ -349,14 +301,13 @@ const ChannelOnboarding = () => {
 
   const openForm = (role: RoleConfig) => {
     setActiveRole(role);
-    setValues(buildDefaultValues(role));
-    setDates(buildDefaultDates(role));
+    // Only emails are pre-filled (for testing); they still need OTP verification.
+    setValues(Object.fromEntries(roleAllFields(role).filter((f) => f.type === "email" && f.demoValue).map((f) => [f.key, f.demoValue!])));
+    setDates({});
     setErrors({});
-    setFilesByDoc(buildDefaultFiles(role));
-    setSignature(role.documents.some((d) => d.signature) ? generatePlaceholderSignature() : null);
+    setFilesByDoc({});
+    setSignature(null);
     setVerifiedEmails({});
-    setOtpFieldKey(null);
-    setOtpDigits(Array(6).fill(""));
     setView("form");
   };
 
@@ -380,33 +331,6 @@ const ChannelOnboarding = () => {
       return next;
     });
     setErrors((prev) => ({ ...prev, [key]: undefined }));
-    // Editing an already-verified email invalidates its verification.
-    setVerifiedEmails((prev) => (prev[key] && prev[key] !== val ? { ...prev, [key]: undefined as unknown as string } : prev));
-  };
-
-  const openEmailOtp = (fieldKey: string) => {
-    setOtpFieldKey(fieldKey);
-    setOtpDigits(Array(6).fill(""));
-  };
-
-  const setOtpDigit = (i: number, v: string) => {
-    const d = v.replace(/\D/g, "").slice(-1);
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[i] = d;
-      return next;
-    });
-    if (d && i < 5) {
-      (document.getElementById(`co-email-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
-    }
-  };
-
-  const otpComplete = otpDigits.every((d) => d !== "");
-
-  const confirmEmailOtp = () => {
-    if (!otpFieldKey || !otpComplete) return;
-    setVerifiedEmails((prev) => ({ ...prev, [otpFieldKey]: values[otpFieldKey] }));
-    setOtpFieldKey(null);
   };
 
   const handleBlur = (field: FieldDef) => {
@@ -443,7 +367,10 @@ const ChannelOnboarding = () => {
       })
     : false;
   const hasErrors = Object.values(errors).some(Boolean);
-  const canSubmit = requiredFieldsFilled && requiredDocsFilled && !hasErrors;
+  const emailsVerified = allFields.every(
+    (f) => f.type !== "email" || !f.required || isEmailVerified(values[f.key] ?? "", verifiedEmails[f.key] ?? ""),
+  );
+  const canSubmit = requiredFieldsFilled && requiredDocsFilled && emailsVerified && !hasErrors;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -500,37 +427,18 @@ const ChannelOnboarding = () => {
             error={!!errors[field.key]}
           />
         );
-      case "email": {
-        const emailVal = values[field.key] || "";
-        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
-        const verified = !!verifiedEmails[field.key] && verifiedEmails[field.key] === emailVal;
+      case "email":
         return (
-          <div className="flex items-center gap-2">
-            <Input
-              type="email"
-              value={emailVal}
-              onChange={(e) => handleChange(field.key, e.target.value)}
-              onBlur={() => handleBlur(field)}
-              placeholder={field.placeholder}
-              className={cn("h-12 rounded-xl bg-card flex-1", errors[field.key] ? "border-destructive focus-visible:ring-destructive" : "border-input")}
-            />
-            {verified ? (
-              <span className="shrink-0 flex items-center gap-1 px-3 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
-                <Check className="w-3.5 h-3.5" /> {t("channelOnboarding.emailVerified")}
-              </span>
-            ) : (
-              <button
-                type="button"
-                disabled={!emailValid}
-                onClick={() => openEmailOtp(field.key)}
-                className="shrink-0 px-4 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
-              >
-                {t("channelOnboarding.verifyEmail")}
-              </button>
-            )}
-          </div>
+          <EmailVerifyInput
+            value={values[field.key] || ""}
+            onChange={(v) => handleChange(field.key, v)}
+            verifiedEmail={verifiedEmails[field.key] ?? ""}
+            onVerifiedChange={(e) => setVerifiedEmails((prev) => ({ ...prev, [field.key]: e }))}
+            onBlur={() => handleBlur(field)}
+            placeholder={field.placeholder}
+            invalid={!!errors[field.key]}
+          />
         );
-      }
       default:
         return (
           <Input
@@ -677,6 +585,9 @@ const ChannelOnboarding = () => {
 
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="max-w-[390px] mx-auto">
+            {requiredFieldsFilled && !emailsVerified && (
+              <p className="text-xs text-center text-muted-foreground mb-2">{t("emailVerify.mustVerify")}</p>
+            )}
             <Button disabled={!canSubmit} onClick={handleSubmit} className="w-full h-12 rounded-full font-semibold">
               {t("channelOnboarding.submit")}
             </Button>
@@ -740,38 +651,6 @@ const ChannelOnboarding = () => {
         onClose={() => setSigOpen(false)}
         onSave={(dataUrl) => { setSignature(dataUrl); setSigOpen(false); }}
       />
-
-      {/* Email OTP verification */}
-      <Dialog open={!!otpFieldKey} onOpenChange={(o) => !o && setOtpFieldKey(null)}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <h3 className="font-semibold text-foreground text-lg">{t("channelOnboarding.emailOtpTitle")}</h3>
-          <p className="text-sm text-muted-foreground mt-1 mb-5">
-            {t("channelOnboarding.emailOtpSubtitle", { email: otpFieldKey ? values[otpFieldKey] : "" })}
-          </p>
-          <div className="flex gap-3 justify-center" dir="ltr">
-            {otpDigits.map((d, i) => (
-              <input
-                key={i}
-                id={`co-email-otp-${i}`}
-                inputMode="numeric"
-                maxLength={1}
-                value={d}
-                onChange={(e) => setOtpDigit(i, e.target.value)}
-                className="w-11 h-12 rounded-xl border border-border bg-card text-center text-lg font-semibold text-foreground focus:outline-none focus:border-primary"
-              />
-            ))}
-          </div>
-          <div>
-            <Button
-              className="w-full h-12 rounded-full font-semibold mt-5"
-              disabled={!otpComplete}
-              onClick={confirmEmailOtp}
-            >
-              {t("channelOnboarding.verify")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Success */}
       <Drawer open={successOpen} onOpenChange={(o) => { if (!o) { setSuccessOpen(false); closeForm(); } }}>

@@ -267,7 +267,7 @@ const ChangeCustomerOwner = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible && currentIdNumberValid;
   const canContinueDetails = idNumberValid;
-  const canSubmit = customerVerified && otpVerified && !!oldSignature && !!newSignature && termsAccepted;
+  const canSubmit = customerVerified && otpVerified && !!newSignature && termsAccepted;
 
   const resolveSubmit = () => {
     setConfirmOpen(false);
@@ -496,14 +496,6 @@ const ChangeCustomerOwner = () => {
               )}
             </CardSection>
 
-            <SignatureBox
-              title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
-              required
-              tag={t("changeCustomerOwner.stepCurrentOwner", "Current Owner")}
-              value={oldSignature}
-              onEdit={() => setSigEditor("old")}
-              onClear={() => setOldSignature(null)}
-            />
             <SignatureBox
               title={t("changeCustomerOwner.customerSignature", "Customer Signature")}
               required
