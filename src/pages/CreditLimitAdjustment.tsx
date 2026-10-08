@@ -306,9 +306,8 @@ const CreditLimitAdjustment = () => {
 
   // ---------- Gates ----------
   const canContinueAdjust = eligible && delta > 0 && newLimit >= 0;
-  // Only the increase is paid for: the increased amount + 20% VAT on it.
-  const vat = Math.round(delta * 0.2 * 100) / 100;
-  const total = Math.round((delta + vat) * 100) / 100;
+  // Only the increase is paid for, and only the increased amount (no VAT).
+  const total = delta;
   const walletShort = direction === "increase" && total > DEALER_WALLET_BALANCE;
   const canConfirm = otpVerified && !(payMethod === "wallet" && walletShort);
 
@@ -604,7 +603,7 @@ const CreditLimitAdjustment = () => {
               <div className="rounded-2xl border border-sky-200 bg-sky-50 dark:bg-sky-500/10 dark:border-sky-500/20 px-4 py-3 flex items-start gap-3">
                 <HandCoins className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <p className="text-[13px] text-sky-700 dark:text-sky-300 leading-snug">
-                  {t("creditLimitAdjustment.increaseNote", { delta: total.toFixed(2) })}
+                  {t("creditLimitAdjustment.increaseNote", { delta: delta.toFixed(2) })}
                 </p>
               </div>
             ) : (
@@ -635,16 +634,6 @@ const CreditLimitAdjustment = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.increasedAmount")}</span>
                     <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {delta.toFixed(2)}</span>
-                  </div>
-                </div>
-                <div className="border-t border-border/60 space-y-2 py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.subtotal")}</span>
-                    <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {delta.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">{t("creditLimitAdjustment.vat")}</span>
-                    <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {vat.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-border/60 pt-3">
