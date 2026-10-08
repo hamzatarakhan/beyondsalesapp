@@ -636,6 +636,9 @@ const NewActivation3 = () => {
   // standard numbers only, top-up on PAYG only. Everything else matches Virgin.
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
+  // Virgin: 10-digit KIT code. Friendi: 15-digit IMSI.
+  const kitLen = isFriendi ? 15 : 10;
+  const kitKey = isFriendi ? "imsi" : "kit";
 
   const [step, setStep] = useState<0 | 1 | 2>(0);
   // Once the dealer has reached step 1 or 2, going back to step 0 no longer offers an easy
@@ -1115,14 +1118,14 @@ const NewActivation3 = () => {
     setKit(val);
     setKitError(null);
     setKitChecked(false);
-    if (val.length !== 10) return;
+    if (val.length !== kitLen) return;
     setKitChecking(true);
     setTimeout(() => {
       setKitChecking(false);
       const reservedFor = KIT_RESERVED_PLAN[val];
-      if (val === "0000000000") setKitError("registered");
-      else if (val === "1111111111") setKitError("invalid");
-      else if (val === "2222222222") setKitError("used");
+      if (val === "0".repeat(kitLen)) setKitError("registered");
+      else if (val === "1".repeat(kitLen)) setKitError("invalid");
+      else if (val === "2".repeat(kitLen)) setKitError("used");
       // Paid fulfilment's plan is locked (read-only) — the dealer can't act on "change the
       // plan" advice there, so that variant drops the suggestion. Unpaid can still adjust
       // the plan themselves, so it keeps the fuller hint.
@@ -1133,7 +1136,7 @@ const NewActivation3 = () => {
 
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
-    if (/^\d{10}$/.test(kit)) runKitCheck(kit);
+    if (kit.length === kitLen && /^\d+$/.test(kit)) runKitCheck(kit);
   }, []);
 
   // OTP sheet: reset digits/error and start the resend countdown whenever it opens
@@ -1254,7 +1257,7 @@ const NewActivation3 = () => {
   // Switch Postpaid: dealer app credit limit note — 20% of the selected plan's price.
   const switchPostpaidCreditLimit = isPostpaidMobile && selectedPlanObj ? Math.round(selectedPlanObj.price * 0.2 * 100) / 100 : 0;
 
-  const isKitValid = simType === "esim" || /^\d{10}$/.test(kit);
+  const isKitValid = simType === "esim" || (kit.length === kitLen && /^\d+$/.test(kit));
   // Everything below the SIM Type/KIT section stays hidden until the dealer has something
   // to actually build a subscription off of: eSIM needs no KIT at all, P-SIM needs a
   // verified (not just well-formed) code. Continue Activation is exempt regardless of paid
@@ -1292,10 +1295,10 @@ const NewActivation3 = () => {
   const step1Missing = useMemo(() => {
     const missing: string[] = [];
     if (isFulfilment && alreadyPaid) {
-      if (simType === "psim" && !(kitChecked && !kitError)) missing.push(t("activation3.missing.verifiedKit"));
+      if (simType === "psim" && !(kitChecked && !kitError)) missing.push(t(isFriendi ? "activation3.missing.verifiedImsi" : "activation3.missing.verifiedKit"));
       return missing;
     }
-    if (simType === "psim" && (!kitChecked || !!kitError)) missing.push(t("activation3.missing.verifiedKit"));
+    if (simType === "psim" && (!kitChecked || !!kitError)) missing.push(t(isFriendi ? "activation3.missing.verifiedImsi" : "activation3.missing.verifiedKit"));
     if (planMode === "plan" && selectedPlan == null) missing.push(t("activation3.missing.aPlan"));
     if (planMode === "topup" && !topupDenom && !topupManual) missing.push(t("activation3.missing.topupAmount"));
     // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
@@ -1564,14 +1567,14 @@ const NewActivation3 = () => {
                 {simType === "psim" && (
                   <div className="mt-3 space-y-2">
                     <h4 className="text-sm font-semibold text-foreground">
-                      {t("activation3.subscription.kitLabel")} <span className="text-destructive">*</span>
+                      {t(`activation3.subscription.${kitKey}Label`)} <span className="text-destructive">*</span>
                     </h4>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Input
                           value={kit}
-                          onChange={(e) => runKitCheck(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                          placeholder={t("activation3.subscription.kitPlaceholder")}
+                          onChange={(e) => runKitCheck(e.target.value.replace(/\D/g, "").slice(0, kitLen))}
+                          placeholder={t(`activation3.subscription.${kitKey}Placeholder`)}
                           className={cn("h-12 bg-card rounded-xl pr-12",
                             kitError && "border-destructive focus-visible:ring-destructive",
                             kitChecked && !kitError && "border-emerald-500 focus-visible:ring-emerald-500")}
@@ -1582,25 +1585,27 @@ const NewActivation3 = () => {
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </span>
                         ) : (
-                          <button type="button" onClick={() => runKitCheck("1234567890")} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                          <button type="button" onClick={() => runKitCheck("123456789012345".slice(0, kitLen))} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
                             <ScanLine className="w-5 h-5" />
                           </button>
                         )}
                       </div>
                     </div>
                     {kit && !isKitValid && !kitError && (
-                      <p className="text-xs text-destructive">{t("activation3.subscription.kitDigitsError")}</p>
+                      <p className="text-xs text-destructive">{t(`activation3.subscription.${kitKey}DigitsError`)}</p>
                     )}
                     {kitError && (
                       <p className="text-xs text-destructive flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                        {t(`activation.subscription.kitErrors.${kitError}`, "Invalid KIT Code. Please try again.")}
+                        {isFriendi
+                          ? t(`activation3.subscription.imsiErrors.${kitError}`, "Invalid IMSI. Please try again.")
+                          : t(`activation.subscription.kitErrors.${kitError}`, "Invalid KIT Code. Please try again.")}
                       </p>
                     )}
                     {kitChecked && !kitError && !kitChecking && (
                       <p className="text-xs text-emerald-600 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                        {t("activation3.subscription.kitVerified")}
+                        {t(`activation3.subscription.${kitKey}Verified`)}
                       </p>
                     )}
                   </div>
@@ -2282,7 +2287,7 @@ const NewActivation3 = () => {
                 </div>
               </div>
               {showEsim && <SummaryRow label={t("activation3.subscription.simType")} value={simType === "psim" ? t("activation3.subscription.psim") : t("activation3.subscription.esim")} />}
-              {showEsim && simType === "psim" && kit && <SummaryRow label={t("activation3.checkout.simNumber")} value={kit} />}
+              {showEsim && simType === "psim" && kit && <SummaryRow label={isFriendi ? t("activation3.checkout.imsiLabel") : t("activation3.subscription.kitLabel")} value={kit} />}
               {!isFriendi && <SummaryRow label={t("activation3.subscription.lineTypeTitle")} value={lineType === "data" ? t("activation3.subscription.lineData") : t("activation3.subscription.lineMobile")} />}
               <SummaryRow label={t("activation3.subscription.type")} value={payType === "prepaid" ? t("activation3.subscription.prepaid") : payType === "postpaid" ? t("activation3.subscription.postpaid") : t("activation3.subscription.basicPostpaid")} />
               {selectedPlanObj && (() => {

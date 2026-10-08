@@ -3331,6 +3331,7 @@
       "and": "and",
       "qrOrEmail": "QR verification or a valid email",
       "verifiedKit": "a verified KIT Code",
+      "verifiedImsi": "a verified IMSI",
       "aPlan": "a plan",
       "topupAmount": "a top-up amount",
       "topupMin": "a top-up of at least 10 SAR",
@@ -3511,6 +3512,11 @@
       "kitPlaceholder": "KIT Code (10 Digits)",
       "kitVerified": "KIT Code Verified",
       "kitDigitsError": "KIT must be 10 digits",
+      "imsiLabel": "IMSI",
+      "imsiPlaceholder": "IMSI (15 Digits)",
+      "imsiVerified": "IMSI Verified",
+      "imsiDigitsError": "IMSI must be 15 digits",
+      "imsiErrors": { "registered":"This IMSI is already registered to another SIM.", "invalid":"This IMSI is not valid. Please check and try again.", "used":"This IMSI has already been used for a previous activation.", "planMismatch":"This IMSI isn't valid for the plan already selected. Try a different IMSI, or change the plan to match.", "planMismatchLocked":"This IMSI isn't valid for the plan already selected. Try a different IMSI." },
       "kitErrors": {
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
@@ -3738,6 +3744,7 @@
       "mobile": "Mobile",
       "internet": "Internet",
       "simNumber": "SIM Number",
+      "imsiLabel": "IMSI",
       "topupValue": "Top-up Value",
       "device": "Device",
       "confirmPayDesc": "Please confirm the payment has been completed using the selected payment method."
