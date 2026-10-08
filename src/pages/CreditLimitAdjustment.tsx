@@ -85,10 +85,11 @@ const DEMO_CREDIT_CUSTOMERS: DemoCreditCustomer[] = [
   { msisdn: "0501111133", name: "Faisal Al-Harbi", planCategory: "flex", currentLimit: 0 },
 ];
 
-const DELTA_STEP = 25;
-const DELTA_MIN = 25;
+// No zero amount: every picker starts at DELTA_MIN.
+const DELTA_STEP = 10;
+const DELTA_MIN = 10;
 const DELTA_MAX = 200;
-const AMOUNT_PRESETS = [25, 50, 75, 100, 125, 150, 175, 200];
+const AMOUNT_PRESETS = [10, 25, 50, 75, 100, 150, 175, 200];
 // Option 3 (carousel): fixed slot width each amount occupies, incl. the gap to its neighbor —
 // drives both the scroll-snap math and the padding that lets the first/last items center.
 const AMOUNT_ITEM_WIDTH = 84;
@@ -133,7 +134,7 @@ const CreditLimitAdjustment = () => {
 
   // Step 1 — Adjust
   const [direction, setDirection] = useState<"increase" | "decrease">("increase");
-  const [delta, setDelta] = useState(DELTA_STEP);
+  const [delta, setDelta] = useState(DELTA_MIN);
 
   // Step 2 — Checkout
   const [otpOpen, setOtpOpen] = useState(false);
@@ -187,13 +188,13 @@ const CreditLimitAdjustment = () => {
   // the drag; it gets its own reset-on-lookup effect below instead.
   useEffect(() => {
     if (amountMode === "unified") return;
-    setDelta(DELTA_STEP);
+    setDelta(DELTA_MIN);
   }, [direction, customer, amountMode]);
 
-  // Option 5 only: re-center the slider to zero whenever a new customer is looked up.
+  // Option 5 only: reset the strip to the minimum amount whenever a new customer is looked up.
   useEffect(() => {
     if (amountMode !== "unified") return;
-    setDelta(0);
+    setDelta(DELTA_MIN);
     setDirection("increase");
   }, [customer, amountMode]);
 
@@ -203,10 +204,10 @@ const CreditLimitAdjustment = () => {
     for (let v = DELTA_MIN; v <= deltaMax; v += DELTA_STEP) vals.push(v);
     return vals;
   }, [deltaMax]);
-  // ---------- Option 5: same strip, increase-only, starting from "no change" ----------
+  // ---------- Option 5: same strip, increase-only, starting from the minimum amount ----------
   const unifiedValues = useMemo(() => {
     const vals: number[] = [];
-    for (let v = 0; v <= DELTA_MAX; v += DELTA_STEP) vals.push(v);
+    for (let v = DELTA_MIN; v <= DELTA_MAX; v += DELTA_STEP) vals.push(v);
     return vals;
   }, []);
   const stripValues = amountMode === "unified" ? unifiedValues : carouselValues;
@@ -328,7 +329,7 @@ const CreditLimitAdjustment = () => {
     setCustomer(null);
     setLookupError(null);
     setDirection("increase");
-    setDelta(DELTA_STEP);
+    setDelta(DELTA_MIN);
     setOtpVerified(false);
     setPayMethod("wallet");
   };
@@ -557,7 +558,7 @@ const CreditLimitAdjustment = () => {
                       const dist = Math.abs(i * AMOUNT_SLOT - carouselScroll) / AMOUNT_SLOT;
                       const isCenter = dist < 0.5;
                       const opacity = Math.max(0.3, 1 - dist * 0.45);
-                      const tone = v === 0 ? "text-foreground" : "value-positive";
+                      const tone = "value-positive";
                       return (
                         <div
                           key={v}
@@ -569,7 +570,7 @@ const CreditLimitAdjustment = () => {
                               "font-bold whitespace-nowrap transition-all flex items-center gap-0.5",
                               isCenter ? cn("text-2xl", tone) : "text-lg text-muted-foreground"
                             )}>
-                              {v !== 0 && "+"}<RiyalSymbol className={isCenter ? undefined : "text-muted-foreground"} /> {v.toFixed(0)}
+                              +<RiyalSymbol className={isCenter ? undefined : "text-muted-foreground"} /> {v.toFixed(0)}
                             </span>
                           </span>
                           <span className={cn("w-6 h-0.5 rounded-full", isCenter ? "bg-primary" : "bg-transparent")} />
@@ -684,9 +685,16 @@ const CreditLimitAdjustment = () => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="max-w-[390px] mx-auto">
           {step === 0 && (
+            <>
+              <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">
+                <Wallet className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-[12px] text-muted-foreground">{t("creditLimitAdjustment.walletBalanceLabel")}</span>
+                <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
+              </div>
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinueAdjust} onClick={() => setStep(1)}>
               {t("creditLimitAdjustment.continue")}
             </Button>
+            </>
           )}
           {step === 1 && (
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>

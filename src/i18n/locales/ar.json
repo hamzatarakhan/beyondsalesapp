@@ -774,6 +774,7 @@
     "payAmountSar": "دفع {{amount}} ريال",
     "confirmAdjustment": "تأكيد التعديل",
     "adjustmentSummary": "ملخص التعديل",
+    "walletBalanceLabel": "رصيد محفظة الموزّع",
     "paymentSummary": "ملخص الدفع",
     "increasedAmount": "مبلغ الزيادة",
     "subtotal": "المجموع الفرعي",

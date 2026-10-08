@@ -758,6 +758,7 @@
     "payAmountSar": "Pay {{amount}} SAR",
     "confirmAdjustment": "Confirm Adjustment",
     "adjustmentSummary": "Adjustment Summary",
+    "walletBalanceLabel": "Dealer Wallet Balance",
     "paymentSummary": "Payment Summary",
     "increasedAmount": "Increased Amount",
     "subtotal": "Subtotal",
