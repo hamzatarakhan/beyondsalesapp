@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -1298,12 +1299,9 @@ const SubscriptionMigration = () => {
                   <SelectValue placeholder={t("subscriptionMigration.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("subscriptionMigration.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("subscriptionMigration.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="not-eligible">{t("subscriptionMigration.cancelSheet.reasons.notEligible")}</SelectItem>
-                  <SelectItem value="system-issue">{t("subscriptionMigration.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="wrong-plan-selected">{t("subscriptionMigration.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
-                  <SelectItem value="other">{t("subscriptionMigration.cancelSheet.reasons.other")}</SelectItem>
+                  {CANCEL_REASONS.migration.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

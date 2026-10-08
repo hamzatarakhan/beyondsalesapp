@@ -1,4 +1,27 @@
 {
+  "cancelReasons": {
+    "customerNotEligible": "Customer not eligible",
+    "paymentIssue": "Payment issue",
+    "simNumberIssue": "SIM/number issue",
+    "systemError": "System error",
+    "customerRequestedCancellation": "Customer requested cancellation",
+    "wrongPlanPackageSelected": "Wrong plan/package selected",
+    "customerFailedVerification": "Customer failed verification",
+    "portInMnpRejected": "Port-in/MNP rejected",
+    "simSerialIssue": "SIM Serial Issue",
+    "activationCompletedIncorrectly": "Activation completed incorrectly",
+    "otherTechnicalIssue": "Other / Technical issue",
+    "customerChangedMind": "Customer changed their mind",
+    "customerSelectedDifferentPlan": "Customer selected a different plan",
+    "requiredDocsUnavailable": "Required documents/details unavailable",
+    "customerWantsToCompleteLater": "Customer wants to complete later",
+    "technicalSystemIssue": "Technical/System issue",
+    "other": "Other",
+    "requiredDetailsUnavailable": "Required details unavailable",
+    "insufficientFunds": "Insufficient funds",
+    "incorrectCustomerBillDetails": "Incorrect customer/bill details",
+    "customerWantsToPayLater": "Customer wants to pay later"
+  },
   "emailVerify": {
     "title": "Verify Email",
     "subtitle": "Enter the 6-digit code sent to {{email}}",

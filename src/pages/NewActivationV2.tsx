@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
@@ -3041,12 +3042,9 @@ const NewActivationV2 = () => {
                   <SelectValue placeholder={t("activationV2.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("activationV2.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("activationV2.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="price-too-high">{t("activationV2.cancelSheet.reasons.priceTooHigh")}</SelectItem>
-                  <SelectItem value="system-issue">{t("activationV2.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="wrong-plan-selected">{t("activationV2.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
-                  <SelectItem value="other">{t("activationV2.cancelSheet.reasons.other")}</SelectItem>
+                  {CANCEL_REASONS.simActivation.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

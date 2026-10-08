@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isValidEmail, isEmailVerified } from "@/components/EmailVerifyInput";
@@ -808,11 +809,9 @@ const ActivateVanityNumber = () => {
                   <SelectValue placeholder={t("activateVanityNumber.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("activateVanityNumber.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("activateVanityNumber.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="kit-not-available">{t("activateVanityNumber.cancelSheet.reasons.kitNotAvailable")}</SelectItem>
-                  <SelectItem value="system-issue">{t("activateVanityNumber.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="other">{t("activateVanityNumber.cancelSheet.reasons.other")}</SelectItem>
+                  {CANCEL_REASONS.vanity.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

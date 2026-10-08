@@ -1,4 +1,27 @@
 {
+  "cancelReasons": {
+    "customerNotEligible": "العميل غير مؤهل",
+    "paymentIssue": "مشكلة في الدفع",
+    "simNumberIssue": "مشكلة في الشريحة/الرقم",
+    "systemError": "خطأ في النظام",
+    "customerRequestedCancellation": "العميل طلب الإلغاء",
+    "wrongPlanPackageSelected": "تم اختيار باقة/خطة خاطئة",
+    "customerFailedVerification": "فشل العميل في التحقق",
+    "portInMnpRejected": "تم رفض النقل (MNP)",
+    "simSerialIssue": "مشكلة في الرقم التسلسلي للشريحة",
+    "activationCompletedIncorrectly": "تم التفعيل بشكل غير صحيح",
+    "otherTechnicalIssue": "أخرى / مشكلة تقنية",
+    "customerChangedMind": "غيّر العميل رأيه",
+    "customerSelectedDifferentPlan": "اختار العميل باقة مختلفة",
+    "requiredDocsUnavailable": "المستندات/البيانات المطلوبة غير متوفرة",
+    "customerWantsToCompleteLater": "العميل يرغب في الإكمال لاحقًا",
+    "technicalSystemIssue": "مشكلة تقنية/في النظام",
+    "other": "أخرى",
+    "requiredDetailsUnavailable": "البيانات المطلوبة غير متوفرة",
+    "insufficientFunds": "رصيد غير كافٍ",
+    "incorrectCustomerBillDetails": "بيانات العميل/الفاتورة غير صحيحة",
+    "customerWantsToPayLater": "العميل يرغب في الدفع لاحقًا"
+  },
   "emailVerify": {
     "title": "التحقق من البريد الإلكتروني",
     "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
@@ -952,6 +953,8 @@ const NewActivation3 = () => {
     if (isMnpIneligiblePlan && subType === "mnp") setSubType("sim");
   }, [isMnpIneligiblePlan, subType]);
 
+  const [pendingPick, setPendingPick] = useState<{ payType: PayType; lineType: LineType; chip: string; title: string; esim: boolean } | null>(null);
+
   // Picking up a selection made on the "View all plans" page: it navigates back here with
   // the chosen catalogue (payType/lineType/chip) and plan title in navigation state, since
   // that's a separate route/page rather than a modal. Apply it once, then clear the state so
@@ -968,19 +971,30 @@ const NewActivation3 = () => {
       setNationality(state.resume.nationality);
       setIdNumber(state.resume.idNumber);
       setSimType(state.resume.simType);
-      setKit(state.resume.kit);
+      // Re-verify (not just restore) the KIT/IMSI — the mount-time auto-verify ran while it was
+      // still empty, so without this the sections gated on kitVerified stay hidden.
+      runKitCheck(state.resume.kit);
     }
     setPayType(pick.payType);
     setLineType(pick.lineType);
     setPlanTypeChip(pick.chip);
-    const list = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(pick.payType, pick.chip, { esim: state?.resume?.simType === "esim", fulfilment: isFulfilment });
-    const idx = list.findIndex((p) => p.title === pick.title);
-    setSelectedPlan(idx >= 0 ? idx : null);
+    // The plan itself is applied by the effect below, once payType/lineType have settled —
+    // changing them triggers the "reset plan selection" effect above, which would otherwise
+    // wipe a selection made in this same batch.
+    setPendingPick({ ...pick, esim: state?.resume?.simType === "esim" });
     setPlanMode("plan");
     setStep(1);
     navigate(location.pathname + location.search, { replace: true, state: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
+
+  useEffect(() => {
+    if (!pendingPick || payType !== pendingPick.payType || lineType !== pendingPick.lineType) return;
+    const list = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(pendingPick.payType, pendingPick.chip, { esim: pendingPick.esim, fulfilment: isFulfilment });
+    const idx = list.findIndex((p) => p.title === pendingPick.title);
+    setSelectedPlan(idx >= 0 ? idx : null);
+    setPendingPick(null);
+  }, [pendingPick, payType, lineType]);
 
   // ID Number validation per the selected ID Type's rule (start digit(s) + exact length).
   const idNumberRule = ID_TYPE_RULES[idType];
@@ -3350,12 +3364,9 @@ const NewActivation3 = () => {
                   <SelectValue placeholder={t("activation3.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("activation3.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("activation3.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="price-too-high">{t("activation3.cancelSheet.reasons.priceTooHigh")}</SelectItem>
-                  <SelectItem value="system-issue">{t("activation3.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="wrong-plan-selected">{t("activation3.cancelSheet.reasons.wrongPlanSelected")}</SelectItem>
-                  <SelectItem value="other">{t("activation3.cancelSheet.reasons.other")}</SelectItem>
+                  {CANCEL_REASONS.simActivation.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

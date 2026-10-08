@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -664,12 +665,9 @@ const ChangePrepaidBundle = () => {
                   <SelectValue placeholder={t("changePrepaidBundle.cancelSheet.selectReason")} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">{t("changePrepaidBundle.cancelSheet.reasons.customerChangedMind")}</SelectItem>
-                  <SelectItem value="missing-documents">{t("changePrepaidBundle.cancelSheet.reasons.missingDocuments")}</SelectItem>
-                  <SelectItem value="price-too-high">{t("changePrepaidBundle.cancelSheet.reasons.priceTooHigh")}</SelectItem>
-                  <SelectItem value="system-issue">{t("changePrepaidBundle.cancelSheet.reasons.systemIssue")}</SelectItem>
-                  <SelectItem value="wrong-bundle-selected">{t("changePrepaidBundle.cancelSheet.reasons.wrongBundleSelected")}</SelectItem>
-                  <SelectItem value="other">{t("changePrepaidBundle.cancelSheet.reasons.other")}</SelectItem>
+                  {CANCEL_REASONS.changePlan.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

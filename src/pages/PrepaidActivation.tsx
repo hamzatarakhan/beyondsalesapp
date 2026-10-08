@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import EmailVerifyInput, { isValidEmail, isEmailVerified } from "@/components/EmailVerifyInput";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -483,6 +485,7 @@ const plans: Plan[] = [
 ];
 
 const PrepaidActivation = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const prefill = (location.state as any)?.prefill;
@@ -1662,12 +1665,9 @@ const PrepaidActivation = () => {
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border/60 rounded-xl">
-                  <SelectItem value="customer-changed-mind">Customer changed mind</SelectItem>
-                  <SelectItem value="missing-documents">Missing documents</SelectItem>
-                  <SelectItem value="price-too-high">Price too high</SelectItem>
-                  <SelectItem value="system-issue">System issue</SelectItem>
-                  <SelectItem value="wrong-plan-selected">Wrong plan selected</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {CANCEL_REASONS.simActivation.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{t(`cancelReasons.${r.labelKey}`)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
