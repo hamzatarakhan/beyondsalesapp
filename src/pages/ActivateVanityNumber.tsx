@@ -64,6 +64,18 @@ const SummaryRow = ({ label, value }: { label: string; value: React.ReactNode })
   </div>
 );
 
+const PaymentStatusChip = ({ status }: { status: "paid" | "unpaid" }) => {
+  const { t } = useTranslation();
+  return (
+    <span className={cn(
+      "inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold",
+      status === "paid" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+    )}>
+      {t(status === "paid" ? "activateVanityNumber.paid" : "activateVanityNumber.unpaid")}
+    </span>
+  );
+};
+
 // Vertical icon-over-label tile — SimCard's horizontal layout is built for two wide
 // cards side by side; a third one here would cramp a longer label like "Recharge Card".
 const OptionTile = ({
@@ -127,8 +139,10 @@ interface DemoKit {
   subscriptionType?: string;
 }
 const DEMO_KITS: DemoKit[] = [
-  { code: "1234567890", status: "unused", msisdn: "5512345678", paymentStatus: "unpaid", price: "0.00", subscriptionType: "Digital Prepaid" },
-  { code: "2234567890", status: "unused", msisdn: "5587654321", paymentStatus: "paid", price: "150.00", subscriptionType: "Digital Prepaid" },
+  // Disconnected number the customer comes in to recharge — number price still owed (unpaid)…
+  { code: "1234567890", status: "unused", msisdn: "0501111122", paymentStatus: "unpaid", price: "150.00", subscriptionType: "Digital Prepaid" },
+  // …or already settled (paid).
+  { code: "2234567890", status: "unused", msisdn: "0501111133", paymentStatus: "paid", price: "150.00", subscriptionType: "Digital Prepaid" },
   { code: "9999999990", status: "used" },
 ];
 
@@ -137,16 +151,21 @@ const DEMO_KITS: DemoKit[] = [
 const DEMO_ID_SUFFIX = "029384756";
 const demoIdFor = (rule: IdTypeRule | undefined) => (rule?.startDigits?.[0] ?? "1") + DEMO_ID_SUFFIX;
 
-// ponytail: the client ticket says the Booking Code "Should be XX Digits" without naming
-// the actual count — defaulting to 6 so the field can be format-validated; change this
-// constant once the real length is confirmed.
-const BOOKING_CODE_LENGTH = 6;
+// Booking Code is exactly 10 digits.
+const BOOKING_CODE_LENGTH = 10;
+// Prefilled (valid) so the demo flow doesn't need it typed every time.
+const DEMO_BOOKING_CODE = "1234567890";
 
 // Values pending Waley — placeholder list so the dropdown isn't empty until the real
 // subscription types are shared.
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
 
 const SUBSCRIPTION_TYPES = ["Digital Prepaid"];
+
+// Prototype-only: amount carried by a recharge card code (anything else falls back to the default).
+const DEMO_RECHARGE_CARD_CODE = "8579645871";
+const DEMO_RECHARGE_CARD_AMOUNTS: Record<string, number> = { [DEMO_RECHARGE_CARD_CODE]: 150 };
+const DEFAULT_RECHARGE_CARD_AMOUNT = 100;
 
 // Same preset amounts as the Top Up flow.
 const TOPUP_PRESETS = [10, 15, 20, 30, 50, 100];
@@ -174,7 +193,7 @@ const ActivateVanityNumber = () => {
   const [nationalityPickerOpen, setNationalityPickerOpen] = useState(false);
   const [nationalitySearch, setNationalitySearch] = useState("");
   const [idNumber, setIdNumber] = useState(demoIdFor(ID_TYPE_RULES["saudi-id"]));
-  const [bookingCode, setBookingCode] = useState("");
+  const [bookingCode, setBookingCode] = useState(DEMO_BOOKING_CODE);
 
   // Step 1 — Details
   const [msisdn, setMsisdn] = useState("");
@@ -258,6 +277,7 @@ const ActivateVanityNumber = () => {
     showOption === "none" ||
     (showOption === "topup" && topupAmount != null) ||
     (showOption === "recharge-card" && rechargeCardCode.trim().length > 0);
+  const rechargeCardAmount = DEMO_RECHARGE_CARD_AMOUNTS[rechargeCardCode] ?? DEFAULT_RECHARGE_CARD_AMOUNT;
   const canContinueDetails = msisdnValid && priceValid && showOptionValid;
 
   // Optional, but once an email is entered it must be a valid, OTP-verified one.
@@ -327,7 +347,7 @@ const ActivateVanityNumber = () => {
     setIdType("saudi-id");
     setNationality("sa");
     setIdNumber(demoIdFor(ID_TYPE_RULES["saudi-id"]));
-    setBookingCode("");
+    setBookingCode(DEMO_BOOKING_CODE);
     setMsisdn("");
     setPaymentStatus("unpaid");
     setPrice("");
@@ -399,7 +419,8 @@ const ActivateVanityNumber = () => {
               heading={t("activateVanityNumber.testKitsHeading")}
               description={t("activateVanityNumber.testDescription")}
               items={[
-                { value: "1234567890", note: t("activateVanityNumber.testNoteUnused") },
+                { value: "1234567890", note: t("activateVanityNumber.testNoteUnpaid") },
+                { value: "2234567890", note: t("activateVanityNumber.testNotePaid") },
                 { value: "9999999990", note: t("activateVanityNumber.testNoteUsed") },
                 { value: "0000000000", note: t("activateVanityNumber.testNoteNotFound") },
               ]}
@@ -473,6 +494,8 @@ const ActivateVanityNumber = () => {
             <CardSection title={t("activateVanityNumber.stepDetails", "Details")} icon={FileText}>
               <SummaryRow label={t("activateVanityNumber.msisdn")} value={<span dir="ltr">+966 {msisdn}</span>} />
               <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
+              <SummaryRow label={t("activateVanityNumber.paymentStatus")} value={<PaymentStatusChip status={paymentStatus} />} />
+              <SummaryRow label={t("activateVanityNumber.numberPrice")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
             </CardSection>
 
             <section className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
@@ -521,13 +544,18 @@ const ActivateVanityNumber = () => {
               {showOption === "recharge-card" && (
                 <div className="bg-card rounded-2xl p-4 shadow-sm">
                   <Field label={t("activateVanityNumber.rechargeCardCode")}>
-                    <Input
-                      value={rechargeCardCode}
-                      onChange={(e) => setRechargeCardCode(e.target.value.replace(/\D/g, "").slice(0, 16))}
-                      placeholder={t("activateVanityNumber.rechargeCardCodePlaceholder")}
-                      inputMode="numeric"
-                      className="h-12 bg-background rounded-xl"
-                    />
+                    <div className="relative">
+                      <Input
+                        value={rechargeCardCode}
+                        onChange={(e) => setRechargeCardCode(e.target.value.replace(/\D/g, "").slice(0, 16))}
+                        placeholder={t("activateVanityNumber.rechargeCardCodePlaceholder")}
+                        inputMode="numeric"
+                        className="h-12 bg-background rounded-xl pe-10"
+                      />
+                      <button type="button" onClick={() => setRechargeCardCode(DEMO_RECHARGE_CARD_CODE)} className="absolute end-3 top-1/2 -translate-y-1/2 text-primary" aria-label={t("activateVanityNumber.scanRechargeCardAria")}>
+                        <ScanLine className="w-5 h-5" />
+                      </button>
+                    </div>
                     <p className="text-[11px] text-muted-foreground">{t("activateVanityNumber.rechargeCardCodeHint")}</p>
                   </Field>
                 </div>
@@ -545,10 +573,18 @@ const ActivateVanityNumber = () => {
           <>
             <CardSection title={t("activateVanityNumber.summary")} icon={ClipboardList}>
               <SummaryRow label={t("activateVanityNumber.kitCode")} value={kit} />
-              <SummaryRow label={t("activateVanityNumber.bookingCode")} value={bookingCode} />
-              <SummaryRow label={t("activateVanityNumber.msisdn")} value={msisdn} />
+              <SummaryRow label={t("activateVanityNumber.msisdn")} value={<span dir="ltr">+966 {msisdn}</span>} />
               <SummaryRow label={t("activateVanityNumber.subscriptionType")} value={subscriptionType} />
-              <SummaryRow label={t("activateVanityNumber.price")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
+              <SummaryRow label={t("activateVanityNumber.paymentStatus")} value={<PaymentStatusChip status={paymentStatus} />} />
+              <SummaryRow label={t("activateVanityNumber.numberPrice")} value={<><RiyalSymbol /> {Number(price || 0).toFixed(2)}</>} />
+              <SummaryRow label={t("activateVanityNumber.primaryNumber")} value={isPrimary ? t("activateVanityNumber.yes") : t("activateVanityNumber.no")} />
+              <SummaryRow label={t("activateVanityNumber.showOption")} value={showOption === "topup" ? t("activateVanityNumber.topUp") : showOption === "recharge-card" ? t("activateVanityNumber.rechargeCard") : t("activateVanityNumber.none")} />
+              {showOption === "topup" && topupAmount != null && (
+                <SummaryRow label={t("activateVanityNumber.topUpAmount")} value={<><RiyalSymbol /> {topupAmount.toFixed(2)}</>} />
+              )}
+              {showOption === "recharge-card" && (
+                <SummaryRow label={t("activateVanityNumber.rechargeCardAmount")} value={<><RiyalSymbol /> {rechargeCardAmount.toFixed(2)}</>} />
+              )}
             </CardSection>
 
             {/* Contact Information — same boxed Contact Number + Email pairing as Raise
