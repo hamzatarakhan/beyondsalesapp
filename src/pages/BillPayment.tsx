@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -208,8 +208,6 @@ const DEMO_ACCOUNTS: BillAccount[] = [
 const DEMO_PREPAID_MSISDNS = ["0501111133", "0501111155"];
 
 const MIN_PAY = 10;
-/** Ceiling for a single-account payment. Multi-account rows cap at their own bill amount instead. */
-const MSISDN_MAX_PAY = 2500;
 
 const money = (n: number) => n.toFixed(2);
 
@@ -225,6 +223,10 @@ const BillPayment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  // Option 2 (?option=2): one Bill Breakdown per account covering all its invoices, instead of
+  // a separate breakdown under every invoice (option 1).
+  const [searchParams] = useSearchParams();
+  const breakdownPerAccount = searchParams.get("option") === "2";
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
   // Opened from a notification's deep link → backing out of the whole flow (step 0) returns
   // to Notifications instead of Home.
@@ -284,6 +286,8 @@ const BillPayment = () => {
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
+  // Option 2: the per-MSISDN breakdown starts open; this tracks the ones a dealer collapsed.
+  const [collapsedBreakdowns, setCollapsedBreakdowns] = useState<Set<string>>(new Set());
   // Account cards are only collapsible once there are more than 2 — otherwise always expanded.
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
 
@@ -319,6 +323,7 @@ const BillPayment = () => {
     setAmounts({});
     setSelected({});
     setExpandedBill(null);
+    setCollapsedBreakdowns(new Set());
     setExpandedAccounts(new Set());
   };
 
@@ -389,8 +394,9 @@ const BillPayment = () => {
   const totalBillsCount = (accounts ?? []).reduce((sum, a) => sum + a.bills.length, 0);
   const grandTotalDue = (accounts ?? []).reduce((sum, a) => sum + totalDueOf(a), 0);
 
-  /** Single account (either entry path) uses the flat 2500 ceiling; multi-account rows cap per bill. */
-  const maxFor = (a: BillAccount) => (isMulti ? totalDueOf(a) : MSISDN_MAX_PAY);
+  /** Pay between MIN_PAY and the account's total amount due (min drops to the total if it is smaller than MIN_PAY). */
+  const maxFor = (a: BillAccount) => totalDueOf(a);
+  const minFor = (a: BillAccount) => Math.min(MIN_PAY, totalDueOf(a));
 
   const amountErrorFor = (a: BillAccount): string | null => {
     // Nothing owed (fully paid, or paid with a leftover advance balance) — trivially valid,
@@ -400,7 +406,7 @@ const BillPayment = () => {
     if (raw.trim() === "") return t("billPayment.amountErrorEmpty");
     const n = Number(raw);
     if (!Number.isFinite(n)) return t("billPayment.amountErrorInvalid");
-    if (n < MIN_PAY) return t("billPayment.amountErrorMin", { min: MIN_PAY });
+    if (n < minFor(a)) return t("billPayment.amountErrorMin", { min: money(minFor(a)) });
     const max = maxFor(a);
     if (n > max) return t("billPayment.amountErrorMax", { max: money(max) });
     return null;
@@ -531,6 +537,7 @@ const BillPayment = () => {
             <RiyalSymbol /> {money(total)}
           </p>
         </div>
+        {!breakdownPerAccount && (
         <button
           type="button"
           onClick={() => setExpandedBill(open ? null : bill.number)}
@@ -539,11 +546,47 @@ const BillPayment = () => {
           {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
           {t("billPayment.billBreakdown")}
         </button>
-        {open && (
+        )}
+        {!breakdownPerAccount && open && (
           <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
             <SummaryRow label={t("billPayment.currentBalance")} value={<><RiyalSymbol /> {money(bill.currentBalance)}</>} />
             <SummaryRow label={t("billPayment.unbilledAmount")} value={<><RiyalSymbol /> {money(bill.unbilled)}</>} />
             <SummaryRow label={t("billPayment.outOfBundleUsage")} value={<><RiyalSymbol /> {money(bill.outOfBundle)}</>} />
+            <SummaryRow
+              label={t("billPayment.totalVatIncl")}
+              value={
+                <div className="text-end">
+                  <div><RiyalSymbol /> {money(total)}</div>
+                  {total === 0 && <div className="text-[10px] font-normal text-muted-foreground">({t("billPayment.noPaymentRequired")})</div>}
+                </div>
+              }
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Option 2: one breakdown of all the invoices on this MSISDN, shown above them and open by default.
+  const renderAccountBreakdown = (a: BillAccount) => {
+    const open = !collapsedBreakdowns.has(a.msisdn);
+    const sum = (pick: (b: Bill) => number) => Math.round(a.bills.reduce((n, b) => n + pick(b), 0) * 100) / 100;
+    const total = totalDueOf(a);
+    return (
+      <div className="rounded-xl border border-border/60 bg-card p-3">
+        <button
+          type="button"
+          onClick={() => setCollapsedBreakdowns((prev) => { const next = new Set(prev); if (open) next.add(a.msisdn); else next.delete(a.msisdn); return next; })}
+          className="flex items-center gap-1 text-[11px] font-semibold text-primary"
+        >
+          {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
+          {t("billPayment.msisdnBreakdown")}
+        </button>
+        {open && (
+          <div className="mt-2 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-1 duration-200">
+            <SummaryRow label={t("billPayment.currentBalance")} value={<><RiyalSymbol /> {money(sum((b) => b.currentBalance))}</>} />
+            <SummaryRow label={t("billPayment.unbilledAmount")} value={<><RiyalSymbol /> {money(sum((b) => b.unbilled))}</>} />
+            <SummaryRow label={t("billPayment.outOfBundleUsage")} value={<><RiyalSymbol /> {money(sum((b) => b.outOfBundle))}</>} />
             <SummaryRow
               label={t("billPayment.totalVatIncl")}
               value={
@@ -566,9 +609,6 @@ const BillPayment = () => {
     }
     const err = amountErrorFor(a);
     const raw = amounts[a.msisdn] ?? "";
-    const due = totalDueOf(a);
-    const n = Number(raw);
-    const diff = Number.isFinite(n) && raw.trim() !== "" ? n - due : 0;
     return (
       <div className="space-y-1.5">
         <Field label={t("billPayment.amountToPay")}>
@@ -588,21 +628,10 @@ const BillPayment = () => {
             </span>
           </div>
         </Field>
-        {err ? (
-          <p className="text-[11px] text-destructive">{err}</p>
-        ) : diff < 0 ? (
-          <p className="text-[11px] text-amber-600 dark:text-amber-400">
-            {t("billPayment.partialPaymentNote", { amount: money(-diff) })}
-          </p>
-        ) : diff > 0 ? (
-          <p className="text-[11px] text-sky-600 dark:text-sky-400">
-            {t("billPayment.abovePaymentNote", { amount: money(diff) })}
-          </p>
-        ) : (
-          <p className="text-[11px] text-muted-foreground">
-            {t("billPayment.fullAmountNote", { min: MIN_PAY, max: money(maxFor(a)) })}
-          </p>
-        )}
+        {/* Fixed range hint — never changes with the entered amount, default colour always. */}
+        <p className="text-[11px] text-muted-foreground">
+          {t("billPayment.amountRangeHint", { min: money(minFor(a)), max: money(maxFor(a)) })}
+        </p>
       </div>
     );
   };
@@ -771,7 +800,7 @@ const BillPayment = () => {
                       treatment instead of a second border layer. */}
                   <div className={cn(
                     "rounded-xl p-3 space-y-3 transition-colors",
-                    isMulti && isOn ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-card border-[0.5px] border-border/60",
+                    isMulti && isOn ? "border-[0.5px] bg-primary/5 border-primary/15" : "bg-card border-[0.5px] border-border/60",
                   )}>
                     <div
                       className="flex items-center gap-3 cursor-pointer"
@@ -825,7 +854,10 @@ const BillPayment = () => {
                         several" — a single-account lookup has no such choice being made,
                         so it stays soft grey like an unselected multi-account one would. */}
                     {isExpanded && (
-                      <div className="space-y-2">{a.bills.map((b) => renderBill(b, !(isMulti && isOn)))}</div>
+                      <div className="space-y-2">
+                        {breakdownPerAccount && renderAccountBreakdown(a)}
+                        {a.bills.map((b) => renderBill(b, !(isMulti && isOn)))}
+                      </div>
                     )}
 
                     {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}

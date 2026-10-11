@@ -485,6 +485,7 @@
     "outstandingBill": "فاتورة مستحقة",
     "totalDue": "إجمالي المستحق",
     "billBreakdown": "تفاصيل الفاتورة",
+    "msisdnBreakdown": "تفاصيل الفواتير",
     "currentBalance": "الرصيد الحالي (شامل الضريبة)",
     "unbilledAmount": "المبلغ غير المفوتر (شامل الضريبة)",
     "outOfBundleUsage": "استخدام خارج الباقة (شامل الضريبة)",
@@ -493,6 +494,7 @@
     "amountToPay": "المبلغ المراد دفعه",
     "partialPaymentNote": "دفعة جزئية — سيتم ترحيل المبلغ المتبقي {{amount}} ريال إلى دورة الفاتورة التالية.",
     "abovePaymentNote": "{{amount}} ريال أعلى من المبلغ المستحق — سيتم تعديل الفاتورة التالية بالفرق.",
+    "amountRangeHint": "الحد الأدنى {{min}} ريال · الحد الأقصى {{max}} ريال (إجمالي المبلغ المستحق)",
     "fullAmountNote": "المبلغ المستحق بالكامل. الحد الأدنى {{min}} ريال، والحد الأقصى {{max}} ريال.",
     "paymentSummary": "ملخص الدفع",
     "total": "الإجمالي",
@@ -2022,6 +2024,7 @@
       "title": "خيارات أخرى"
     },
     "billPayment": "دفع الفاتورة",
+    "billPaymentOption2": "دفع الفاتورة (الخيار 2)",
     "customerSearch": "البحث عن عميل",
     "simStatusCheck": "التحقق من حالة الشريحة",
     "changePrepaidBundle": "تغيير باقة الدفع المسبق",

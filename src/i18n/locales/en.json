@@ -482,6 +482,7 @@
     "outstandingBill": "Outstanding Bill",
     "totalDue": "Total Due",
     "billBreakdown": "Bill breakdown",
+    "msisdnBreakdown": "Bills Breakdown",
     "currentBalance": "Current Balance (VAT Inc.)",
     "unbilledAmount": "Unbilled Amount (VAT Inc.)",
     "outOfBundleUsage": "Out of Bundle (VAT Inc.)",
@@ -490,6 +491,7 @@
     "amountToPay": "Amount to Pay",
     "partialPaymentNote": "Partial payment — the remaining {{amount}} SAR moves to the next bill cycle.",
     "abovePaymentNote": "{{amount}} SAR above the due amount — the extra adjusts the next bill.",
+    "amountRangeHint": "Min {{min}} SAR · Max {{max}} SAR (total amount due)",
     "fullAmountNote": "Full amount due. Min {{min}} SAR, max {{max}} SAR.",
     "paymentSummary": "Payment Summary",
     "total": "Total",
@@ -2096,6 +2098,7 @@
       "title": "Other Options"
     },
     "billPayment": "Bill Payment",
+    "billPaymentOption2": "Bill Payment (Option 2)",
     "customerSearch": "Customer Search",
     "activateVanityNumber": "Activate Vanity Number",
     "simStatusCheck": "SIM Status Check",
