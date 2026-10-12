@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
-import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
@@ -160,20 +159,6 @@ const SalesOrdersMultiSelectLocation = () => {
           );
         })}
 
-        <div className="bg-card rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.untaxedAmount")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.untaxed.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.tax")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.tax.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs font-bold text-primary">{t("purchaseOrders.total")}</span>
-            <span className="text-xs font-bold text-primary"><RiyalSymbol /> {order.total.toFixed(2)}</span>
-          </div>
-        </div>
       </div>
 
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
