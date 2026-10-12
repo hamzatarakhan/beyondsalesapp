@@ -1422,6 +1422,9 @@
       "eSim": "E-SIM",
       "pSim": "P-SIM",
       "router": "Router"
+    ,
+      "fingerprint": "Fingerprint Device",
+      "mbb": "MBB Device"
     },
     "createOrderTitle": "Create Request",
     "editOrderTitle": "Edit Request",

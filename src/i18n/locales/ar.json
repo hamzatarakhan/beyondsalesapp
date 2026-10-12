@@ -1444,6 +1444,9 @@
       "eSim": "شريحة إلكترونية",
       "pSim": "شريحة فعلية",
       "router": "راوتر"
+    ,
+      "fingerprint": "جهاز بصمة",
+      "mbb": "جهاز MBB"
     },
     "createOrderTitle": "إنشاء طلب",
     "editOrderTitle": "تعديل الطلب",

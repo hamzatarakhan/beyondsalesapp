@@ -8,10 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon } from "lucide-react";
+import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getPurchaseOrder, updatePurchaseOrder, type ProductId, type PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
+const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",

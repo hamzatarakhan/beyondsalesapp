@@ -13,7 +13,7 @@ export type PurchaseOrderStatus =
   | "cancelled"
   | "rejected";
 
-export type ProductId = "esim" | "psim" | "router";
+export type ProductId = "esim" | "psim" | "router" | "fingerprint" | "mbb";
 
 export interface PurchaseOrderProduct {
   id: ProductId;
@@ -26,6 +26,8 @@ export const PURCHASE_ORDER_PRODUCTS: PurchaseOrderProduct[] = [
   { id: "esim", nameKey: "eSim", availableStocks: 100, price: 3 },
   { id: "psim", nameKey: "pSim", availableStocks: 100, price: 3 },
   { id: "router", nameKey: "router", availableStocks: 100, price: 3 },
+  { id: "fingerprint", nameKey: "fingerprint", availableStocks: 40, price: 12 },
+  { id: "mbb", nameKey: "mbb", availableStocks: 60, price: 8 },
 ];
 
 export const DEMO_DESTINATIONS = ["Riyadh Main Warehouse", "Jeddah Branch", "Dammam Branch", "Mecca Branch", "Medina Branch", "Khobar Branch"];
@@ -74,9 +76,9 @@ const mk = (id: string, status: PurchaseOrderStatus, destination: string, date: 
 
 // One demo order per status, so every View Order layout is directly reachable from the list.
 export const purchaseOrders: PurchaseOrder[] = [
-  mk("PO-2026-1007", "rfq", "Riyadh Main Warehouse", "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("PO-2026-1006", "quotationSent", "Jeddah Branch", "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("PO-2026-1005", "awaitingApproval", "Dammam Branch", "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("esim", 5), line("psim", 6), line("router", 4)]),
+  mk("PO-2026-1007", "rfq", "Riyadh Main Warehouse", "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("esim", 5), line("psim", 6), line("router", 4), line("fingerprint", 3), line("mbb", 2)]),
+  mk("PO-2026-1006", "quotationSent", "Jeddah Branch", "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("esim", 5), line("psim", 6), line("router", 4), line("fingerprint", 4), line("mbb", 5)]),
+  mk("PO-2026-1005", "awaitingApproval", "Dammam Branch", "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("esim", 5), line("psim", 6), line("router", 4), line("mbb", 3)]),
   mk("PO-2026-1004", "awaitingScanning", "Mecca Branch", "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("esim", 5), line("psim", 6), line("router", 4)]),
   mk("PO-2026-1003", "partiallyScanned", "Medina Branch", "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("esim", 5, 5), line("psim", 6, 6), line("router", 4, 1)]),
   mk("PO-2026-1002", "received", "Khobar Branch", "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [line("esim", 5, 5), line("psim", 6, 6), line("router", 4, 4)]),
