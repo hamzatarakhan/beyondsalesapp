@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
-import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
@@ -21,13 +20,6 @@ import {
   type ChannelMember,
 } from "@/data/salesOrdersStore";
 
-
-const SummaryRow = ({ label, value, bold }: { label: string; value: React.ReactNode; bold?: boolean }) => (
-  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
-    <span className={cn("text-xs", bold ? "font-bold text-primary" : "text-muted-foreground")}>{label}</span>
-    <span className={cn("text-xs", bold ? "font-bold text-primary" : "font-semibold text-foreground")}>{value}</span>
-  </div>
-);
 
 // Same fake-capture convention as PurchaseOrderScan.tsx — no real camera, the capture
 // button just picks a demo channel member.
@@ -69,7 +61,6 @@ const SalesOrderForm = () => {
   }, [isEdit, existing]);
 
   const lines = useMemo(() => PURCHASE_ORDER_PRODUCTS.map((p) => ({ productId: p.id, qty: qtys[p.id] })), [qtys]);
-  const totals = useMemo(() => computeTotals(lines), [lines]);
   const totalQty = lines.reduce((sum, l) => sum + l.qty, 0);
   const canSubmit = totalQty > 0 && !!destination;
 
@@ -320,11 +311,6 @@ const SalesOrderForm = () => {
           );
         })}
 
-        <div className="bg-card rounded-2xl p-4 shadow-sm">
-          <SummaryRow label={t("purchaseOrders.untaxedAmount")} value={<><RiyalSymbol /> {totals.untaxed.toFixed(2)}</>} />
-          <SummaryRow label={t("purchaseOrders.tax")} value={<><RiyalSymbol /> {totals.tax.toFixed(2)}</>} />
-          <SummaryRow label={t("purchaseOrders.total")} bold value={<><RiyalSymbol /> {totals.total.toFixed(2)}</>} />
-        </div>
       </div>
 
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
@@ -343,16 +329,13 @@ const SalesOrderForm = () => {
             disabled={!canSubmit}
             onClick={() => setConfirmOpen(true)}
             className={cn(
-              "w-full h-12 rounded-full font-semibold text-sm flex items-center justify-between px-5 transition-colors",
+              "w-full h-12 rounded-full font-semibold text-sm flex items-center justify-center gap-2 px-5 transition-colors",
               canSubmit ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
             )}
           >
             <span className="flex items-center gap-2">
               <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", canSubmit ? "bg-white/20" : "bg-background")}>{totalQty}</span>
               {t("purchaseOrders.submitOrder")}
-            </span>
-            <span className="flex items-center gap-1">
-              <RiyalSymbol /> {totals.total.toFixed(2)}
             </span>
           </button>
         )}
