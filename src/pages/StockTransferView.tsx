@@ -5,10 +5,10 @@ import AppHeader from "@/components/AppHeader";
 import { Textarea } from "@/components/ui/textarea";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { MapPin, ArrowRight, Info, Smartphone, CreditCard, Router as RouterIcon } from "lucide-react";
+import { MapPin, ArrowRight, Info, Smartphone, CreditCard, Router as RouterIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getStockTransfer, updateStockTransfer, type ProductId, type StockTransferStatus } from "@/data/stockTransferStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
+const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const STATUS_STYLE: Record<StockTransferStatus, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",

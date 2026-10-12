@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, MapPin } from "lucide-react";
+import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, MapPin, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, DEMO_DESTINATIONS, addStockTransfer, type ProductId } from "@/data/stockTransferStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
+const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 type Picker = "from" | "to" | null;
 
@@ -19,7 +19,7 @@ const StockTransferForm = () => {
 
   const [fromBranch, setFromBranch] = useState("");
   const [toBranch, setToBranch] = useState("");
-  const [qtys, setQtys] = useState<Record<ProductId, number>>({ esim: 0, psim: 0, router: 0 });
+  const [qtys, setQtys] = useState<Record<ProductId, number>>({ esim: 0, psim: 0, router: 0, fingerprint: 0, mbb: 0 });
 
   const [picker, setPicker] = useState<Picker>(null);
   const [branchSearch, setBranchSearch] = useState("");

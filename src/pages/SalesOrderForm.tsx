@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, QrCode, User, MapPin } from "lucide-react";
+import { ChevronRight, Search, X as XIcon, Minus, Plus, Boxes, Smartphone, CreditCard, Router as RouterIcon, Check, QrCode, User, MapPin, Fingerprint, Wifi } from "lucide-react";
 import {
   PURCHASE_ORDER_PRODUCTS,
   DEMO_DESTINATIONS,
@@ -20,7 +20,7 @@ import {
   type ChannelMember,
 } from "@/data/salesOrdersStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
+const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const SummaryRow = ({ label, value, bold }: { label: string; value: React.ReactNode; bold?: boolean }) => (
   <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
@@ -53,7 +53,7 @@ const SalesOrderForm = () => {
 
   const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<ProductId, number>>(() => {
-    const initial: Record<ProductId, number> = { esim: 0, psim: 0, router: 0 };
+    const initial: Record<ProductId, number> = { esim: 0, psim: 0, router: 0, fingerprint: 0, mbb: 0 };
     existing?.lines.forEach((l) => { initial[l.productId] = l.qty; });
     return initial;
   });

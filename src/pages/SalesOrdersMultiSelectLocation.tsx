@@ -6,7 +6,7 @@ import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { MapPin, Search, X as XIcon, ChevronDown, Pencil, Minus, Plus, Smartphone, CreditCard, Router as RouterIcon, Check } from "lucide-react";
+import { MapPin, Search, X as XIcon, ChevronDown, Pencil, Minus, Plus, Smartphone, CreditCard, Router as RouterIcon, Check, Fingerprint, Wifi } from "lucide-react";
 import {
   PURCHASE_ORDER_PRODUCTS,
   DEMO_SOURCE_LOCATIONS,
@@ -16,7 +16,7 @@ import {
   type ProductId,
 } from "@/data/salesOrdersMultiStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon };
+const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 interface DraftSource {
   location: string;
@@ -30,7 +30,7 @@ const SalesOrdersMultiSelectLocation = () => {
   const order = id ? getSalesOrderMulti(id) : undefined;
 
   const [draftSources, setDraftSources] = useState<Record<ProductId, DraftSource[]>>(() => {
-    const initial: Record<ProductId, DraftSource[]> = { esim: [], psim: [], router: [] };
+    const initial: Record<ProductId, DraftSource[]> = { esim: [], psim: [], router: [], fingerprint: [], mbb: [] };
     order?.lines.forEach((l) => { initial[l.productId] = l.sources.map((s) => ({ location: s.location, qty: s.qty })); });
     return initial;
   });
