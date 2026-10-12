@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X as XIcon, Clock, Boxes, User, MapPin, Plus } from "lucide-react";
+import { Search, SlidersHorizontal, X as XIcon, Clock, User, MapPin, Plus } from "lucide-react";
 import { salesOrders, PURCHASE_ORDER_PRODUCTS, DEMO_CHANNEL_MEMBERS, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
 const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery", "received", "cancelled", "rejected"];
@@ -98,10 +98,6 @@ const SalesOrders = () => {
     setPickDateOpen(false);
   };
 
-  const itemsSummary = (lines: { productId: string; qty: number }[]) =>
-    lines
-      .map((l) => `${t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)} (${l.qty})`)
-      .join(" , ");
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
@@ -183,9 +179,18 @@ const SalesOrders = () => {
                   <User className="w-3.5 h-3.5 shrink-0" />
                   {o.channelMember.name}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Boxes className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{itemsSummary(o.lines)}</span>
+                <div className="flex items-center gap-2 overflow-hidden">
+                  {o.lines.slice(0, 3).map((l) => (
+                    <span key={l.productId} className="shrink-0 px-3 py-1.5 rounded-full bg-muted border border-border text-[13px] font-medium text-muted-foreground whitespace-nowrap">
+                      {t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)}
+                      <span className="ms-1 text-foreground font-semibold">({l.qty})</span>
+                    </span>
+                  ))}
+                  {o.lines.length > 3 && (
+                    <span className="shrink-0 px-3 py-1.5 rounded-full bg-muted/50 text-[13px] font-medium text-muted-foreground whitespace-nowrap">
+                      +{o.lines.length - 3} {t("purchaseOrders.moreItems")}
+                    </span>
+                  )}
                 </div>
               </button>
             ))}
