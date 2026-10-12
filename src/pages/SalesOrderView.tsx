@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
-import RiyalSymbol from "@/components/RiyalSymbol";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -146,12 +145,7 @@ const SalesOrderView = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-foreground">{t(`purchaseOrders.product.${product.nameKey}`)}</p>
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
-                  <span>{t("purchaseOrders.pcs", { count: l.qty })}</span>
-                  <span className="flex items-center gap-1">
-                    <RiyalSymbol /> {product.price.toFixed(2)}
-                  </span>
-                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{t("purchaseOrders.pcs", { count: l.qty })}</p>
               </div>
               {/* E-SIM is provisioned, not physically scanned — it never gets this UI.
                   Awaiting Scanning and Partially Scanned share the same per-item layout;
@@ -183,20 +177,6 @@ const SalesOrderView = () => {
           );
         })}
 
-        <div className="bg-card rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.untaxedAmount")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.untaxed.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.tax")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.tax.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs font-bold text-primary">{t("purchaseOrders.total")}</span>
-            <span className="text-xs font-bold text-primary"><RiyalSymbol /> {order.total.toFixed(2)}</span>
-          </div>
-        </div>
       </div>
 
       {/* Action buttons pinned to the bottom of the screen — RFQ offers Submit/Edit/Cancel,
