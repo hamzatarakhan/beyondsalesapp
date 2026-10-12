@@ -79,19 +79,19 @@ const mk = (
 
 // One demo order per status, so every View Order layout is directly reachable from the list.
 export const salesOrders: SalesOrder[] = [
-  mk("SO-2026-2007", "rfq", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[0], "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
-  mk("SO-2026-2006", "quotationSent", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[1], "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
-  mk("SO-2026-2005", "awaitingApproval", "Dammam Branch", DEMO_CHANNEL_MEMBERS[2], "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SO-2026-2007", "rfq", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[0], "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SO-2026-2006", "quotationSent", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[1], "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SO-2026-2005", "awaitingApproval", "Dammam Branch", DEMO_CHANNEL_MEMBERS[2], "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)]),
   // Awaiting Delivery is reached only after scanning is fully done — items here are
   // already scanned (eye icon, view-only), not awaiting it.
-  mk("SO-2026-2004", "awaitingDelivery", "Mecca Branch", DEMO_CHANNEL_MEMBERS[3], "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("vmSim", 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
-  mk("SO-2026-2009", "awaitingScanning", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "18 Aug 2026 - 3:10 PM", new Date(2026, 7, 18), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
-  mk("SO-2026-2003", "partiallyScanned", "Medina Branch", DEMO_CHANNEL_MEMBERS[0], "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("vmSim", 5, 5), line("voucher50", 6, 6), line("router1", 4, 1)]),
-  mk("SO-2026-2002", "received", "Khobar Branch", DEMO_CHANNEL_MEMBERS[1], "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [line("vmSim", 5, 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
-  mk("SO-2026-2001", "cancelled", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)], {
+  mk("SO-2026-2004", "awaitingDelivery", "Mecca Branch", DEMO_CHANNEL_MEMBERS[3], "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("digitalVoucher", 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
+  mk("SO-2026-2009", "awaitingScanning", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "18 Aug 2026 - 3:10 PM", new Date(2026, 7, 18), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SO-2026-2003", "partiallyScanned", "Medina Branch", DEMO_CHANNEL_MEMBERS[0], "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("digitalVoucher", 5, 5), line("voucher50", 6, 6), line("router1", 4, 1)]),
+  mk("SO-2026-2002", "received", "Khobar Branch", DEMO_CHANNEL_MEMBERS[1], "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [line("digitalVoucher", 5, 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
+  mk("SO-2026-2001", "cancelled", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)], {
     reason: "The channel member requested a different product mix before delivery.",
   }),
-  mk("SO-2026-2000", "rejected", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[3], "2 Aug 2026 - 1:00 AM", new Date(2026, 7, 2), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)], {
+  mk("SO-2026-2000", "rejected", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[3], "2 Aug 2026 - 1:00 AM", new Date(2026, 7, 2), [line("digitalVoucher", 5), line("voucher50", 6), line("router1", 4)], {
     reason: "The channel member's credit limit could not cover this order.",
   }),
 ];

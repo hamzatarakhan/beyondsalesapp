@@ -1231,7 +1231,11 @@
   },
   "ordersHistory": {
     "title": "Transaction History",
-    "tabs": { "orders": "Orders", "summary": "Summary", "commission": "Commission" },
+    "tabs": {
+      "orders": "Orders",
+      "summary": "Summary",
+      "commission": "Commission"
+    },
     "searchOrdersPlaceholder": "Search by Order ID, customer, mobile",
     "searchByMember": "Search by member",
     "removeFilter": "Remove filter",
@@ -1245,7 +1249,11 @@
       "topUp": "Top-Up",
       "billPayment": "Bill Payment"
     },
-    "status": { "approved": "Approved", "pending": "Pending", "rejected": "Rejected" },
+    "status": {
+      "approved": "Approved",
+      "pending": "Pending",
+      "rejected": "Rejected"
+    },
     "filter": {
       "title": "Filter",
       "subtitle": "Please choose your filter options",
@@ -1419,12 +1427,16 @@
       "cancelled": "Cancelled"
     },
     "product": {
-      "eSim": "E-SIM",
-      "pSim": "P-SIM",
-      "router": "Router"
-    ,
-      "fingerprint": "Fingerprint Device",
-      "mbb": "MBB Device"
+      "vmSim": "VM SIM Cards",
+      "voucher10": "Plastic Vouchers 10 ﷼",
+      "voucher20": "Plastic Vouchers 20 ﷼",
+      "voucher50": "Plastic Vouchers 50 ﷼",
+      "voucher100": "Plastic Vouchers 100 ﷼",
+      "router1": "Routers (Model 1)",
+      "router2": "Routers (Model 2)",
+      "router3": "Routers (Model 3)",
+      "digitalVoucher": "Digital Voucher",
+      "fingerprint": "Fingerprint Device"
     },
     "createOrderTitle": "Create Request",
     "editOrderTitle": "Edit Request",
@@ -3562,7 +3574,13 @@
       "imsiPlaceholder": "IMSI (15 Digits)",
       "imsiVerified": "IMSI Verified",
       "imsiDigitsError": "IMSI must be 15 digits",
-      "imsiErrors": { "registered":"This IMSI is already registered to another SIM.", "invalid":"This IMSI is not valid. Please check and try again.", "used":"This IMSI has already been used for a previous activation.", "planMismatch":"This IMSI isn't valid for the plan already selected. Try a different IMSI, or change the plan to match.", "planMismatchLocked":"This IMSI isn't valid for the plan already selected. Try a different IMSI." },
+      "imsiErrors": {
+        "registered": "This IMSI is already registered to another SIM.",
+        "invalid": "This IMSI is not valid. Please check and try again.",
+        "used": "This IMSI has already been used for a previous activation.",
+        "planMismatch": "This IMSI isn't valid for the plan already selected. Try a different IMSI, or change the plan to match.",
+        "planMismatchLocked": "This IMSI isn't valid for the plan already selected. Try a different IMSI."
+      },
       "kitErrors": {
         "registered": "This KIT Code is already registered to another SIM.",
         "invalid": "This KIT Code is not valid. Please check and try again.",
