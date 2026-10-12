@@ -1,3 +1,4 @@
+import { PRODUCT_ICON, emptyProductRecord } from "@/data/stockProductVisuals";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -16,7 +17,6 @@ import {
   type ProductId,
 } from "@/data/salesOrdersMultiStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 interface DraftSource {
   location: string;
@@ -30,7 +30,7 @@ const SalesOrdersMultiSelectLocation = () => {
   const order = id ? getSalesOrderMulti(id) : undefined;
 
   const [draftSources, setDraftSources] = useState<Record<ProductId, DraftSource[]>>(() => {
-    const initial: Record<ProductId, DraftSource[]> = { esim: [], psim: [], router: [], fingerprint: [], mbb: [] };
+    const initial: Record<ProductId, DraftSource[]> = emptyProductRecord<DraftSource[]>(() => []);
     order?.lines.forEach((l) => { initial[l.productId] = l.sources.map((s) => ({ location: s.location, qty: s.qty })); });
     return initial;
   });

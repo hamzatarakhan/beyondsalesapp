@@ -81,28 +81,28 @@ const mk = (
 // awaitingScanning/received are pre-sourced (split across 2 locations) so their layouts are
 // reachable directly; earlier statuses have no sources yet, same as a freshly created order.
 export const salesOrdersMulti: SalesOrder[] = [
-  mk("SOM-2026-3007", "rfq", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[0], "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("SOM-2026-3006", "quotationSent", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[1], "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("esim", 5), line("psim", 6), line("router", 4)]),
-  mk("SOM-2026-3005", "awaitingApproval", "Dammam Branch", DEMO_CHANNEL_MEMBERS[2], "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("esim", 5), line("psim", 6), line("router", 4)]),
+  mk("SOM-2026-3007", "rfq", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[0], "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SOM-2026-3006", "quotationSent", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[1], "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("SOM-2026-3005", "awaitingApproval", "Dammam Branch", DEMO_CHANNEL_MEMBERS[2], "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
   mk("SOM-2026-3004", "awaitingDelivery", "Mecca Branch", DEMO_CHANNEL_MEMBERS[3], "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [
-    line("esim", 5, [source("Riyadh Warehouse", 5)]),
-    line("psim", 6, [source("Riyadh Warehouse", 3), source("Jeddah Warehouse", 3)]),
-    line("router", 4, [source("Jeddah Warehouse", 4)]),
+    line("vmSim", 5, [source("Riyadh Warehouse", 5)]),
+    line("voucher50", 6, [source("Riyadh Warehouse", 3), source("Jeddah Warehouse", 3)]),
+    line("router1", 4, [source("Jeddah Warehouse", 4)]),
   ]),
   mk("SOM-2026-3003", "awaitingScanning", "Medina Branch", DEMO_CHANNEL_MEMBERS[0], "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [
-    line("esim", 5, [source("Riyadh Warehouse", 5, 5)]),
-    line("psim", 6, [source("Riyadh Warehouse", 3, 3), source("Jeddah Warehouse", 3, 3)]),
-    line("router", 4, [source("Jeddah Warehouse", 2, 0), source("Dammam Warehouse", 2, 1)]),
+    line("vmSim", 5, [source("Riyadh Warehouse", 5, 5)]),
+    line("voucher50", 6, [source("Riyadh Warehouse", 3, 3), source("Jeddah Warehouse", 3, 3)]),
+    line("router1", 4, [source("Jeddah Warehouse", 2, 0), source("Dammam Warehouse", 2, 1)]),
   ]),
   mk("SOM-2026-3002", "received", "Khobar Branch", DEMO_CHANNEL_MEMBERS[1], "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [
-    line("esim", 5, [source("Riyadh Warehouse", 5, 5)]),
-    line("psim", 6, [source("Riyadh Warehouse", 3, 3), source("Jeddah Warehouse", 3, 3)]),
-    line("router", 4, [source("Jeddah Warehouse", 4, 4)]),
+    line("vmSim", 5, [source("Riyadh Warehouse", 5, 5)]),
+    line("voucher50", 6, [source("Riyadh Warehouse", 3, 3), source("Jeddah Warehouse", 3, 3)]),
+    line("router1", 4, [source("Jeddah Warehouse", 4, 4)]),
   ]),
-  mk("SOM-2026-3001", "cancelled", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("esim", 5), line("psim", 6), line("router", 4)], {
+  mk("SOM-2026-3001", "cancelled", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[2], "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)], {
     reason: "The channel member requested a different product mix before delivery.",
   }),
-  mk("SOM-2026-3000", "rejected", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[3], "2 Aug 2026 - 1:00 AM", new Date(2026, 7, 2), [line("esim", 5), line("psim", 6), line("router", 4)], {
+  mk("SOM-2026-3000", "rejected", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[3], "2 Aug 2026 - 1:00 AM", new Date(2026, 7, 2), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)], {
     reason: "The channel member's credit limit could not cover this order.",
   }),
 ];

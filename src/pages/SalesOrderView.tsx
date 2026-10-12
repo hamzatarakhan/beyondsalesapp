@@ -1,3 +1,4 @@
+import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -11,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { MapPin, Info, Eye, Plus, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getSalesOrder, updateSalesOrder, type ProductId, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
@@ -74,7 +74,7 @@ const SalesOrderView = () => {
         updateSalesOrder(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
       case "submitScanning": {
-        const fullyDone = order.lines.every((l) => l.productId === "esim" || l.scanned >= l.qty);
+        const fullyDone = order.lines.every((l) => l.productId === "digitalVoucher" || l.scanned >= l.qty);
         updateSalesOrder(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
         break;
       }
@@ -156,7 +156,7 @@ const SalesOrderView = () => {
               {/* E-SIM is provisioned, not physically scanned — it never gets this UI.
                   Awaiting Scanning and Partially Scanned share the same per-item layout;
                   they only differ in the order-level badge. */}
-              {l.productId !== "esim" && (order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
+              {l.productId !== "digitalVoucher" && (order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                     {t("purchaseOrders.scannedCount", { scanned: l.scanned, qty: l.qty })}
@@ -174,7 +174,7 @@ const SalesOrderView = () => {
               )}
               {/* Awaiting Delivery is reached only once scanning is fully done — items
                   here are view-only (their serials were already captured). */}
-              {l.productId !== "esim" && (order.status === "awaitingDelivery" || order.status === "received") && l.scanned > 0 && (
+              {l.productId !== "digitalVoucher" && (order.status === "awaitingDelivery" || order.status === "received") && l.scanned > 0 && (
                 <button type="button" onClick={() => setSerialsProduct(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center shrink-0">
                   <Eye className="w-4 h-4 text-foreground" />
                 </button>

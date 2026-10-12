@@ -1,3 +1,4 @@
+import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -11,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { MapPin, Info, Eye, ScanLine, ChevronDown, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getSalesOrderMulti, updateSalesOrderMulti, type ProductId, type SalesOrderStatus } from "@/data/salesOrdersMultiStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
