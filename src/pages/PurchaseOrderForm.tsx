@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
-import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
@@ -19,13 +18,6 @@ import {
   type ProductId,
 } from "@/data/purchaseOrdersStore";
 
-
-const SummaryRow = ({ label, value, bold }: { label: string; value: React.ReactNode; bold?: boolean }) => (
-  <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
-    <span className={cn("text-xs", bold ? "font-bold text-primary" : "text-muted-foreground")}>{label}</span>
-    <span className={cn("text-xs", bold ? "font-bold text-primary" : "font-semibold text-foreground")}>{value}</span>
-  </div>
-);
 
 const PurchaseOrderForm = () => {
   const navigate = useNavigate();
@@ -60,7 +52,6 @@ const PurchaseOrderForm = () => {
   }, [isEdit, existing]);
 
   const lines = useMemo(() => PURCHASE_ORDER_PRODUCTS.map((p) => ({ productId: p.id, qty: qtys[p.id] })), [qtys]);
-  const totals = useMemo(() => computeTotals(lines), [lines]);
   const totalQty = lines.reduce((sum, l) => sum + l.qty, 0);
   const canSubmit = totalQty > 0 && (hideDestination || !!destination);
 
