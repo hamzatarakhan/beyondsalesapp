@@ -23,16 +23,6 @@ const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   cancelled: "bg-muted text-muted-foreground",
 };
 
-const BORDER_STYLE: Record<PurchaseOrderStatus, string> = {
-  rfq: "border-s-amber-400",
-  quotationSent: "border-s-amber-400",
-  awaitingApproval: "border-s-emerald-400",
-  awaitingScanning: "border-s-sky-400",
-  partiallyScanned: "border-s-teal-400",
-  received: "border-s-rose-400",
-  rejected: "border-s-rose-400",
-  cancelled: "border-s-muted-foreground/40",
-};
 
 const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 const inRange = (d: Date, from: Date, to: Date) => {
@@ -148,7 +138,7 @@ const PurchaseOrders = () => {
                 key={o.id}
                 type="button"
                 onClick={() => navigate(`/purchase-orders/${o.id}`)}
-                className={cn("w-full text-start bg-card rounded-2xl border-s-4 border border-border/60 p-4 space-y-2.5", BORDER_STYLE[o.status])}
+                className="w-full text-start bg-card rounded-2xl border-s-[6px] border-s-primary border border-border/60 p-4 space-y-2.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-base font-bold text-foreground">{o.id}</p>
