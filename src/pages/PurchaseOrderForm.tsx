@@ -152,11 +152,6 @@ const PurchaseOrderForm = () => {
           );
         })}
 
-        <div className="bg-card rounded-2xl p-4 shadow-sm">
-          <SummaryRow label={t("purchaseOrders.untaxedAmount")} value={<><RiyalSymbol /> {totals.untaxed.toFixed(2)}</>} />
-          <SummaryRow label={t("purchaseOrders.tax")} value={<><RiyalSymbol /> {totals.tax.toFixed(2)}</>} />
-          <SummaryRow label={t("purchaseOrders.total")} bold value={<><RiyalSymbol /> {totals.total.toFixed(2)}</>} />
-        </div>
       </div>
 
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
@@ -182,9 +177,6 @@ const PurchaseOrderForm = () => {
             <span className="flex items-center gap-2">
               <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", canSubmit ? "bg-white/20" : "bg-background")}>{totalQty}</span>
               {t("purchaseOrders.submitOrder")}
-            </span>
-            <span className="flex items-center gap-1">
-              <RiyalSymbol /> {totals.total.toFixed(2)}
             </span>
           </button>
         )}
