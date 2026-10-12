@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X as XIcon, Clock, Boxes, Plus } from "lucide-react";
+import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
 import { purchaseOrders, PURCHASE_ORDER_PRODUCTS, type PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
 const STATUSES: PurchaseOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "received", "rejected", "cancelled"];
@@ -98,11 +98,6 @@ const PurchaseOrders = () => {
     setPickDateOpen(false);
   };
 
-  const itemsSummary = (lines: { productId: string; qty: number }[]) =>
-    lines
-      .map((l) => `${t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)} (${l.qty})`)
-      .join(" , ");
-
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
       <AppHeader title={t("purchaseOrders.title")} showBack />
@@ -171,7 +166,7 @@ const PurchaseOrders = () => {
                   ))}
                   {o.lines.length > 3 && (
                     <span className="shrink-0 px-2.5 py-1 rounded-full bg-muted text-[11px] font-medium text-muted-foreground whitespace-nowrap">
-                      +{o.lines.length - 3} More
+                      +{o.lines.length - 3} {t("purchaseOrders.moreItems")}
                     </span>
                   )}
                 </div>
