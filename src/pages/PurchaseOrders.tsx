@@ -142,19 +142,27 @@ const PurchaseOrders = () => {
                 key={o.id}
                 type="button"
                 onClick={() => navigate(`/purchase-orders/${o.id}`)}
-                className="w-full text-start bg-card rounded-2xl border-s-4 border-s-primary border border-border/60 p-4 space-y-1.5"
+                className={cn("w-full text-start bg-card rounded-2xl border-s-4 border border-border/60 p-4 space-y-2.5", BORDER_STYLE[o.status])}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-bold text-foreground">{o.id}</p>
-                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`purchaseOrders.status.${o.status}`)}</span>
+                  <p className="text-base font-bold text-foreground">{o.id}</p>
+                  <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`purchaseOrders.status.${o.status}`)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock className="w-3.5 h-3.5 shrink-0" />
                   {o.date}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Boxes className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{itemsSummary(o.lines)}</span>
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                  {o.lines.slice(0, 3).map((l) => (
+                    <span key={l.productId} className="shrink-0 px-2.5 py-1 rounded-full bg-muted text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                      {t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)} ({l.qty})
+                    </span>
+                  ))}
+                  {o.lines.length > 3 && (
+                    <span className="shrink-0 px-2.5 py-1 rounded-full bg-muted text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                      +{o.lines.length - 3} More
+                    </span>
+                  )}
                 </div>
               </button>
             ))}
