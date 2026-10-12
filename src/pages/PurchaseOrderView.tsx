@@ -139,9 +139,6 @@ const PurchaseOrderView = () => {
                 <p className="text-sm font-bold text-foreground">{t(`purchaseOrders.product.${product.nameKey}`)}</p>
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                   <span>{t("purchaseOrders.pcs", { count: l.qty })}</span>
-                  <span className="flex items-center gap-1">
-                    <RiyalSymbol /> {product.price.toFixed(2)}
-                  </span>
                 </div>
               </div>
               {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
@@ -169,20 +166,6 @@ const PurchaseOrderView = () => {
           );
         })}
 
-        <div className="bg-card rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.untaxedAmount")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.untaxed.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-            <span className="text-xs text-muted-foreground">{t("purchaseOrders.tax")}</span>
-            <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {order.tax.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs font-bold text-primary">{t("purchaseOrders.total")}</span>
-            <span className="text-xs font-bold text-primary"><RiyalSymbol /> {order.total.toFixed(2)}</span>
-          </div>
-        </div>
 
       </div>
 
