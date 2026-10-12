@@ -1335,8 +1335,8 @@
     "searchDealers": "البحث عن الموزعين"
   },
   "salesOrders": {
-    "title": "طلبات المبيعات",
-    "noOrders": "لا توجد طلبات مبيعات مطابقة للفلاتر المحددة",
+    "title": "دفع المخزون",
+    "noOrders": "لا توجد سجلات دفع مخزون مطابقة للفلاتر المحددة",
     "channelMember": "عضو القناة",
     "selectChannelMember": "اختر عضو القناة",
     "dealerCode": "رمز الموزع",
@@ -1406,7 +1406,7 @@
     }
   },
   "purchaseOrders": {
-    "title": "طلبات الشراء",
+    "title": "طلب مخزون",
     "searchPlaceholder": "بحث",
     "filter": {
       "title": "تصفية",
@@ -1427,7 +1427,7 @@
       "clear": "مسح"
     },
     "removeFilter": "إزالة الفلتر",
-    "noOrders": "لا توجد طلبات شراء مطابقة للفلاتر المحددة",
+    "noOrders": "لا توجد طلبات مخزون مطابقة للفلاتر المحددة",
     "newOrder": "طلب جديد",
     "status": {
       "rfq": "طلب عرض سعر",
@@ -1462,11 +1462,11 @@
     "discard": "تجاهل",
     "confirmMessage": "رسالة التأكيد",
     "submitRequestTitle": "إرسال الطلب",
-    "submitRequestDesc": "هل ترغب في إرسال طلب الشراء؟",
+    "submitRequestDesc": "هل ترغب في إرسال طلب المخزون؟",
     "saveRequestTitle": "حفظ الطلب",
     "saveRequestDesc": "هل ترغب في حفظ التغييرات على هذا الطلب؟",
     "submitSuccessTitle": "إرسال الطلب",
-    "submitSuccessDesc": "تم إرسال طلب الشراء بنجاح.",
+    "submitSuccessDesc": "تم إرسال طلب المخزون بنجاح.",
     "saveSuccessTitle": "حفظ الطلب",
     "saveSuccessDesc": "تم حفظ تعديلات الطلب بنجاح.",
     "done": "تم",
@@ -2044,13 +2044,13 @@
     "otherServices": "خدمات أخرى",
     "otherWidgets": "إدارة المخزون",
     "inventoryDashboard": "لوحة المخزون",
-    "purchaseOrders": "طلبات الشراء",
-    "choosePurchaseOrdersMode": "طلبات الشراء",
-    "choosePurchaseOrdersModeSub": "اختر كيف تريد إدارة طلبات الشراء",
+    "purchaseOrders": "طلب مخزون",
+    "choosePurchaseOrdersMode": "طلب مخزون",
+    "choosePurchaseOrdersModeSub": "اختر كيف تريد إدارة طلبات المخزون",
     "purchaseOrdersDemoNote": "هذا عرض تجريبي — البيانات المعروضة لأغراض العرض فقط.",
-    "salesOrders": "طلبات المبيعات",
-    "chooseSalesOrdersMode": "طلبات المبيعات",
-    "chooseSalesOrdersModeSub": "اختر كيف تريد إدارة طلبات المبيعات",
+    "salesOrders": "دفع المخزون",
+    "chooseSalesOrdersMode": "دفع المخزون",
+    "chooseSalesOrdersModeSub": "اختر كيف تريد إدارة عمليات دفع المخزون",
     "salesOrdersDemoNote": "هذا عرض تجريبي — البيانات المعروضة لأغراض العرض فقط.",
     "oneLocation": "موقع واحد",
     "oneLocationSub": "إذا كان لديك موقع واحد",
