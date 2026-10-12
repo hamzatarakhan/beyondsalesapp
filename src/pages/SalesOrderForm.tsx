@@ -1,3 +1,4 @@
+import { PRODUCT_ICON, emptyProductRecord } from "@/data/stockProductVisuals";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -20,7 +21,6 @@ import {
   type ChannelMember,
 } from "@/data/salesOrdersStore";
 
-const PRODUCT_ICON: Record<ProductId, typeof Smartphone> = { esim: Smartphone, psim: CreditCard, router: RouterIcon, fingerprint: Fingerprint, mbb: Wifi };
 
 const SummaryRow = ({ label, value, bold }: { label: string; value: React.ReactNode; bold?: boolean }) => (
   <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40 last:border-0">
@@ -53,7 +53,7 @@ const SalesOrderForm = () => {
 
   const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<ProductId, number>>(() => {
-    const initial: Record<ProductId, number> = { esim: 0, psim: 0, router: 0, fingerprint: 0, mbb: 0 };
+    const initial: Record<ProductId, number> = emptyProductRecord(() => 0);
     existing?.lines.forEach((l) => { initial[l.productId] = l.qty; });
     return initial;
   });

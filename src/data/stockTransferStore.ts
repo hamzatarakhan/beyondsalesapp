@@ -35,10 +35,10 @@ const mk = (id: string, status: StockTransferStatus, fromBranch: string, toBranc
 
 // One demo transfer per status, so every View layout is directly reachable from the list.
 export const stockTransfers: StockTransfer[] = [
-  mk("ST-2026-3004", "pending", "Riyadh Main Warehouse", "Khobar Branch", "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("esim", 10), line("router", 3)]),
-  mk("ST-2026-3003", "inTransit", "Jeddah Branch", "Mecca Branch", "28 Aug 2026 - 2:40 PM", new Date(2026, 7, 28), [line("psim", 8)]),
-  mk("ST-2026-3002", "received", "Dammam Branch", "Riyadh Main Warehouse", "20 Aug 2026 - 9:05 AM", new Date(2026, 7, 20), [line("esim", 5), line("psim", 5)]),
-  mk("ST-2026-3001", "cancelled", "Medina Branch", "Jeddah Branch", "12 Aug 2026 - 1:00 AM", new Date(2026, 7, 12), [line("router", 4)], {
+  mk("ST-2026-3004", "pending", "Riyadh Main Warehouse", "Khobar Branch", "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("vmSim", 10), line("router1", 3)]),
+  mk("ST-2026-3003", "inTransit", "Jeddah Branch", "Mecca Branch", "28 Aug 2026 - 2:40 PM", new Date(2026, 7, 28), [line("voucher50", 8)]),
+  mk("ST-2026-3002", "received", "Dammam Branch", "Riyadh Main Warehouse", "20 Aug 2026 - 9:05 AM", new Date(2026, 7, 20), [line("vmSim", 5), line("voucher50", 5)]),
+  mk("ST-2026-3001", "cancelled", "Medina Branch", "Jeddah Branch", "12 Aug 2026 - 1:00 AM", new Date(2026, 7, 12), [line("router1", 4)], {
     reason: "Wrong destination branch selected — resubmitted as ST-2026-3004.",
   }),
 ];
