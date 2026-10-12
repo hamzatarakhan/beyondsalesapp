@@ -83,15 +83,25 @@ interface DemoPostpaidLine {
   status: "active" | "terminated";
   subscriptionType: "prepaid" | "postpaid";
   planName: string;
+  /** A downgrade already scheduled but not yet in effect — a new downgrade replaces (cancels) it. */
+  /** Shape returned by the system for the not-yet-effective downgrade (ISO EffectiveDate). */
+  pendingDowngrade?: { PricePlanName: string; EffectiveDate: string };
 }
 
 const DEMO_POSTPAID_LINES: DemoPostpaidLine[] = [
   { msisdn: "0503334444", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 150" },
   { msisdn: "0503334455", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 120" },
   { msisdn: "0503334466", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 365" },
+  { msisdn: "0503334499", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 365", pendingDowngrade: { PricePlanName: "Virgin Basic 100", EffectiveDate: "2024-04-01" } },
   { msisdn: "0503334477", status: "terminated", subscriptionType: "postpaid", planName: "Switch Postpaid 150" },
   { msisdn: "0503334488", status: "active", subscriptionType: "prepaid", planName: "Baqah 150" },
 ];
+
+// "2024-04-01" -> "1 Apr 2024"
+const formatEffectiveDate = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+};
 
 const SWITCH_POSTPAID_PLANS: Plan[] = POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"));
 
@@ -147,6 +157,8 @@ const ChangePostpaidPlan = () => {
 
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Shown on Continue when the chosen downgrade would replace one that hasn't taken effect yet.
+  const [pendingDowngradeOpen, setPendingDowngradeOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
   // Top-right X, shown from stage 2 onward only — nothing to lose yet on stage 1.
@@ -289,6 +301,8 @@ const ChangePostpaidPlan = () => {
   // ---------- Gates ----------
   const canContinueNumber = eligible && idNumberValid;
   const canContinuePlan = selectedPlan != null;
+  // A new downgrade while an earlier one is still pending cancels the old one — confirm first.
+  const replacesPendingDowngrade = changeType === "downgrade" && !!line?.pendingDowngrade;
   const canPay = otpVerified && !(total > 0 && payMethod === "wallet" && walletShort);
 
   const resolvePayment = () => {
@@ -396,6 +410,7 @@ const ChangePostpaidPlan = () => {
                 { value: "0503334444", note: t("changePostpaidPlan.testNoteMidTier"), group: t("changePostpaidPlan.testGroupValid") },
                 { value: "0503334455", note: t("changePostpaidPlan.testNoteLowTier"), group: t("changePostpaidPlan.testGroupValid") },
                 { value: "0503334466", note: t("changePostpaidPlan.testNoteTopTier"), group: t("changePostpaidPlan.testGroupValid") },
+                { value: "0503334499", note: t("changePostpaidPlan.testNotePendingDowngrade"), group: t("changePostpaidPlan.testGroupValid") },
                 { value: "0503334477", note: t("changePostpaidPlan.testNoteTerminated"), group: t("changePostpaidPlan.testGroupErrors") },
                 { value: "0503334488", note: t("changePostpaidPlan.testNoteNotPostpaid"), group: t("changePostpaidPlan.testGroupErrors") },
                 { value: "0509999999", note: t("changePostpaidPlan.testNoteNotFound"), group: t("changePostpaidPlan.testGroupErrors") },
@@ -494,6 +509,12 @@ const ChangePostpaidPlan = () => {
               <SummaryRow label={t("changePostpaidPlan.msisdn")} value={line?.msisdn ?? t("changePostpaidPlan.dash")} />
               <SummaryRow label={t("changePostpaidPlan.currentPlan")} value={currentPlanObj?.title ?? t("changePostpaidPlan.dash")} />
               <SummaryRow label={t("changePostpaidPlan.newPlan")} value={selectedPlanObj?.title ?? t("changePostpaidPlan.dash")} />
+              {replacesPendingDowngrade && line?.pendingDowngrade && (
+                <SummaryRow
+                  label={t("changePostpaidPlan.pendingDowngradeCancelled")}
+                  value={`${line.pendingDowngrade.PricePlanName} · ${formatEffectiveDate(line.pendingDowngrade.EffectiveDate)}`}
+                />
+              )}
               <SummaryRow
                 label={t("changePostpaidPlan.changeType")}
                 value={changeType === "upgrade" ? t("changePostpaidPlan.changeTypeUpgrade") : changeType === "downgrade" ? t("changePostpaidPlan.changeTypeDowngrade") : t("changePostpaidPlan.dash")}
@@ -569,7 +590,7 @@ const ChangePostpaidPlan = () => {
               <Button
                 className="w-full h-12 text-sm font-semibold rounded-full"
                 disabled={step === 0 ? !canContinueNumber : !canContinuePlan}
-                onClick={() => setStep((s) => s + 1)}
+                onClick={() => (step === 1 && replacesPendingDowngrade ? setPendingDowngradeOpen(true) : setStep((s) => s + 1))}
               >
                 {t("changePostpaidPlan.continue")}
               </Button>
@@ -624,6 +645,35 @@ const ChangePostpaidPlan = () => {
                 </>
               )}
             </p>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Pending downgrade — continuing would cancel the earlier, not-yet-effective downgrade */}
+      <Drawer open={pendingDowngradeOpen} onOpenChange={setPendingDowngradeOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full border-2 border-amber-500 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-amber-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("changePostpaidPlan.pendingDowngradeTitle")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t("changePostpaidPlan.pendingDowngradeDesc", {
+                  oldPlan: line?.pendingDowngrade?.PricePlanName ?? "",
+                  date: line?.pendingDowngrade ? formatEffectiveDate(line.pendingDowngrade.EffectiveDate) : "",
+                  newPlan: selectedPlanObj?.title ?? "",
+                })}
+              </p>
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setPendingDowngradeOpen(false); setStep(2); }}>
+                {t("changePostpaidPlan.pendingDowngradeReplace")}
+              </Button>
+              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setPendingDowngradeOpen(false)}>
+                {t("changePostpaidPlan.pendingDowngradeBack")}
+              </button>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
