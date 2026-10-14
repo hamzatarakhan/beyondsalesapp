@@ -647,7 +647,6 @@ const Home = () => {
                       </ResponsiveContainer>
                     </div>
                   </div>
-                  </div>
                   ))}
                 </div>
               ))}
