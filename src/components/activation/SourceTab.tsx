@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SourceTabProps {
   active: boolean;
@@ -8,6 +9,7 @@ interface SourceTabProps {
   onClick: () => void;
   variant?: "filled" | "underline";
   disabled?: boolean;
+  className?: string;
 }
 
 export const SourceTab = ({
@@ -17,8 +19,10 @@ export const SourceTab = ({
   onClick,
   variant = "underline",
   disabled = false,
+  className,
 }: SourceTabProps) => (
-  <button
+  <Button
+    variant="ghost"
     type="button"
     disabled={disabled}
     onClick={onClick}
@@ -34,15 +38,16 @@ export const SourceTab = ({
           ? "relative text-primary"
           : "relative text-muted-foreground hover:text-foreground"
       ),
-      disabled && "opacity-40 cursor-not-allowed"
+      disabled && "opacity-40 cursor-not-allowed",
+      className
     )}
   >
-    <Icon className="w-4 h-4" />
+    <Icon className="w-4 h-4 shrink-0" />
     {label}
     {variant === "underline" && active && (
       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
     )}
-  </button>
+  </Button>
 );
 
 export default SourceTab;

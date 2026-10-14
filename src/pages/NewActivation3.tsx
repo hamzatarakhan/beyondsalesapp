@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
+import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
@@ -745,7 +746,7 @@ const NewActivation3 = () => {
   const [pendingVanityNumber, setPendingVanityNumber] = useState<{ number: string; tier: string } | null>(null);
   const [portNumber, setPortNumber] = useState("0512345678");
   const [bookedNumber, setBookedNumber] = useState("0551234567");
-  const [bookingRef, setBookingRef] = useState("BK-2026-10458");
+  const [bookingRef, setBookingRef] = useState("BK20261045");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
 
@@ -927,6 +928,11 @@ const NewActivation3 = () => {
   const otpRequired       = true;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
+  const showBooked = canActivateBookedNumber(payType);
+  const bookingCodeValid = bookingCodeSchema.safeParse(bookingRef).success;
+  useEffect(() => {
+    if (!showBooked && subType === "booked") setSubType("sim");
+  }, [showBooked, subType]);
   const showDevice       = isPostpaidInternet;
   // Dealer whitelisted for in-store handover → offer the Skip Delivery option (VNet only).
   const showHandoverOption = isPostpaidInternet;
@@ -1326,11 +1332,12 @@ const NewActivation3 = () => {
       if (!portContact) missing.push(t("activation3.missing.portContact"));
     }
     if (subType === "booked") {
+      if (!showBooked) missing.push(t("activation3.subscription.bookedPrepaidOnly"));
       if (!bookedNumber) missing.push(t("activation3.subscription.bookedNumber", "Booked number"));
-      if (!bookingRef) missing.push(t("activation3.subscription.bookingRef", "Booking reference"));
+      if (!bookingCodeValid) missing.push(t("activation3.subscription.bookingCodeError"));
     }
     return missing;
-  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, bookedNumber, bookingRef, t]);
+  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, bookedNumber, showBooked, bookingCodeValid, t]);
 
   const step2Missing = useMemo(() => {
     const missing: string[] = [];
@@ -1353,7 +1360,7 @@ const NewActivation3 = () => {
 
   const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
   const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
-  const canPay = step2Missing.length === 0;
+  const canPay = step2Missing.length === 0 && (subType !== "booked" || (showBooked && bookingCodeValid && !!bookedNumber));
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -2062,8 +2069,9 @@ const NewActivation3 = () => {
 
                 {/* New Number vs MNP (Port In) — disabled when the selected plan can't be ported. */}
                 <div className="mb-3">
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className={cn("grid gap-1.5", showBooked ? "grid-cols-3" : "grid-cols-2")}>
                     <SourceTab
+                      className="min-w-0 h-11 px-1 text-[11px] gap-1 whitespace-nowrap"
                       active={subType === "sim"}
                       icon={Sparkles}
                       label={t("activation3.subscription.newNumberBtn")}
@@ -2071,6 +2079,7 @@ const NewActivation3 = () => {
                       onClick={() => setSubType("sim")}
                     />
                     <SourceTab
+                      className="min-w-0 h-11 px-1 text-[11px] gap-1 whitespace-nowrap"
                       active={subType === "mnp"}
                       icon={ArrowRightLeft}
                       label={t("activation3.subscription.portMnp")}
@@ -2078,13 +2087,14 @@ const NewActivation3 = () => {
                       disabled={isMnpIneligiblePlan}
                       onClick={() => setSubType("mnp")}
                     />
-                    <SourceTab
+                    {showBooked && <SourceTab
+                      className="min-w-0 h-11 px-1 text-[11px] gap-1 whitespace-nowrap"
                       active={subType === "booked"}
                       icon={BookmarkCheck}
                       label={t("activation3.subscription.bookedTab", "Booked")}
                       variant="filled"
                       onClick={() => setSubType("booked")}
-                    />
+                    />}
                   </div>
                 </div>
 
@@ -2204,8 +2214,9 @@ const NewActivation3 = () => {
                 ) : subType === "booked" ? (
                   <div className="space-y-3">
                     <Field label={t("activation3.subscription.bookedNumber", "Booked number")}><PhoneNumberInput value={bookedNumber} onChange={setBookedNumber} /></Field>
-                    <Field label={t("activation3.subscription.bookingRef", "Booking reference")}>
-                      <Input value={bookingRef} onChange={(e) => setBookingRef(e.target.value)} placeholder="BK-XXXX-XXXXX" className="h-12 bg-card rounded-xl" />
+                    <Field label={t("activation3.subscription.bookingCode")}>
+                      <Input value={bookingRef} onChange={(e) => setBookingRef(e.target.value)} maxLength={10} placeholder="BK20261045" aria-invalid={!bookingCodeValid} aria-describedby={!bookingCodeValid ? "booking-code-error" : undefined} className="h-12 bg-card rounded-xl text-sm md:text-sm" />
+                      {!bookingCodeValid && <p id="booking-code-error" className="mt-1 text-xs text-destructive">{t("activation3.subscription.bookingCodeError")}</p>}
                     </Field>
                     <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.bookedNote", "The booked number will be activated on this SIM after the booking is verified.")}</p>
                   </div>
@@ -2346,7 +2357,7 @@ const NewActivation3 = () => {
               {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && <SummaryRow label={t("activation3.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount.toFixed(2)}</>} />}
               {showNumber && <SummaryRow label={t("activation3.checkout.numberType")} value={subType === "sim" ? t("activation3.subscription.newNumberBtn") : subType === "booked" ? t("activation3.subscription.bookedTab", "Booked") : t("activation3.subscription.portMnp")} />}
               {showNumber && subType === "booked" && bookedNumber && <SummaryRow label={t("activation3.subscription.bookedNumber", "Booked number")} value={bookedNumber} />}
-              {showNumber && subType === "booked" && bookingRef && <SummaryRow label={t("activation3.subscription.bookingRef", "Booking reference")} value={bookingRef} />}
+              {showNumber && subType === "booked" && bookingRef && <SummaryRow label={t("activation3.subscription.bookingCode")} value={bookingRef} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation3.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
                 <SummaryRow label={t("activation3.checkout.vanityLevel")} value={t(`activation.vanity.tiers.${pickedTier}`, NUMBER_TABS.find(tb => tb.value === pickedTier)?.label ?? "")} />
