@@ -85,18 +85,31 @@ const OPERATORS = [
 // KPI's widget — demo figures (in thousands), MTD vs LMTD bars per metric card.
 const KPI_MTDD_COLOR = "#FCD34D";
 const KPI_LMTD_COLOR = "#1E90FF";
-const KPI_CHARTS = [
-  { key: "grossAdds", mtd: 120, lmtd: 500 },
-  { key: "safCollection", mtd: 120, lmtd: 500 },
-];
 const KPI_TAB_ORDER = ["acquisition", "revenue", "distributions"] as const;
+type KpiTab = (typeof KPI_TAB_ORDER)[number];
+// Each tab has its own set of charts; swiping moves between charts, not tabs.
+const KPI_CHARTS: Record<KpiTab, { key: string; mtd: number; lmtd: number }[]> = {
+  acquisition: [
+    { key: "grossAdds", mtd: 120, lmtd: 500 },
+    { key: "safCollection", mtd: 120, lmtd: 500 },
+  ],
+  revenue: [
+    { key: "netRevenue", mtd: 320, lmtd: 480 },
+    { key: "collection", mtd: 210, lmtd: 450 },
+  ],
+  distributions: [
+    { key: "activeDistributors", mtd: 85, lmtd: 140 },
+    { key: "newDistributors", mtd: 24, lmtd: 60 },
+  ],
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-  const [kpiTab, setKpiTab] = useState<"acquisition" | "revenue" | "distributions">("acquisition");
+  const [kpiTab, setKpiTab] = useState<KpiTab>("acquisition");
+  const [kpiChartIndex, setKpiChartIndex] = useState(0);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const { widgets } = useWidgets();
   const { isRtl } = useLanguage();
