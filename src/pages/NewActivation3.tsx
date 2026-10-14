@@ -78,6 +78,7 @@ import {
   UserX,
  Mail,
   Search,
+  BookmarkCheck,
 } from "lucide-react";
 import { cn, formatValidity } from "@/lib/utils";
 import { SignatureBox, SignaturePadSheet } from "@/components/activation/SignatureBox";
@@ -89,7 +90,7 @@ import { useBrand } from "@/contexts/BrandContext";
 
 // ---------- Types ----------
 type SimType = "psim" | "esim";
-type SubType = "sim" | "mnp";
+type SubType = "sim" | "mnp" | "booked";
 export type PayType = "prepaid" | "postpaid" | "basic-postpaid";
 export type LineType = "mobile" | "data";
 type PlanMode = "plan" | "topup";
@@ -743,6 +744,8 @@ const NewActivation3 = () => {
   // Number awaiting a "free with commitment / pay number price" choice from the popup.
   const [pendingVanityNumber, setPendingVanityNumber] = useState<{ number: string; tier: string } | null>(null);
   const [portNumber, setPortNumber] = useState("0512345678");
+  const [bookedNumber, setBookedNumber] = useState("0551234567");
+  const [bookingRef, setBookingRef] = useState("BK-2026-10458");
   const [portOperator, setPortOperator] = useState("STC");
   const [portContact, setPortContact] = useState("0598765432");
 
@@ -1322,8 +1325,12 @@ const NewActivation3 = () => {
       if (!portOperator) missing.push(t("activation3.subscription.currentOperator"));
       if (!portContact) missing.push(t("activation3.missing.portContact"));
     }
+    if (subType === "booked") {
+      if (!bookedNumber) missing.push(t("activation3.subscription.bookedNumber", "Booked number"));
+      if (!bookingRef) missing.push(t("activation3.subscription.bookingRef", "Booking reference"));
+    }
     return missing;
-  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, t]);
+  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, bookedNumber, bookingRef, t]);
 
   const step2Missing = useMemo(() => {
     const missing: string[] = [];
@@ -2055,7 +2062,7 @@ const NewActivation3 = () => {
 
                 {/* New Number vs MNP (Port In) — disabled when the selected plan can't be ported. */}
                 <div className="mb-3">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <SourceTab
                       active={subType === "sim"}
                       icon={Sparkles}
@@ -2070,6 +2077,13 @@ const NewActivation3 = () => {
                       variant="filled"
                       disabled={isMnpIneligiblePlan}
                       onClick={() => setSubType("mnp")}
+                    />
+                    <SourceTab
+                      active={subType === "booked"}
+                      icon={BookmarkCheck}
+                      label={t("activation3.subscription.bookedTab", "Booked")}
+                      variant="filled"
+                      onClick={() => setSubType("booked")}
                     />
                   </div>
                 </div>
@@ -2187,6 +2201,14 @@ const NewActivation3 = () => {
                     )}
                     */}
                   </>
+                ) : subType === "booked" ? (
+                  <div className="space-y-3">
+                    <Field label={t("activation3.subscription.bookedNumber", "Booked number")}><PhoneNumberInput value={bookedNumber} onChange={setBookedNumber} /></Field>
+                    <Field label={t("activation3.subscription.bookingRef", "Booking reference")}>
+                      <Input value={bookingRef} onChange={(e) => setBookingRef(e.target.value)} placeholder="BK-XXXX-XXXXX" className="h-12 bg-card rounded-xl" />
+                    </Field>
+                    <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.bookedNote", "The booked number will be activated on this SIM after the booking is verified.")}</p>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     <Field label={t("activation3.subscription.portNumber")}><PhoneNumberInput value={portNumber} onChange={setPortNumber} /></Field>
@@ -2322,7 +2344,9 @@ const NewActivation3 = () => {
               {selectedPlanObj && <SummaryRow label={t("activation3.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation3.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
               {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && <SummaryRow label={t("activation3.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount.toFixed(2)}</>} />}
-              {showNumber && <SummaryRow label={t("activation3.checkout.numberType")} value={subType === "sim" ? t("activation3.subscription.newNumberBtn") : t("activation3.subscription.portMnp")} />}
+              {showNumber && <SummaryRow label={t("activation3.checkout.numberType")} value={subType === "sim" ? t("activation3.subscription.newNumberBtn") : subType === "booked" ? t("activation3.subscription.bookedTab", "Booked") : t("activation3.subscription.portMnp")} />}
+              {showNumber && subType === "booked" && bookedNumber && <SummaryRow label={t("activation3.subscription.bookedNumber", "Booked number")} value={bookedNumber} />}
+              {showNumber && subType === "booked" && bookingRef && <SummaryRow label={t("activation3.subscription.bookingRef", "Booking reference")} value={bookingRef} />}
               {showNumber && subType === "sim" && phone && <SummaryRow label={t("activation3.checkout.phoneNumber")} value={phone} />}
               {showNumber && subType === "sim" && pickedTier && pickedTier !== "standard" && (
                 <SummaryRow label={t("activation3.checkout.vanityLevel")} value={t(`activation.vanity.tiers.${pickedTier}`, NUMBER_TABS.find(tb => tb.value === pickedTier)?.label ?? "")} />
@@ -3289,7 +3313,7 @@ const NewActivation3 = () => {
       />
 
       {/* Success */}
-      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId} phoneNumber={subType === "sim" ? phone : portNumber}>
+      <SuccessBottomSheet open={successOpen} onClose={() => { setSuccessOpen(false); navigate("/"); }} orderId={orderId} phoneNumber={subType === "sim" ? phone : subType === "booked" ? bookedNumber : portNumber}>
         {simType === "esim" && (
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">
