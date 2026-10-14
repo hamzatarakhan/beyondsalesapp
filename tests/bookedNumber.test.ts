@@ -13,9 +13,9 @@ describe("booked-number activation", () => {
     }
     expect(bookingCodeSchema.safeParse("ab12345678").success).toBe(true);
   });
-  test("booked-number activation is prepaid only", () => {
+  test("booked-number activation is prepaid and basic postpaid only", () => {
     expect(canActivateBookedNumber("prepaid")).toBe(true);
+    expect(canActivateBookedNumber("basic-postpaid")).toBe(true);
     expect(canActivateBookedNumber("postpaid")).toBe(false);
-    expect(canActivateBookedNumber("basic-postpaid")).toBe(false);
   });
 });
