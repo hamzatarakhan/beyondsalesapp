@@ -664,8 +664,8 @@ const Home = () => {
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">
-            {KPI_CHARTS[kpiTab].map((chart, i) => (
-              <button key={chart.key} type="button" onClick={() => kpiEmblaApi?.scrollTo(i)} aria-label={t(`home.kpis.${chart.key}`)} className="p-1 -m-1 cursor-pointer">
+            {KPI_CHARTS[kpiTab].map((slide, i) => (
+              <button key={i} type="button" onClick={() => kpiEmblaApi?.scrollTo(i)} aria-label={t(`home.kpis.${slide[0].key}`)} className="p-1 -m-1 cursor-pointer">
                 <span className={cn("block w-1.5 h-1.5 rounded-full transition-colors", kpiChartIndex === i ? "bg-primary" : "bg-muted-foreground/30")} />
               </button>
             ))}
