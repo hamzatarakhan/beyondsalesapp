@@ -2074,7 +2074,7 @@ const NewActivation3 = () => {
                       className="min-w-0 h-11 px-1 text-[11px] gap-1 whitespace-nowrap"
                       active={subType === "sim"}
                       icon={Sparkles}
-                      label={t("activation3.subscription.newNumberBtn")}
+                      label={t("activation3.subscription.newTab", "New")}
                       variant="filled"
                       onClick={() => setSubType("sim")}
                     />
@@ -2082,7 +2082,7 @@ const NewActivation3 = () => {
                       className="min-w-0 h-11 px-1 text-[11px] gap-1 whitespace-nowrap"
                       active={subType === "mnp"}
                       icon={ArrowRightLeft}
-                      label={t("activation3.subscription.portMnp")}
+                      label={t("activation3.subscription.portTab", "Port (MNP)")}
                       variant="filled"
                       disabled={isMnpIneligiblePlan}
                       onClick={() => setSubType("mnp")}
