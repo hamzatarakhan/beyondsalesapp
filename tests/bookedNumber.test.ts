@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { bookingCodeSchema, canActivateBookedNumber } from "./bookedNumber";
+import { bookingCodeSchema, canActivateBookedNumber } from "../src/lib/bookedNumber";
 
 describe("booked-number activation", () => {
   test("booking codes must have exactly ten characters", () => {
