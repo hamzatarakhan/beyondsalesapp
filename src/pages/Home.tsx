@@ -578,34 +578,46 @@ const Home = () => {
             ))}
           </div>
 
-          <div className="bg-muted/40 rounded-2xl p-3">
-            <p className="text-xs font-semibold text-foreground mb-2">{t("home.kpis.grossAdds")}</p>
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={GROSS_ADDS_DATA} barGap={16}>
-                  <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
-                  <YAxis ticks={[10, 50, 150, 500]} domain={[0, 500]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={28} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
-                    {GROSS_ADDS_DATA.map((d) => (
-                      <Cell key={d.period} fill={d.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex items-center justify-center gap-4 mt-1">
-              {GROSS_ADDS_DATA.map((d) => (
-                <span key={d.period} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                  {d.period}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center justify-center gap-1.5 mt-2">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className={cn("w-1.5 h-1.5 rounded-full", i === 1 ? "bg-primary" : "bg-muted-foreground/30")} />
-              ))}
-            </div>
+          <div className="grid grid-cols-2 gap-2">
+            {KPI_CHARTS.map((chart) => (
+              <div key={chart.key} className="bg-muted/40 rounded-2xl overflow-hidden">
+                <p className="text-[11px] font-semibold text-foreground bg-muted px-3 py-2 truncate">{t(`home.kpis.${chart.key}`)}</p>
+                <div className="h-44 px-1 pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { period: "MTD", value: chart.mtd, fill: KPI_MTDD_COLOR },
+                        { period: "LMTD", value: chart.lmtd, fill: KPI_LMTD_COLOR },
+                      ]}
+                      barCategoryGap="35%"
+                    >
+                      <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
+                      <YAxis ticks={[10, 50, 100, 150, 500]} domain={[0, 500]} tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={24} />
+                      <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={36}>
+                        {[0, 1].map((i) => (
+                          <Cell key={i} fill={i === 0 ? KPI_MTDD_COLOR : KPI_LMTD_COLOR} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: KPI_MTDD_COLOR }} />
+              MTD
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: KPI_LMTD_COLOR }} />
+              LMTD
+            </span>
+          </div>
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className={cn("w-1.5 h-1.5 rounded-full", i === 1 ? "bg-primary" : "bg-muted-foreground/30")} />
+            ))}
           </div>
 
           <p className="text-xs font-semibold text-foreground mt-4 mb-2">{t("home.kpis.salesKpisTitle")}</p>
