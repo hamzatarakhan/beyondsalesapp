@@ -18,7 +18,6 @@ import {
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import UetTag from "@/components/UetTag";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";

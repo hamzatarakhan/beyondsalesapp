@@ -1,7 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
-import UetTag from "@/components/UetTag";
 
 interface AppHeaderProps {
   title: string;
@@ -29,7 +28,6 @@ const AppHeader = ({ title, showBack = false, rightElement, onBackClick }: AppHe
         <h1 className="text-center text-lg font-semibold text-foreground truncate">
           {title}
         </h1>
-        <UetTag />
       </div>
       <div className="flex items-center justify-center">
         {rightElement}
