@@ -39,6 +39,7 @@ import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 import DealerVisitWidget from "@/components/DealerVisitWidget";
+import UetTag from "@/components/UetTag";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
@@ -666,7 +667,10 @@ const Home = () => {
         <div className="flex items-center gap-3">
           <div>
             <p className="font-semibold text-foreground text-[15px]">{t("home.greeting")}</p>
-            <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
+              <UetTag />
+            </div>
           </div>
         </div>
         
