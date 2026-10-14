@@ -1,6 +1,6 @@
+import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 interface SourceTabProps {
   active: boolean;
@@ -12,7 +12,9 @@ interface SourceTabProps {
   className?: string;
 }
 
-export const SourceTab = ({
+// Plain button (no ghost hover/transition) so taps switch instantly and no
+// sticky hover highlight lingers on the previously tapped tab on touch devices.
+export const SourceTab = memo(({
   active,
   icon: Icon,
   label,
@@ -21,22 +23,25 @@ export const SourceTab = ({
   disabled = false,
   className,
 }: SourceTabProps) => (
-  <Button
-    variant="ghost"
+  <button
     type="button"
     disabled={disabled}
-    onClick={onClick}
+    aria-pressed={active}
+    // Switch on press-down for immediate feedback; keep click for keyboard.
+    onPointerDown={(e) => {
+      if (disabled || active || e.button !== 0) return;
+      onClick();
+    }}
+    onClick={() => { if (!disabled && !active) onClick(); }}
     className={cn(
-      "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
+      "flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold select-none touch-manipulation outline-none focus-visible:ring-2 focus-visible:ring-ring",
       variant === "filled" && (
         active
           ? "bg-primary text-primary-foreground rounded-xl"
-          : "bg-muted text-foreground rounded-xl"
+          : "bg-muted text-foreground rounded-xl active:bg-muted/70"
       ),
       variant === "underline" && (
-        active
-          ? "relative text-primary"
-          : "relative text-muted-foreground hover:text-foreground"
+        active ? "relative text-primary" : "relative text-muted-foreground"
       ),
       disabled && "opacity-40 cursor-not-allowed",
       className
@@ -47,7 +52,7 @@ export const SourceTab = ({
     {variant === "underline" && active && (
       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
     )}
-  </Button>
-);
+  </button>
+));
 
 export default SourceTab;
