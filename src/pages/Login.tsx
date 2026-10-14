@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import BeyondOneLogo from "@/components/BeyondOneLogo";
+import UatTag from "@/components/UatTag";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ const Login = () => {
   return (
     <div className="mobile-container min-h-screen bg-background flex flex-col px-6 pt-32 pb-10">
       <BeyondOneLogo className="h-14 w-auto mx-auto text-[#000B25] dark:text-white" />
-      <p className="text-center text-sm text-muted-foreground mt-4">{t("login.welcome")}</p>
+      <div className="mt-4 flex items-center justify-center gap-2">
+        <p className="text-center text-sm text-muted-foreground">{t("login.welcome")}</p>
+        <UatTag />
+      </div>
 
       <div className="mt-10 space-y-3">
         <Input
