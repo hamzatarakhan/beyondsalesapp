@@ -2106,6 +2106,10 @@
       "grossAdds": "Gross Adds (000)",
       "salesKpisTitle": "Sales KPIs",
       "safCollection": "SAF Collection (000)",
+      "netRevenue": "Net Revenue (000)",
+      "collection": "Collection (000)",
+      "activeDistributors": "Active Distributors",
+      "newDistributors": "New Distributors",
       "seeAll": "See all"
     },
     "channelOnboarding": "Channel Onboarding",

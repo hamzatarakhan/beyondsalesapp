@@ -85,18 +85,31 @@ const OPERATORS = [
 // KPI's widget — demo figures (in thousands), MTD vs LMTD bars per metric card.
 const KPI_MTDD_COLOR = "#FCD34D";
 const KPI_LMTD_COLOR = "#1E90FF";
-const KPI_CHARTS = [
-  { key: "grossAdds", mtd: 120, lmtd: 500 },
-  { key: "safCollection", mtd: 120, lmtd: 500 },
-];
 const KPI_TAB_ORDER = ["acquisition", "revenue", "distributions"] as const;
+type KpiTab = (typeof KPI_TAB_ORDER)[number];
+// Each tab has its own set of charts; swiping moves between charts, not tabs.
+const KPI_CHARTS: Record<KpiTab, { key: string; mtd: number; lmtd: number }[]> = {
+  acquisition: [
+    { key: "grossAdds", mtd: 120, lmtd: 500 },
+    { key: "safCollection", mtd: 120, lmtd: 500 },
+  ],
+  revenue: [
+    { key: "netRevenue", mtd: 320, lmtd: 480 },
+    { key: "collection", mtd: 210, lmtd: 450 },
+  ],
+  distributions: [
+    { key: "activeDistributors", mtd: 85, lmtd: 140 },
+    { key: "newDistributors", mtd: 24, lmtd: 60 },
+  ],
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-  const [kpiTab, setKpiTab] = useState<"acquisition" | "revenue" | "distributions">("acquisition");
+  const [kpiTab, setKpiTab] = useState<KpiTab>("acquisition");
+  const [kpiChartIndex, setKpiChartIndex] = useState(0);
   const { brand: activeOperator, setBrand: setActiveOperator } = useBrand();
   const { widgets } = useWidgets();
   const { isRtl } = useLanguage();
@@ -167,23 +180,24 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // KPI swipe pages: keep the active tab chip in sync with the swiped page
+  // KPI chart swipe: track the active chart dot within the current tab
   useEffect(() => {
     if (!kpiEmblaApi) return;
-    const onSelect = () => setKpiTab(KPI_TAB_ORDER[kpiEmblaApi.selectedScrollSnap()]);
+    const onSelect = () => setKpiChartIndex(kpiEmblaApi.selectedScrollSnap());
     kpiEmblaApi.on("select", onSelect);
     return () => { kpiEmblaApi.off("select", onSelect); };
   }, [kpiEmblaApi]);
 
-  // Re-init when text direction flips (LTR ↔ RTL) so KPI pages swipe the correct way
+  // Re-init when the tab or text direction changes so the chart slides rebuild
   useEffect(() => {
     if (!kpiEmblaApi) return;
     kpiEmblaApi.reInit({ loop: false, direction: isRtl ? "rtl" : "ltr" });
-  }, [isRtl, kpiEmblaApi]);
+    kpiEmblaApi.scrollTo(0, true);
+    setKpiChartIndex(0);
+  }, [isRtl, kpiTab, kpiEmblaApi]);
 
-  const selectKpiTab = (tab: (typeof KPI_TAB_ORDER)[number]) => {
+  const selectKpiTab = (tab: KpiTab) => {
     setKpiTab(tab);
-    kpiEmblaApi?.scrollTo(KPI_TAB_ORDER.indexOf(tab));
   };
 
   const memberOnboarding = [
@@ -605,33 +619,29 @@ const Home = () => {
 
           <div ref={kpiEmblaRef} className="overflow-hidden">
             <div className="flex">
-              {KPI_TAB_ORDER.map((tab) => (
-                <div key={tab} className="flex-[0_0_100%] min-w-0">
-                  <div className="grid grid-cols-2 gap-2 px-0.5">
-                    {KPI_CHARTS.map((chart) => (
-                      <div key={chart.key} className="bg-muted/40 rounded-2xl overflow-hidden">
-                        <p className="text-[11px] font-semibold text-foreground bg-muted px-3 py-2 truncate">{t(`home.kpis.${chart.key}`)}</p>
-                        <div className="h-44 px-1 pt-2">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={[
-                                { period: "MTD", value: chart.mtd, fill: KPI_MTDD_COLOR },
-                                { period: "LMTD", value: chart.lmtd, fill: KPI_LMTD_COLOR },
-                              ]}
-                              barCategoryGap="35%"
-                            >
-                              <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
-                              <YAxis ticks={[10, 50, 100, 150, 500]} domain={[0, 500]} tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={24} />
-                              <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={36}>
-                                {[0, 1].map((i) => (
-                                  <Cell key={i} fill={i === 0 ? KPI_MTDD_COLOR : KPI_LMTD_COLOR} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    ))}
+              {KPI_CHARTS[kpiTab].map((chart) => (
+                <div key={chart.key} className="flex-[0_0_100%] min-w-0 px-0.5">
+                  <div className="bg-muted/40 rounded-2xl overflow-hidden">
+                    <p className="text-[11px] font-semibold text-foreground bg-muted px-3 py-2 truncate">{t(`home.kpis.${chart.key}`)}</p>
+                    <div className="h-44 px-1 pt-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={[
+                            { period: "MTD", value: chart.mtd, fill: KPI_MTDD_COLOR },
+                            { period: "LMTD", value: chart.lmtd, fill: KPI_LMTD_COLOR },
+                          ]}
+                          barCategoryGap="35%"
+                        >
+                          <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
+                          <YAxis ticks={[10, 50, 100, 150, 500]} domain={[0, 500]} tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={24} />
+                          <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={48}>
+                            {[0, 1].map((i) => (
+                              <Cell key={i} fill={i === 0 ? KPI_MTDD_COLOR : KPI_LMTD_COLOR} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -648,9 +658,9 @@ const Home = () => {
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">
-            {KPI_TAB_ORDER.map((tab, i) => (
-              <button key={tab} type="button" onClick={() => selectKpiTab(tab)} aria-label={t(`home.kpis.tabs.${tab}`)} className="p-1 -m-1 cursor-pointer">
-                <span className={cn("block w-1.5 h-1.5 rounded-full transition-colors", kpiTab === tab ? "bg-primary" : "bg-muted-foreground/30")} />
+            {KPI_CHARTS[kpiTab].map((chart, i) => (
+              <button key={chart.key} type="button" onClick={() => kpiEmblaApi?.scrollTo(i)} aria-label={t(`home.kpis.${chart.key}`)} className="p-1 -m-1 cursor-pointer">
+                <span className={cn("block w-1.5 h-1.5 rounded-full transition-colors", kpiChartIndex === i ? "bg-primary" : "bg-muted-foreground/30")} />
               </button>
             ))}
           </div>
