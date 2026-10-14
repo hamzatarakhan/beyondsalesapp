@@ -593,11 +593,11 @@ const Home = () => {
           </div>
 
           <div className="flex items-center gap-2 mb-3">
-            {(["acquisition", "revenue", "distributions"] as const).map((tab) => (
+            {KPI_TAB_ORDER.map((tab) => (
               <button
                 key={tab}
                 type="button"
-                onClick={() => setKpiTab(tab)}
+                onClick={() => selectKpiTab(tab)}
                 className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", kpiTab === tab ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
               >
                 {t(`home.kpis.tabs.${tab}`)}
