@@ -169,6 +169,25 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
+  // KPI swipe pages: keep the active tab chip in sync with the swiped page
+  useEffect(() => {
+    if (!kpiEmblaApi) return;
+    const onSelect = () => setKpiTab(KPI_TAB_ORDER[kpiEmblaApi.selectedScrollSnap()]);
+    kpiEmblaApi.on("select", onSelect);
+    return () => { kpiEmblaApi.off("select", onSelect); };
+  }, [kpiEmblaApi]);
+
+  // Re-init when text direction flips (LTR ↔ RTL) so KPI pages swipe the correct way
+  useEffect(() => {
+    if (!kpiEmblaApi) return;
+    kpiEmblaApi.reInit({ loop: false, direction: isRtl ? "rtl" : "ltr" });
+  }, [isRtl, kpiEmblaApi]);
+
+  const selectKpiTab = (tab: (typeof KPI_TAB_ORDER)[number]) => {
+    setKpiTab(tab);
+    kpiEmblaApi?.scrollTo(KPI_TAB_ORDER.indexOf(tab));
+  };
+
   const memberOnboarding = [
     { icon: UserPlus, label: t("home.channelOnboarding"), path: "/channel-onboarding", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
     { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests", badge: t("home.badgeApproved"), badgeTone: "approved" as const },
