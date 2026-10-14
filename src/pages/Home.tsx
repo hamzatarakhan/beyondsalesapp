@@ -666,7 +666,10 @@ const Home = () => {
         <div className="flex items-center gap-3">
           <div>
             <p className="font-semibold text-foreground text-[15px]">{t("home.greeting")}</p>
-            <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
+              <UetTag />
+            </div>
           </div>
         </div>
         

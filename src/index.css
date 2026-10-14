@@ -120,6 +120,12 @@
     @apply text-sm font-semibold text-foreground mb-3;
   }
 
+  /* Always-on UET build tag shown next to every page title — amber to match the
+     existing "Prototype only" test-build language, unaffected by brand theming. */
+  .uet-tag {
+    @apply inline-flex shrink-0 items-center rounded-full border border-amber-300/70 dark:border-amber-700/60 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400 leading-none;
+  }
+
   .dashed-upload {
     @apply border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center py-8 bg-muted/30;
   }
