@@ -97,12 +97,12 @@ const KPI_CHARTS: Record<KpiTab, KpiChart[][]> = {
     ],
   ],
   revenue: [
-    { key: "netRevenue", mtd: 320, lmtd: 480 },
-    { key: "collection", mtd: 210, lmtd: 450 },
+    [{ key: "netRevenue", mtd: 320, lmtd: 480 }],
+    [{ key: "collection", mtd: 210, lmtd: 450 }],
   ],
   distributions: [
-    { key: "activeDistributors", mtd: 85, lmtd: 140 },
-    { key: "newDistributors", mtd: 24, lmtd: 60 },
+    [{ key: "activeDistributors", mtd: 85, lmtd: 140 }],
+    [{ key: "newDistributors", mtd: 24, lmtd: 60 }],
   ],
 };
 
