@@ -89,6 +89,7 @@ const KPI_CHARTS = [
   { key: "grossAdds", mtd: 120, lmtd: 500 },
   { key: "safCollection", mtd: 120, lmtd: 500 },
 ];
+const KPI_TAB_ORDER = ["acquisition", "revenue", "distributions"] as const;
 
 const Home = () => {
   const navigate = useNavigate();
@@ -104,6 +105,8 @@ const Home = () => {
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
   const [heroEmblaRef, heroEmblaApi] = useEmblaCarousel({ loop: true, direction: isRtl ? "rtl" : "ltr" });
   const [heroActiveSnap, setHeroActiveSnap] = useState(0);
+  // KPI widget: swipeable pages, one per tab (Acquisition / Revenue / Distributions)
+  const [kpiEmblaRef, kpiEmblaApi] = useEmblaCarousel({ loop: false, direction: isRtl ? "rtl" : "ltr" });
   const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollSaveScheduled = useRef(false);
