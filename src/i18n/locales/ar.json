@@ -2024,6 +2024,10 @@
       "grossAdds": "إجمالي الإضافات (بالآلاف)",
       "salesKpisTitle": "مؤشرات أداء المبيعات",
       "safCollection": "تحصيل SAF (بالآلاف)",
+      "netRevenue": "صافي الإيرادات (بالآلاف)",
+      "collection": "التحصيل (بالآلاف)",
+      "activeDistributors": "الموزعون النشطون",
+      "newDistributors": "الموزعون الجدد",
       "seeAll": "عرض الكل"
     },
     "channelOnboarding": "تأهيل القنوات",
