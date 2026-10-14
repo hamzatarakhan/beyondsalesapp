@@ -3563,7 +3563,7 @@
       "pickNumberHintVanity": "Tap the number to browse Standard or Vanity numbers — eligible Vanity numbers come with free commitment by default",
       "bookingCode": "Booking code",
       "bookingCodeError": "Enter exactly 10 characters using both letters and numbers only.",
-      "bookedPrepaidOnly": "Booked numbers are available for prepaid only.",
+      "bookedPrepaidOnly": "Booked numbers are available for prepaid and basic postpaid only.",
       "currentOperator": "Current operator",
       "contactNum": "Contact number",
       "portNote": "The number will be transferred from the selected operator after verification.",
