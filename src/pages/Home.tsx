@@ -561,8 +561,11 @@ const Home = () => {
     kpis: (
       <div key="kpis" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="mb-3">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-foreground">{t("home.kpis.title")}</h3>
+            <button type="button" onClick={() => navigate("/sales-kpis")} className="text-xs font-semibold text-primary">
+              {t("home.kpis.seeAll")}
+            </button>
           </div>
 
           <div className="flex items-center gap-2 mb-3">
