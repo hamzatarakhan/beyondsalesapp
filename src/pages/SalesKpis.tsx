@@ -151,15 +151,15 @@ const SalesKpis = () => {
 
       {/* ---------- Filter drawer ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden">
           <button onClick={() => setFilterOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
-          <DrawerHeader className="text-center pt-8">
+          <DrawerHeader className="text-center pt-8 shrink-0">
             <DrawerTitle className="text-lg font-semibold">{t("salesKpis.filter.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("salesKpis.filter.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-8 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-4 space-y-4">
             {FILTER_FIELDS.map((f) => (
               <div key={f.key} className="space-y-1.5">
                 <p className="text-xs font-semibold text-foreground px-1">{t(`salesKpis.filter.${f.key}`)}</p>
@@ -175,7 +175,8 @@ const SalesKpis = () => {
                 </Select>
               </div>
             ))}
-
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-2 bg-card border-t border-border/50">
             <button type="button" onClick={applyFilter} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
               {t("salesKpis.filter.apply")}
             </button>
