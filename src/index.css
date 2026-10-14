@@ -126,6 +126,11 @@
     @apply inline-flex h-[18px] shrink-0 items-center rounded-full border border-amber-300/70 dark:border-amber-700/60 bg-amber-100 dark:bg-amber-900/40 px-1.5 text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400 leading-none;
   }
 
+  /* Standalone size for the tag above the login logo, where it has room to breathe. */
+  .uat-tag--md {
+    @apply h-[22px] px-3 text-[10px] tracking-widest;
+  }
+
   .dashed-upload {
     @apply border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center py-8 bg-muted/30;
   }
