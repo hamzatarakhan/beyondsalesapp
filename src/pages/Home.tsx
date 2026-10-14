@@ -622,9 +622,10 @@ const Home = () => {
 
           <div ref={kpiEmblaRef} className="overflow-hidden">
             <div className="flex">
-              {KPI_CHARTS[kpiTab].map((chart) => (
-                <div key={chart.key} className="flex-[0_0_100%] min-w-0 px-0.5">
-                  <div className="bg-muted/40 rounded-2xl overflow-hidden">
+              {KPI_CHARTS[kpiTab].map((slide, slideIdx) => (
+                <div key={slideIdx} className={cn("flex-[0_0_100%] min-w-0 px-0.5 grid gap-2", slide.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+                  {slide.map((chart) => (
+                  <div key={chart.key} className="bg-muted/40 rounded-2xl overflow-hidden min-w-0">
                     <p className="text-[11px] font-semibold text-foreground bg-muted px-3 py-2 truncate">{t(`home.kpis.${chart.key}`)}</p>
                     <div className="h-44 px-1 pt-2">
                       <ResponsiveContainer width="100%" height="100%">
