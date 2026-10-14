@@ -87,11 +87,14 @@ const KPI_MTDD_COLOR = "#FCD34D";
 const KPI_LMTD_COLOR = "#1E90FF";
 const KPI_TAB_ORDER = ["acquisition", "revenue", "distributions"] as const;
 type KpiTab = (typeof KPI_TAB_ORDER)[number];
-// Each tab has its own set of charts; swiping moves between charts, not tabs.
-const KPI_CHARTS: Record<KpiTab, { key: string; mtd: number; lmtd: number }[]> = {
+// Each tab has its own slides; each slide shows one or two charts side by side.
+type KpiChart = { key: string; mtd: number; lmtd: number };
+const KPI_CHARTS: Record<KpiTab, KpiChart[][]> = {
   acquisition: [
-    { key: "grossAdds", mtd: 120, lmtd: 500 },
-    { key: "safCollection", mtd: 120, lmtd: 500 },
+    [
+      { key: "grossAdds", mtd: 120, lmtd: 500 },
+      { key: "safCollection", mtd: 120, lmtd: 500 },
+    ],
   ],
   revenue: [
     { key: "netRevenue", mtd: 320, lmtd: 480 },
