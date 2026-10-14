@@ -666,11 +666,11 @@ const Home = () => {
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <p className="font-semibold text-foreground text-[15px]">{t("home.greeting")}</p>
-            <div className="flex items-center gap-1.5">
-              <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
-              <UetTag />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <p className="font-semibold text-foreground text-[15px] truncate">{t("home.greeting")}</p>
+              <UatTag />
             </div>
+            <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
           </div>
         </div>
         
