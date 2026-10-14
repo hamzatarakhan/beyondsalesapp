@@ -39,6 +39,7 @@ import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 import DealerVisitWidget from "@/components/DealerVisitWidget";
+import UetTag from "@/components/UetTag";
 
 import SematiVerification from "@/components/SematiVerification";
 import { useBrand, Brand } from "@/contexts/BrandContext";
