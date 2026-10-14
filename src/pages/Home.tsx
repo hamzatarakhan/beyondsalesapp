@@ -95,14 +95,33 @@ const KPI_CHARTS: Record<KpiTab, KpiChart[][]> = {
       { key: "grossAdds", mtd: 120, lmtd: 500 },
       { key: "safCollection", mtd: 120, lmtd: 500 },
     ],
+    [
+      { key: "netAdds", mtd: 95, lmtd: 420 },
+      { key: "churned", mtd: 40, lmtd: 180 },
+    ],
+    [{ key: "dataSimAdds", mtd: 65, lmtd: 230 }],
   ],
   revenue: [
-    [{ key: "netRevenue", mtd: 320, lmtd: 480 }],
-    [{ key: "collection", mtd: 210, lmtd: 450 }],
+    [
+      { key: "netRevenue", mtd: 320, lmtd: 480 },
+      { key: "collection", mtd: 210, lmtd: 450 },
+    ],
+    [
+      { key: "postpaidRevenue", mtd: 180, lmtd: 300 },
+      { key: "prepaidRevenue", mtd: 140, lmtd: 260 },
+    ],
+    [{ key: "vasRevenue", mtd: 90, lmtd: 160 }],
   ],
   distributions: [
-    [{ key: "activeDistributors", mtd: 85, lmtd: 140 }],
-    [{ key: "newDistributors", mtd: 24, lmtd: 60 }],
+    [
+      { key: "activeDistributors", mtd: 85, lmtd: 140 },
+      { key: "newDistributors", mtd: 24, lmtd: 60 },
+    ],
+    [
+      { key: "activeDealers", mtd: 110, lmtd: 200 },
+      { key: "outletSales", mtd: 75, lmtd: 160 },
+    ],
+    [{ key: "topOutlets", mtd: 45, lmtd: 120 }],
   ],
 };
 
