@@ -82,10 +82,12 @@ const OPERATORS = [
   { id: "friendi", name: "Friendi", logo: friendiMobileLogo },
 ];
 
-// KPI's widget — Gross Adds demo figures (in thousands), one bar per period.
-const GROSS_ADDS_DATA = [
-  { period: "MTD", value: 100, color: "#f59e0b" },
-  { period: "LMTD", value: 160, color: "#dc2626" },
+// KPI's widget — demo figures (in thousands), MTD vs LMTD bars per metric card.
+const KPI_MTDD_COLOR = "#FCD34D";
+const KPI_LMTD_COLOR = "#1E90FF";
+const KPI_CHARTS = [
+  { key: "grossAdds", mtd: 120, lmtd: 500 },
+  { key: "safCollection", mtd: 120, lmtd: 500 },
 ];
 
 const Home = () => {
