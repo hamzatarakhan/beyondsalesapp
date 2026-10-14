@@ -107,8 +107,6 @@ const Home = () => {
   const [heroActiveSnap, setHeroActiveSnap] = useState(0);
   // KPI widget: swipeable pages, one per tab (Acquisition / Revenue / Distributions)
   const [kpiEmblaRef, kpiEmblaApi] = useEmblaCarousel({ loop: false, direction: isRtl ? "rtl" : "ltr" });
-  // KPI widget: swipeable pages, one per tab (Acquisition / Revenue / Distributions)
-  const [kpiEmblaRef, kpiEmblaApi] = useEmblaCarousel({ loop: false, direction: isRtl ? "rtl" : "ltr" });
   const heroAutoplayRef = useRef<ReturnType<typeof setInterval>>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollSaveScheduled = useRef(false);
