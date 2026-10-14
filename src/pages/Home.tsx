@@ -180,23 +180,24 @@ const Home = () => {
     };
   }, [heroEmblaApi]);
 
-  // KPI swipe pages: keep the active tab chip in sync with the swiped page
+  // KPI chart swipe: track the active chart dot within the current tab
   useEffect(() => {
     if (!kpiEmblaApi) return;
-    const onSelect = () => setKpiTab(KPI_TAB_ORDER[kpiEmblaApi.selectedScrollSnap()]);
+    const onSelect = () => setKpiChartIndex(kpiEmblaApi.selectedScrollSnap());
     kpiEmblaApi.on("select", onSelect);
     return () => { kpiEmblaApi.off("select", onSelect); };
   }, [kpiEmblaApi]);
 
-  // Re-init when text direction flips (LTR ↔ RTL) so KPI pages swipe the correct way
+  // Re-init when the tab or text direction changes so the chart slides rebuild
   useEffect(() => {
     if (!kpiEmblaApi) return;
     kpiEmblaApi.reInit({ loop: false, direction: isRtl ? "rtl" : "ltr" });
-  }, [isRtl, kpiEmblaApi]);
+    kpiEmblaApi.scrollTo(0, true);
+    setKpiChartIndex(0);
+  }, [isRtl, kpiTab, kpiEmblaApi]);
 
-  const selectKpiTab = (tab: (typeof KPI_TAB_ORDER)[number]) => {
+  const selectKpiTab = (tab: KpiTab) => {
     setKpiTab(tab);
-    kpiEmblaApi?.scrollTo(KPI_TAB_ORDER.indexOf(tab));
   };
 
   const memberOnboarding = [
