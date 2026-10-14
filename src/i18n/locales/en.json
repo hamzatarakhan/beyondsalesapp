@@ -2104,7 +2104,9 @@
         "distributions": "Distributions"
       },
       "grossAdds": "Gross Adds (000)",
-      "salesKpisTitle": "Sales KPIs"
+      "salesKpisTitle": "Sales KPIs",
+      "safCollection": "SAF Collection (000)",
+      "seeAll": "See all"
     },
     "channelOnboarding": "Channel Onboarding",
     "onboardingRequests": "Onboarding Requests",

@@ -2022,7 +2022,9 @@
         "distributions": "التوزيعات"
       },
       "grossAdds": "إجمالي الإضافات (بالآلاف)",
-      "salesKpisTitle": "مؤشرات أداء المبيعات"
+      "salesKpisTitle": "مؤشرات أداء المبيعات",
+      "safCollection": "تحصيل SAF (بالآلاف)",
+      "seeAll": "عرض الكل"
     },
     "channelOnboarding": "تأهيل القنوات",
     "onboardingRequests": "طلبات التأهيل",
