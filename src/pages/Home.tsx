@@ -87,19 +87,22 @@ const KPI_MTDD_COLOR = "#FCD34D";
 const KPI_LMTD_COLOR = "#1E90FF";
 const KPI_TAB_ORDER = ["acquisition", "revenue", "distributions"] as const;
 type KpiTab = (typeof KPI_TAB_ORDER)[number];
-// Each tab has its own set of charts; swiping moves between charts, not tabs.
-const KPI_CHARTS: Record<KpiTab, { key: string; mtd: number; lmtd: number }[]> = {
+// Each tab has its own slides; each slide shows one or two charts side by side.
+type KpiChart = { key: string; mtd: number; lmtd: number };
+const KPI_CHARTS: Record<KpiTab, KpiChart[][]> = {
   acquisition: [
-    { key: "grossAdds", mtd: 120, lmtd: 500 },
-    { key: "safCollection", mtd: 120, lmtd: 500 },
+    [
+      { key: "grossAdds", mtd: 120, lmtd: 500 },
+      { key: "safCollection", mtd: 120, lmtd: 500 },
+    ],
   ],
   revenue: [
-    { key: "netRevenue", mtd: 320, lmtd: 480 },
-    { key: "collection", mtd: 210, lmtd: 450 },
+    [{ key: "netRevenue", mtd: 320, lmtd: 480 }],
+    [{ key: "collection", mtd: 210, lmtd: 450 }],
   ],
   distributions: [
-    { key: "activeDistributors", mtd: 85, lmtd: 140 },
-    { key: "newDistributors", mtd: 24, lmtd: 60 },
+    [{ key: "activeDistributors", mtd: 85, lmtd: 140 }],
+    [{ key: "newDistributors", mtd: 24, lmtd: 60 }],
   ],
 };
 
@@ -619,9 +622,10 @@ const Home = () => {
 
           <div ref={kpiEmblaRef} className="overflow-hidden">
             <div className="flex">
-              {KPI_CHARTS[kpiTab].map((chart) => (
-                <div key={chart.key} className="flex-[0_0_100%] min-w-0 px-0.5">
-                  <div className="bg-muted/40 rounded-2xl overflow-hidden">
+              {KPI_CHARTS[kpiTab].map((slide, slideIdx) => (
+                <div key={slideIdx} className={cn("flex-[0_0_100%] min-w-0 px-0.5 grid gap-2", slide.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+                  {slide.map((chart) => (
+                  <div key={chart.key} className="bg-muted/40 rounded-2xl overflow-hidden min-w-0">
                     <p className="text-[11px] font-semibold text-foreground bg-muted px-3 py-2 truncate">{t(`home.kpis.${chart.key}`)}</p>
                     <div className="h-44 px-1 pt-2">
                       <ResponsiveContainer width="100%" height="100%">
@@ -643,6 +647,7 @@ const Home = () => {
                       </ResponsiveContainer>
                     </div>
                   </div>
+                  ))}
                 </div>
               ))}
             </div>
@@ -658,8 +663,8 @@ const Home = () => {
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">
-            {KPI_CHARTS[kpiTab].map((chart, i) => (
-              <button key={chart.key} type="button" onClick={() => kpiEmblaApi?.scrollTo(i)} aria-label={t(`home.kpis.${chart.key}`)} className="p-1 -m-1 cursor-pointer">
+            {KPI_CHARTS[kpiTab].map((slide, i) => (
+              <button key={i} type="button" onClick={() => kpiEmblaApi?.scrollTo(i)} aria-label={t(`home.kpis.${slide[0].key}`)} className="p-1 -m-1 cursor-pointer">
                 <span className={cn("block w-1.5 h-1.5 rounded-full transition-colors", kpiChartIndex === i ? "bg-primary" : "bg-muted-foreground/30")} />
               </button>
             ))}
