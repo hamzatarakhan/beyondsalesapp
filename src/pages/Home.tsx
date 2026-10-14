@@ -650,8 +650,10 @@ const Home = () => {
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className={cn("w-1.5 h-1.5 rounded-full", i === 1 ? "bg-primary" : "bg-muted-foreground/30")} />
+            {KPI_TAB_ORDER.map((tab, i) => (
+              <button key={tab} type="button" onClick={() => selectKpiTab(tab)} aria-label={t(`home.kpis.tabs.${tab}`)} className="p-1 -m-1 cursor-pointer">
+                <span className={cn("block w-1.5 h-1.5 rounded-full transition-colors", kpiTab === tab ? "bg-primary" : "bg-muted-foreground/30")} />
+              </button>
             ))}
           </div>
 
