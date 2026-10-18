@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createUatReservationService, type UatReservation } from "../src/lib/uatNumberReservations";
+import { createUatReservationService, uatNumberReservations, type UatReservation } from "../src/lib/uatNumberReservations";
 
 const inventory = [
   { number: "0547896327", brand: "virgin" as const, available: false },
@@ -80,5 +80,12 @@ describe("UAT Scenario 1: no existing reservation", () => {
     const service = createUatReservationService();
     service.reserve("customer-a", "virgin", inventory);
     expect(() => service.reserve("customer-a", "friendi", inventory)).toThrow("existingReservation");
+  });
+});
+
+describe("Shipped UAT fixtures", () => {
+  test("cancellation is permitted for both sample reservations", () => {
+    expect(uatNumberReservations.canCancel("saudi-id:1444444404")).toBe(true);
+    expect(uatNumberReservations.canCancel("saudi-id:1222222202")).toBe(true);
   });
 });
