@@ -2179,7 +2179,15 @@ const NewActivation3 = () => {
 
                 {subType === "sim" ? (
                   <>
-                    <div className="bg-primary/5 rounded-2xl border-2 border-dashed border-primary/20 py-4 px-4 mb-3 flex flex-col items-center gap-1">
+                    {reservedNumber === phone && (
+                      <div role="status" className="info-note">
+                        <Info className="w-4 h-4 text-info shrink-0 mt-px" strokeWidth={2.2} />
+                        <p className="text-[12px] leading-snug text-foreground">
+                          {t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}
+                        </p>
+                      </div>
+                    )}
+                    <div className="bg-muted/40 rounded-2xl border-2 border-dashed border-border/70 py-4 px-4 mb-3 flex flex-col items-center gap-1">
                       <span className="text-xl font-bold tracking-wide text-foreground">{phone}</span>
                       {/* OLD approach: flat tier fee shown here, commitment decided afterwards via the
                           checkbox further down. Kept commented in case we need to revert.
@@ -2230,14 +2238,6 @@ const NewActivation3 = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation3.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {reservedNumber === phone && (
-                      <div role="status" className="info-note">
-                        <Info className="w-4 h-4 text-info shrink-0 mt-px" strokeWidth={2.2} />
-                        <p className="text-[12px] leading-snug text-foreground">
-                          {t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}
-                        </p>
-                      </div>
-                    )}
 
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation3.vanity.selectPlanFirst")}</p>

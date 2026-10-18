@@ -146,7 +146,7 @@
   /* Informational note — soft azure panel with a leading icon, used by the
      number-reservation confirmation on SIM activation so it reads as info, not an error. */
   .info-note {
-    @apply mt-3 flex items-start gap-2 rounded-xl border border-info/25 bg-info/10 px-3 py-2.5 text-start;
+    @apply mb-3 flex items-start gap-2 rounded-xl border border-info/25 bg-info/10 px-3 py-2.5 text-start;
   }
 
   .status-badge {
