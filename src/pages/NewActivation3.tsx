@@ -3013,8 +3013,8 @@ const NewActivation3 = () => {
             {t("activation3.reservation.permissionDenied")}
           </p>
           <div className="mt-1 flex flex-col gap-2">
-          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button disabled className="h-8 w-full rounded-full border-border bg-muted/50 px-3 text-xs font-medium text-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
+          <Button className="h-11 w-full rounded-2xl px-3 text-xs font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button disabled className="h-11 w-full rounded-2xl border-border bg-muted/50 px-3 text-xs font-medium text-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
