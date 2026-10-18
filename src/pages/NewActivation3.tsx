@@ -744,12 +744,20 @@ const NewActivation3 = () => {
   const [reservationMessage, setReservationMessage] = useState<ReservationMessage>("reserved");
   const [previousReservedNumber, setPreviousReservedNumber] = useState("");
   const [brandReservation, setBrandReservation] = useState<UatReservation | null>(null);
+  // Prototype-only: tapping a reservation test row opens the cross-brand pop-up directly.
+  const [reservationPreviewKey, setReservationPreviewKey] = useState<string | null>(null);
   const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
   useEffect(() => {
     setReservedNumber("");
     setReservationError("");
     setBrandReservation(null);
+    setReservationPreviewKey(null);
   }, [reservationCustomerKey, brand, subType]);
+  // The pop-up renders whichever reservation is active: a real cross-brand error, or a
+  // prototype preview opened from a reservation test row (only when that reservation's
+  // brand differs from the selected brand, matching the real cross-brand flow).
+  const reservationPreview = reservationPreviewKey ? uatNumberReservations.get(reservationPreviewKey) ?? null : null;
+  const activeBrandReservation = brandReservation ?? (reservationPreview && reservationPreview.brand !== brand ? reservationPreview : null);
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
   // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
@@ -1575,7 +1583,7 @@ const NewActivation3 = () => {
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation allowed" },
                 { value: "1555555505", note: "On friendi: Virgin reservation, cancellation allowed" },
-              ]} onSelect={setIdNumber} />
+              ]} onSelect={setIdNumber} onOpen={(id) => setReservationPreviewKey(`${idType}:${id}`)} />
               </>
             )}
 
