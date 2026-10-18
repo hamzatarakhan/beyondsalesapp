@@ -33,7 +33,7 @@ import {
   MapPin,
   Building2,
   Info,
-  Ticket,
+  // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ActivityIcon from "@/components/ActivityIcon";
