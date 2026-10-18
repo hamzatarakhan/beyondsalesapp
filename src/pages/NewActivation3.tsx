@@ -247,6 +247,8 @@ const FM_TOPUP_REQUIRED_ID_SUFFIX = "234512345";
 const FM_NO_PAYG_ID_SUFFIX = "555544444";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
+// Sample existing contact numbers for the checkout combo field (prototype data).
+const EXISTING_CONTACT_NUMBERS = ["0512345678", "0509876543", "0551112233"];
 
 export const NATIONALITY_CODES = [
   "sa", "jo", "eg", "in", "pk", "bd", "sy", "lb", "ye", "sd",
