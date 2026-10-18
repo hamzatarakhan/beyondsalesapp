@@ -744,19 +744,12 @@ const NewActivation3 = () => {
   const [reservationMessage, setReservationMessage] = useState<ReservationMessage>("reserved");
   const [previousReservedNumber, setPreviousReservedNumber] = useState("");
   const [brandReservation, setBrandReservation] = useState<UatReservation | null>(null);
-  // Prototype-only: tapping a reservation test row opens the cross-brand pop-up directly.
-  const [reservationPreviewKey, setReservationPreviewKey] = useState<string | null>(null);
   const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
   useEffect(() => {
     setReservedNumber("");
     setReservationError("");
     setBrandReservation(null);
-    setReservationPreviewKey(null);
   }, [reservationCustomerKey, brand, subType]);
-  // The pop-up renders whichever reservation is active: a real cross-brand error, or a
-  // prototype preview opened by tapping any reservation test row.
-  const reservationPreview = reservationPreviewKey ? uatNumberReservations.get(reservationPreviewKey) ?? null : null;
-  const activeBrandReservation = brandReservation ?? reservationPreview;
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
   // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
@@ -1582,7 +1575,7 @@ const NewActivation3 = () => {
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation allowed" },
                 { value: "1555555505", note: "On friendi: Virgin reservation, cancellation allowed" },
-              ]} onSelect={setIdNumber} onOpen={(id) => setReservationPreviewKey(`${idType}:${id}`)} />
+              ]} onSelect={setIdNumber} />
               </>
             )}
 
@@ -3007,24 +3000,21 @@ const NewActivation3 = () => {
         </div>
       )}
 
-      <Dialog open={activeBrandReservation !== null} onOpenChange={() => {}}>
-        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-2xl border-0 bg-card p-5 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-10 w-10 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
+        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
             <path d="M20 12v10" />
             <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <DialogTitle className="text-base font-semibold leading-6 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
-          <DialogDescription className="text-sm leading-[1.45] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: activeBrandReservation?.number, brand: activeBrandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
-          <p className="text-xs leading-[1.4] text-destructive">{t("activation3.reservation.permissionDenied")}</p>
-          <div className="mt-2 flex flex-col gap-2">
-          <Button className="h-10 w-full rounded-full px-3 text-sm font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-10 w-full rounded-full border-primary bg-card px-3 text-sm font-medium text-primary hover:bg-primary/5 hover:text-primary" variant="outline" onClick={() => {
-            if (!activeBrandReservation) return;
+          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
+          <div className="mt-1 flex flex-col gap-2">
+          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             try {
-              uatNumberReservations.cancel(activeBrandReservation.customerKey);
+              uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
-              setReservationPreviewKey(null);
               setReservationError("");
               setReservedNumber("");
             } catch { setReservationError("permissionDenied"); }

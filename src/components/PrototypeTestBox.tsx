@@ -17,8 +17,6 @@ interface PrototypeTestBoxProps {
   items: (string | PrototypeTestItem)[];
   /** Called with the raw value when its button is tapped — fill the relevant field with it. */
   onSelect: (value: string) => void;
-  /** Optional: called with the raw value when the row itself is tapped — e.g. opens a preview popup. */
-  onOpen?: (value: string) => void;
 }
 
 /**
@@ -27,7 +25,7 @@ interface PrototypeTestBoxProps {
  * that fills the field above instead of requiring manual retyping. Shared so every
  * current and future prototype feature gets the same box instead of a hand-rolled copy.
  */
-const PrototypeTestBox = ({ heading, description, items, onSelect, onOpen }: PrototypeTestBoxProps) => {
+const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTestBoxProps) => {
   const [filledValue, setFilledValue] = useState<string | null>(null);
 
   const normalized = items.map((item) => (typeof item === "string" ? { value: item } : item));
@@ -58,18 +56,14 @@ const PrototypeTestBox = ({ heading, description, items, onSelect, onOpen }: Pro
   };
 
   const renderItem = ({ value, note }: PrototypeTestItem) => (
-    <div
-      key={value}
-      className={`flex items-center justify-between gap-2${onOpen ? " cursor-pointer" : ""}`}
-      onClick={onOpen ? () => onOpen(value) : undefined}
-    >
+    <div key={value} className="flex items-center justify-between gap-2">
       <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">
         <span className="font-mono">{value}</span>
         {note && <span> — {note}</span>}
       </p>
       <button
         type="button"
-        onClick={(event) => { event.stopPropagation(); if (onOpen) onOpen(value); else handleSelect(value); }}
+        onClick={() => handleSelect(value)}
         className="text-amber-500 shrink-0"
         aria-label={`Use ${value}`}
       >
