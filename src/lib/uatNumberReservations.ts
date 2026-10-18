@@ -65,6 +65,7 @@ const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1222222202", brand: "virgin", number: "0547896329", status: "reserved" },
   { customerKey: "saudi-id:1222222212", brand: "virgin", number: "0547896331", status: "previously-reserved" },
   { customerKey: "saudi-id:1333333303", brand: "virgin", number: "0547896333", status: "unavailable" },
+  { customerKey: "saudi-id:1555555505", brand: "virgin", number: "0547896335", status: "reserved" },
   { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
 ];
 export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"]);

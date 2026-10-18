@@ -1574,7 +1574,7 @@ const NewActivation3 = () => {
                 { value: "1222222212", note: "Virgin: previously reserved, still available" },
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation allowed" },
-                { value: "1222222202", note: "On friendi: Virgin reservation, cancellation allowed" },
+                { value: "1555555505", note: "On friendi: Virgin reservation, cancellation allowed" },
               ]} onSelect={setIdNumber} />
               </>
             )}
