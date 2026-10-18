@@ -1393,6 +1393,13 @@ const NewActivation3 = () => {
   };
 
   const onContinue = () => {
+    if (step === 0 && !isFulfilment) {
+      const existingReservation = uatNumberReservations.get(reservationCustomerKey);
+      if (existingReservation && existingReservation.brand !== brand) {
+        setBrandReservation(existingReservation);
+        return;
+      }
+    }
     if (step === 0 && isFulfilment && fulfilmentEmailNotFound) {
       setCustomerNotFoundOpen(true);
       return;
@@ -1433,8 +1440,8 @@ const NewActivation3 = () => {
       setReservedNumber(reservation.number);
       setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
     } catch (error) {
-      if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
-      else setReservationError("noAvailableNumber");
+      // Cross-brand warnings are opened by Continue, not by entering this stage.
+      if (!(error instanceof DifferentBrandReservationError)) setReservationError("noAvailableNumber");
     }
   }, [step, showNumber, subType, isFulfilment, reservationCustomerKey, brand, isFriendi]);
 
@@ -3022,8 +3029,6 @@ const NewActivation3 = () => {
               setBrandReservation(null);
               setReservationError("");
               setReservedNumber("");
-              setSimType("psim");
-              setKitScanOpen(true);
             } catch { setReservationError("permissionDenied"); }
           }}>{t("activation3.reservation.cancelExisting")}</Button>
           </div>
