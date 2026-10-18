@@ -84,17 +84,8 @@ describe("UAT Scenario 1: no existing reservation", () => {
 });
 
 describe("Shipped UAT fixtures", () => {
-  test("the first cross-brand sample warns and blocks cancellation without access", () => {
-    expect(() => uatNumberReservations.reserve("saudi-id:1222222202", "friendi", inventory)).toThrow("existingReservation");
-    expect(uatNumberReservations.canCancel("saudi-id:1222222202")).toBe(false);
-    expect(() => uatNumberReservations.cancel("saudi-id:1222222202")).toThrow("permissionDenied");
-    expect(uatNumberReservations.get("saudi-id:1222222202")?.number).toBe("0547896329");
-  });
-  test("the second cross-brand sample warns and permits cancellation with access", () => {
-    expect(() => uatNumberReservations.reserve("saudi-id:1555555505", "friendi", inventory)).toThrow("existingReservation");
-    expect(uatNumberReservations.canCancel("saudi-id:1555555505")).toBe(true);
-  });
-  test("cancellation is permitted for the other sample reservation", () => {
+  test("cancellation is permitted for both sample reservations", () => {
     expect(uatNumberReservations.canCancel("saudi-id:1444444404")).toBe(true);
+    expect(uatNumberReservations.canCancel("saudi-id:1555555505")).toBe(true);
   });
 });

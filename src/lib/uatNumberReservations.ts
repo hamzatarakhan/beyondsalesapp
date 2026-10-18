@@ -8,7 +8,7 @@ export class DifferentBrandReservationError extends Error {
 }
 
 // UAT only: shared for the lifetime of this app session; never calls the operator.
-export function createUatReservationService(initial: UatReservation[] = [], cancellationBrands: Brand[] = [], lockedCustomers: string[] = []) {
+export function createUatReservationService(initial: UatReservation[] = [], cancellationBrands: Brand[] = []) {
   const reservations = new Map<string, UatReservation>(initial.map(record => [record.customerKey, record]));
   const messages = new Map<string, ReservationMessage>();
   const previous = new Map<string, string>();
@@ -19,11 +19,11 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
     message(customerKey: string): ReservationMessage { return messages.get(customerKey) ?? "reserved"; },
     canCancel(customerKey: string) {
       const record = reservations.get(customerKey);
-      return !!record && cancellationBrands.includes(record.brand) && !lockedCustomers.includes(customerKey);
+      return !!record && cancellationBrands.includes(record.brand);
     },
     cancel(customerKey: string) {
       const record = reservations.get(customerKey);
-      if (!record || !cancellationBrands.includes(record.brand) || lockedCustomers.includes(customerKey)) throw new Error("permissionDenied");
+      if (!record || !cancellationBrands.includes(record.brand)) throw new Error("permissionDenied");
       reservations.delete(customerKey);
       messages.delete(customerKey);
     },
@@ -68,4 +68,4 @@ const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1555555505", brand: "virgin", number: "0547896335", status: "reserved" },
   { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
 ];
-export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"], ["saudi-id:1222222202"]);
+export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"]);

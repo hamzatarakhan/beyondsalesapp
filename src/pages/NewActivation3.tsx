@@ -1570,7 +1570,7 @@ const NewActivation3 = () => {
                 onSelect={setIdNumber}
               />
               <PrototypeTestBox heading="reservation test IDs" description="UAT sample reservations. Cancellation access covers Virgin Mobile and friendi Mobile; changing brand does not change access." items={[
-                { value: "1222222202", note: "Virgin: existing reserved number (on friendi: cancel disabled)" },
+                { value: "1222222202", note: "Virgin: existing reserved number" },
                 { value: "1222222212", note: "Virgin: previously reserved, still available" },
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation allowed" },
@@ -3003,7 +3003,7 @@ const NewActivation3 = () => {
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
           <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
+          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
