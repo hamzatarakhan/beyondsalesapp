@@ -40,7 +40,7 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
   Smartphone,
   Wifi,
@@ -2993,12 +2993,18 @@ const NewActivation3 = () => {
       )}
 
       <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
-        <DialogContent className="max-w-[340px] p-5 [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <DialogTitle>{t("activation3.reservation.warningTitle")}</DialogTitle>
-          <p className="text-sm text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</p>
-          {!uatNumberReservations.canCancel(reservationCustomerKey) && <p role="alert" className="text-xs text-destructive">{t("activation3.reservation.permissionDenied")}</p>}
-          <Button onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
+        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
+            <path d="M20 12v10" />
+            <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
+          </svg>
+          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
+          {!uatNumberReservations.canCancel(reservationCustomerKey) && <p role="alert" className="text-xs leading-[1.4] text-destructive">{t("activation3.reservation.permissionDenied")}</p>}
+          <div className="mt-1 flex flex-col gap-2">
+          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
@@ -3006,6 +3012,7 @@ const NewActivation3 = () => {
               setReservedNumber("");
             } catch { setReservationError("permissionDenied"); }
           }}>{t("activation3.reservation.cancelExisting")}</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
