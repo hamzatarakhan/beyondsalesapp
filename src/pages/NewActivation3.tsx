@@ -3001,21 +3001,20 @@ const NewActivation3 = () => {
       )}
 
       <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
-        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-2xl border-0 bg-card p-5 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-10 w-10 text-destructive" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
-            <path d="M20 12v10" />
-            <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
+            <path d="M20 18.5v8.5" />
+            <circle cx="20" cy="13" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
-          <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
-          <p role="alert" className="mt-1 flex items-start gap-1.5 rounded-lg bg-destructive/10 px-2.5 py-2 text-start text-[11px] font-medium leading-[1.4] text-destructive">
-            <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <DialogTitle className="text-[15px] font-semibold leading-5 text-destructive">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogDescription className="text-xs leading-[1.5] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
+          <p role="alert" className="mt-1 text-center text-[11px] font-medium leading-[1.4] text-destructive">
             {t("activation3.reservation.permissionDenied")}
           </p>
           <div className="mt-1 flex flex-col gap-2">
-          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
+          <Button className="h-11 w-full rounded-2xl px-3 text-xs font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button disabled className="h-11 w-full rounded-2xl border-border bg-muted/50 px-3 text-xs font-medium text-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
