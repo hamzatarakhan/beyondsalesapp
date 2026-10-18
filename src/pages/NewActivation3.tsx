@@ -754,10 +754,9 @@ const NewActivation3 = () => {
     setReservationPreviewKey(null);
   }, [reservationCustomerKey, brand, subType]);
   // The pop-up renders whichever reservation is active: a real cross-brand error, or a
-  // prototype preview opened from a reservation test row (only when that reservation's
-  // brand differs from the selected brand, matching the real cross-brand flow).
+  // prototype preview opened by tapping any reservation test row.
   const reservationPreview = reservationPreviewKey ? uatNumberReservations.get(reservationPreviewKey) ?? null : null;
-  const activeBrandReservation = brandReservation ?? (reservationPreview && reservationPreview.brand !== brand ? reservationPreview : null);
+  const activeBrandReservation = brandReservation ?? reservationPreview;
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
   // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
