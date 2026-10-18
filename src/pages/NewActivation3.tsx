@@ -2640,7 +2640,40 @@ const NewActivation3 = () => {
                   )}
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation3.checkout.contactNumber")} *` : t("activation3.checkout.contactNumber")}>
-                  <PhoneNumberInput value={contactNumber} onChange={setContactNumber} />
+                  {/* Combo field: type a new number, or open the dropdown to pick an existing one */}
+                  <div className="relative">
+                    <PhoneNumberInput
+                      value={contactNumber}
+                      onChange={setContactNumber}
+                      icon={
+                        <button
+                          type="button"
+                          aria-label={t("activation3.checkout.existingNumbers", "Existing numbers")}
+                          onClick={() => setContactListOpen((o) => !o)}
+                          className="flex items-center text-muted-foreground hover:text-foreground"
+                        >
+                          <ChevronDown className={cn("h-4 w-4 transition-transform", contactListOpen && "rotate-180")} />
+                        </button>
+                      }
+                    />
+                    {contactListOpen && (
+                      <div dir="ltr" className="absolute z-30 mt-1 w-full rounded-xl border border-border bg-card shadow-lg overflow-hidden">
+                        {EXISTING_CONTACT_NUMBERS.map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => { setContactNumber(n); setContactListOpen(false); }}
+                            className={cn(
+                              "w-full px-3 py-2.5 text-start text-sm hover:bg-muted/60",
+                              contactNumber === n && "bg-primary/10 text-primary font-semibold",
+                            )}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </Field>
               </div>
             </div>
