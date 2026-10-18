@@ -664,7 +664,6 @@ const NewActivation3 = () => {
   // re-collecting ID Type / Nationality / ID Number.
   const [fulfilmentEmail, setFulfilmentEmail] = useState("");
   const [qrScanOpen, setQrScanOpen] = useState(false);
-  const [kitScanOpen, setKitScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
   const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
@@ -1175,15 +1174,6 @@ const NewActivation3 = () => {
 
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
-    if (!kitScanOpen) return;
-    const timer = setTimeout(() => {
-      runKitCheck("123456789012345".slice(0, kitLen));
-      setKitScanOpen(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, [kitScanOpen, kitLen]);
-
-  useEffect(() => {
     if (kit.length === kitLen && /^\d+$/.test(kit)) runKitCheck(kit);
   }, []);
 
@@ -1393,13 +1383,6 @@ const NewActivation3 = () => {
   };
 
   const onContinue = () => {
-    if (step === 0 && !isFulfilment) {
-      const existingReservation = uatNumberReservations.get(reservationCustomerKey);
-      if (existingReservation && existingReservation.brand !== brand) {
-        setBrandReservation(existingReservation);
-        return;
-      }
-    }
     if (step === 0 && isFulfilment && fulfilmentEmailNotFound) {
       setCustomerNotFoundOpen(true);
       return;
@@ -1440,8 +1423,8 @@ const NewActivation3 = () => {
       setReservedNumber(reservation.number);
       setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
     } catch (error) {
-      // Cross-brand warnings are opened by Continue, not by entering this stage.
-      if (!(error instanceof DifferentBrandReservationError)) setReservationError("noAvailableNumber");
+      if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
+      else setReservationError("noAvailableNumber");
     }
   }, [step, showNumber, subType, isFulfilment, reservationCustomerKey, brand, isFriendi]);
 
@@ -1586,11 +1569,11 @@ const NewActivation3 = () => {
                 ]}
                 onSelect={setIdNumber}
               />
-              <PrototypeTestBox heading="reservation test IDs" description="UAT sample reservations. Cancellation access covers Virgin Mobile reservations only; changing brand does not change access." items={[
+              <PrototypeTestBox heading="reservation test IDs" description="UAT sample reservations. Cancellation access covers Virgin Mobile and friendi Mobile; changing brand does not change access." items={[
                 { value: "1222222202", note: "Virgin: existing reserved number" },
                 { value: "1222222212", note: "Virgin: previously reserved, still available" },
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
-                { value: "1444444404", note: "On Virgin: friendi reservation, cancellation denied" },
+                { value: "1444444404", note: "On Virgin: friendi reservation, cancellation allowed" },
                 { value: "1555555505", note: "On friendi: Virgin reservation, cancellation allowed" },
               ]} onSelect={setIdNumber} />
               </>
@@ -1688,7 +1671,7 @@ const NewActivation3 = () => {
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </span>
                         ) : (
-                          <button type="button" onClick={() => setKitScanOpen(true)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                          <button type="button" onClick={() => runKitCheck("123456789012345".slice(0, kitLen))} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
                             <ScanLine className="w-5 h-5" />
                           </button>
                         )}
@@ -3011,19 +2994,16 @@ const NewActivation3 = () => {
 
       <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
         <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-[#E30613]" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
             <path d="M20 12v10" />
             <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <DialogTitle className="text-sm font-semibold leading-5 text-[#E30613]">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
-          {!uatNumberReservations.canCancel(reservationCustomerKey) && (
-            <p className="text-[11px] font-medium leading-[1.35] text-red-600">{t("activation3.reservation.permissionDenied")}</p>
-          )}
-            <Button className="h-9 w-full rounded-full bg-[#E30613] px-3 text-xs font-semibold text-white hover:bg-[#c00511]" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-9 w-full rounded-full border border-[#E30613] bg-card px-3 text-xs font-semibold text-[#E30613] hover:bg-[#E30613]/5 disabled:opacity-40" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
+          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
@@ -3032,23 +3012,6 @@ const NewActivation3 = () => {
             } catch { setReservationError("permissionDenied"); }
           }}>{t("activation3.reservation.cancelExisting")}</Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={kitScanOpen} onOpenChange={setKitScanOpen}>
-        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] rounded-lg bg-card p-6 text-center">
-          <DialogTitle className="text-sm font-semibold text-foreground">
-            {t(`activation3.subscription.${kitKey}Label`)}
-          </DialogTitle>
-          <DialogDescription className="sr-only">{t("activation3.identity.qrScanning")}</DialogDescription>
-          <div className="relative mx-auto my-4 flex h-44 w-full items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-primary bg-muted">
-            <ScanLine className="h-20 w-20 text-primary" strokeWidth={1} />
-            <div className="absolute inset-x-4 top-1/2 h-0.5 animate-pulse bg-primary" />
-          </div>
-          <p role="status" className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> {t("activation3.identity.qrScanning")}
-          </p>
-          <Button variant="outline" onClick={() => setKitScanOpen(false)}>{t("activation3.verification.cancel")}</Button>
         </DialogContent>
       </Dialog>
 
