@@ -69,7 +69,7 @@ const PrototypeTestBox = ({ heading, description, items, onSelect, onOpen }: Pro
       </p>
       <button
         type="button"
-        onClick={(event) => { event.stopPropagation(); handleSelect(value); }}
+        onClick={(event) => { event.stopPropagation(); if (onOpen) onOpen(value); else handleSelect(value); }}
         className="text-amber-500 shrink-0"
         aria-label={`Use ${value}`}
       >
