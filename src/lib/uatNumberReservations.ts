@@ -32,7 +32,7 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
       const existingInventory = inventory.find(item => item.number === existing?.number && item.brand === brand);
       if (existing && !taken.has(existing.number) && (existing.status === "reserved" || (existing.status === "previously-reserved" && existingInventory?.available))) {
         existing.status = "reserved";
-        messages.set(customerKey, "reused");
+        if (!messages.has(customerKey)) messages.set(customerKey, "reused");
         return existing;
       }
       if (existing) taken.add(existing.number);
