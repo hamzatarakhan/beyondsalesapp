@@ -3008,17 +3008,18 @@ const NewActivation3 = () => {
       )}
 
       <Dialog open={activeBrandReservation !== null} onOpenChange={() => {}}>
-        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-2xl border-0 bg-card p-5 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-10 w-10 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
             <path d="M20 12v10" />
             <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
-          <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: activeBrandReservation?.number, brand: activeBrandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
-          <div className="mt-1 flex flex-col gap-2">
-          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
+          <DialogTitle className="text-base font-semibold leading-6 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogDescription className="text-sm leading-[1.45] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: activeBrandReservation?.number, brand: activeBrandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
+          <p className="text-xs leading-[1.4] text-destructive">{t("activation3.reservation.permissionDenied")}</p>
+          <div className="mt-2 flex flex-col gap-2">
+          <Button className="h-10 w-full rounded-full px-3 text-sm font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button disabled className="h-10 w-full rounded-full px-3 text-sm font-medium disabled:border-border disabled:bg-card disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             if (!activeBrandReservation) return;
             try {
               uatNumberReservations.cancel(activeBrandReservation.customerKey);
