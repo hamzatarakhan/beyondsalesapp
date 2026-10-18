@@ -2993,7 +2993,7 @@ const NewActivation3 = () => {
       )}
 
       <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
-        <DialogContent className="max-w-[340px] p-5 [&>button]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+        <DialogContent className="max-w-[340px] p-5 [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
           <DialogTitle>{t("activation3.reservation.warningTitle")}</DialogTitle>
           <p className="text-sm text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</p>
           {!uatNumberReservations.canCancel(reservationCustomerKey) && <p role="alert" className="text-xs text-destructive">{t("activation3.reservation.permissionDenied")}</p>}
