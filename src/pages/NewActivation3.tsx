@@ -3019,7 +3019,7 @@ const NewActivation3 = () => {
           <p className="text-xs leading-[1.4] text-destructive">{t("activation3.reservation.permissionDenied")}</p>
           <div className="mt-2 flex flex-col gap-2">
           <Button className="h-10 w-full rounded-full px-3 text-sm font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-10 w-full rounded-full border-border bg-card px-3 text-sm font-medium text-muted-foreground" variant="outline" onClick={() => {
+          <Button className="h-10 w-full rounded-full border-primary bg-card px-3 text-sm font-medium text-primary hover:bg-primary/5 hover:text-primary" variant="outline" onClick={() => {
             if (!activeBrandReservation) return;
             try {
               uatNumberReservations.cancel(activeBrandReservation.customerKey);
