@@ -727,6 +727,7 @@ const NewActivation3 = () => {
   // Continue Activation: contact number starts blank — the dealer collects it fresh at
   // handover rather than it coming pre-filled with the demo default.
   const [contactNumber, setContactNumber] = useState(() => (isFulfilment ? "" : "0512345678"));
+  const [contactListOpen, setContactListOpen] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
   const [locationRegion, setLocationRegion] = useState("");
