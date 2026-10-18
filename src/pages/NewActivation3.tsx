@@ -3011,7 +3011,7 @@ const NewActivation3 = () => {
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
           <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" onClick={() => {
+          <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
