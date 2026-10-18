@@ -59,8 +59,10 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
 }
 
 // Fixed UAT fixtures only. Brand switching never grants cancellation access — the
-// brands below are the dealer's standing access, so both sample reservations can be
-// cancelled from the cross-brand pop-up regardless of which brand is selected.
+// brands below are the dealer's standing access. Cancellation covers Virgin Mobile
+// reservations only: 1444444404 (friendi reservation) is denied, the Virgin
+// reservations (1222222202, 1555555505) can be cancelled from the cross-brand pop-up
+// regardless of which brand is selected.
 const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1222222202", brand: "virgin", number: "0547896329", status: "reserved" },
   { customerKey: "saudi-id:1222222212", brand: "virgin", number: "0547896331", status: "previously-reserved" },
@@ -68,4 +70,4 @@ const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1555555505", brand: "virgin", number: "0547896335", status: "reserved" },
   { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
 ];
-export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"]);
+export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin"]);
