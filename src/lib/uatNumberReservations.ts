@@ -55,11 +55,13 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
   };
 }
 
-// Fixed UAT fixtures only. Brand switching never grants cancellation access.
+// Fixed UAT fixtures only. Brand switching never grants cancellation access — the
+// brands below are the dealer's standing access, so both sample reservations can be
+// cancelled from the cross-brand pop-up regardless of which brand is selected.
 const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1222222202", brand: "virgin", number: "0547896329", status: "reserved" },
   { customerKey: "saudi-id:1222222212", brand: "virgin", number: "0547896331", status: "previously-reserved" },
   { customerKey: "saudi-id:1333333303", brand: "virgin", number: "0547896333", status: "unavailable" },
   { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
 ];
-export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin"]);
+export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"]);
