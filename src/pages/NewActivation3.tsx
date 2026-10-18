@@ -2182,7 +2182,7 @@ const NewActivation3 = () => {
                     {reservedNumber === phone && (
                       <div role="status" className="info-note">
                         <Info className="w-4 h-4 text-info shrink-0 mt-px" strokeWidth={2.2} />
-                        <p className="text-[12px] leading-snug text-foreground">
+                        <p className="text-[12px] leading-snug font-medium text-info">
                           {t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}
                         </p>
                       </div>

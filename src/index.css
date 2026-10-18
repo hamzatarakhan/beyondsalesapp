@@ -42,7 +42,7 @@
 
     /* Informational (non-error) callouts — a calm azure, deliberately not the brand
        --primary (Virgin red) so a status note never reads as a failure. */
-    --info: 205 90% 45%;
+    --info: 205 90% 38%;
     --info-foreground: 0 0% 100%;
 
 
