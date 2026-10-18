@@ -1,32 +1,61 @@
 import type { Brand } from "../contexts/BrandContext";
 
-export type UatReservation = { customerKey: string; brand: Brand; number: string; status: "reserved" };
+export type UatReservation = { customerKey: string; brand: Brand; number: string; status: "reserved" | "previously-reserved" | "unavailable" | "activating" };
 export type AvailableNumber = { number: string; brand: Brand; available: boolean };
+export type ReservationMessage = "reserved" | "reused" | "replacedUnavailable" | "replacedActivating";
+export class DifferentBrandReservationError extends Error {
+  constructor(public reservation: UatReservation) { super("existingReservation"); }
+}
 
 // UAT only: shared for the lifetime of this app session; never calls the operator.
-export function createUatReservationService() {
-  const reservations = new Map<string, UatReservation>();
+export function createUatReservationService(initial: UatReservation[] = [], cancellationBrands: Brand[] = []) {
+  const reservations = new Map<string, UatReservation>(initial.map(record => [record.customerKey, record]));
+  const messages = new Map<string, ReservationMessage>();
   return {
+    get(customerKey: string) { return reservations.get(customerKey); },
+    message(customerKey: string): ReservationMessage { return messages.get(customerKey) ?? "reserved"; },
+    canCancel(customerKey: string) {
+      const record = reservations.get(customerKey);
+      return !!record && cancellationBrands.includes(record.brand);
+    },
+    cancel(customerKey: string) {
+      const record = reservations.get(customerKey);
+      if (!record || !cancellationBrands.includes(record.brand)) throw new Error("permissionDenied");
+      reservations.delete(customerKey);
+      messages.delete(customerKey);
+    },
     reserve(customerKey: string, brand: Brand, inventory: AvailableNumber[], preferredNumber?: string): UatReservation {
       if (!customerKey.trim()) throw new Error("missingCustomer");
       const existing = reservations.get(customerKey);
-      if (existing) {
-        // Existing-reservation business scenarios are not specified yet. Do not replace them.
-        if (existing.brand !== brand) throw new Error("existingReservation");
+      if (existing && existing.brand !== brand) throw new DifferentBrandReservationError(existing);
+      const taken = new Set([...reservations.values()].filter(record => record.customerKey !== customerKey && record.status !== "previously-reserved").map(record => record.number));
+      const existingInventory = inventory.find(item => item.number === existing?.number && item.brand === brand);
+      if (existing && !taken.has(existing.number) && (existing.status === "reserved" || (existing.status === "previously-reserved" && existingInventory?.available))) {
+        existing.status = "reserved";
+        messages.set(customerKey, "reused");
         return existing;
       }
-      const taken = new Set([...reservations.values()].map(record => record.number));
+      if (existing) taken.add(existing.number);
       const available = inventory.filter(item => item.available && item.brand === brand && !taken.has(item.number));
       const picked = available.find(item => item.number === preferredNumber) ?? available[0];
       if (!picked) throw new Error("noAvailableNumber");
       const reservation: UatReservation = { customerKey, brand, number: picked.number, status: "reserved" };
       reservations.set(customerKey, reservation);
+      messages.set(customerKey, existing ? existing.status === "activating" ? "replacedActivating" : "replacedUnavailable" : "reserved");
       return reservation;
     },
     isAvailable(customerKey: string, number: string) {
-      return ![...reservations.values()].some(record => record.number === number && record.customerKey !== customerKey);
+      return ![...reservations.values()].some(record => record.number === number && (record.customerKey !== customerKey ? record.status !== "previously-reserved" : record.status === "unavailable" || record.status === "activating"));
     },
   };
 }
 
-export const uatNumberReservations = createUatReservationService();
+// Fixed UAT fixtures only. Brand switching never grants cancellation access.
+const sampleReservations: UatReservation[] = [
+  { customerKey: "saudi-id:1222222202", brand: "virgin", number: "0547896329", status: "reserved" },
+  { customerKey: "saudi-id:1222222212", brand: "virgin", number: "0547896331", status: "previously-reserved" },
+  { customerKey: "saudi-id:1333333303", brand: "virgin", number: "0547896333", status: "unavailable" },
+  { customerKey: "saudi-id:1333333313", brand: "virgin", number: "0547896335", status: "activating" },
+  { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
+];
+export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin"]);
