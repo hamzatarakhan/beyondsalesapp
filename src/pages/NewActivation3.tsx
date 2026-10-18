@@ -3009,6 +3009,10 @@ const NewActivation3 = () => {
           </svg>
           <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
+          <p role="alert" className="mt-1 flex items-start gap-1.5 rounded-lg bg-destructive/10 px-2.5 py-2 text-start text-[11px] font-medium leading-[1.4] text-destructive">
+            <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            {t("activation3.reservation.permissionDenied")}
+          </p>
           <div className="mt-1 flex flex-col gap-2">
           <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
           <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
