@@ -3017,7 +3017,6 @@ const NewActivation3 = () => {
           <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: activeBrandReservation?.number, brand: activeBrandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
-          <p className="text-[11px] leading-[1.4] text-destructive">{t("activation3.reservation.permissionDenied")}</p>
           <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
           <Button disabled className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             if (!activeBrandReservation) return;
