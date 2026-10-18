@@ -3002,8 +3002,11 @@ const NewActivation3 = () => {
           <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
+          {!uatNumberReservations.canCancel(reservationCustomerKey) && (
+            <p className="text-[11px] font-medium leading-[1.35] text-red-600">{t("activation3.reservation.permissionDenied")}</p>
+          )}
           <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" onClick={() => {
+          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
