@@ -40,6 +40,12 @@
     --warning: 32 95% 54%;
     --warning-foreground: 0 0% 100%;
 
+    /* Informational (non-error) callouts — a calm azure, deliberately not the brand
+       --primary (Virgin red) so a status note never reads as a failure. */
+    --info: 205 90% 45%;
+    --info-foreground: 0 0% 100%;
+
+
     --border: 214 20% 90%;
     --input: 214 20% 90%;
     --ring: 0 91% 46%;
@@ -69,6 +75,8 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
+    --info: 205 95% 62%;
+
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 212 27% 84%;
@@ -135,9 +143,16 @@
     @apply border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center py-8 bg-muted/30;
   }
 
+  /* Informational note — soft azure panel with a leading icon, used by the
+     number-reservation confirmation on SIM activation so it reads as info, not an error. */
+  .info-note {
+    @apply mt-3 flex items-start gap-2 rounded-xl border border-info/25 bg-info/10 px-3 py-2.5 text-start;
+  }
+
   .status-badge {
     @apply px-3 py-1 rounded-full text-xs font-medium;
   }
+
 
   .status-active {
     @apply status-badge bg-[hsl(var(--success))]/10 text-[hsl(var(--success))];

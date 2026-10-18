@@ -2230,7 +2230,15 @@ const NewActivation3 = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation3.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}</p>}
+                    {reservedNumber === phone && (
+                      <div role="status" className="info-note">
+                        <Info className="w-4 h-4 text-info shrink-0 mt-px" strokeWidth={2.2} />
+                        <p className="text-[12px] leading-snug text-foreground">
+                          {t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}
+                        </p>
+                      </div>
+                    )}
+
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation3.vanity.selectPlanFirst")}</p>
                     )}
