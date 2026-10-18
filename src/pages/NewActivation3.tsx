@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
+import { uatNumberReservations } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
@@ -738,6 +739,13 @@ const NewActivation3 = () => {
   // Number — Mobile only
   const [subType, setSubType] = useState<SubType>(isMnp ? "mnp" : "sim");
   const [phone, setPhone] = useState("0785599574");
+  const [reservedNumber, setReservedNumber] = useState("");
+  const [reservationError, setReservationError] = useState("");
+  const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
+  useEffect(() => {
+    setReservedNumber("");
+    setReservationError("");
+  }, [reservationCustomerKey, brand, subType]);
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
   // Click-and-drag scrolling for the horizontal chip rows (plan type filter, number tier tabs) —
@@ -1378,6 +1386,23 @@ const NewActivation3 = () => {
     if (step === 1 && payType === "prepaid" && prepaidLimitReached && subType !== "mnp") {
       setPrepaidLimitOpen(true);
       return;
+    }
+    if (step === 1 && showNumber && subType === "sim" && !isFulfilment) {
+      try {
+        const reservation = uatNumberReservations.reserve(
+          reservationCustomerKey,
+          brand,
+          DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard")
+            .map(item => ({ number: item.number, brand, available: true })),
+          phone,
+        );
+        setPhone(reservation.number);
+        setReservedNumber(reservation.number);
+        setReservationError("");
+      } catch (error) {
+        setReservationError(error instanceof Error && error.message === "existingReservation" ? "existingReservation" : "noAvailableNumber");
+        return;
+      }
     }
     if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
   };
@@ -2175,6 +2200,7 @@ const NewActivation3 = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation3.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
+                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t("activation3.reservation.reserved")}</p>}
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation3.vanity.selectPlanFirst")}</p>
                     )}
@@ -2878,6 +2904,7 @@ const NewActivation3 = () => {
                   <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
                 </div>
               )}
+              {step === 1 && reservationError && <p role="alert" className="text-xs text-destructive text-center mb-2">{t(`activation3.reservation.${reservationError}`)}</p>}
               <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canContinue} onClick={onContinue}>{t("activation3.continue")}</Button>
             </>
           ) : (
@@ -2996,6 +3023,7 @@ const NewActivation3 = () => {
           : null;
         const availableTabs = eligibleTiers ? NUMBER_TABS.filter(tab => tab.value === "all" || eligibleTiers.has(tab.value)) : NUMBER_TABS;
         const filtered = DEMO_NUMBER_POOL
+          .filter(n => isFulfilment || uatNumberReservations.isAvailable(reservationCustomerKey, n.number))
           // Friendi only offers standard numbers — no vanity tiers.
           .filter(n => !isFriendi || n.tier === "standard")
           .filter(n => !eligibleTiers || eligibleTiers.has(n.tier))
@@ -3033,7 +3061,8 @@ const NewActivation3 = () => {
               <div className="overflow-y-auto flex-1 px-5 pb-6">
                 <div className="divide-y divide-border/40">
                   {filtered.map((item, i) => {
-                    const tier = NUMBER_TABS.find(t => t.value === item.tier)!;
+                    const tier = NUMBER_TABS.find(t => t.value === item.tier);
+                    if (!tier) return null;
                     const fee = tier.fee ?? 0;
                     const isVanityTier = isPostpaidMobile && fee > 0 && item.tier !== "standard";
                     // Before a plan is picked, only tiers free on any plan are shown at all — plain "Free".
