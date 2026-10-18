@@ -11,6 +11,7 @@ export class DifferentBrandReservationError extends Error {
 export function createUatReservationService(initial: UatReservation[] = [], cancellationBrands: Brand[] = []) {
   const reservations = new Map<string, UatReservation>(initial.map(record => [record.customerKey, record]));
   const messages = new Map<string, ReservationMessage>();
+  const unavailableNumbers = new Set(initial.filter(record => record.status === "unavailable" || record.status === "activating").map(record => record.number));
   return {
     get(customerKey: string) { return reservations.get(customerKey); },
     message(customerKey: string): ReservationMessage { return messages.get(customerKey) ?? "reserved"; },
@@ -35,8 +36,11 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
         if (!messages.has(customerKey)) messages.set(customerKey, "reused");
         return existing;
       }
-      if (existing) taken.add(existing.number);
-      const available = inventory.filter(item => item.available && item.brand === brand && !taken.has(item.number));
+      if (existing) {
+        taken.add(existing.number);
+        unavailableNumbers.add(existing.number);
+      }
+      const available = inventory.filter(item => item.available && item.brand === brand && !taken.has(item.number) && !unavailableNumbers.has(item.number));
       const picked = available.find(item => item.number === preferredNumber) ?? available[0];
       if (!picked) throw new Error("noAvailableNumber");
       const reservation: UatReservation = { customerKey, brand, number: picked.number, status: "reserved" };
@@ -45,6 +49,7 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
       return reservation;
     },
     isAvailable(customerKey: string, number: string) {
+      if (unavailableNumbers.has(number)) return false;
       return ![...reservations.values()].some(record => record.number === number && (record.customerKey !== customerKey ? record.status !== "previously-reserved" : record.status === "unavailable" || record.status === "activating"));
     },
   };

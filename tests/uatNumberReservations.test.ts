@@ -29,6 +29,8 @@ describe("Existing UAT reservations", () => {
     const service = createUatReservationService([existing("activating")]);
     expect(service.reserve("customer-a", "virgin", inventory).number).toBe("0547896331");
     expect(service.message("customer-a")).toBe("replacedActivating");
+    expect(service.isAvailable("customer-b", "0547896329")).toBe(false);
+    expect(() => service.reserve("customer-b", "virgin", inventory)).toThrow("noAvailableNumber");
   });
   test("Scenario 3 replaces a previously reserved number no longer available", () => {
     const service = createUatReservationService([existing("previously-reserved")]);
