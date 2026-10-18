@@ -3005,8 +3005,8 @@ const NewActivation3 = () => {
           {!uatNumberReservations.canCancel(reservationCustomerKey) && (
             <p className="text-[11px] font-medium leading-[1.35] text-red-600">{t("activation3.reservation.permissionDenied")}</p>
           )}
-          <Button className="h-8 w-full rounded-full px-3 text-xs font-medium" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button className="h-8 w-full rounded-full border-primary px-3 text-xs font-medium text-primary" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
+            <Button className="h-9 w-full rounded-full bg-[#E30613] px-3 text-xs font-semibold text-white hover:bg-[#c00511]" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button className="h-9 w-full rounded-full border border-[#E30613] bg-card px-3 text-xs font-semibold text-[#E30613] hover:bg-[#E30613]/5 disabled:opacity-40" variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
