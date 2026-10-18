@@ -1550,6 +1550,7 @@ const NewActivation3 = () => {
 
             {/* Whitelist status — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
             {!isFulfilment && (
+              <>
               <PrototypeTestBox
                 heading="test ID numbers"
                 description="Use these to try both cases. This box won't appear in the real implementation."
@@ -1575,6 +1576,7 @@ const NewActivation3 = () => {
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation denied" },
                 { value: "1222222202", note: "On friendi: Virgin reservation, cancellation allowed" },
               ]} onSelect={setIdNumber} />
+              </>
             )}
 
             {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
