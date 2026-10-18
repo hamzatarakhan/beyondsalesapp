@@ -664,6 +664,7 @@ const NewActivation3 = () => {
   // re-collecting ID Type / Nationality / ID Number.
   const [fulfilmentEmail, setFulfilmentEmail] = useState("");
   const [qrScanOpen, setQrScanOpen] = useState(false);
+  const [kitScanOpen, setKitScanOpen] = useState(false);
   const [qrScanStep, setQrScanStep] = useState<"scanning" | "success">("scanning");
   const [qrVerified, setQrVerified] = useState(false);
   const [customerNotFoundOpen, setCustomerNotFoundOpen] = useState(false);
@@ -1174,6 +1175,15 @@ const NewActivation3 = () => {
 
   // Auto-verify KIT on mount if already 10 digits
   useEffect(() => {
+    if (!kitScanOpen) return;
+    const timer = setTimeout(() => {
+      runKitCheck("123456789012345".slice(0, kitLen));
+      setKitScanOpen(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [kitScanOpen, kitLen]);
+
+  useEffect(() => {
     if (kit.length === kitLen && /^\d+$/.test(kit)) runKitCheck(kit);
   }, []);
 
@@ -1671,7 +1681,7 @@ const NewActivation3 = () => {
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </span>
                         ) : (
-                          <button type="button" onClick={() => runKitCheck("123456789012345".slice(0, kitLen))} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
+                          <button type="button" onClick={() => setKitScanOpen(true)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Scan KIT">
                             <ScanLine className="w-5 h-5" />
                           </button>
                         )}
@@ -3012,9 +3022,28 @@ const NewActivation3 = () => {
               setBrandReservation(null);
               setReservationError("");
               setReservedNumber("");
+              setSimType("psim");
+              setKitScanOpen(true);
             } catch { setReservationError("permissionDenied"); }
           }}>{t("activation3.reservation.cancelExisting")}</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={kitScanOpen} onOpenChange={setKitScanOpen}>
+        <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] rounded-lg bg-card p-6 text-center">
+          <DialogTitle className="text-sm font-semibold text-foreground">
+            {t(`activation3.subscription.${kitKey}Label`)}
+          </DialogTitle>
+          <DialogDescription className="sr-only">{t("activation3.identity.qrScanning")}</DialogDescription>
+          <div className="relative mx-auto my-4 flex h-44 w-full items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-primary bg-muted">
+            <ScanLine className="h-20 w-20 text-primary" strokeWidth={1} />
+            <div className="absolute inset-x-4 top-1/2 h-0.5 animate-pulse bg-primary" />
+          </div>
+          <p role="status" className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("activation3.identity.qrScanning")}
+          </p>
+          <Button variant="outline" onClick={() => setKitScanOpen(false)}>{t("activation3.verification.cancel")}</Button>
         </DialogContent>
       </Dialog>
 
