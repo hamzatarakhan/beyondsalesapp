@@ -1,4 +1,4 @@
 - [x] Implement UAT reservation reuse and replacement with informative messages.
 - [x] Implement different-brand warning and simulated cancellation access checks.
 - [x] Test scenarios and verify activation UI.
-- [ ] Make the cross-brand warning open on customer-stage Continue, without automatically opening KIT scanning.
+- [x] Make the cross-brand warning open on customer-stage Continue, without automatically opening KIT scanning.
