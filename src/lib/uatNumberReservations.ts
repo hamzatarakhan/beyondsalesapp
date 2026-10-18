@@ -1,6 +1,6 @@
 import type { Brand } from "../contexts/BrandContext";
 
-export type UatReservation = { customerKey: string; brand: Brand; number: string; status: "reserved" | "previously-reserved" | "unavailable" | "activating" };
+export type UatReservation = { customerKey: string; brand: Brand; number: string; status: "reserved" | "previously-reserved" | "unavailable" | "activating"; cancellable?: boolean };
 export type AvailableNumber = { number: string; brand: Brand; available: boolean };
 export type ReservationMessage = "reserved" | "reused" | "replacedUnavailable" | "replacedActivating";
 export class DifferentBrandReservationError extends Error {
@@ -19,11 +19,11 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
     message(customerKey: string): ReservationMessage { return messages.get(customerKey) ?? "reserved"; },
     canCancel(customerKey: string) {
       const record = reservations.get(customerKey);
-      return !!record && cancellationBrands.includes(record.brand);
+      return !!record && record.cancellable !== false && cancellationBrands.includes(record.brand);
     },
     cancel(customerKey: string) {
       const record = reservations.get(customerKey);
-      if (!record || !cancellationBrands.includes(record.brand)) throw new Error("permissionDenied");
+      if (!record || record.cancellable === false || !cancellationBrands.includes(record.brand)) throw new Error("permissionDenied");
       reservations.delete(customerKey);
       messages.delete(customerKey);
     },
@@ -65,7 +65,7 @@ const sampleReservations: UatReservation[] = [
   { customerKey: "saudi-id:1222222202", brand: "virgin", number: "0547896329", status: "reserved" },
   { customerKey: "saudi-id:1222222212", brand: "virgin", number: "0547896331", status: "previously-reserved" },
   { customerKey: "saudi-id:1333333303", brand: "virgin", number: "0547896333", status: "unavailable" },
-  { customerKey: "saudi-id:1555555505", brand: "virgin", number: "0547896335", status: "reserved" },
-  { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved" },
+  { customerKey: "saudi-id:1555555505", brand: "friendi", number: "0551234569", status: "reserved" },
+  { customerKey: "saudi-id:1444444404", brand: "friendi", number: "0551234567", status: "reserved", cancellable: false },
 ];
 export const uatNumberReservations = createUatReservationService(sampleReservations, ["virgin", "friendi"]);

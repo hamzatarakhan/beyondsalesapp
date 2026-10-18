@@ -84,8 +84,8 @@ describe("UAT Scenario 1: no existing reservation", () => {
 });
 
 describe("Shipped UAT fixtures", () => {
-  test("cancellation is permitted for both sample reservations", () => {
-    expect(uatNumberReservations.canCancel("saudi-id:1444444404")).toBe(true);
+  test("1444444404 cancellation is denied, 1555555505 is allowed", () => {
+    expect(uatNumberReservations.canCancel("saudi-id:1444444404")).toBe(false);
     expect(uatNumberReservations.canCancel("saudi-id:1555555505")).toBe(true);
   });
 });

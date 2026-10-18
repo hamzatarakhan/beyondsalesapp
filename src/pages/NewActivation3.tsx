@@ -1574,7 +1574,7 @@ const NewActivation3 = () => {
                 { value: "1222222212", note: "Virgin: previously reserved, still available" },
                 { value: "1333333303", note: "Virgin: previous number unavailable" },
                 { value: "1444444404", note: "On Virgin: friendi reservation, cancellation denied" },
-                { value: "1555555505", note: "On friendi: Virgin reservation, cancellation allowed" },
+                { value: "1555555505", note: "On Virgin: friendi reservation, cancellation allowed" },
               ]} onSelect={setIdNumber} />
               </>
             )}
@@ -3009,12 +3009,12 @@ const NewActivation3 = () => {
           </svg>
           <DialogTitle className="text-[15px] font-semibold leading-5 text-destructive">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.5] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
-          <p role="alert" className="mt-1 text-center text-[11px] font-medium leading-[1.4] text-destructive">
+          {!uatNumberReservations.canCancel(reservationCustomerKey) && <p role="alert" className="mt-1 text-center text-[11px] font-medium leading-[1.4] text-destructive">
             {t("activation3.reservation.permissionDenied")}
-          </p>
+          </p>}
           <div className="mt-1 flex flex-col gap-2">
           <Button className="h-11 w-full rounded-2xl px-3 text-xs font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
-          <Button disabled className="h-11 w-full rounded-2xl border-border bg-muted/50 px-3 text-xs font-medium text-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
+          <Button disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} className="h-11 w-full rounded-2xl border-border bg-background px-3 text-xs font-medium text-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" variant="outline" onClick={() => {
             try {
               uatNumberReservations.cancel(reservationCustomerKey);
               setBrandReservation(null);
