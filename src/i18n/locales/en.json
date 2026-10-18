@@ -3389,6 +3389,14 @@
     "title": "SIM Activation",
     "reservation": {
       "reserved": "Number reserved",
+      "reused": "Your existing reservation for {{number}} will be used.",
+      "replacedUnavailable": "Your previous number is no longer available. A new number, {{number}}, has been reserved.",
+      "replacedActivating": "Your previous number is being activated. A new number, {{number}}, has been reserved.",
+      "warningTitle": "Reservation with another brand",
+      "brandWarning": "This customer already has number {{number}} reserved with {{brand}}. Cancel that reservation before continuing, or return to Home.",
+      "permissionDenied": "You do not have permission to cancel reservations for this brand.",
+      "goHome": "Go to Home Page",
+      "cancelExisting": "Cancel Existing Reservation",
       "noAvailableNumber": "No available number could be reserved. Please try again.",
       "existingReservation": "This customer already has a reservation with another brand. Please review it before continuing."
     },

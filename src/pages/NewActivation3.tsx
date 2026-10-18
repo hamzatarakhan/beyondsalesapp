@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
-import { uatNumberReservations } from "@/lib/uatNumberReservations";
+import { DifferentBrandReservationError, uatNumberReservations, type UatReservation, type ReservationMessage } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
 import MapPicker from "@/components/MapPicker";
@@ -741,10 +741,13 @@ const NewActivation3 = () => {
   const [phone, setPhone] = useState("0785599574");
   const [reservedNumber, setReservedNumber] = useState("");
   const [reservationError, setReservationError] = useState("");
+  const [reservationMessage, setReservationMessage] = useState<ReservationMessage>("reserved");
+  const [brandReservation, setBrandReservation] = useState<UatReservation | null>(null);
   const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
   useEffect(() => {
     setReservedNumber("");
     setReservationError("");
+    setBrandReservation(null);
   }, [reservationCustomerKey, brand, subType]);
   const [numberPickerOpen, setNumberPickerOpen] = useState(false);
   const [numberPickerTab, setNumberPickerTab] = useState("all");
@@ -1398,14 +1401,31 @@ const NewActivation3 = () => {
         );
         setPhone(reservation.number);
         setReservedNumber(reservation.number);
+        setReservationMessage(uatNumberReservations.message(reservationCustomerKey));
         setReservationError("");
       } catch (error) {
+        if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
         setReservationError(error instanceof Error && error.message === "existingReservation" ? "existingReservation" : "noAvailableNumber");
         return;
       }
     }
     if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
   };
+
+  // Resolve existing reservations before the dealer chooses a number, not only at checkout.
+  useEffect(() => {
+    if (step !== 1 || !showNumber || subType !== "sim" || isFulfilment || !uatNumberReservations.get(reservationCustomerKey)) return;
+    try {
+      const reservation = uatNumberReservations.reserve(reservationCustomerKey, brand,
+        DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard").map(item => ({ number: item.number, brand, available: true })));
+      setPhone(reservation.number);
+      setReservedNumber(reservation.number);
+      setReservationMessage(uatNumberReservations.message(reservationCustomerKey));
+    } catch (error) {
+      if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
+      else setReservationError("noAvailableNumber");
+    }
+  }, [step, showNumber, subType, isFulfilment, reservationCustomerKey, brand, isFriendi]);
 
   const orderId = useMemo(() => "NA-" + Math.floor(Math.random() * 900000 + 100000), [successOpen]);
 
@@ -1530,6 +1550,7 @@ const NewActivation3 = () => {
 
             {/* Whitelist status — normal (non-fulfilment) flow only; fulfilment derives it from email below */}
             {!isFulfilment && (
+              <>
               <PrototypeTestBox
                 heading="test ID numbers"
                 description="Use these to try both cases. This box won't appear in the real implementation."
@@ -1547,6 +1568,15 @@ const NewActivation3 = () => {
                 ]}
                 onSelect={setIdNumber}
               />
+              <PrototypeTestBox heading="reservation test IDs" description="UAT sample reservations. Cancellation access is Virgin Mobile only; changing brand does not change access." items={[
+                { value: "1222222202", note: "Virgin: existing reserved number" },
+                { value: "1222222212", note: "Virgin: previously reserved, still available" },
+                { value: "1333333303", note: "Virgin: previous number unavailable" },
+                { value: "1333333313", note: "Virgin: previous number being activated" },
+                { value: "1444444404", note: "On Virgin: friendi reservation, cancellation denied" },
+                { value: "1222222202", note: "On friendi: Virgin reservation, cancellation allowed" },
+              ]} onSelect={setIdNumber} />
+              </>
             )}
 
             {/* Fulfilment: payment & whitelist status come back automatically from the application lookup */}
@@ -2200,7 +2230,7 @@ const NewActivation3 = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation3.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t("activation3.reservation.reserved")}</p>}
+                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t(`activation3.reservation.${reservationMessage}`, { number: phone })}</p>}
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation3.vanity.selectPlanFirst")}</p>
                     )}
@@ -2961,6 +2991,23 @@ const NewActivation3 = () => {
           )}
         </div>
       )}
+
+      <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
+        <DialogContent className="max-w-[340px] p-5 [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
+          <DialogTitle>{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <p className="text-sm text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</p>
+          {!uatNumberReservations.canCancel(reservationCustomerKey) && <p role="alert" className="text-xs text-destructive">{t("activation3.reservation.permissionDenied")}</p>}
+          <Button onClick={() => navigate("/")}>{t("activation3.reservation.goHome")}</Button>
+          <Button variant="outline" disabled={!uatNumberReservations.canCancel(reservationCustomerKey)} onClick={() => {
+            try {
+              uatNumberReservations.cancel(reservationCustomerKey);
+              setBrandReservation(null);
+              setReservationError("");
+              setReservedNumber("");
+            } catch { setReservationError("permissionDenied"); }
+          }}>{t("activation3.reservation.cancelExisting")}</Button>
+        </DialogContent>
+      </Dialog>
 
       {/* Fulfilment: shown when Continue is pressed with a well-formed email that matches no application */}
       <Dialog open={customerNotFoundOpen} onOpenChange={setCustomerNotFoundOpen}>
