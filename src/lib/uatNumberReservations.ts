@@ -11,9 +11,11 @@ export class DifferentBrandReservationError extends Error {
 export function createUatReservationService(initial: UatReservation[] = [], cancellationBrands: Brand[] = []) {
   const reservations = new Map<string, UatReservation>(initial.map(record => [record.customerKey, record]));
   const messages = new Map<string, ReservationMessage>();
+  const previous = new Map<string, string>();
   const unavailableNumbers = new Set(initial.filter(record => record.status === "unavailable" || record.status === "activating").map(record => record.number));
   return {
     get(customerKey: string) { return reservations.get(customerKey); },
+    previousNumber(customerKey: string): string | undefined { return previous.get(customerKey); },
     message(customerKey: string): ReservationMessage { return messages.get(customerKey) ?? "reserved"; },
     canCancel(customerKey: string) {
       const record = reservations.get(customerKey);
@@ -45,6 +47,7 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
       if (!picked) throw new Error("noAvailableNumber");
       const reservation: UatReservation = { customerKey, brand, number: picked.number, status: "reserved" };
       reservations.set(customerKey, reservation);
+      if (existing) previous.set(customerKey, existing.number); else previous.delete(customerKey);
       messages.set(customerKey, existing ? existing.status === "activating" ? "replacedActivating" : "replacedUnavailable" : "reserved");
       return reservation;
     },

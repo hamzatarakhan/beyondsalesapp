@@ -742,6 +742,7 @@ const NewActivation3 = () => {
   const [reservedNumber, setReservedNumber] = useState("");
   const [reservationError, setReservationError] = useState("");
   const [reservationMessage, setReservationMessage] = useState<ReservationMessage>("reserved");
+  const [previousReservedNumber, setPreviousReservedNumber] = useState("");
   const [brandReservation, setBrandReservation] = useState<UatReservation | null>(null);
   const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
   useEffect(() => {
@@ -1401,7 +1402,7 @@ const NewActivation3 = () => {
         );
         setPhone(reservation.number);
         setReservedNumber(reservation.number);
-        setReservationMessage(uatNumberReservations.message(reservationCustomerKey));
+        setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
         setReservationError("");
       } catch (error) {
         if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
@@ -1420,7 +1421,7 @@ const NewActivation3 = () => {
         DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard").map(item => ({ number: item.number, brand, available: true })));
       setPhone(reservation.number);
       setReservedNumber(reservation.number);
-      setReservationMessage(uatNumberReservations.message(reservationCustomerKey));
+      setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
     } catch (error) {
       if (error instanceof DifferentBrandReservationError) setBrandReservation(error.reservation);
       else setReservationError("noAvailableNumber");
@@ -2229,7 +2230,7 @@ const NewActivation3 = () => {
                     <button onClick={() => setNumberPickerOpen(true)} className="w-full flex items-center justify-center gap-1.5 text-link text-sm font-semibold">
                       {t("activation3.subscription.pickDifferent")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t(`activation3.reservation.${reservationMessage}`, { number: phone })}</p>}
+                    {reservedNumber === phone && <p role="status" className="text-xs text-primary text-center mt-2">{t(`activation3.reservation.${reservationMessage}`, { number: phone, previous: previousReservedNumber })}</p>}
                     {SHOW_VANITY_OVERVIEW && isPostpaidMobile && !selectedPlanObj && (
                       <p className="text-[11px] text-muted-foreground text-center mt-2">{t("activation3.vanity.selectPlanFirst")}</p>
                     )}
