@@ -2994,12 +2994,12 @@ const NewActivation3 = () => {
 
       <Dialog open={brandReservation !== null} onOpenChange={() => {}}>
         <DialogContent className="w-[calc(100%-2.5rem)] max-w-[320px] gap-2 rounded-lg border-0 bg-card p-4 text-center [&>button:last-child]:hidden" onEscapeKeyDown={event => event.preventDefault()} onPointerDownOutside={event => event.preventDefault()}>
-          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-primary" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="mx-auto mb-1 h-9 w-9 text-[#E30613]" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 2.6a4 4 0 0 1 4 0l12 7a4 4 0 0 1 2 3.4v14a4 4 0 0 1-2 3.4l-12 7a4 4 0 0 1-4 0l-12-7A4 4 0 0 1 4 27V13a4 4 0 0 1 2-3.4z" />
             <path d="M20 12v10" />
             <circle cx="20" cy="28" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <DialogTitle className="text-sm font-medium leading-5 text-primary">{t("activation3.reservation.warningTitle")}</DialogTitle>
+          <DialogTitle className="text-sm font-semibold leading-5 text-[#E30613]">{t("activation3.reservation.warningTitle")}</DialogTitle>
           <DialogDescription className="text-xs leading-[1.4] text-muted-foreground">{t("activation3.reservation.brandWarning", { number: brandReservation?.number, brand: brandReservation?.brand === "virgin" ? "Virgin Mobile" : "friendi Mobile" })}</DialogDescription>
           <div className="mt-1 flex flex-col gap-2">
           {!uatNumberReservations.canCancel(reservationCustomerKey) && (
