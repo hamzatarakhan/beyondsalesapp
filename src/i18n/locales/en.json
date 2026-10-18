@@ -3387,6 +3387,11 @@
   },
   "activation3": {
     "title": "SIM Activation",
+    "reservation": {
+      "reserved": "Number reserved",
+      "noAvailableNumber": "No available number could be reserved. Please try again.",
+      "existingReservation": "This customer already has a reservation with another brand. Please review it before continuing."
+    },
     "steps": {
       "identity": "Identity",
       "subscription": "Subscription",

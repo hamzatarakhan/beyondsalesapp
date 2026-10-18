@@ -3316,6 +3316,11 @@
   },
   "activation3": {
     "title": "تفعيل الشريحة",
+    "reservation": {
+      "reserved": "تم حجز الرقم",
+      "noAvailableNumber": "تعذر حجز رقم متاح. يرجى المحاولة مرة أخرى.",
+      "existingReservation": "لدى العميل حجز قائم لدى علامة تجارية أخرى. يرجى مراجعته قبل المتابعة."
+    },
     "steps": {
       "identity": "الهوية",
       "subscription": "الاشتراك",
