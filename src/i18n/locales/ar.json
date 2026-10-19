@@ -1410,6 +1410,25 @@
     "createOrderTitle": "إنشاء طلب",
     "searchPlaceholder": "بحث",
     "filterAria": "تصفية الإرجاعات",
+    "filter": {
+      "title": "تصفية",
+      "subtitle": "الرجاء اختيار خيارات التصفية",
+      "orderStatus": "حالة الطلب",
+      "all": "الكل",
+      "dateDuration": "المدة الزمنية",
+      "selectDate": "اختر التاريخ",
+      "apply": "تطبيق",
+      "clear": "مسح الفلتر"
+    },
+    "pickDate": {
+      "title": "اختر التاريخ",
+      "subtitle": "الرجاء اختيار التاريخ",
+      "dateFrom": "من تاريخ",
+      "dateTo": "إلى تاريخ",
+      "apply": "تطبيق",
+      "clear": "مسح"
+    },
+    "removeFilter": "إزالة الفلتر",
     "noReturns": "لا توجد عمليات إرجاع مطابقة للفلاتر",
     "newOrder": "طلب جديد",
     "moreItems": "+{{count}} أخرى",
