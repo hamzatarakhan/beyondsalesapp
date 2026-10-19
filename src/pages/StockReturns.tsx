@@ -255,30 +255,24 @@ const StockReturns = () => {
                 row: "flex w-full mt-1",
                 cell: "flex-1 text-center text-sm p-0 relative",
                 day: "h-10 w-10 mx-auto p-0 font-normal rounded-full aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
-                day_selected: "bg-primary text-primary-foreground",
-                day_in_range: "bg-primary/10 text-primary",
-                day_range_start: "rounded-full",
-                day_range_end: "rounded-full",
               }}
             />
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground mb-1.5 px-1">{t("stockReturn.pickDate.dateFrom")}</p>
-                <p className="h-11 rounded-xl border border-border bg-background px-3.5 flex items-center text-sm font-medium text-foreground">{draftRange?.from ? fmtShort(draftRange.from) : "—"}</p>
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground mb-1.5 px-1">{t("stockReturn.pickDate.dateTo")}</p>
-                <p className="h-11 rounded-xl border border-border bg-background px-3.5 flex items-center text-sm font-medium text-foreground">{draftRange?.to ? fmtShort(draftRange.to) : "—"}</p>
-              </div>
-            </div>
             <div className="space-y-2">
-              <button type="button" onClick={applyPickDate} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-                {t("stockReturn.pickDate.apply")}
-              </button>
-              <button type="button" onClick={() => setDraftRange(undefined)} className="w-full text-center text-sm font-medium text-muted-foreground">
-                {t("stockReturn.pickDate.clear")}
-              </button>
+              <div className="flex items-start justify-between gap-3 py-2 border-b border-border/40">
+                <span className="text-[11px] text-muted-foreground">{t("stockReturn.pickDate.dateFrom")}</span>
+                <span className="text-xs font-semibold text-foreground">{draftRange?.from ? fmtShort(draftRange.from) : "—"}</span>
+              </div>
+              <div className="flex items-start justify-between gap-3 py-2">
+                <span className="text-[11px] text-muted-foreground">{t("stockReturn.pickDate.dateTo")}</span>
+                <span className="text-xs font-semibold text-foreground">{draftRange?.to ? fmtShort(draftRange.to) : "—"}</span>
+              </div>
             </div>
+            <button type="button" disabled={!draftRange?.from} onClick={applyPickDate} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
+              {t("stockReturn.pickDate.apply")}
+            </button>
+            <button type="button" onClick={() => setDraftRange(undefined)} className="w-full text-center text-sm font-medium text-muted-foreground">
+              {t("stockReturn.pickDate.clear")}
+            </button>
           </div>
         </DrawerContent>
       </Drawer>
