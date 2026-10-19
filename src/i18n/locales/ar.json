@@ -1406,6 +1406,16 @@
     }
   },
   "stockReturn": {
+    "errors": {
+      "quantityRequired": "أدخل كمية أكبر من صفر.",
+      "quantityInvalid": "أدخل كمية صحيحة دون كسور.",
+      "quantityLimit": "لا يمكن أن تتجاوز الكمية المخزون المتاح ({{count}}).",
+      "quantityScanned": "لا يمكن أن تقل الكمية عن عدد الأرقام التسلسلية المضافة.",
+      "serialRequired": "أدخل الرقم التسلسلي.",
+      "serialDuplicate": "تمت إضافة هذا الرقم التسلسلي مسبقًا. أدخل رقمًا تسلسليًا آخر.",
+      "submitTitle": "لم يتم إرسال الإرجاع",
+      "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى."
+    },
     "title": "إرجاع المخزون",
     "createOrderTitle": "إنشاء طلب",
     "searchPlaceholder": "بحث",
