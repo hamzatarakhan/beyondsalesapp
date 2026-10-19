@@ -60,7 +60,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { ListChecks, LayoutList, X as XIcon, Target, BarChart3, Boxes } from "lucide-react";
+import { ListChecks, LayoutList, X as XIcon, Target, BarChart3, Boxes, RotateCcw } from "lucide-react";
 import QRCode from "react-qr-code";
 import { BarChart, Bar, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import { cn } from "@/lib/utils";
@@ -336,6 +336,8 @@ const Home = () => {
     { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // Stock Return — feature not built yet, lands on Coming Soon for now.
+    { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/coming-soon", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Order History is a browse-only/reporting service, not a customer-record action — skip

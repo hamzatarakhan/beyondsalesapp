@@ -2066,6 +2066,7 @@
     "otherServices": "خدمات أخرى",
     "otherWidgets": "إدارة المخزون",
     "inventoryDashboard": "لوحة المخزون",
+    "stockReturn": "إرجاع المخزون",
     "purchaseOrders": "طلب مخزون",
     "choosePurchaseOrdersMode": "طلب مخزون",
     "choosePurchaseOrdersModeSub": "اختر كيف تريد إدارة طلبات المخزون",
