@@ -1396,6 +1396,25 @@
     "createOrderTitle": "Create Order",
     "searchPlaceholder": "Search",
     "filterAria": "Filter returns",
+    "filter": {
+      "title": "Filter",
+      "subtitle": "Please choose your filter options",
+      "orderStatus": "Order Status",
+      "all": "All",
+      "dateDuration": "Date Duration",
+      "selectDate": "Select the date",
+      "apply": "Apply",
+      "clear": "Clear Filter"
+    },
+    "pickDate": {
+      "title": "Pick a Date",
+      "subtitle": "Please select a date",
+      "dateFrom": "Date From",
+      "dateTo": "Date To",
+      "apply": "Apply",
+      "clear": "Clear"
+    },
+    "removeFilter": "Remove filter",
     "noReturns": "No stock returns match your filters",
     "newOrder": "New order",
     "moreItems": "+{{count}} More",
