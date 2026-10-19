@@ -1,4 +1,4 @@
 - [x] Implement UAT reservation reuse and replacement with informative messages.
 - [x] Implement different-brand warning and simulated cancellation access checks.
 - [x] Test scenarios and verify activation UI.
-- [ ] Preserve explicit number changes without bypassing availability or brand checks; verify standard and vanity checkout.
+- [x] Preserve explicit number changes without bypassing availability or brand checks; verify standard and vanity checkout.
