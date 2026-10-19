@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { quantityError, serialError } from "@/lib/stockReturnValidation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
@@ -19,6 +22,10 @@ const StockReturnForm = () => {
   const product = PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId);
 
   const [qty, setQty] = useState(0);
+  const [qtyInput, setQtyInput] = useState("");
+  const [qtyTouched, setQtyTouched] = useState(false);
+  const [serialFeedback, setSerialFeedback] = useState<ReturnType<typeof serialError>>();
+  const [submitted, setSubmitted] = useState(false);
   const [scanMode, setScanMode] = useState<ScanMode>("range");
   const [serial, setSerial] = useState("");
   const [serials, setSerials] = useState<string[]>([]);
@@ -29,33 +36,47 @@ const StockReturnForm = () => {
 
   const Icon = product ? PRODUCT_ICON[product.id] : Boxes;
   const productName = product ? t(`purchaseOrders.product.${product.nameKey}`) : "";
+  const qtyFeedback = quantityError(qtyInput, product?.availableStocks ?? 0, serials.length);
+
+  useEffect(() => {
+    if (!product) navigate("/stock-returns/new", { replace: true });
+  }, [product, navigate]);
 
   const setQtyClamped = (next: number) => {
     if (!product) return;
-    setQty(Math.max(0, Math.min(next, product.availableStocks)));
+    const value = Math.max(serials.length, Math.min(next, product.availableStocks));
+    setQty(value);
+    setQtyInput(value ? String(value) : "");
+    setQtyTouched(false);
   };
 
   const addSerial = () => {
     const v = serial.trim();
-    if (!v) return;
+    const error = serialError(v, serials, product?.availableStocks ?? 0);
+    setSerialFeedback(error);
+    if (error) return;
     setSerials((prev) => [...prev, v]);
     setSerial("");
     // Prototype: each added serial counts toward the returned quantity.
     setQtyClamped(qty + 1);
   };
 
-  const canSubmit = qty > 0 && !!reason;
+  const canSubmit = !qtyFeedback && qty > 0 && !!reason && !submitted;
 
   const submit = () => {
     if (!product || !canSubmit) return;
-    addStockReturn([{ productId: product.id, qty, serials, reason: t(`stockReturn.reasons.${reason}`), remark: remark.trim() || undefined }]);
-    setSuccessOpen(true);
+    try {
+      addStockReturn([{ productId: product.id, qty, serials, reason: t(`stockReturn.reasons.${reason}`), remark: remark.trim() || undefined }]);
+      setSubmitted(true);
+      setSuccessOpen(true);
+    } catch {
+      toast({ title: t("stockReturn.errors.submitTitle"), description: t("stockReturn.errors.submitRetry"), variant: "destructive" });
+    }
   };
 
   const scannedLabel = useMemo(() => t("stockReturn.scannedCount", { scanned: serials.length, total: qty }), [serials.length, qty, t]);
 
   if (!product) {
-    navigate("/stock-returns/new", { replace: true });
     return null;
   }
 
@@ -80,7 +101,7 @@ const StockReturnForm = () => {
           <div className="flex items-center h-11 rounded-full bg-card border border-border overflow-hidden">
             <button
               type="button"
-              disabled={qty <= 0}
+              disabled={qty <= serials.length}
               onClick={() => setQtyClamped(qty - 1)}
               aria-label={t("purchaseOrders.decreaseAria", { product: productName })}
               className="flex-1 h-full flex items-center justify-center text-primary bg-primary/10 disabled:opacity-40"
@@ -90,8 +111,14 @@ const StockReturnForm = () => {
             <input
               type="text"
               inputMode="numeric"
-              value={qty === 0 ? "" : String(qty)}
-              onChange={(e) => setQtyClamped(parseInt(e.target.value.replace(/\D/g, "") || "0", 10))}
+              value={qtyInput}
+              onChange={(e) => {
+                setQtyInput(e.target.value);
+                setQty(/^\d+$/.test(e.target.value) ? Number(e.target.value) : 0);
+              }}
+              onBlur={() => setQtyTouched(true)}
+              aria-invalid={qtyTouched && !!qtyFeedback}
+              aria-describedby={qtyTouched && qtyFeedback ? "stock-return-qty-error" : undefined}
               placeholder="0"
               aria-label={productName}
               className="flex-1 h-full bg-card text-center text-sm font-bold text-foreground outline-none"
@@ -106,6 +133,11 @@ const StockReturnForm = () => {
               <Plus className="w-4 h-4" />
             </button>
           </div>
+          {qtyTouched && qtyFeedback && (
+            <p id="stock-return-qty-error" role="alert" className="text-xs text-destructive px-1">
+              {t(`stockReturn.errors.${qtyFeedback}`, { count: product.availableStocks })}
+            </p>
+          )}
         </div>
 
         {/* Member / scan card */}
@@ -135,28 +167,35 @@ const StockReturnForm = () => {
             <div className="relative flex-1">
               <Input
                 value={serial}
-                onChange={(e) => setSerial(e.target.value)}
+                onChange={(e) => { setSerial(e.target.value); setSerialFeedback(undefined); }}
+                aria-invalid={!!serialFeedback}
+                aria-describedby={serialFeedback ? "stock-return-serial-error" : undefined}
                 placeholder={t(scanMode === "range" ? "stockReturn.firstSerial" : "stockReturn.serialNumber")}
-                className="h-11 bg-card rounded-xl pe-10"
+                className={cn("h-11 bg-card rounded-xl pe-10", serialFeedback && "border-destructive")}
               />
               <button
                 type="button"
                 aria-label={t("stockReturn.scanAria")}
-                onClick={() => setSerial(`SN-${product.id.toUpperCase()}-${3000 + serials.length}`)}
+                onClick={() => { setSerial(`SN-${product.id.toUpperCase()}-${3000 + serials.length}`); setSerialFeedback(undefined); }}
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
               >
                 <ScanBarcode className="w-5 h-5" />
               </button>
             </div>
-            <button
+            <Button
               type="button"
               onClick={addSerial}
               disabled={!serial.trim()}
               className="h-11 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-40"
             >
               {t("stockReturn.add")}
-            </button>
+            </Button>
           </div>
+          {serialFeedback && (
+            <p id="stock-return-serial-error" role="alert" className="text-xs text-destructive">
+              {t(`stockReturn.errors.${serialFeedback}`, { count: product.availableStocks })}
+            </p>
+          )}
 
           {serials.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -215,19 +254,19 @@ const StockReturnForm = () => {
       {/* Sticky submit */}
       <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border/60 px-4 py-3">
         <div className="mx-auto max-w-[430px]">
-          <button
+          <Button
             type="button"
             onClick={submit}
             disabled={!canSubmit}
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-40"
           >
             {t("stockReturn.submit")}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Success dialog */}
-      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+      <Dialog open={successOpen} onOpenChange={(open) => { setSuccessOpen(open); if (!open && submitted) navigate("/stock-returns"); }}>
         <DialogContent className="max-w-[320px] rounded-2xl text-center">
           <div className="flex flex-col items-center gap-3 py-2">
             <CheckCircle2 className="w-12 h-12 text-emerald-500" />

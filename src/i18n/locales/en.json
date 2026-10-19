@@ -1392,6 +1392,16 @@
     }
   },
   "stockReturn": {
+    "errors": {
+      "quantityRequired": "Enter a quantity greater than zero.",
+      "quantityInvalid": "Enter a valid whole-number quantity.",
+      "quantityLimit": "The quantity cannot exceed the available stock ({{count}}).",
+      "quantityScanned": "The quantity cannot be less than the number of serials already added.",
+      "serialRequired": "Enter a serial number.",
+      "serialDuplicate": "This serial number has already been added. Enter a different serial number.",
+      "submitTitle": "Return not submitted",
+      "submitRetry": "Your details have been kept. Please try again."
+    },
     "title": "Stock Return",
     "createOrderTitle": "Create Order",
     "searchPlaceholder": "Search",
