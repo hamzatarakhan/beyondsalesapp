@@ -739,6 +739,7 @@ const NewActivation3 = () => {
   // Number — Mobile only
   const [subType, setSubType] = useState<SubType>(isMnp ? "mnp" : "sim");
   const [phone, setPhone] = useState("0785599574");
+  const [numberExplicitlySelected, setNumberExplicitlySelected] = useState(false);
   const [reservedNumber, setReservedNumber] = useState("");
   const [reservationError, setReservationError] = useState("");
   const [reservationMessage, setReservationMessage] = useState<ReservationMessage>("reserved");
@@ -747,6 +748,7 @@ const NewActivation3 = () => {
   const reservationCustomerKey = `${idType}:${idNumber.trim()}`;
   useEffect(() => {
     setReservedNumber("");
+    setNumberExplicitlySelected(false);
     setReservationError("");
     setBrandReservation(null);
   }, [reservationCustomerKey, brand, subType]);
@@ -1399,8 +1401,11 @@ const NewActivation3 = () => {
           DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard")
             .map(item => ({ number: item.number, brand, available: true })),
           phone,
+          numberExplicitlySelected,
         );
+        if (reservation.number !== phone) setVanityCommitment(false);
         setPhone(reservation.number);
+        setNumberExplicitlySelected(false);
         setReservedNumber(reservation.number);
         setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
         setReservationError("");
@@ -1420,6 +1425,7 @@ const NewActivation3 = () => {
       const reservation = uatNumberReservations.reserve(reservationCustomerKey, brand,
         DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard").map(item => ({ number: item.number, brand, available: true })));
       setPhone(reservation.number);
+      if (reservation.number !== phone) setVanityCommitment(false);
       setReservedNumber(reservation.number);
       setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
     } catch (error) {
@@ -3148,6 +3154,8 @@ const NewActivation3 = () => {
                             setPendingVanityNumber({ number: item.number, tier: item.tier });
                           } else {
                             setPhone(item.number);
+                            setNumberExplicitlySelected(true);
+                            setReservationError("");
                             setVanityCommitment(false);
                             setNumberPickerOpen(false);
                           }
@@ -3193,13 +3201,13 @@ const NewActivation3 = () => {
               <p className="text-xs text-muted-foreground mb-4">{t("activation3.vanity.choosePrompt")}</p>
               <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  onClick={() => { setPhone(pendingVanityNumber.number); setNumberExplicitlySelected(true); setReservationError(""); setVanityCommitment(true); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
                   className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
                 >
                   {t("activation3.vanity.getFreeWithCommitment", { months: cat.months })}
                 </button>
                 <button
-                  onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
+                  onClick={() => { setPhone(pendingVanityNumber.number); setNumberExplicitlySelected(true); setReservationError(""); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
                   className="w-full py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
                 >
                   {t("activation3.vanity.payNumberPrice", { price: cat.price.toFixed(2) })}

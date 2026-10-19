@@ -83,6 +83,44 @@ describe("UAT Scenario 1: no existing reservation", () => {
   });
 });
 
+describe("Explicit UAT number selection", () => {
+  test("replaces a sample reservation with the explicitly selected number", () => {
+    const service = createUatReservationService([existing("reserved")]);
+    expect(service.reserve("customer-a", "virgin", inventory, "0547896331", true).number).toBe("0547896331");
+    expect(service.reserve("customer-a", "virgin", inventory).number).toBe("0547896331");
+    expect(service.isAvailable("customer-b", "0547896329")).toBe(true);
+    expect(service.isAvailable("customer-b", "0547896331")).toBe(false);
+  });
+  test("replaces a reservation created on a prior Continue", () => {
+    const service = createUatReservationService();
+    service.reserve("customer-a", "virgin", inventory, "0547896329");
+    expect(service.reserve("customer-a", "virgin", inventory, "0547896331", true).number).toBe("0547896331");
+    expect(service.message("customer-a")).toBe("reserved");
+  });
+  test("replaces a previously reserved number without marking it unavailable", () => {
+    const service = createUatReservationService([existing("previously-reserved")]);
+    expect(service.reserve("customer-a", "virgin", inventory, "0547896331", true).number).toBe("0547896331");
+    expect(service.isAvailable("customer-b", "0547896329")).toBe(true);
+  });
+  test("rejects an unavailable explicit choice without losing the old reservation", () => {
+    const service = createUatReservationService([existing("reserved")]);
+    expect(() => service.reserve("customer-a", "virgin", inventory, "0547896327", true)).toThrow("noAvailableNumber");
+    expect(service.get("customer-a")?.number).toBe("0547896329");
+  });
+  test("rejects another customer's number without losing the old reservation", () => {
+    const service = createUatReservationService([existing("reserved")]);
+    service.reserve("customer-b", "virgin", inventory, "0547896331");
+    expect(() => service.reserve("customer-a", "virgin", inventory, "0547896331", true)).toThrow("noAvailableNumber");
+    expect(service.get("customer-a")?.number).toBe("0547896329");
+  });
+  test("an explicit choice cannot bypass the cross-brand reservation warning", () => {
+    const service = createUatReservationService([existing("reserved", "friendi")], ["virgin"]);
+    expect(() => service.reserve("customer-a", "virgin", inventory, "0547896331", true)).toThrow("existingReservation");
+    expect(service.get("customer-a")?.brand).toBe("friendi");
+    expect(service.canCancel("customer-a")).toBe(false);
+  });
+});
+
 describe("Shipped UAT fixtures", () => {
   test("1444444404 cancellation is denied, 1555555505 is allowed", () => {
     expect(uatNumberReservations.canCancel("saudi-id:1444444404")).toBe(false);
