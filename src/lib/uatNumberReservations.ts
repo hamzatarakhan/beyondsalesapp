@@ -27,11 +27,22 @@ export function createUatReservationService(initial: UatReservation[] = [], canc
       reservations.delete(customerKey);
       messages.delete(customerKey);
     },
-    reserve(customerKey: string, brand: Brand, inventory: AvailableNumber[], preferredNumber?: string): UatReservation {
+    reserve(customerKey: string, brand: Brand, inventory: AvailableNumber[], preferredNumber?: string, explicitSelection = false): UatReservation {
       if (!customerKey.trim()) throw new Error("missingCustomer");
       const existing = reservations.get(customerKey);
       if (existing && existing.brand !== brand) throw new DifferentBrandReservationError(existing);
       const taken = new Set([...reservations.values()].filter(record => record.customerKey !== customerKey && record.status !== "previously-reserved").map(record => record.number));
+      // Explicit picker choices replace atomically; automatic requests still reuse by default.
+      if (explicitSelection) {
+        const picked = inventory.find(item => item.number === preferredNumber && item.brand === brand && item.available);
+        if (!picked || taken.has(picked.number) || unavailableNumbers.has(picked.number)) throw new Error("noAvailableNumber");
+        if (existing?.number === picked.number && existing.status === "reserved") return existing;
+        const reservation: UatReservation = { customerKey, brand, number: picked.number, status: "reserved" };
+        reservations.set(customerKey, reservation);
+        previous.delete(customerKey);
+        messages.set(customerKey, "reserved");
+        return reservation;
+      }
       const existingInventory = inventory.find(item => item.number === existing?.number && item.brand === brand);
       if (existing && !taken.has(existing.number) && (existing.status === "reserved" || (existing.status === "previously-reserved" && existingInventory?.available))) {
         existing.status = "reserved";
