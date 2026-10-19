@@ -2,3 +2,4 @@
 - [x] Implement different-brand warning and simulated cancellation access checks.
 - [x] Test scenarios and verify activation UI.
 - [x] Preserve explicit number changes without bypassing availability or brand checks; verify standard and vanity checkout.
+- [ ] Review comparable Stock Return error patterns and align error handling without changing the workflow.
