@@ -2149,6 +2149,7 @@
     "otherServices": "Other Services",
     "otherWidgets": "Stock Management",
     "inventoryDashboard": "Inventory Dashboard",
+    "stockReturn": "Stock Return",
     "purchaseOrders": "Request Stock",
     "choosePurchaseOrdersMode": "Request Stock",
     "choosePurchaseOrdersModeSub": "Choose how you'd like to manage stock requests",
