@@ -337,7 +337,7 @@ const Home = () => {
     { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Stock Return — feature not built yet, lands on Coming Soon for now.
-    { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/coming-soon", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/stock-returns", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Order History is a browse-only/reporting service, not a customer-record action — skip

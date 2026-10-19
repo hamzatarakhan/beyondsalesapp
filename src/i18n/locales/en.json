@@ -1391,6 +1391,42 @@
       "cancelled": "Cancelled"
     }
   },
+  "stockReturn": {
+    "title": "Stock Return",
+    "createOrderTitle": "Create Order",
+    "searchPlaceholder": "Search",
+    "filterAria": "Filter returns",
+    "noReturns": "No stock returns match your filters",
+    "newOrder": "New order",
+    "moreItems": "+{{count}} More",
+    "memberName": "Member Name",
+    "scannedCount": "{{scanned}}/{{total}} Scanned",
+    "rangeScan": "Range Scan",
+    "itemScan": "Item By item Scan",
+    "firstSerial": "First Serial Number",
+    "serialNumber": "Serial Number",
+    "scanAria": "Scan serial",
+    "add": "Add",
+    "reasonForReturn": "Reason for Return",
+    "reasonRemark": "Reason for Return Remark",
+    "reasonRemarkPlaceholder": "Enter the reason for returning this item ..",
+    "submit": "Submit",
+    "successTitle": "Return Submitted",
+    "successMessage": "The stock return request has been created.",
+    "goToList": "Go to Stock Returns",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "reasons": {
+      "damagedSim": "Damaged SIM Card",
+      "defectiveDevice": "Defective Device",
+      "wrongItem": "Wrong Item",
+      "expiredVoucher": "Expired Voucher",
+      "excessStock": "Excess Stock"
+    }
+  },
   "purchaseOrders": {
     "title": "Request Stock",
     "searchPlaceholder": "Search",

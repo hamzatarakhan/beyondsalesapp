@@ -88,6 +88,9 @@ import SalesOrderView from "./pages/SalesOrderView";
 import SalesOrderScan from "./pages/SalesOrderScan";
 import StockTransfers from "./pages/StockTransfers";
 import StockTransferForm from "./pages/StockTransferForm";
+import StockReturns from "./pages/StockReturns";
+import StockReturnCreate from "./pages/StockReturnCreate";
+import StockReturnForm from "./pages/StockReturnForm";
 import StockTransferView from "./pages/StockTransferView";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -226,7 +229,10 @@ const App = () => {
           <Route path="/sales-orders-multi/:id" element={<SalesOrdersMultiView />} />
           <Route path="/purchase-orders/:id" element={<PurchaseOrderView />} />
           <Route path="/stock-transfer" element={<StockTransfers />} />
-          <Route path="/stock-transfer/new" element={<StockTransferForm />} />
+<Route path="/stock-transfer/new" element={<StockTransferForm />} />
+          <Route path="/stock-returns" element={<StockReturns />} />
+          <Route path="/stock-returns/new" element={<StockReturnCreate />} />
+          <Route path="/stock-returns/new/:productId" element={<StockReturnForm />} />
           <Route path="/stock-transfer/:id" element={<StockTransferView />} />
           <Route path="/phase-2" element={<PhaseTwo />} />
           <Route path="/channel-onboarding" element={<ChannelOnboarding />} />
