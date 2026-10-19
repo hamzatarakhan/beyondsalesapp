@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -26,6 +26,7 @@ const StockReturnForm = () => {
   const [qtyTouched, setQtyTouched] = useState(false);
   const [serialFeedback, setSerialFeedback] = useState<ReturnType<typeof serialError>>();
   const [submitted, setSubmitted] = useState(false);
+  const failureToast = useRef<ReturnType<typeof toast>>();
   const [scanMode, setScanMode] = useState<ScanMode>("range");
   const [serial, setSerial] = useState("");
   const [serials, setSerials] = useState<string[]>([]);
@@ -58,19 +59,20 @@ const StockReturnForm = () => {
     setSerials((prev) => [...prev, v]);
     setSerial("");
     // Prototype: each added serial counts toward the returned quantity.
-    setQtyClamped(qty + 1);
+    setQtyClamped(Math.max(qty + 1, serials.length + 1));
   };
 
   const canSubmit = !qtyFeedback && qty > 0 && !!reason && !submitted;
 
   const submit = () => {
     if (!product || !canSubmit) return;
+    failureToast.current?.dismiss();
     try {
       addStockReturn([{ productId: product.id, qty, serials, reason: t(`stockReturn.reasons.${reason}`), remark: remark.trim() || undefined }]);
       setSubmitted(true);
       setSuccessOpen(true);
     } catch {
-      toast({ title: t("stockReturn.errors.submitTitle"), description: t("stockReturn.errors.submitRetry"), variant: "destructive" });
+      failureToast.current = toast({ title: t("stockReturn.errors.submitTitle"), description: t("stockReturn.errors.submitRetry"), variant: "destructive" });
     }
   };
 
