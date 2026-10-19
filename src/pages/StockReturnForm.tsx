@@ -214,7 +214,7 @@ const StockReturnForm = () => {
 
       {/* Sticky submit */}
       <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border/60 px-4 py-3">
-        <div className="mobile-container">
+        <div className="mx-auto max-w-[430px]">
           <button
             type="button"
             onClick={submit}
