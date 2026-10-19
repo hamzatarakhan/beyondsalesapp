@@ -1405,6 +1405,42 @@
       "cancelled": "ملغي"
     }
   },
+  "stockReturn": {
+    "title": "إرجاع المخزون",
+    "createOrderTitle": "إنشاء طلب",
+    "searchPlaceholder": "بحث",
+    "filterAria": "تصفية الإرجاعات",
+    "noReturns": "لا توجد عمليات إرجاع مطابقة للفلاتر",
+    "newOrder": "طلب جديد",
+    "moreItems": "+{{count}} أخرى",
+    "memberName": "اسم العضو",
+    "scannedCount": "{{scanned}}/{{total}} تم مسحه",
+    "rangeScan": "مسح نطاق",
+    "itemScan": "مسح عنصر بعنصر",
+    "firstSerial": "الرقم التسلسلي الأول",
+    "serialNumber": "الرقم التسلسلي",
+    "scanAria": "مسح الرقم التسلسلي",
+    "add": "إضافة",
+    "reasonForReturn": "سبب الإرجاع",
+    "reasonRemark": "ملاحظة سبب الإرجاع",
+    "reasonRemarkPlaceholder": "أدخل سبب إرجاع هذا العنصر ..",
+    "submit": "إرسال",
+    "successTitle": "تم إرسال الإرجاع",
+    "successMessage": "تم إنشاء طلب إرجاع المخزون.",
+    "goToList": "الانتقال إلى إرجاع المخزون",
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "مقبول",
+      "rejected": "مرفوض"
+    },
+    "reasons": {
+      "damagedSim": "شريحة تالفة",
+      "defectiveDevice": "جهاز معيب",
+      "wrongItem": "عنصر خاطئ",
+      "expiredVoucher": "قسيمة منتهية الصلاحية",
+      "excessStock": "مخزون زائد"
+    }
+  },
   "purchaseOrders": {
     "title": "طلب مخزون",
     "searchPlaceholder": "بحث",
