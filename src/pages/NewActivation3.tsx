@@ -1425,7 +1425,7 @@ const NewActivation3 = () => {
       const reservation = uatNumberReservations.reserve(reservationCustomerKey, brand,
         DEMO_NUMBER_POOL.filter(item => !isFriendi || item.tier === "standard").map(item => ({ number: item.number, brand, available: true })));
       setPhone(reservation.number);
-      setVanityCommitment(false);
+      if (reservation.number !== phone) setVanityCommitment(false);
       setReservedNumber(reservation.number);
       setReservationMessage(uatNumberReservations.message(reservationCustomerKey)); setPreviousReservedNumber(uatNumberReservations.previousNumber(reservationCustomerKey) ?? "");
     } catch (error) {
