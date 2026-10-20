@@ -384,7 +384,7 @@ const PlanTitleRow = ({
         <span className="mx-1.5">•</span>
         {validity}
       </p>
-      {!hideRadio && <SelectRadio selected={selected} onSelect={handleSelect} />}
+      {!hideRadio && <SelectRadio selected={selected} onSelect={onSelect} />}
     </div>
   );
 };
