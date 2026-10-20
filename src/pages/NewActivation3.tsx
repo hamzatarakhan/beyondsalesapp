@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
-import { BOOKED_ACTIVATION_CONFIG, BOOKED_ACTIVATION_MODES, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation, type BookedActivationConfig, type BookedActivationMode } from "@/lib/bookedActivation";
+import { BOOKED_ACTIVATION_CONFIG, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation } from "@/lib/bookedActivation";
 import { DifferentBrandReservationError, uatNumberReservations, type UatReservation, type ReservationMessage } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
@@ -721,15 +721,10 @@ const NewActivation3 = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planSearch, setPlanSearch] = useState("");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
+  const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
   // The booked activation combination (Only Plan / Plan with Top Up / Only Top Up / No Plan or
   // Top Up) is fixed by the brand configuration — there is no picker in the UI, so a dealer can
   // never activate outside what the brand allows.
-  // Prototype-only preview: testers can flip the combination without touching brand config.
-  // Null = the brand's configured option rules.
-  const [bookedModePreview, setBookedModePreview] = useState<BookedActivationMode | null>(null);
-  const bookedConfig: BookedActivationConfig = bookedModePreview
-    ? { ...BOOKED_ACTIVATION_CONFIG[brand], mode: bookedModePreview, enabledModes: [bookedModePreview] }
-    : BOOKED_ACTIVATION_CONFIG[brand];
   const bookedMode = bookedConfig.mode;
   // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
    const [bookedTopupManual, setBookedTopupManual] = useState("");
@@ -965,10 +960,6 @@ const NewActivation3 = () => {
   const bookingCodeValid = bookingCodeSchema.safeParse(bookingRef).success;
   const bookedHasPlan = bookedModeHasPlan(bookedMode);
   const bookedHasTopup = bookedModeHasTopup(bookedMode);
-  // A booked option without a plan must never keep a plan card highlighted.
-  useEffect(() => {
-    if (subType === "booked" && !bookedHasPlan) setSelectedPlan(null);
-  }, [subType, bookedHasPlan]);
   useEffect(() => {
     if (!showBooked && subType === "booked") setSubType("sim");
   }, [showBooked, subType]);
@@ -1268,9 +1259,7 @@ const NewActivation3 = () => {
   const topupAmount = subType === "booked" ? bookedTopupAmount : (topupManual ? Number(topupManual) : topupDenom ?? 0);
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
   // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
-  // Booked "No Plan or Top-Up": nothing is charged for the plan even if one was
-  // highlighted before the option changed (its card is cleared just above).
-  const planFeeRaw = subType === "booked" && !bookedHasPlan ? 0 : (selectedPlanObj?.price ?? 0);
+  const planFeeRaw = selectedPlanObj?.price ?? 0;
   const topupActive = subType === "booked" ? bookedHasTopup : (planMode === "topup" || isPaygPlan);
   const topupFeeRaw = topupActive ? topupAmount : 0;
   const bookedErrors = validateBookedActivation(bookedConfig, payType, bookedMode, selectedPlanObj?.price ?? null, topupAmount);
@@ -1962,41 +1951,6 @@ const NewActivation3 = () => {
                 charged, not what is shown. The Booked Top-up card lives just above the number
                 selection. */}
             <>
-            {/* Prototype-only preview of the brand's booked activation combination — lets QA
-                see every option's behaviour without editing brand configuration. */}
-            {subType === "booked" && (
-              <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5 mb-3">
-                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 mb-1.5">Prototype only — preview activation option</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {BOOKED_ACTIVATION_MODES.map(m => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setBookedModePreview(bookedConfig.mode === m ? null : m)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-full text-[10.5px] font-medium border transition-colors",
-                        bookedConfig.mode === m
-                          ? "border-amber-500 bg-amber-500 text-white"
-                          : "border-amber-300 dark:border-amber-700 bg-white/70 dark:bg-transparent text-amber-700 dark:text-amber-300",
-                      )}
-                    >
-                      {t(`activation3.subscription.bookedOptions.modes.${m}`)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Booked "No Plan or Top-Up": the whole activation is payment-free — say so once,
-                clearly, in the same info style as the reservation note, before the dealer
-                reaches the locked plan cards and top-up card. */}
-            {subType === "booked" && !bookedHasPlan && !bookedHasTopup && (
-              <div role="status" className="info-note">
-                <Info className="w-4 h-4 text-info shrink-0 mt-px" strokeWidth={2.2} />
-                <p className="text-[12px] leading-snug font-medium text-info">
-                  {t("activation3.subscription.bookedOptions.noneNote")}
-                </p>
-              </div>
-            )}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
