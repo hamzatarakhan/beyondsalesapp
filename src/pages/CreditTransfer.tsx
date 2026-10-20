@@ -125,6 +125,23 @@ const CreditTransfer = () => {
   // ---------- Gates ----------
   const canTransfer = eligible && amount != null && amount >= MIN_TRANSFER_AMOUNT && !insufficientBalance;
 
+  const pin = pinDigits.join("");
+
+  const setPinDigitAt = (i: number, v: string) => {
+    const d = v.replace(/\D/g, "").slice(-1);
+    setPinDigits((prev) => {
+      const next = [...prev];
+      next[i] = d;
+      return next;
+    });
+    if (d && i < 3) {
+      (document.getElementById(`credit-transfer-pin-${i + 1}`) as HTMLInputElement | null)?.focus();
+    }
+    if (!d && i > 0) {
+      (document.getElementById(`credit-transfer-pin-${i - 1}`) as HTMLInputElement | null)?.focus();
+    }
+  };
+
   const resolveTransfer = () => {
     // This prototype collects the PIN; real PIN authentication must happen server-side.
     if (!canTransfer || !/^\d{4}$/.test(pin)) return;
