@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BOOKED_ACTIVATION_CONFIG, BOOKED_ACTIVATION_MODES, validateBookedActivation } from "../src/lib/bookedActivation";
+import { BOOKED_ACTIVATION_CONFIG, BOOKED_ACTIVATION_MODES, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation } from "../src/lib/bookedActivation";
 
 for (const brand of ["virgin", "friendi"] as const) {
   for (const subscription of ["prepaid", "basic-postpaid"]) {
@@ -43,4 +43,17 @@ test("each brand configures one enabled activation combination", () => {
     expect(BOOKED_ACTIVATION_MODES).toContain(config.mode);
     expect(config.enabledModes).toContain(config.mode);
   }
+});
+// The Booked tab reads these two predicates straight from the config to decide which section to
+// lock, so a wrong mapping would silently let a dealer pick a plan or top-up the brand's option
+// doesn't include.
+test("option-to-section mapping keeps excluded sections unselectable", () => {
+  expect(bookedModeHasPlan("plan")).toBe(true);
+  expect(bookedModeHasTopup("plan")).toBe(false);
+  expect(bookedModeHasPlan("topup")).toBe(false);
+  expect(bookedModeHasTopup("topup")).toBe(true);
+  expect(bookedModeHasPlan("plan-topup")).toBe(true);
+  expect(bookedModeHasTopup("plan-topup")).toBe(true);
+  expect(bookedModeHasPlan("none")).toBe(false);
+  expect(bookedModeHasTopup("none")).toBe(false);
 });

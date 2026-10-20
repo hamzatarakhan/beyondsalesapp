@@ -62,6 +62,9 @@ interface Props {
    * on the same line as the top-right badge. Only passed by flows that have MNP eligibility
    * rules (SIM Activation 2 / 3) — omitted elsewhere, so the tag never renders by default. */
   mnpEligible?: boolean;
+  /** Renders the card greyed out and ignores taps — for sections the current flow can't use
+   * (e.g. the Booked tab's plan carousel when the brand's activation option excludes plans). */
+  disabled?: boolean;
 }
 
 // Discounted price display — the promotional `discount` field is a display string like
@@ -513,7 +516,12 @@ const PlanCard = ({
   hideRadio,
   hideTitleRow,
   mnpEligible,
+  disabled = false,
 }: Props) => {
+  // Single guard for every selection entry point (card body, title row, select radio): a disabled
+  // card never reaches the caller's handler, so nothing can be picked from a section the current
+  // flow doesn't use.
+  const handleSelect = () => { if (!disabled) onSelect(); };
   const { t } = useTranslation();
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
@@ -525,13 +533,15 @@ const PlanCard = ({
     <>
       <div
         role="button"
-        tabIndex={0}
-        onClick={onSelect}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled || undefined}
+        onClick={handleSelect}
+        onKeyDown={(e) => { if (disabled) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleSelect(); } }}
         className={cn(
-          "relative rounded-2xl transition-all duration-200 flex flex-col w-full cursor-pointer",
+          "relative rounded-2xl transition-all duration-200 flex flex-col w-full",
+          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
           selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
-          active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
+          disabled ? "" : active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
         {/* Per-plan badge — pinned flush to the card's top-right corner. Suppressed when
@@ -552,7 +562,7 @@ const PlanCard = ({
         <div className={cn("p-4 flex flex-col flex-1", ((plan.badge && !hideTitleRow) || mnpEligible) && layout !== "payg" && "pt-6")}>
           {layout === "payg" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{t("activation.plan.payg.title")}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -565,7 +575,7 @@ const PlanCard = ({
             </>
           ) : layout === "combo" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -597,7 +607,7 @@ const PlanCard = ({
             </>
           ) : layout === "calls" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
@@ -615,7 +625,7 @@ const PlanCard = ({
             </>
           ) : isDataOnly ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={!plan.categories?.includes("vnet")} />}
@@ -633,7 +643,7 @@ const PlanCard = ({
             </>
           ) : layout === "baqa" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -657,7 +667,7 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {/* Trusted for Kids pill — suppressed when embedded, shown as a chip on the
                   collapsed row instead. */}
               {!hideTitleRow && (
@@ -696,7 +706,7 @@ const PlanCard = ({
             </>
           ) : layout === "postpaid" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {plan.bonuses && plan.bonuses.length > 0 && (
                 <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
                   {plan.bonuses.map((bonus, i) => (
@@ -739,7 +749,7 @@ const PlanCard = ({
             </>
           ) : (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}

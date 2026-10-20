@@ -2001,6 +2001,7 @@ const NewActivation3 = () => {
               </div>
               <button
                 type="button"
+                disabled={subType === "booked" && !bookedHasPlan}
                 onClick={() => navigate("/new-activation-3/plans", {
                   // Identity fields are forwarded so the round trip back can restore them too —
                   // /plans is a separate route, so returning here remounts this page from
@@ -2011,13 +2012,23 @@ const NewActivation3 = () => {
                     resume: { idType, nationality, idNumber, simType, kit, subType, bookedNumber, bookingRef, topupManual, bookedTopupManual },
                   },
                 })}
-                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("activation3.subscription.allPlansBtn")}
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
 
+            {/* Booked: when the brand's configured option leaves the plan out, the plan section
+                stays visible but can't be picked — say so right above the locked cards (not up by
+                the plan-type chips), so the explanation is still on screen when the dealer lands
+                on the carousel. */}
+            {subType === "booked" && !bookedHasPlan && (
+              <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 mb-2">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                {t("activation3.subscription.planNotIncluded")}
+              </p>
+            )}
             <PlanSelector
               key={`${brand}-${payType}-${planTypeChip}-${lineType}`}
               selectedPlan={selectedPlan}
@@ -2026,6 +2037,7 @@ const NewActivation3 = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
               isMnpEligible={isFriendi ? undefined : isPlanMnpEligible}
               searchQuery={planSearch}
+              disabled={subType === "booked" && !bookedHasPlan}
             />
 
             {/* MNP can't port a data-only line — flag it right under the plan and steer the

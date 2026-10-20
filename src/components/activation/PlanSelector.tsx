@@ -217,10 +217,13 @@ interface PlanSelectorProps {
   /** Optional title search — filters the displayed carousel without touching `plans` itself,
    * so `plans.indexOf(p)` (the index callers resolve selections by) stays stable. Shows a
    * "No plans match" empty state when it filters everything out. */
-  searchQuery?: string;
+   searchQuery?: string;
+  /** Locks every card in the carousel: the section stays visible but nothing can be picked.
+   * Passed by the Booked tab when the brand's activation option leaves the plan out. */
+  disabled?: boolean;
 }
 
-const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, isMnpEligible, searchQuery }: PlanSelectorProps) => {
+const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, isMnpEligible, searchQuery, disabled = false }: PlanSelectorProps) => {
   const { t } = useTranslation();
   const { isRtl } = useLanguage();
   const [planType, setPlanType] = useState<string>("all");
@@ -426,6 +429,7 @@ const PlanSelector = ({ selectedPlan, onSelect, plans = PLANS, categoryFilter, i
                       selected={selectedPlan === originalIdx}
                       active={activeSnap === i}
                       onSelect={() => onSelect(originalIdx, p)}
+                      disabled={disabled}
                       minsLabel={cats.includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
                       layout={layout}
                       mnpEligible={isMnpEligible?.(p)}
