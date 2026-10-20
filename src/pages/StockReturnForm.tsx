@@ -51,6 +51,7 @@ const StockReturnForm = () => {
     setQty(value);
     setQtyInput(value ? String(value) : "");
     setQtyTouched(false);
+    setCountErrorShown(false);
   };
 
   const addSerial = () => {
@@ -124,6 +125,7 @@ const StockReturnForm = () => {
               onChange={(e) => {
                 setQtyInput(e.target.value);
                 setQty(/^\d+$/.test(e.target.value) ? Number(e.target.value) : 0);
+                setCountErrorShown(false);
               }}
               onBlur={() => setQtyTouched(true)}
               aria-invalid={qtyTouched && !!qtyFeedback}
