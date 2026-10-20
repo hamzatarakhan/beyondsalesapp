@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -21,6 +21,9 @@ import {
   AlertCircle,
   Check,
   XCircle,
+  LockKeyhole,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
@@ -87,6 +90,13 @@ const CreditTransfer = () => {
   const [amountText, amountTextSet] = useState<string | null>(null);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
+  const changePinSheet = (open: boolean) => {
+    setPin("");
+    setShowPin(false);
+    setConfirmOpen(open);
+  };
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
@@ -121,7 +131,9 @@ const CreditTransfer = () => {
   const canTransfer = eligible && amount != null && amount >= MIN_TRANSFER_AMOUNT && !insufficientBalance;
 
   const resolveTransfer = () => {
-    setConfirmOpen(false);
+    // This prototype collects the PIN; real PIN authentication must happen server-side.
+    if (!canTransfer || !/^\d+$/.test(pin)) return;
+    changePinSheet(false);
     const ok = Math.random() < 0.85;
     if (ok) {
       setOrderId(`CT-${Math.floor(100000 + Math.random() * 900000)}`);
@@ -232,30 +244,48 @@ const CreditTransfer = () => {
               <span className="text-[12px] font-bold text-primary"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</span>
             </div>
           )}
-          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canTransfer} onClick={() => setConfirmOpen(true)}>
+          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canTransfer} onClick={() => changePinSheet(true)}>
             {t("creditTransfer.transfer")}{amount != null && <> <RiyalSymbol /> {amount.toFixed(2)}</>}
           </Button>
         </div>
       </div>
 
-      {/* Confirm */}
-      <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
+      {/* PIN confirmation */}
+      <Drawer open={confirmOpen} onOpenChange={changePinSheet}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="w-14 h-14 rounded-full border-2 border-sky-500 flex items-center justify-center">
-              <AlertCircle className="w-7 h-7 text-sky-500" />
+          <form onSubmit={(event) => { event.preventDefault(); resolveTransfer(); }} className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <LockKeyhole className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-1">{t("creditTransfer.confirmTransferTitle")}</h3>
-              <p className="text-sm text-muted-foreground">
+              <DrawerTitle className="text-lg font-bold text-foreground mb-1">{t("settings.confirmPinCode")}</DrawerTitle>
+              <DrawerDescription className="text-sm text-muted-foreground">
                 {t("creditTransfer.confirmTransferDesc", { amount: amount?.toFixed(2) ?? "0.00", msisdn: customer?.msisdn ?? "" })}
-              </p>
+              </DrawerDescription>
+            </div>
+            <div className="w-full space-y-1.5 text-start">
+              <label htmlFor="transfer-pin" className="text-xs font-medium text-muted-foreground">{t("settings.currentPin")}</label>
+              <div className="relative">
+                <Input
+                  id="transfer-pin"
+                  type={showPin ? "text" : "password"}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={pin}
+                  onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))}
+                  placeholder={t("settings.enterCurrentPin")}
+                  className="h-12 rounded-xl bg-card pe-12 text-base"
+                />
+                <Button type="button" variant="ghost" size="icon" className="absolute end-1 top-1 h-10 w-10 text-muted-foreground" onClick={() => setShowPin((visible) => !visible)} aria-label={t(showPin ? "settings.hidePin" : "settings.showPin")}>
+                  {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button className="w-full h-12 rounded-full font-semibold" onClick={resolveTransfer}>{t("creditTransfer.yesConfirm")}</Button>
-              <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setConfirmOpen(false)}>{t("creditTransfer.cancel")}</button>
+              <Button type="submit" className="w-full h-12 rounded-full font-semibold" disabled={!canTransfer || !pin}>{t("creditTransfer.yesConfirm")}</Button>
+              <Button type="button" variant="ghost" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => changePinSheet(false)}>{t("creditTransfer.cancel")}</Button>
             </div>
-          </div>
+          </form>
         </DrawerContent>
       </Drawer>
 
@@ -298,7 +328,7 @@ const CreditTransfer = () => {
             <p className="text-sm text-muted-foreground text-center">{t("creditTransfer.transferFailedDesc")}</p>
           </div>
           <div className="flex flex-col gap-3">
-            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
+            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); changePinSheet(true); }}>
               {t("creditTransfer.tryAgain")}
             </Button>
             <button
