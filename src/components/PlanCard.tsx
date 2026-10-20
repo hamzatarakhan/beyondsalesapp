@@ -516,7 +516,12 @@ const PlanCard = ({
   hideRadio,
   hideTitleRow,
   mnpEligible,
+  disabled = false,
 }: Props) => {
+  // Single guard for every selection entry point (card body, title row, select radio): a disabled
+  // card never reaches the caller's handler, so nothing can be picked from a section the current
+  // flow doesn't use.
+  const handleSelect = () => { if (!disabled) onSelect(); };
   const { t } = useTranslation();
   const resolvedMinsLabel = minsLabel ?? t("activation.plan.flexMins");
   const unlimited = t("activation.plan.unlimited");
@@ -528,13 +533,15 @@ const PlanCard = ({
     <>
       <div
         role="button"
-        tabIndex={0}
-        onClick={onSelect}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled || undefined}
+        onClick={handleSelect}
+        onKeyDown={(e) => { if (disabled) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleSelect(); } }}
         className={cn(
-          "relative rounded-2xl transition-all duration-200 flex flex-col w-full cursor-pointer",
+          "relative rounded-2xl transition-all duration-200 flex flex-col w-full",
+          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
           selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
-          active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
+          disabled ? "" : active ? "scale-100 opacity-100" : "scale-[0.96] opacity-70"
         )}
       >
         {/* Per-plan badge — pinned flush to the card's top-right corner. Suppressed when

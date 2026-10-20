@@ -2021,7 +2021,7 @@ const NewActivation3 = () => {
                     resume: { idType, nationality, idNumber, simType, kit, subType, bookedNumber, bookingRef, topupManual, bookedTopupManual },
                   },
                 })}
-                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("activation3.subscription.allPlansBtn")}
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
