@@ -598,6 +598,7 @@
     "voucherDigitsHint": "أدخل رمز قسيمة مكوّناً من 14 رقماً فقط.",
     "voucherErrorInvalid": "رمز القسيمة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
     "voucherValue": "رمز القسيمة صالح.",
+    "voucherOnlyToggle": "للتجربة فقط — قسيمة فقط (بدون خيار البطاقة)",
     "testVouchersHeading": "قسائم تجريبية",
     "testVouchersDescription": "استخدم هذه القسائم لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
     "testNoteValid": "رمز صالح",
