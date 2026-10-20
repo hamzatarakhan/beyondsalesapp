@@ -723,6 +723,8 @@ const NewActivation3 = () => {
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [bookedMode, setBookedMode] = useState<BookedActivationMode>("plan");
   const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
+  // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
+  const [bookedTopupManual, setBookedTopupManual] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
@@ -1000,7 +1002,7 @@ const NewActivation3 = () => {
   useEffect(() => {
     const state = location.state as {
       pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
-      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string; bookedTopupManual?: string };
     } | null;
     const pick = state?.pickPlan;
     if (!pick) return;
@@ -1011,6 +1013,7 @@ const NewActivation3 = () => {
       setSimType(state.resume.simType);
       if (state.resume.subType) setSubType(state.resume.subType);
       if (state.resume.bookedMode) setBookedMode(state.resume.bookedMode);
+      if (state.resume.bookedTopupManual !== undefined) setBookedTopupManual(state.resume.bookedTopupManual);
       if (state.resume.bookedNumber) setBookedNumber(state.resume.bookedNumber);
       if (state.resume.bookingRef) setBookingRef(state.resume.bookingRef);
       if (state.resume.topupManual !== undefined) setTopupManual(state.resume.topupManual);
@@ -1254,7 +1257,8 @@ const NewActivation3 = () => {
   const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
-  const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
+  const bookedTopupAmount = bookedTopupManual ? Number(bookedTopupManual) : 0;
+  const topupAmount = subType === "booked" ? bookedTopupAmount : (topupManual ? Number(topupManual) : topupDenom ?? 0);
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
   // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
   const planFeeRaw = selectedPlanObj?.price ?? 0;
@@ -1943,9 +1947,9 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow is plan-only
-                (no activation-option cards, no top-up), so it reuses the same plan section
-                as the New and Port (MNP) tabs. */}
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow reuses the same
+                plan section as the New and Port (MNP) tabs, plus an optional Top-up toggle
+                (below the Plan Types chips) that expands to an amount entry when enabled. */}
             {(subType !== "booked" || bookedHasPlan) && <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
@@ -1983,6 +1987,55 @@ const NewActivation3 = () => {
               </div>
             )}
 
+            {/* Booked tab only — optional Top-up toggle under the Plan Types chips. Toggling it
+                on expands the amount entry (manual input or preset chips) and switches the
+                booked mode to plan-topup so validation, totals and checkout include the top-up. */}
+            {subType === "booked" && bookedConfig.enabledModes.includes("plan-topup") && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <Coins className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{t("activation3.subscription.topupSectionTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.topupChooseSub")}</p>
+                  </div>
+                  <Switch
+                    checked={bookedHasTopup}
+                    onCheckedChange={(checked) => {
+                      setBookedMode(checked ? "plan-topup" : "plan");
+                      if (!checked) setBookedTopupManual("");
+                    }}
+                    className="data-[state=checked]:bg-red-500"
+                    aria-label={t("activation3.subscription.topupSectionTitle")}
+                  />
+                </div>
+                {bookedHasTopup && (
+                  <>
+                    <div className="border-t border-border/60 mt-3 mb-3" />
+                    <Input
+                      inputMode="decimal"
+                      value={bookedTopupManual}
+                      onChange={(e) => setBookedTopupManual(e.target.value.replace(/[^\d.]/g, ""))}
+                      placeholder={t("activation3.subscription.topupSelectAmount")}
+                      className="h-11 bg-muted/40 rounded-xl text-center"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1.5">{t("activation3.subscription.topupVatNote")}</p>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {FM_TOPUP_PRESETS_REQUIRED.map((d) => (
+                        <button key={d} type="button"
+                          onClick={() => setBookedTopupManual(String(d))}
+                          className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1",
+                            Number(bookedTopupManual) === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                          <RiyalSymbol /> {d.toFixed(2)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
+
             {/* Search + View all plans, side by side — search narrows the plan cards
                 below (PlanSelector shows its own "no plans match" state); View all plans
                 (secondary button) opens the full vertical browser with its own search + filters. */}
@@ -2005,7 +2058,7 @@ const NewActivation3 = () => {
                   state: {
                     payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
                     selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
-                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual },
+                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual, bookedTopupManual },
                   },
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
