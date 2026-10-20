@@ -407,7 +407,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               {voucherValid && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  {t("walletRecharge.voucherValue", { amount: VOUCHER_AMOUNT.toFixed(2) })}
+                  {t("walletRecharge.voucherValue")}
                 </p>
               )}
             </div>
