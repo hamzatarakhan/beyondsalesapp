@@ -24,6 +24,14 @@ describe("Stock Return validation", () => {
     expect(serials).toEqual(["SN-123"]);
     expect(serialError("SN-124", serials, 10)).toBeUndefined();
   });
+  test("malformed serials are rejected before duplicate and limit checks", () => {
+    expect(serialError("ab", [], 10)).toBe("serialInvalid");
+    expect(serialError("has space", [], 10)).toBe("serialInvalid");
+    expect(serialError("SN-123#$", [], 10)).toBe("serialInvalid");
+    expect(serialError("S".repeat(25), [], 10)).toBe("serialInvalid");
+    expect(serialError("SN-VMSIM-3000", [], 10)).toBeUndefined();
+    expect(serialError("SN-123", [], 10)).toBeUndefined();
+  });
   test("adding serials cannot exceed stock availability", () => {
     expect(serialError("SN-124", ["SN-123"], 1)).toBe("quantityLimit");
   });
