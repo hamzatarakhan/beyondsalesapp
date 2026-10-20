@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
-import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -87,9 +87,9 @@ const CreditTransfer = () => {
   const [amountText, amountTextSet] = useState<string | null>(null);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pin, setPin] = useState("");
+  const [pinDigits, setPinDigits] = useState<string[]>(["", "", "", ""]);
   const changePinSheet = (open: boolean) => {
-    setPin("");
+    setPinDigits(["", "", "", ""]);
     setConfirmOpen(open);
   };
   const [successOpen, setSuccessOpen] = useState(false);
