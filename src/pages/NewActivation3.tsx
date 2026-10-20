@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
+import { BOOKED_ACTIVATION_CONFIG, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation, type BookedActivationMode } from "@/lib/bookedActivation";
+import BookedActivationOptions from "@/components/activation/BookedActivationOptions";
 import { DifferentBrandReservationError, uatNumberReservations, type UatReservation, type ReservationMessage } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
@@ -720,6 +722,8 @@ const NewActivation3 = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planSearch, setPlanSearch] = useState("");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
+  const [bookedMode, setBookedMode] = useState<BookedActivationMode>("plan");
+  const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
@@ -845,7 +849,7 @@ const NewActivation3 = () => {
       : (lineType === "data" ? "data" : planTypeChip);
   const activePlansForType = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(payType, effectiveChip, { esim: simType === "esim", fulfilment: isFulfilment });
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
-  const isPaygPlan        = isFriendi && planTypeChip === "payg";
+  const isPaygPlan        = subType !== "booked" && isFriendi && planTypeChip === "payg";
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
   // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
   const topupRequired     = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_TOPUP_REQUIRED_ID_SUFFIX);
@@ -947,6 +951,14 @@ const NewActivation3 = () => {
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showBooked = canActivateBookedNumber(payType);
   const bookingCodeValid = bookingCodeSchema.safeParse(bookingRef).success;
+  const bookedHasPlan = bookedModeHasPlan(bookedMode);
+  const bookedHasTopup = bookedModeHasTopup(bookedMode);
+  useEffect(() => {
+    if (!bookedConfig.enabledModes.includes(bookedMode)) {
+      const firstMode = bookedConfig.enabledModes[0];
+      if (firstMode) setBookedMode(firstMode);
+    }
+  }, [bookedConfig, bookedMode]);
   useEffect(() => {
     if (!showBooked && subType === "booked") setSubType("sim");
   }, [showBooked, subType]);
@@ -988,7 +1000,7 @@ const NewActivation3 = () => {
   useEffect(() => {
     const state = location.state as {
       pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
-      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string };
     } | null;
     const pick = state?.pickPlan;
     if (!pick) return;
@@ -997,6 +1009,11 @@ const NewActivation3 = () => {
       setNationality(state.resume.nationality);
       setIdNumber(state.resume.idNumber);
       setSimType(state.resume.simType);
+      if (state.resume.subType) setSubType(state.resume.subType);
+      if (state.resume.bookedMode) setBookedMode(state.resume.bookedMode);
+      if (state.resume.bookedNumber) setBookedNumber(state.resume.bookedNumber);
+      if (state.resume.bookingRef) setBookingRef(state.resume.bookingRef);
+      if (state.resume.topupManual !== undefined) setTopupManual(state.resume.topupManual);
       // Re-verify (not just restore) the KIT/IMSI — the mount-time auto-verify ran while it was
       // still empty, so without this the sections gated on kitVerified stay hidden.
       runKitCheck(state.resume.kit);
@@ -1225,7 +1242,7 @@ const NewActivation3 = () => {
   };
 
   // ---------- Pricing ----------
-  const selectedPlanObj = selectedPlan != null ? activePlansForType[selectedPlan] : undefined;
+  const selectedPlanObj = selectedPlan != null && (subType !== "booked" || bookedHasPlan) ? activePlansForType[selectedPlan] : undefined;
   // Vanity Number eligibility for the selected Switch Postpaid plan (Req 1).
   const selectedPlanTier = isPostpaidMobile && selectedPlanObj
     ? parseInt(selectedPlanObj.title.match(/\d+/)?.[0] ?? "0", 10)
@@ -1241,7 +1258,9 @@ const NewActivation3 = () => {
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
   // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
   const planFeeRaw = selectedPlanObj?.price ?? 0;
-  const topupFeeRaw = (planMode === "topup" || isPaygPlan) ? topupAmount : 0;
+  const topupActive = subType === "booked" ? bookedHasTopup : (planMode === "topup" || isPaygPlan);
+  const topupFeeRaw = topupActive ? topupAmount : 0;
+  const bookedErrors = validateBookedActivation(bookedConfig, payType, bookedMode, selectedPlanObj?.price ?? null, topupAmount);
   const planPrice = planFeeRaw + topupFeeRaw;
   const simFee = showEsim ? SIM_FEES[simType] : 0;
   // OLD approach: flat NUMBER_TABS fee for any non-standard number, regardless of commitment.
@@ -1339,8 +1358,8 @@ const NewActivation3 = () => {
       return missing;
     }
     if (simType === "psim" && (!kitChecked || !!kitError)) missing.push(t(isFriendi ? "activation3.missing.verifiedImsi" : "activation3.missing.verifiedKit"));
-    if (planMode === "plan" && selectedPlan == null) missing.push(t("activation3.missing.aPlan"));
-    if (planMode === "topup" && !topupDenom && !topupManual) missing.push(t("activation3.missing.topupAmount"));
+    if (subType !== "booked" && planMode === "plan" && selectedPlan == null) missing.push(t("activation3.missing.aPlan"));
+    if (subType !== "booked" && planMode === "topup" && !topupDenom && !topupManual) missing.push(t("activation3.missing.topupAmount"));
     // Friendi PAYG "required" case: must pick a top-up amount ≥ 10.
     if (isPaygPlan && topupRequired && (topupDenom == null || topupDenom < 10)) missing.push(t("activation3.missing.topupMin"));
     if (showMnp && subType === "mnp") {
@@ -1349,12 +1368,13 @@ const NewActivation3 = () => {
       if (!portContact) missing.push(t("activation3.missing.portContact"));
     }
     if (subType === "booked") {
+      missing.push(...bookedErrors.map(error => t(`activation3.subscription.bookedOptions.errors.${error}`, { min: error === "planMinimum" ? bookedConfig.minPlanAmount : bookedConfig.minTopupAmount })));
       if (!showBooked) missing.push(t("activation3.subscription.bookedPrepaidOnly"));
       if (!bookedNumber) missing.push(t("activation3.subscription.bookedNumber", "Booked number"));
       if (!bookingCodeValid) missing.push(t("activation3.subscription.bookingCodeError"));
     }
     return missing;
-  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, bookedNumber, showBooked, bookingCodeValid, t]);
+  }, [isFulfilment, alreadyPaid, simType, kitChecked, kitError, planMode, selectedPlan, topupDenom, topupManual, isPaygPlan, topupRequired, showMnp, subType, portNumber, portOperator, portContact, bookedNumber, showBooked, bookingCodeValid, bookedMode, bookedConfig, topupAmount, selectedPlanObj, t]);
 
   const step2Missing = useMemo(() => {
     const missing: string[] = [];
@@ -1377,7 +1397,7 @@ const NewActivation3 = () => {
 
   const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
   const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
-  const canPay = step2Missing.length === 0 && (subType !== "booked" || (showBooked && bookingCodeValid && !!bookedNumber));
+  const canPay = step2Missing.length === 0 && (subType !== "booked" || (showBooked && bookingCodeValid && !!bookedNumber && bookedErrors.length === 0));
 
   const onBack = () => {
     if (step === 0) navigate("/");
@@ -1385,6 +1405,7 @@ const NewActivation3 = () => {
   };
 
   const onContinue = () => {
+    if (!canContinue) return;
     if (step === 0 && isFulfilment && fulfilmentEmailNotFound) {
       setCustomerNotFoundOpen(true);
       return;
@@ -1921,6 +1942,8 @@ const NewActivation3 = () => {
             </div>
 
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
+            {subType === "booked" && <BookedActivationOptions config={bookedConfig} mode={bookedMode} onModeChange={setBookedMode} topup={topupManual} onTopupChange={(value) => { setTopupManual(value); setTopupDenom(null); }} errors={bookedErrors} />}
+            {(subType !== "booked" || bookedHasPlan) && <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
@@ -1979,7 +2002,7 @@ const NewActivation3 = () => {
                   state: {
                     payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
                     selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
-                    resume: { idType, nationality, idNumber, simType, kit },
+                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual },
                   },
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
@@ -2054,6 +2077,7 @@ const NewActivation3 = () => {
               );
             })()}
 
+            </>}
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
               <section>
@@ -2427,7 +2451,7 @@ const NewActivation3 = () => {
               })()}
               {selectedPlanObj && <SummaryRow label={t("activation3.checkout.planName")} value={selectedPlanObj.title} />}
               {selectedPlanObj?.validityLabel && <SummaryRow label={t("activation3.checkout.planValidity")} value={formatValidity(selectedPlanObj.validityLabel)} />}
-              {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && <SummaryRow label={t("activation3.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount.toFixed(2)}</>} />}
+              {topupActive && topupAmount > 0 && <SummaryRow label={t("activation3.checkout.topupValue")} value={<><RiyalSymbol /> {topupAmount.toFixed(2)}</>} />}
               {showNumber && <SummaryRow label={t("activation3.checkout.numberType")} value={subType === "sim" ? t("activation3.subscription.newNumberBtn") : subType === "booked" ? t("activation3.subscription.bookedTab", "Booked") : t("activation3.subscription.portMnp")} />}
               {showNumber && subType === "booked" && bookedNumber && <SummaryRow label={t("activation3.subscription.bookedNumber", "Booked number")} value={bookedNumber} />}
               {showNumber && subType === "booked" && bookingRef && <SummaryRow label={t("activation3.subscription.bookingCode")} value={bookingRef} />}
@@ -2639,7 +2663,7 @@ const NewActivation3 = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {planFeeRaw.toFixed(2)}</span>
                         </div>
                       )}
-                      {(planMode === "topup" || isPaygPlan) && topupAmount > 0 && (
+                      {topupActive && topupAmount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">{t("activation3.checkout.topupLabel")}</span>
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount.toFixed(2)}</span>
