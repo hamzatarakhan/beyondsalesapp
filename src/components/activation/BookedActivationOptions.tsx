@@ -30,7 +30,7 @@ export default function BookedActivationOptions({ config, mode, onModeChange, to
   };
 
   return <section className="space-y-3">
-    <label className="block text-sm font-semibold text-foreground" htmlFor="booked-activation-mode">{t("activation3.subscription.bookedOptions.title")}</label>
+    <label className="block text-sm font-semibold text-foreground">{t("activation3.subscription.bookedOptions.title")}</label>
     <div className="grid grid-cols-2 gap-3">
       <button
         type="button"
