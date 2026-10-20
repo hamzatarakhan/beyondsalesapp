@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import PayOption from "@/components/activation/PayOption";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
+import { Switch } from "@/components/ui/switch";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { cn } from "@/lib/utils";
 import RiyalSymbol from "@/components/RiyalSymbol";
@@ -189,6 +190,13 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   const finish = () => (onDone ? onDone() : navigate("/"));
 
   const [method, setMethod] = useState<Method>("voucher");
+  // Prototype-only scenario switch: some wallet types are configured voucher-only, so this
+  // hides the Card option entirely to demo that configuration. Not part of the real build.
+  const [voucherOnly, setVoucherOnly] = useState(false);
+  const changeVoucherOnly = (next: boolean) => {
+    setVoucherOnly(next);
+    if (next) setMethod("voucher");
+  };
 
   // ---------- Voucher ----------
   const [voucherCode, setVoucherCode] = useState("");
@@ -328,6 +336,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
 
   const resetAll = () => {
     setMethod("voucher");
+    setVoucherOnly(false);
     setVoucherCode("");
     setVoucherError(null);
     setCardAmount(null);
@@ -350,6 +359,16 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
       <AppHeader title={t("walletRecharge.title")} showBack onBackClick={finish} />
 
       <div className="px-4 space-y-4">
+        <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Info className="w-3 h-3 text-amber-500 shrink-0" />
+            <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 leading-snug">
+              {t("walletRecharge.voucherOnlyToggle")}
+            </p>
+          </div>
+          <Switch checked={voucherOnly} onCheckedChange={changeVoucherOnly} aria-label={t("walletRecharge.voucherOnlyToggle")} />
+        </div>
+
         <div className="space-y-2">
           <PayOption
             icon={Ticket}
@@ -358,13 +377,15 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
             selected={method === "voucher"}
             onClick={() => setMethod("voucher")}
           />
-          <PayOption
-            icon={CreditCard}
-            label={t("walletRecharge.card")}
-            description={t("walletRecharge.cardDesc")}
-            selected={method === "card"}
-            onClick={() => setMethod("card")}
-          />
+          {!voucherOnly && (
+            <PayOption
+              icon={CreditCard}
+              label={t("walletRecharge.card")}
+              description={t("walletRecharge.cardDesc")}
+              selected={method === "card"}
+              onClick={() => setMethod("card")}
+            />
+          )}
         </div>
 
         {method === "voucher" && (
