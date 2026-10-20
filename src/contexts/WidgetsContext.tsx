@@ -17,7 +17,9 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   // { id: "other-options", enabled: true },
   { id: "other-services", enabled: true },
   { id: "other-widgets", enabled: true },
-  { id: "kpis", enabled: true },
+  // KPI's hidden per request — commented out, not deleted, until asked to bring it back.
+  // widgetNodes["kpis"] in Home.tsx is commented out to match.
+  // { id: "kpis", enabled: true },
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
@@ -35,7 +37,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "sim-services": "home.simServices",
   // "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",
-  "kpis": "home.kpis.title",
+  // "kpis": "home.kpis.title",
   "dealer-visit": "home.dealerVisit.title",
   "tickets": "home.tickets.title",
 };

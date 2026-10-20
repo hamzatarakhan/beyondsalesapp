@@ -619,6 +619,10 @@ const Home = () => {
         </div>
       </div>
     ),
+    // KPI's hidden per request — commented out (not deleted) until asked to bring it back.
+    // Matching DEFAULT_WIDGETS/WIDGET_LABEL_KEYS entries in WidgetsContext.tsx are commented
+    // out too, so it never renders on Home or in the Settings widget list in the meantime.
+    /*
     kpis: (
       <div key="kpis" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
@@ -715,6 +719,7 @@ const Home = () => {
         </div>
       </div>
     ),
+    */
     tickets: (
       <div key="tickets" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
