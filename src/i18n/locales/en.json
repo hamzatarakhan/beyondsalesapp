@@ -595,7 +595,7 @@
     "voucherDigitsHint": "Enter a 14-digit voucher code, digits only.",
     "voucherErrorInvalid": "This voucher code is invalid. Please check and try again.",
     "voucherValue": "This voucher code is valid.",
-    "voucherOnlyToggle": "Prototype only — voucher only (no card option)",
+    "voucherOnlyToggle": "Voucher only (no card option)",
     "testVouchersHeading": "test vouchers",
     "testVouchersDescription": "Use these to try every case. This box won't appear in the real implementation.",
     "testNoteValid": "Valid code",

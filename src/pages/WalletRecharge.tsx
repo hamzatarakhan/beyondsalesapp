@@ -359,15 +359,6 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
       <AppHeader title={t("walletRecharge.title")} showBack onBackClick={finish} />
 
       <div className="px-4 space-y-4">
-        <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <Info className="w-3 h-3 text-amber-500 shrink-0" />
-            <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 leading-snug">
-              {t("walletRecharge.voucherOnlyToggle")}
-            </p>
-          </div>
-          <Switch checked={voucherOnly} onCheckedChange={changeVoucherOnly} aria-label={t("walletRecharge.voucherOnlyToggle")} />
-        </div>
 
         <div className="space-y-2">
           <PayOption
@@ -441,6 +432,18 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                 { value: INVALID_VOUCHER_CODE, note: t("walletRecharge.testNoteInvalid") },
               ]}
               onSelect={runVoucherCheck}
+              extra={
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 leading-snug">
+                    {t("walletRecharge.voucherOnlyToggle")}
+                  </p>
+                  <Switch
+                    checked={voucherOnly}
+                    onCheckedChange={changeVoucherOnly}
+                    aria-label={t("walletRecharge.voucherOnlyToggle")}
+                  />
+                </div>
+              }
             />
           </>
         )}

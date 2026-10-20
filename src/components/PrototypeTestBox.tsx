@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Info, ArrowUpRight, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface PrototypeTestItem {
@@ -17,6 +17,8 @@ interface PrototypeTestBoxProps {
   items: (string | PrototypeTestItem)[];
   /** Called with the raw value when its button is tapped — fill the relevant field with it. */
   onSelect: (value: string) => void;
+  /** Optional extra row (e.g. a prototype-only scenario switch) rendered under the items. */
+  extra?: ReactNode;
 }
 
 /**
@@ -25,7 +27,7 @@ interface PrototypeTestBoxProps {
  * that fills the field above instead of requiring manual retyping. Shared so every
  * current and future prototype feature gets the same box instead of a hand-rolled copy.
  */
-const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTestBoxProps) => {
+const PrototypeTestBox = ({ heading, description, items, onSelect, extra }: PrototypeTestBoxProps) => {
   const [filledValue, setFilledValue] = useState<string | null>(null);
 
   const normalized = items.map((item) => (typeof item === "string" ? { value: item } : item));
@@ -109,6 +111,11 @@ const PrototypeTestBox = ({ heading, description, items, onSelect }: PrototypeTe
       ) : (
         <div className="space-y-1">
           {normalized.map(renderItem)}
+        </div>
+      )}
+      {extra && (
+        <div className="mt-2 pt-2 border-t border-dashed border-amber-300/80 dark:border-amber-700/80">
+          {extra}
         </div>
       )}
     </div>
