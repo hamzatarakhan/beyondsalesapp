@@ -1475,7 +1475,11 @@
       "wrongItem": "عنصر خاطئ",
       "expiredVoucher": "قسيمة منتهية الصلاحية",
       "excessStock": "مخزون زائد"
-    }
+    },
+    "recentlyScanned": "الممسوحة مؤخرًا",
+    "viewAll": "عرض الكل ({{count}})",
+    "removeSerialAria": "إزالة الرقم التسلسلي",
+    "allSerialsTitle": "الأرقام التسلسلية الممسوحة"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

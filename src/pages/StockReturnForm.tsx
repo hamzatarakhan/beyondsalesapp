@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { quantityError, serialCountError, serialError } from "@/lib/stockReturnValidation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
-import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2, Trash2, X } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, RETURN_REASONS, addStockReturn, type ProductId, type ReturnReasonKey } from "@/data/stockReturnStore";
 
 type ScanMode = "range" | "item";
@@ -35,6 +36,15 @@ const StockReturnForm = () => {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [remark, setRemark] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+
+  // Newest first for display; serials state keeps insertion order.
+  const recentSerials = useMemo(() => [...serials].reverse().slice(0, 5), [serials]);
+
+  const removeSerial = (value: string) => {
+    setSerials((prev) => prev.filter((s) => s !== value));
+    setCountErrorShown(false);
+  };
 
   const Icon = product ? PRODUCT_ICON[product.id] : Boxes;
   const productName = product ? t(`purchaseOrders.product.${product.nameKey}`) : "";
@@ -210,12 +220,30 @@ const StockReturnForm = () => {
           )}
 
           {serials.length > 0 && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {serials.map((s, i) => (
-                <span key={`${s}-${i}`} className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                  {s}
-                </span>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">{t("stockReturn.recentlyScanned")}</p>
+              {recentSerials.map((s) => (
+                <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
+                  <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSerial(s)}
+                    aria-label={t("stockReturn.removeSerialAria")}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               ))}
+              {serials.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setViewAllOpen(true)}
+                  className="w-full text-center text-sm font-semibold text-primary py-1"
+                >
+                  {t("stockReturn.viewAll", { count: serials.length })}
+                </button>
+              )}
             </div>
           )}
           {countErrorShown && countFeedback && (
@@ -281,6 +309,38 @@ const StockReturnForm = () => {
           </Button>
         </div>
       </div>
+
+      {/* View All serials bottom sheet */}
+      <Drawer open={viewAllOpen} onOpenChange={setViewAllOpen}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7" />
+            <h3 className="font-semibold text-foreground text-base">{t("stockReturn.allSerialsTitle")}</h3>
+            <button
+              onClick={() => setViewAllOpen(false)}
+              className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+              aria-label={t("activation.success.close")}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="overflow-y-auto space-y-2 -mx-1 px-1">
+            {[...serials].reverse().map((s) => (
+              <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
+                <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
+                <button
+                  type="button"
+                  onClick={() => removeSerial(s)}
+                  aria-label={t("stockReturn.removeSerialAria")}
+                  className="text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* Success dialog */}
       <Dialog open={successOpen} onOpenChange={(open) => { setSuccessOpen(open); if (!open && submitted) navigate("/stock-returns"); }}>
