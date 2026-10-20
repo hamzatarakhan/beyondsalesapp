@@ -721,8 +721,11 @@ const NewActivation3 = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planSearch, setPlanSearch] = useState("");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
-  const [bookedMode, setBookedMode] = useState<BookedActivationMode>("plan");
   const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
+  // The booked activation combination (Only Plan / Plan with Top Up / Only Top Up / No Plan or
+  // Top Up) is fixed by the brand configuration — there is no picker in the UI, so a dealer can
+  // never activate outside what the brand allows.
+  const bookedMode = bookedConfig.mode;
   // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
   const [bookedTopupManual, setBookedTopupManual] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
@@ -955,12 +958,6 @@ const NewActivation3 = () => {
   const bookingCodeValid = bookingCodeSchema.safeParse(bookingRef).success;
   const bookedHasPlan = bookedModeHasPlan(bookedMode);
   const bookedHasTopup = bookedModeHasTopup(bookedMode);
-  useEffect(() => {
-    if (!bookedConfig.enabledModes.includes(bookedMode)) {
-      const firstMode = bookedConfig.enabledModes[0];
-      if (firstMode) setBookedMode(firstMode);
-    }
-  }, [bookedConfig, bookedMode]);
   useEffect(() => {
     if (!showBooked && subType === "booked") setSubType("sim");
   }, [showBooked, subType]);
