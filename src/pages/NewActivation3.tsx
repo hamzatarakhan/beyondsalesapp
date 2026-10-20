@@ -723,6 +723,8 @@ const NewActivation3 = () => {
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
   const [bookedMode, setBookedMode] = useState<BookedActivationMode>("plan");
   const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
+  // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
+  const [bookedTopupManual, setBookedTopupManual] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
@@ -1254,7 +1256,8 @@ const NewActivation3 = () => {
   const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
-  const topupAmount = topupManual ? Number(topupManual) : topupDenom ?? 0;
+  const bookedTopupAmount = bookedTopupManual ? Number(bookedTopupManual) : 0;
+  const topupAmount = subType === "booked" ? bookedTopupAmount : (topupManual ? Number(topupManual) : topupDenom ?? 0);
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
   // Friendi PAYG always adds the entered top-up on top of the (zero-price) PAYG plan.
   const planFeeRaw = selectedPlanObj?.price ?? 0;
