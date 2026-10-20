@@ -199,7 +199,6 @@ const CreditTransfer = () => {
           description={t("creditTransfer.testNumbersDescription")}
           items={[
             { value: "0501111133", note: t("creditTransfer.testNoteActive") },
-            { value: "0501111122", note: t("creditTransfer.testNoteActive") },
             { value: "0501111199", note: t("creditTransfer.testNoteTerminated") },
             { value: "0500000099", note: t("creditTransfer.testNoteNotFound") },
           ]}
