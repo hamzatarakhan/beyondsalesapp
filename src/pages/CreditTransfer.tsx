@@ -71,6 +71,9 @@ const AMOUNT_PRESETS = [10, 20, 50, 100, 200, 600];
 // app (e.g. SIM Termination). The ceiling is the dealer's own wallet balance, not a fixed
 // number — you can't send more than you have.
 const MIN_TRANSFER_AMOUNT = 10;
+// Prototype PIN for the transfer sheet — any other 4 digits count as a wrong PIN so QA can
+// reach the invalid-PIN popup. Real PIN verification must happen server-side.
+const VALID_TRANSFER_PIN = "1234";
 
 const CreditTransfer = () => {
   const navigate = useNavigate();
@@ -90,10 +93,12 @@ const CreditTransfer = () => {
   const [pinDigits, setPinDigits] = useState<string[]>(["", "", "", ""]);
   const changePinSheet = (open: boolean) => {
     setPinDigits(["", "", "", ""]);
+    setPinError(false);
     setConfirmOpen(open);
   };
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
+  const [pinError, setPinError] = useState(false);
   const [orderId, setOrderId] = useState("");
 
   // ---------- MSISDN lookup — triggered by the Search button, not on every keystroke ----------
@@ -154,6 +159,11 @@ const CreditTransfer = () => {
     // This prototype collects the PIN; real PIN authentication must happen server-side.
     if (!canTransfer || !/^\d{4}$/.test(pin)) return;
     changePinSheet(false);
+    // A wrong PIN is its own case — the app-wide error popup, not a transfer failure.
+    if (pin !== VALID_TRANSFER_PIN) {
+      setPinError(true);
+      return;
+    }
     const ok = Math.random() < 0.85;
     if (ok) {
       setOrderId(`CT-${Math.floor(100000 + Math.random() * 900000)}`);
@@ -291,6 +301,9 @@ const CreditTransfer = () => {
                 />
               ))}
             </div>
+            <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 text-center">
+              {t("creditTransfer.pinHint")}
+            </p>
             <div className="w-full flex flex-col gap-3">
               <Button type="submit" className="w-full h-12 rounded-full font-semibold" disabled={!canTransfer || pin.length !== 4}>{t("creditTransfer.yesConfirm")}</Button>
               <Button type="button" variant="ghost" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => changePinSheet(false)}>{t("creditTransfer.cancel")}</Button>
@@ -352,6 +365,28 @@ const CreditTransfer = () => {
         </DrawerContent>
       </Drawer>
 
+      {/* Invalid PIN — same popup pattern as the lookup error below. */}
+      <Dialog open={pinError} onOpenChange={(o) => { if (!o) setPinError(false); }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
+          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("creditTransfer.pinInvalidTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t("creditTransfer.pinInvalidDesc")}</p>
+          <div className="w-full">
+            <button
+              onClick={() => { setPinError(false); changePinSheet(true); }}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("creditTransfer.tryAgain")}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Lookup error — same popup pattern used app-wide for a lookup failure. */}
       <Dialog open={!!lookupError} onOpenChange={(o) => { if (!o) setLookupError(null); }}>
         <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
@@ -363,12 +398,14 @@ const CreditTransfer = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("creditTransfer.lookupErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
-          <button
-            onClick={() => setLookupError(null)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("creditTransfer.gotIt")}
-          </button>
+          <div className="w-full">
+            <button
+              onClick={() => setLookupError(null)}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("creditTransfer.gotIt")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 

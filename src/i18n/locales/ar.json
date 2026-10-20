@@ -574,6 +574,7 @@
     "transfer": "تحويل",
     "confirmTransferTitle": "تأكيد التحويل",
     "pinSheetTitle": "الرمز السري",
+    "pinHint": "للتجربة فقط — الرمز الصحيح: 1234",
     "confirmTransferDesc": "هل تريد تحويل {{amount}} ريال من الرصيد إلى {{msisdn}}؟",
     "yesConfirm": "نعم، تأكيد",
     "cancel": "إلغاء",
@@ -583,6 +584,8 @@
     "done": "تم",
     "transferFailedTitle": "فشل التحويل",
     "transferFailedDesc": "حدث خطأ أثناء معالجة هذا التحويل. لم يتم خصم أي مبلغ.",
+    "pinInvalidTitle": "رمز سري غير صحيح",
+    "pinInvalidDesc": "الرمز السري الذي أدخلته غير مطابق. يرجى المحاولة مرة أخرى.",
     "tryAgain": "أعد المحاولة"
   },
   "walletRecharge": {

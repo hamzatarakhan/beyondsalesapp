@@ -571,6 +571,7 @@
     "transfer": "Transfer",
     "confirmTransferTitle": "Confirm Transfer",
     "pinSheetTitle": "PIN Code",
+    "pinHint": "Prototype only — correct PIN: 1234",
     "confirmTransferDesc": "Transfer {{amount}} SAR of credit to {{msisdn}}?",
     "yesConfirm": "Yes, Confirm",
     "cancel": "Cancel",
@@ -580,6 +581,8 @@
     "done": "Done",
     "transferFailedTitle": "Transfer Failed",
     "transferFailedDesc": "Something went wrong while processing this transfer. No amount has been charged.",
+    "pinInvalidTitle": "Invalid PIN Code",
+    "pinInvalidDesc": "The PIN you entered doesn't match. Please try again.",
     "tryAgain": "Try Again"
   },
   "walletRecharge": {
