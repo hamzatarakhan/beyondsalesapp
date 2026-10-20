@@ -1,8 +1,4 @@
-- [x] Implement UAT reservation reuse and replacement with informative messages.
-- [x] Implement different-brand warning and simulated cancellation access checks.
-- [x] Test scenarios and verify activation UI.
-- [x] Preserve explicit number changes without bypassing availability or brand checks; verify standard and vanity checkout.
-- [x] Review comparable Stock Return error patterns and align error handling without changing the workflow.
-- [x] Support both brands' configurable booked activation combinations and minimum amounts; verify gating and checkout.
-## Open
-- Booked tab: DONE — Activation option cards removed; booked flow reuses the shared plan section, with an optional Top-up card (enter an amount or pick a preset) placed directly above the number selection.
+ls roadmap.md >/dev/null && tail -4 roadmap.md
+
+## Booked activation options (Oct 20)
+- [x] Booked tab: 4 activation options (Only Plan / Plan with Top Up / Only Top Up / No Plan or Top-Up). Plan section and Top-up card always visible; selected option drives validation and checkout only.

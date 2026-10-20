@@ -3651,6 +3651,7 @@
       "topupSelectAmount": "Select Top-up Amount",
       "topupInclVat": "Incl. VAT",
       "topupVatNote": "15% Vat will be applied",
+      "topupNotIncluded": "Top-up isn't included in the selected activation option.",
       "topupSub": "Optional balance added to the line",
       "topupHint": "Enter or select an amount",
       "topupPlaceholder": "Amount in SAR",
@@ -3672,6 +3673,7 @@
           "topup": "Only Top Up",
           "none": "No Plan or Top Up"
         },
+        "noneNote": "No payment is required — only the booked number will be activated.",
         "errors": {
           "unavailable": "This activation option is not available for this subscription.",
           "planRequired": "Select a plan.",

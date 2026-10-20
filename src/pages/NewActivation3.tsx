@@ -1947,10 +1947,54 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow reuses the same
-                plan section as the New and Port (MNP) tabs; its optional Top-up card lives
-                just above the number selection instead. */}
-            {(subType !== "booked" || bookedHasPlan) && <>
+            {/* Booked tab — activation option selector. The four combinations (Only Plan /
+                Plan with Top Up / Only Top Up / No Plan or Top Up) come from the per-brand
+                booked configuration, so only the modes the brand actually allows are offered;
+                the shared validation gates Continue on the same config. "No Plan or Top Up"
+                means nothing to pay — the booked number is simply activated. */}
+            {subType === "booked" && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-base font-bold text-foreground">{t("activation3.subscription.bookedOptions.title")} <span className="text-destructive">*</span></p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {bookedConfig.enabledModes.map((mode) => {
+                    const ModeIcon = mode === "plan" ? CreditCard : mode === "plan-topup" ? HandCoins : mode === "topup" ? Coins : CheckCircle2;
+                    const active = bookedMode === mode;
+                    return (
+                      <button key={mode} type="button"
+                        onClick={() => {
+                          setBookedMode(mode);
+                          if (!bookedModeHasTopup(mode)) setBookedTopupManual("");
+                        }}
+                        className={cn("flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors border",
+                          active ? "border-primary/20 bg-primary/10" : "border-border/60 bg-card")}>
+                        <ModeIcon className={cn("w-5 h-5", active ? "text-primary" : "text-muted-foreground")} />
+                        <p className={cn("text-[10.5px] font-medium text-center leading-tight",
+                          active ? "text-primary" : "text-foreground")}>
+                          {t(`activation3.subscription.bookedOptions.modes.${mode}`)}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+                {bookedMode === "none" && (
+                  <p className="mt-2.5 text-[11px] text-muted-foreground flex items-start gap-1.5">
+                    <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                    {t("activation3.subscription.bookedOptions.noneNote")}
+                  </p>
+                )}
+              </section>
+            )}
+
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — shown for every flow, Booked
+                included: on Booked the plan section and Top-up card are always visible, and
+                the selected activation option only decides what is required and charged, not
+                what is shown. The Booked Top-up card lives just above the number selection. */}
+            <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
@@ -2085,7 +2129,7 @@ const NewActivation3 = () => {
               );
             })()}
 
-            </>}
+            </>
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
               <section>
@@ -2151,14 +2195,13 @@ const NewActivation3 = () => {
               </div>
             )}
 
-            {/* Booked tab only — optional Top-up card, placed directly above the number
-                selection. It lives outside the plan section so it stays reachable even when the
-                brand's booked configuration doesn't require a plan. Toggling it on expands the
-                amount entry (manual input or preset chips) and moves the booked mode to a
-                top-up mode, so validation, totals and checkout include the top-up. */}
-            {subType === "booked" && (bookedConfig.enabledModes.includes("plan-topup") || bookedConfig.enabledModes.includes("topup")) && (
+            {/* Booked tab — Top-up amount card, directly above the number selection. Always
+                visible on Booked; the selected activation option decides whether the amount is
+                required and charged. When the option excludes the top-up the entry is disabled
+                with an explanatory note instead of disappearing. */}
+            {subType === "booked" && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
                     <Coins className="w-4 h-4 text-red-500" />
                   </div>
@@ -2166,45 +2209,32 @@ const NewActivation3 = () => {
                     <p className="text-sm font-semibold text-foreground">{t("activation3.subscription.topupSectionTitle")}</p>
                     <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.topupChooseSub")}</p>
                   </div>
-                  <Switch
-                    checked={bookedHasTopup}
-                    onCheckedChange={(checked) => {
-                      // Pick the mode from what the brand actually allows: a top-up mode when on,
-                      // a plan-only (or no-plan) mode when off.
-                      const on = bookedConfig.enabledModes.includes("plan-topup") ? "plan-topup"
-                        : bookedConfig.enabledModes.includes("topup") ? "topup" : bookedMode;
-                      const off = bookedConfig.enabledModes.includes("plan") ? "plan"
-                        : bookedConfig.enabledModes.includes("none") ? "none" : bookedMode;
-                      setBookedMode(checked ? on : off);
-                      if (!checked) setBookedTopupManual("");
-                    }}
-                    className="data-[state=checked]:bg-red-500"
-                    aria-label={t("activation3.subscription.topupSectionTitle")}
-                  />
                 </div>
-                {bookedHasTopup && (
-                  <>
-                    <div className="border-t border-border/60 mt-3 mb-3" />
-                    <Input
-                      inputMode="decimal"
-                      value={bookedTopupManual}
-                      onChange={(e) => setBookedTopupManual(e.target.value.replace(/[^\d.]/g, ""))}
-                      placeholder={t("activation3.subscription.topupSelectAmount")}
-                      className="h-11 bg-muted/40 rounded-xl text-center"
-                    />
-                    <p className="text-[11px] text-muted-foreground mt-1.5">{t("activation3.subscription.topupVatNote")}</p>
-                    <div className="grid grid-cols-4 gap-2 mt-2">
-                      {FM_TOPUP_PRESETS_REQUIRED.map((d) => (
-                        <button key={d} type="button"
-                          onClick={() => setBookedTopupManual(String(d))}
-                          className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1",
-                            Number(bookedTopupManual) === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
-                          <RiyalSymbol /> {d.toFixed(2)}
-                        </button>
-                      ))}
-                    </div>
-                  </>
+                {!bookedHasTopup && (
+                  <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 mb-2">
+                    <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                    {t("activation3.subscription.topupNotIncluded")}
+                  </p>
                 )}
+                <Input
+                  inputMode="decimal"
+                  disabled={!bookedHasTopup}
+                  value={bookedTopupManual}
+                  onChange={(e) => setBookedTopupManual(e.target.value.replace(/[^\d.]/g, ""))}
+                  placeholder={t("activation3.subscription.topupSelectAmount")}
+                  className="h-11 bg-muted/40 rounded-xl text-center disabled:opacity-60"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1.5">{t("activation3.subscription.topupVatNote")}</p>
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  {FM_TOPUP_PRESETS_REQUIRED.map((d) => (
+                    <button key={d} type="button" disabled={!bookedHasTopup}
+                      onClick={() => setBookedTopupManual(String(d))}
+                      className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1 disabled:opacity-60",
+                        Number(bookedTopupManual) === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                      <RiyalSymbol /> {d.toFixed(2)}
+                    </button>
+                  ))}
+                </div>
               </section>
             )}
 
