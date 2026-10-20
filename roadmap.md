@@ -5,4 +5,4 @@
 - [x] Review comparable Stock Return error patterns and align error handling without changing the workflow.
 - [x] Support both brands' configurable booked activation combinations and minimum amounts; verify gating and checkout.
 ## Open
-- Booked tab: DONE — Activation option cards removed; booked flow reuses the shared plan section, with an optional Top-up toggle under the Plan Types chips (enter an amount or pick a preset).
+- Booked tab: DONE — Activation option cards removed; booked flow reuses the shared plan section, with an optional Top-up card (enter an amount or pick a preset) placed directly above the number selection.
