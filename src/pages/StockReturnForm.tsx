@@ -11,7 +11,7 @@ import { quantityError, serialCountError, serialError } from "@/lib/stockReturnV
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
-import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2, Trash2 } from "lucide-react";
+import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2, Trash2, X } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, RETURN_REASONS, addStockReturn, type ProductId, type ReturnReasonKey } from "@/data/stockReturnStore";
 
 type ScanMode = "range" | "item";
