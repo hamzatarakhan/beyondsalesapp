@@ -814,6 +814,7 @@ const NewActivation3 = () => {
   // (with its own loading spell, same as the original submit).
   // The FAILED_ACTIVATION_TEST_ID_SUFFIX ID forces it every time, so it's reliably demoable.
   const resolveActivation = () => {
+    if (subType === "booked" && !canPay) return;
     const forceFailed = idNumber.trim().length === 10 && idNumber.trim().endsWith(FAILED_ACTIVATION_TEST_ID_SUFFIX);
     setActivationSubmitting(true);
     setTimeout(() => {
@@ -1293,7 +1294,9 @@ const NewActivation3 = () => {
   const effectiveDeviceFee  = isWhitelisted ? 0 : deviceFee;
 
   // Fulfilment: everything was already paid for online, so nothing is owed here.
-  const subtotal = isFulfilment && alreadyPaid ? 0 : effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee - promoDiscount;
+  const subtotalBeforeDiscount = effectivePlanPrice + effectiveSimFee + numberFee + effectiveDeviceFee;
+  const appliedPromoDiscount = subType === "booked" ? Math.min(promoDiscount, subtotalBeforeDiscount) : promoDiscount;
+  const subtotal = isFulfilment && alreadyPaid ? 0 : subtotalBeforeDiscount - appliedPromoDiscount;
   // Switch Postpaid: no VAT is collected when the number is Standard, or when a
   // Vanity number is taken free-with-commitment — the number itself is free either way
   // (deposit-only flow), regardless of whitelisted status.
@@ -2669,10 +2672,10 @@ const NewActivation3 = () => {
                           <span className="text-xs font-semibold text-foreground"><RiyalSymbol /> {topupAmount.toFixed(2)}</span>
                         </div>
                       )}
-                      {promoApplied && promoDiscount > 0 && (
+                      {promoApplied && appliedPromoDiscount > 0 && (
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-green-600">{t("activation3.checkout.promoLabel")} ({promoCode})</span>
-                          <span className="text-xs font-semibold text-green-600">−<RiyalSymbol /> {promoDiscount.toFixed(2)}</span>
+                          <span className="text-xs font-semibold text-green-600">−<RiyalSymbol /> {appliedPromoDiscount.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
