@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -126,6 +126,14 @@ const CreditTransfer = () => {
   const canTransfer = eligible && amount != null && amount >= MIN_TRANSFER_AMOUNT && !insufficientBalance;
 
   const pin = pinDigits.join("");
+
+  // Focus the first PIN box as soon as the sheet opens, mirroring OTP entry.
+  useEffect(() => {
+    if (confirmOpen) {
+      setTimeout(() => (document.getElementById("credit-transfer-pin-0") as HTMLInputElement | null)?.focus(), 400);
+    }
+  }, [confirmOpen]);
+
 
   const setPinDigitAt = (i: number, v: string) => {
     const d = v.replace(/\D/g, "").slice(-1);
