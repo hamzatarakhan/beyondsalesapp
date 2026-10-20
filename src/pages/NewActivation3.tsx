@@ -727,7 +727,9 @@ const NewActivation3 = () => {
   // never activate outside what the brand allows.
   const bookedMode = bookedConfig.mode;
   // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
-  const [bookedTopupManual, setBookedTopupManual] = useState("");
+   const [bookedTopupManual, setBookedTopupManual] = useState("");
+  // Whether the booked Top-up card shows its amount entry (expanded) or just its header row.
+  const [bookedTopupOpen, setBookedTopupOpen] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
@@ -2164,18 +2166,33 @@ const NewActivation3 = () => {
             {/* Booked tab — Top-up amount card, directly above the number selection. Always
                 visible on Booked; the brand's configured activation option decides whether the
                 amount is required and charged. When it excludes the top-up the entry is disabled
-                with an explanatory note instead of disappearing. */}
+                with an explanatory note instead of disappearing. The header switch collapses the
+                card to just its title row (the chosen amount stays visible there), so the dealer
+                can shorten the page without losing the entry. */}
             {subType === "booked" && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-3 mb-3">
+                <div className={cn("flex items-center gap-3", bookedTopupOpen && "mb-3")}>
                   <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
                     <Coins className="w-4 h-4 text-red-500" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">{t("activation3.subscription.topupSectionTitle")}</p>
-                    <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.topupChooseSub")}</p>
+                    {/* Collapsed: the header row is all that's left, so it carries the chosen
+                        amount instead of the "choose your amount" hint. */}
+                    <p className="text-[11px] text-muted-foreground">
+                      {!bookedTopupOpen && Number(bookedTopupManual) > 0
+                        ? <><RiyalSymbol /> {Number(bookedTopupManual).toFixed(2)}</>
+                        : t("activation3.subscription.topupChooseSub")}
+                    </p>
                   </div>
+                  <Switch
+                    checked={bookedTopupOpen}
+                    onCheckedChange={setBookedTopupOpen}
+                    aria-label={t(bookedTopupOpen ? "activation3.subscription.topupCollapse" : "activation3.subscription.topupExpand")}
+                  />
                 </div>
+                {bookedTopupOpen && (
+                <>
                 {!bookedHasTopup && (
                   <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 mb-2">
                     <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
@@ -2201,6 +2218,8 @@ const NewActivation3 = () => {
                     </button>
                   ))}
                 </div>
+                </>
+                )}
               </section>
             )}
 

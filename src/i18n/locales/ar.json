@@ -3582,6 +3582,8 @@
       "topupVatNote": "ستُطبَّق ضريبة 15٪",
       "topupNotIncluded": "الشحن غير مشمول في خيار التفعيل المحدد.",
       "planNotIncluded": "الخطة غير مشمولة في خيار التفعيل المحدد.",
+      "topupCollapse": "طي قسم الشحن",
+      "topupExpand": "توسيع قسم الشحن",
       "topupSub": "رصيد اختياري يُضاف إلى الخط",
       "topupHint": "أدخل مبلغاً أو اختره",
       "topupPlaceholder": "المبلغ بالريال",
