@@ -2195,11 +2195,11 @@ const NewActivation3 = () => {
               </div>
             )}
 
-            {/* Booked tab — Top-up amount card, directly above the number selection. It shows
-                only when the selected activation option includes a top-up (Plan with Top Up /
-                Only Top Up); the activation-option selector above the plan section owns the
-                plan-vs-top-up switching, so no toggle is needed here. */}
-            {subType === "booked" && bookedHasTopup && (
+            {/* Booked tab — Top-up amount card, directly above the number selection. Always
+                visible on Booked; the selected activation option decides whether the amount is
+                required and charged. When the option excludes the top-up the entry is disabled
+                with an explanatory note instead of disappearing. */}
+            {subType === "booked" && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
@@ -2210,19 +2210,26 @@ const NewActivation3 = () => {
                     <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.topupChooseSub")}</p>
                   </div>
                 </div>
+                {!bookedHasTopup && (
+                  <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 mb-2">
+                    <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                    {t("activation3.subscription.topupNotIncluded")}
+                  </p>
+                )}
                 <Input
                   inputMode="decimal"
+                  disabled={!bookedHasTopup}
                   value={bookedTopupManual}
                   onChange={(e) => setBookedTopupManual(e.target.value.replace(/[^\d.]/g, ""))}
                   placeholder={t("activation3.subscription.topupSelectAmount")}
-                  className="h-11 bg-muted/40 rounded-xl text-center"
+                  className="h-11 bg-muted/40 rounded-xl text-center disabled:opacity-60"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1.5">{t("activation3.subscription.topupVatNote")}</p>
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {FM_TOPUP_PRESETS_REQUIRED.map((d) => (
-                    <button key={d} type="button"
+                    <button key={d} type="button" disabled={!bookedHasTopup}
                       onClick={() => setBookedTopupManual(String(d))}
-                      className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1",
+                      className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1 disabled:opacity-60",
                         Number(bookedTopupManual) === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
                       <RiyalSymbol /> {d.toFixed(2)}
                     </button>
