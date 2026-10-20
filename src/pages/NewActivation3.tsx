@@ -1949,15 +1949,6 @@ const NewActivation3 = () => {
                 charged, not what is shown. The Booked Top-up card lives just above the number
                 selection. */}
             <>
-            {/* Booked: when the brand's configured option leaves the plan out, the plan section
-                stays visible but can't be picked — say so above it, the same way the Top-up card
-                explains its own excluded half. */}
-            {subType === "booked" && !bookedHasPlan && (
-              <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
-                <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
-                {t("activation3.subscription.planNotIncluded")}
-              </p>
-            )}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
@@ -2028,6 +2019,16 @@ const NewActivation3 = () => {
               </button>
             </div>
 
+            {/* Booked: when the brand's configured option leaves the plan out, the plan section
+                stays visible but can't be picked — say so right above the locked cards (not up by
+                the plan-type chips), so the explanation is still on screen when the dealer lands
+                on the carousel. */}
+            {subType === "booked" && !bookedHasPlan && (
+              <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 mb-2">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                {t("activation3.subscription.planNotIncluded")}
+              </p>
+            )}
             <PlanSelector
               key={`${brand}-${payType}-${planTypeChip}-${lineType}`}
               selectedPlan={selectedPlan}
