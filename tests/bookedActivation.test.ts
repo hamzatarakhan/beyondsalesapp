@@ -35,3 +35,12 @@ test("required plan and top-up cannot be omitted or invalid", () => {
   expect(validateBookedActivation(config, "prepaid", "plan", null, 0)).toContain("planRequired");
   for (const value of [0, -1, NaN, Infinity]) expect(validateBookedActivation(config, "prepaid", "topup", null, value)).toContain("topupMinimum");
 });
+// The Booked tab has no option picker: the page activates whatever config.mode says, so an
+// invalid or disabled mode would silently break every booked activation.
+test("each brand configures one enabled activation combination", () => {
+  for (const brand of ["virgin", "friendi"] as const) {
+    const config = BOOKED_ACTIVATION_CONFIG[brand];
+    expect(BOOKED_ACTIVATION_MODES).toContain(config.mode);
+    expect(config.enabledModes).toContain(config.mode);
+  }
+});

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
-import { BOOKED_ACTIVATION_CONFIG, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation, type BookedActivationMode } from "@/lib/bookedActivation";
+import { BOOKED_ACTIVATION_CONFIG, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation } from "@/lib/bookedActivation";
 import { DifferentBrandReservationError, uatNumberReservations, type UatReservation, type ReservationMessage } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
@@ -721,8 +721,11 @@ const NewActivation3 = () => {
   const [planTypeChip, setPlanTypeChip] = useState("all");
   const [planSearch, setPlanSearch] = useState("");
   const [planMode, setPlanMode] = useState<PlanMode>("plan");
-  const [bookedMode, setBookedMode] = useState<BookedActivationMode>("plan");
   const bookedConfig = BOOKED_ACTIVATION_CONFIG[brand];
+  // The booked activation combination (Only Plan / Plan with Top Up / Only Top Up / No Plan or
+  // Top Up) is fixed by the brand configuration — there is no picker in the UI, so a dealer can
+  // never activate outside what the brand allows.
+  const bookedMode = bookedConfig.mode;
   // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
   const [bookedTopupManual, setBookedTopupManual] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
@@ -956,12 +959,6 @@ const NewActivation3 = () => {
   const bookedHasPlan = bookedModeHasPlan(bookedMode);
   const bookedHasTopup = bookedModeHasTopup(bookedMode);
   useEffect(() => {
-    if (!bookedConfig.enabledModes.includes(bookedMode)) {
-      const firstMode = bookedConfig.enabledModes[0];
-      if (firstMode) setBookedMode(firstMode);
-    }
-  }, [bookedConfig, bookedMode]);
-  useEffect(() => {
     if (!showBooked && subType === "booked") setSubType("sim");
   }, [showBooked, subType]);
   const showDevice       = isPostpaidInternet;
@@ -1002,7 +999,7 @@ const NewActivation3 = () => {
   useEffect(() => {
     const state = location.state as {
       pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
-      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string; bookedTopupManual?: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedNumber?: string; bookingRef?: string; topupManual?: string; bookedTopupManual?: string };
     } | null;
     const pick = state?.pickPlan;
     if (!pick) return;
@@ -1012,7 +1009,6 @@ const NewActivation3 = () => {
       setIdNumber(state.resume.idNumber);
       setSimType(state.resume.simType);
       if (state.resume.subType) setSubType(state.resume.subType);
-      if (state.resume.bookedMode) setBookedMode(state.resume.bookedMode);
       if (state.resume.bookedTopupManual !== undefined) setBookedTopupManual(state.resume.bookedTopupManual);
       if (state.resume.bookedNumber) setBookedNumber(state.resume.bookedNumber);
       if (state.resume.bookingRef) setBookingRef(state.resume.bookingRef);
@@ -1947,53 +1943,11 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* Booked tab — activation option selector. The four combinations (Only Plan /
-                Plan with Top Up / Only Top Up / No Plan or Top Up) come from the per-brand
-                booked configuration, so only the modes the brand actually allows are offered;
-                the shared validation gates Continue on the same config. "No Plan or Top Up"
-                means nothing to pay — the booked number is simply activated. */}
-            {subType === "booked" && (
-              <section className="bg-card rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <p className="text-base font-bold text-foreground">{t("activation3.subscription.bookedOptions.title")} <span className="text-destructive">*</span></p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {bookedConfig.enabledModes.map((mode) => {
-                    const ModeIcon = mode === "plan" ? CreditCard : mode === "plan-topup" ? HandCoins : mode === "topup" ? Coins : CheckCircle2;
-                    const active = bookedMode === mode;
-                    return (
-                      <button key={mode} type="button"
-                        onClick={() => {
-                          setBookedMode(mode);
-                          if (!bookedModeHasTopup(mode)) setBookedTopupManual("");
-                        }}
-                        className={cn("flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors border",
-                          active ? "border-primary/20 bg-primary/10" : "border-border/60 bg-card")}>
-                        <ModeIcon className={cn("w-5 h-5", active ? "text-primary" : "text-muted-foreground")} />
-                        <p className={cn("text-[10.5px] font-medium text-center leading-tight",
-                          active ? "text-primary" : "text-foreground")}>
-                          {t(`activation3.subscription.bookedOptions.modes.${mode}`)}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-                {bookedMode === "none" && (
-                  <p className="mt-2.5 text-[11px] text-muted-foreground flex items-start gap-1.5">
-                    <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
-                    {t("activation3.subscription.bookedOptions.noneNote")}
-                  </p>
-                )}
-              </section>
-            )}
-
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips — shown for every flow, Booked
                 included: on Booked the plan section and Top-up card are always visible, and
-                the selected activation option only decides what is required and charged, not
-                what is shown. The Booked Top-up card lives just above the number selection. */}
+                the brand's configured activation option only decides what is required and
+                charged, not what is shown. The Booked Top-up card lives just above the number
+                selection. */}
             <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
@@ -2054,7 +2008,7 @@ const NewActivation3 = () => {
                   state: {
                     payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
                     selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
-                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual, bookedTopupManual },
+                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedNumber, bookingRef, topupManual, bookedTopupManual },
                   },
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
@@ -2196,8 +2150,8 @@ const NewActivation3 = () => {
             )}
 
             {/* Booked tab — Top-up amount card, directly above the number selection. Always
-                visible on Booked; the selected activation option decides whether the amount is
-                required and charged. When the option excludes the top-up the entry is disabled
+                visible on Booked; the brand's configured activation option decides whether the
+                amount is required and charged. When it excludes the top-up the entry is disabled
                 with an explanatory note instead of disappearing. */}
             {subType === "booked" && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
