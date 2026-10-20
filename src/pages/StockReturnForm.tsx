@@ -310,6 +310,38 @@ const StockReturnForm = () => {
         </div>
       </div>
 
+      {/* View All serials bottom sheet */}
+      <Drawer open={viewAllOpen} onOpenChange={setViewAllOpen}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7" />
+            <h3 className="font-semibold text-foreground text-base">{t("stockReturn.allSerialsTitle")}</h3>
+            <button
+              onClick={() => setViewAllOpen(false)}
+              className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+              aria-label={t("activation.success.close")}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="overflow-y-auto space-y-2 -mx-1 px-1">
+            {[...serials].reverse().map((s) => (
+              <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
+                <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
+                <button
+                  type="button"
+                  onClick={() => removeSerial(s)}
+                  aria-label={t("stockReturn.removeSerialAria")}
+                  className="text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
       {/* Success dialog */}
       <Dialog open={successOpen} onOpenChange={(open) => { setSuccessOpen(open); if (!open && submitted) navigate("/stock-returns"); }}>
         <DialogContent className="max-w-[320px] rounded-2xl text-center">

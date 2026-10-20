@@ -1461,7 +1461,11 @@
       "wrongItem": "Wrong Item",
       "expiredVoucher": "Expired Voucher",
       "excessStock": "Excess Stock"
-    }
+    },
+    "recentlyScanned": "Recently Scanned",
+    "viewAll": "View All ({{count}})",
+    "removeSerialAria": "Remove serial",
+    "allSerialsTitle": "Scanned Serial Numbers"
   },
   "purchaseOrders": {
     "title": "Request Stock",
