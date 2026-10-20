@@ -61,8 +61,9 @@ const StockReturnForm = () => {
     if (error) return;
     setSerials((prev) => [...prev, v]);
     setSerial("");
-    // Prototype: each added serial counts toward the returned quantity.
-    setQtyClamped(Math.max(qty + 1, serials.length + 1));
+    // Prototype: each added serial counts toward the returned quantity, but never
+    // raises a quantity the dealer already entered.
+    setQtyClamped(Math.max(qty, serials.length + 1));
   };
 
   const canSubmit = !qtyFeedback && qty > 0 && !!reason && !submitted;
