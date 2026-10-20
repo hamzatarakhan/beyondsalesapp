@@ -1398,6 +1398,7 @@
       "quantityLimit": "The quantity cannot exceed the available stock ({{count}}).",
       "quantityScanned": "The quantity cannot be less than the number of serials already added.",
       "serialRequired": "Enter a serial number.",
+      "serialInvalid": "Enter a valid serial number (6–24 characters, letters, numbers and dashes only).",
       "serialDuplicate": "This serial number has already been added. Enter a different serial number.",
       "submitTitle": "Return not submitted",
       "submitRetry": "Your details have been kept. Please try again."
