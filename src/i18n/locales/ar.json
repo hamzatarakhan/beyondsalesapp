@@ -3580,6 +3580,7 @@
       "topupSelectAmount": "اختر مبلغ الرصيد",
       "topupInclVat": "شامل الضريبة",
       "topupVatNote": "ستُطبَّق ضريبة 15٪",
+      "topupNotIncluded": "الشحن غير مشمول في خيار التفعيل المحدد.",
       "topupSub": "رصيد اختياري يُضاف إلى الخط",
       "topupHint": "أدخل مبلغاً أو اختره",
       "topupPlaceholder": "المبلغ بالريال",

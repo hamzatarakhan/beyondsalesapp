@@ -3651,6 +3651,7 @@
       "topupSelectAmount": "Select Top-up Amount",
       "topupInclVat": "Incl. VAT",
       "topupVatNote": "15% Vat will be applied",
+      "topupNotIncluded": "Top-up isn't included in the selected activation option.",
       "topupSub": "Optional balance added to the line",
       "topupHint": "Enter or select an amount",
       "topupPlaceholder": "Amount in SAR",
