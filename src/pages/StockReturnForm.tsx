@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { quantityError, serialError } from "@/lib/stockReturnValidation";
+import { quantityError, serialCountError, serialError } from "@/lib/stockReturnValidation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,7 @@ const StockReturnForm = () => {
   const [qtyInput, setQtyInput] = useState("");
   const [qtyTouched, setQtyTouched] = useState(false);
   const [serialFeedback, setSerialFeedback] = useState<ReturnType<typeof serialError>>();
+  const [countErrorShown, setCountErrorShown] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const failureToast = useRef<ReturnType<typeof toast>>();
   const [scanMode, setScanMode] = useState<ScanMode>("range");
@@ -38,6 +39,7 @@ const StockReturnForm = () => {
   const Icon = product ? PRODUCT_ICON[product.id] : Boxes;
   const productName = product ? t(`purchaseOrders.product.${product.nameKey}`) : "";
   const qtyFeedback = quantityError(qtyInput, product?.availableStocks ?? 0, serials.length);
+  const countFeedback = serialCountError(serials.length, qty);
 
   useEffect(() => {
     if (!product) navigate("/stock-returns/new", { replace: true });
@@ -66,6 +68,11 @@ const StockReturnForm = () => {
 
   const submit = () => {
     if (!product || !canSubmit) return;
+    if (countFeedback) {
+      setCountErrorShown(true);
+      return;
+    }
+    setCountErrorShown(false);
     failureToast.current?.dismiss();
     try {
       addStockReturn([{ productId: product.id, qty, serials, reason: t(`stockReturn.reasons.${reason}`), remark: remark.trim() || undefined }]);
@@ -207,6 +214,11 @@ const StockReturnForm = () => {
                 </span>
               ))}
             </div>
+          )}
+          {countErrorShown && countFeedback && (
+            <p id="stock-return-count-error" role="alert" className="text-xs text-destructive">
+              {t("stockReturn.errors.serialsShort", { added: serials.length, required: qty, remaining: qty - serials.length })}
+            </p>
           )}
         </div>
 
