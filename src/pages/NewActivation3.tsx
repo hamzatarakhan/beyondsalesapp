@@ -1947,9 +1947,53 @@ const NewActivation3 = () => {
               )}
             </div>
 
+            {/* Booked tab — activation option selector. The four combinations (Only Plan /
+                Plan with Top Up / Only Top Up / No Plan or Top Up) come from the per-brand
+                booked configuration, so only the modes the brand actually allows are offered;
+                the shared validation gates Continue on the same config. "No Plan or Top Up"
+                means nothing to pay — the booked number is simply activated. */}
+            {subType === "booked" && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <p className="text-base font-bold text-foreground">{t("activation3.subscription.bookedOptions.title")} <span className="text-destructive">*</span></p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {bookedConfig.enabledModes.map((mode) => {
+                    const ModeIcon = mode === "plan" ? CreditCard : mode === "plan-topup" ? HandCoins : mode === "topup" ? Coins : CheckCircle2;
+                    const active = bookedMode === mode;
+                    return (
+                      <button key={mode} type="button"
+                        onClick={() => {
+                          setBookedMode(mode);
+                          if (!bookedModeHasTopup(mode)) setBookedTopupManual("");
+                        }}
+                        className={cn("flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1.5 transition-colors border",
+                          active ? "border-primary/20 bg-primary/10" : "border-border/60 bg-card")}>
+                        <ModeIcon className={cn("w-5 h-5", active ? "text-primary" : "text-muted-foreground")} />
+                        <p className={cn("text-[10.5px] font-medium text-center leading-tight",
+                          active ? "text-primary" : "text-foreground")}>
+                          {t(`activation3.subscription.bookedOptions.modes.${mode}`)}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+                {bookedMode === "none" && (
+                  <p className="mt-2.5 text-[11px] text-muted-foreground flex items-start gap-1.5">
+                    <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                    {t("activation3.subscription.bookedOptions.noneNote")}
+                  </p>
+                )}
+              </section>
+            )}
+
             {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow reuses the same
-                plan section as the New and Port (MNP) tabs; its optional Top-up card lives
-                just above the number selection instead. */}
+                plan section as the New and Port (MNP) tabs, shown only when the selected
+                activation option includes a plan; its Top-up card lives just above the number
+                selection. */}
             {(subType !== "booked" || bookedHasPlan) && <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
