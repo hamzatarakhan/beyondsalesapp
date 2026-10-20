@@ -32,25 +32,31 @@ export default function BookedActivationOptions({ config, mode, onModeChange, to
   return <section className="space-y-3">
     <label className="block text-sm font-semibold text-foreground">{t("activation3.subscription.bookedOptions.title")}</label>
     <div className="grid grid-cols-2 gap-3">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         aria-pressed={planOn}
+        aria-label={t("activation3.subscription.bookedOptions.cards.plan")}
         onClick={() => toggle("plan")}
+        onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle("plan"); } }}
         className={cn(
-          "relative rounded-2xl border p-3 text-start transition-colors",
+          "relative cursor-pointer rounded-2xl border p-3 transition-colors",
           planOn ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card",
         )}
       >
         {planOn && <span className="absolute end-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" /></span>}
         <Layers className={cn("h-5 w-5", planOn ? "text-primary" : "text-muted-foreground")} />
         <p className={cn("mt-1.5 text-sm font-semibold", planOn ? "text-primary" : "text-foreground")}>{t("activation3.subscription.bookedOptions.cards.plan")}</p>
-      </button>
-      <button
-        type="button"
+      </div>
+      <div
+        role="button"
+        tabIndex={0}
         aria-pressed={topupOn}
+        aria-label={t("activation3.subscription.bookedOptions.cards.topup")}
         onClick={() => toggle("topup")}
+        onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle("topup"); } }}
         className={cn(
-          "relative rounded-2xl border p-3 text-start transition-colors",
+          "relative cursor-pointer rounded-2xl border p-3 transition-colors",
           topupOn ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card",
         )}
       >
@@ -69,7 +75,7 @@ export default function BookedActivationOptions({ config, mode, onModeChange, to
             aria-label={t("activation3.subscription.topupSectionTitle")}
           />
         </div>}
-      </button>
+      </div>
     </div>
     {errors.map(error => <p key={error} role="alert" className="text-xs text-destructive">{t(`activation3.subscription.bookedOptions.errors.${error}`, { min: error === "planMinimum" ? config.minPlanAmount : config.minTopupAmount })}</p>)}
   </section>;
