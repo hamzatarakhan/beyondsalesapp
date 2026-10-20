@@ -1002,7 +1002,7 @@ const NewActivation3 = () => {
   useEffect(() => {
     const state = location.state as {
       pickPlan?: { payType: PayType; lineType: LineType; chip: string; title: string };
-      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string };
+      resume?: { idType: string; nationality: string; idNumber: string; simType: SimType; kit: string; subType?: SubType; bookedMode?: BookedActivationMode; bookedNumber?: string; bookingRef?: string; topupManual?: string; bookedTopupManual?: string };
     } | null;
     const pick = state?.pickPlan;
     if (!pick) return;
@@ -1013,6 +1013,7 @@ const NewActivation3 = () => {
       setSimType(state.resume.simType);
       if (state.resume.subType) setSubType(state.resume.subType);
       if (state.resume.bookedMode) setBookedMode(state.resume.bookedMode);
+      if (state.resume.bookedTopupManual !== undefined) setBookedTopupManual(state.resume.bookedTopupManual);
       if (state.resume.bookedNumber) setBookedNumber(state.resume.bookedNumber);
       if (state.resume.bookingRef) setBookingRef(state.resume.bookingRef);
       if (state.resume.topupManual !== undefined) setTopupManual(state.resume.topupManual);
@@ -1946,9 +1947,9 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow is plan-only
-                (no activation-option cards, no top-up), so it reuses the same plan section
-                as the New and Port (MNP) tabs. */}
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow reuses the same
+                plan section as the New and Port (MNP) tabs, plus an optional Top-up toggle
+                (below the Plan Types chips) that expands to an amount entry when enabled. */}
             {(subType !== "booked" || bookedHasPlan) && <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
@@ -2008,7 +2009,7 @@ const NewActivation3 = () => {
                   state: {
                     payType, lineType, chip: showPlanTypeChips ? planTypeChip : effectiveChip,
                     selectedPlanTitle: selectedPlan != null ? activePlansForType[selectedPlan]?.title : undefined,
-                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual },
+                    resume: { idType, nationality, idNumber, simType, kit, subType, bookedMode, bookedNumber, bookingRef, topupManual, bookedTopupManual },
                   },
                 })}
                 className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
