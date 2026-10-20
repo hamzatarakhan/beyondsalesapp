@@ -3672,6 +3672,7 @@
           "topup": "Only Top Up",
           "none": "No Plan or Top Up"
         },
+        "noneNote": "No payment is required — only the booked number will be activated.",
         "errors": {
           "unavailable": "This activation option is not available for this subscription.",
           "planRequired": "Select a plan.",
