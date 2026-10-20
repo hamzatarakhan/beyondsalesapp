@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { quantityError, serialCountError, serialError } from "@/lib/stockReturnValidation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
-import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2, Trash2 } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, RETURN_REASONS, addStockReturn, type ProductId, type ReturnReasonKey } from "@/data/stockReturnStore";
 
 type ScanMode = "range" | "item";
@@ -35,6 +36,15 @@ const StockReturnForm = () => {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [remark, setRemark] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+
+  // Newest first for display; serials state keeps insertion order.
+  const recentSerials = useMemo(() => [...serials].reverse().slice(0, 5), [serials]);
+
+  const removeSerial = (value: string) => {
+    setSerials((prev) => prev.filter((s) => s !== value));
+    setCountErrorShown(false);
+  };
 
   const Icon = product ? PRODUCT_ICON[product.id] : Boxes;
   const productName = product ? t(`purchaseOrders.product.${product.nameKey}`) : "";
