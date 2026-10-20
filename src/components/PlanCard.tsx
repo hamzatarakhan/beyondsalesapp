@@ -62,6 +62,9 @@ interface Props {
    * on the same line as the top-right badge. Only passed by flows that have MNP eligibility
    * rules (SIM Activation 2 / 3) — omitted elsewhere, so the tag never renders by default. */
   mnpEligible?: boolean;
+  /** Renders the card greyed out and ignores taps — for sections the current flow can't use
+   * (e.g. the Booked tab's plan carousel when the brand's activation option excludes plans). */
+  disabled?: boolean;
 }
 
 // Discounted price display — the promotional `discount` field is a display string like
