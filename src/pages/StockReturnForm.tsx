@@ -220,12 +220,30 @@ const StockReturnForm = () => {
           )}
 
           {serials.length > 0 && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {serials.map((s, i) => (
-                <span key={`${s}-${i}`} className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                  {s}
-                </span>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">{t("stockReturn.recentlyScanned")}</p>
+              {recentSerials.map((s) => (
+                <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
+                  <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSerial(s)}
+                    aria-label={t("stockReturn.removeSerialAria")}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               ))}
+              {serials.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setViewAllOpen(true)}
+                  className="w-full text-center text-sm font-semibold text-primary py-1"
+                >
+                  {t("stockReturn.viewAll", { count: serials.length })}
+                </button>
+              )}
             </div>
           )}
           {countErrorShown && countFeedback && (
