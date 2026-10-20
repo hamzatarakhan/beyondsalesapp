@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { quantityError, serialError } from "../src/lib/stockReturnValidation";
+import { quantityError, serialCountError, serialError } from "../src/lib/stockReturnValidation";
 
 describe("Stock Return validation", () => {
   test("requires a positive quantity", () => {
