@@ -278,24 +278,8 @@ const CreditTransfer = () => {
                   inputMode="numeric"
                   autoComplete="off"
                   maxLength={1}
-                  value={pin[i] ?? ""}
-                  onChange={(e) => {
-                    const d = e.target.value.replace(/\D/g, "").slice(-1);
-                    setPin((prev) => {
-                      const chars = prev.padEnd(4, " ").slice(0, 4).split("");
-                      chars[i] = d || " ";
-                      return chars.join("").trimEnd();
-                    });
-                    if (d && i < 3) {
-                      (document.getElementById(`credit-transfer-pin-${i + 1}`) as HTMLInputElement | null)?.focus();
-                    }
-                    if (!d) {
-                      const chars = pin.split("");
-                      if (i > 0 && !chars[i]) {
-                        (document.getElementById(`credit-transfer-pin-${i - 1}`) as HTMLInputElement | null)?.focus();
-                      }
-                    }
-                  }}
+                  value={pinDigits[i]}
+                  onChange={(e) => setPinDigitAt(i, e.target.value)}
                   className="w-12 h-12 rounded-full border-2 border-border text-center text-base font-semibold focus:outline-none focus:border-primary text-foreground"
                 />
               ))}
