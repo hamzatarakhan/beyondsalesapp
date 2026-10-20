@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { bookingCodeSchema, canActivateBookedNumber } from "@/lib/bookedNumber";
 import { BOOKED_ACTIVATION_CONFIG, bookedModeHasPlan, bookedModeHasTopup, validateBookedActivation, type BookedActivationMode } from "@/lib/bookedActivation";
-import BookedActivationOptions from "@/components/activation/BookedActivationOptions";
 import { DifferentBrandReservationError, uatNumberReservations, type UatReservation, type ReservationMessage } from "@/lib/uatNumberReservations";
 import { useTranslation } from "react-i18next";
 import EmailVerifyInput, { isEmailVerified } from "@/components/EmailVerifyInput";
@@ -1944,8 +1943,9 @@ const NewActivation3 = () => {
               )}
             </div>
 
-            {/* 3 + 4. Plan / Topup tabs + Plan Type chips */}
-            {subType === "booked" && <BookedActivationOptions config={bookedConfig} mode={bookedMode} onModeChange={setBookedMode} topup={topupManual} onTopupChange={(value) => { setTopupManual(value); setTopupDenom(null); }} errors={bookedErrors} />}
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow is plan-only
+                (no activation-option cards, no top-up), so it reuses the same plan section
+                as the New and Port (MNP) tabs. */}
             {(subType !== "booked" || bookedHasPlan) && <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
