@@ -381,7 +381,7 @@ const PlanTitleRow = ({
         <span className="mx-1.5">•</span>
         {validity}
       </p>
-      {!hideRadio && <SelectRadio selected={selected} onSelect={onSelect} />}
+      {!hideRadio && <SelectRadio selected={selected} onSelect={handleSelect} />}
     </div>
   );
 };
@@ -552,7 +552,7 @@ const PlanCard = ({
         <div className={cn("p-4 flex flex-col flex-1", ((plan.badge && !hideTitleRow) || mnpEligible) && layout !== "payg" && "pt-6")}>
           {layout === "payg" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{t("activation.plan.payg.title")}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -565,7 +565,7 @@ const PlanCard = ({
             </>
           ) : layout === "combo" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -597,7 +597,7 @@ const PlanCard = ({
             </>
           ) : layout === "calls" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
@@ -615,7 +615,7 @@ const PlanCard = ({
             </>
           ) : isDataOnly ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={!plan.categories?.includes("vnet")} />}
@@ -633,7 +633,7 @@ const PlanCard = ({
             </>
           ) : layout === "baqa" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -657,7 +657,7 @@ const PlanCard = ({
             </>
           ) : layout === "aman" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {/* Trusted for Kids pill — suppressed when embedded, shown as a chip on the
                   collapsed row instead. */}
               {!hideTitleRow && (
@@ -696,7 +696,7 @@ const PlanCard = ({
             </>
           ) : layout === "postpaid" ? (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               {plan.bonuses && plan.bonuses.length > 0 && (
                 <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
                   {plan.bonuses.map((bonus, i) => (
@@ -739,7 +739,7 @@ const PlanCard = ({
             </>
           ) : (
             <>
-              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={onSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}

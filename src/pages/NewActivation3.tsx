@@ -1949,6 +1949,15 @@ const NewActivation3 = () => {
                 charged, not what is shown. The Booked Top-up card lives just above the number
                 selection. */}
             <>
+            {/* Booked: when the brand's configured option leaves the plan out, the plan section
+                stays visible but can't be picked — say so above it, the same way the Top-up card
+                explains its own excluded half. */}
+            {subType === "booked" && !bookedHasPlan && (
+              <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-px text-primary" />
+                {t("activation3.subscription.planNotIncluded")}
+              </p>
+            )}
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
@@ -2001,6 +2010,7 @@ const NewActivation3 = () => {
               </div>
               <button
                 type="button"
+                disabled={subType === "booked" && !bookedHasPlan}
                 onClick={() => navigate("/new-activation-3/plans", {
                   // Identity fields are forwarded so the round trip back can restore them too —
                   // /plans is a separate route, so returning here remounts this page from
@@ -2026,6 +2036,7 @@ const NewActivation3 = () => {
               categoryFilter={showPlanTypeChips ? planTypeChip : undefined}
               isMnpEligible={isFriendi ? undefined : isPlanMnpEligible}
               searchQuery={planSearch}
+              disabled={subType === "booked" && !bookedHasPlan}
             />
 
             {/* MNP can't port a data-only line — flag it right under the plan and steer the
