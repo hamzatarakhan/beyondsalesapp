@@ -597,7 +597,7 @@
     "voucherCodePlaceholder": "أدخل رمز القسيمة المكوّن من 14 رقماً",
     "voucherDigitsHint": "أدخل رمز قسيمة مكوّناً من 14 رقماً فقط.",
     "voucherErrorInvalid": "رمز القسيمة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
-    "voucherValue": "قيمة القسيمة: {{amount}} ريال",
+    "voucherValue": "رمز القسيمة صالح.",
     "testVouchersHeading": "قسائم تجريبية",
     "testVouchersDescription": "استخدم هذه القسائم لتجربة كل حالة. هذا المربع لن يظهر في التطبيق الفعلي.",
     "testNoteValid": "رمز صالح",
