@@ -3672,10 +3672,6 @@
           "topup": "Only Top Up",
           "none": "No Plan or Top Up"
         },
-        "cards": {
-          "plan": "Plan",
-          "topup": "Top-up"
-        },
         "errors": {
           "unavailable": "This activation option is not available for this subscription.",
           "planRequired": "Select a plan.",
