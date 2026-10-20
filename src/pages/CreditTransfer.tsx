@@ -21,9 +21,6 @@ import {
   AlertCircle,
   Check,
   XCircle,
-  LockKeyhole,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
@@ -91,10 +88,8 @@ const CreditTransfer = () => {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pin, setPin] = useState("");
-  const [showPin, setShowPin] = useState(false);
   const changePinSheet = (open: boolean) => {
     setPin("");
-    setShowPin(false);
     setConfirmOpen(open);
   };
   const [successOpen, setSuccessOpen] = useState(false);
@@ -132,7 +127,7 @@ const CreditTransfer = () => {
 
   const resolveTransfer = () => {
     // This prototype collects the PIN; real PIN authentication must happen server-side.
-    if (!canTransfer || !/^\d+$/.test(pin)) return;
+    if (!canTransfer || !/^\d{4}$/.test(pin)) return;
     changePinSheet(false);
     const ok = Math.random() < 0.85;
     if (ok) {
