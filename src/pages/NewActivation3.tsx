@@ -1987,6 +1987,55 @@ const NewActivation3 = () => {
               </div>
             )}
 
+            {/* Booked tab only — optional Top-up toggle under the Plan Types chips. Toggling it
+                on expands the amount entry (manual input or preset chips) and switches the
+                booked mode to plan-topup so validation, totals and checkout include the top-up. */}
+            {subType === "booked" && bookedConfig.enabledModes.includes("plan-topup") && (
+              <section className="bg-card rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <Coins className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{t("activation3.subscription.topupSectionTitle")}</p>
+                    <p className="text-[11px] text-muted-foreground">{t("activation3.subscription.topupChooseSub")}</p>
+                  </div>
+                  <Switch
+                    checked={bookedHasTopup}
+                    onCheckedChange={(checked) => {
+                      setBookedMode(checked ? "plan-topup" : "plan");
+                      if (!checked) setBookedTopupManual("");
+                    }}
+                    className="data-[state=checked]:bg-red-500"
+                    aria-label={t("activation3.subscription.topupSectionTitle")}
+                  />
+                </div>
+                {bookedHasTopup && (
+                  <>
+                    <div className="border-t border-border/60 mt-3 mb-3" />
+                    <Input
+                      inputMode="decimal"
+                      value={bookedTopupManual}
+                      onChange={(e) => setBookedTopupManual(e.target.value.replace(/[^\d.]/g, ""))}
+                      placeholder={t("activation3.subscription.topupSelectAmount")}
+                      className="h-11 bg-muted/40 rounded-xl text-center"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1.5">{t("activation3.subscription.topupVatNote")}</p>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {FM_TOPUP_PRESETS_REQUIRED.map((d) => (
+                        <button key={d} type="button"
+                          onClick={() => setBookedTopupManual(String(d))}
+                          className={cn("py-2 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-1",
+                            Number(bookedTopupManual) === d ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground")}>
+                          <RiyalSymbol /> {d.toFixed(2)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
+
             {/* Search + View all plans, side by side — search narrows the plan cards
                 below (PlanSelector shows its own "no plans match" state); View all plans
                 (secondary button) opens the full vertical browser with its own search + filters. */}
