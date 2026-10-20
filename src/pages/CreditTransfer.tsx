@@ -376,12 +376,14 @@ const CreditTransfer = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("creditTransfer.pinInvalidTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t("creditTransfer.pinInvalidDesc")}</p>
-          <button
-            onClick={() => { setPinError(false); changePinSheet(true); }}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("creditTransfer.tryAgain")}
-          </button>
+          <div className="w-full">
+            <button
+              onClick={() => { setPinError(false); changePinSheet(true); }}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("creditTransfer.tryAgain")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -396,12 +398,14 @@ const CreditTransfer = () => {
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("creditTransfer.lookupErrorTitle")}</h4>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
-          <button
-            onClick={() => setLookupError(null)}
-            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
-          >
-            {t("creditTransfer.gotIt")}
-          </button>
+          <div className="w-full">
+            <button
+              onClick={() => setLookupError(null)}
+              className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+            >
+              {t("creditTransfer.gotIt")}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
