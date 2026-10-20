@@ -245,39 +245,46 @@ const CreditTransfer = () => {
         </div>
       </div>
 
-      {/* PIN confirmation */}
+      {/* PIN confirmation — same sheet design as the OTP verification sheets (e.g. BillPayment), 4 digits */}
       <Drawer open={confirmOpen} onOpenChange={changePinSheet}>
         <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <form onSubmit={(event) => { event.preventDefault(); resolveTransfer(); }} className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <LockKeyhole className="w-7 h-7 text-primary" />
-            </div>
-            <div>
-              <DrawerTitle className="text-lg font-bold text-foreground mb-1">{t("settings.confirmPinCode")}</DrawerTitle>
-              <DrawerDescription className="text-sm text-muted-foreground">
-                {t("creditTransfer.confirmTransferDesc", { amount: amount?.toFixed(2) ?? "0.00", msisdn: customer?.msisdn ?? "" })}
-              </DrawerDescription>
-            </div>
-            <div className="w-full space-y-1.5 text-start">
-              <label htmlFor="transfer-pin" className="text-xs font-medium text-muted-foreground">{t("settings.currentPin")}</label>
-              <div className="relative">
-                <Input
-                  id="transfer-pin"
-                  type={showPin ? "text" : "password"}
+          <form onSubmit={(event) => { event.preventDefault(); resolveTransfer(); }} className="flex flex-col items-center gap-4 py-4">
+            <h3 className="text-lg font-bold text-foreground">{t("creditTransfer.pinSheetTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center px-4">
+              {t("creditTransfer.confirmTransferDesc", { amount: amount?.toFixed(2) ?? "0.00", msisdn: customer?.msisdn ?? "" })}
+            </p>
+            <div className="flex gap-2" dir="ltr">
+              {[0, 1, 2, 3].map((i) => (
+                <input
+                  key={i}
+                  id={`credit-transfer-pin-${i}`}
                   inputMode="numeric"
                   autoComplete="off"
-                  value={pin}
-                  onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))}
-                  placeholder={t("settings.enterCurrentPin")}
-                  className="h-12 rounded-xl bg-card pe-12 text-base"
+                  maxLength={1}
+                  value={pin[i] ?? ""}
+                  onChange={(e) => {
+                    const d = e.target.value.replace(/\D/g, "").slice(-1);
+                    setPin((prev) => {
+                      const chars = prev.padEnd(4, " ").slice(0, 4).split("");
+                      chars[i] = d || " ";
+                      return chars.join("").trimEnd();
+                    });
+                    if (d && i < 3) {
+                      (document.getElementById(`credit-transfer-pin-${i + 1}`) as HTMLInputElement | null)?.focus();
+                    }
+                    if (!d) {
+                      const chars = pin.split("");
+                      if (i > 0 && !chars[i]) {
+                        (document.getElementById(`credit-transfer-pin-${i - 1}`) as HTMLInputElement | null)?.focus();
+                      }
+                    }
+                  }}
+                  className="w-12 h-12 rounded-full border-2 border-border text-center text-base font-semibold focus:outline-none focus:border-primary text-foreground"
                 />
-                <Button type="button" variant="ghost" size="icon" className="absolute end-1 top-1 h-10 w-10 text-muted-foreground" onClick={() => setShowPin((visible) => !visible)} aria-label={t(showPin ? "settings.hidePin" : "settings.showPin")}>
-                  {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
+              ))}
             </div>
             <div className="w-full flex flex-col gap-3">
-              <Button type="submit" className="w-full h-12 rounded-full font-semibold" disabled={!canTransfer || !pin}>{t("creditTransfer.yesConfirm")}</Button>
+              <Button type="submit" className="w-full h-12 rounded-full font-semibold" disabled={!canTransfer || pin.length !== 4}>{t("creditTransfer.yesConfirm")}</Button>
               <Button type="button" variant="ghost" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => changePinSheet(false)}>{t("creditTransfer.cancel")}</Button>
             </div>
           </form>
