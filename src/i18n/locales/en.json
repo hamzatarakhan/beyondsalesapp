@@ -570,6 +570,7 @@
     "topUpWallet": "Top up now",
     "transfer": "Transfer",
     "confirmTransferTitle": "Confirm Transfer",
+    "pinSheetTitle": "PIN Code",
     "confirmTransferDesc": "Transfer {{amount}} SAR of credit to {{msisdn}}?",
     "yesConfirm": "Yes, Confirm",
     "cancel": "Cancel",
@@ -3661,8 +3662,18 @@
       "bookedNote": "The booked number will be activated on this SIM after the booking is verified.",
       "bookedOptions": {
         "title": "Activation option",
-        "modes": { "plan": "Only Plan", "plan-topup": "Plan with Top Up", "topup": "Only Top Up", "none": "No Plan or Top Up" },
-        "errors": { "unavailable": "This activation option is not available for this subscription.", "planRequired": "Select a plan.", "planMinimum": "Select a plan priced at least {{min}}.", "topupMinimum": "Enter a top-up amount greater than zero and at least {{min}}." }
+        "modes": {
+          "plan": "Only Plan",
+          "plan-topup": "Plan with Top Up",
+          "topup": "Only Top Up",
+          "none": "No Plan or Top Up"
+        },
+        "errors": {
+          "unavailable": "This activation option is not available for this subscription.",
+          "planRequired": "Select a plan.",
+          "planMinimum": "Select a plan priced at least {{min}}.",
+          "topupMinimum": "Enter a top-up amount greater than zero and at least {{min}}."
+        }
       },
       "pickDifferent": "Pick Different Number",
       "pickNumberHint": "Tap the number to browse and choose a different one",
