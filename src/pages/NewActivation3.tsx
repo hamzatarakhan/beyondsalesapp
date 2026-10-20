@@ -1990,11 +1990,11 @@ const NewActivation3 = () => {
               </section>
             )}
 
-            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — the booked flow reuses the same
-                plan section as the New and Port (MNP) tabs, shown only when the selected
-                activation option includes a plan; its Top-up card lives just above the number
-                selection. */}
-            {(subType !== "booked" || bookedHasPlan) && <>
+            {/* 3 + 4. Plan / Topup tabs + Plan Type chips — shown for every flow, Booked
+                included: on Booked the plan section and Top-up card are always visible, and
+                the selected activation option only decides what is required and charged, not
+                what is shown. The Booked Top-up card lives just above the number selection. */}
+            <>
             {/* Plan type filter chips */}
             {showPlanTypeChips && (
               <div className="space-y-2">
@@ -2129,7 +2129,7 @@ const NewActivation3 = () => {
               );
             })()}
 
-            </>}
+            </>
             {/* 6. Device — Postpaid Internet only. Only one device offered for now. */}
             {showDevice && deviceObj && (
               <section>
