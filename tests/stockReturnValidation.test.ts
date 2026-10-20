@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { quantityError, serialError } from "../src/lib/stockReturnValidation";
+import { quantityError, serialCountError, serialError } from "../src/lib/stockReturnValidation";
 
 describe("Stock Return validation", () => {
   test("requires a positive quantity", () => {
@@ -34,5 +34,10 @@ describe("Stock Return validation", () => {
   });
   test("adding serials cannot exceed stock availability", () => {
     expect(serialError("SN-124", ["SN-123"], 1)).toBe("quantityLimit");
+  });
+  test("submit requires a serial for every unit returned", () => {
+    expect(serialCountError(4, 9)).toBe("serialsShort");
+    expect(serialCountError(0, 9)).toBe("serialsShort");
+    expect(serialCountError(9, 9)).toBeUndefined();
   });
 });

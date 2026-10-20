@@ -15,3 +15,8 @@ export const serialError = (value: string, serials: string[], available: number)
   if (serials.some(serial => serial.toUpperCase() === value.trim().toUpperCase())) return "serialDuplicate";
   if (serials.length >= available) return "quantityLimit";
 };
+
+// Submit-time check: every unit being returned needs its scanned serial, so the
+// scanned count must reach the requested quantity (excess is clamped upstream).
+export const serialCountError = (scanned: number, required: number): "serialsShort" | undefined =>
+  scanned < required ? "serialsShort" : undefined;
