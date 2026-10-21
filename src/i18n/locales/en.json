@@ -1231,7 +1231,7 @@
     "tryAgain": "Try Again"
   },
   "ordersHistory": {
-    "title": "Transaction History",
+    "title": "Order History",
     "tabs": {
       "orders": "Orders",
       "summary": "Summary",
