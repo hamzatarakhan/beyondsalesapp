@@ -687,10 +687,7 @@ const OrdersHistory = () => {
 
             <div className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-foreground">{t("ordersHistory.teamAchievements")}</p>
-                  <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground font-medium">{t("ordersHistory.text")}</span>
-                </div>
+                <p className="text-sm font-semibold text-foreground">{t("ordersHistory.teamAchievements")}</p>
                 <button type="button" onClick={() => navigate("/order-history/achievements")} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
                   {t("ordersHistory.seeAll")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
