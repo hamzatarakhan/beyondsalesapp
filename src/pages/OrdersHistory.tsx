@@ -134,6 +134,18 @@ export const TEAM_ACHIEVEMENTS = [
   { key: "simReplacements", achievement: 22, target: 25 },
 ];
 
+// KPI Groups on the Commission tab — each group rolls its KPIs into one clickable card
+// (name, achieved count, overall % donut); the per-KPI breakdown opens in a bottom sheet.
+export const KPI_GROUPS = [
+  {
+    key: "prepaidActivations",
+    kpis: [
+      { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20 },
+      { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20 },
+    ],
+  },
+];
+
 type DateRangeKey = "today" | "last7" | "last30" | "custom" | null;
 
 const inRange = (d: Date, from: Date, to: Date) => {
@@ -158,6 +170,7 @@ const OrdersHistory = () => {
   // everything below to SELF_MEMBER_CODE's own records; Parent View (the default) keeps
   // the full cross-dealer picture.
   const view = searchParams.get("view") === "member" ? "member" : "parent";
+  const [kpiGroupOpen, setKpiGroupOpen] = useState<string | null>(null);
   const baseOrders = useMemo(() => (view === "member" ? ORDERS.filter((o) => o.memberCode === SELF_MEMBER_CODE) : ORDERS), [view]);
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
