@@ -170,7 +170,7 @@ export const KPI_GROUPS = [
 // Single KPIs carry their own figures and never link to a group breakdown.
 const COMMISSION_KPI_CARDS = KPI_GROUPS.map((group) =>
   group.key === "postpaidActivations"
-    ? { kind: "single" as const, key: "bundlesRecharge", sales: 100, commissionPercent: 60, amount: 85, currency: "OMR" }
+    ? { kind: "single" as const, key: "bundlesRecharge", sales: 100, commissionPercent: 60, amount: 85, currency: "SAR" }
     : { kind: "group" as const, key: group.key, group },
 );
 
@@ -723,14 +723,35 @@ const OrdersHistory = () => {
                     // Standalone KPI — same shell as the group cards, but no arrow since it has no breakdown.
                     return (
                       <div key={card.key} className="w-full rounded-2xl bg-card border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3">
-                        <div className="w-12 h-12 shrink-0 rounded-full border-2 border-success text-success flex flex-col items-center justify-center font-bold leading-none">
-                          <span className="text-xs tabular-nums">{card.amount}</span>
-                          <span className="text-[9px] mt-0.5">{card.currency}</span>
+                        <div className="relative w-12 h-12 shrink-0">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={[{ v: card.commissionPercent }, { v: 100 - card.commissionPercent }]}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={18}
+                                outerRadius={22}
+                                startAngle={90}
+                                endAngle={-270}
+                                dataKey="v"
+                                stroke="none"
+                              >
+                                <Cell fill="hsl(var(--primary))" />
+                                <Cell fill="hsl(var(--muted))" />
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground tabular-nums">
+                            {card.commissionPercent}%
+                          </span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[15px] font-semibold text-foreground truncate">{t("ordersHistory.bundlesRecharge", { defaultValue: "Bundles / Recharge" })}</p>
                           <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t("ordersHistory.singleKpiSales", { defaultValue: "Sales achieved {{value}}", value: card.sales })}</p>
-                          <p className="text-[11px] text-muted-foreground leading-tight">{t("ordersHistory.singleKpiCommission", { defaultValue: "IBR commission {{value}}%", value: card.commissionPercent })}</p>
+                          <p className="text-[11px] font-semibold text-foreground leading-tight mt-0.5 flex items-center gap-1 tabular-nums">
+                            <RiyalSymbol /> {card.amount}
+                          </p>
                         </div>
                       </div>
                     );
