@@ -135,13 +135,27 @@ export const TEAM_ACHIEVEMENTS = [
 ];
 
 // KPI Groups on the Commission tab — each group rolls its KPIs into one clickable card
-// (name, achieved count, overall % donut); the per-KPI breakdown opens in a bottom sheet.
+// (name, achieved count, overall % donut); the per-KPI breakdown opens on a dedicated page.
 export const KPI_GROUPS = [
   {
     key: "prepaidActivations",
     kpis: [
       { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20 },
       { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20 },
+    ],
+  },
+  {
+    key: "postpaidActivations",
+    kpis: [
+      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20 },
+      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20 },
+    ],
+  },
+  {
+    key: "billPaymentVolume",
+    kpis: [
+      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20 },
+      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20 },
     ],
   },
 ];
