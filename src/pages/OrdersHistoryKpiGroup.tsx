@@ -5,7 +5,6 @@ import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
-
 const OrdersHistoryKpiGroup = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -44,15 +43,16 @@ const OrdersHistoryKpiGroup = () => {
               {t("ordersHistory.kpiAchievedOf", { achieved, total: group.kpis.length })}
             </p>
           </div>
-          <div className="relative w-24 h-24 shrink-0">
+          {/* Overall achievement as a ring; the weighted score sits inside it. */}
+          <div className="relative w-28 h-28 shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={[{ v: overall }, { v: 100 - overall }]}
                   cx="50%"
                   cy="50%"
-                  innerRadius={30}
-                  outerRadius={40}
+                  innerRadius={40}
+                  outerRadius={50}
                   startAngle={90}
                   endAngle={-270}
                   dataKey="v"
@@ -64,8 +64,8 @@ const OrdersHistoryKpiGroup = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-              <span className="text-base font-bold text-primary tabular-nums">{overall}%</span>
-              <span className="text-[9px] font-semibold text-muted-foreground mt-1 tabular-nums">
+              <span className="text-lg font-bold text-primary tabular-nums">{overall}%</span>
+              <span className="text-[10px] font-semibold text-muted-foreground mt-1 tabular-nums">
                 {t("ordersHistory.kpiScore", { defaultValue: "Score" })} {totalScore.toFixed(1)}%
               </span>
             </div>
