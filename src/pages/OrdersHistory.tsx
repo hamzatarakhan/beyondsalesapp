@@ -184,7 +184,6 @@ const OrdersHistory = () => {
   // everything below to SELF_MEMBER_CODE's own records; Parent View (the default) keeps
   // the full cross-dealer picture.
   const view = searchParams.get("view") === "member" ? "member" : "parent";
-  const [kpiGroupOpen, setKpiGroupOpen] = useState<string | null>(null);
   const baseOrders = useMemo(() => (view === "member" ? ORDERS.filter((o) => o.memberCode === SELF_MEMBER_CODE) : ORDERS), [view]);
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
@@ -387,21 +386,6 @@ const OrdersHistory = () => {
       </button>
     </span>
   );
-
-  const RingProgress = ({ percent }: { percent: number }) => {
-    const r = 16;
-    const c = 2 * Math.PI * r;
-    const offset = c - (Math.min(100, percent) / 100) * c;
-    return (
-      <div className="relative w-11 h-11 shrink-0">
-        <svg viewBox="0 0 40 40" className="w-11 h-11 -rotate-90">
-          <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
-          <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} className="text-emerald-500" />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground">{percent}%</span>
-      </div>
-    );
-  };
 
   const StatCard = ({ icon: Icon, label, value, tone }: { icon: typeof ClipboardList; label: string; value: string; tone: string }) => (
     <div className={cn("rounded-2xl p-3.5 flex items-center gap-2.5", tone)}>
