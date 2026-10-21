@@ -732,7 +732,6 @@ const OrdersHistory = () => {
                     </div>
                   );
                 })}
-              </div>
             </div>
             </div>
 
