@@ -5,3 +5,6 @@ ls roadmap.md >/dev/null && tail -4 roadmap.md
 - [x] Booked tab: option picker removed — the active option now comes from `BOOKED_ACTIVATION_CONFIG[brand].mode`.
 - [x] Booked tab: sections the option leaves out stay visible but are locked — greyed-out cards plus an info note above them; the top-up card already had its own note.
 - [x] Booked tab: Top-up card header switch collapses/expands the card; the chosen amount stays visible in the header row while collapsed.
+
+## KPI breakdown card UI (Oct 21)
+- [x] KPI breakdown cards: replaced the blue-header + gauge + colored tiles card with the chosen flat progress-bar row — eligibility edge stripe, big achievement %, bar with a minimum tick, Min / Weight / Score strip; no expand/collapse.
