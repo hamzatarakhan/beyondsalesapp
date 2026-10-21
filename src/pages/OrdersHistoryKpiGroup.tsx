@@ -42,7 +42,7 @@ const OrdersHistoryKpiGroup = () => {
               {t("ordersHistory.kpiAchievedOf", { achieved, total: group.kpis.length })}
             </p>
           </div>
-          <p className="text-2xl font-bold text-kpi-gauge shrink-0">{overall}%</p>
+          <p className="text-2xl font-bold text-primary shrink-0">{overall}%</p>
         </div>
 
         <p className="text-xs text-muted-foreground px-1">{t("ordersHistory.kpiBreakdown")}</p>
