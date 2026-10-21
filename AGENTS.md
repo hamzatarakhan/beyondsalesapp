@@ -1,4 +1,5 @@
 # Project rules
+- Keep commission single-KPI records separate from group breakdown data and render them without navigation; standalone amounts must not imply a breakdown.
 - Keep booked-number eligibility and code validation in a shared schema module used by activation gating; this keeps input and journey checks consistent.
 - Keep booked activation combinations and minimum amounts in independent brand configuration with shared validation for subscription and checkout; this prevents UI choices from bypassing configured restrictions.
 - Keep UAT automatic number reservation in a session-scoped shared service, separate from operator integrations; this prevents duplicate sample assignments without treating demo login as trusted authentication.

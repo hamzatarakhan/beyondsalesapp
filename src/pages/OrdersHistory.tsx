@@ -167,6 +167,12 @@ export const KPI_GROUPS = [
   },
 ];
 
+// Single KPIs carry their own figures and never link to a group breakdown.
+const COMMISSION_KPI_CARDS = KPI_GROUPS.map((group) =>
+  group.key === "postpaidActivations"
+    ? { kind: "single" as const, key: "bundlesRecharge", sales: 100, commissionPercent: 60, amount: 85, currency: "OMR" }
+    : { kind: "group" as const, key: group.key, group },
+);
 
 type DateRangeKey = "today" | "last7" | "last30" | "custom" | null;
 
@@ -712,7 +718,23 @@ const OrdersHistory = () => {
                 </button>
               </div>
               <div className="space-y-3">
-                {KPI_GROUPS.map((g) => {
+                {COMMISSION_KPI_CARDS.map((card) => {
+                  if (card.kind === "single") {
+                    return (
+                      <div key={card.key} className="w-full rounded-xl border border-border/60 bg-surface p-3 flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">{t("ordersHistory.bundlesRecharge", { defaultValue: "Bundles / Recharge" })}</p>
+                          <p className="text-[11px] text-foreground leading-tight mt-0.5">{t("ordersHistory.singleKpiSales", { defaultValue: "Sales achieved {{value}}", value: card.sales })}</p>
+                          <p className="text-[11px] text-foreground leading-tight">{t("ordersHistory.singleKpiCommission", { defaultValue: "IBR commission {{value}}%", value: card.commissionPercent })}</p>
+                        </div>
+                        <div className="w-11 h-11 shrink-0 rounded-full border-[3px] border-success text-success flex flex-col items-center justify-center font-bold leading-none">
+                          <span className="text-xs">{card.amount}</span>
+                          <span className="text-[9px] mt-0.5">{card.currency}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  const g = card.group;
                   const achieved = g.kpis.filter((k) => k.achievement >= k.min).length;
                   const overall = Math.round(g.kpis.reduce((s, k) => s + k.achievement, 0) / g.kpis.length);
                   return (
