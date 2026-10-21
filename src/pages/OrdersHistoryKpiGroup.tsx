@@ -25,11 +25,7 @@ const OrdersHistoryKpiGroup = () => {
 
   const achieved = group.kpis.filter((k) => k.achievement >= k.min).length;
   const overall = Math.round(group.kpis.reduce((s, k) => s + k.achievement, 0) / group.kpis.length);
-  // Weighted commission score: each eligible KPI contributes achievement x weight.
-  const totalScore = group.kpis.reduce(
-    (s, k) => s + (k.achievement >= k.min ? (k.achievement * k.weight) / 100 : 0),
-    0,
-  );
+
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
