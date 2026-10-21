@@ -318,7 +318,6 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setMethod("voucher");
     setVoucherOnly(false);
     setVoucherCode("");
-    setVoucherError(null);
     setCardAmount(null);
     setCardView("list");
     setCards([]);
