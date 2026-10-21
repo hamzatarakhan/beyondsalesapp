@@ -18,12 +18,10 @@ import {
   CreditCard,
   Wallet,
   Info,
-  AlertCircle,
   Check,
   XCircle,
   Plus,
   Trash2,
-  Loader2,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
@@ -167,8 +165,6 @@ const MAX_RECHARGE_AMOUNT = 500;
 // a brand name — mada gets its own last4 so the two tiles aren't pixel-identical.
 const VISA_DEMO = { last4: "4242", holder: "Ahmed Mohammed", expiry: "12/27" };
 const MADA_DEMO = { last4: "7788", holder: "Ahmed Mohammed", expiry: "12/27" };
-// Any other 14-digit code "succeeds" in this prototype — this one demos the rejected case.
-const INVALID_VOUCHER_CODE = "00000000000000";
 // Physical/digital vouchers are fixed-denomination — this prototype only has one valid
 // demo code, so it's pinned to a single realistic amount rather than a made-up 0.
 const VOUCHER_AMOUNT = 100;
@@ -199,26 +195,10 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   };
 
   // ---------- Voucher ----------
+  // No validation is performed on the voucher code itself — the Top Up button is simply
+  // enabled once a full 14-digit code has been typed, and disabled otherwise.
   const [voucherCode, setVoucherCode] = useState("");
-  const [voucherChecking, setVoucherChecking] = useState(false);
-  const [voucherError, setVoucherError] = useState<string | null>(null);
-  const [voucherChecked, setVoucherChecked] = useState(false);
-
-  // Same shape as the KIT code check on SIM Activation — auto-fires once the field is
-  // filled, shows an inline spinner in the field, and reports valid/invalid under it.
-  const runVoucherCheck = (val: string) => {
-    setVoucherCode(val);
-    setVoucherError(null);
-    setVoucherChecked(false);
-    if (val.length !== 14) return;
-    setVoucherChecking(true);
-    setTimeout(() => {
-      setVoucherChecking(false);
-      if (val === INVALID_VOUCHER_CODE) setVoucherError(t("walletRecharge.voucherErrorInvalid"));
-      else setVoucherChecked(true);
-    }, 1500);
-  };
-  const voucherValid = voucherChecked && !voucherError && !voucherChecking;
+  const voucherValid = voucherCode.length === 14;
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
@@ -338,7 +318,6 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
     setMethod("voucher");
     setVoucherOnly(false);
     setVoucherCode("");
-    setVoucherError(null);
     setCardAmount(null);
     setCardView("list");
     setCards([]);
@@ -391,37 +370,13 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               <div className="relative">
                 <Input
                   value={voucherCode}
-                  onChange={(e) => runVoucherCheck(e.target.value.replace(/\D/g, "").slice(0, 14))}
+                  onChange={(e) => setVoucherCode(e.target.value.replace(/\D/g, "").slice(0, 14))}
                   placeholder={t("walletRecharge.voucherCodePlaceholder")}
                   inputMode="numeric"
                   dir="ltr"
-                  className={cn(
-                    "h-12 bg-card rounded-xl pr-12",
-                    voucherError && "border-destructive focus-visible:ring-destructive",
-                    voucherChecked && !voucherError && "border-emerald-500 focus-visible:ring-emerald-500",
-                  )}
+                  className="h-12 bg-card rounded-xl pr-12"
                 />
-                {voucherChecking && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Checking voucher">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </span>
-                )}
               </div>
-              {voucherCode.length > 0 && voucherCode.length < 14 && !voucherError && (
-                <p className="text-xs text-muted-foreground">{t("walletRecharge.voucherDigitsHint")}</p>
-              )}
-              {voucherError && (
-                <p className="text-xs text-destructive flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  {voucherError}
-                </p>
-              )}
-              {voucherValid && (
-                <p className="text-xs text-emerald-600 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 shrink-0" />
-                  {t("walletRecharge.voucherValue")}
-                </p>
-              )}
             </div>
 
             <PrototypeTestBox
@@ -429,9 +384,8 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               description={t("walletRecharge.testVouchersDescription")}
               items={[
                 { value: "12345678901234", note: t("walletRecharge.testNoteValid") },
-                { value: INVALID_VOUCHER_CODE, note: t("walletRecharge.testNoteInvalid") },
               ]}
-              onSelect={runVoucherCheck}
+              onSelect={setVoucherCode}
               extra={
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 leading-snug">
