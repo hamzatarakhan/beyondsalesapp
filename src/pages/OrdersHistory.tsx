@@ -695,17 +695,45 @@ const OrdersHistory = () => {
                   {t("ordersHistory.seeAll")} <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               </div>
-              <div className="space-y-3.5">
-                {TEAM_ACHIEVEMENTS.slice(0, 3).map((a) => (
-                  <div key={a.key} className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{t(`ordersHistory.teamAchievement.${a.key}`)}</p>
-                      <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
+              <div className="space-y-3">
+                {[
+                  { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20 },
+                  { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20 },
+                ].map((k) => {
+                  const eligible = k.achievement >= k.min;
+                  const score = eligible ? (k.achievement * k.weight) / 100 : 0;
+                  return (
+                    <div key={k.key} className="rounded-xl border border-border/60 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-semibold text-foreground truncate">{k.name}</p>
+                            <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
+                          <span className={cn("inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold", eligible ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-destructive/10 text-destructive")}>
+                            {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
+                          </span>
+                        </div>
+                        <RingProgress percent={k.achievement} />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/40 text-center">
+                        {[
+                          { l: t("ordersHistory.kpiMin", { defaultValue: "Min" }), v: `${k.min}%` },
+                          { l: t("ordersHistory.kpiWeight", { defaultValue: "Weight" }), v: `${k.weight}%` },
+                          { l: t("ordersHistory.kpiScore", { defaultValue: "Score" }), v: `${score.toFixed(1)}%` },
+                        ].map((c) => (
+                          <div key={c.l}>
+                            <p className="text-[10px] text-muted-foreground">{c.l}</p>
+                            <p className="text-xs font-bold text-foreground">{c.v}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <RingProgress percent={Math.round((a.achievement / a.target) * 100)} />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+            </div>
             </div>
 
             <DateChips activeKey={scopeRangeKey} onPick={setScopeRangeKey} onCustom={openScopePickDate} />
