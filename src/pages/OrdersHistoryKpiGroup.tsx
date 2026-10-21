@@ -51,7 +51,7 @@ const OrdersHistoryKpiGroup = () => {
                   data={[{ v: overall }, { v: 100 - overall }]}
                   cx="50%"
                   cy="50%"
-                  innerRadius={31}
+                  innerRadius={32}
                   outerRadius={36}
                   startAngle={90}
                   endAngle={-270}
