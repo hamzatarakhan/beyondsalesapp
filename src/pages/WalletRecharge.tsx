@@ -374,7 +374,12 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
                   placeholder={t("walletRecharge.voucherCodePlaceholder")}
                   inputMode="numeric"
                   dir="ltr"
-                  className="h-12 bg-card rounded-xl pr-12"
+                  className={
+                    "h-12 bg-card rounded-xl pr-12 " +
+                    (voucherValid
+                      ? "border-emerald-500 focus-visible:ring-emerald-500/30"
+                      : "")
+                  }
                 />
               </div>
             </div>
