@@ -743,7 +743,7 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("walletRecharge.rechargeSuccessful")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {t("walletRecharge.rechargedBy", { amount: (rechargeAmount ?? 0).toFixed(2) })}
+              {t("walletRecharge.rechargedBy")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {t("walletRecharge.reference")} <span className="font-semibold text-foreground">{orderId}</span>
