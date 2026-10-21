@@ -65,9 +65,6 @@ const OrdersHistoryKpiGroup = () => {
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
               <span className="text-sm font-bold text-primary tabular-nums">{overall}%</span>
-              <span className="text-[8px] font-semibold text-muted-foreground mt-0.5 tabular-nums">
-                {t("ordersHistory.kpiScore", { defaultValue: "Score" })} {totalScore.toFixed(1)}%
-              </span>
             </div>
           </div>
         </div>
