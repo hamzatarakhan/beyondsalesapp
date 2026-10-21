@@ -729,7 +729,7 @@ const NewActivation3 = () => {
   // Booked-tab top-up amount — isolated from the PAYG top-up fields so switching tabs never leaks an amount.
    const [bookedTopupManual, setBookedTopupManual] = useState("");
   // Whether the booked Top-up card shows its amount entry (expanded) or just its header row.
-  const [bookedTopupOpen, setBookedTopupOpen] = useState(true);
+  const [bookedTopupOpen, setBookedTopupOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [topupDenom, setTopupDenom] = useState<number | null>(null);
   const [topupManual, setTopupManual] = useState("");
