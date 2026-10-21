@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 
 const OrdersHistoryKpiGroup = () => {
@@ -25,6 +26,11 @@ const OrdersHistoryKpiGroup = () => {
 
   const achieved = group.kpis.filter((k) => k.achievement >= k.min).length;
   const overall = Math.round(group.kpis.reduce((s, k) => s + k.achievement, 0) / group.kpis.length);
+  // Weighted commission score: each eligible KPI contributes achievement x weight.
+  const totalScore = group.kpis.reduce(
+    (s, k) => s + (k.achievement >= k.min ? (k.achievement * k.weight) / 100 : 0),
+    0,
+  );
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
@@ -38,7 +44,32 @@ const OrdersHistoryKpiGroup = () => {
               {t("ordersHistory.kpiAchievedOf", { achieved, total: group.kpis.length })}
             </p>
           </div>
-          <p className="text-2xl font-bold text-primary shrink-0">{overall}%</p>
+          <div className="relative w-24 h-24 shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={[{ v: overall }, { v: 100 - overall }]}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={30}
+                  outerRadius={40}
+                  startAngle={90}
+                  endAngle={-270}
+                  dataKey="v"
+                  stroke="none"
+                >
+                  <Cell fill="hsl(var(--primary))" />
+                  <Cell fill="hsl(var(--muted))" />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+              <span className="text-base font-bold text-primary tabular-nums">{overall}%</span>
+              <span className="text-[9px] font-semibold text-muted-foreground mt-1 tabular-nums">
+                {t("ordersHistory.kpiScore", { defaultValue: "Score" })} {totalScore.toFixed(1)}%
+              </span>
+            </div>
+          </div>
         </div>
 
         <p className="text-xs text-muted-foreground px-1">{t("ordersHistory.kpiBreakdown")}</p>
