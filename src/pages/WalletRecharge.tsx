@@ -199,26 +199,10 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
   };
 
   // ---------- Voucher ----------
+  // No validation is performed on the voucher code itself — the Top Up button is simply
+  // enabled once a full 14-digit code has been typed, and disabled otherwise.
   const [voucherCode, setVoucherCode] = useState("");
-  const [voucherChecking, setVoucherChecking] = useState(false);
-  const [voucherError, setVoucherError] = useState<string | null>(null);
-  const [voucherChecked, setVoucherChecked] = useState(false);
-
-  // Same shape as the KIT code check on SIM Activation — auto-fires once the field is
-  // filled, shows an inline spinner in the field, and reports valid/invalid under it.
-  const runVoucherCheck = (val: string) => {
-    setVoucherCode(val);
-    setVoucherError(null);
-    setVoucherChecked(false);
-    if (val.length !== 14) return;
-    setVoucherChecking(true);
-    setTimeout(() => {
-      setVoucherChecking(false);
-      if (val === INVALID_VOUCHER_CODE) setVoucherError(t("walletRecharge.voucherErrorInvalid"));
-      else setVoucherChecked(true);
-    }, 1500);
-  };
-  const voucherValid = voucherChecked && !voucherError && !voucherChecking;
+  const voucherValid = voucherCode.length === 14;
 
   // ---------- Card ----------
   const [cardAmount, setCardAmount] = useState<number | null>(null);
