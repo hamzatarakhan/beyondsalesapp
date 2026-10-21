@@ -32,7 +32,7 @@ const OrdersHistoryKpiGroup = () => {
       <AppHeader title={t(`ordersHistory.teamAchievement.${group.key}`)} showBack onBackClick={() => navigate(`/order-history?view=${view}`)} />
 
       <div className="px-4 space-y-3">
-        <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
+        <div className="bg-card rounded-2xl px-4 py-2.5 shadow-sm flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{t(`ordersHistory.teamAchievement.${group.key}`)}</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -40,7 +40,7 @@ const OrdersHistoryKpiGroup = () => {
             </p>
           </div>
           {/* Overall achievement as a ring; every commission chart shares this style. */}
-          <KpiDonut percent={overall} size={80} label={`${overall}%`} labelClassName="text-sm" />
+          <KpiDonut percent={overall} size={48} label={`${overall}%`} labelClassName="text-[10px]" />
         </div>
 
         <p className="text-xs text-muted-foreground px-1">{t("ordersHistory.kpiBreakdown")}</p>
