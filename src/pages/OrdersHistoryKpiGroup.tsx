@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
+import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
 import { cn } from "@/lib/utils";
 
-// Per-KPI breakdown for one KPI Group — opened from the Commission tab cards.
+// Small ring used by the group summary card at the top of the page.
 const RingProgress = ({ percent }: { percent: number }) => {
   const r = 16;
   const c = 2 * Math.PI * r;
@@ -28,6 +30,8 @@ const OrdersHistoryKpiGroup = () => {
   const view = searchParams.get("view") === "member" ? "member" : "parent";
 
   const group = KPI_GROUPS.find((g) => g.key === key);
+  // One card open at a time; the first starts open so the page never looks empty.
+  const [openKey, setOpenKey] = useState<string | null>(group?.kpis[0]?.key ?? null);
 
   if (!group) {
     return (
@@ -62,23 +66,32 @@ const OrdersHistoryKpiGroup = () => {
           const eligible = k.achievement >= k.min;
           const score = eligible ? (k.achievement * k.weight) / 100 : 0;
           return (
-            <div key={k.key} className="bg-card rounded-2xl p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-foreground truncate">{k.name}</p>
-                    {k.killer && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
-                  <span className={cn("inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold", eligible ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-destructive/10 text-destructive")}>
-                    {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
-                  </span>
-                </div>
-                <RingProgress percent={k.achievement} />
-              </div>
-              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/40 text-center">
+            <KpiAchievementCard
+              key={k.key}
+              name={k.name}
+              killer={k.killer}
+              updatedOn={k.updatedOn}
+              delta={k.delta}
+              percent={k.achievement}
+              target={k.target}
+              achieved={k.achieved}
+              lm={k.lm}
+              mtd={k.mtd}
+              lmtd={k.lmtd}
+              open={openKey === k.key}
+              onToggle={() => setOpenKey(openKey === k.key ? null : k.key)}
+            >
+              <span
+                className={cn(
+                  "inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                  eligible
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    : "bg-destructive/10 text-destructive",
+                )}
+              >
+                {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
+              </span>
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/40 text-center">
                 {[
                   { l: t("ordersHistory.kpiMin", { defaultValue: "Min" }), v: `${k.min}%` },
                   { l: t("ordersHistory.kpiWeight", { defaultValue: "Weight" }), v: `${k.weight}%` },
@@ -90,7 +103,7 @@ const OrdersHistoryKpiGroup = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </KpiAchievementCard>
           );
         })}
       </div>

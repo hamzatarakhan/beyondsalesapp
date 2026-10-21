@@ -60,7 +60,25 @@
      page background and need to read slightly warmer than a plain white card. */
     --surface: 210 20% 98%;
     --surface-foreground: 220 20% 20%;
+
+    /* KPI achievement card palette: pastel header, open teal gauge, and the
+     LM / MTD / LMTD tiles. Kept as tokens so dark mode stays legible. */
+    --kpi-header: 205 60% 93%;
+    --kpi-chip: 350 60% 92%;
+    --kpi-chip-foreground: 0 62% 48%;
+    --kpi-growth: 152 55% 90%;
+    --kpi-growth-foreground: 158 65% 28%;
+    --kpi-gauge: 174 70% 30%;
+    --kpi-gauge-track: 210 15% 90%;
+    --kpi-tile: 210 20% 92%;
+    --kpi-lm: 330 70% 96%;
+    --kpi-lm-foreground: 337 76% 55%;
+    --kpi-mtd: 202 63% 94%;
+    --kpi-mtd-foreground: 204 70% 48%;
+    --kpi-lmtd: 168 47% 93%;
+    --kpi-lmtd-foreground: 173 100% 30%;
   }
+
 
   .dark {
     --background: 220 20% 10%;
@@ -70,6 +88,22 @@
     /* Slightly deeper than --card so the surface still reads as an inset panel in dark mode. */
     --surface: 220 18% 11%;
     --surface-foreground: 210 40% 98%;
+    /* KPI card palette in dark mode: tinted panels on the card colour, brighter label text. */
+    --kpi-header: 205 30% 17%;
+    --kpi-chip: 350 45% 22%;
+    --kpi-chip-foreground: 350 85% 78%;
+    --kpi-growth: 158 35% 18%;
+    --kpi-growth-foreground: 152 70% 72%;
+    --kpi-gauge: 168 60% 48%;
+    --kpi-gauge-track: 217 25% 26%;
+    --kpi-tile: 217 25% 24%;
+    --kpi-lm: 330 40% 18%;
+    --kpi-lm-foreground: 337 85% 78%;
+    --kpi-mtd: 202 40% 18%;
+    --kpi-mtd-foreground: 202 85% 78%;
+    --kpi-lmtd: 168 35% 16%;
+    --kpi-lmtd-foreground: 168 70% 74%;
+
     --popover: 220 20% 14%;
     --popover-foreground: 210 40% 98%;
     --primary: 0 91% 46%;
