@@ -711,7 +711,7 @@ const OrdersHistory = () => {
               </div>
             )}
 
-            <div className="bg-surface rounded-2xl p-4 shadow-sm">
+            <div className="bg-card rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-semibold text-foreground">{t("ordersHistory.teamAchievements")}</p>
                 <button type="button" onClick={() => navigate("/order-history/achievements")} className="text-xs font-medium text-primary flex items-center gap-0.5 shrink-0">
@@ -723,7 +723,7 @@ const OrdersHistory = () => {
                   if (card.kind === "single") {
                     // Standalone KPI — same shell as the group cards, but no arrow since it has no breakdown.
                     return (
-                      <div key={card.key} className="w-full rounded-2xl bg-card border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3">
+                      <div key={card.key} className="w-full rounded-2xl bg-surface border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3">
                         <KpiDonut percent={card.commissionPercent} label={`${card.commissionPercent}%`} labelClassName="text-[10px]" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[15px] font-semibold text-foreground truncate">{t("ordersHistory.bundlesRecharge", { defaultValue: "Bundles / Recharge" })}</p>
@@ -743,7 +743,7 @@ const OrdersHistory = () => {
                       key={g.key}
                       type="button"
                       onClick={() => navigate(`/order-history/kpi-group/${g.key}?view=${view}`)}
-                      className="w-full rounded-2xl bg-card border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3 text-start transition-colors hover:bg-muted/40"
+                      className="w-full rounded-2xl bg-surface border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3 text-start transition-colors hover:bg-muted/60"
                     >
                       <KpiDonut percent={overall} label={`${overall}%`} labelClassName="text-[10px]" />
                       <div className="flex-1 min-w-0">
