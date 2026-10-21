@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
-import { cn } from "@/lib/utils";
 
 
 const OrdersHistoryKpiGroup = () => {
@@ -55,40 +54,14 @@ const OrdersHistoryKpiGroup = () => {
               key={k.key}
               name={k.name}
               killer={k.killer}
-              updatedOn={k.updatedOn}
-              delta={k.delta}
               percent={k.achievement}
-              target={k.target}
-              achieved={k.achieved}
-              lm={k.lm}
-              mtd={k.mtd}
-              lmtd={k.lmtd}
+              eligible={eligible}
+              min={k.min}
+              weight={k.weight}
+              score={score}
               open={openKey === k.key}
               onToggle={() => setOpenKey(openKey === k.key ? null : k.key)}
-            >
-              <span
-                className={cn(
-                  "inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                  eligible
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-                    : "bg-destructive/10 text-destructive",
-                )}
-              >
-                {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
-              </span>
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/40 text-center">
-                {[
-                  { l: t("ordersHistory.kpiMin", { defaultValue: "Min" }), v: `${k.min}%` },
-                  { l: t("ordersHistory.kpiWeight", { defaultValue: "Weight" }), v: `${k.weight}%` },
-                  { l: t("ordersHistory.kpiScore", { defaultValue: "Score" }), v: `${score.toFixed(1)}%` },
-                ].map((c) => (
-                  <div key={c.l}>
-                    <p className="text-[10px] text-muted-foreground">{c.l}</p>
-                    <p className="text-xs font-bold text-foreground">{c.v}</p>
-                  </div>
-                ))}
-              </div>
-            </KpiAchievementCard>
+            />
           );
         })}
       </div>
