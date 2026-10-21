@@ -1302,6 +1302,8 @@
     },
     "teamAchievements": "KPI Groups",
     "kpiAchievedOf": "{{achieved}} of {{total}} KPIs achieved",
+    "bundlesRecharge": "Bundles / Recharge",
+    "singleKpiSales": "Sales achieved {{value}}",
     "kpiBreakdown": "KPI breakdown",
     "kpiMin": "Min",
     "kpiAchieved": "Achieved",

@@ -1316,6 +1316,8 @@
     },
     "teamAchievements": "مجموعات مؤشرات الأداء",
     "kpiAchievedOf": "تم تحقيق {{achieved}} من {{total}} مؤشرات",
+    "bundlesRecharge": "الباقات / الشحن",
+    "singleKpiSales": "المبيعات المحققة {{value}}",
     "kpiBreakdown": "تفاصيل مؤشرات الأداء",
     "kpiMin": "الحد الأدنى",
     "kpiAchieved": "المحقق",
