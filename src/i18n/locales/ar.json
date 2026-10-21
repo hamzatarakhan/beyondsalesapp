@@ -625,7 +625,7 @@
     "saveForFuture": "حفظ البطاقة لاستخدام لاحق",
     "pay": "دفع",
     "rechargeSuccessful": "تم الشحن بنجاح",
-    "rechargedBy": "تم شحن محفظتك بمبلغ {{amount}} ريال.",
+    "rechargedBy": "تم شحن محفظتك بنجاح.",
     "reference": "الرقم المرجعي:",
     "goToHome": "العودة للرئيسية",
     "backToProcess": "تم، العودة لإكمال العملية",

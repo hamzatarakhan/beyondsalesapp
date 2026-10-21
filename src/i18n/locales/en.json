@@ -622,7 +622,7 @@
     "saveForFuture": "Save card for later",
     "pay": "Pay",
     "rechargeSuccessful": "Recharge Successful",
-    "rechargedBy": "Your wallet has been recharged by {{amount}} SAR.",
+    "rechargedBy": "Your wallet has been recharged successfully.",
     "reference": "Reference:",
     "goToHome": "Go to Home",
     "backToProcess": "Done, Return to Complete Activation",
