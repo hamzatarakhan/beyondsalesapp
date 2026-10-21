@@ -44,15 +44,15 @@ const OrdersHistoryKpiGroup = () => {
             </p>
           </div>
           {/* Overall achievement as a ring; the weighted score sits inside it. */}
-          <div className="relative w-28 h-28 shrink-0">
+          <div className="relative w-20 h-20 shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={[{ v: overall }, { v: 100 - overall }]}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={50}
+                  innerRadius={32}
+                  outerRadius={36}
                   startAngle={90}
                   endAngle={-270}
                   dataKey="v"
@@ -64,8 +64,8 @@ const OrdersHistoryKpiGroup = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-              <span className="text-lg font-bold text-primary tabular-nums">{overall}%</span>
-              <span className="text-[10px] font-semibold text-muted-foreground mt-1 tabular-nums">
+              <span className="text-sm font-bold text-primary tabular-nums">{overall}%</span>
+              <span className="text-[8px] font-semibold text-muted-foreground mt-0.5 tabular-nums">
                 {t("ordersHistory.kpiScore", { defaultValue: "Score" })} {totalScore.toFixed(1)}%
               </span>
             </div>
