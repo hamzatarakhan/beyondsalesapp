@@ -67,7 +67,9 @@ const OrdersHistoryKpiGroup = () => {
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-semibold text-foreground truncate">{k.name}</p>
-                    <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
+                    {k.killer && (
+                      <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
+                    )}
                   </div>
                   <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
                   <span className={cn("inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold", eligible ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-destructive/10 text-destructive")}>
@@ -91,6 +93,14 @@ const OrdersHistoryKpiGroup = () => {
             </div>
           );
         })}
+
+        {/* Weighted total — weights within a group always sum to 100%. */}
+        <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-foreground">{t("ordersHistory.kpiTotalScore", { defaultValue: "Total score" })}</p>
+          <p className="text-sm font-bold text-primary">
+            {group.kpis.reduce((s, k) => s + (k.achievement >= k.min ? (k.achievement * k.weight) / 100 : 0), 0).toFixed(1)}%
+          </p>
+        </div>
       </div>
     </div>
   );

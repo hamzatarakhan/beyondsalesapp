@@ -136,26 +136,31 @@ export const TEAM_ACHIEVEMENTS = [
 
 // KPI Groups on the Commission tab — each group rolls its KPIs into one clickable card
 // (name, achieved count, overall % donut); the per-KPI breakdown opens on a dedicated page.
+// `killer` marks killer KPIs; `weight` values within a group always sum to 100.
 export const KPI_GROUPS = [
   {
     key: "prepaidActivations",
     kpis: [
-      { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20 },
-      { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20 },
+      { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20, killer: true },
+      { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20, killer: true },
+      { key: "vibr", name: "V IBR", min: 70, achievement: 80, weight: 20 },
+      { key: "fibr", name: "F IBR", min: 70, achievement: 75, weight: 20 },
+      { key: "pst", name: "PST", min: 70, achievement: 80, weight: 10 },
+      { key: "hbb", name: "HBB", min: 70, achievement: 70, weight: 10 },
     ],
   },
   {
     key: "postpaidActivations",
     kpis: [
-      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20 },
-      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20 },
+      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20, killer: true },
+      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20, killer: true },
     ],
   },
   {
     key: "billPaymentVolume",
     kpis: [
-      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20 },
-      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20 },
+      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20, killer: true },
+      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20, killer: true },
     ],
   },
 ];
