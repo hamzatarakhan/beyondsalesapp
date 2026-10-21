@@ -167,8 +167,6 @@ const MAX_RECHARGE_AMOUNT = 500;
 // a brand name — mada gets its own last4 so the two tiles aren't pixel-identical.
 const VISA_DEMO = { last4: "4242", holder: "Ahmed Mohammed", expiry: "12/27" };
 const MADA_DEMO = { last4: "7788", holder: "Ahmed Mohammed", expiry: "12/27" };
-// Any other 14-digit code "succeeds" in this prototype — this one demos the rejected case.
-const INVALID_VOUCHER_CODE = "00000000000000";
 // Physical/digital vouchers are fixed-denomination — this prototype only has one valid
 // demo code, so it's pinned to a single realistic amount rather than a made-up 0.
 const VOUCHER_AMOUNT = 100;
