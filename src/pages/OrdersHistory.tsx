@@ -137,33 +137,36 @@ export const TEAM_ACHIEVEMENTS = [
 // KPI Groups on the Commission tab — each group rolls its KPIs into one clickable card
 // (name, achieved count, overall % donut); the per-KPI breakdown opens on a dedicated page.
 // `killer` marks killer KPIs; `weight` values within a group always sum to 100.
+// `achievement` is the % used for eligibility/score; target/achieved/lm/mtd/lmtd are the
+// figures shown on the KPI achievement card. Prototype data until the KPI feed exists.
 export const KPI_GROUPS = [
   {
     key: "prepaidActivations",
     kpis: [
-      { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20, killer: true },
-      { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20, killer: true },
-      { key: "vibr", name: "V IBR", min: 70, achievement: 80, weight: 20 },
-      { key: "fibr", name: "F IBR", min: 70, achievement: 75, weight: 20 },
-      { key: "pst", name: "PST", min: 70, achievement: 80, weight: 10 },
-      { key: "hbb", name: "HBB", min: 70, achievement: 70, weight: 10 },
+      { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20, killer: true, updatedOn: "2/5/2026", delta: 12, target: "300", achieved: "240.000", lm: "132.56", mtd: "25.13", lmtd: "213.21" },
+      { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20, killer: true, updatedOn: "2/5/2026", delta: -10, target: "280", achieved: "182.000", lm: "118.40", mtd: "19.80", lmtd: "196.55" },
+      { key: "vibr", name: "V IBR", min: 70, achievement: 80, weight: 20, updatedOn: "2/5/2026", delta: 8, target: "260", achieved: "208.000", lm: "104.10", mtd: "22.40", lmtd: "171.90" },
+      { key: "fibr", name: "F IBR", min: 70, achievement: 75, weight: 20, updatedOn: "2/5/2026", delta: 5, target: "240", achieved: "180.000", lm: "96.75", mtd: "18.60", lmtd: "158.30" },
+      { key: "pst", name: "PST", min: 70, achievement: 80, weight: 10, updatedOn: "2/5/2026", delta: -4, target: "200", achieved: "160.000", lm: "88.20", mtd: "16.90", lmtd: "142.75" },
+      { key: "hbb", name: "HBB", min: 70, achievement: 70, weight: 10, updatedOn: "2/5/2026", delta: -6, target: "150", achieved: "105.000", lm: "72.35", mtd: "12.45", lmtd: "121.60" },
     ],
   },
   {
     key: "postpaidActivations",
     kpis: [
-      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20, killer: true },
-      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20, killer: true },
+      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20, killer: true, updatedOn: "2/5/2026", delta: 6, target: "220", achieved: "165.000", lm: "92.40", mtd: "14.20", lmtd: "148.05" },
+      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20, killer: true, updatedOn: "2/5/2026", delta: -3, target: "200", achieved: "144.000", lm: "85.10", mtd: "13.05", lmtd: "139.70" },
     ],
   },
   {
     key: "billPaymentVolume",
     kpis: [
-      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20, killer: true },
-      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20, killer: true },
+      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20, killer: true, updatedOn: "2/5/2026", delta: -15, target: "5.000", achieved: "3.000.000", lm: "2.150.40", mtd: "420.15", lmtd: "3.680.90" },
+      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20, killer: true, updatedOn: "2/5/2026", delta: 18, target: "5.000", achieved: "4.250.000", lm: "2.980.60", mtd: "510.30", lmtd: "4.510.25" },
     ],
   },
 ];
+
 
 type DateRangeKey = "today" | "last7" | "last30" | "custom" | null;
 
