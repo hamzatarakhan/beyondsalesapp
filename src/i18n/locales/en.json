@@ -1301,6 +1301,8 @@
       "total": "Total"
     },
     "teamAchievements": "KPI Groups",
+    "kpiAchievedOf": "{{achieved}} of {{total}} KPIs achieved",
+    "kpiBreakdown": "KPI breakdown",
     "achievementsTitle": "Achievements",
     "text": "Text",
     "seeAll": "See all",
