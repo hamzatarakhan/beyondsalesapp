@@ -55,6 +55,11 @@
     /* Custom tokens */
     --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    /* Subtle card surface (near-white #F9FAFB) for summary/group cards that sit on the
+     page background and need to read slightly warmer than a plain white card. */
+    --surface: 210 20% 98%;
+    --surface-foreground: 220 20% 20%;
   }
 
   .dark {
@@ -62,6 +67,9 @@
     --foreground: 210 40% 98%;
     --card: 220 20% 14%;
     --card-foreground: 210 40% 98%;
+    /* Slightly deeper than --card so the surface still reads as an inset panel in dark mode. */
+    --surface: 220 18% 11%;
+    --surface-foreground: 210 40% 98%;
     --popover: 220 20% 14%;
     --popover-foreground: 210 40% 98%;
     --primary: 0 91% 46%;
