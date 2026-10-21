@@ -1231,7 +1231,7 @@
     "tryAgain": "Try Again"
   },
   "ordersHistory": {
-    "title": "Transaction History",
+    "title": "Order History",
     "tabs": {
       "orders": "Orders",
       "summary": "Summary",
@@ -2226,7 +2226,7 @@
     "cancelPortIn": "Cancel Port In Request",
     "updateId": "Update ID",
     "changeOwner": "Change Owner",
-    "orderHistory": "Transaction History",
+    "orderHistory": "Order History",
     "eWallets": "E Wallets",
     "dealerWalletBalance": "Dealer Wallet Balance",
     "otherServices": "Other Services",
@@ -2262,7 +2262,7 @@
     "multiStepFlow": "Option 2 -- Multiple steps",
     "multiStepFlowSub": "SIM & KIT → Details → Review & pay.",
     "chooseOrderHistoryView": "Choose a View",
-    "chooseOrderHistoryViewSub": "Preview Transaction History as either role",
+    "chooseOrderHistoryViewSub": "Preview Order History as either role",
     "orderHistoryDemoNote": "For demo purposes only, to show how the service looks in the Member and Parent views.",
     "memberView": "Member View",
     "memberViewSub": "See only your own orders and commission",
