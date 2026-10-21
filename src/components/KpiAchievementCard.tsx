@@ -77,7 +77,7 @@ const KpiAchievementCard = ({
         aria-label={t("ordersHistory.kpiAchieved", { defaultValue: "Achieved" })}
       >
         <div
-          className={cn("h-full rounded-full", eligible ? "bg-kpi-gauge" : "bg-kpi-chip-foreground")}
+          className={cn("h-full rounded-full", eligible ? "bg-gradient-to-r from-kpi-gauge-bright to-kpi-gauge" : "bg-kpi-chip-foreground")}
           style={{ width: `${clamped}%` }}
         />
         <span

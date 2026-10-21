@@ -72,6 +72,7 @@ export default {
           growth: "hsl(var(--kpi-growth))",
           "growth-foreground": "hsl(var(--kpi-growth-foreground))",
           gauge: "hsl(var(--kpi-gauge))",
+          "gauge-bright": "hsl(var(--kpi-gauge-bright))",
           "gauge-track": "hsl(var(--kpi-gauge-track))",
           tile: "hsl(var(--kpi-tile))",
           lm: "hsl(var(--kpi-lm))",

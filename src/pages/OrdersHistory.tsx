@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import KpiDonut from "@/components/KpiDonut";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
@@ -723,29 +724,7 @@ const OrdersHistory = () => {
                     // Standalone KPI — same shell as the group cards, but no arrow since it has no breakdown.
                     return (
                       <div key={card.key} className="w-full rounded-2xl bg-card border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3">
-                        <div className="relative w-12 h-12 shrink-0">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={[{ v: card.commissionPercent }, { v: 100 - card.commissionPercent }]}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={18}
-                                outerRadius={22}
-                                startAngle={90}
-                                endAngle={-270}
-                                dataKey="v"
-                                stroke="none"
-                              >
-                                <Cell fill="hsl(var(--primary))" />
-                                <Cell fill="hsl(var(--muted))" />
-                              </Pie>
-                            </PieChart>
-                          </ResponsiveContainer>
-                          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground tabular-nums">
-                            {card.commissionPercent}%
-                          </span>
-                        </div>
+                        <KpiDonut percent={card.commissionPercent} label={`${card.commissionPercent}%`} labelClassName="text-[10px]" />
                         <div className="flex-1 min-w-0">
                           <p className="text-[15px] font-semibold text-foreground truncate">{t("ordersHistory.bundlesRecharge", { defaultValue: "Bundles / Recharge" })}</p>
                           <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t("ordersHistory.singleKpiSales", { defaultValue: "Sales achieved {{value}}", value: card.sales })}</p>
@@ -766,27 +745,7 @@ const OrdersHistory = () => {
                       onClick={() => navigate(`/order-history/kpi-group/${g.key}?view=${view}`)}
                       className="w-full rounded-2xl bg-card border border-border/60 shadow-sm px-4 py-3 flex items-center gap-3 text-start transition-colors hover:bg-muted/40"
                     >
-                      <div className="relative w-12 h-12 shrink-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={[{ v: overall }, { v: 100 - overall }]}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={18}
-                              outerRadius={22}
-                              startAngle={90}
-                              endAngle={-270}
-                              dataKey="v"
-                              stroke="none"
-                            >
-                              <Cell fill="hsl(var(--primary))" />
-                              <Cell fill="hsl(var(--muted))" />
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground tabular-nums">{overall}%</span>
-                      </div>
+                      <KpiDonut percent={overall} label={`${overall}%`} labelClassName="text-[10px]" />
                       <div className="flex-1 min-w-0">
                         <p className="text-[15px] font-semibold text-foreground truncate">{t(`ordersHistory.teamAchievement.${g.key}`)}</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
