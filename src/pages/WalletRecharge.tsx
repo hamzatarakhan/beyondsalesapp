@@ -389,9 +389,8 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               description={t("walletRecharge.testVouchersDescription")}
               items={[
                 { value: "12345678901234", note: t("walletRecharge.testNoteValid") },
-                { value: INVALID_VOUCHER_CODE, note: t("walletRecharge.testNoteInvalid") },
               ]}
-              onSelect={runVoucherCheck}
+              onSelect={setVoucherCode}
               extra={
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 leading-snug">
