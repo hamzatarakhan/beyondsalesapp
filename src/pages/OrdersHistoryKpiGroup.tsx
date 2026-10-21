@@ -93,6 +93,14 @@ const OrdersHistoryKpiGroup = () => {
             </div>
           );
         })}
+
+        {/* Weighted total — weights within a group always sum to 100%. */}
+        <div className="bg-card rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-foreground">{t("ordersHistory.kpiTotalScore", { defaultValue: "Total score" })}</p>
+          <p className="text-sm font-bold text-primary">
+            {group.kpis.reduce((s, k) => s + (k.achievement >= k.min ? (k.achievement * k.weight) / 100 : 0), 0).toFixed(1)}%
+          </p>
+        </div>
       </div>
     </div>
   );
