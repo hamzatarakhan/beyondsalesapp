@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -14,8 +14,6 @@ const OrdersHistoryKpiGroup = () => {
   const view = searchParams.get("view") === "member" ? "member" : "parent";
 
   const group = KPI_GROUPS.find((g) => g.key === key);
-  // One card open at a time; the first starts open so the page never looks empty.
-  const [openKey, setOpenKey] = useState<string | null>(group?.kpis[0]?.key ?? null);
 
   if (!group) {
     return (
@@ -59,8 +57,6 @@ const OrdersHistoryKpiGroup = () => {
               min={k.min}
               weight={k.weight}
               score={score}
-              open={openKey === k.key}
-              onToggle={() => setOpenKey(openKey === k.key ? null : k.key)}
             />
           );
         })}
