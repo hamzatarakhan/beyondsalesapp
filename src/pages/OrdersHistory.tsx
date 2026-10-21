@@ -135,13 +135,27 @@ export const TEAM_ACHIEVEMENTS = [
 ];
 
 // KPI Groups on the Commission tab — each group rolls its KPIs into one clickable card
-// (name, achieved count, overall % donut); the per-KPI breakdown opens in a bottom sheet.
+// (name, achieved count, overall % donut); the per-KPI breakdown opens on a dedicated page.
 export const KPI_GROUPS = [
   {
     key: "prepaidActivations",
     kpis: [
       { key: "vfpe", name: "V FPE", min: 70, achievement: 80, weight: 20 },
       { key: "ffpe", name: "F FPE", min: 70, achievement: 65, weight: 20 },
+    ],
+  },
+  {
+    key: "postpaidActivations",
+    kpis: [
+      { key: "vfpePost", name: "V FPE", min: 70, achievement: 75, weight: 20 },
+      { key: "ffpePost", name: "F FPE", min: 70, achievement: 72, weight: 20 },
+    ],
+  },
+  {
+    key: "billPaymentVolume",
+    kpis: [
+      { key: "vfpeBill", name: "V FPE", min: 70, achievement: 60, weight: 20 },
+      { key: "ffpeBill", name: "F FPE", min: 70, achievement: 85, weight: 20 },
     ],
   },
 ];
@@ -170,7 +184,6 @@ const OrdersHistory = () => {
   // everything below to SELF_MEMBER_CODE's own records; Parent View (the default) keeps
   // the full cross-dealer picture.
   const view = searchParams.get("view") === "member" ? "member" : "parent";
-  const [kpiGroupOpen, setKpiGroupOpen] = useState<string | null>(null);
   const baseOrders = useMemo(() => (view === "member" ? ORDERS.filter((o) => o.memberCode === SELF_MEMBER_CODE) : ORDERS), [view]);
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
@@ -373,21 +386,6 @@ const OrdersHistory = () => {
       </button>
     </span>
   );
-
-  const RingProgress = ({ percent }: { percent: number }) => {
-    const r = 16;
-    const c = 2 * Math.PI * r;
-    const offset = c - (Math.min(100, percent) / 100) * c;
-    return (
-      <div className="relative w-11 h-11 shrink-0">
-        <svg viewBox="0 0 40 40" className="w-11 h-11 -rotate-90">
-          <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
-          <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} className="text-emerald-500" />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground">{percent}%</span>
-      </div>
-    );
-  };
 
   const StatCard = ({ icon: Icon, label, value, tone }: { icon: typeof ClipboardList; label: string; value: string; tone: string }) => (
     <div className={cn("rounded-2xl p-3.5 flex items-center gap-2.5", tone)}>
@@ -713,7 +711,7 @@ const OrdersHistory = () => {
                     <button
                       key={g.key}
                       type="button"
-                      onClick={() => setKpiGroupOpen(g.key)}
+                      onClick={() => navigate(`/order-history/kpi-group/${g.key}?view=${view}`)}
                       className="w-full rounded-xl border border-border/60 p-3 flex items-center gap-3 text-start transition-colors hover:bg-muted/40"
                     >
                       <div className="flex-1 min-w-0">
@@ -835,56 +833,6 @@ const OrdersHistory = () => {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* ---------- KPI Group breakdown ---------- */}
-      <Drawer open={kpiGroupOpen !== null} onOpenChange={(o) => !o && setKpiGroupOpen(null)}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-y-auto scrollbar-hide">
-          <button onClick={() => setKpiGroupOpen(null)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
-            <XIcon className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">
-              {kpiGroupOpen ? t(`ordersHistory.teamAchievement.${kpiGroupOpen}`) : ""}
-            </DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.kpiBreakdown")}</DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-8 space-y-3">
-            {(KPI_GROUPS.find((g) => g.key === kpiGroupOpen)?.kpis ?? []).map((k) => {
-              const eligible = k.achievement >= k.min;
-              const score = eligible ? (k.achievement * k.weight) / 100 : 0;
-              return (
-                <div key={k.key} className="rounded-xl border border-border/60 p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-semibold text-foreground truncate">{k.name}</p>
-                        <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
-                      <span className={cn("inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold", eligible ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-destructive/10 text-destructive")}>
-                        {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
-                      </span>
-                    </div>
-                    <RingProgress percent={k.achievement} />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/40 text-center">
-                    {[
-                      { l: t("ordersHistory.kpiMin", { defaultValue: "Min" }), v: `${k.min}%` },
-                      { l: t("ordersHistory.kpiWeight", { defaultValue: "Weight" }), v: `${k.weight}%` },
-                      { l: t("ordersHistory.kpiScore", { defaultValue: "Score" }), v: `${score.toFixed(1)}%` },
-                    ].map((c) => (
-                      <div key={c.l}>
-                        <p className="text-[10px] text-muted-foreground">{c.l}</p>
-                        <p className="text-xs font-bold text-foreground">{c.v}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* ---------- Filter drawer (Orders tab) ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>

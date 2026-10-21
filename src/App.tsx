@@ -70,6 +70,7 @@ import ChangeCustomerOwner from "./pages/ChangeCustomerOwner";
 import OrdersHistory from "./pages/OrdersHistory";
 import OrdersHistoryAchievements from "./pages/OrdersHistoryAchievements";
 import OrdersHistoryCommissionHistory from "./pages/OrdersHistoryCommissionHistory";
+import OrdersHistoryKpiGroup from "./pages/OrdersHistoryKpiGroup";
 import SalesKpis from "./pages/SalesKpis";
 import PerformanceAtGlance from "./pages/PerformanceAtGlance";
 import InventoryDashboard from "./pages/InventoryDashboard";
@@ -209,6 +210,7 @@ const App = () => {
           <Route path="/order-history" element={<OrdersHistory />} />
           <Route path="/order-history/achievements" element={<OrdersHistoryAchievements />} />
           <Route path="/order-history/commission-history" element={<OrdersHistoryCommissionHistory />} />
+          <Route path="/order-history/kpi-group/:key" element={<OrdersHistoryKpiGroup />} />
           <Route path="/sales-kpis" element={<SalesKpis />} />
           <Route path="/performance-at-glance" element={<PerformanceAtGlance />} />
           <Route path="/inventory-dashboard" element={<InventoryDashboard />} />
