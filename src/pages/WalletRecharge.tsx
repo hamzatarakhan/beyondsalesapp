@@ -375,37 +375,13 @@ const WalletRecharge = ({ onDone }: WalletRechargeProps = {}) => {
               <div className="relative">
                 <Input
                   value={voucherCode}
-                  onChange={(e) => runVoucherCheck(e.target.value.replace(/\D/g, "").slice(0, 14))}
+                  onChange={(e) => setVoucherCode(e.target.value.replace(/\D/g, "").slice(0, 14))}
                   placeholder={t("walletRecharge.voucherCodePlaceholder")}
                   inputMode="numeric"
                   dir="ltr"
-                  className={cn(
-                    "h-12 bg-card rounded-xl pr-12",
-                    voucherError && "border-destructive focus-visible:ring-destructive",
-                    voucherChecked && !voucherError && "border-emerald-500 focus-visible:ring-emerald-500",
-                  )}
+                  className="h-12 bg-card rounded-xl pr-12"
                 />
-                {voucherChecking && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-primary" aria-label="Checking voucher">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </span>
-                )}
               </div>
-              {voucherCode.length > 0 && voucherCode.length < 14 && !voucherError && (
-                <p className="text-xs text-muted-foreground">{t("walletRecharge.voucherDigitsHint")}</p>
-              )}
-              {voucherError && (
-                <p className="text-xs text-destructive flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  {voucherError}
-                </p>
-              )}
-              {voucherValid && (
-                <p className="text-xs text-emerald-600 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 shrink-0" />
-                  {t("walletRecharge.voucherValue")}
-                </p>
-              )}
             </div>
 
             <PrototypeTestBox
