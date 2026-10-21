@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
-import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import KpiDonut from "@/components/KpiDonut";
 
 const OrdersHistoryKpiGroup = () => {
   const navigate = useNavigate();
@@ -39,30 +39,8 @@ const OrdersHistoryKpiGroup = () => {
               {t("ordersHistory.kpiAchievedOf", { achieved, total: group.kpis.length })}
             </p>
           </div>
-          {/* Overall achievement as a ring; the weighted score sits inside it. */}
-          <div className="relative w-20 h-20 shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={[{ v: overall }, { v: 100 - overall }]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={32}
-                  outerRadius={36}
-                  startAngle={90}
-                  endAngle={-270}
-                  dataKey="v"
-                  stroke="none"
-                >
-                  <Cell fill="hsl(var(--primary))" />
-                  <Cell fill="hsl(var(--muted))" />
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-              <span className="text-sm font-bold text-primary tabular-nums">{overall}%</span>
-            </div>
-          </div>
+          {/* Overall achievement as a ring; every commission chart shares this style. */}
+          <KpiDonut percent={overall} size={80} label={`${overall}%`} labelClassName="text-sm" />
         </div>
 
         <p className="text-xs text-muted-foreground px-1">{t("ordersHistory.kpiBreakdown")}</p>

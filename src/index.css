@@ -69,6 +69,7 @@
     --kpi-growth: 152 55% 90%;
     --kpi-growth-foreground: 158 65% 28%;
     --kpi-gauge: 174 70% 30%;
+    --kpi-gauge-bright: 166 65% 45%;
     --kpi-gauge-track: 210 15% 90%;
     --kpi-tile: 210 20% 92%;
     --kpi-lm: 330 70% 96%;
@@ -95,6 +96,7 @@
     --kpi-growth: 158 35% 18%;
     --kpi-growth-foreground: 152 70% 72%;
     --kpi-gauge: 168 60% 48%;
+    --kpi-gauge-bright: 168 70% 62%;
     --kpi-gauge-track: 217 25% 26%;
     --kpi-tile: 217 25% 24%;
     --kpi-lm: 330 40% 18%;
