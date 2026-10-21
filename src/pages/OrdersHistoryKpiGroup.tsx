@@ -6,21 +6,6 @@ import KpiAchievementCard from "@/components/KpiAchievementCard";
 import { KPI_GROUPS } from "@/pages/OrdersHistory";
 import { cn } from "@/lib/utils";
 
-// Small ring used by the group summary card at the top of the page.
-const RingProgress = ({ percent }: { percent: number }) => {
-  const r = 16;
-  const c = 2 * Math.PI * r;
-  const offset = c - (Math.min(100, percent) / 100) * c;
-  return (
-    <div className="relative w-11 h-11 shrink-0">
-      <svg viewBox="0 0 40 40" className="w-11 h-11 -rotate-90">
-        <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
-        <circle cx="20" cy="20" r={r} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} className="text-emerald-500" />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground">{percent}%</span>
-    </div>
-  );
-};
 
 const OrdersHistoryKpiGroup = () => {
   const navigate = useNavigate();
@@ -57,7 +42,7 @@ const OrdersHistoryKpiGroup = () => {
               {t("ordersHistory.kpiAchievedOf", { achieved, total: group.kpis.length })}
             </p>
           </div>
-          <RingProgress percent={overall} />
+          <p className="text-2xl font-bold text-kpi-gauge shrink-0">{overall}%</p>
         </div>
 
         <p className="text-xs text-muted-foreground px-1">{t("ordersHistory.kpiBreakdown")}</p>
