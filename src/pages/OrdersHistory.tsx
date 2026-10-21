@@ -711,7 +711,7 @@ const OrdersHistory = () => {
                     <button
                       key={g.key}
                       type="button"
-                      onClick={() => setKpiGroupOpen(g.key)}
+                      onClick={() => navigate(`/order-history/kpi-group/${g.key}?view=${view}`)}
                       className="w-full rounded-xl border border-border/60 p-3 flex items-center gap-3 text-start transition-colors hover:bg-muted/40"
                     >
                       <div className="flex-1 min-w-0">
@@ -833,56 +833,6 @@ const OrdersHistory = () => {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* ---------- KPI Group breakdown ---------- */}
-      <Drawer open={kpiGroupOpen !== null} onOpenChange={(o) => !o && setKpiGroupOpen(null)}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-y-auto scrollbar-hide">
-          <button onClick={() => setKpiGroupOpen(null)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
-            <XIcon className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">
-              {kpiGroupOpen ? t(`ordersHistory.teamAchievement.${kpiGroupOpen}`) : ""}
-            </DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.kpiBreakdown")}</DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-8 space-y-3">
-            {(KPI_GROUPS.find((g) => g.key === kpiGroupOpen)?.kpis ?? []).map((k) => {
-              const eligible = k.achievement >= k.min;
-              const score = eligible ? (k.achievement * k.weight) / 100 : 0;
-              return (
-                <div key={k.key} className="rounded-xl border border-border/60 p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-semibold text-foreground truncate">{k.name}</p>
-                        <span className="px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold">{t("ordersHistory.killerKpi", { defaultValue: "Killer" })}</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">{t("ordersHistory.achievementTarget")}</p>
-                      <span className={cn("inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold", eligible ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-destructive/10 text-destructive")}>
-                        {eligible ? t("ordersHistory.kpiEligible", { defaultValue: "Eligible for commission" }) : t("ordersHistory.kpiNotEligible", { defaultValue: "Not eligible" })}
-                      </span>
-                    </div>
-                    <RingProgress percent={k.achievement} />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/40 text-center">
-                    {[
-                      { l: t("ordersHistory.kpiMin", { defaultValue: "Min" }), v: `${k.min}%` },
-                      { l: t("ordersHistory.kpiWeight", { defaultValue: "Weight" }), v: `${k.weight}%` },
-                      { l: t("ordersHistory.kpiScore", { defaultValue: "Score" }), v: `${score.toFixed(1)}%` },
-                    ].map((c) => (
-                      <div key={c.l}>
-                        <p className="text-[10px] text-muted-foreground">{c.l}</p>
-                        <p className="text-xs font-bold text-foreground">{c.v}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* ---------- Filter drawer (Orders tab) ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
