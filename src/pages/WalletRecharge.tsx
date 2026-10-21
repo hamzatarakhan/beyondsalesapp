@@ -18,12 +18,10 @@ import {
   CreditCard,
   Wallet,
   Info,
-  AlertCircle,
   Check,
   XCircle,
   Plus,
   Trash2,
-  Loader2,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CreditLimitAdjustment.tsx) ----------
