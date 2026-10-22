@@ -313,14 +313,17 @@ const Home = () => {
     { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
-  // Credit Transfer draws from the dealer's own wallet balance, and eWallet Recharge tops
-  // that same wallet up — both are dealer-wallet actions rather than customer activities,
-  // for VM and FM alike.
+  // Dealer-wallet actions plus the wallet-related browsing features (E-Wallet
+  // Transactions opens straight into the transactions tab; Order History moved here from
+  // Other Widgets so it lives beside the wallet entries) — for VM and FM alike.
   const eWalletOptions = [
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    // Opens E Wallets directly on its transactions tab.
+    { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
@@ -332,7 +335,7 @@ const Home = () => {
   // Its own widget, separate from Customer Activities — a reporting/browse service
   // rather than a customer-record action.
   const otherWidgetsOptions = [
-    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // Order History moved into the E Wallets widget (per request).
     { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
