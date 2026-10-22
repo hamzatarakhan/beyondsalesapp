@@ -288,26 +288,6 @@ const EWallet = () => {
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
 
-                  {/* Wallet */}
-                  <div>
-                    <Label className="text-sm font-medium text-foreground mb-3 block">Wallet</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {myWallets.map((wallet) => (
-                        <button
-                          key={wallet.id}
-                          onClick={() => setSelectedWallet(wallet.id)}
-                          className={cn(
-                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
-                            selectedWallet === wallet.id
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-background text-foreground border-border hover:border-primary/50"
-                          )}
-                        >
-                          {wallet.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
                   {/* Date Range */}
                   <div>
