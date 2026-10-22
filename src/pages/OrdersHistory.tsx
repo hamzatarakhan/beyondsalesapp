@@ -169,7 +169,7 @@ export const KPI_GROUPS = [
 ];
 
 // Single KPIs carry their own figures and never link to a group breakdown.
-const COMMISSION_KPI_CARDS = KPI_GROUPS.map((group) =>
+export const COMMISSION_KPI_CARDS = KPI_GROUPS.map((group) =>
   group.key === "postpaidActivations"
     ? { kind: "single" as const, key: "bundlesRecharge", sales: 100, commissionPercent: 60, amount: 85, currency: "SAR" }
     : { kind: "group" as const, key: group.key, group },
