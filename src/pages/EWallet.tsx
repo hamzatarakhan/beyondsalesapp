@@ -5,7 +5,6 @@ import ActivityDistribution from "@/components/ActivityDistribution";
  import CreditDebitChart from "@/components/CreditDebitChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -44,12 +43,9 @@ import { format, subDays, isWithinInterval, startOfDay, endOfDay } from "date-fn
 import { cn } from "@/lib/utils";
 import {
   parentWallets,
-  childWallets,
-  childMembers,
   mockTransactions,
   activityTypeLabels,
   statusLabels,
-  memberWalletBalances,
   type WalletType,
   type TransactionType,
   type ActivityType,
@@ -58,7 +54,6 @@ import {
 import { DateRange } from "react-day-picker";
 
 type DateRangeOption = "today" | "last-7-days" | "last-30-days" | "custom";
-type WalletViewMode = "my-wallets" | "team-wallets";
 type ViewTab = "analytics" | "transactions";
 
 const EWallet = () => {
@@ -73,11 +68,6 @@ const EWallet = () => {
     setSearchParams({ view: activeTab }, { replace: true });
   }, [activeTab, setSearchParams]);
   
-  // Mock role toggle (Parent/Child)
-  const [isParent, setIsParent] = useState(true);
-  
-  // Wallet view mode (Parent only: my-wallets vs team-wallets)
-  const [walletViewMode, setWalletViewMode] = useState<WalletViewMode>("my-wallets");
   
   // Filters
   const [selectedWallet, setSelectedWallet] = useState<WalletType>("e-topup");
@@ -86,10 +76,8 @@ const EWallet = () => {
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
   const [activityTypeFilters, setActivityTypeFilters] = useState<ActivityType[]>([]);
   const [statusFilters, setStatusFilters] = useState<Array<"completed" | "pending" | "failed">>([]);
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -99,78 +87,8 @@ const EWallet = () => {
   // Parent's own wallets (My Wallets)
   const myWallets = parentWallets;
 
-  // Team wallets - aggregate balances from all child members
-  const teamWallets = useMemo(() => {
-    const aggregatedBalances = childMembers.reduce(
-      (acc, member) => {
-        const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
-        if (memberBalance) {
-          acc["e-topup"] += memberBalance.wallets["e-topup"];
-          acc["e-voucher"] += memberBalance.wallets["e-voucher"];
-          acc["e-cash"] += memberBalance.wallets["e-cash"];
-          acc["rewards"] += memberBalance.wallets["rewards"];
-          acc["credit-line"] += memberBalance.wallets["credit-line"];
-        }
-        return acc;
-      },
-      { "e-topup": 0, "e-voucher": 0, "e-cash": 0, "rewards": 0, "credit-line": 0 }
-    );
-    
-    return [
-      { id: "e-topup" as WalletType, name: "E-Topup", balance: aggregatedBalances["e-topup"], currency: "KD" },
-      { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
-      { id: "e-cash" as WalletType, name: "E-Cash", balance: aggregatedBalances["e-cash"], currency: "KD" },
-      { id: "rewards" as WalletType, name: "Rewards", balance: aggregatedBalances["rewards"], currency: "KD" },
-      { id: "credit-line" as WalletType, name: "Credit Line", balance: aggregatedBalances["credit-line"], currency: "KD" },
-    ];
-  }, []);
-
-  // Top 5 and lowest 5 children wallets for selected wallet type
-  const childrenWalletRanking = useMemo(() => {
-    if (!isParent || walletViewMode !== "team-wallets") return null;
-    
-    const childBalances = childMembers.map((member) => {
-      const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
-      const transactionCount = mockTransactions.filter(
-        (t) => t.memberName === member.name && t.walletType === selectedWallet
-      ).length;
-      return {
-        name: member.name,
-        balance: memberBalance?.wallets[selectedWallet] || 0,
-        transactionCount,
-      };
-    }).sort((a, b) => b.balance - a.balance);
-    
-    return {
-      top5: childBalances.slice(0, 5),
-      lowest5: childBalances.slice(-5).reverse(),
-    };
-  }, [isParent, walletViewMode, selectedWallet]);
-
-  // Get current wallets based on role and view mode
-  const currentWallets = useMemo(() => {
-    if (!isParent) {
-      return childWallets;
-    }
-    return walletViewMode === "my-wallets" ? myWallets : teamWallets;
-  }, [isParent, walletViewMode, myWallets, teamWallets]);
-
-  // Dynamic wallet balances based on selected member (for team wallets)
-  const displayWallets = useMemo(() => {
-    if (!isParent || walletViewMode === "my-wallets" || !selectedMember) {
-      return currentWallets;
-    }
-    
-    const memberBalance = memberWalletBalances.find((m) => m.memberName === selectedMember);
-    if (!memberBalance) {
-      return currentWallets;
-    }
-    
-    return currentWallets.map((wallet) => ({
-      ...wallet,
-      balance: memberBalance.wallets[wallet.id],
-    }));
-  }, [isParent, walletViewMode, selectedMember, currentWallets]);
+  // The dealer only ever sees their own wallet balances — no member/team wallets.
+  const displayWallets = myWallets;
 
   // Calculate date range based on option
   const getDateRange = () => {
@@ -203,20 +121,9 @@ const EWallet = () => {
         return false;
       }
       
-      // For parent users, filter by view mode
-      if (isParent) {
-        if (walletViewMode === "my-wallets") {
-          if (txn.memberName !== parentMemberName) {
-            return false;
-          }
-        } else {
-          if (txn.memberName === parentMemberName) {
-            return false;
-          }
-          if (selectedMember && txn.memberName !== selectedMember) {
-            return false;
-          }
-        }
+      // Only the signed-in dealer's own transactions are visible here
+      if (txn.memberName !== parentMemberName) {
+        return false;
       }
       
       // Date filter
@@ -251,7 +158,7 @@ const EWallet = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember, searchQuery, isParent, walletViewMode]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilters, statusFilters, searchQuery]);
 
   const resetFilters = () => {
     setDateRangeOption("last-7-days");
@@ -259,12 +166,7 @@ const EWallet = () => {
     setTransactionTypeFilter("all");
     setActivityTypeFilters([]);
     setStatusFilters([]);
-    setSelectedMember(null);
     setSearchQuery("");
-  };
-
-  const clearMember = () => {
-    setSelectedMember(null);
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -273,9 +175,8 @@ const EWallet = () => {
     if (transactionTypeFilter !== "all") count++;
     if (activityTypeFilters.length > 0) count += activityTypeFilters.length;
     if (statusFilters.length > 0) count += statusFilters.length;
-    if (selectedMember) count++;
     return count;
-  }, [dateRangeOption, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember]);
+  }, [dateRangeOption, transactionTypeFilter, activityTypeFilters, statusFilters]);
 
   const getDateRangeLabel = () => {
     switch (dateRangeOption) {
@@ -325,58 +226,6 @@ const EWallet = () => {
           </button>
         }
       />
-
-      {/* Role Toggle (Demo) */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-primary" />
-            </div>
-            <span className="text-sm font-medium text-foreground">User Role (Demo)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="role-toggle" className="text-sm text-muted-foreground">
-              {isParent ? "Parent" : "Child"}
-            </Label>
-            <Switch
-              id="role-toggle"
-              checked={isParent}
-              onCheckedChange={setIsParent}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Wallet View Mode Toggle (Parent only) */}
-      {isParent && (
-        <div className="px-4 mb-3">
-          <div className="bg-muted rounded-xl p-1 flex">
-            <button
-              onClick={() => setWalletViewMode("my-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "my-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              My Wallets
-            </button>
-            <button
-              onClick={() => setWalletViewMode("team-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "team-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              Team Wallets
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Search and Filter (Transactions view only) */}
       {activeTab === "transactions" && (
@@ -430,29 +279,6 @@ const EWallet = () => {
                 </div>
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
-                  {/* Member Filter (Parent only, Team Wallets view) */}
-                  {isParent && walletViewMode === "team-wallets" && (
-                    <div>
-                      <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {childMembers.map((member) => (
-                          <button
-                            key={member.id}
-                            onClick={() => setSelectedMember(selectedMember === member.name ? null : member.name)}
-                            className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                              selectedMember === member.name
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-foreground border-border hover:border-primary/50"
-                            )}
-                          >
-                            {selectedMember !== member.name && <span className="mr-1">+</span>}
-                            {member.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Date Range */}
                   <div>
@@ -645,14 +471,6 @@ const EWallet = () => {
           {/* Active Filter Chips */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {isParent && walletViewMode === "team-wallets" && selectedMember && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                  <span className="text-xs">{selectedMember}</span>
-                  <button onClick={clearMember} className="ml-1 rounded-full hover:bg-muted p-0.5">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
               {dateRangeOption !== "last-7-days" && (
                 <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
                   <span className="text-xs">{getDateRangeLabel()}</span>
@@ -725,29 +543,6 @@ const EWallet = () => {
                 </div>
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
-                  {/* Member Filter (Parent only, Team Wallets view) */}
-                  {isParent && walletViewMode === "team-wallets" && (
-                    <div>
-                      <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {childMembers.map((member) => (
-                          <button
-                            key={member.id}
-                            onClick={() => setSelectedMember(selectedMember === member.name ? null : member.name)}
-                            className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                              selectedMember === member.name
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-foreground border-border hover:border-primary/50"
-                            )}
-                          >
-                            {selectedMember !== member.name && <span className="mr-1">+</span>}
-                            {member.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Date Range */}
                   <div>
@@ -944,14 +739,6 @@ const EWallet = () => {
           {/* Active Filter Chips */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {isParent && walletViewMode === "team-wallets" && selectedMember && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                  <span className="text-xs">{selectedMember}</span>
-                  <button onClick={clearMember} className="ml-1 rounded-full hover:bg-muted p-0.5">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
               {dateRangeOption !== "last-7-days" && (
                 <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
                   <span className="text-xs">{getDateRangeLabel()}</span>
@@ -1026,78 +813,6 @@ const EWallet = () => {
       {/* Analytics Content */}
       {activeTab === "analytics" && (
         <>
-          {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
-          {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-            <div className="px-4 mb-4">
-              <div className="bg-card rounded-xl border overflow-hidden">
-                <div className="p-4 pb-0">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
-                </div>
-                {/* Tabs */}
-                <div className="px-4 pt-2">
-                  <div className="flex border-b border-border">
-                    <button
-                      onClick={() => setRankingTab("top")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "top"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Top 5
-                    </button>
-                    <button
-                      onClick={() => setRankingTab("lowest")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "lowest"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Lowest 5
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Members List */}
-                <div className="p-4 space-y-0">
-                  {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
-                    <div 
-                      key={member.name} 
-                      className={cn(
-                        "flex items-center justify-between py-2.5",
-                        index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 flex items-center justify-center">
-                          {index < 3 ? (
-                            <span className="text-lg">🏅</span>
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                              {index + 1}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
-                        </div>
-                      </div>
-                      <span className={cn(
-                        "text-sm font-semibold",
-                        rankingTab === "top" ? "text-success" : "text-destructive"
-                      )}>
-                        {member.balance.toFixed(2)} KD
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Activity Distribution */}
           <div className="px-4 mb-4">
@@ -1108,14 +823,7 @@ const EWallet = () => {
                   const dateRange = getDateRange();
                   const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
                   
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
-                    }
-                  }
+                  if (t.memberName !== parentMemberName) return false;
                   
                   return t.walletType === selectedWallet && matchesDate;
                 })}
@@ -1130,14 +838,7 @@ const EWallet = () => {
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit (Last 7 Days)</p>
               <CreditDebitChart
                 transactions={mockTransactions.filter((t) => {
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
-                    }
-                  }
+                  if (t.memberName !== parentMemberName) return false;
                   
                   return t.walletType === selectedWallet;
                 })}
@@ -1182,7 +883,6 @@ const EWallet = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">{txn.description}</p>
-                        {isParent && <p className="text-sm text-muted-foreground">{txn.memberName}</p>}
                         <p className="text-xs text-muted-foreground mt-1">
                           {format(txn.date, "MMM d, yyyy • h:mm a")}
                         </p>
