@@ -426,7 +426,6 @@ const EWallet = () => {
                                 : "bg-background text-foreground border-border hover:border-primary/50"
                             )}
                           >
-                            {!isSelected && <span className="mr-1">+</span>}
                             {activityTypeLabels[activity]}
                           </button>
                         );
@@ -472,7 +471,6 @@ const EWallet = () => {
                                 : "bg-background text-foreground border-border hover:border-primary/50"
                             )}
                           >
-                            {!isSelected && <span className="mr-1">+</span>}
                             {option.label}
                           </button>
                         );
@@ -715,7 +713,6 @@ const EWallet = () => {
                                 : "bg-background text-foreground border-border hover:border-primary/50"
                             )}
                           >
-                            {!isSelected && <span className="mr-1">+</span>}
                             {option.label}
                           </button>
                         );
@@ -761,7 +758,6 @@ const EWallet = () => {
                                 : "bg-background text-foreground border-border hover:border-primary/50"
                             )}
                           >
-                            {!isSelected && <span className="mr-1">+</span>}
                             {option.label}
                           </button>
                         );
