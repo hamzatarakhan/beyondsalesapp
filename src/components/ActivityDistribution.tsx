@@ -9,42 +9,26 @@ interface ActivityDistributionProps {
 
 // Colors for pie chart slices
 const COLORS: Record<string, string> = {
+  "sim-activation": "#3B82F6",
+  "continue-activation": "#8B5CF6",
+  "prepaid-to-postpaid": "#22C55E",
+  "postpaid-to-prepaid": "#EC4899",
   "bill-payment": "#F59E0B",
-  recharge: "#3B82F6",
-  transfer: "#22C55E",
-  rollback: "#EC4899",
-  voucher: "#8B5CF6",
-  "erp-transfer": "#14B8A6",
-  refund: "#F97316",
-  cashback: "#06B6D4",
-  commission: "#84CC16",
-  adjustment: "#EF4444",
-  penalty: "#DC2626",
-  bonus: "#A855F7",
-  subscription: "#0EA5E9",
-  "top-up-reversal": "#D946EF",
-  "loyalty-redeem": "#10B981",
-  "service-charge": "#6366F1",
+  "credit-limit-adjustment": "#14B8A6",
+  "change-prepaid-bundle": "#06B6D4",
+  "change-postpaid-plan": "#0EA5E9",
 };
 
 // Activity labels for display
 const ACTIVITY_LABELS: Record<string, string> = {
-  transfer: "Transfer",
+  "sim-activation": "SIM Activation",
+  "continue-activation": "Continue Activation",
+  "prepaid-to-postpaid": "Prepaid to Postpaid",
+  "postpaid-to-prepaid": "Postpaid to Prepaid",
   "bill-payment": "Bill Payment",
-  rollback: "Rollback",
-  recharge: "Recharge",
-  voucher: "Voucher",
-  "erp-transfer": "ERP Transfer",
-  refund: "Refund",
-  cashback: "Cashback",
-  commission: "Commission",
-  adjustment: "Adjustment",
-  penalty: "Penalty",
-  bonus: "Bonus",
-  subscription: "Subscription",
-  "top-up-reversal": "Top-up Reversal",
-  "loyalty-redeem": "Loyalty Redeem",
-  "service-charge": "Service Charge",
+  "credit-limit-adjustment": "Credit Limit Adjustment",
+  "change-prepaid-bundle": "Change Prepaid Bundle",
+  "change-postpaid-plan": "Change Postpaid Plan",
 };
 
 const ActivityDistribution = ({ transactions, walletType }: ActivityDistributionProps) => {

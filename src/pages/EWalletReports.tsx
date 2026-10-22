@@ -519,8 +519,8 @@ const EWalletReports = () => {
                       All
                     </button>
                     {[
-                      { value: "transfer" as ActivityType, label: "Transfer" },
-                      { value: "voucher" as ActivityType, label: "Voucher" },
+                      { value: "sim-activation" as ActivityType, label: "SIM Activation" },
+                      { value: "postpaid-to-prepaid" as ActivityType, label: "Postpaid to Prepaid" },
                       { value: "bill-payment" as ActivityType, label: "Bill pay" },
                     ].map((option) => {
                       const isSelected = activityTypeFilters.includes(option.value);
