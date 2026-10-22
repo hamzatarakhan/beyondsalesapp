@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/drawer";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Wallet,
   Filter,
   Download,
   ChevronRight,
@@ -86,9 +85,6 @@ const EWallet = () => {
 
   // Parent's own wallets (My Wallets)
   const myWallets = parentWallets;
-
-  // The dealer only ever sees their own wallet balances — no member/team wallets.
-  const displayWallets = myWallets;
 
   // Calculate date range based on option
   const getDateRange = () => {
@@ -279,6 +275,27 @@ const EWallet = () => {
                 </div>
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
+
+                  {/* Wallet */}
+                  <div>
+                    <Label className="text-sm font-medium text-foreground mb-3 block">Wallet</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {myWallets.map((wallet) => (
+                        <button
+                          key={wallet.id}
+                          onClick={() => setSelectedWallet(wallet.id)}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            selectedWallet === wallet.id
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/50"
+                          )}
+                        >
+                          {wallet.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Date Range */}
                   <div>
@@ -544,6 +561,27 @@ const EWallet = () => {
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
 
+                  {/* Wallet */}
+                  <div>
+                    <Label className="text-sm font-medium text-foreground mb-3 block">Wallet</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {myWallets.map((wallet) => (
+                        <button
+                          key={wallet.id}
+                          onClick={() => setSelectedWallet(wallet.id)}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            selectedWallet === wallet.id
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/50"
+                          )}
+                        >
+                          {wallet.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Date Range */}
                   <div>
                     <Label className="text-sm font-medium text-foreground mb-3 block">Date Range</Label>
@@ -775,40 +813,6 @@ const EWallet = () => {
           )}
         </div>
       )}
-
-      {/* Wallet Balance Cards - Horizontal Scroll */}
-      <div className="mb-4">
-        <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-1">
-          {displayWallets.map((wallet) => (
-            <button
-              key={wallet.id}
-              onClick={() => setSelectedWallet(wallet.id)}
-              className={cn(
-                "flex-shrink-0 w-40 rounded-2xl p-4 text-left transition-all",
-                selectedWallet === wallet.id
-                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  : "bg-gradient-to-br from-muted to-muted/80 text-foreground"
-              )}
-            >
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center mb-3",
-                selectedWallet === wallet.id
-                  ? "bg-primary-foreground/20"
-                  : "bg-background/50"
-              )}>
-                <Wallet className="w-4 h-4" />
-              </div>
-              <p className={cn(
-                "text-xs mb-1",
-                selectedWallet === wallet.id ? "opacity-75" : "text-muted-foreground"
-              )}>{wallet.name}</p>
-              <p className="text-lg font-bold">
-                {wallet.balance.toFixed(2)} <span className="text-sm font-normal">{wallet.currency}</span>
-              </p>
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Analytics Content */}
       {activeTab === "analytics" && (
