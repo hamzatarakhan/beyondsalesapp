@@ -214,14 +214,12 @@ const OrdersHistory = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [draftTypes, setDraftTypes] = useState<OrderType[]>([]);
   const [draftStatus, setDraftStatus] = useState<OrderStatus | null>(null);
-  const [draftCommissionStatus, setDraftCommissionStatus] = useState<OrderStatus | null>(null);
   const [draftDateKey, setDraftDateKey] = useState<DateRangeKey>(null);
   // Parent-view only — a member has no one else's orders to search by member name/code.
   const [draftMemberQuery, setDraftMemberQuery] = useState("");
 
   const [appliedTypes, setAppliedTypes] = useState<OrderType[]>([]);
   const [appliedStatus, setAppliedStatus] = useState<OrderStatus | null>(null);
-  const [appliedCommissionStatus, setAppliedCommissionStatus] = useState<OrderStatus | null>(null);
   const [appliedRange, setAppliedRange] = useState<{ from: Date; to: Date; label: string } | null>(null);
   const [appliedMemberQuery, setAppliedMemberQuery] = useState("");
 
@@ -229,7 +227,7 @@ const OrdersHistory = () => {
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
   const activeFilterCount =
-    (appliedTypes.length > 0 ? 1 : 0) + (appliedStatus ? 1 : 0) + (appliedCommissionStatus ? 1 : 0) + (appliedRange ? 1 : 0) + (appliedMemberQuery.trim() ? 1 : 0);
+    (appliedTypes.length > 0 ? 1 : 0) + (appliedStatus ? 1 : 0) + (appliedRange ? 1 : 0) + (appliedMemberQuery.trim() ? 1 : 0);
 
   const filteredOrders = useMemo(() => {
     const q = orderSearch.trim().toLowerCase();
@@ -239,16 +237,14 @@ const OrdersHistory = () => {
       if (mq && !(o.member.toLowerCase().includes(mq) || o.memberCode.toLowerCase().includes(mq))) return false;
       if (appliedTypes.length > 0 && !appliedTypes.includes(o.type)) return false;
       if (appliedStatus && o.status !== appliedStatus) return false;
-      if (appliedCommissionStatus && o.commissionStatus !== appliedCommissionStatus) return false;
       if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
       return true;
     });
-  }, [baseOrders, orderSearch, appliedMemberQuery, appliedTypes, appliedStatus, appliedCommissionStatus, appliedRange]);
+  }, [baseOrders, orderSearch, appliedMemberQuery, appliedTypes, appliedStatus, appliedRange]);
 
   const openFilter = () => {
     setDraftTypes(appliedTypes);
     setDraftStatus(appliedStatus);
-    setDraftCommissionStatus(appliedCommissionStatus);
     setDraftDateKey(appliedRange ? "custom" : null);
     setDraftMemberQuery(appliedMemberQuery);
     setFilterOpen(true);
@@ -261,7 +257,6 @@ const OrdersHistory = () => {
   const applyFilter = () => {
     setAppliedTypes(draftTypes);
     setAppliedStatus(draftStatus);
-    setAppliedCommissionStatus(draftCommissionStatus);
     setAppliedMemberQuery(view === "parent" ? draftMemberQuery : "");
     setFilterOpen(false);
   };
@@ -269,12 +264,10 @@ const OrdersHistory = () => {
   const clearFilter = () => {
     setDraftTypes([]);
     setDraftStatus(null);
-    setDraftCommissionStatus(null);
     setDraftDateKey(null);
     setDraftMemberQuery("");
     setAppliedTypes([]);
     setAppliedStatus(null);
-    setAppliedCommissionStatus(null);
     setAppliedRange(null);
     setAppliedMemberQuery("");
     setFilterOpen(false);
@@ -934,34 +927,6 @@ const OrdersHistory = () => {
               </div>
             </div>
 
-            <div>
-              <p className="text-xs font-semibold text-foreground mb-2 px-1">{t("ordersHistory.filter.commissionStatus")}</p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDraftCommissionStatus(null)}
-                  className={cn(
-                    "px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors",
-                    draftCommissionStatus === null ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {t("ordersHistory.filter.all")}
-                </button>
-                {(["approved", "pending", "rejected"] as const).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setDraftCommissionStatus(s)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      draftCommissionStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {t(`ordersHistory.status.${s}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             <button type="button" onClick={applyFilter} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
               {t("ordersHistory.filter.apply")}
