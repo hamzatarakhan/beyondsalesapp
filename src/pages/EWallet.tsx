@@ -87,7 +87,6 @@ const EWallet = () => {
   // Parent's own wallets (My Wallets)
   const myWallets = parentWallets;
 
-
   // The dealer only ever sees their own wallet balances — no member/team wallets.
   const displayWallets = myWallets;
 
@@ -170,7 +169,6 @@ const EWallet = () => {
     setSearchQuery("");
   };
 
-
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (dateRangeOption !== "last-7-days") count++;
@@ -228,7 +226,6 @@ const EWallet = () => {
           </button>
         }
       />
-
 
       {/* Search and Filter (Transactions view only) */}
       {activeTab === "transactions" && (
