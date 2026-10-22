@@ -35,9 +35,11 @@ import {
   FileSpreadsheet,
   BarChart3,
   History,
+  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import RiyalSymbol from "@/components/RiyalSymbol";
 import { format, subDays, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -207,56 +209,66 @@ const EWallet = () => {
     <div className="mobile-container min-h-screen flex flex-col pb-20">
       {/* Header with Tab Toggle */}
       <AppHeader 
-        title="E-Wallet" 
+        title={activeTab === "transactions" ? "E-Wallet Transactions" : "E-Wallet"} 
         showBack 
         rightElement={
-          <button
-            onClick={() => setActiveTab(activeTab === "analytics" ? "transactions" : "analytics")}
-            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm"
-          >
-            {activeTab === "analytics" ? (
+          activeTab === "analytics" ? (
+            <button
+              onClick={() => setActiveTab("transactions")}
+              className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm"
+            >
               <History className="w-5 h-5 text-foreground" />
-            ) : (
-              <BarChart3 className="w-5 h-5 text-foreground" />
-            )}
-          </button>
+            </button>
+          ) : undefined
         }
       />
 
-      {/* Search and Filter (Transactions view only) */}
+      {/* My Wallet, Search and Filter (Transactions view only) */}
       {activeTab === "transactions" && (
-        <div className="px-4 mb-3">
+        <div className="px-4 mb-3 space-y-3">
+          <p className="text-sm font-medium text-foreground">My Wallet</p>
+          <div className="bg-primary text-primary-foreground rounded-xl px-4 py-4 flex items-center justify-between">
+            <span className="text-sm font-medium">E-Wallet</span>
+            <span className="text-sm font-semibold flex items-center gap-1">
+              <RiyalSymbol /> {(myWallets.find((w) => w.id === selectedWallet)?.balance ?? 0).toFixed(2)}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search transactions..."
+                placeholder="Search by Ref ID"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11 rounded-xl bg-card border-border"
+                className="pe-10 h-11 rounded-xl bg-card border-border text-base"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
+              {searchQuery ? (
+                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2" aria-label="Clear search">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
+              ) : (
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               )}
             </div>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Download"
+              className="h-11 w-11 rounded-xl shrink-0 bg-card text-primary"
+              onClick={() => toast({ title: "Exporting transactions", description: "Your file will be downloaded shortly." })}
+            >
+              <Download className="w-5 h-5" />
+            </Button>
             <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <DrawerTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className={cn(
-                    "h-11 w-11 rounded-xl shrink-0 relative",
-                    activeFiltersCount > 0 && "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-                  )}
+                  aria-label="Filter"
+                  className="h-11 w-11 rounded-xl shrink-0 relative bg-card text-primary"
                 >
-                  <Filter className="w-5 h-5" />
+                  <SlidersHorizontal className="w-5 h-5" />
                   {activeFiltersCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-medium">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -285,7 +297,7 @@ const EWallet = () => {
                           key={wallet.id}
                           onClick={() => setSelectedWallet(wallet.id)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             selectedWallet === wallet.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -311,7 +323,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setDateRangeOption(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             dateRangeOption === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -368,7 +380,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setTransactionTypeFilter(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             transactionTypeFilter === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -387,7 +399,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setActivityTypeFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           activityTypeFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -408,7 +420,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -429,7 +441,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setStatusFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           statusFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -454,7 +466,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -489,33 +501,33 @@ const EWallet = () => {
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
               {dateRangeOption !== "last-7-days" && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{getDateRangeLabel()}</span>
-                  <button onClick={() => { setDateRangeOption("last-7-days"); setCustomDateRange(undefined); }} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => { setDateRangeOption("last-7-days"); setCustomDateRange(undefined); }} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               )}
               {transactionTypeFilter !== "all" && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
-                  <button onClick={() => setTransactionTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setTransactionTypeFilter("all")} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               )}
               {activityTypeFilters.map((filter) => (
-                <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge key={filter} variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{activityTypeLabels[filter]}</span>
-                  <button onClick={() => setActivityTypeFilters(activityTypeFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setActivityTypeFilters(activityTypeFilters.filter(v => v !== filter))} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               ))}
               {statusFilters.map((filter) => (
-                <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge key={filter} variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs capitalize">{filter}</span>
-                  <button onClick={() => setStatusFilters(statusFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setStatusFilters(statusFilters.filter(v => v !== filter))} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
@@ -570,7 +582,7 @@ const EWallet = () => {
                           key={wallet.id}
                           onClick={() => setSelectedWallet(wallet.id)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             selectedWallet === wallet.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -596,7 +608,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setDateRangeOption(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             dateRangeOption === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -653,7 +665,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setTransactionTypeFilter(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             transactionTypeFilter === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -672,7 +684,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setActivityTypeFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           activityTypeFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -697,7 +709,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -718,7 +730,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setStatusFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           statusFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -743,7 +755,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -862,59 +874,46 @@ const EWallet = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredTransactions.map((txn) => (
-                <div
-                  key={txn.id}
-                  onClick={() => {
-                    setSelectedTransaction(txn);
-                    setIsDetailsOpen(true);
-                  }}
-                  className="bg-card rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow border"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center",
-                          txn.transactionType === "credit" ? "bg-success/10" : "bg-destructive/10"
-                        )}
-                      >
-                        {txn.transactionType === "credit" ? (
-                          <ArrowDownLeft className="w-5 h-5 text-success" />
-                        ) : (
-                          <ArrowUpRight className="w-5 h-5 text-destructive" />
-                        )}
+              {filteredTransactions.map((txn) => {
+                const credit = txn.transactionType === "credit";
+                return (
+                  <div
+                    key={txn.id}
+                    onClick={() => {
+                      setSelectedTransaction(txn);
+                      setIsDetailsOpen(true);
+                    }}
+                    className="bg-card rounded-xl p-3 cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2.5">
+                        <div className={cn("w-6 h-6 rounded-md flex items-center justify-center shrink-0", credit ? "bg-success/10" : "bg-destructive/10")}>
+                          {credit ? <ArrowUpRight className="w-3.5 h-3.5 text-success" /> : <ArrowDownLeft className="w-3.5 h-3.5 text-destructive" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{txn.description}</p>
+                          <p className="text-[11px] text-muted-foreground mt-1">
+                            {format(txn.date, "MMM d, yyyy • h:mm a")}
+                            <span className={cn("ms-3", credit ? "text-success" : "text-destructive")}>{credit ? "Credit" : "Debit"}</span>
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">{txn.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {format(txn.date, "MMM d, yyyy • h:mm a")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={cn(
-                          "font-bold",
-                          txn.transactionType === "credit" ? "text-success" : "text-destructive"
-                        )}
-                      >
-                        {txn.transactionType === "credit" ? "+" : "-"}{txn.amount} {txn.currency}
+                      <p className={cn("text-sm font-medium flex items-center gap-0.5", credit ? "text-success" : "text-destructive")}>
+                        <RiyalSymbol />{credit ? "+" : "-"}{txn.amount.toFixed(2)}
                       </p>
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full mt-1 inline-block", getStatusColor(txn.status))}>
-                        {statusLabels[txn.status]}
-                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <p className="text-[11px] text-muted-foreground">Ref: {txn.referenceId}</p>
+                      <div className="flex items-center gap-1">
+                        <span className={cn("text-[10px] px-2 py-0.5 rounded-full border", getStatusColor(txn.status))}>
+                          {statusLabels[txn.status]}
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground rtl:rotate-180" />
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-                    <p className="text-xs text-muted-foreground">Ref: {txn.referenceId}</p>
-                    <div className="flex items-center gap-1 text-xs text-primary">
-                      <span>View Details</span>
-                      <ChevronRight className="w-4 h-4 rtl:rotate-180" />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -925,133 +924,77 @@ const EWallet = () => {
         <DrawerContent className="max-h-[85vh]">
           {selectedTransaction && (
             <div className="overflow-y-auto">
-              <DrawerHeader className="text-center pb-0">
-                <div
-                  className={cn(
-                    "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4",
-                    selectedTransaction.transactionType === "credit" ? "bg-success/10" : "bg-destructive/10"
-                  )}
-                >
-                  {selectedTransaction.transactionType === "credit" ? (
-                    <ArrowDownLeft className="w-8 h-8 text-success" />
-                  ) : (
-                    <ArrowUpRight className="w-8 h-8 text-destructive" />
-                  )}
+              <div className="relative pt-2 pb-4 px-4 text-center">
+                <h3 className="text-lg font-semibold text-foreground">Transaction Details</h3>
+                <DrawerClose asChild>
+                  <button className="absolute right-4 top-1 w-9 h-9 rounded-full border border-border flex items-center justify-center" aria-label="Close">
+                    <X className="w-4 h-4 text-foreground" />
+                  </button>
+                </DrawerClose>
+              </div>
+
+              <div className="px-4 pb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className={cn("w-2 h-2 rounded-full", selectedTransaction.transactionType === "credit" ? "bg-success" : "bg-destructive")} />
+                  Ref: {selectedTransaction.referenceId}
                 </div>
-                <p
-                  className={cn(
-                    "text-3xl font-bold",
-                    selectedTransaction.transactionType === "credit" ? "text-success" : "text-destructive"
-                  )}
-                >
-                  {selectedTransaction.transactionType === "credit" ? "+" : "-"}{selectedTransaction.amount} {selectedTransaction.currency}
-                </p>
-                <span className={cn("text-sm px-3 py-1 rounded-full mt-2 inline-block", getStatusColor(selectedTransaction.status))}>
+                <span className={cn("text-[11px] px-2 py-0.5 rounded-full border", getStatusColor(selectedTransaction.status))}>
                   {statusLabels[selectedTransaction.status]}
                 </span>
-              </DrawerHeader>
+              </div>
 
-              {/* Transaction Details */}
-              <div className="px-4 py-4">
-                <div className="bg-muted rounded-xl divide-y divide-border">
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Transaction Type</span>
-                    <span className="font-medium text-foreground capitalize">{selectedTransaction.transactionType}</span>
-                  </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Activity</span>
-                    <span className="font-medium text-foreground">{activityTypeLabels[selectedTransaction.activityType]}</span>
-                  </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Description</span>
-                    <span className="font-medium text-foreground">{selectedTransaction.description}</span>
-                  </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Date & Time</span>
-                    <span className="font-medium text-foreground">{format(selectedTransaction.date, "MMM d, yyyy • h:mm a")}</span>
-                  </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Member</span>
-                    <span className="font-medium text-foreground">{selectedTransaction.memberName}</span>
-                  </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Reference ID</span>
-                    <span className="font-medium text-foreground text-xs">{selectedTransaction.referenceId}</span>
-                  </div>
+              <div className="px-4 pb-4">
+                <div className="bg-muted/60 rounded-xl px-3 py-1">
+                  {[
+                    ["Transaction Type", <span className="capitalize">{selectedTransaction.transactionType}</span>],
+                    ["Activity", activityTypeLabels[selectedTransaction.activityType]],
+                    ["Date & Time", format(selectedTransaction.date, "MMM d, yyyy • h:mm a")],
+                    ["Member", selectedTransaction.memberName],
+                    ["Reference ID", selectedTransaction.referenceId],
+                  ].map(([label, value], i) => (
+                    <div key={i} className="py-2.5 flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">{label}</span>
+                      <span className="text-xs font-medium text-foreground">{value}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Balance Impact */}
               <div className="px-4 pb-4">
-                <h3 className="font-semibold text-foreground mb-2 text-sm">Balance Impact</h3>
-                <div className="bg-muted rounded-xl divide-y divide-border">
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Amount</span>
-                    <span
-                      className={cn(
-                        "font-bold",
-                        selectedTransaction.transactionType === "credit" ? "text-success" : "text-destructive"
-                      )}
-                    >
-                      {selectedTransaction.transactionType === "credit" ? "+" : "-"}{selectedTransaction.amount} {selectedTransaction.currency}
+                <h3 className="font-medium text-foreground mb-2 text-sm">Balance Impact</h3>
+                <div className="bg-muted/60 rounded-xl px-3 py-1">
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Amount</span>
+                    <span className={cn("text-xs font-medium flex items-center gap-1", selectedTransaction.transactionType === "credit" ? "text-success" : "text-destructive")}>
+                      <RiyalSymbol /> {selectedTransaction.amount.toFixed(2)}
                     </span>
                   </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Balance Before</span>
-                    <span className="font-medium text-foreground">{selectedTransaction.balanceBefore} {selectedTransaction.currency}</span>
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Balance Before</span>
+                    <span className="text-xs font-medium text-foreground flex items-center gap-1"><RiyalSymbol /> {selectedTransaction.balanceBefore.toFixed(2)}</span>
                   </div>
-                  <div className="p-3 flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Balance After</span>
-                    <span className="font-medium text-foreground">{selectedTransaction.balanceAfter} {selectedTransaction.currency}</span>
+                  <div className="py-2.5 flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Balance After</span>
+                    <span className="text-xs font-medium text-foreground flex items-center gap-1"><RiyalSymbol /> {selectedTransaction.balanceAfter.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
               <DrawerFooter className="pt-2 pb-6">
-                <div className="flex items-center justify-center gap-4 text-sm">
-                  <button
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-                    onClick={() => {
-                      const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
+                <Button
+                  className="w-full h-11 rounded-xl gap-2"
+                  onClick={async () => {
+                    const shareLink = `https://ewallet.example.com/txn/${selectedTransaction.referenceId}`;
+                    if (navigator.share) {
+                      try { await navigator.share({ title: "Transaction", url: shareLink }); } catch { /* cancelled */ }
+                    } else {
                       navigator.clipboard.writeText(shareLink);
-                      setCopied(true);
-                      toast({
-                        title: "Link copied!",
-                        description: "The shareable link has been copied to your clipboard.",
-                      });
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                  >
-                    {copied ? <Check className="w-4 h-4 text-success" /> : <Share2 className="w-4 h-4" />}
-                    <span>{copied ? "Copied" : "Share"}</span>
-                  </button>
-                  <span className="text-border">•</span>
-                  <button
-                    className="text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
-                    onClick={() => {
-                      toast({
-                        title: "Exporting as PDF",
-                        description: "Your transaction details will be downloaded shortly.",
-                      });
-                    }}
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>PDF</span>
-                  </button>
-                  <span className="text-border">•</span>
-                  <button
-                    className="text-success hover:text-success/80 transition-colors flex items-center gap-1.5"
-                    onClick={() => {
-                      toast({
-                        title: "Exporting as Excel",
-                        description: "Your transaction details will be downloaded shortly.",
-                      });
-                    }}
-                  >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span>Excel</span>
-                  </button>
-                </div>
+                      toast({ title: "Link copied!", description: "The shareable link has been copied to your clipboard." });
+                    }
+                  }}
+                >
+                  <Share2 className="w-4 h-4" /> Download Or Share
+                </Button>
               </DrawerFooter>
             </div>
           )}
