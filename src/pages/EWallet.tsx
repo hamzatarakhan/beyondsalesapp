@@ -229,57 +229,6 @@ const EWallet = () => {
         }
       />
 
-      {/* Role Toggle (Demo) */}
-      <div className="px-4 mb-4">
-        <div className="bg-card rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-primary" />
-            </div>
-            <span className="text-sm font-medium text-foreground">User Role (Demo)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="role-toggle" className="text-sm text-muted-foreground">
-              {isParent ? "Parent" : "Child"}
-            </Label>
-            <Switch
-              id="role-toggle"
-              checked={isParent}
-              onCheckedChange={setIsParent}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Wallet View Mode Toggle (Parent only) */}
-      {isParent && (
-        <div className="px-4 mb-3">
-          <div className="bg-muted rounded-xl p-1 flex">
-            <button
-              onClick={() => setWalletViewMode("my-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "my-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              My Wallets
-            </button>
-            <button
-              onClick={() => setWalletViewMode("team-wallets")}
-              className={cn(
-                "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                walletViewMode === "team-wallets"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              Team Wallets
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Search and Filter (Transactions view only) */}
       {activeTab === "transactions" && (
@@ -333,29 +282,6 @@ const EWallet = () => {
                 </div>
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
-                  {/* Member Filter (Parent only, Team Wallets view) */}
-                  {isParent && walletViewMode === "team-wallets" && (
-                    <div>
-                      <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {childMembers.map((member) => (
-                          <button
-                            key={member.id}
-                            onClick={() => setSelectedMember(selectedMember === member.name ? null : member.name)}
-                            className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                              selectedMember === member.name
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-foreground border-border hover:border-primary/50"
-                            )}
-                          >
-                            {selectedMember !== member.name && <span className="mr-1">+</span>}
-                            {member.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Date Range */}
                   <div>
@@ -548,14 +474,6 @@ const EWallet = () => {
           {/* Active Filter Chips */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {isParent && walletViewMode === "team-wallets" && selectedMember && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                  <span className="text-xs">{selectedMember}</span>
-                  <button onClick={clearMember} className="ml-1 rounded-full hover:bg-muted p-0.5">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
               {dateRangeOption !== "last-7-days" && (
                 <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
                   <span className="text-xs">{getDateRangeLabel()}</span>
@@ -628,29 +546,6 @@ const EWallet = () => {
                 </div>
 
                 <div className="px-4 pb-4 space-y-5 overflow-y-auto">
-                  {/* Member Filter (Parent only, Team Wallets view) */}
-                  {isParent && walletViewMode === "team-wallets" && (
-                    <div>
-                      <Label className="text-sm font-medium text-foreground mb-3 block">Select Member</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {childMembers.map((member) => (
-                          <button
-                            key={member.id}
-                            onClick={() => setSelectedMember(selectedMember === member.name ? null : member.name)}
-                            className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                              selectedMember === member.name
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-foreground border-border hover:border-primary/50"
-                            )}
-                          >
-                            {selectedMember !== member.name && <span className="mr-1">+</span>}
-                            {member.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Date Range */}
                   <div>
@@ -847,14 +742,6 @@ const EWallet = () => {
           {/* Active Filter Chips */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {isParent && walletViewMode === "team-wallets" && selectedMember && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                  <span className="text-xs">{selectedMember}</span>
-                  <button onClick={clearMember} className="ml-1 rounded-full hover:bg-muted p-0.5">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              )}
               {dateRangeOption !== "last-7-days" && (
                 <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
                   <span className="text-xs">{getDateRangeLabel()}</span>
@@ -929,78 +816,6 @@ const EWallet = () => {
       {/* Analytics Content */}
       {activeTab === "analytics" && (
         <>
-          {/* Members Ranking (Parent Team View only, hidden when member filtered) */}
-          {isParent && walletViewMode === "team-wallets" && !selectedMember && childrenWalletRanking && (
-            <div className="px-4 mb-4">
-              <div className="bg-card rounded-xl border overflow-hidden">
-                <div className="p-4 pb-0">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Member Wallet Ranking</p>
-                </div>
-                {/* Tabs */}
-                <div className="px-4 pt-2">
-                  <div className="flex border-b border-border">
-                    <button
-                      onClick={() => setRankingTab("top")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "top"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Top 5
-                    </button>
-                    <button
-                      onClick={() => setRankingTab("lowest")}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-medium border-b-2 transition-colors",
-                        rankingTab === "lowest"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Lowest 5
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Members List */}
-                <div className="p-4 space-y-0">
-                  {(rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).map((member, index) => (
-                    <div 
-                      key={member.name} 
-                      className={cn(
-                        "flex items-center justify-between py-2.5",
-                        index !== (rankingTab === "top" ? childrenWalletRanking.top5 : childrenWalletRanking.lowest5).length - 1 && "border-b border-border/50"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 flex items-center justify-center">
-                          {index < 3 ? (
-                            <span className="text-lg">🏅</span>
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                              {index + 1}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.transactionCount} Transactions</p>
-                        </div>
-                      </div>
-                      <span className={cn(
-                        "text-sm font-semibold",
-                        rankingTab === "top" ? "text-success" : "text-destructive"
-                      )}>
-                        {member.balance.toFixed(2)} KD
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Activity Distribution */}
           <div className="px-4 mb-4">
@@ -1011,14 +826,7 @@ const EWallet = () => {
                   const dateRange = getDateRange();
                   const matchesDate = isWithinInterval(t.date, { start: dateRange.from, end: dateRange.to });
                   
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
-                    }
-                  }
+                  if (t.memberName !== parentMemberName) return false;
                   
                   return t.walletType === selectedWallet && matchesDate;
                 })}
@@ -1033,14 +841,7 @@ const EWallet = () => {
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Credit vs Debit (Last 7 Days)</p>
               <CreditDebitChart
                 transactions={mockTransactions.filter((t) => {
-                  if (isParent) {
-                    if (walletViewMode === "my-wallets") {
-                      if (t.memberName !== parentMemberName) return false;
-                    } else {
-                      if (t.memberName === parentMemberName) return false;
-                      if (selectedMember && t.memberName !== selectedMember) return false;
-                    }
-                  }
+                  if (t.memberName !== parentMemberName) return false;
                   
                   return t.walletType === selectedWallet;
                 })}
@@ -1085,7 +886,6 @@ const EWallet = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">{txn.description}</p>
-                        {isParent && <p className="text-sm text-muted-foreground">{txn.memberName}</p>}
                         <p className="text-xs text-muted-foreground mt-1">
                           {format(txn.date, "MMM d, yyyy • h:mm a")}
                         </p>
