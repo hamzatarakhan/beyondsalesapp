@@ -175,6 +175,9 @@ export const COMMISSION_KPI_CARDS = KPI_GROUPS.map((group) =>
     : { kind: "group" as const, key: group.key, group },
 );
 
+// Shape of one commission card record, shared by the Commission tab and the KPI See all page.
+export type CommissionKpiCard = (typeof COMMISSION_KPI_CARDS)[number];
+
 type DateRangeKey = "today" | "last7" | "last30" | "custom" | null;
 
 const inRange = (d: Date, from: Date, to: Date) => {
