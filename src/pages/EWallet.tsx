@@ -35,9 +35,11 @@ import {
   FileSpreadsheet,
   BarChart3,
   History,
+  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import RiyalSymbol from "@/components/RiyalSymbol";
 import { format, subDays, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
