@@ -297,7 +297,7 @@ const EWallet = () => {
                           key={wallet.id}
                           onClick={() => setSelectedWallet(wallet.id)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             selectedWallet === wallet.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -323,7 +323,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setDateRangeOption(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             dateRangeOption === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -380,7 +380,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setTransactionTypeFilter(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             transactionTypeFilter === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -399,7 +399,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setActivityTypeFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           activityTypeFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -420,7 +420,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -441,7 +441,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setStatusFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           statusFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -466,7 +466,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -501,33 +501,33 @@ const EWallet = () => {
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
               {dateRangeOption !== "last-7-days" && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{getDateRangeLabel()}</span>
-                  <button onClick={() => { setDateRangeOption("last-7-days"); setCustomDateRange(undefined); }} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => { setDateRangeOption("last-7-days"); setCustomDateRange(undefined); }} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               )}
               {transactionTypeFilter !== "all" && (
-                <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{transactionTypeFilter === "credit" ? "Credit" : "Debit"}</span>
-                  <button onClick={() => setTransactionTypeFilter("all")} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setTransactionTypeFilter("all")} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               )}
               {activityTypeFilters.map((filter) => (
-                <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge key={filter} variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs">{activityTypeLabels[filter]}</span>
-                  <button onClick={() => setActivityTypeFilters(activityTypeFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setActivityTypeFilters(activityTypeFilters.filter(v => v !== filter))} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               ))}
               {statusFilters.map((filter) => (
-                <Badge key={filter} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                <Badge key={filter} variant="outline" className="pl-2.5 pr-1.5 py-1 gap-1 rounded-full border-primary text-primary bg-card font-normal">
                   <span className="text-xs capitalize">{filter}</span>
-                  <button onClick={() => setStatusFilters(statusFilters.filter(v => v !== filter))} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  <button onClick={() => setStatusFilters(statusFilters.filter(v => v !== filter))} className="rounded-full p-0.5">
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
@@ -582,7 +582,7 @@ const EWallet = () => {
                           key={wallet.id}
                           onClick={() => setSelectedWallet(wallet.id)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             selectedWallet === wallet.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -608,7 +608,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setDateRangeOption(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             dateRangeOption === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -665,7 +665,7 @@ const EWallet = () => {
                           key={option.value}
                           onClick={() => setTransactionTypeFilter(option.value)}
                           className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                             transactionTypeFilter === option.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background text-foreground border-border hover:border-primary/50"
@@ -684,7 +684,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setActivityTypeFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           activityTypeFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -709,7 +709,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
@@ -730,7 +730,7 @@ const EWallet = () => {
                       <button
                         onClick={() => setStatusFilters([])}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                           statusFilters.length === 0
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary/50"
@@ -755,7 +755,7 @@ const EWallet = () => {
                               }
                             }}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              "px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1 before:content-['+'] [&.bg-primary]:before:content-['✓']",
                               isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background text-foreground border-border hover:border-primary/50"
