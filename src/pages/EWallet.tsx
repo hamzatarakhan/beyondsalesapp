@@ -73,11 +73,6 @@ const EWallet = () => {
     setSearchParams({ view: activeTab }, { replace: true });
   }, [activeTab, setSearchParams]);
   
-  // Mock role toggle (Parent/Child)
-  const [isParent, setIsParent] = useState(true);
-  
-  // Wallet view mode (Parent only: my-wallets vs team-wallets)
-  const [walletViewMode, setWalletViewMode] = useState<WalletViewMode>("my-wallets");
   
   // Filters
   const [selectedWallet, setSelectedWallet] = useState<WalletType>("e-topup");
@@ -86,10 +81,8 @@ const EWallet = () => {
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | "all">("all");
   const [activityTypeFilters, setActivityTypeFilters] = useState<ActivityType[]>([]);
   const [statusFilters, setStatusFilters] = useState<Array<"completed" | "pending" | "failed">>([]);
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [rankingTab, setRankingTab] = useState<"top" | "lowest">("top");
   
   // Transaction details drawer
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -99,78 +92,9 @@ const EWallet = () => {
   // Parent's own wallets (My Wallets)
   const myWallets = parentWallets;
 
-  // Team wallets - aggregate balances from all child members
-  const teamWallets = useMemo(() => {
-    const aggregatedBalances = childMembers.reduce(
-      (acc, member) => {
-        const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
-        if (memberBalance) {
-          acc["e-topup"] += memberBalance.wallets["e-topup"];
-          acc["e-voucher"] += memberBalance.wallets["e-voucher"];
-          acc["e-cash"] += memberBalance.wallets["e-cash"];
-          acc["rewards"] += memberBalance.wallets["rewards"];
-          acc["credit-line"] += memberBalance.wallets["credit-line"];
-        }
-        return acc;
-      },
-      { "e-topup": 0, "e-voucher": 0, "e-cash": 0, "rewards": 0, "credit-line": 0 }
-    );
-    
-    return [
-      { id: "e-topup" as WalletType, name: "E-Topup", balance: aggregatedBalances["e-topup"], currency: "KD" },
-      { id: "e-voucher" as WalletType, name: "E-Voucher", balance: aggregatedBalances["e-voucher"], currency: "KD" },
-      { id: "e-cash" as WalletType, name: "E-Cash", balance: aggregatedBalances["e-cash"], currency: "KD" },
-      { id: "rewards" as WalletType, name: "Rewards", balance: aggregatedBalances["rewards"], currency: "KD" },
-      { id: "credit-line" as WalletType, name: "Credit Line", balance: aggregatedBalances["credit-line"], currency: "KD" },
-    ];
-  }, []);
 
-  // Top 5 and lowest 5 children wallets for selected wallet type
-  const childrenWalletRanking = useMemo(() => {
-    if (!isParent || walletViewMode !== "team-wallets") return null;
-    
-    const childBalances = childMembers.map((member) => {
-      const memberBalance = memberWalletBalances.find((m) => m.memberName === member.name);
-      const transactionCount = mockTransactions.filter(
-        (t) => t.memberName === member.name && t.walletType === selectedWallet
-      ).length;
-      return {
-        name: member.name,
-        balance: memberBalance?.wallets[selectedWallet] || 0,
-        transactionCount,
-      };
-    }).sort((a, b) => b.balance - a.balance);
-    
-    return {
-      top5: childBalances.slice(0, 5),
-      lowest5: childBalances.slice(-5).reverse(),
-    };
-  }, [isParent, walletViewMode, selectedWallet]);
-
-  // Get current wallets based on role and view mode
-  const currentWallets = useMemo(() => {
-    if (!isParent) {
-      return childWallets;
-    }
-    return walletViewMode === "my-wallets" ? myWallets : teamWallets;
-  }, [isParent, walletViewMode, myWallets, teamWallets]);
-
-  // Dynamic wallet balances based on selected member (for team wallets)
-  const displayWallets = useMemo(() => {
-    if (!isParent || walletViewMode === "my-wallets" || !selectedMember) {
-      return currentWallets;
-    }
-    
-    const memberBalance = memberWalletBalances.find((m) => m.memberName === selectedMember);
-    if (!memberBalance) {
-      return currentWallets;
-    }
-    
-    return currentWallets.map((wallet) => ({
-      ...wallet,
-      balance: memberBalance.wallets[wallet.id],
-    }));
-  }, [isParent, walletViewMode, selectedMember, currentWallets]);
+  // The dealer only ever sees their own wallet balances — no member/team wallets.
+  const displayWallets = myWallets;
 
   // Calculate date range based on option
   const getDateRange = () => {
