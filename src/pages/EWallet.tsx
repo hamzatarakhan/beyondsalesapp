@@ -5,7 +5,6 @@ import ActivityDistribution from "@/components/ActivityDistribution";
  import CreditDebitChart from "@/components/CreditDebitChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -44,12 +43,9 @@ import { format, subDays, isWithinInterval, startOfDay, endOfDay } from "date-fn
 import { cn } from "@/lib/utils";
 import {
   parentWallets,
-  childWallets,
-  childMembers,
   mockTransactions,
   activityTypeLabels,
   statusLabels,
-  memberWalletBalances,
   type WalletType,
   type TransactionType,
   type ActivityType,
@@ -58,7 +54,6 @@ import {
 import { DateRange } from "react-day-picker";
 
 type DateRangeOption = "today" | "last-7-days" | "last-30-days" | "custom";
-type WalletViewMode = "my-wallets" | "team-wallets";
 type ViewTab = "analytics" | "transactions";
 
 const EWallet = () => {
@@ -127,20 +122,9 @@ const EWallet = () => {
         return false;
       }
       
-      // For parent users, filter by view mode
-      if (isParent) {
-        if (walletViewMode === "my-wallets") {
-          if (txn.memberName !== parentMemberName) {
-            return false;
-          }
-        } else {
-          if (txn.memberName === parentMemberName) {
-            return false;
-          }
-          if (selectedMember && txn.memberName !== selectedMember) {
-            return false;
-          }
-        }
+      // Only the signed-in dealer's own transactions are visible here
+      if (txn.memberName !== parentMemberName) {
+        return false;
       }
       
       // Date filter
@@ -175,7 +159,7 @@ const EWallet = () => {
       
       return true;
     });
-  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember, searchQuery, isParent, walletViewMode]);
+  }, [selectedWallet, dateRangeOption, customDateRange, transactionTypeFilter, activityTypeFilters, statusFilters, searchQuery]);
 
   const resetFilters = () => {
     setDateRangeOption("last-7-days");
@@ -183,13 +167,9 @@ const EWallet = () => {
     setTransactionTypeFilter("all");
     setActivityTypeFilters([]);
     setStatusFilters([]);
-    setSelectedMember(null);
     setSearchQuery("");
   };
 
-  const clearMember = () => {
-    setSelectedMember(null);
-  };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -197,9 +177,8 @@ const EWallet = () => {
     if (transactionTypeFilter !== "all") count++;
     if (activityTypeFilters.length > 0) count += activityTypeFilters.length;
     if (statusFilters.length > 0) count += statusFilters.length;
-    if (selectedMember) count++;
     return count;
-  }, [dateRangeOption, transactionTypeFilter, activityTypeFilters, statusFilters, selectedMember]);
+  }, [dateRangeOption, transactionTypeFilter, activityTypeFilters, statusFilters]);
 
   const getDateRangeLabel = () => {
     switch (dateRangeOption) {
