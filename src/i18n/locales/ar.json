@@ -1528,7 +1528,8 @@
       "submit": "إرسال",
       "approve": "موافقة",
       "reject": "رفض",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "report": "الإبلاغ عن مشكلة"
     },
     "searchPlaceholder": "بحث",
     "filter": {
@@ -1561,6 +1562,7 @@
       "awaitingDelivery": "بانتظار التسليم",
       "partiallyScanned": "مستلم جزئيًا",
       "received": "تم الاستلام",
+      "issueReported": "تم الإبلاغ عن مشكلة",
       "rejected": "مرفوض",
       "cancelled": "ملغي"
     },

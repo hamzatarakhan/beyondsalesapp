@@ -1514,7 +1514,8 @@
       "submit": "Submit",
       "approve": "Approve",
       "reject": "Reject",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "report": "Report Issue"
     },
     "searchPlaceholder": "Search",
     "filter": {
@@ -1547,6 +1548,7 @@
       "awaitingDelivery": "Awaiting Delivery",
       "partiallyScanned": "Partially Received",
       "received": "Received",
+      "issueReported": "Issue Reported",
       "rejected": "Rejected",
       "cancelled": "Cancelled"
     },

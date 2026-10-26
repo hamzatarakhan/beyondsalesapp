@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
 import { purchaseOrders, PURCHASE_ORDER_PRODUCTS, type PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
-const STATUSES: PurchaseOrderStatus[] = ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "rejected", "cancelled"];
+const STATUSES: PurchaseOrderStatus[] = ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"];
 
 const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
@@ -21,6 +21,7 @@ const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+  issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   cancelled: "bg-muted text-muted-foreground",
 };
 

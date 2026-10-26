@@ -3,6 +3,8 @@
 // (list → view → edit → back), each reading a fresh snapshot on mount. No backend here,
 // same "prototype" convention the rest of this app's demo flows already use.
 
+import type { OrderIssue } from "@/data/salesOrdersStore";
+
 export type PurchaseOrderStatus =
   | "rfq"
   | "quotationSent"
@@ -11,6 +13,7 @@ export type PurchaseOrderStatus =
   | "partiallyScanned"
   | "awaitingDelivery"
   | "received"
+  | "issueReported"
   | "cancelled"
   | "rejected";
 
@@ -58,6 +61,7 @@ export interface PurchaseOrder {
   tax: number;
   total: number;
   reason?: string;
+  issue?: OrderIssue;
 }
 
 export const computeTotals = (lines: { productId: ProductId; qty: number }[]) => {

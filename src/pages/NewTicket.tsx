@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Plus, FileText, Image as ImageIcon, Eye, Trash2, CheckCircle2 } from "lucide-react";
+import { getPurchaseOrder, updatePurchaseOrder } from "@/data/purchaseOrdersStore";
 import { getSalesOrder, updateSalesOrder } from "@/data/salesOrdersStore";
 import { getSalesOrderMulti, updateSalesOrderMulti } from "@/data/salesOrdersMultiStore";
 import { TICKET_CATEGORIES, TICKET_SUB_CATEGORIES, TicketDoc, TicketPriority } from "@/data/tickets";
@@ -15,7 +16,7 @@ const NewTicket = () => {
   const navigate = useNavigate();
   // Opened from a Push Stock order's "Report Issue" — the ticket gets attached to that order.
   const orderId = (useLocation().state as { orderId?: string } | null)?.orderId;
-  const orderPath = orderId?.startsWith("SOM") ? "/sales-orders-multi" : "/sales-orders";
+  const orderPath = orderId?.startsWith("PO") ? "/purchase-orders" : orderId?.startsWith("SOM") ? "/sales-orders-multi" : "/sales-orders";
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [priority, setPriority] = useState<TicketPriority>("high");
@@ -148,7 +149,8 @@ const NewTicket = () => {
                 date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
               };
               const patch = { status: "issueReported" as const, issue };
-              if (getSalesOrder(orderId)) updateSalesOrder(orderId, patch);
+              if (getPurchaseOrder(orderId)) updatePurchaseOrder(orderId, patch);
+              else if (getSalesOrder(orderId)) updateSalesOrder(orderId, patch);
               else if (getSalesOrderMulti(orderId)) updateSalesOrderMulti(orderId, patch);
             }
             setSuccess(true);

@@ -4,7 +4,7 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } fr
 import { cn } from "@/lib/utils";
 import type { PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
-type Action = "submit" | "approve" | "reject" | "cancel";
+type Action = "submit" | "approve" | "reject" | "cancel" | "report";
 
 // Prototype-only: no audit log exists yet, so the timeline is derived from the order's
 // current status — every order was submitted, then moved on to wherever it is now.
@@ -13,6 +13,7 @@ const PATH: Partial<Record<PurchaseOrderStatus, { stage: PurchaseOrderStatus; ac
   awaitingScanning: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }],
   awaitingDelivery: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "awaitingDelivery", action: "approve" }],
   received: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "awaitingDelivery", action: "approve" }, { stage: "received", action: "approve" }],
+  issueReported: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "awaitingDelivery", action: "approve" }, { stage: "issueReported", action: "report" }],
   rejected: [{ stage: "awaitingApproval", action: "submit" }, { stage: "rejected", action: "reject" }],
   cancelled: [{ stage: "awaitingApproval", action: "submit" }, { stage: "cancelled", action: "cancel" }],
 };
@@ -23,6 +24,7 @@ const STAGE_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+  issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   cancelled: "bg-muted text-muted-foreground",
 };
 
@@ -32,6 +34,7 @@ const DOT_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
   awaitingDelivery: "border-teal-500 text-teal-600",
   received: "border-emerald-500 text-emerald-600",
   rejected: "border-primary text-primary",
+  issueReported: "border-orange-500 text-orange-600",
   cancelled: "border-muted-foreground text-muted-foreground",
 };
 
@@ -40,6 +43,7 @@ const ACTION_STYLE: Record<Action, string> = {
   approve: "text-emerald-600",
   reject: "text-primary",
   cancel: "text-muted-foreground",
+  report: "text-orange-600",
 };
 
 const OrderStatusHistory = ({

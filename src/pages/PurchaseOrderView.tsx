@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { DeliveryActions, IssueDetails } from "@/components/OrderDeliveryPanels";
 import OrderStatusHistory from "@/components/OrderStatusHistory";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+  issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   cancelled: "bg-muted text-muted-foreground",
 };
 
@@ -172,7 +174,14 @@ const PurchaseOrderView = () => {
           );
         })}
 
-
+        {order.status === "awaitingDelivery" && (
+          <DeliveryActions
+            onConfirm={() => { updatePurchaseOrder(order.id, { status: "received" }); navigate("/purchase-orders"); }}
+            onReportIssue={() => navigate("/tickets/new", { state: { orderId: order.id } })}
+            onReject={() => openConfirm("reject")}
+          />
+        )}
+        {order.status === "issueReported" && order.issue && <IssueDetails issue={order.issue} />}
       </div>
 
       {/* Action buttons pinned to the bottom of the screen, not scrolling with the
