@@ -91,7 +91,7 @@ const PurchaseOrderView = () => {
   // Statuses with a fixed action bar need scroll-room underneath the summary card so the
   // bar never overlaps it — statuses with no actions (awaitingApproval/received/cancelled/
   // rejected) don't render a bar at all, so they keep the plain padding.
-  const hasActionBar = ["awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
+  const hasActionBar = ["awaitingApproval", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -139,7 +139,7 @@ const PurchaseOrderView = () => {
                   <span>{t("purchaseOrders.pcs", { count: l.qty })}</span>
                 </div>
               </div>
-              {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
+              {order.status === "partiallyScanned" && (
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                     {t("purchaseOrders.scannedCount", { scanned: l.scanned, qty: l.qty })}
@@ -170,7 +170,7 @@ const PurchaseOrderView = () => {
       {/* Action buttons pinned to the bottom of the screen, not scrolling with the
           content — matches the reference design (and the "+ New order" FAB elsewhere
           in this flow being a fixed control rather than part of the scroll). */}
-      {order.status === "rfq" && (
+      {order.status === "awaitingApproval" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.edit")}
@@ -181,21 +181,7 @@ const PurchaseOrderView = () => {
         </div>
       )}
 
-      {order.status === "awaitingApproval" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.approve")}
-          </button>
-          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
-            {t("purchaseOrders.rejectOrder")}
-          </button>
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancelOrder")}
-          </button>
-        </div>
-      )}
-
-      {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
+      {order.status === "partiallyScanned" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.submit")}
