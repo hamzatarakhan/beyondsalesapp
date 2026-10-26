@@ -27,12 +27,20 @@ export const SimCardArt = (_: ArtProps) => {
   );
 };
 
+const VOUCHER_COLORS: Record<number, [string, string]> = {
+  10: ["#4aa8ff", "#1556c9"],
+  20: ["#3ddc97", "#0b8a5a"],
+  50: ["#ffb84d", "#d9680b"],
+  100: ["#c58bff", "#6a2bd1"],
+};
+
 export const VoucherArt = ({ value }: { value: number }) => {
+  const [from, to] = VOUCHER_COLORS[value] ?? VOUCHER_COLORS[10];
   const id = useId();
   return (
     <Svg>
       <defs>
-        <linearGradient id={`${id}v`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#4aa8ff" /><stop offset="1" stopColor="#1556c9" /></linearGradient>
+        <linearGradient id={`${id}v`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from} /><stop offset="1" stopColor={to} /></linearGradient>
       </defs>
       <g transform="rotate(-10 24 24)">
         <rect x="5" y="11" width="38" height="26" rx="4" fill="#0b2e73" opacity=".35" transform="translate(1.5 2)" />
@@ -90,6 +98,41 @@ export const FingerprintArt = (_: ArtProps) => {
         <path d="M24 24v6c0 4-1 7-2 9" />
         <path d="M30 31c0 3-.6 5-1.5 7" />
       </g>
+    </Svg>
+  );
+};
+
+// Model 2 — upright 5G tower unit.
+export const TowerRouterArt = (_: ArtProps) => {
+  const id = useId();
+  return (
+    <Svg>
+      <defs>
+        <linearGradient id={`${id}t`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#c9d1de" /><stop offset=".45" stopColor="#ffffff" /><stop offset="1" stopColor="#b3bccb" /></linearGradient>
+      </defs>
+      <ellipse cx="24" cy="43" rx="12" ry="2.6" fill="#000" opacity=".14" />
+      <rect x="13" y="5" width="22" height="37" rx="9" fill={`url(#${id}t)`} stroke="#aab3c3" strokeWidth="1" />
+      <rect x="13" y="14" width="22" height="3.5" fill="#e00b0b" opacity=".85" />
+      <path d="M19 26a7 7 0 0 1 10 0M21.5 29.5a3.6 3.6 0 0 1 5 0" stroke="#6b7689" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <circle cx="24" cy="33" r="1.5" fill="#22c55e" />
+    </Svg>
+  );
+};
+
+// Model 3 — pocket MiFi with a signal screen.
+export const PortableRouterArt = (_: ArtProps) => {
+  const id = useId();
+  return (
+    <Svg>
+      <defs>
+        <linearGradient id={`${id}p`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#4b5563" /><stop offset="1" stopColor="#111827" /></linearGradient>
+      </defs>
+      <ellipse cx="24" cy="43" rx="13" ry="2.4" fill="#000" opacity=".14" />
+      <rect x="10" y="6" width="28" height="36" rx="8" fill={`url(#${id}p)`} />
+      <rect x="15" y="12" width="18" height="12" rx="3" fill="#0ea5e9" opacity=".9" />
+      <path d="M19 20h2v2h-2zM23 18h2v4h-2zM27 16h2v6h-2z" fill="#fff" />
+      <circle cx="24" cy="33" r="3.6" fill="none" stroke="#e00b0b" strokeWidth="2" />
+      <circle cx="24" cy="33" r="1" fill="#e00b0b" />
     </Svg>
   );
 };
