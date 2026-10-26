@@ -146,6 +146,8 @@ export const PREPAID_PLANS: typeof SHARED_PLANS = [
   { title: "Multi-Month 10 GB",  internet: "10 GB",  mins: "-", sms: "-", social: "-", price: 214.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"], tags: ["5G"], features: [], bonuses: [], eventId: "962" },
   { title: "Multi-Month 50 GB",  internet: "50 GB",  mins: "-", sms: "-", social: "-", price: 264.5, discount: null, validityLabel: "Valid 60 days", categories: ["data"], validity: ["2m"], tags: ["5G"], features: [], bonuses: [], eventId: "963" },
   { title: "Multi-Month 100 GB", internet: "100 GB", mins: "-", sms: "-", social: "-", price: 402.5, discount: null, validityLabel: "Valid 90 days", categories: ["data"], validity: ["3m"], tags: ["5G"], features: [], bonuses: [], eventId: "964" },
+  // PAYG — pay-as-you-go per-unit rates, top-up added on top (same offer as Friendi)
+  { title: "Pay As You Go", internet: "-", mins: "-", social: "-", sms: "-", price: 0, payg: { perMb: 0.2, perSms: 0.25, perMin: 0.45 }, discount: null, validityLabel: "", categories: ["payg"], validity: ["1m"], tags: [], features: [], bonuses: [], badge: "mostFamous" },
 ];
 
 export const POSTPAID_PLANS: typeof SHARED_PLANS = [
@@ -441,6 +443,7 @@ export const PREPAID_CHIPS = [
   { value: "base-plan", label: "Baqah" },
   { value: "flex", label: "Flex" },
   { value: "aman", label: "Aman" },
+  { value: "payg", label: "PAYG" },
   { value: "data", label: "5G MBB" },
 ];
 
@@ -856,7 +859,7 @@ const NewActivation3 = () => {
       : (lineType === "data" ? "data" : planTypeChip);
   const activePlansForType = isFriendi ? FRIENDI_PLANS : getVmCatalogPlans(payType, effectiveChip, { esim: simType === "esim", fulfilment: isFulfilment });
   const selectedPlanCategories = selectedPlan != null ? (activePlansForType[selectedPlan]?.categories ?? []) : [];
-  const isPaygPlan        = subType !== "booked" && isFriendi && planTypeChip === "payg";
+  const isPaygPlan        = subType !== "booked" && planTypeChip === "payg" && (isFriendi || (payType !== "postpaid" && lineType === "mobile"));
   // Friendi PAYG top-up: "required" case (test ID) must pick ≥ 10 with 10 preselected;
   // otherwise 0 is allowed and nothing is preselected (dealer may skip the top-up).
   const topupRequired     = isFriendi && idNumber.trim().length === 10 && idNumber.trim().endsWith(FM_TOPUP_REQUIRED_ID_SUFFIX);
@@ -1104,13 +1107,12 @@ const NewActivation3 = () => {
   // Friendi: when the dealer picks the PAYG chip, auto-select the PAYG plan so pricing
   // and the top-up section appear immediately without an extra tap.
   useEffect(() => {
-    if (!isFriendi || paygHidden) return;
-    if (planTypeChip !== "payg") return;
-    const paygIdx = FRIENDI_PLANS.findIndex((p) => p.categories.includes("payg"));
+    if (paygHidden || !isPaygPlan) return;
+    const paygIdx = activePlansForType.findIndex((p) => p.categories.includes("payg"));
     if (paygIdx >= 0 && selectedPlan !== paygIdx) {
       setSelectedPlan(paygIdx);
     }
-  }, [isFriendi, paygHidden, planTypeChip, selectedPlan]);
+  }, [paygHidden, isPaygPlan, activePlansForType, selectedPlan]);
 
   // When the top-up case flips (optional ⇄ required, via the Identity test ID), clear the
   // selection so the optional case always starts on "Select Top-up Amount" (nothing selected)
