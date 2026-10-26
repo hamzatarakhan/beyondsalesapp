@@ -696,6 +696,8 @@ const NewActivation3 = () => {
   const SHOW_MISSING_HINT = false;
   // Dealer whitelisted for in-store device handover (VNet). Prototype toggle simulates the dealer being whitelisted.
   const [isDealerHandover, setIsDealerHandover] = useState(false);
+  // Only used when the router is charged (DEVICE_PRICED test ID): the dealer picks one of several routers.
+  const [chosenDevice, setChosenDevice] = useState("router-a");
   const [deviceSerialNumber, setDeviceSerialNumber] = useState("");
 
   // Stage 2 — Subscription Type
@@ -1288,7 +1290,7 @@ const NewActivation3 = () => {
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
   // The router is bundled free ("Included") by default; the DEVICE_PRICED test ID switches to the charged one.
   const devicePriced = idNumber.trim().length === 10 && idNumber.trim().endsWith(DEVICE_PRICED_TEST_ID_SUFFIX);
-  const selectedDevice = devicePriced ? "router-c" : "router-a";
+  const selectedDevice = devicePriced ? chosenDevice : "router-a";
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
   const effectiveDeviceFee  = isWhitelisted ? 0 : deviceFee;
@@ -2104,6 +2106,39 @@ const NewActivation3 = () => {
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   {t("activation3.subscription.deviceTitle")} <span className="text-destructive">*</span>
                 </h3>
+                {devicePriced ? (
+                  // Charged router case: several routers to choose from, one radio each.
+                  <div className="space-y-2">
+                    {DEVICES.map((d) => {
+                      const on = chosenDevice === d.id;
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          onClick={() => setChosenDevice(d.id)}
+                          className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-start transition-colors", on ? "border-primary/20 bg-primary/5" : "border-border bg-card")}
+                        >
+                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                            <Router className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{d.name}</p>
+                            <p className="text-[11px] text-muted-foreground">{d.desc}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            {d.price > 0
+                      ? <span className="text-sm font-bold text-foreground"><RiyalSymbol /> {d.price.toFixed(2)}</span>
+                      : <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("activation3.subscription.deviceIncluded")}</span>
+                    }
+                          </div>
+                          <span className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0", on ? "border-primary" : "border-border")}>
+                            {on && <span className="w-2 h-2 rounded-full bg-primary" />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
                 <div className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-primary/20 bg-primary/5">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground">
                     <Router className="w-5 h-5" />
@@ -2116,6 +2151,7 @@ const NewActivation3 = () => {
                     }
                   </div>
                 </div>
+                )}
               </section>
             )}
 
