@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import FitChips from "@/components/FitChips";
+import TagChips from "@/components/TagChips";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
@@ -151,7 +151,7 @@ const PurchaseOrders = () => {
                   <Clock className="w-3.5 h-3.5 shrink-0" />
                   {o.date}
                 </div>
-                <FitChips
+                <TagChips
                   chips={o.lines.map((l) => ({ key: l.productId, label: t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`) }))}
                   moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`}
                 />
