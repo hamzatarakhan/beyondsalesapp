@@ -558,7 +558,7 @@ const PrepaidActivation = () => {
   const [numberTier, setNumberTier] = useState<Tier>(d("numberTier", "Purple"));
 
   // Number-mode (number with plan vs. number with top-up only)
-  const [numberMode, setNumberMode] = useState<NumberMode>(d("numberMode", "plan"));
+  const [numberMode, setNumberMode] = useState<NumberMode>("plan");
   const [topupValue, setTopupValue] = useState<string>(d("topupValue", ""));
 
   // Plans
@@ -907,24 +907,7 @@ const PrepaidActivation = () => {
           )}
         </section>
 
-        {/* Number type: with plan or with top-up */}
-        <section>
-          <h3 className="text-sm font-semibold text-foreground mb-2">Number type <span className="text-destructive">*</span></h3>
-          <div className="grid grid-cols-2 border-b border-border">
-            <SourceTab
-              active={numberMode === "plan"}
-              icon={Tag}
-              label="With plan"
-              onClick={() => setNumberMode("plan")}
-            />
-            <SourceTab
-              active={numberMode === "topup"}
-              icon={Database}
-              label="With top-up"
-              onClick={() => setNumberMode("topup")}
-            />
-          </div>
-        </section>
+        {/* Top-up numbers are only offered on Friendi PAYG (NewActivation), so this flow is plan-only. */}
 
         {numberMode === "topup" ? (
           <section>
