@@ -9,7 +9,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { IssueDetails } from "@/components/OrderDeliveryPanels";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { MapPin, Info, Eye, Plus, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
+import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getSalesOrder, updateSalesOrder, type ProductId, type SalesOrderStatus } from "@/data/salesOrdersStore";
 
 
@@ -100,6 +100,8 @@ const SalesOrderView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
+  // Submit unlocks only once every physically scanned product is fully scanned (digital vouchers are never scanned).
+  const allScanned = order.lines.every((l) => l.productId === "digitalVoucher" || l.scanned >= l.qty);
   const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
@@ -162,7 +164,7 @@ const SalesOrderView = () => {
                     </button>
                   ) : (
                     <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/scan/${l.productId}`)} aria-label={t("purchaseOrders.scanAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center">
-                      <Plus className="w-4 h-4 text-primary" />
+                      <ScanLine className="w-4 h-4 text-primary" />
                     </button>
                   )}
                 </div>
@@ -227,7 +229,7 @@ const SalesOrderView = () => {
 
       {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+          <button type="button" disabled={!allScanned} onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:bg-muted disabled:text-muted-foreground">
             {t("purchaseOrders.submit")}
           </button>
         </div>
