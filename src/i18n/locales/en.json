@@ -1511,7 +1511,7 @@
     "status": {
       "rfq": "RFQ",
       "quotationSent": "Quotation Sent",
-      "awaitingApproval": "Awaiting Approval",
+      "awaitingApproval": "Order Submitted",
       "awaitingScanning": "Awaiting Scanning",
       "partiallyScanned": "Partially Received",
       "received": "Received",

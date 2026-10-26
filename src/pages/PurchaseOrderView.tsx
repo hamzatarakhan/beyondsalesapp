@@ -55,7 +55,7 @@ const PurchaseOrderView = () => {
     switch (confirmAction) {
       case "approve":
         // Only reachable from Quotation Sent — Awaiting Approval has no actions of its own.
-        updatePurchaseOrder(order.id, { status: "awaitingApproval" });
+        updatePurchaseOrder(order.id, { status: "awaitingScanning" });
         break;
       case "reject":
         updatePurchaseOrder(order.id, { status: "rejected", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
@@ -64,8 +64,7 @@ const PurchaseOrderView = () => {
         updatePurchaseOrder(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
       case "submitScanning": {
-        const fullyDone = order.lines.every((l) => l.scanned >= l.qty);
-        updatePurchaseOrder(order.id, { status: fullyDone ? "received" : "partiallyScanned" });
+        updatePurchaseOrder(order.id, { status: "received" });
         break;
       }
     }
@@ -92,7 +91,7 @@ const PurchaseOrderView = () => {
   // Statuses with a fixed action bar need scroll-room underneath the summary card so the
   // bar never overlaps it — statuses with no actions (awaitingApproval/received/cancelled/
   // rejected) don't render a bar at all, so they keep the plain padding.
-  const hasActionBar = ["rfq", "quotationSent", "awaitingScanning", "partiallyScanned"].includes(order.status);
+  const hasActionBar = ["awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -182,7 +181,7 @@ const PurchaseOrderView = () => {
         </div>
       )}
 
-      {order.status === "quotationSent" && (
+      {order.status === "awaitingApproval" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.approve")}

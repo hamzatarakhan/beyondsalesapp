@@ -81,8 +81,6 @@ const mk = (
 // awaitingScanning/received are pre-sourced (split across 2 locations) so their layouts are
 // reachable directly; earlier statuses have no sources yet, same as a freshly created order.
 export const salesOrdersMulti: SalesOrder[] = [
-  mk("SOM-2026-3007", "rfq", "Riyadh Main Warehouse", DEMO_CHANNEL_MEMBERS[0], "31 Aug 2026 - 10:15 AM", new Date(2026, 7, 31), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
-  mk("SOM-2026-3006", "quotationSent", "Jeddah Branch", DEMO_CHANNEL_MEMBERS[1], "29 Aug 2026 - 4:40 PM", new Date(2026, 7, 29), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
   mk("SOM-2026-3005", "awaitingApproval", "Dammam Branch", DEMO_CHANNEL_MEMBERS[2], "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
   mk("SOM-2026-3004", "awaitingDelivery", "Mecca Branch", DEMO_CHANNEL_MEMBERS[3], "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [
     line("vmSim", 5, [source("Riyadh Warehouse", 5)]),
@@ -121,7 +119,7 @@ export const addSalesOrderMulti = (destination: string, channelMember: ChannelMe
   const { untaxed, tax, total } = computeTotals(lines);
   const order: SalesOrder = {
     id: `SOM-2026-${nextSeq++}`,
-    status: "rfq",
+    status: "awaitingApproval",
     destination,
     channelMember,
     date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),

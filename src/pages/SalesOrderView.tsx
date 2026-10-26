@@ -73,8 +73,7 @@ const SalesOrderView = () => {
         updateSalesOrder(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
       case "submitScanning": {
-        const fullyDone = order.lines.every((l) => l.productId === "digitalVoucher" || l.scanned >= l.qty);
-        updateSalesOrder(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
+        updateSalesOrder(order.id, { status: "awaitingDelivery" });
         break;
       }
     }

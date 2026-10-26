@@ -13,7 +13,7 @@ import { salesOrdersMulti, PURCHASE_ORDER_PRODUCTS, DEMO_CHANNEL_MEMBERS, type S
 
 // Identical list UI to the single-location Sales Orders list — the Multiple Locations
 // business only differs from "Select Location" onward inside View Order.
-const STATUSES: SalesOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery", "received", "cancelled", "rejected"];
+const STATUSES: SalesOrderStatus[] = ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "cancelled", "rejected"];
 
 const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",

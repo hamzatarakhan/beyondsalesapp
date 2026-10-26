@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
 import { purchaseOrders, PURCHASE_ORDER_PRODUCTS, type PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
-const STATUSES: PurchaseOrderStatus[] = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "received", "rejected", "cancelled"];
+const STATUSES: PurchaseOrderStatus[] = ["awaitingApproval", "awaitingScanning", "received", "rejected", "cancelled"];
 
 const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   rfq: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",

@@ -63,8 +63,7 @@ const SalesOrdersMultiView = () => {
         updateSalesOrderMulti(order.id, { status: "cancelled", reason: t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") });
         break;
       case "submitScanning": {
-        const fullyDone = order.lines.every((l) => l.sources.every((s) => s.scanned >= s.qty));
-        updateSalesOrderMulti(order.id, { status: fullyDone ? "awaitingDelivery" : "partiallyScanned" });
+        updateSalesOrderMulti(order.id, { status: "awaitingDelivery" });
         break;
       }
     }
