@@ -89,7 +89,7 @@ const SalesOrdersMultiView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
-  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned", "awaitingDelivery"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -225,6 +225,14 @@ const SalesOrdersMultiView = () => {
             {t("purchaseOrders.rejectOrder")}
           </button>
           <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "awaitingDelivery" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.cancelOrder")}
           </button>
         </div>
