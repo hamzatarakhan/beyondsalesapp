@@ -96,7 +96,7 @@ const PurchaseOrderView = () => {
   // Statuses with a fixed action bar need scroll-room underneath the summary card so the
   // bar never overlaps it — statuses with no actions (awaitingApproval/received/cancelled/
   // rejected) don't render a bar at all, so they keep the plain padding.
-  const hasActionBar = ["awaitingApproval", "partiallyScanned"].includes(order.status);
+  const hasActionBar = ["awaitingApproval", "awaitingDelivery", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-72" : "pb-8")}>

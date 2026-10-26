@@ -46,7 +46,8 @@ export const DeliveryActions = ({
         </div>
       </section>
 
-      <div className="space-y-3 pt-1">
+      {/* Pinned to the bottom of the screen so the actions stay reachable while the signature and terms scroll. */}
+      <div className="fixed bottom-0 start-0 end-0 z-10 bg-background border-t border-border px-4 pt-3 pb-4 space-y-2.5">
         <button type="button" disabled={!canConfirm} onClick={onConfirm} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
           {t("salesOrders.delivery.confirmReceipt")}
         </button>
