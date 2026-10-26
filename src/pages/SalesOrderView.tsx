@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { DeliveryActions, IssueDetails } from "@/components/OrderDeliveryPanels";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
 import { MapPin, Info, Eye, Plus, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
@@ -21,6 +22,7 @@ const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   cancelled: "bg-muted text-muted-foreground",
 };
 
@@ -98,7 +100,7 @@ const SalesOrderView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
-  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingDelivery", "awaitingScanning", "partiallyScanned"].includes(order.status);
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -176,6 +178,14 @@ const SalesOrderView = () => {
           );
         })}
 
+        {order.status === "awaitingDelivery" && (
+          <DeliveryActions
+            onConfirm={() => { updateSalesOrder(order.id, { status: "received" }); navigate("/sales-orders"); }}
+            onReportIssue={() => navigate("/tickets/new", { state: { orderId: order.id } })}
+            onReject={() => openConfirm("reject")}
+          />
+        )}
+        {order.status === "issueReported" && order.issue && <IssueDetails issue={order.issue} />}
       </div>
 
       {/* Action buttons pinned to the bottom of the screen — RFQ offers Submit/Edit/Cancel,
@@ -217,14 +227,6 @@ const SalesOrderView = () => {
             {t("purchaseOrders.rejectOrder")}
           </button>
           <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancelOrder")}
-          </button>
-        </div>
-      )}
-
-      {order.status === "awaitingDelivery" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("purchaseOrders.cancelOrder")}
           </button>
         </div>

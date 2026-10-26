@@ -1343,6 +1343,24 @@
   },
   "salesOrders": {
     "title": "Push Stock",
+    "delivery": {
+      "dealerSignature": "Dealer Signature",
+      "noSignature": "No signature found here",
+      "agreeTo": "I agree to the",
+      "termsAndConditions": "Terms and Conditions",
+      "andAcknowledge": "and acknowledge that my information will be processed in accordance with the",
+      "privacyPolicy": "Privacy Policy",
+      "confirmReceipt": "Confirm Receipt",
+      "reportIssue": "Report Issue",
+      "rejectOrder": "Reject Order",
+      "ticketId": "Ticket ID",
+      "ticketCategory": "Ticket Category",
+      "subCategory": "Sup Category",
+      "date": "Date",
+      "priority": "Priority Level",
+      "documents": "Documents",
+      "description": "Description"
+    },
     "noOrders": "No push stock records match your filters",
     "channelMember": "Channel Member",
     "selectChannelMember": "Select the channel member",
@@ -1372,6 +1390,7 @@
       "awaitingScanning": "Awaiting Scanning",
       "partiallyScanned": "Partially Scanned",
       "awaitingDelivery": "Awaiting Delivery",
+      "issueReported": "Issue Reported",
       "received": "Received",
       "rejected": "Rejected",
       "cancelled": "Cancelled"

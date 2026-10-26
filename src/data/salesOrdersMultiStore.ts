@@ -4,7 +4,7 @@
 // difference from the single-location flow, so it gets its own parallel store/pages
 // rather than complicating the single-location ones.
 import { PURCHASE_ORDER_PRODUCTS, DEMO_DESTINATIONS, computeTotals, type ProductId } from "@/data/purchaseOrdersStore";
-import { DEMO_CHANNEL_MEMBERS, type ChannelMember } from "@/data/salesOrdersStore";
+import { DEMO_CHANNEL_MEMBERS, type ChannelMember, type OrderIssue } from "@/data/salesOrdersStore";
 
 export { PURCHASE_ORDER_PRODUCTS, DEMO_DESTINATIONS, DEMO_CHANNEL_MEMBERS, computeTotals };
 export type { ProductId, ChannelMember };
@@ -17,6 +17,7 @@ export type SalesOrderStatus =
   | "partiallyScanned"
   | "awaitingDelivery"
   | "received"
+  | "issueReported"
   | "cancelled"
   | "rejected";
 
@@ -52,6 +53,7 @@ export interface SalesOrder {
   tax: number;
   total: number;
   reason?: string;
+  issue?: OrderIssue;
 }
 
 const source = (location: string, qty: number, scanned = 0): SalesOrderSource => ({

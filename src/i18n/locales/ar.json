@@ -1357,6 +1357,24 @@
   },
   "salesOrders": {
     "title": "دفع المخزون",
+    "delivery": {
+      "dealerSignature": "توقيع الموزع",
+      "noSignature": "لا يوجد توقيع هنا",
+      "agreeTo": "أوافق على",
+      "termsAndConditions": "الشروط والأحكام",
+      "andAcknowledge": "وأقر بأن معلوماتي ستتم معالجتها وفقاً لـ",
+      "privacyPolicy": "سياسة الخصوصية",
+      "confirmReceipt": "تأكيد الاستلام",
+      "reportIssue": "الإبلاغ عن مشكلة",
+      "rejectOrder": "رفض الطلب",
+      "ticketId": "رقم التذكرة",
+      "ticketCategory": "فئة التذكرة",
+      "subCategory": "الفئة الفرعية",
+      "date": "التاريخ",
+      "priority": "مستوى الأولوية",
+      "documents": "المستندات",
+      "description": "الوصف"
+    },
     "noOrders": "لا توجد سجلات دفع مخزون مطابقة للفلاتر المحددة",
     "channelMember": "عضو القناة",
     "selectChannelMember": "اختر عضو القناة",
@@ -1386,6 +1404,7 @@
       "awaitingScanning": "بانتظار المسح",
       "partiallyScanned": "ممسوح جزئيًا",
       "awaitingDelivery": "بانتظار التسليم",
+      "issueReported": "تم الإبلاغ عن مشكلة",
       "received": "تم الاستلام",
       "rejected": "مرفوض",
       "cancelled": "ملغي"

@@ -16,8 +16,20 @@ export type SalesOrderStatus =
   | "partiallyScanned"
   | "awaitingDelivery"
   | "received"
+  | "issueReported"
   | "cancelled"
   | "rejected";
+
+// Raised from Awaiting Delivery via "Report Issue" — a ticket filed against the order.
+export interface OrderIssue {
+  ticketId: string;
+  category: string;
+  subCategory: string;
+  priority: "high" | "medium" | "low";
+  date: string;
+  documents: { id: string; name: string; kind: "file" | "image" }[];
+  description: string;
+}
 
 export interface ChannelMember {
   name: string;
@@ -54,6 +66,7 @@ export interface SalesOrder {
   tax: number;
   total: number;
   reason?: string;
+  issue?: OrderIssue;
 }
 
 const line = (productId: ProductId, qty: number, scanned = 0): SalesOrderLine => ({
