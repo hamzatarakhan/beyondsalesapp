@@ -100,7 +100,7 @@ const SalesOrderView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
-  const hasActionBar = false; // Push Stock is read-only — approval/scan actions live in Request Stock.
+  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -151,7 +151,7 @@ const SalesOrderView = () => {
               {/* E-SIM is provisioned, not physically scanned — it never gets this UI.
                   Awaiting Scanning and Partially Scanned share the same per-item layout;
                   they only differ in the order-level badge. */}
-              {l.productId !== "digitalVoucher" && order.status === "partiallyScanned" && (
+              {l.productId !== "digitalVoucher" && (order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                     {t("purchaseOrders.scannedCount", { scanned: l.scanned, qty: l.qty })}
@@ -186,6 +186,53 @@ const SalesOrderView = () => {
           Cancel (scanning's already done by the time an order gets here), and Awaiting
           Scanning/Partially Scanned are just Submit — always enabled, submitting with
           leftover unscanned units is allowed and expected. */}
+      {order.status === "rfq" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => openConfirm("submitRfq")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.submit")}
+          </button>
+          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+            {t("purchaseOrders.edit")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "quotationSent" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => navigate(`/sales-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.edit")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {order.status === "awaitingApproval" && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
+          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.approve")}
+          </button>
+          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+            {t("purchaseOrders.rejectOrder")}
+          </button>
+          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
+            {t("purchaseOrders.cancelOrder")}
+          </button>
+        </div>
+      )}
+
+      {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
+        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
+          <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.submit")}
+          </button>
+        </div>
+      )}
+
       <ConfirmMessageDrawer
         open={!!confirmAction}
         onOpenChange={(o) => { if (!o) setConfirmAction(null); }}
