@@ -1544,6 +1544,7 @@
       "quotationSent": "Quotation Sent",
       "awaitingApproval": "Order Submitted",
       "awaitingScanning": "Awaiting Scanning",
+      "awaitingDelivery": "Awaiting Delivery",
       "partiallyScanned": "Partially Received",
       "received": "Received",
       "rejected": "Rejected",

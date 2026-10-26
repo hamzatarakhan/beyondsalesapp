@@ -9,6 +9,7 @@ export type PurchaseOrderStatus =
   | "awaitingApproval"
   | "awaitingScanning"
   | "partiallyScanned"
+  | "awaitingDelivery"
   | "received"
   | "cancelled"
   | "rejected";
@@ -83,6 +84,7 @@ const mk = (id: string, status: PurchaseOrderStatus, destination: string, date: 
 export const purchaseOrders: PurchaseOrder[] = [
   mk("PO-2026-1005", "awaitingApproval", "Dammam Branch", "26 Aug 2026 - 9:05 AM", new Date(2026, 7, 26), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
   mk("PO-2026-1004", "awaitingScanning", "Mecca Branch", "20 Aug 2026 - 2:20 PM", new Date(2026, 7, 20), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)]),
+  mk("PO-2026-1003", "awaitingDelivery", "Medina Branch", "15 Aug 2026 - 11:50 AM", new Date(2026, 7, 15), [line("vmSim", 5, 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
   mk("PO-2026-1002", "received", "Khobar Branch", "10 Aug 2026 - 5:30 PM", new Date(2026, 7, 10), [line("vmSim", 5, 5), line("voucher50", 6, 6), line("router1", 4, 4)]),
   mk("PO-2026-1001", "cancelled", "Riyadh Main Warehouse", "5 Aug 2026 - 1:00 AM", new Date(2026, 7, 5), [line("vmSim", 5), line("voucher50", 6), line("router1", 4)], {
     reason: "Budget for this quarter's stock replenishment was already exhausted.",

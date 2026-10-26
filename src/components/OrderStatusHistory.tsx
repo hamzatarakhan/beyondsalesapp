@@ -11,7 +11,8 @@ type Action = "submit" | "approve" | "reject" | "cancel";
 const PATH: Partial<Record<PurchaseOrderStatus, { stage: PurchaseOrderStatus; action: Action }[]>> = {
   awaitingApproval: [{ stage: "awaitingApproval", action: "submit" }],
   awaitingScanning: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }],
-  received: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "received", action: "approve" }],
+  awaitingDelivery: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "awaitingDelivery", action: "approve" }],
+  received: [{ stage: "awaitingApproval", action: "submit" }, { stage: "awaitingScanning", action: "approve" }, { stage: "awaitingDelivery", action: "approve" }, { stage: "received", action: "approve" }],
   rejected: [{ stage: "awaitingApproval", action: "submit" }, { stage: "rejected", action: "reject" }],
   cancelled: [{ stage: "awaitingApproval", action: "submit" }, { stage: "cancelled", action: "cancel" }],
 };
@@ -19,6 +20,7 @@ const PATH: Partial<Record<PurchaseOrderStatus, { stage: PurchaseOrderStatus; ac
 const STAGE_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
   awaitingApproval: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
   cancelled: "bg-muted text-muted-foreground",
@@ -27,6 +29,7 @@ const STAGE_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
 const DOT_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
   awaitingApproval: "border-sky-400 text-sky-500",
   awaitingScanning: "border-amber-400 text-amber-500",
+  awaitingDelivery: "border-teal-500 text-teal-600",
   received: "border-emerald-500 text-emerald-600",
   rejected: "border-primary text-primary",
   cancelled: "border-muted-foreground text-muted-foreground",

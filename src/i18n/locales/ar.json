@@ -1558,6 +1558,7 @@
       "quotationSent": "تم إرسال عرض السعر",
       "awaitingApproval": "بانتظار الموافقة",
       "awaitingScanning": "بانتظار المسح",
+      "awaitingDelivery": "بانتظار التسليم",
       "partiallyScanned": "مستلم جزئيًا",
       "received": "تم الاستلام",
       "rejected": "مرفوض",
