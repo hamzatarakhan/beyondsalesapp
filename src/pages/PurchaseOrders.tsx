@@ -148,14 +148,14 @@ const PurchaseOrders = () => {
                   <Clock className="w-3.5 h-3.5 shrink-0" />
                   {o.date}
                 </div>
-                <div className="flex items-center gap-2 overflow-hidden">
+                <div className="flex items-center gap-1.5 overflow-hidden">
                   {o.lines.slice(0, 3).map((l) => (
-                    <span key={l.productId} className="shrink-0 px-3.5 py-1.5 rounded-full bg-muted border border-border text-[13px] font-medium text-muted-foreground whitespace-nowrap">
+                    <span key={l.productId} className="shrink-0 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
                       {t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)}
                     </span>
                   ))}
                   {o.lines.length > 3 && (
-                    <span className="shrink-0 px-3.5 py-1.5 rounded-full bg-muted/50 text-[13px] font-medium text-muted-foreground whitespace-nowrap">
+                    <span className="shrink-0 px-2.5 py-0.5 rounded-full bg-muted/50 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
                       +{o.lines.length - 3} {t("purchaseOrders.moreItems")}
                     </span>
                   )}
