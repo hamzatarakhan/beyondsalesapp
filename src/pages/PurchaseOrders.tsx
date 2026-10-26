@@ -36,21 +36,21 @@ const PurchaseOrders = () => {
 
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [draftStatus, setDraftStatus] = useState<PurchaseOrderStatus | null>(null);
-  const [appliedStatus, setAppliedStatus] = useState<PurchaseOrderStatus | null>(null);
+  const [draftStatus, setDraftStatus] = useState<PurchaseOrderStatus[]>([]);
+  const [appliedStatus, setAppliedStatus] = useState<PurchaseOrderStatus[]>([]);
   const [appliedRange, setAppliedRange] = useState<{ from: Date; to: Date; label: string } | null>(null);
 
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
-  const activeFilterCount = (appliedStatus ? 1 : 0) + (appliedRange ? 1 : 0);
+  const activeFilterCount = appliedStatus.length + (appliedRange ? 1 : 0);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return purchaseOrders
       .filter((o) => {
         if (q && !o.id.toLowerCase().includes(q)) return false;
-        if (appliedStatus && o.status !== appliedStatus) return false;
+        if (appliedStatus.length && !appliedStatus.includes(o.status)) return false;
         if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
         return true;
       })
@@ -68,8 +68,8 @@ const PurchaseOrders = () => {
   };
 
   const clearFilter = () => {
-    setDraftStatus(null);
-    setAppliedStatus(null);
+    setDraftStatus([]);
+    setAppliedStatus([]);
     setAppliedRange(null);
     setFilterOpen(false);
   };
@@ -108,16 +108,16 @@ const PurchaseOrders = () => {
           </button>
         </div>
 
-        {(appliedStatus || appliedRange) && (
+        {(appliedStatus.length > 0 || appliedRange) && (
           <div className="flex items-center gap-2 flex-wrap">
-            {appliedStatus && (
-              <span className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                {t(`purchaseOrders.status.${appliedStatus}`)}
-                <button type="button" onClick={() => setAppliedStatus(null)} aria-label={t("purchaseOrders.removeFilter")} className="w-4 h-4 rounded-full flex items-center justify-center">
+            {appliedStatus.map((st) => (
+              <span key={st} className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                {t(`purchaseOrders.status.${st}`)}
+                <button type="button" onClick={() => setAppliedStatus(appliedStatus.filter((x) => x !== st))} aria-label={t("purchaseOrders.removeFilter")} className="w-4 h-4 rounded-full flex items-center justify-center">
                   <XIcon className="w-3 h-3" />
                 </button>
               </span>
-            )}
+            ))}
             {appliedRange && (
               <span className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                 {appliedRange.label}
@@ -191,8 +191,8 @@ const PurchaseOrders = () => {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setDraftStatus(null)}
-                  className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus === null ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
+                  onClick={() => setDraftStatus([])}
+                  className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus.length === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
                 >
                   {t("purchaseOrders.filter.all")}
                 </button>
@@ -200,8 +200,8 @@ const PurchaseOrders = () => {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setDraftStatus(s)}
-                    className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
+                    onClick={() => setDraftStatus(draftStatus.includes(s) ? draftStatus.filter((x) => x !== s) : [...draftStatus, s])}
+                    className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus.includes(s) ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
                   >
                     {t(`purchaseOrders.status.${s}`)}
                   </button>
