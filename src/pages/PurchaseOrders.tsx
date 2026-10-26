@@ -138,7 +138,7 @@ const PurchaseOrders = () => {
                 key={o.id}
                 type="button"
                 onClick={() => navigate(`/purchase-orders/${o.id}`)}
-                className="w-full text-start bg-card rounded-2xl border-s-[6px] border-s-primary border border-border/60 p-4 space-y-2.5"
+                className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-2.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-base font-bold text-foreground">{o.id}</p>
