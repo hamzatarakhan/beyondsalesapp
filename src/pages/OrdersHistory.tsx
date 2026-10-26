@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useBrand } from "@/contexts/BrandContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
@@ -210,6 +211,9 @@ const OrdersHistory = () => {
   // everything below to SELF_MEMBER_CODE's own records; Parent View (the default) keeps
   // the full cross-dealer picture.
   const view = searchParams.get("view") === "member" ? "member" : "parent";
+  // VM (Virgin) has no commission tab — Parent View only shows it for FM (Friendi).
+  const { brand } = useBrand();
+  const showCommissionTab = view === "parent" && brand !== "virgin";
   const baseOrders = useMemo(() => (view === "member" ? ORDERS.filter((o) => o.memberCode === SELF_MEMBER_CODE) : ORDERS), [view]);
 
   const [tab, setTab] = useState<"orders" | "summary" | "commission">("orders");
@@ -492,8 +496,8 @@ const OrdersHistory = () => {
 
       <div className="px-4">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-          <TabsList className={cn("w-full grid bg-transparent p-0 h-auto border-b border-border rounded-none mb-4", view === "member" ? "grid-cols-2" : "grid-cols-3")}>
-            {(view === "member" ? (["orders", "summary"] as const) : (["orders", "summary", "commission"] as const)).map((v) => (
+          <TabsList className={cn("w-full grid bg-transparent p-0 h-auto border-b border-border rounded-none mb-4", showCommissionTab ? "grid-cols-3" : "grid-cols-2")}>
+            {(showCommissionTab ? (["orders", "summary", "commission"] as const) : (["orders", "summary"] as const)).map((v) => (
               <TabsTrigger
                 key={v}
                 value={v}
