@@ -403,6 +403,8 @@ const PREPAID_LIMIT_REACHED_ID_SUFFIX = "999988888";
 // Deterministic trigger for the Failed Request popup at Yes, Confirm — otherwise that case
 // only shows up on the random ~15% chance, which makes it hard to demo on demand.
 const FAILED_ACTIVATION_TEST_ID_SUFFIX = "555511111";
+// Identity test ID suffix for a Vnet customer whose router is charged (Premium 5G Router) — every other ID gets the free, "Included" router.
+const DEVICE_PRICED_TEST_ID_SUFFIX = "777766666";
 
 const REGIONS = ["Riyadh Region", "Makkah Region", "Eastern Province", "Madinah Region", "Aseer Region", "Tabuk Region", "Hail Region", "Northern Borders", "Jouf Region", "Qassim Region", "Najran Region", "Jizan Region", "Bahah Region"];
 
@@ -539,13 +541,6 @@ const DEVICES = [
   { id: "router-b", name: "5G Gateway Pro", desc: "Up to 2 Gbps · 32 devices", price: 0 },
   { id: "router-c", name: "Premium 5G Router", desc: "Up to 8 Gbps · 128 devices", price: 200 },
 ];
-
-// Each Vnet plan bundles its own device — higher-tier plans get the more capable router.
-const VNET_PLAN_DEVICE: Record<string, string> = {
-  "Vnet 100 GB": "router-b",
-  "Vnet 300 GB": "router-a",
-  "Vnet 500 GB": "router-c",
-};
 
 export const ESIM_DEVICES = [
   { model: "iPhone XS / XS Max / XR", ios: "iOS 12.1+" },
@@ -1291,7 +1286,9 @@ const NewActivation3 = () => {
   const effectivePlanPrice  = isWhitelisted ? 0 : planPrice;
   const effectiveSimFee     = isWhitelisted ? 0 : simFee;
   const numberFee           = rawNumberFee; // VIP number fee always applies even for whitelisted
-  const selectedDevice = (selectedPlanObj && VNET_PLAN_DEVICE[selectedPlanObj.title]) || "router-a";
+  // The router is bundled free ("Included") by default; the DEVICE_PRICED test ID switches to the charged one.
+  const devicePriced = idNumber.trim().length === 10 && idNumber.trim().endsWith(DEVICE_PRICED_TEST_ID_SUFFIX);
+  const selectedDevice = devicePriced ? "router-c" : "router-a";
   const deviceObj = DEVICES.find(d => d.id === selectedDevice);
   const deviceFee = showDevice ? (deviceObj?.price ?? 0) : 0;
   const effectiveDeviceFee  = isWhitelisted ? 0 : deviceFee;
@@ -1597,6 +1594,7 @@ const NewActivation3 = () => {
                 ] : [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
+                  { value: demoIdFor(idNumberRule, DEVICE_PRICED_TEST_ID_SUFFIX), note: "Vnet router has a price (200.00)" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
                   { value: demoIdFor(idNumberRule, FAILED_ACTIVATION_TEST_ID_SUFFIX), note: "Forces Failed Request at Yes, Confirm" },
                 ]}
