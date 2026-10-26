@@ -1253,7 +1253,7 @@
     "status": {
       "approved": "Approved",
       "pending": "Pending",
-      "rejected": "Rejected"
+      "rejected": "Failed"
     },
     "filter": {
       "title": "Filter",
@@ -1277,10 +1277,19 @@
       "apply": "Apply",
       "clear": "Clear"
     },
-    "orderTypeSheetTitle": "Order Type",
+    "orderTypeSheetTitle": "Order Details",
     "rejectedReason": "Rejected Reason",
     "customerDetails": "Customer Details",
     "orderDetails": "Order Details",
+    "commissionAmount": "Amount",
+    "commissionCompleted": "Completed",
+    "customerName": "Customer Name",
+    "nationalId": "National ID",
+    "memberName": "Member Name",
+    "rejectedBadge": "Rejected",
+    "commissionPending": "Pending",
+    "commissionCancelled": "Cancelled",
+    "cancellationReason": "Cancellation Reason",
     "commissions": "Commissions",
     "name": "Name",
     "msisdn": "MSISDN",
@@ -1294,6 +1303,7 @@
       "completed": "Completed",
       "commission": "Commission",
       "pending": "Pending",
+      "progressChart": "Progress circle chart",
       "ordersByStatus": "Orders By Status",
       "ordersByType": "Orders By Type",
       "commissionByType": "Commission By Type",

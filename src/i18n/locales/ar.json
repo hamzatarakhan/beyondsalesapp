@@ -1267,7 +1267,7 @@
     "status": {
       "approved": "مقبول",
       "pending": "قيد الانتظار",
-      "rejected": "مرفوض"
+      "rejected": "فاشل"
     },
     "filter": {
       "title": "تصفية",
@@ -1291,10 +1291,19 @@
       "apply": "تطبيق",
       "clear": "مسح"
     },
-    "orderTypeSheetTitle": "نوع الطلب",
+    "orderTypeSheetTitle": "تفاصيل الطلب",
     "rejectedReason": "سبب الرفض",
     "customerDetails": "بيانات العميل",
     "orderDetails": "تفاصيل الطلب",
+    "commissionAmount": "المبلغ",
+    "commissionCompleted": "مكتمل",
+    "customerName": "اسم العميل",
+    "nationalId": "الهوية الوطنية",
+    "memberName": "اسم العضو",
+    "rejectedBadge": "مرفوض",
+    "commissionPending": "قيد الانتظار",
+    "commissionCancelled": "ملغاة",
+    "cancellationReason": "سبب الإلغاء",
     "commissions": "العمولات",
     "name": "الاسم",
     "msisdn": "MSISDN",
@@ -1308,6 +1317,7 @@
       "completed": "مكتملة",
       "commission": "العمولة",
       "pending": "قيد الانتظار",
+      "progressChart": "مخطط الدائرة التقدمي",
       "ordersByStatus": "الطلبات حسب الحالة",
       "ordersByType": "الطلبات حسب النوع",
       "commissionByType": "العمولة حسب النوع",

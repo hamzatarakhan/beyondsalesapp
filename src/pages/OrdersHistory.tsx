@@ -33,6 +33,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Info,
+  ArrowLeft,
 } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors every other flow's page-local helpers) ----------
@@ -90,17 +91,24 @@ export interface DemoOrder {
   dateObj: Date;
   commission: number;
   rejectedReason?: string;
+  /** Why the order (and its commission) was cancelled — shown on the Commission card. */
+  cancellationReason?: string;
 }
 
 // "Today" reference — the demo dates are fixed relative to this, not the real device clock,
 // so the Today/Last 7/Last 30 buckets below stay meaningful regardless of when this runs.
 const TODAY_REF = new Date(2026, 7, 31);
 
+// Commission only exists once an order is approved — pending and rejected orders show none.
+export const earnedCommission = (o: DemoOrder) => (o.status === "approved" ? o.commission : 0);
+
 export const ORDERS: DemoOrder[] = [
+  { id: "ORD-2026-000047", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Layla Al-Subaie", memberCode: "DST001", member: "Sara Ahmad", phone: "0554412090", idType: "National ID", date: "30 Aug 2026 - 3:15 PM", dateObj: new Date(2026, 7, 30), commission: 5.0 },
   { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0 },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5 },
+  { id: "ORD-2026-000048", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Hessa Al-Mutairi", memberCode: "DST001", member: "Sara Ahmad", phone: "0561177340", idType: "Iqama ID", date: "27 Aug 2026 - 1:30 PM", dateObj: new Date(2026, 7, 27), commission: 0, rejectedReason: "The SIM serial number could not be verified.", cancellationReason: "Customer didn't pay their bill" },
   { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0 },
-  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details." },
+  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details.", cancellationReason: "Customer didn't pay their bill" },
   { id: "ORD-2026-000042", status: "approved", commissionStatus: "approved", type: "hbb", customer: "Mona Al-Qahtani", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0567891234", idType: "National ID", date: "10 Aug 2026 - 11:50 AM", dateObj: new Date(2026, 7, 10), commission: 18.0 },
   { id: "ORD-2026-000041", status: "approved", commissionStatus: "approved", type: "topUp", customer: "Abdullah Al-Zahrani", memberCode: "DST001", member: "Sara Ahmad", phone: "0512345678", idType: "Iqama ID", date: "2 Aug 2026 - 5:30 PM", dateObj: new Date(2026, 7, 2), commission: 3.25 },
 ];
@@ -341,11 +349,11 @@ const OrdersHistory = () => {
     const completed = scopedOrders.filter((o) => o.status === "approved").length;
     const pending = scopedOrders.filter((o) => o.status === "pending").length;
     const rejected = scopedOrders.filter((o) => o.status === "rejected").length;
-    const commission = scopedOrders.reduce((sum, o) => sum + o.commission, 0);
+    const commission = scopedOrders.reduce((sum, o) => sum + earnedCommission(o), 0);
     const byType = ORDER_TYPES.map((type) => ({
       type,
       count: scopedOrders.filter((o) => o.type === type).length,
-      commission: scopedOrders.filter((o) => o.type === type).reduce((sum, o) => sum + o.commission, 0),
+      commission: scopedOrders.filter((o) => o.type === type).reduce((sum, o) => sum + earnedCommission(o), 0),
     }));
     return { total: scopedOrders.length, completed, pending, rejected, commission, byType };
   }, [scopedOrders]);
@@ -373,7 +381,7 @@ const OrdersHistory = () => {
   }, [dealerRankTab]);
 
   const commissionHistory = useMemo(
-    () => scopedOrders.filter((o) => o.commission > 0).map((o, i) => ({ ...o, kind: i % 2 === 0 ? ("instance" as const) : ("scheduled" as const) })),
+    () => scopedOrders.filter((o) => earnedCommission(o) > 0).map((o, i) => ({ ...o, kind: i % 2 === 0 ? ("instance" as const) : ("scheduled" as const) })),
     [scopedOrders],
   );
 
@@ -471,7 +479,7 @@ const OrdersHistory = () => {
   );
 
   const breakdownFor = (o: DemoOrder) =>
-    o.commission > 0
+    earnedCommission(o) > 0
       ? [
           { member: o.member, type: t("ordersHistory.direct"), code: o.memberCode, amount: o.commission * 0.8 },
           { member: t("ordersHistory.teamLeader"), type: t("ordersHistory.override"), code: "DST-LEAD", amount: o.commission * 0.2 },
@@ -484,8 +492,8 @@ const OrdersHistory = () => {
 
       <div className="px-4">
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-          <TabsList className="w-full grid grid-cols-3 bg-transparent p-0 h-auto border-b border-border rounded-none mb-4">
-            {(["orders", "summary", "commission"] as const).map((v) => (
+          <TabsList className={cn("w-full grid bg-transparent p-0 h-auto border-b border-border rounded-none mb-4", view === "member" ? "grid-cols-2" : "grid-cols-3")}>
+            {(view === "member" ? (["orders", "summary"] as const) : (["orders", "summary", "commission"] as const)).map((v) => (
               <TabsTrigger
                 key={v}
                 value={v}
@@ -549,7 +557,7 @@ const OrdersHistory = () => {
                       {o.customer} <span className="text-muted-foreground/50">•</span> {o.memberCode}
                     </div>
                   )}
-                  {view === "parent" && o.commission > 0 && (
+                  {view === "parent" && earnedCommission(o) > 0 && (
                     <span
                       role="button"
                       tabIndex={0}
@@ -572,9 +580,11 @@ const OrdersHistory = () => {
                       {o.date}
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1">
-                        <RiyalSymbol /> {o.commission.toFixed(2)}
-                      </span>
+                      {o.status === "approved" && (
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1">
+                          <RiyalSymbol /> {o.commission.toFixed(2)}
+                        </span>
+                      )}
                       <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
                     </span>
                   </div>
@@ -612,11 +622,11 @@ const OrdersHistory = () => {
             <div className="grid grid-cols-2 gap-3">
               <StatCard icon={Package} label={t("ordersHistory.summary.totalOrders")} value={String(summary.total)} tone="bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" />
               <StatCard icon={CheckCircle2} label={t("ordersHistory.summary.completed")} value={String(summary.completed)} tone="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" />
-              <StatCard icon={Wallet} label={t("ordersHistory.summary.commission")} value={summary.commission.toFixed(2)} tone="bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300" />
-              <StatCard icon={Clock} label={t("ordersHistory.summary.pending")} value={String(summary.pending)} tone="bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" />
+              {view === "parent" && <StatCard icon={Wallet} label={t("ordersHistory.summary.commission")} value={summary.commission.toFixed(2)} tone="bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300" />}
+              {view === "parent" && <StatCard icon={Clock} label={t("ordersHistory.summary.pending")} value={String(summary.pending)} tone="bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" />}
             </div>
 
-            <CardSection title={t("ordersHistory.summary.ordersByStatus")} icon={ClipboardList}>
+            <CardSection title={t(view === "member" ? "ordersHistory.summary.progressChart" : "ordersHistory.summary.ordersByStatus")} icon={ClipboardList}>
               {summary.total === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-6">{t("ordersHistory.noOrders")}</p>
               ) : (
@@ -664,6 +674,7 @@ const OrdersHistory = () => {
               </div>
             </CardSection>
 
+            {view === "parent" && (
             <CardSection title={t("ordersHistory.summary.commissionByType")} icon={Wallet}>
               <div className="space-y-3">
                 {summary.byType.map((r) => (
@@ -679,6 +690,7 @@ const OrdersHistory = () => {
                 ))}
               </div>
             </CardSection>
+            )}
           </TabsContent>
 
           {/* ---------- Commission ---------- */}
@@ -914,7 +926,7 @@ const OrdersHistory = () => {
                 >
                   {t("ordersHistory.filter.all")}
                 </button>
-                {(["pending", "approved", "rejected"] as const).map((s) => (
+                {(["approved", "pending", "rejected"] as const).map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -989,7 +1001,10 @@ const OrdersHistory = () => {
 
       {/* ---------- Order Type detail drawer ---------- */}
       <Drawer open={!!selectedOrder} onOpenChange={(o) => { if (!o) setSelectedOrder(null); }}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col">
+          <button onClick={() => setSelectedOrder(null)} aria-label={t("ordersHistory.backAria", "Back")} className="absolute start-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+            <ArrowLeft className="w-4 h-4 text-foreground rtl:rotate-180" />
+          </button>
           <button onClick={() => setSelectedOrder(null)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -997,13 +1012,17 @@ const OrdersHistory = () => {
             <DrawerTitle className="text-lg font-semibold">{t("ordersHistory.orderTypeSheetTitle")}</DrawerTitle>
           </DrawerHeader>
           {selectedOrder && (
-            <div className="px-4 pb-8 space-y-4">
+            <div data-vaul-no-drag className="px-4 pb-8 space-y-4 overflow-y-auto overscroll-contain flex-1 min-h-0">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                   {selectedOrder.id}
                 </span>
-                <StatusBadge status={selectedOrder.status} />
+                {selectedOrder.status === "rejected" ? (
+                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE.rejected)}>{t("ordersHistory.rejectedBadge")}</span>
+                ) : (
+                  <StatusBadge status={selectedOrder.status} />
+                )}
               </div>
               <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${selectedOrder.type}`)}</p>
 
@@ -1018,24 +1037,57 @@ const OrdersHistory = () => {
               )}
 
               <DetailBlock title={t("ordersHistory.customerDetails")}>
-                <SummaryRow label={t("ordersHistory.name")} value={selectedOrder.customer} />
-                <SummaryRow label={t("ordersHistory.msisdn")} value={selectedOrder.phone} />
-                <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.idType} />
+                <SummaryRow label={t("ordersHistory.customerName")} value={view === "member" ? <span dir="ltr">{"*".repeat(8)}</span> : selectedOrder.customer} />
+                <SummaryRow label={t("ordersHistory.msisdn")} value={view === "member" ? <span dir="ltr">{"*".repeat(12)}</span> : selectedOrder.phone} />
+                <SummaryRow label={t("ordersHistory.nationalId")} value={view === "member" ? <span dir="ltr">{"*".repeat(13)}</span> : selectedOrder.idType} />
               </DetailBlock>
 
               <DetailBlock title={t("ordersHistory.orderDetails")}>
-                <SummaryRow label={t("ordersHistory.member")} value={selectedOrder.member} />
+                <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
               </DetailBlock>
 
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-foreground">{t("ordersHistory.commissions")}</p>
-                {breakdownFor(selectedOrder).length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4 bg-muted/60 rounded-2xl">{t("ordersHistory.noOrders")}</p>
-                ) : (
-                  renderCommissionRows(breakdownFor(selectedOrder))
-                )}
-              </div>
+              {/* Commission card for every status: Completed (amount) / Pending / Cancelled (reason) —
+                  pending and cancelled orders earn nothing, so the amount is a dash. */}
+              {(() => {
+                const st = selectedOrder.status;
+                const tone =
+                  st === "approved"
+                    ? "border-emerald-200/70 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/20"
+                    : st === "pending"
+                    ? "border-amber-200/70 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/20"
+                    : "border-rose-200/70 bg-rose-50 dark:bg-rose-500/10 dark:border-rose-500/20";
+                const chip =
+                  st === "approved"
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                    : st === "pending"
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+                    : "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300";
+                const chipLabel = st === "approved" ? "commissionCompleted" : st === "pending" ? "commissionPending" : "commissionCancelled";
+                return (
+                  <div className={cn("rounded-2xl border p-4", tone)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-base font-bold text-foreground">{t("ordersHistory.summary.commission")}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{t("ordersHistory.commissionAmount")}</p>
+                        <p className={cn("text-xl font-bold mt-0.5", st === "approved" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
+                          {st === "approved" ? <><RiyalSymbol /> {selectedOrder.commission.toFixed(2)}</> : "-"}
+                        </p>
+                      </div>
+                      <span className={cn("px-3 py-1 rounded-full text-xs font-semibold shrink-0", chip)}>{t(`ordersHistory.${chipLabel}`)}</span>
+                    </div>
+                    {st === "rejected" && selectedOrder.cancellationReason && (
+                      <div className="mt-3 flex items-start gap-2 rounded-xl bg-white/70 dark:bg-black/20 p-3">
+                        <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t("ordersHistory.cancellationReason")}</p>
+                          <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{selectedOrder.cancellationReason}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </DrawerContent>
@@ -1043,14 +1095,14 @@ const OrdersHistory = () => {
 
       {/* ---------- Commission Breakdown drawer ---------- */}
       <Drawer open={!!breakdownOrder} onOpenChange={(o) => { if (!o) setBreakdownOrder(null); }}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col">
           <button onClick={() => setBreakdownOrder(null)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
           <DrawerHeader className="text-center pt-8">
             <DrawerTitle className="text-lg font-semibold">{t("ordersHistory.commissionBreakdown")}</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-8">{breakdownOrder && renderCommissionRows(breakdownFor(breakdownOrder))}</div>
+          <div data-vaul-no-drag className="px-4 pb-8 overflow-y-auto overscroll-contain flex-1 min-h-0">{breakdownOrder && renderCommissionRows(breakdownFor(breakdownOrder))}</div>
         </DrawerContent>
       </Drawer>
 

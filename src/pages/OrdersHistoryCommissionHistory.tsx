@@ -7,7 +7,7 @@ import KpiDonut from "@/components/KpiDonut";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
-import { ORDERS, SELF_MEMBER_CODE, type OrderStatus } from "@/pages/OrdersHistory";
+import { ORDERS, SELF_MEMBER_CODE, earnedCommission, type OrderStatus } from "@/pages/OrdersHistory";
 
 // Full list behind the Commission tab's "See all" — same rows the tab already renders,
 // just every commission-bearing order instead of the tab's date-scoped subset, plus search.
@@ -28,7 +28,7 @@ const OrdersHistoryCommissionHistory = () => {
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return ORDERS.filter((o) => o.commission > 0)
+    return ORDERS.filter((o) => earnedCommission(o) > 0)
       .filter((o) => view === "parent" || o.memberCode === SELF_MEMBER_CODE)
       .filter((o) => !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.phone.includes(q))
       .map((o, i) => ({ ...o, kind: i % 2 === 0 ? ("instance" as const) : ("scheduled" as const) }));

@@ -364,7 +364,8 @@ const ChangePrepaidBundle = () => {
             {/* Current Plan section hidden — the real API response doesn't carry the data
                 this card needs. */}
 
-            {line && (
+            {/* Friendi (FM) doesn't show the Current Plan Consumption card. */}
+            {line && !isFriendi && (
               <CardSection title={t("changePrepaidBundle.currentConsumption")} icon={Gauge}>
                 <div className="space-y-3">
                   {/* Best-UX rewrite of the app's existing "customer will lose his plan"
