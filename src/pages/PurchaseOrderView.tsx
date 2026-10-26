@@ -189,12 +189,6 @@ const PurchaseOrderView = () => {
           in this flow being a fixed control rather than part of the scroll). */}
       {order.status === "awaitingApproval" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.approve")}
-          </button>
-          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
-            {t("purchaseOrders.rejectOrder")}
-          </button>
           <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary/15 text-foreground font-semibold text-sm">
             {t("purchaseOrders.edit")}
           </button>
