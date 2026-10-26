@@ -20,8 +20,8 @@ const STATUS_STYLE: Record<SalesOrderStatus, string> = {
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
   partiallyScanned: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   awaitingDelivery: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
-  received: "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300",
-  rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
+  rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
   issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   cancelled: "bg-muted text-muted-foreground",
 };
