@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import FitChips from "@/components/FitChips";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
@@ -180,19 +181,10 @@ const SalesOrders = () => {
                   <User className="w-3.5 h-3.5 shrink-0" />
                   {o.channelMember.name}
                 </div>
-                <div className="flex items-center gap-1.5 overflow-hidden">
-                  {o.lines.slice(0, 3).map((l) => (
-                    <span key={l.productId} className="shrink-0 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
-                      {t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)}
-                      <span className="ms-1 text-foreground font-semibold">({l.qty})</span>
-                    </span>
-                  ))}
-                  {o.lines.length > 3 && (
-                    <span className="shrink-0 px-2.5 py-0.5 rounded-full bg-muted/50 text-[11px] font-medium text-muted-foreground whitespace-nowrap">
-                      +{o.lines.length - 3} {t("purchaseOrders.moreItems")}
-                    </span>
-                  )}
-                </div>
+                <FitChips
+                  chips={o.lines.map((l) => ({ key: l.productId, label: <>{t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === l.productId)?.nameKey}`)}<span className="ms-1 text-foreground font-semibold">({l.qty})</span></> }))}
+                  moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`}
+                />
               </button>
             ))}
           </div>
