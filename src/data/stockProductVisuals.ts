@@ -1,10 +1,14 @@
-import { CreditCard, Ticket, Router as RouterIcon, QrCode, Fingerprint, type LucideIcon } from "lucide-react";
+import { createElement, type ComponentType } from "react";
 import type { ProductId } from "@/data/purchaseOrdersStore";
+import { SimCardArt, VoucherArt, RouterArt, DigitalVoucherArt, FingerprintArt } from "@/components/StockProductArt";
 
-/** Icon per stock product — shared by every Stock Management screen. */
-export const PRODUCT_ICON: Record<ProductId, LucideIcon> = {
-  vmSim: CreditCard, voucher10: Ticket, voucher20: Ticket, voucher50: Ticket, voucher100: Ticket,
-  router1: RouterIcon, router2: RouterIcon, router3: RouterIcon, digitalVoucher: QrCode, fingerprint: Fingerprint,
+type ArtIcon = ComponentType<{ className?: string }>;
+const voucher = (value: number): ArtIcon => () => createElement(VoucherArt, { value });
+
+/** 3D-style illustration per stock product — shared by every Stock Management screen. */
+export const PRODUCT_ICON: Record<ProductId, ArtIcon> = {
+  vmSim: SimCardArt, voucher10: voucher(10), voucher20: voucher(20), voucher50: voucher(50), voucher100: voucher(100),
+  router1: RouterArt, router2: RouterArt, router3: RouterArt, digitalVoucher: DigitalVoucherArt, fingerprint: FingerprintArt,
 };
 
 export const PRODUCT_TONE: Record<ProductId, string> = {
