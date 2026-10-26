@@ -115,7 +115,7 @@ const ChangePrepaidBundleAllPlans = () => {
               aria-label={t("changePrepaidBundle.filtersAria")}
               className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
             >
-              <SlidersHorizontal className="w-4 h-4 text-foreground" />
+              <SlidersHorizontal className="w-4 h-4 text-primary" />
             </button>
           )}
         </div>
