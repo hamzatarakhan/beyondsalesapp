@@ -14,8 +14,8 @@ export interface BookedActivationConfig {
 
 // Independent brand configuration. Zero means no extra minimum has been specified.
 export const BOOKED_ACTIVATION_CONFIG: Record<Brand, BookedActivationConfig> = {
-  virgin: { mode: "plan-topup", enabledModes: [...BOOKED_ACTIVATION_MODES], minPlanAmount: 0, minTopupAmount: 0 },
-  friendi: { mode: "plan-topup", enabledModes: [...BOOKED_ACTIVATION_MODES], minPlanAmount: 0, minTopupAmount: 0 },
+  virgin: { mode: "plan", enabledModes: ["plan", "none"], minPlanAmount: 0, minTopupAmount: 0 },
+  friendi: { mode: "plan", enabledModes: ["plan", "none"], minPlanAmount: 0, minTopupAmount: 0 },
 };
 export const bookedModeHasPlan = (mode: BookedActivationMode) => mode === "plan" || mode === "plan-topup";
 export const bookedModeHasTopup = (mode: BookedActivationMode) => mode === "topup" || mode === "plan-topup";

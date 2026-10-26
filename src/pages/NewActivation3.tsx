@@ -2169,7 +2169,7 @@ const NewActivation3 = () => {
                 with an explanatory note instead of disappearing. The header switch collapses the
                 card to just its title row (the chosen amount stays visible there), so the dealer
                 can shorten the page without losing the entry. */}
-            {subType === "booked" && (
+            {subType === "booked" && bookedHasTopup && (
               <section className="bg-card rounded-2xl p-4 shadow-sm">
                 <div className={cn("flex items-center gap-3", bookedTopupOpen && "mb-3")}>
                   <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
