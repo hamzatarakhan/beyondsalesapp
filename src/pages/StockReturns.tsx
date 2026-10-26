@@ -174,7 +174,7 @@ const StockReturns = () => {
 
       {/* ---------- Filter drawer — same pattern as Request Stock ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setFilterOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -182,7 +182,7 @@ const StockReturns = () => {
             <DrawerTitle className="text-lg font-semibold">{t("stockReturn.filter.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("stockReturn.filter.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-6 space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-5">
             <div>
               <p className="text-xs font-semibold text-foreground mb-2 px-1">{t("stockReturn.filter.orderStatus")}</p>
               <div className="flex flex-wrap gap-2">
@@ -217,7 +217,8 @@ const StockReturns = () => {
                 <Clock className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
-
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
             <button type="button" onClick={applyFilter} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
               {t("stockReturn.filter.apply")}
             </button>
@@ -230,7 +231,7 @@ const StockReturns = () => {
 
       {/* ---------- Pick a date drawer — full-width calendar, same as Request Stock's ---------- */}
       <Drawer open={pickDateOpen} onOpenChange={(o) => { setPickDateOpen(o); if (!o) setFilterOpen(true); }}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setPickDateOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -238,7 +239,7 @@ const StockReturns = () => {
             <DrawerTitle className="text-lg font-semibold">{t("stockReturn.pickDate.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("stockReturn.pickDate.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-6 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-4">
             <Calendar
               mode="range"
               selected={draftRange}
@@ -267,6 +268,8 @@ const StockReturns = () => {
                 <span className="text-xs font-semibold text-foreground">{draftRange?.to ? fmtShort(draftRange.to) : "—"}</span>
               </div>
             </div>
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
             <button type="button" disabled={!draftRange?.from} onClick={applyPickDate} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
               {t("stockReturn.pickDate.apply")}
             </button>

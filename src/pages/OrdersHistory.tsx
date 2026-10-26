@@ -855,7 +855,7 @@ const OrdersHistory = () => {
 
       {/* ---------- Filter drawer (Orders tab) ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setFilterOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -863,7 +863,7 @@ const OrdersHistory = () => {
             <DrawerTitle className="text-lg font-semibold">{t("ordersHistory.filter.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.filter.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-6 space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-5">
             {view === "parent" && (
               <div className="relative">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -938,8 +938,8 @@ const OrdersHistory = () => {
                 ))}
               </div>
             </div>
-
-
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
             <button type="button" onClick={applyFilter} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
               {t("ordersHistory.filter.apply")}
             </button>
@@ -958,7 +958,7 @@ const OrdersHistory = () => {
           if (!o && pickDateTarget === "orders") setFilterOpen(true);
         }}
       >
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setPickDateOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -966,7 +966,7 @@ const OrdersHistory = () => {
             <DrawerTitle className="text-lg font-semibold">{t("ordersHistory.pickDate.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("ordersHistory.pickDate.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-6 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-4">
             <Calendar
               mode="range"
               selected={draftRange}
@@ -989,6 +989,8 @@ const OrdersHistory = () => {
               <SummaryRow label={t("ordersHistory.pickDate.dateFrom")} value={draftRange?.from ? fmtShort(draftRange.from) : "—"} />
               <SummaryRow label={t("ordersHistory.pickDate.dateTo")} value={draftRange?.to ? fmtShort(draftRange.to) : "—"} />
             </div>
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
             <button type="button" disabled={!draftRange?.from} onClick={applyPickDate} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
               {t("ordersHistory.pickDate.apply")}
             </button>

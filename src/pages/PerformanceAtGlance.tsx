@@ -99,7 +99,7 @@ const PerformanceAtGlance = () => {
 
       {/* ---------- Filter drawer ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setFilterOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <XIcon className="w-4 h-4 text-foreground" />
           </button>
@@ -107,7 +107,7 @@ const PerformanceAtGlance = () => {
             <DrawerTitle className="text-lg font-semibold">{t("performanceAtGlance.filter.title")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">{t("performanceAtGlance.filter.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-8 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8 space-y-4">
             <div className="relative">
               <Input
                 value={filterSearch}
@@ -126,7 +126,8 @@ const PerformanceAtGlance = () => {
                 </label>
               ))}
             </div>
-
+          </div>
+          <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
             <button type="button" onClick={selectFilter} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
               {t("performanceAtGlance.filter.select")}
             </button>
