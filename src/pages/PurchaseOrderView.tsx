@@ -97,7 +97,7 @@ const PurchaseOrderView = () => {
   const hasActionBar = ["awaitingApproval", "partiallyScanned"].includes(order.status);
 
   return (
-    <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
+    <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-72" : "pb-8")}>
       <AppHeader title={t("purchaseOrders.viewOrderTitle")} showBack onBackClick={() => navigate(backTo)} />
 
       <div className="px-4 space-y-3">
@@ -180,7 +180,13 @@ const PurchaseOrderView = () => {
           in this flow being a fixed control rather than part of the scroll). */}
       {order.status === "awaitingApproval" && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+          <button type="button" onClick={() => openConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+            {t("purchaseOrders.approve")}
+          </button>
+          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
+            {t("purchaseOrders.rejectOrder")}
+          </button>
+          <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary/15 text-foreground font-semibold text-sm">
             {t("purchaseOrders.edit")}
           </button>
           <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">

@@ -89,7 +89,7 @@ const SalesOrdersMultiView = () => {
     submitScanning: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
   };
 
-  const hasActionBar = ["rfq", "quotationSent", "awaitingApproval", "awaitingScanning", "partiallyScanned"].includes(order.status);
+  const hasActionBar = false; // Push Stock is read-only — approval/scan actions live in Request Stock.
 
   return (
     <div className={cn("mobile-container min-h-screen bg-background", hasActionBar ? "pb-40" : "pb-8")}>
@@ -158,7 +158,7 @@ const SalesOrdersMultiView = () => {
                             <p className="text-[11px] text-muted-foreground">{t("purchaseOrders.pcs", { count: s.qty })}</p>
                           </div>
                         </div>
-                        {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
+                        {order.status === "partiallyScanned" && (
                           <div className="flex items-center gap-2 shrink-0">
                             <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", isFullyScanned ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
                               {t("purchaseOrders.scannedCount", { scanned: s.scanned, qty: s.qty })}
@@ -197,53 +197,6 @@ const SalesOrdersMultiView = () => {
         )}
         {order.status === "issueReported" && order.issue && <IssueDetails issue={order.issue} />}
       </div>
-
-      {order.status === "rfq" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => openConfirm("submitRfq")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.submit")}
-          </button>
-          <button type="button" onClick={() => navigate(`/sales-orders-multi/${order.id}/edit`)} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
-            {t("purchaseOrders.edit")}
-          </button>
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancelOrder")}
-          </button>
-        </div>
-      )}
-
-      {order.status === "quotationSent" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => navigate(`/sales-orders-multi/${order.id}/edit`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.edit")}
-          </button>
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancelOrder")}
-          </button>
-        </div>
-      )}
-
-      {order.status === "awaitingApproval" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
-          <button type="button" onClick={() => navigate(`/sales-orders-multi/${order.id}/select-location`)} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("salesOrders.selectLocation")}
-          </button>
-          <button type="button" onClick={() => openConfirm("reject")} className="w-full h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm">
-            {t("purchaseOrders.rejectOrder")}
-          </button>
-          <button type="button" onClick={() => openConfirm("cancel")} className="w-full text-center text-sm font-semibold text-primary">
-            {t("purchaseOrders.cancelOrder")}
-          </button>
-        </div>
-      )}
-
-      {(order.status === "awaitingScanning" || order.status === "partiallyScanned") && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <button type="button" onClick={() => openConfirm("submitScanning")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-            {t("purchaseOrders.submit")}
-          </button>
-        </div>
-      )}
 
       <ConfirmMessageDrawer
         open={!!confirmAction}
