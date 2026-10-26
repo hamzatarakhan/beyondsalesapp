@@ -159,7 +159,7 @@ const SalesOrdersMultiList = () => {
                 key={o.id}
                 type="button"
                 onClick={() => navigate(`/sales-orders-multi/${o.id}`)}
-                className="w-full text-start bg-card rounded-2xl border-s-4 border-s-primary border border-border/60 p-4 space-y-1.5"
+                className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-1.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-bold text-foreground">{o.id}</p>

@@ -537,7 +537,7 @@ const OrdersHistory = () => {
                   key={o.id}
                   type="button"
                   onClick={() => setSelectedOrder(o)}
-                  className="w-full text-start bg-card rounded-2xl border-s-4 border-s-primary border border-border/60 p-4 space-y-2"
+                  className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-2"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
