@@ -165,7 +165,7 @@ const SalesOrdersMultiView = () => {
                             </span>
                             {isFullyScanned ? (
                               <button type="button" onClick={() => setSerialsTarget({ productId: l.productId, sourceIndex: i })} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border bg-card flex items-center justify-center">
-                                <Eye className="w-4 h-4 text-foreground" />
+                                <Eye className="w-4 h-4 text-primary" />
                               </button>
                             ) : (
                               <button type="button" onClick={() => navigate(`/sales-orders-multi/${order.id}/scan/${l.productId}/${i}`)} aria-label={t("purchaseOrders.scanAria")} className="w-8 h-8 rounded-lg border border-border bg-card flex items-center justify-center">
@@ -176,7 +176,7 @@ const SalesOrdersMultiView = () => {
                         )}
                         {(order.status === "received" || order.status === "awaitingDelivery") && s.scanned > 0 && (
                           <button type="button" onClick={() => setSerialsTarget({ productId: l.productId, sourceIndex: i })} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border bg-card flex items-center justify-center shrink-0">
-                            <Eye className="w-4 h-4 text-foreground" />
+                            <Eye className="w-4 h-4 text-primary" />
                           </button>
                         )}
                       </div>

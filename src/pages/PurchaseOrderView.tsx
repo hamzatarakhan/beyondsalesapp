@@ -156,7 +156,7 @@ const PurchaseOrderView = () => {
                   </span>
                   {isFullyScanned ? (
                     <button type="button" onClick={() => setSerialsProduct(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center">
-                      <Eye className="w-4 h-4 text-foreground" />
+                      <Eye className="w-4 h-4 text-primary" />
                     </button>
                   ) : (
                     <button type="button" onClick={() => navigate(`/purchase-orders/${order.id}/scan/${l.productId}`)} aria-label={t("purchaseOrders.scanAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center">
@@ -167,7 +167,7 @@ const PurchaseOrderView = () => {
               )}
               {order.status === "received" && (
                 <button type="button" onClick={() => setSerialsProduct(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center shrink-0">
-                  <Eye className="w-4 h-4 text-foreground" />
+                  <Eye className="w-4 h-4 text-primary" />
                 </button>
               )}
             </div>
