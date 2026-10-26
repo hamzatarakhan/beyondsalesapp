@@ -17,9 +17,9 @@ const PATH: Partial<Record<PurchaseOrderStatus, { stage: PurchaseOrderStatus; ac
 };
 
 const STAGE_STYLE: Partial<Record<PurchaseOrderStatus, string>> = {
-  awaitingApproval: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+  awaitingApproval: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   awaitingScanning: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
-  received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
+  received: "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
   cancelled: "bg-muted text-muted-foreground",
 };
