@@ -6,7 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { DeliveryActions, IssueDetails } from "@/components/OrderDeliveryPanels";
+import { IssueDetails } from "@/components/OrderDeliveryPanels";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
 import { MapPin, Info, Eye, ScanLine, ChevronDown, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
@@ -188,13 +188,6 @@ const SalesOrdersMultiView = () => {
           );
         })}
 
-        {order.status === "awaitingDelivery" && (
-          <DeliveryActions
-            onConfirm={() => { updateSalesOrderMulti(order.id, { status: "received" }); navigate("/sales-orders-multi"); }}
-            onReportIssue={() => navigate("/tickets/new", { state: { orderId: order.id } })}
-            onReject={() => openConfirm("reject")}
-          />
-        )}
         {order.status === "issueReported" && order.issue && <IssueDetails issue={order.issue} />}
       </div>
 
