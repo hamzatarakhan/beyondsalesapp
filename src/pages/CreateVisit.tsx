@@ -1151,7 +1151,7 @@ const MembersMap = ({ members, onBack }: { members: Member[]; onBack: () => void
           </button>
         </div>
       </div>
-      <button onClick={recenter} aria-label="Recenter" className="absolute bottom-8 end-5 z-10 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center">
+      <button onClick={recenter} aria-label="Recenter" className="absolute bottom-8 end-5 z-10 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
         <Crosshair className="w-5 h-5" />
       </button>
     </div>

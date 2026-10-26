@@ -167,7 +167,7 @@ const StockReturns = () => {
       <button
         type="button"
         onClick={() => navigate("/stock-returns/new")}
-        className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5 shadow-lg shadow-primary/30"
+        className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5"
       >
         <Plus className="w-4 h-4" /> {t("stockReturn.newOrder")}
       </button>

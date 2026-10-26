@@ -152,13 +152,13 @@ const VisitManagement = () => {
           <>
             <button
               onClick={() => { setAddOpen(false); navigate("/adhoc-visit"); }}
-              className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg"
+              className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
               {t("visits.adHocVisit")}
             </button>
             <button
               onClick={() => { setAddOpen(false); navigate("/create-visit?type=planned"); }}
-              className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg"
+              className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
             >
               {t("visits.plannedVisit")}
             </button>
@@ -166,7 +166,7 @@ const VisitManagement = () => {
         )}
         <button
           onClick={() => setAddOpen((o) => !o)}
-          className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg flex items-center gap-1.5"
+          className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5"
         >
           <Plus className={`w-4 h-4 transition-transform ${addOpen ? "rotate-45" : ""}`} />
           {t("visits.addNewVisit")}

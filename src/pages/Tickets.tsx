@@ -112,7 +112,7 @@ const Tickets = () => {
 
       <button
         onClick={() => navigate("/tickets/new")}
-        className="fixed bottom-6 right-4 rtl:right-auto rtl:left-4 h-12 px-5 rounded-full bg-primary text-primary-foreground font-medium shadow-lg flex items-center gap-2"
+        className="fixed bottom-6 right-4 rtl:right-auto rtl:left-4 h-12 px-5 rounded-full bg-primary text-primary-foreground font-medium flex items-center gap-2"
       >
         <Plus className="w-5 h-5" /> New Ticket
       </button>
