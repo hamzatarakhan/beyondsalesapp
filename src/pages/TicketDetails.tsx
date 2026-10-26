@@ -64,7 +64,7 @@ export const CommentCard = ({ c, onClick, tone = "muted" }: { c: TicketComment; 
 // entry points (inline preview vs. the full All Comments page) can't drift apart.
 export const CommentDetailSheet = ({ comment, onClose }: { comment: TicketComment | null; onClose: () => void }) => (
   <Drawer open={!!comment} onOpenChange={(o) => !o && onClose()}>
-    <DrawerContent className="px-4 pb-8 max-h-[80vh]">
+    <DrawerContent className="px-4 pb-8 max-h-[80vh] overflow-hidden">
       <button onClick={onClose} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
         <X className="w-4 h-4 text-foreground" />
       </button>
@@ -72,7 +72,7 @@ export const CommentDetailSheet = ({ comment, onClose }: { comment: TicketCommen
         <DrawerTitle className="text-lg font-semibold">Comment</DrawerTitle>
       </DrawerHeader>
 
-      <div className="overflow-y-auto scrollbar-hide space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide space-y-3">
         <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 flex items-center justify-center text-sm font-semibold shrink-0">
             {comment ? initialsFor(comment.author) : ""}

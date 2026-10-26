@@ -36,7 +36,7 @@ export function SuccessBottomSheet({
   const { t } = useTranslation();
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
+      <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh] overflow-hidden">
 
 
         <div className="flex items-center justify-between mb-5">
@@ -74,7 +74,7 @@ export function SuccessBottomSheet({
           )}
         </div>
 
-        <div className="overflow-y-auto space-y-3 mb-4 -mx-1 px-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 mb-4 -mx-1 px-1">
           {children}
         </div>
 

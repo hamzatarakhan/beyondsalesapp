@@ -606,7 +606,7 @@ const ChangeCustomerOwner = () => {
 
       {/* Terms & Conditions */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -614,7 +614,7 @@ const ChangeCustomerOwner = () => {
             <DrawerTitle>{t("changeCustomerOwner.termsAndConditions")}</DrawerTitle>
             <DrawerDescription>{t("changeCustomerOwner.termsDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("changeCustomerOwner.termsParagraph1")}</p>
             <p>{t("changeCustomerOwner.termsParagraph2")}</p>
             <p>{t("changeCustomerOwner.termsParagraph3")}</p>
@@ -636,7 +636,7 @@ const ChangeCustomerOwner = () => {
 
       {/* Privacy Policy */}
       <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -644,7 +644,7 @@ const ChangeCustomerOwner = () => {
             <DrawerTitle>{t("changeCustomerOwner.privacyPolicy")}</DrawerTitle>
             <DrawerDescription>{t("changeCustomerOwner.privacyDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("changeCustomerOwner.privacyParagraph1")}</p>
             <p>{t("changeCustomerOwner.privacyParagraph2")}</p>
             <p>{t("changeCustomerOwner.privacyParagraph3")}</p>

@@ -3457,7 +3457,7 @@ const NewActivation3 = () => {
 
       {/* Terms drawer */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -3465,7 +3465,7 @@ const NewActivation3 = () => {
             <DrawerTitle>{t("activation3.termsSheet.title")}</DrawerTitle>
             <DrawerDescription>{t("activation3.termsSheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("activation3.termsSheet.p1")}</p>
             <p>{t("activation3.termsSheet.p2")}</p>
             <p>{t("activation3.termsSheet.p3")}</p>
@@ -3483,7 +3483,7 @@ const NewActivation3 = () => {
 
       {/* Privacy Policy drawer */}
       <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <X className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -3491,7 +3491,7 @@ const NewActivation3 = () => {
             <DrawerTitle>{t("activation3.privacySheet.title")}</DrawerTitle>
             <DrawerDescription>{t("activation3.privacySheet.subtitle")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("activation3.privacySheet.p1")}</p>
             <p>{t("activation3.privacySheet.p2")}</p>
             <p>{t("activation3.privacySheet.p3")}</p>

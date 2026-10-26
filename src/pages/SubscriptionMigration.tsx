@@ -1079,7 +1079,7 @@ const SubscriptionMigration = () => {
 
       {/* Terms & Conditions */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <XIcon className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -1087,7 +1087,7 @@ const SubscriptionMigration = () => {
             <DrawerTitle>{t("subscriptionMigration.termsAndConditions")}</DrawerTitle>
             <DrawerDescription>{t("subscriptionMigration.termsDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("subscriptionMigration.termsParagraph1")}</p>
             <p>{t("subscriptionMigration.termsParagraph2")}</p>
             <p>{t("subscriptionMigration.termsParagraph3")}</p>
@@ -1109,7 +1109,7 @@ const SubscriptionMigration = () => {
 
       {/* Privacy Policy */}
       <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
             <XIcon className="h-5 w-5 text-foreground" />
           </DrawerClose>
@@ -1117,7 +1117,7 @@ const SubscriptionMigration = () => {
             <DrawerTitle>{t("subscriptionMigration.privacyPolicy")}</DrawerTitle>
             <DrawerDescription>{t("subscriptionMigration.privacyDrawerDesc")}</DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3 rtl:text-right">
             <p>{t("subscriptionMigration.privacyParagraph1")}</p>
             <p>{t("subscriptionMigration.privacyParagraph2")}</p>
             <p>{t("subscriptionMigration.privacyParagraph3")}</p>

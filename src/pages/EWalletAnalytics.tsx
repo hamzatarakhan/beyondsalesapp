@@ -278,7 +278,7 @@ const EWalletAnalytics = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="max-h-[85vh]">
+            <DrawerContent className="max-h-[85vh] overflow-hidden">
               {/* Header with close button */}
               <div className="relative pt-2 pb-4 px-4 text-center">
                 <h3 className="text-lg font-semibold text-foreground">Filter</h3>
@@ -290,7 +290,7 @@ const EWalletAnalytics = () => {
                 </DrawerClose>
               </div>
 
-              <div className="px-4 pb-4 space-y-5 overflow-y-auto">
+              <div className="flex-1 min-h-0 px-4 pb-4 space-y-5 overflow-y-auto">
                 {/* Member Filter (Parent only, Team Wallets view) */}
                 {isParent && walletViewMode === "team-wallets" && (
                   <div>

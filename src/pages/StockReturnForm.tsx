@@ -312,7 +312,7 @@ const StockReturnForm = () => {
 
       {/* View All serials bottom sheet */}
       <Drawer open={viewAllOpen} onOpenChange={setViewAllOpen}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh]">
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2 max-h-[92vh] overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <div className="w-7" />
             <h3 className="font-semibold text-foreground text-base">{t("stockReturn.allSerialsTitle")}</h3>
@@ -324,7 +324,7 @@ const StockReturnForm = () => {
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
-          <div className="overflow-y-auto space-y-2 -mx-1 px-1">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2 -mx-1 px-1">
             {[...serials].reverse().map((s) => (
               <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
                 <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>

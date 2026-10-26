@@ -242,7 +242,7 @@ const VisitManagement = () => {
 
       {/* Date range picker sheet */}
       <Drawer open={dateOpen} onOpenChange={setDateOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[92vh]">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[92vh] overflow-hidden">
           <button
             onClick={() => setDateOpen(false)}
             aria-label={t("visits.close")}
@@ -256,7 +256,7 @@ const VisitManagement = () => {
               {t("visits.pickDateSubtitle")}
             </DrawerDescription>
           </DrawerHeader>
-          <div className="px-2 pb-6 overflow-y-auto scrollbar-hide">
+          <div className="flex-1 min-h-0 px-2 pb-6 overflow-y-auto scrollbar-hide">
             <Calendar
               mode="range"
               selected={draftRange}

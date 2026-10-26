@@ -944,7 +944,7 @@ const OnboardingRequests = () => {
 
       {/* Status History */}
       <Drawer open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2 max-h-[85vh] flex flex-col">
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2 max-h-[85vh] flex flex-col overflow-hidden">
           <div className="flex justify-center pt-1 pb-2"><div className="w-9 h-1 bg-muted-foreground/20 rounded-full" /></div>
           <div className="flex items-center justify-between pb-4">
             <button type="button" onClick={() => setHistoryOpen(false)} aria-label={t("onboardingRequests.backAria")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
@@ -958,7 +958,7 @@ const OnboardingRequests = () => {
               <X className="w-4 h-4 text-muted-foreground" />
             </DrawerClose>
           </div>
-          <div className="overflow-y-auto space-y-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-0">
             {activeItem?.history.slice().reverse().map((h, i) => {
               const StageIcon = h.stage === "rejected" ? X : h.stage === "activated" ? Check : Info;
               return (

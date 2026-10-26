@@ -688,7 +688,7 @@ const CreateVisit = () => {
 
         {/* selected members sheet */}
         <Drawer open={selectedSheet} onOpenChange={setSelectedSheet}>
-          <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh]">
+          <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh] overflow-hidden">
             <button onClick={() => setSelectedSheet(false)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
               <X className="w-4 h-4 text-foreground" />
             </button>
@@ -696,7 +696,7 @@ const CreateVisit = () => {
               <DrawerTitle className="text-lg font-semibold">Selected Channel Member</DrawerTitle>
               <DrawerDescription className="sr-only">Members added to this visit</DrawerDescription>
             </DrawerHeader>
-            <div className="px-4 pb-8 space-y-3 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 min-h-0 px-4 pb-8 space-y-3 overflow-y-auto scrollbar-hide">
               {MEMBERS.filter((m) => draftSelected.includes(m.id)).map((m) => (
                 <div key={m.id} className="rounded-2xl bg-muted/30 border border-border/60 p-3 flex items-start gap-2">
                   <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
@@ -937,7 +937,7 @@ const CreateVisit = () => {
 
       {/* selected recurring dates sheet */}
       <Drawer open={datesSheet} onOpenChange={setDatesSheet}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[70vh]">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[70vh] overflow-hidden">
           <DrawerHeader className="pt-6 relative">
             <button onClick={() => setDatesSheet(false)} aria-label="Back" className="absolute start-4 top-5 w-8 h-8 rounded-full border border-border flex items-center justify-center">
               <ArrowLeft className="w-4 h-4 text-foreground rtl:-scale-x-100" />
@@ -948,7 +948,7 @@ const CreateVisit = () => {
               <X className="w-4 h-4 text-foreground" />
             </button>
           </DrawerHeader>
-          <div className="px-4 pb-8 overflow-y-auto scrollbar-hide divide-y divide-border/60">
+          <div className="flex-1 min-h-0 px-4 pb-8 overflow-y-auto scrollbar-hide divide-y divide-border/60">
             {occurrences.map((d, i) => (
               <p key={i} className="py-3 text-sm text-foreground">{format(d, "MMM d, yyyy")}</p>
             ))}
@@ -958,7 +958,7 @@ const CreateVisit = () => {
 
       {/* date range sheet */}
       <Drawer open={dateOpen} onOpenChange={setDateOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[92vh]">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[92vh] overflow-hidden">
           <button onClick={() => setDateOpen(false)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <X className="w-4 h-4 text-foreground" />
           </button>
@@ -966,7 +966,7 @@ const CreateVisit = () => {
             <DrawerTitle className="text-lg font-semibold">Pick a Date</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">Please select a date</DrawerDescription>
           </DrawerHeader>
-          <div className="px-2 pb-6 overflow-y-auto scrollbar-hide">
+          <div className="flex-1 min-h-0 px-2 pb-6 overflow-y-auto scrollbar-hide">
             <Calendar mode="range" selected={draftRange} onSelect={setDraftRange} className="w-full p-0 [&_.rdp-month]:w-full [&_table]:w-full" />
             <div className="mx-2 mt-3 rounded-2xl bg-muted/40 px-3 divide-y divide-border/60">
               <div className="flex items-center justify-between py-2.5">
@@ -1033,7 +1033,7 @@ const OptionPicker = ({
   onClose: () => void;
 }) => (
   <Drawer open={!!picker} onOpenChange={(o) => !o && onClose()}>
-    <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh]">
+    <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh] overflow-hidden">
       <button onClick={onClose} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
         <X className="w-4 h-4 text-foreground" />
       </button>
@@ -1041,7 +1041,7 @@ const OptionPicker = ({
         <DrawerTitle className="text-lg font-semibold">{picker?.title}</DrawerTitle>
         <DrawerDescription className="sr-only">Select an option</DrawerDescription>
       </DrawerHeader>
-      <div className="px-4 pb-8 overflow-y-auto scrollbar-hide">
+      <div className="flex-1 min-h-0 px-4 pb-8 overflow-y-auto scrollbar-hide">
         {picker?.options.map((o) => {
           const on = picker.value === o;
           return (

@@ -165,7 +165,7 @@ const NewActivation3AllPlans = () => {
 
       {/* Filters bottom sheet */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-hidden">
           <button
             onClick={() => setFilterOpen(false)}
             aria-label={t("settings.close")}
@@ -176,7 +176,7 @@ const NewActivation3AllPlans = () => {
           <DrawerHeader className="text-center pt-8">
             <DrawerTitle className="text-lg font-semibold">{t("activation3.subscription.filtersTitle")}</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-8 space-y-5 overflow-y-auto">
+          <div className="flex-1 min-h-0 px-4 pb-8 space-y-5 overflow-y-auto">
             {!isFriendi && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("activation3.subscription.lineTypeTitle")}</h3>

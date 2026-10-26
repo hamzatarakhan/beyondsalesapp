@@ -1718,7 +1718,7 @@ const PrepaidActivation = () => {
 
       {/* Terms and Conditions drawer — top-level to avoid nested drawer double-overlay */}
       <Drawer open={termsOpen} onOpenChange={setTermsOpen}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
             <X className="h-5 w-5 text-foreground" />
             <span className="sr-only">Close</span>
@@ -1729,7 +1729,7 @@ const PrepaidActivation = () => {
               Please read and accept our terms and conditions to continue.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 text-sm text-foreground space-y-3">
             <p>By activating this prepaid line, you agree to our service terms, including fair usage policies, payment obligations, and applicable regulatory requirements.</p>
             <p>All provided information must be accurate. The SIM/eSIM and selected number are subject to availability and approval.</p>
             <p>Plans, top-ups, and vanity fees are non-refundable once the activation is completed. VAT is included where stated.</p>
@@ -1994,7 +1994,7 @@ const PlanFilterSheet = ({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh] overflow-hidden">
         <div className="relative mb-4 text-center">
           <h3 className="font-semibold text-foreground">Filter</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -2009,7 +2009,7 @@ const PlanFilterSheet = ({
           </button>
         </div>
 
-        <div className="overflow-y-auto -mx-5 px-5 space-y-5 pb-2">
+        <div className="flex-1 min-h-0 overflow-y-auto -mx-5 px-5 space-y-5 pb-2">
           {/* Validity */}
           <section>
             <p className="text-sm font-semibold text-foreground mb-2">Validity</p>

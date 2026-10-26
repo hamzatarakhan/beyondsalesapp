@@ -167,7 +167,7 @@ const SubscriptionMigrationAllPlans = () => {
           neither the trigger button above nor this sheet render for it. */}
       {showChips && (
         <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-          <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh]">
+          <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-hidden">
             <button
               onClick={() => setFilterOpen(false)}
               aria-label={t("subscriptionMigration.close")}
@@ -178,7 +178,7 @@ const SubscriptionMigrationAllPlans = () => {
             <DrawerHeader className="text-center pt-8">
               <DrawerTitle className="text-lg font-semibold">{t("subscriptionMigration.filtersTitle")}</DrawerTitle>
             </DrawerHeader>
-            <div className="px-4 pb-8 space-y-5 overflow-y-auto">
+            <div className="flex-1 min-h-0 px-4 pb-8 space-y-5 overflow-y-auto">
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("subscriptionMigration.planTypesTitle")}</h3>
                 <div className="flex flex-wrap gap-2">

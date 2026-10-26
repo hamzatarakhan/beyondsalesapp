@@ -145,7 +145,7 @@ const PlanFilterSheet = ({
     }));
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh]">
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2 max-h-[88vh] overflow-hidden">
         <div className="relative mb-4 text-center">
           <h3 className="font-semibold text-foreground">{t("activation.plan.filter")}</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">{t("activation.plan.filterSub")}</p>
@@ -153,7 +153,7 @@ const PlanFilterSheet = ({
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="overflow-y-auto -mx-5 px-5 space-y-5 pb-2">
+        <div className="flex-1 min-h-0 overflow-y-auto -mx-5 px-5 space-y-5 pb-2">
           <section>
             <p className="text-sm font-semibold text-foreground mb-2">{t("activation.plan.validity")}</p>
             <div className="flex flex-wrap gap-2">

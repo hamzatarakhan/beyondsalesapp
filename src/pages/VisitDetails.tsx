@@ -104,7 +104,7 @@ const MemberMeta = ({ m }: { m: Member }) => (
 
 const OptionPicker = ({ picker, onClose }: { picker: null | { title: string; options: string[]; value?: string; onPick: (v: string) => void }; onClose: () => void }) => (
   <Drawer open={!!picker} onOpenChange={(o) => !o && onClose()}>
-    <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh]">
+    <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh] overflow-hidden">
       <button onClick={onClose} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
         <X className="w-4 h-4 text-foreground" />
       </button>
@@ -112,7 +112,7 @@ const OptionPicker = ({ picker, onClose }: { picker: null | { title: string; opt
         <DrawerTitle className="text-lg font-semibold">{picker?.title}</DrawerTitle>
         <DrawerDescription className="text-xs text-muted-foreground">Select one option</DrawerDescription>
       </DrawerHeader>
-      <div className="px-4 pb-8 overflow-y-auto scrollbar-hide">
+      <div className="flex-1 min-h-0 px-4 pb-8 overflow-y-auto scrollbar-hide">
         {picker?.options.map((o) => (
           <button
             key={o}
@@ -656,7 +656,7 @@ const VisitDetails = () => {
 
       {/* Dealer overview */}
       <Drawer open={!!overview} onOpenChange={(o) => !o && setOverview(null)}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] overflow-hidden">
           <button onClick={() => setOverview(null)} aria-label="Close" className="absolute end-4 top-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
             <X className="w-4 h-4 text-foreground" />
           </button>
@@ -664,7 +664,7 @@ const VisitDetails = () => {
             <DrawerTitle className="text-lg font-semibold">{overview?.name}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">Dealer overview</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-8 overflow-y-auto scrollbar-hide">
+          <div className="flex-1 min-h-0 px-4 pb-8 overflow-y-auto scrollbar-hide">
             <div className="flex gap-2 mb-4">
               {(["kpi", "stock"] as const).map((tb) => (
                 <button
