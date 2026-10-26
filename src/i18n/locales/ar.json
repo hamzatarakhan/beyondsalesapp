@@ -1518,6 +1518,18 @@
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
+    "history": {
+      "title": "سجل الحالة",
+      "subtitle": "قائمة إجراءات المستخدمين",
+      "back": "رجوع",
+      "actor": "جون دو",
+      "role": "مدير مباشر",
+      "actionTaken": "الإجراء المتخذ:",
+      "submit": "إرسال",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "cancel": "إلغاء"
+    },
     "searchPlaceholder": "بحث",
     "filter": {
       "title": "تصفية",

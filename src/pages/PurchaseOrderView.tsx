@@ -6,9 +6,10 @@ import AppHeader from "@/components/AppHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import OrderStatusHistory from "@/components/OrderStatusHistory";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { cn } from "@/lib/utils";
-import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
+import { MapPin, Info, Eye, ScanLine, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi, Clock } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getPurchaseOrder, updatePurchaseOrder, type ProductId, type PurchaseOrderStatus } from "@/data/purchaseOrdersStore";
 
 
@@ -40,6 +41,7 @@ const PurchaseOrderView = () => {
   const [confirmAction, setConfirmAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState<string>("");
   const [remark, setRemark] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [serialsProduct, setSerialsProduct] = useState<ProductId | null>(null);
 
   const needsReason = confirmAction === "reject" || confirmAction === "cancel";
@@ -100,7 +102,12 @@ const PurchaseOrderView = () => {
       <div className="px-4 space-y-3">
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-foreground">{order.id}</p>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => setHistoryOpen(true)} aria-label={t("purchaseOrders.history.title")} className="text-primary">
+                <Clock className="w-4 h-4" />
+              </button>
+              <p className="text-sm font-bold text-foreground">{order.id}</p>
+            </div>
             <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[order.status])}>{t(`purchaseOrders.status.${order.status}`)}</span>
           </div>
 
@@ -188,6 +195,8 @@ const PurchaseOrderView = () => {
           </button>
         </div>
       )}
+
+      <OrderStatusHistory open={historyOpen} onOpenChange={setHistoryOpen} status={order.status} date={order.date} reason={order.reason} />
 
       <ConfirmMessageDrawer
         open={!!confirmAction}

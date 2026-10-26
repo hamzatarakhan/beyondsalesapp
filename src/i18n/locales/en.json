@@ -1504,6 +1504,18 @@
   },
   "purchaseOrders": {
     "title": "Request Stock",
+    "history": {
+      "title": "Status History",
+      "subtitle": "List of users action history",
+      "back": "Back",
+      "actor": "John Due",
+      "role": "Line Manager",
+      "actionTaken": "Action Taken:",
+      "submit": "Submit",
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel"
+    },
     "searchPlaceholder": "Search",
     "filter": {
       "title": "Filter",
