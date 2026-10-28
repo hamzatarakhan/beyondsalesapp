@@ -293,7 +293,7 @@ const Home = () => {
           subscriptionMigrationOptions[2],
           // Option 1 (/bill-payment) is hidden from Home — Option 2 below is the one going forward.
           // Same flow, but one Bill Breakdown for all of an account's invoices instead of one per invoice.
-          { id: "bill-payment-2", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment?option=2", badge: t("home.badgeDevReady"), badgeTone: "devready" as const },
+          { id: "bill-payment-2", icon: Receipt, label: t("home.billPayment"), path: "/bill-payment?option=2", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
           creditLimitOptions[4],
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
@@ -307,8 +307,8 @@ const Home = () => {
     // credit-limit tiles above).
     ...(activeOperator === "friendi"
       ? []
-      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeDevReady"), badgeTone: "devready" as const }]),
-    { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+      : [{ id: "change-postpaid-plan", icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const }]),
+    { id: "cancel-port-in", icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "update-id", icon: UserCog, label: t("home.updateId"), path: "/update-id", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "change-owner", icon: Users, label: t("home.changeOwner"), path: "/change-owner", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
@@ -317,13 +317,13 @@ const Home = () => {
   // Transactions opens straight into the transactions tab; Order History moved here from
   // Other Widgets so it lives beside the wallet entries) — for VM and FM alike.
   const eWalletOptions = [
-    { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
-    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Catch-all for services that don't fit Customer Activities or E Wallets — currently
