@@ -2123,6 +2123,7 @@
     "backAria": "Back"
   },
   "commissionReport": {
+    "back": "Back",
     "title": "Commission Report",
     "overview": "Overview",
     "myCommission": "My Commission",
