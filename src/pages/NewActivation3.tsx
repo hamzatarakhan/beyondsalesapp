@@ -22,7 +22,7 @@ import PlanSelector, { PLANS as SHARED_PLANS } from "@/components/activation/Pla
 import PlanCard from "@/components/PlanCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import PhoneNumberInput from "@/components/PhoneNumberInput";
+import PhoneNumberInput, { maskPhone } from "@/components/PhoneNumberInput";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -2856,6 +2856,8 @@ const NewActivation3 = () => {
                     <PhoneNumberInput
                       value={contactNumber}
                       onChange={setContactNumber}
+                      masked
+                      onClick={() => setContactListOpen((o) => !o)}
                       icon={
                         <button
                           type="button"
@@ -2879,7 +2881,7 @@ const NewActivation3 = () => {
                               contactNumber === n && "bg-primary/10 text-primary font-semibold",
                             )}
                           >
-                            {n}
+                            {maskPhone(n)}
                           </button>
                         ))}
                       </div>
