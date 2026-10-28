@@ -33,6 +33,7 @@ import {
   MapPin,
   Building2,
   Info,
+  FileBarChart,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -323,6 +324,7 @@ const Home = () => {
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "commission-report", icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
@@ -347,6 +349,7 @@ const Home = () => {
   // the dealer Nafath gate for it and offer a Member/Parent view picker instead, so the
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
+  const [commissionViewOpen, setCommissionViewOpen] = useState(false);
   // Sales Orders: tapping the tile first asks One Location vs Multiple Locations — One
   // Location goes straight into the flow already built (no location picker, single
   // shared context) and Multiple Locations goes to its own distinct flow (business
@@ -382,6 +385,10 @@ const Home = () => {
   const needsNafath = (path: string) => NAFATH_REQUIRED_ROUTES.some((r) => path.split("?")[0].startsWith(r));
 
   const handleActivityClick = (path: string) => {
+    if (path === "/commission-report") {
+      setCommissionViewOpen(true);
+      return;
+    }
     if (path === "/order-history") {
       setOrderHistoryViewOpen(true);
       return;
@@ -937,6 +944,39 @@ const Home = () => {
                 </p>
               </div>
             </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={commissionViewOpen} onOpenChange={setCommissionViewOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setCommissionViewOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.chooseCommissionView")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("home.chooseCommissionViewSub")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3">
+            {([["dealer", User, "dealerView"], ["manager", Users, "managerView"]] as const).map(([v, Icon, k]) => (
+              <button
+                key={v}
+                onClick={() => { setCommissionViewOpen(false); navigate(`/commission-report?view=${v}`); }}
+                className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-foreground">{t(`home.${k}`)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t(`home.${k}Sub`)}</p>
+                </div>
+              </button>
+            ))}
           </div>
         </DrawerContent>
       </Drawer>

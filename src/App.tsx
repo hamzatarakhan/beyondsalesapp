@@ -46,6 +46,7 @@ import SimReplacement from "./pages/SimReplacement";
 import SearchBundleActivation from "./pages/SearchBundleActivation";
 import BundlePlans from "./pages/BundlePlans";
 import EWallet from "./pages/EWallet";
+import CommissionReport from "./pages/CommissionReport";
 import PrepaidSearchCustomer from "./pages/PrepaidSearchCustomer";
 import PrepaidActivation from "./pages/PrepaidActivation";
 import ExistingCustomerFound from "./pages/ExistingCustomerFound";
@@ -186,6 +187,7 @@ const App = () => {
           <Route path="/search-bundle" element={<SearchBundleActivation />} />
           <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="/ewallet" element={<EWallet />} />
+          <Route path="/commission-report" element={<CommissionReport />} />
           <Route path="/prepaid-search" element={<PrepaidSearchCustomer />} />
           <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="/prepaid-existing-customer" element={<ExistingCustomerFound />} />
