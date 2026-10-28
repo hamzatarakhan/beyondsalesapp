@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 import { AlertTriangle, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import KpiDonut from "@/components/KpiDonut";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 
@@ -71,18 +75,63 @@ const Chips = ({ items, value, onChange }: { items: string[]; value: string; onC
   </div>
 );
 
+const rangeLabel = (r?: DateRange) => (r?.from && r.to ? `${format(r.from, "MMM d")} – ${format(r.to, "MMM d")}` : undefined);
+
+// Bottom sheet behind every "Custom" chip: pick a from/to range, Apply commits it, dismissing keeps the old one.
+const CustomRangeDrawer = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value?: DateRange; onApply: (r: DateRange) => void }) => {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState<DateRange | undefined>(value);
+  useEffect(() => { if (open) setDraft(value); }, [open, value]);
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
+        <div className="flex items-center justify-between pb-1">
+          <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.selectDates")}</DrawerTitle>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
+        </div>
+        <DrawerDescription className="text-xs text-muted-foreground">{rangeLabel(draft) ?? t("commissionReport.selectDatesHint")}</DrawerDescription>
+        <div className="flex justify-center">
+          <Calendar mode="range" selected={draft} onSelect={setDraft} defaultMonth={draft?.from} disabled={{ after: new Date() }} />
+        </div>
+        <Button disabled={!draft?.from || !draft?.to} onClick={() => { onApply(draft!); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
+          {t("commissionReport.apply")}
+        </Button>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+// Chip list whose last item is "Custom": tapping it opens the calendar, and once a range is
+// applied that chip shows the range instead of the word "Custom".
+const useCustomRange = (initial: string) => {
+  const { t } = useTranslation();
+  const [selected, setSelected] = useState(initial);
+  const [range, setRange] = useState<DateRange>();
+  const [open, setOpen] = useState(false);
+  const customLabel = rangeLabel(range) ?? t("commissionReport.custom");
+  const isCustom = selected === "__custom";
+  return {
+    customLabel,
+    label: isCustom ? customLabel : selected,
+    chipValue: isCustom ? customLabel : selected,
+    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : setSelected(v)),
+    drawer: <CustomRangeDrawer open={open} onOpenChange={setOpen} value={range} onApply={(r) => { setRange(r); setSelected("__custom"); }} />,
+  };
+};
+
 // ---------------------------------------------------------------- dealer / "My Commission"
 
 const PAYOUT = [["Mar", 8200], ["Apr", 11400], ["May", 10300], ["Jun", 13300], ["Jul", 13500], ["Aug", 14300]] as const;
 
 const MyCommission = ({ go }: { go: (s: Screen) => void }) => {
   const { t } = useTranslation();
-  const [month, setMonth] = useState("Aug");
+  const period = useCustomRange("Aug");
   const max = Math.max(...PAYOUT.map((p) => p[1]));
   return (
     <div className="space-y-4">
-      <Chips items={["Aug", "Jul", "Jun", t("commissionReport.custom")]} value={month} onChange={setMonth} />
-      <Banner label={t("commissionReport.earnedIn", { month })} value={month === "Aug" ? 11230 : 9870} badge={t("commissionReport.approved")} />
+      <Chips items={["Aug", "Jul", "Jun", period.customLabel]} value={period.chipValue} onChange={period.onChipChange} />
+      {period.drawer}
+      <Banner label={t("commissionReport.earnedIn", { month: period.label })} value={period.label === "Aug" ? 11230 : 9870} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
@@ -248,7 +297,7 @@ const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784231"], ["Member Name", "MBR
 
 const Overview = () => {
   const { t } = useTranslation();
-  const [range, setRange] = useState(t("commissionReport.last30"));
+  const range = useCustomRange(t("commissionReport.last30"));
   const [top, setTop] = useState(true);
   const [sheet, setSheet] = useState(false);
   const [q, setQ] = useState("");
@@ -261,7 +310,8 @@ const Overview = () => {
         <Input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setSheet(true)} placeholder={t("commissionReport.searchMember")} className="h-11 bg-card rounded-xl ps-9 pe-10" />
         <SlidersHorizontal className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
       </div>
-      <Chips items={[t("commissionReport.today"), t("commissionReport.last7"), t("commissionReport.last30"), t("commissionReport.custom")]} value={range} onChange={setRange} />
+      <Chips items={[t("commissionReport.today"), t("commissionReport.last7"), t("commissionReport.last30"), range.customLabel]} value={range.chipValue} onChange={range.onChipChange} />
+      {range.drawer}
       <div className="grid grid-cols-2 gap-3">
         {[[t("commissionReport.dealersCommission"), 80], [t("commissionReport.myCommission"), 80]].map(([l, p]) => (
           <Card key={l as string} className="flex items-center gap-3 p-3">

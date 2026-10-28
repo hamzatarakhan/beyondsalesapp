@@ -2061,7 +2061,10 @@
     "myPlan": "خطتي",
     "payout": "الدفعات",
     "last6": "آخر 6 أشهر",
-    "searchMsisdn": "البحث برقم MSISDN"
+    "searchMsisdn": "البحث برقم MSISDN",
+    "selectDates": "اختر التواريخ",
+    "selectDatesHint": "اختر تاريخ البداية والنهاية",
+    "apply": "تطبيق"
   },
   "home": {
     "greeting": "مرحباً، حمزة",

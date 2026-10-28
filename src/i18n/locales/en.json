@@ -2143,7 +2143,10 @@
     "myPlan": "My Plan",
     "payout": "Payout",
     "last6": "Last 6 months",
-    "searchMsisdn": "Search MSISDN"
+    "searchMsisdn": "Search MSISDN",
+    "selectDates": "Select Dates",
+    "selectDatesHint": "Pick a start and end date",
+    "apply": "Apply"
   },
   "home": {
     "greeting": "Hello, Hamza",
