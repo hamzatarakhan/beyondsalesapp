@@ -2123,6 +2123,13 @@
     "backAria": "Back"
   },
   "commissionReport": {
+    "filter": "Filter",
+    "reset": "Reset",
+    "period": "Period",
+    "anyTime": "Any time",
+    "noResults": "No results found",
+    "minCommission": "Minimum commission",
+    "anyAmount": "Any amount",
     "back": "Back",
     "title": "Commission Report",
     "overview": "Overview",

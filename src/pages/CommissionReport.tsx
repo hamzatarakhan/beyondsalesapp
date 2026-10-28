@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
@@ -115,7 +115,7 @@ const Tabs = ({ items, value, onChange }: { items: [string, string][]; value: st
   </div>
 );
 
-const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void }) => (
+const SearchBar = ({ value, onChange, placeholder, onFocus, onClear, onFilter }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void; onFilter?: () => void }) => (
   <div className="flex gap-2">
     <div className="relative flex-1">
       <Input value={value} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} placeholder={placeholder} className="h-12 bg-card rounded-xl pe-10 border-0 shadow-sm" />
@@ -123,9 +123,49 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: 
         <button type="button" onClick={onClear} aria-label={placeholder} className="absolute end-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
       ) : <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
     </div>
-    <button type="button" aria-label="Filter" className="w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0"><SlidersHorizontal className="w-4 h-4 text-primary" /></button>
+    {onFilter && <button type="button" aria-label="Filter" onClick={onFilter} className="w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0"><SlidersHorizontal className="w-4 h-4 text-primary" /></button>}
   </div>
 );
+
+type FilterGroup = { key: string; title: string; options: [string, string][] };
+
+// Single-choice filter groups in a bottom sheet; Apply commits, Reset restores each group's first option.
+const FilterSheet = ({ open, onOpenChange, groups, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; groups: FilterGroup[]; value: Record<string, string>; onApply: (v: Record<string, string>) => void }) => {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { if (open) setDraft(value); }, [open, value]);
+  const reset = Object.fromEntries(groups.map((g) => [g.key, g.options[0][0]]));
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[85vh]">
+        <div className="flex items-center justify-between pb-3 shrink-0">
+          <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.filter")}</DrawerTitle>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
+        </div>
+        <DrawerDescription className="sr-only">{t("commissionReport.filter")}</DrawerDescription>
+        <div className="space-y-4 overflow-y-auto pb-4">
+          {groups.map((g) => (
+            <div key={g.key}>
+              <p className="text-sm font-semibold text-foreground mb-2">{g.title}</p>
+              <div className="flex flex-wrap gap-2">
+                {g.options.map(([v, label]) => (
+                  <button key={v} type="button" onClick={() => setDraft((d) => ({ ...d, [g.key]: v }))}
+                    className={cn("px-4 py-1.5 rounded-full text-xs font-medium border-[0.5px]", draft[g.key] === v ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border text-muted-foreground")}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-3 shrink-0">
+          <Button variant="outline" onClick={() => setDraft(reset)} className="flex-1 h-12 rounded-full">{t("commissionReport.reset")}</Button>
+          <Button onClick={() => { onApply(draft); onOpenChange(false); }} className="flex-1 h-12 rounded-full">{t("commissionReport.apply")}</Button>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 const rangeLabel = (r?: DateRange) => (r?.from && r.to ? `${format(r.from, "MMM d")} – ${format(r.to, "MMM d")}` : undefined);
 
@@ -394,23 +434,30 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
 };
 
 const PHONES = ["+966500653226", "+966570902726", "+966584235976", "+966562843451", "+966592643132", "+966504396022", "+966505006971"];
-const ACTIVITY_ROWS = PHONES.map((p, i) => ({ phone: p, kind: i % 3 === 0 ? "Acquisition" : "3rd Bill" }));
+const DAYS_AGO = [0, 2, 5, 9, 15, 25, 40];
+const ACTIVITY_ROWS = PHONES.map((phone, i) => ({ phone, kind: i % 3 === 0 ? "Acquisition" : "3rd Bill", daysAgo: DAYS_AGO[i] }));
 
 const ActivitiesScreen = () => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const rows = ACTIVITY_ROWS.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
+  const [filter, setFilter] = useState({ period: "all" });
+  const [open, setOpen] = useState(false);
+  const limit = filter.period === "all" ? Infinity : Number(filter.period);
+  const rows = ACTIVITY_ROWS.filter((r) => (f === "All" || r.kind === f) && r.daysAgo <= limit && (!q || r.phone.includes(q)));
   return (
     <div className="space-y-3">
-      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
+      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onFilter={() => setOpen(true)} />
       <Chips items={["All", "Acquisition", "3rd Bill"]} value={f} onChange={setF} />
+      {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
-          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">15, Dec, 2022 - 1:00 AM</p></div>
+          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{format(subDays(new Date(), r.daysAgo), "d, MMM, yyyy")} - 1:00 AM</p></div>
           <span className="text-xs font-semibold"><Money v={5} sign />.00</span>
         </Card>
       ))}
+      <FilterSheet open={open} onOpenChange={setOpen} value={filter} onApply={(v) => setFilter(v as typeof filter)}
+        groups={[{ key: "period", title: t("commissionReport.period"), options: [["all", t("commissionReport.anyTime")], ["7", t("commissionReport.last7")], ["30", t("commissionReport.last30")]] }]} />
     </div>
   );
 };

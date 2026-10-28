@@ -2041,6 +2041,13 @@
     "backAria": "رجوع"
   },
   "commissionReport": {
+    "filter": "تصفية",
+    "reset": "إعادة تعيين",
+    "period": "الفترة",
+    "anyTime": "أي وقت",
+    "noResults": "لا توجد نتائج",
+    "minCommission": "الحد الأدنى للعمولة",
+    "anyAmount": "أي مبلغ",
     "back": "رجوع",
     "title": "تقرير العمولات",
     "overview": "نظرة عامة",
