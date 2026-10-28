@@ -8,7 +8,7 @@ import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import KpiDonut from "@/components/KpiDonut";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
@@ -90,9 +90,13 @@ const CustomRangeDrawer = ({ open, onOpenChange, value, onApply }: { open: boole
           <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
         <DrawerDescription className="text-xs text-muted-foreground">{rangeLabel(draft) ?? t("commissionReport.selectDatesHint")}</DrawerDescription>
-        <div className="flex justify-center">
-          <Calendar mode="range" selected={draft} onSelect={setDraft} defaultMonth={draft?.from} disabled={{ after: new Date() }} />
-        </div>
+        <Calendar mode="range" selected={draft} onSelect={setDraft} defaultMonth={draft?.from} disabled={{ after: new Date() }}
+          className="px-0 py-3"
+          classNames={{
+            months: "w-full", month: "w-full space-y-4", head_row: "flex w-full", head_cell: "flex-1 text-muted-foreground font-normal text-[0.8rem]",
+            cell: "flex-1 h-10 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            day: cn(buttonVariants({ variant: "ghost" }), "h-10 w-full p-0 font-normal aria-selected:opacity-100"),
+          }} />
         <Button disabled={!draft?.from || !draft?.to} onClick={() => { onApply(draft!); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
           {t("commissionReport.apply")}
         </Button>
