@@ -1550,9 +1550,7 @@ const NewActivation = () => {
                     : <span className="text-sm text-muted-foreground">{t("activation.subscription.topupSelectAmount")}</span>}
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-3">
-                  {hasSelection
-                    ? <><RiyalSymbol /> {inclVat.toFixed(2)} {t("activation.subscription.topupInclVat")}</>
-                    : t("activation.subscription.topupVatNote")}
+                  {t("activation.subscription.topupVatNote")}
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {presets.map((d) => (

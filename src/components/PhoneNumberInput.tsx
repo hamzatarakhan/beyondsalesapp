@@ -14,7 +14,12 @@ interface PhoneNumberInputProps {
   error?: boolean;
   /** Optional trailing icon, e.g. a Phone icon. */
   icon?: ReactNode;
+  /** Always shows the number as xxxxx546 and makes the field read-only (pick a number via onClick instead). */
+  masked?: boolean;
+  onClick?: () => void;
 }
+
+export const maskPhone = (v: string) => (v ? "xxxxx" + v.slice(-3) : "");
 
 // Saudi mobile numbers are always entered as 966 followed by the 9-digit local number
 // (the leading 0 of the domestic 05XXXXXXXX form is dropped). The leading-0 reattachment
@@ -22,7 +27,8 @@ interface PhoneNumberInputProps {
 // stray "0" that would read as "filled" by a truthy required-field check. Locked to
 // dir="ltr" like the app's OTP digit rows, so the prefix and digits always read
 // left-to-right regardless of the active app language.
-const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", className, disabled, error, icon }: PhoneNumberInputProps) => (
+const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", className, disabled, error, icon, masked, onClick }: PhoneNumberInputProps) => {
+  return (
   <div
     dir="ltr"
     className={cn(
@@ -43,18 +49,21 @@ const PhoneNumberInput = ({ value, onChange, onBlur, placeholder = "5XXXXXXXX", 
     <input
       type="text"
       inputMode="numeric"
-      value={value.replace(/^0/, "")}
+      value={masked ? maskPhone(value) : value.replace(/^0/, "")}
       onChange={(e) => {
         const digits = e.target.value.replace(/\D/g, "").slice(0, 9);
         onChange(digits ? "0" + digits : "");
       }}
       onBlur={onBlur}
+      readOnly={masked}
+      onClick={onClick}
       placeholder={placeholder}
       disabled={disabled}
       className="flex-1 min-w-0 h-full bg-transparent px-3 text-sm placeholder:text-muted-foreground outline-none disabled:cursor-not-allowed"
     />
     {icon && <span className="shrink-0 pe-3 text-muted-foreground flex items-center">{icon}</span>}
   </div>
-);
+  );
+};
 
 export default PhoneNumberInput;
