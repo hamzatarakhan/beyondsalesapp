@@ -1,54 +1,50 @@
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
-import loaderAnimation from "@/assets/loader-b1.json";
 import splashLight from "@/assets/splash-light.json";
+import splashDark from "@/assets/splash-dark.json";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
-// Light mode plays the full "Beyond ONE" splash (150 frames @ 60fps = 2.5s) on its own
-// gradient; dark mode keeps the short loader over a dimmed backdrop.
+// Both splashes are the same 150-frame @ 60fps (2.5s) animation; only the artwork differs.
+// The page backdrop repeats each file's own diagonal gradient so a wide window has no seam.
+const SPLASH = {
+  light: { data: splashLight, background: "linear-gradient(135deg, #BCD6F7 0%, #ECE5F1 50%, #FAD0BE 100%)" },
+  dark: { data: splashDark, background: "linear-gradient(135deg, #13243A 0%, #15131B 50%, #2C1620 100%)" },
+} as const;
+
+const PLAY_MS = 2500;
+
 const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   const { theme } = useTheme();
-  const light = theme === "light";
+  const splash = SPLASH[theme];
   const [fadingOut, setFadingOut] = useState(false);
 
   useEffect(() => {
-    // Light: 2.5s animation. Dark: 39 frames @ 30fps = 1.3s. Show the full play, then fade out.
-    const playMs = light ? 2500 : 1300;
-    const fadeTimer = setTimeout(() => setFadingOut(true), playMs);
-    const doneTimer = setTimeout(onFinish, playMs + 700);
+    // Show the full play, then fade out.
+    const fadeTimer = setTimeout(() => setFadingOut(true), PLAY_MS);
+    const doneTimer = setTimeout(onFinish, PLAY_MS + 700);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(doneTimer);
     };
-  }, [onFinish, light]);
+  }, [onFinish]);
 
   return (
     <div
       className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden transition-opacity duration-700 ease-in-out ${
-        light ? "" : "bg-black/80"
-      } ${fadingOut ? "opacity-0" : "opacity-100"}`}
-      // Same diagonal gradient as the animation's own background, so a wide window has no seam.
-      style={light ? { background: "linear-gradient(135deg, #BCD6F7 0%, #ECE5F1 50%, #FAD0BE 100%)" } : undefined}
+        fadingOut ? "opacity-0" : "opacity-100"
+      }`}
+      style={{ background: splash.background }}
     >
-      {light ? (
-        <Lottie
-          animationData={splashLight}
-          loop={false}
-          rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
-          className="h-full aspect-[9/16] max-w-full"
-        />
-      ) : (
-        <Lottie
-          animationData={loaderAnimation}
-          loop={false}
-          rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
-          className="w-40 aspect-[9/16]"
-        />
-      )}
+      <Lottie
+        animationData={splash.data}
+        loop={false}
+        rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+        className="h-full aspect-[9/16] max-w-full"
+      />
     </div>
   );
 };
