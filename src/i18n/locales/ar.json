@@ -1455,7 +1455,8 @@
       "serialDuplicate": "تمت إضافة هذا الرقم التسلسلي مسبقًا. أدخل رقمًا تسلسليًا آخر.",
       "serialsShort": "لقد أضفت {{added}} من {{required}} أرقام تسلسلية. يرجى إضافة الأرقام التسلسلية المتبقية البالغ عددها {{remaining}} قبل الإرسال.",
       "submitTitle": "لم يتم إرسال الإرجاع",
-      "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى."
+      "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى.",
+      "remarkRequired": "يرجى إدخال سبب إرجاع هذا المنتج."
     },
     "title": "إرجاع المخزون",
     "createOrderTitle": "إنشاء طلب",
@@ -1508,7 +1509,8 @@
       "defectiveDevice": "جهاز معيب",
       "wrongItem": "عنصر خاطئ",
       "expiredVoucher": "قسيمة منتهية الصلاحية",
-      "excessStock": "مخزون زائد"
+      "excessStock": "مخزون زائد",
+      "others": "أخرى"
     },
     "recentlyScanned": "الممسوحة مؤخرًا",
     "viewAll": "عرض الكل ({{count}})",
@@ -1533,7 +1535,23 @@
     "selectLocation": "اختر الموقع",
     "destination": "الوجهة",
     "selectDestination": "اختر الوجهة",
-    "continue": "متابعة"
+    "continue": "متابعة",
+    "serialNumberTitle": "الرقم التسلسلي",
+    "returnQuantity": "كمية الإرجاع : {{count}} قطعة",
+    "reasonForReturnLabel": "سبب الإرجاع :",
+    "editProductAria": "تعديل {{product}}",
+    "submitOrder": "إرسال الطلب",
+    "submitOrderTitle": "إرسال طلب الإرجاع؟",
+    "submitOrderDesc_zero": "سيتم إرسال {{count}} منتجات كطلب إرجاع واحد.",
+    "submitOrderDesc_one": "سيتم إرسال منتج واحد كطلب إرجاع واحد.",
+    "submitOrderDesc_two": "سيتم إرسال منتجين معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_few": "سيتم إرسال {{count}} منتجات معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_many": "سيتم إرسال {{count}} منتجًا معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_other": "سيتم إرسال {{count}} منتج معًا كطلب إرجاع واحد.",
+    "discardTitle": "تجاهل التغييرات؟",
+    "discardDesc": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة فستفقد تغييراتك.",
+    "continueEditing": "متابعة التعديل",
+    "discardChanges": "تجاهل التغييرات"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

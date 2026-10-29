@@ -41,7 +41,8 @@ const StockReturnLocation = () => {
     setPicker(null);
   };
   const next = () => {
-    setReturnDraft({ location, destination });
+    // Keep any products already saved if the user came back here from the product list.
+    setReturnDraft({ ...returnDraft, location, destination });
     navigate("/stock-returns/new");
   };
 

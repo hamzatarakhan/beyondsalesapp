@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { quantityError, serialCountError, serialError } from "../src/lib/stockReturnValidation";
+import { quantityError, remarkError, serialCountError, serialError } from "../src/lib/stockReturnValidation";
 
 describe("Stock Return validation", () => {
   test("requires a positive quantity", () => {
@@ -39,5 +39,11 @@ describe("Stock Return validation", () => {
     expect(serialCountError(4, 9)).toBe("serialsShort");
     expect(serialCountError(0, 9)).toBe("serialsShort");
     expect(serialCountError(9, 9)).toBeUndefined();
+  });
+  test("remark is required only when the reason is Others", () => {
+    expect(remarkError("others", "")).toBe("remarkRequired");
+    expect(remarkError("others", "   ")).toBe("remarkRequired");
+    expect(remarkError("others", "Box arrived crushed")).toBeUndefined();
+    expect(remarkError("damagedSim", "")).toBeUndefined();
   });
 });

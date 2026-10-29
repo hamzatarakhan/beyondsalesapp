@@ -1441,7 +1441,8 @@
       "serialDuplicate": "This serial number has already been added. Enter a different serial number.",
       "serialsShort": "You have added {{added}} of {{required}} serial numbers. Please add the remaining {{remaining}} serial numbers before submitting.",
       "submitTitle": "Return not submitted",
-      "submitRetry": "Your details have been kept. Please try again."
+      "submitRetry": "Your details have been kept. Please try again.",
+      "remarkRequired": "Please enter a reason for returning this item."
     },
     "title": "Stock Return",
     "createOrderTitle": "Create Order",
@@ -1494,7 +1495,8 @@
       "defectiveDevice": "Defective Device",
       "wrongItem": "Wrong Item",
       "expiredVoucher": "Expired Voucher",
-      "excessStock": "Excess Stock"
+      "excessStock": "Excess Stock",
+      "others": "Others"
     },
     "recentlyScanned": "Recently Scanned",
     "viewAll": "View All ({{count}})",
@@ -1515,7 +1517,19 @@
     "selectLocation": "Select location",
     "destination": "Destination",
     "selectDestination": "Select destination",
-    "continue": "Continue"
+    "continue": "Continue",
+    "serialNumberTitle": "Serial Number",
+    "returnQuantity": "Return Quantity : {{count}} PCS",
+    "reasonForReturnLabel": "Reason for Return :",
+    "editProductAria": "Edit {{product}}",
+    "submitOrder": "Submit Order",
+    "submitOrderTitle": "Submit Stock Return?",
+    "submitOrderDesc_one": "{{count}} product will be submitted as one stock return order.",
+    "submitOrderDesc_other": "{{count}} products will be submitted together as one stock return order.",
+    "discardTitle": "Discard Changes?",
+    "discardDesc": "You have unsaved changes. If you leave this page, your changes will be lost.",
+    "continueEditing": "Continue Editing",
+    "discardChanges": "Discard Changes"
   },
   "purchaseOrders": {
     "title": "Request Stock",
