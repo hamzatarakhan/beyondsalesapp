@@ -249,10 +249,13 @@ const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
 
   return (
     <div className="space-y-3 pb-28">
-      <button type="button" onClick={() => setPick(true)} className="w-full text-start rounded-xl bg-card shadow-sm px-4 py-3 flex items-center justify-between">
-        <div><p className="text-[11px] text-muted-foreground">{t("stockOpt2.location")}</p><p className={cn("text-sm", location ? "font-semibold text-foreground" : "text-muted-foreground")}>{location || t("stockOpt2.selectLocation")}</p></div>
-        <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
-      </button>
+      <div className="space-y-1.5">
+        <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.location")}</p>
+        <button type="button" onClick={() => setPick(true)} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+          <span className={location ? "text-foreground font-medium" : "text-muted-foreground"}>{location || t("stockOpt2.selectLocation")}</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+        </button>
+      </div>
       {PURCHASE_ORDER_PRODUCTS.map((p) => {
         const Icon = PRODUCT_ICON[p.id];
         const qty = qtys[p.id] ?? 0;
