@@ -321,7 +321,7 @@ const Home = () => {
     { id: "credit-transfer", icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
-    { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
+    { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     { id: "commission-report", icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
@@ -342,6 +342,9 @@ const Home = () => {
     { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // Stock Return — feature not built yet, lands on Coming Soon for now.
+    // Option 2 — Team Leader → Regional Manager → Sales Support chain; each opens a role picker.
+    { id: "request-stock-opt2", icon: Package, label: t("home.purchaseOrders"), path: "/stock-opt2/request", badge: t("home.badgeOption2"), badgeTone: "special" as const },
+    { id: "push-stock-opt2", icon: ShoppingCart, label: t("home.salesOrders"), path: "/stock-opt2/push", badge: t("home.badgeOption2"), badgeTone: "special" as const },
     { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/stock-returns", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
@@ -350,6 +353,20 @@ const Home = () => {
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
   const [commissionViewOpen, setCommissionViewOpen] = useState(false);
+  // Option 2 stock tiles: which side of the flow to preview. Dealer and the Team Leader's push
+  // side reuse the existing Request/Push Stock screens; the rest open the new chain page.
+  const [stockRoleOpen, setStockRoleOpen] = useState<"request" | "push" | null>(null);
+  const stockRoles = {
+    request: [
+      { id: "dealer", icon: User, label: t("home.roleDealer"), sub: t("home.roleDealerSub"), go: () => choosePurchaseOrdersMode("single") },
+      { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlRequestSub"), go: () => navigate("/stock-opt2?role=tl") },
+    ],
+    push: [
+      { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlPushSub"), go: () => navigate("/sales-orders") },
+      { id: "rm", icon: Building2, label: t("home.roleRm"), sub: t("home.roleRmSub"), go: () => navigate("/stock-opt2?role=rm") },
+      { id: "ss", icon: ClipboardList, label: t("home.roleSs"), sub: t("home.roleSsSub"), go: () => navigate("/stock-opt2?role=ss") },
+    ],
+  };
   // Sales Orders: tapping the tile first asks One Location vs Multiple Locations — One
   // Location goes straight into the flow already built (no location picker, single
   // shared context) and Multiple Locations goes to its own distinct flow (business
@@ -385,6 +402,10 @@ const Home = () => {
   const needsNafath = (path: string) => NAFATH_REQUIRED_ROUTES.some((r) => path.split("?")[0].startsWith(r));
 
   const handleActivityClick = (path: string) => {
+    if (path === "/stock-opt2/request" || path === "/stock-opt2/push") {
+      setStockRoleOpen(path.endsWith("request") ? "request" : "push");
+      return;
+    }
     if (path === "/commission-report") {
       setCommissionViewOpen(true);
       return;
@@ -944,6 +965,39 @@ const Home = () => {
                 </p>
               </div>
             </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={stockRoleOpen !== null} onOpenChange={(o) => !o && setStockRoleOpen(null)}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setStockRoleOpen(null)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.chooseStockRole")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("home.chooseStockRoleSub")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3">
+            {stockRoleOpen && stockRoles[stockRoleOpen].map(({ id, icon: Icon, label, sub, go }) => (
+              <button
+                key={id}
+                onClick={() => { setStockRoleOpen(null); go(); }}
+                className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-foreground">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+                </div>
+              </button>
+            ))}
           </div>
         </DrawerContent>
       </Drawer>

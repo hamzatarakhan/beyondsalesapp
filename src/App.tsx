@@ -47,6 +47,7 @@ import SearchBundleActivation from "./pages/SearchBundleActivation";
 import BundlePlans from "./pages/BundlePlans";
 import EWallet from "./pages/EWallet";
 import CommissionReport from "./pages/CommissionReport";
+import StockOption2 from "./pages/StockOption2";
 import PrepaidSearchCustomer from "./pages/PrepaidSearchCustomer";
 import PrepaidActivation from "./pages/PrepaidActivation";
 import ExistingCustomerFound from "./pages/ExistingCustomerFound";
@@ -188,6 +189,7 @@ const App = () => {
           <Route path="/bundle-plans" element={<BundlePlans />} />
           <Route path="/ewallet" element={<EWallet />} />
           <Route path="/commission-report" element={<CommissionReport />} />
+          <Route path="/stock-opt2" element={<StockOption2 />} />
           <Route path="/prepaid-search" element={<PrepaidSearchCustomer />} />
           <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="/prepaid-existing-customer" element={<ExistingCustomerFound />} />
