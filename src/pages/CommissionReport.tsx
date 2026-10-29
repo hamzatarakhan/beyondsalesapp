@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { DateRange } from "react-day-picker";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Plus, Search, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 
@@ -127,61 +125,13 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: 
   </div>
 );
 
-const rangeLabel = (r?: DateRange) => (r?.from && r.to ? `${format(r.from, "MMM d")} – ${format(r.to, "MMM d")}` : undefined);
-
-// Bottom sheet behind every "Custom" chip: pick a from/to range, Apply commits it, dismissing keeps the old one.
-const CustomRangeDrawer = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value?: DateRange; onApply: (r: DateRange) => void }) => {
-  const { t } = useTranslation();
-  const [draft, setDraft] = useState<DateRange | undefined>(value);
-  useEffect(() => { if (open) setDraft(value); }, [open, value]);
-  return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
-        <div className="flex items-center justify-between pb-1">
-          <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.selectDates")}</DrawerTitle>
-          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
-        </div>
-        <DrawerDescription className="text-xs text-muted-foreground">{rangeLabel(draft) ?? t("commissionReport.selectDatesHint")}</DrawerDescription>
-        <Calendar mode="range" selected={draft} onSelect={setDraft} defaultMonth={draft?.from} disabled={{ after: new Date() }}
-          className="px-0 py-3"
-          classNames={{
-            months: "w-full", month: "w-full space-y-4", head_row: "flex w-full", head_cell: "flex-1 text-muted-foreground font-normal text-[0.8rem]",
-            cell: "flex-1 h-10 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-            day: cn(buttonVariants({ variant: "ghost" }), "h-10 w-full p-0 font-normal aria-selected:opacity-100"),
-          }} />
-        <Button disabled={!draft?.from || !draft?.to} onClick={() => { onApply(draft!); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
-          {t("commissionReport.apply")}
-        </Button>
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-// Chip list whose last item is "Custom": tapping it opens the calendar, and once a range is
-// applied that chip shows the range instead of the word "Custom".
-const useCustomRange = (initial: string) => {
-  const { t } = useTranslation();
-  const [selected, setSelected] = useState(initial);
-  const [range, setRange] = useState<DateRange>();
-  const [open, setOpen] = useState(false);
-  const customLabel = rangeLabel(range) ?? t("commissionReport.custom");
-  const isCustom = selected === "__custom";
-  return {
-    customLabel,
-    label: isCustom ? customLabel : selected,
-    chipValue: isCustom ? customLabel : selected,
-    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : setSelected(v)),
-    drawer: <CustomRangeDrawer open={open} onOpenChange={setOpen} value={range} onApply={(r) => { setRange(r); setSelected("__custom"); }} />,
-  };
-};
-
 // Demo "today" for the commission figures: Aug 2026 is the latest month with data.
 const LATEST_MONTH = new Date(2026, 7, 1);
 // The three months that have their own chip: Last month, then the two before it (July, June).
 const CHIP_MONTHS = [0, -1, -2].map((n) => addMonths(LATEST_MONTH, n));
 const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(LATEST_MONTH.getFullYear(), m, 1));
 
-// "Filter" bottom sheet behind the Custom chip: every month of this year as + / ✓ pills, opened on the month
+// "Filter" bottom sheet behind the Custom chip: every month of this year as pills, opened on the month
 // the home chips currently show. Apply commits; Clear Filter goes back to Last month.
 const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { open: boolean; onOpenChange: (o: boolean) => void; value: Date; onApply: (d: Date) => void; onClear: () => void }) => {
   const { t } = useTranslation();
@@ -200,8 +150,8 @@ const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { ope
             const on = draft.getTime() === d.getTime();
             return (
               <button key={d.getMonth()} type="button" onClick={() => setDraft(d)} aria-pressed={on}
-                className={cn("px-3 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                {on ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />} {format(d, "MMMM")}
+                className={cn("px-3 py-1.5 rounded-full text-xs font-medium", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                {format(d, "MMMM")}
               </button>
             );
           })}
@@ -504,7 +454,8 @@ const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784291"], ["Member Name", "MBR
 
 const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const { t } = useTranslation();
-  const range = useCustomRange(t("commissionReport.last30"));
+  // Same month chips and Custom month Filter sheet as the dealer report.
+  const period = useCustomMonth(t("commissionReport.lastMonth"));
   const [top, setTop] = useState("top");
   const [sheet, setSheet] = useState(false);
   const [q, setQ] = useState("");
@@ -552,8 +503,8 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   return (
     <div className="space-y-4">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
-      <Chips items={[t("commissionReport.today"), t("commissionReport.last7"), t("commissionReport.last30"), range.customLabel]} value={range.chipValue} onChange={range.onChipChange} />
-      {range.drawer}
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
+      {period.drawer}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 p-3">
           <div className="flex items-center gap-2"><IconBox><Banknote className="w-4 h-4" /></IconBox><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.dealersCommission")}</p></div>
@@ -578,7 +529,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           {list.map(([n, p, v], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
               <span className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 text-xs font-semibold flex items-center justify-center shrink-0">{top === "top" ? i + 1 : 5 - i}</span>
-              <div className="flex-1 min-w-0"><p className="text-sm font-semibold text-foreground truncate">{n}</p><p className="text-xs text-muted-foreground">{p}</p></div>
+              <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
               <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 inline-flex items-center gap-1 tabular-nums"><RiyalSymbol /> {v.toFixed(2)}</span>
             </div>
           ))}
