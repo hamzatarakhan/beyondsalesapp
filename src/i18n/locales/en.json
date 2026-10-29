@@ -1535,7 +1535,22 @@
     "discardDesc": "You have unsaved changes. If you leave this page, your changes will be lost.",
     "continueEditing": "Continue Editing",
     "discardChanges": "Discard Changes",
-    "scannedTotal": "{{count}} Scanned"
+    "scannedTotal": "{{count}} Scanned",
+    "tabs": {
+      "myRequest": "My Request",
+      "task": "Task"
+    },
+    "viewOrderTitle": "View Order",
+    "shippingFrom": "Shipping from",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveTitle": "Approve Stock Return?",
+    "approveDesc": "{{member}}'s stock return will be approved.",
+    "rejectTitle": "Reject Stock Return?",
+    "rejectDesc": "{{member}} will see that this stock return was rejected.",
+    "rejectReasonLabel": "Reason for rejection (optional)",
+    "rejectReason": "Rejection Reason",
+    "viewSerialsAria": "View serial numbers for {{product}}"
   },
   "purchaseOrders": {
     "title": "Request Stock",
