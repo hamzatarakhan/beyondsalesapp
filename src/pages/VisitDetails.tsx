@@ -207,7 +207,7 @@ const VisitDetails = () => {
   /* ---------- DEALER OVERVIEW (full page, after scan) ---------- */
   if (view === "overview") {
     return (
-      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+      <div className="mobile-container pb-28 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
         <AppHeader title="Dealer Overview" showBack onBackClick={() => setView("qr")} />
         <div className="px-4">
           <div className="flex border-b border-border mb-4">
@@ -320,7 +320,7 @@ const VisitDetails = () => {
     const showStatus = !!openResult;
     const isCancelled = draft.result === "Cancelled" || draft.status === "Cancelled";
     return (
-      <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-8">
+      <div className="mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide flex flex-col pb-8">
         <AppHeader title="View Result" showBack onBackClick={() => { setOpenResult(null); setPostSurvey(false); setView("result"); }} />
         <div className="px-4 flex-1">
           {showStatus && (
@@ -473,7 +473,7 @@ const VisitDetails = () => {
   /* ---------- VIEW RESULT (member) ---------- */
   if (view === "result" && member) {
     return (
-      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+      <div className="mobile-container pb-28 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
         <AppHeader title="View Result" showBack onBackClick={() => setView("visit")} />
         <div className="px-4">
           <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-3 flex items-start gap-3">
@@ -527,7 +527,7 @@ const VisitDetails = () => {
 
   /* ---------- VIEW VISIT ---------- */
   return (
-    <div className={`mobile-container bg-background h-screen overflow-y-auto scrollbar-hide ${visit.status === "Active" ? "pb-40" : visit.status === "Pending" ? "pb-32" : "pb-8"}`}>
+    <div className={`mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide ${visit.status === "Active" ? "pb-40" : visit.status === "Pending" ? "pb-32" : "pb-8"}`}>
       <AppHeader title="View Visit" showBack onBackClick={() => navigate("/visit-management")} />
 
       <div className="px-4">

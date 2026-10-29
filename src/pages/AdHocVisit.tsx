@@ -211,7 +211,7 @@ const AdHocVisit = () => {
   /* ---------- DEALER OVERVIEW ---------- */
   if (view === "overview") {
     return (
-      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+      <div className="mobile-container pb-28 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
         <AppHeader title="Dealer Overview" showBack onBackClick={() => setView("qr")} />
         <div className="px-4 space-y-4">
           <MemberCard m={SCANNED_MEMBER} />
@@ -297,7 +297,7 @@ const AdHocVisit = () => {
   /* ---------- MEMBER VISIT (final summary) ---------- */
   if (view === "memberVisit") {
     return (
-      <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+      <div className="mobile-container pb-28 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
         <AppHeader title="Member Visit" showBack onBackClick={() => navigate("/visit-management")} />
         <div className="px-4 space-y-3">
           {surveys.map((s) => <SurveyRow key={s.id} entry={s} />)}
@@ -325,7 +325,7 @@ const AdHocVisit = () => {
   /* ---------- VISIT DETAILS ---------- */
   const visibleSurveys = showAllSurveys ? surveys : surveys.slice(0, 3);
   return (
-    <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-8">
+    <div className="mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide flex flex-col pb-8">
       <AppHeader title="Visit Details" showBack onBackClick={() => setView("overview")} />
       <div className="px-4 flex-1">
         <MemberCard m={SCANNED_MEMBER} />

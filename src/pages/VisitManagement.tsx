@@ -93,7 +93,7 @@ const VisitManagement = () => {
     : t("visits.selectDate");
 
   return (
-    <div className="mobile-container pb-28 bg-background h-screen overflow-y-auto scrollbar-hide">
+    <div className="mobile-container pb-28 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
       <AppHeader title={t("visits.title")} showBack />
 
       {/* Search + filter */}

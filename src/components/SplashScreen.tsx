@@ -38,7 +38,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   return (
     <div
       className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden transition-opacity duration-700 ease-in-out ${
-        fadingOut ? "opacity-0" : "opacity-100"
+        fadingOut ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
       style={{ background: splash.background }}
     >

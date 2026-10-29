@@ -45,7 +45,7 @@ const SurveyFlow = ({ title = "Survey Title", onBack, onComplete }: Props) => {
   /* -------- intro -------- */
   if (stage === "intro") {
     return (
-      <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-6">
+      <div className="mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide flex flex-col pb-6">
         <AppHeader title={title} showBack onBackClick={onBack} />
         <div className="px-4 flex-1">
           <div className="relative">
@@ -85,7 +85,7 @@ const SurveyFlow = ({ title = "Survey Title", onBack, onComplete }: Props) => {
   /* -------- result -------- */
   if (stage === "result") {
     return (
-      <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide pb-28">
+      <div className="mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide pb-28">
         <AppHeader title="Survey Result" showBack onBackClick={() => setStage("question")} />
         <div className="px-4">
           <div className="text-center py-2">
@@ -133,7 +133,7 @@ const SurveyFlow = ({ title = "Survey Title", onBack, onComplete }: Props) => {
   /* -------- question -------- */
   const value = answers[idx];
   return (
-    <div className="mobile-container bg-background h-screen overflow-y-auto scrollbar-hide flex flex-col pb-6">
+    <div className="mobile-container bg-background h-[100dvh] overflow-y-auto scrollbar-hide flex flex-col pb-6">
       <AppHeader title={title} showBack onBackClick={() => (idx === 0 ? setStage("intro") : setIdx(idx - 1))} />
       <div className="px-4 flex-1">
         <div className="rounded-2xl bg-card border border-border/60 shadow-[var(--card-shadow)] p-4">

@@ -26,12 +26,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(STORAGE_KEY, String(isLoggedIn));
   }, [isLoggedIn]);
 
-  // Flips isLoggedIn immediately (so the Home route is already mounted) and raises
-  // loginTransition so an App-level overlay can play the loader on top of it — the
-  // overlay must live above Login in the tree since Login itself unmounts on navigate.
+  // Flips isLoggedIn immediately so the Home route mounts. The splash plays only when the app
+  // opens, so login no longer raises loginTransition (the App-level overlay stays wired to it,
+  // in case a post-login loader is wanted again: call setLoginTransition(true) here).
   const login = () => {
     setIsLoggedIn(true);
-    setLoginTransition(true);
   };
   const finishLoginTransition = () => setLoginTransition(false);
   const logout = () => setIsLoggedIn(false);
