@@ -217,7 +217,11 @@ const useCustomRange = (initial: string) => {
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
 
-const PAYOUT = [["Mar", 8200], ["Apr", 11400], ["May", 10200], ["Jun", 13200], ["Jul", 13800], ["Aug", 14200]] as const;
+// Twelve months ending in the current one (Aug); the Payout chips show the trailing 1, 3, 6 or 12.
+const PAYOUT = [["Sep", 7400], ["Oct", 8900], ["Nov", 9600], ["Dec", 12100], ["Jan", 7800], ["Feb", 9100],
+  ["Mar", 8200], ["Apr", 11400], ["May", 10200], ["Jun", 13200], ["Jul", 13800], ["Aug", 14200]] as const;
+const PAYOUT_RANGES = [["1", "currentMonth"], ["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
+const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 const MONTH_EARNED: Record<string, number> = { "Aug 2026": 74000, July: 68500, June: 61200 };
 
 // Dealer's own report uses plain month chips and 11,230; a manager viewing a member sees "Aug 2026" and 74,000.
@@ -225,9 +229,12 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const { t } = useTranslation();
   const first = member ? "Aug 2026" : "Aug";
   const period = useCustomRange(first);
-  const max = Math.max(...PAYOUT.map((p) => p[1]));
+  const [months, setMonths] = useState("6");
+  const payout = PAYOUT.slice(-Number(months));
+  const max = Math.max(...payout.map((p) => p[1]));
   const month = period.label === first ? "August" : period.label;
-  const lit = { [first]: 5, July: 4, June: 3 }[period.label] ?? 5;
+  const lit = { July: "Jul", June: "Jun" }[period.label] ?? "Aug";
+  const rangeKey = PAYOUT_RANGES.find(([n]) => n === months)![1];
   return (
     <div className="space-y-4">
       <Chips items={[first, "July", "June", period.customLabel]} value={period.chipValue} onChange={period.onChipChange} />
@@ -245,17 +252,19 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         </div>
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
+      <Chips items={PAYOUT_RANGES.map(([, k]) => t(`commissionReport.${k}`))} value={t(`commissionReport.${rangeKey}`)}
+        onChange={(label) => setMonths(PAYOUT_RANGES.find(([, k]) => t(`commissionReport.${k}`) === label)![0])} />
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground">{t("commissionReport.last6")}</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t(`commissionReport.${rangeKey}`)}</h3>
           <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
-        <div className="flex items-end gap-3 h-56">
-          {PAYOUT.map(([m, v], i) => {
-            const last = i === lit;
+        <div className={cn("flex items-end justify-center h-56", payout.length > 6 ? "gap-1.5" : "gap-3")}>
+          {payout.map(([m, v]) => {
+            const last = m === lit;
             return (
-              <div key={m} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                <span className={cn("text-[11px] tabular-nums", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{v.toLocaleString()}</span>
+              <div key={m} className="flex-1 max-w-16 flex flex-col items-center gap-1.5 h-full justify-end">
+                <span className={cn("text-[11px] tabular-nums", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{payout.length > 6 ? compact(v) : v.toLocaleString()}</span>
                 <div className="w-full rounded-md" style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
                 <span className="text-[11px] text-muted-foreground">{m}</span>
               </div>
