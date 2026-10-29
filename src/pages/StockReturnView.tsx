@@ -4,12 +4,15 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
 import { Clock, MapPin, Package, Eye, Info, X as XIcon } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, getStockReturn, updateStockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario } from "@/data/stockReturnScenarios";
+
+const REJECT_REASONS = ["serialMismatch", "notReturnable", "missingItems", "damageNotCovered", "duplicateRequest", "other"] as const;
 
 const STATUS_STYLE: Record<StockReturnStatus, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
@@ -30,6 +33,7 @@ const StockReturnView = () => {
   const backTo = `/stock-returns${params.get("tab") === "task" ? "?tab=task" : ""}`;
 
   const [confirm, setConfirm] = useState<"approve" | "reject" | null>(null);
+  const [rejectReasonKey, setRejectReasonKey] = useState("");
   const [rejectRemark, setRejectRemark] = useState("");
   const [serialsOf, setSerialsOf] = useState<string | null>(null);
 
@@ -47,7 +51,11 @@ const StockReturnView = () => {
 
   const resolve = () => {
     if (confirm === "approve") updateStockReturn(order.id, { status: "approved" });
-    if (confirm === "reject") updateStockReturn(order.id, { status: "rejected", rejectReason: rejectRemark.trim() || undefined });
+    if (confirm === "reject") {
+      if (!rejectReasonKey) return;
+      const reason = t(`stockReturn.rejectReasons.${rejectReasonKey}`);
+      updateStockReturn(order.id, { status: "rejected", rejectReason: rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason });
+    }
     setConfirm(null);
     navigate(backTo);
   };
@@ -129,7 +137,7 @@ const StockReturnView = () => {
           <button type="button" onClick={() => setConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("stockReturn.approve")}
           </button>
-          <button type="button" onClick={() => { setRejectRemark(""); setConfirm("reject"); }} className="w-full text-center text-sm font-semibold text-primary">
+          <button type="button" onClick={() => { setRejectReasonKey(""); setRejectRemark(""); setConfirm("reject"); }} className="w-full text-center text-sm font-semibold text-primary">
             {t("stockReturn.reject")}
           </button>
         </div>
@@ -142,12 +150,31 @@ const StockReturnView = () => {
         description={t(confirm === "reject" ? "stockReturn.rejectDesc" : "stockReturn.approveDesc", { member: order.channelMember ?? "" })}
         confirmLabel={t(confirm === "reject" ? "stockReturn.reject" : "stockReturn.approve")}
         onConfirm={resolve}
+        // A rejection needs a reason picked; the remark below it stays optional.
+        confirmDisabled={confirm === "reject" && !rejectReasonKey}
         cancelLabel={t("purchaseOrders.cancel")}
       >
         {confirm === "reject" && (
-          <div className="space-y-1.5 text-start">
-            <p className="text-xs font-medium text-muted-foreground">{t("stockReturn.rejectReasonLabel")}</p>
-            <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder={t("purchaseOrders.writeHere")} className="rounded-xl min-h-[90px]" />
+          <div className="space-y-3 text-start">
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("stockReturn.rejectReasonLabel")} <span className="text-destructive">*</span>
+              </p>
+              <Select value={rejectReasonKey} onValueChange={setRejectReasonKey}>
+                <SelectTrigger className="h-11 rounded-xl" aria-required>
+                  <SelectValue placeholder={t("stockReturn.selectRejectReason")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECT_REASONS.map((r) => (
+                    <SelectItem key={r} value={r}>{t(`stockReturn.rejectReasons.${r}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">{t("stockReturn.rejectRemarkLabel")}</p>
+              <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder={t("purchaseOrders.writeHere")} className="rounded-xl min-h-[90px]" />
+            </div>
           </div>
         )}
       </ConfirmMessageDrawer>

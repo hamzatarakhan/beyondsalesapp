@@ -1570,9 +1570,19 @@
     "approveDesc": "ستتم الموافقة على طلب إرجاع {{member}}.",
     "rejectTitle": "رفض طلب الإرجاع؟",
     "rejectDesc": "سيرى {{member}} أن طلب الإرجاع هذا قد رُفض.",
-    "rejectReasonLabel": "سبب الرفض (اختياري)",
+    "rejectReasonLabel": "سبب الرفض",
     "rejectReason": "سبب الرفض",
-    "viewSerialsAria": "عرض الأرقام التسلسلية لـ {{product}}"
+    "viewSerialsAria": "عرض الأرقام التسلسلية لـ {{product}}",
+    "selectRejectReason": "اختر سببًا",
+    "rejectRemarkLabel": "ملاحظة (اختياري)",
+    "rejectReasons": {
+      "serialMismatch": "الأرقام التسلسلية غير مطابقة",
+      "notReturnable": "المنتج غير قابل للإرجاع",
+      "missingItems": "منتجات ناقصة أو غير مكتملة",
+      "damageNotCovered": "الضرر غير مشمول بسياسة الإرجاع",
+      "duplicateRequest": "طلب مكرر",
+      "other": "أخرى"
+    }
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
