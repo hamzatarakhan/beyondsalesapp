@@ -1507,7 +1507,8 @@
     "status": {
       "pending": "قيد الانتظار",
       "approved": "مقبول",
-      "rejected": "مرفوض"
+      "rejected": "مرفوض",
+      "pendingManager": "بانتظار المدير"
     },
     "reasons": {
       "damagedSim": "شريحة تالفة",

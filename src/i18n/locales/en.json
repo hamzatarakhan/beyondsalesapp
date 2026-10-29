@@ -1493,7 +1493,8 @@
     "status": {
       "pending": "Pending",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "pendingManager": "Pending Manager"
     },
     "reasons": {
       "damagedSim": "Damaged SIM Card",

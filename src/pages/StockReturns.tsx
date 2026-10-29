@@ -9,13 +9,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check, User } from "lucide-react";
-import { ordersFor, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnStatus } from "@/data/stockReturnStore";
+import { badgeFor, ordersFor, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnBadge, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
 
-const STATUS_STYLE: Record<StockReturnStatus, string> = {
+const STATUS_STYLE: Record<StockReturnBadge, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  pendingManager: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
@@ -177,7 +178,7 @@ const StockReturns = () => {
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-bold text-foreground">{o.id}</p>
-                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`stockReturn.status.${o.status}`)}</span>
+                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[badgeFor(o, scenario.role)])}>{t(`stockReturn.status.${badgeFor(o, scenario.role)}`)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock className="w-3.5 h-3.5 shrink-0" />

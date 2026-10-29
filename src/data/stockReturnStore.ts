@@ -231,3 +231,10 @@ export const addStockReturn = (lines: StockReturnLine[], where: { location?: str
   persist();
   return order;
 };
+
+// The status badge a demo user sees. Once the Team Leader has approved a dealer's return it reads
+// "Pending Manager" for the approvers, so it's clear it now waits on the Account Manager; the
+// Dealer still just sees Pending until the final decision.
+export type StockReturnBadge = StockReturnStatus | "pendingManager";
+export const badgeFor = (o: StockReturn, role: StockReturnRole): StockReturnBadge =>
+  o.status === "pending" && o.stage === "awaitingAccountManager" && role !== "dealer" ? "pendingManager" : o.status;

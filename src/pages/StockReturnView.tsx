@@ -10,13 +10,14 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
 import { Clock, MapPin, Package, Eye, Info, X as XIcon } from "lucide-react";
-import { PURCHASE_ORDER_PRODUCTS, approveStockReturn, canReview, getStockReturn, rejectStockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
+import { PURCHASE_ORDER_PRODUCTS, approveStockReturn, badgeFor, canReview, getStockReturn, rejectStockReturn, type StockReturnBadge } from "@/data/stockReturnStore";
 import { getStockReturnScenario } from "@/data/stockReturnScenarios";
 
 const REJECT_REASONS = ["serialMismatch", "notReturnable", "missingItems", "damageNotCovered", "duplicateRequest", "other"] as const;
 
-const STATUS_STYLE: Record<StockReturnStatus, string> = {
+const STATUS_STYLE: Record<StockReturnBadge, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  pendingManager: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
@@ -76,7 +77,7 @@ const StockReturnView = () => {
               </button>
               <p className="text-sm font-bold text-foreground">{order.id}</p>
             </div>
-            <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[order.status])}>{t(`stockReturn.status.${order.status}`)}</span>
+            <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[badgeFor(order, scenario.role)])}>{t(`stockReturn.status.${badgeFor(order, scenario.role)}`)}</span>
           </div>
 
           {/* Dealer returns: where the two-level approval is, apart from the status above. */}
