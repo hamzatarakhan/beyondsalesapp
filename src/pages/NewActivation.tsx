@@ -2417,7 +2417,7 @@ const NewActivation = () => {
 
       {/* Sticky bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
-        <div className="max-w-[390px] mx-auto">
+        <div className="sm:max-w-[390px] mx-auto">
           {/* Names exactly what's still missing so a dealer scrolling a long form isn't left
               staring at a disabled button with no idea what's left to fill in. */}
           {SHOW_MISSING_HINT && stepMissing.length > 0 && (

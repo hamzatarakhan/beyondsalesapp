@@ -644,7 +644,7 @@ const OnboardingRequests = () => {
 
         {(showApproveReject || showResubmit) && (
           <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-            <div className="max-w-[390px] mx-auto flex flex-col gap-2">
+            <div className="sm:max-w-[390px] mx-auto flex flex-col gap-2">
               {showApproveReject && (
                 <>
                   <Button className="w-full h-12 rounded-full font-semibold" onClick={() => setApproveOpen(true)}>{t("onboardingRequests.approve")}</Button>

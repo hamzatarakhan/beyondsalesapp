@@ -148,7 +148,7 @@
 
 @layer components {
   .mobile-container {
-    @apply max-w-[390px] mx-auto min-h-screen bg-background;
+    @apply sm:max-w-[390px] mx-auto min-h-screen bg-background;
   }
 
   .app-card {

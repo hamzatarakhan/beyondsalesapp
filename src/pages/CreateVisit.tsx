@@ -264,7 +264,7 @@ const CreateVisit = () => {
           ))}
           {selected.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">No members added yet</p>}
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={openMembers} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             Add New Members
           </button>
@@ -328,7 +328,7 @@ const CreateVisit = () => {
             ))}
           </div>
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={() => setView("memberVisit")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             Submit
           </button>
@@ -558,7 +558,7 @@ const CreateVisit = () => {
           </div>
         </div>
 
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={confirmMembers} disabled={draftSelected.length === 0} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
             Select
           </button>

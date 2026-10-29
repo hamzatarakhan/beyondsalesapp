@@ -141,7 +141,7 @@ const ExistingCustomerFound = () => {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background space-y-2">
-        <div className="max-w-[390px] mx-auto space-y-2">
+        <div className="sm:max-w-[390px] mx-auto space-y-2">
           <Button
             onClick={() =>
               navigate("/prepaid-activation", {

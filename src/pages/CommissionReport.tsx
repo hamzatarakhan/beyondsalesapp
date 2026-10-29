@@ -374,7 +374,7 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => (
       <BandRow on label="90-100% . your band" value="+1,000" />
       <BandRow label="From 100%" value="1,500" />
     </Card>
-    <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
+    <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
       <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
     </div>
   </div>

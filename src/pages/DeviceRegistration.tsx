@@ -138,7 +138,7 @@ const DeviceRegistration = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 start-0 end-0 max-w-[390px] mx-auto px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
+      <div className="fixed bottom-0 start-0 end-0 sm:max-w-[390px] mx-auto px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
         <button
           type="button"
           onClick={() => setVerifyOpen(true)}

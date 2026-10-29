@@ -285,7 +285,7 @@ const AdHocVisit = () => {
             </div>
           )}
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={() => setView("details")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             Continue
           </button>
@@ -303,7 +303,7 @@ const AdHocVisit = () => {
           {surveys.map((s) => <SurveyRow key={s.id} entry={s} />)}
           {surveys.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">No surveys added yet</p>}
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={startNewSurvey} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             Add New Survey
           </button>

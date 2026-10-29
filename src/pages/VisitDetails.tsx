@@ -274,7 +274,7 @@ const VisitDetails = () => {
             </div>
           )}
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button
             onClick={() => setView("survey")}
             className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
@@ -518,7 +518,7 @@ const VisitDetails = () => {
             ))}
           </div>
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={() => setView("visit")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
         </div>
       </div>
@@ -584,7 +584,7 @@ const VisitDetails = () => {
       </div>
 
       {(visit.status === "Active" || visit.status === "Pending") && (
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           {visit.status === "Active" ? (
             <>
               <button onClick={() => navigate("/visit-management")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Update</button>

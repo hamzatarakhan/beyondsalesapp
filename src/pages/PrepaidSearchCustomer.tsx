@@ -294,7 +294,7 @@ const PrepaidSearchCustomer = () => {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background">
-        <div className="max-w-[390px] mx-auto">
+        <div className="sm:max-w-[390px] mx-auto">
           <Button
             onClick={handleContinue}
             className="w-full h-12 rounded-full text-base font-semibold"

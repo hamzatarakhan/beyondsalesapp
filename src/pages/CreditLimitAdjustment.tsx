@@ -672,7 +672,7 @@ const CreditLimitAdjustment = () => {
 
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-        <div className="max-w-[390px] mx-auto">
+        <div className="sm:max-w-[390px] mx-auto">
           {step === 0 && (
             <>
               <div className="flex items-center justify-center gap-1.5 -mt-0.5 mb-2 px-3.5 py-1 rounded-full bg-primary/5 border border-primary/15 w-fit mx-auto leading-none">

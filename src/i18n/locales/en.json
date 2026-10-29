@@ -2343,9 +2343,16 @@
     }
   },
   "splash": {
-    "prototypeNotice": "Prototype only — not the final version"
+    "prototypeNotice": "Interactive design only — not a real implementation"
+  },
+  "uatTag": {
+    "prototypeOnly": "For prototype only"
   },
   "home": {
+    "prototypeBanner": {
+      "title": "Design prototype",
+      "text": "For design prototyping only, to show the flow of each feature. This is not the real implementation."
+    },
     "greeting": "Hello, Hamza",
     "dealerId": "123456789",
     "hero": {

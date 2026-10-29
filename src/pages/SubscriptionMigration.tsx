@@ -1005,7 +1005,7 @@ const SubscriptionMigration = () => {
 
       {/* Sticky bottom */}
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-        <div className="max-w-[390px] mx-auto">
+        <div className="sm:max-w-[390px] mx-auto">
           {step < 2 ? (
             <>
               {step === 1 && (

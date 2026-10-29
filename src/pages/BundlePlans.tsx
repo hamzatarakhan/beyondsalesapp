@@ -378,7 +378,7 @@ const BundlePlans = () => {
 
       {/* Pay Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-        <div className="max-w-[390px] mx-auto">
+        <div className="sm:max-w-[390px] mx-auto">
           <Button
             onClick={() => navigate("/")}
             className="w-full h-14 rounded-xl bg-primary text-primary-foreground text-lg font-semibold flex items-center justify-between px-6"

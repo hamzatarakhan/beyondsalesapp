@@ -79,6 +79,11 @@ const HERO_AUTOPLAY_MS = 4000;
 // opens a picker so a dealer selling for multiple brands can switch context.
 // Hidden for now — flip back on when the feature is ready to ship.
 const SHOW_BRAND_SWITCHER = true;
+// The promotional hero carousel is kept in source but hidden for now; the prototype hint banner
+// below takes its place. Set to true to bring the carousel back (and drop the banner).
+const SHOW_HERO_BANNER = false;
+// The "For prototype only" chip next to the dealer name is hidden too (the banner covers it). Still shown on the login screen.
+const SHOW_HEADER_PROTOTYPE_TAG = false;
 const OPERATORS = [
   { id: "virgin", name: "Virgin", logo: virginMobileLogo },
   { id: "friendi", name: "Friendi", logo: friendiMobileLogo },
@@ -806,7 +811,7 @@ const Home = () => {
           <div>
             <div className="flex items-center gap-1.5 min-w-0">
               <p className="font-semibold text-foreground text-[15px] truncate">{t("home.greeting")}</p>
-              <UatTag />
+              {SHOW_HEADER_PROTOTYPE_TAG && <UatTag />}
             </div>
             <p className="text-xs text-muted-foreground">{t("home.dealerId")}</p>
           </div>
@@ -841,7 +846,23 @@ const Home = () => {
         </div>
       </header>
 
+      {/* Prototype hint — replaces the hero carousel while it is hidden */}
+      {!SHOW_HERO_BANNER && (
+        <div className="px-4 pb-4">
+          <div role="note" className="flex items-start gap-3 rounded-2xl bg-sky-50 dark:bg-sky-500/10 px-4 py-3.5">
+            <div className="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
+              <Info className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-sky-900 dark:text-sky-100">{t("home.prototypeBanner.title")}</p>
+              <p className="text-xs text-sky-900/70 dark:text-sky-200/70 leading-snug mt-0.5">{t("home.prototypeBanner.text")}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Banner — auto-advances on a timer, swipeable with a finger */}
+      {SHOW_HERO_BANNER && (
       <div className="px-4 pb-4">
         <div className="relative rounded-2xl overflow-hidden h-[140px]">
           <div className="overflow-hidden h-full" ref={heroEmblaRef}>
@@ -878,6 +899,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Widgets — order and visibility come from Settings, dealer-configurable there. */}
       {widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}

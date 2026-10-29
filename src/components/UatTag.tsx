@@ -1,9 +1,9 @@
+import { useTranslation } from "react-i18next";
+
 /**
- * Always-on "UAT" build tag so developers and QA can tell at a glance they are in
- * the UAT build. Rendered inline next to the dealer name on the Home header and
- * standalone above the logo on the login screen — deliberately not shown inside
- * feature-page headers, which stay clean.
- * Deliberately kept Latin in both EN/AR — it is a build acronym, not translated copy.
+ * Always-on build tag so everyone can tell at a glance this is a prototype, not the real app.
+ * Rendered inline next to the dealer name on the Home header and standalone above the logo on
+ * the login screen — deliberately not shown inside feature-page headers, which stay clean.
  */
 type UatTagProps = {
   className?: string;
@@ -11,13 +11,13 @@ type UatTagProps = {
   size?: "sm" | "md";
 };
 
-const UatTag = ({ className = "", size = "sm" }: UatTagProps) => (
-  <span
-    className={`uat-tag ${size === "md" ? "uat-tag--md" : ""} ${className}`}
-    aria-label="UAT build"
-  >
-    UAT
-  </span>
-);
+const UatTag = ({ className = "", size = "sm" }: UatTagProps) => {
+  const { t } = useTranslation();
+  return (
+    <span className={`uat-tag whitespace-nowrap normal-case tracking-normal ${size === "md" ? "uat-tag--md" : ""} ${className}`}>
+      {t("uatTag.prototypeOnly")}
+    </span>
+  );
+};
 
 export default UatTag;

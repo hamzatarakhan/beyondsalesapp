@@ -122,7 +122,7 @@ const SurveyFlow = ({ title = "Survey Title", onBack, onComplete }: Props) => {
             })}
           </div>
         </div>
-        <div className="fixed bottom-0 inset-x-0 mx-auto max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
+        <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] p-4 bg-background/95 backdrop-blur border-t border-border/60">
           <button onClick={() => setConfirm("submit")} className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm">Submit</button>
         </div>
         <ConfirmSheet state={confirm} onClose={() => setConfirm(null)} onSubmit={onComplete} />

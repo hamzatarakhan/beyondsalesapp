@@ -177,7 +177,7 @@ const EWalletTransactionDetails = () => {
 
       {/* Actions */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-        <div className="max-w-[390px] mx-auto flex gap-3">
+        <div className="sm:max-w-[390px] mx-auto flex gap-3">
           {/* Share Dialog */}
           <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
             <DialogTrigger asChild>

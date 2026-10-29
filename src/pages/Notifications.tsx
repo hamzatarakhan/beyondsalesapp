@@ -385,7 +385,7 @@ const Notifications = () => {
 
       {selectMode && (
         <div className="fixed bottom-0 left-0 right-0 z-20">
-          <div className="max-w-[390px] mx-auto bg-background border-t border-border px-4 py-3 flex gap-3">
+          <div className="sm:max-w-[390px] mx-auto bg-background border-t border-border px-4 py-3 flex gap-3">
             <button
               type="button"
               disabled={selectedIds.size === 0}
