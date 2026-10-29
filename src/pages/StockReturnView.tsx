@@ -9,7 +9,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
 import { Clock, MapPin, Package, Eye, Info, X as XIcon } from "lucide-react";
-import { PURCHASE_ORDER_PRODUCTS, getStockReturn, updateStockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
+import { PURCHASE_ORDER_PRODUCTS, approveStockReturn, canReview, getStockReturn, rejectStockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario } from "@/data/stockReturnScenarios";
 
 const REJECT_REASONS = ["serialMismatch", "notReturnable", "missingItems", "damageNotCovered", "duplicateRequest", "other"] as const;
@@ -20,9 +20,9 @@ const STATUS_STYLE: Record<StockReturnStatus, string> = {
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-// View Order for one Stock Return. A Team Leader opening a pending return from their Task tab
-// (a dealer's return) gets Approve / Reject; everything else is read-only. Same layout and
-// confirm pattern as Request Stock's View Order.
+// View Order for one Stock Return. A dealer's return gets Approve / Reject for whichever approver
+// it's waiting on (Team Leader, then Account Manager — see canReview); everything else is
+// read-only. Same layout and confirm pattern as Request Stock's View Order.
 const StockReturnView = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -46,22 +46,22 @@ const StockReturnView = () => {
     );
   }
 
-  const canReview = order.kind === "task" && scenario.role === "teamLeader" && order.status === "pending";
+  const reviewable = canReview(order, scenario.role);
   const productName = (productId: string) => t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId)?.nameKey}`);
 
   const resolve = () => {
-    if (confirm === "approve") updateStockReturn(order.id, { status: "approved" });
+    if (confirm === "approve") approveStockReturn(order.id, scenario.role);
     if (confirm === "reject") {
       if (!rejectReasonKey) return;
       const reason = t(`stockReturn.rejectReasons.${rejectReasonKey}`);
-      updateStockReturn(order.id, { status: "rejected", rejectReason: rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason });
+      rejectStockReturn(order.id, scenario.role, rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason);
     }
     setConfirm(null);
     navigate(backTo);
   };
 
   return (
-    <div className={cn("mobile-container min-h-screen bg-background", canReview ? "pb-40" : "pb-8")}>
+    <div className={cn("mobile-container min-h-screen bg-background", reviewable ? "pb-40" : "pb-8")}>
       <AppHeader title={t("stockReturn.viewOrderTitle")} showBack onBackClick={() => navigate(backTo)} />
 
       <div className="px-4 space-y-3">
@@ -74,11 +74,20 @@ const StockReturnView = () => {
             <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[order.status])}>{t(`stockReturn.status.${order.status}`)}</span>
           </div>
 
+          {/* Dealer returns: where the two-level approval is, apart from the status above. */}
+          {order.stage && (
+            <p className="text-xs text-muted-foreground">
+              {t("stockReturn.approvalStage")}: <span className="font-semibold text-foreground">{t(`stockReturn.stages.${order.stage}`)}</span>
+            </p>
+          )}
+
           {order.status === "rejected" && order.rejectReason && (
             <div className="flex items-start gap-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 p-3.5">
               <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t("stockReturn.rejectReason")}</p>
+                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                  {t("stockReturn.rejectReason")}{order.rejectedBy && ` · ${t(`stockReturn.rejectedBy.${order.rejectedBy}`)}`}
+                </p>
                 <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{order.rejectReason}</p>
               </div>
             </div>
@@ -95,7 +104,7 @@ const StockReturnView = () => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {order.date} · <span className="font-semibold text-primary">{order.channelMember ?? scenario.user.name}</span>
+            {order.date} · <span className="font-semibold text-primary">{order.channelMember}</span>
           </p>
         </div>
 
@@ -132,7 +141,7 @@ const StockReturnView = () => {
         })}
       </div>
 
-      {canReview && (
+      {reviewable && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button type="button" onClick={() => setConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("stockReturn.approve")}
@@ -147,7 +156,7 @@ const StockReturnView = () => {
         open={!!confirm}
         onOpenChange={(o) => { if (!o) setConfirm(null); }}
         title={t(confirm === "reject" ? "stockReturn.rejectTitle" : "stockReturn.approveTitle")}
-        description={t(confirm === "reject" ? "stockReturn.rejectDesc" : "stockReturn.approveDesc", { member: order.channelMember ?? "" })}
+        description={t(confirm === "reject" ? "stockReturn.rejectDesc" : scenario.role === "teamLeader" ? "stockReturn.approveToManagerDesc" : "stockReturn.approveDesc", { member: order.channelMember })}
         confirmLabel={t(confirm === "reject" ? "stockReturn.reject" : "stockReturn.approve")}
         onConfirm={resolve}
         // A rejection needs a reason picked; the remark below it stays optional.

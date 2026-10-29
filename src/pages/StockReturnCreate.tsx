@@ -24,7 +24,7 @@ const StockReturnCreate = () => {
 
   const submitOrder = () => {
     setConfirmOpen(false);
-    submitReturnDraft((r) => t(`stockReturn.reasons.${r}`), getStockReturnScenario().user.name);
+    submitReturnDraft((r) => t(`stockReturn.reasons.${r}`), getStockReturnScenario().role, getStockReturnScenario().user.name);
     setSuccessOpen(true);
   };
 

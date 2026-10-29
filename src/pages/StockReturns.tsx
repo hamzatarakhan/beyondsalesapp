@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check, User } from "lucide-react";
-import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
+import { ordersFor, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
@@ -42,27 +42,24 @@ const StockReturns = () => {
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
-  // Team Leaders get two tabs: My Request (their own returns, which go up to their manager)
-  // and Task (returns from their dealers, which they approve or reject). Everyone else only
-  // has their own returns. The tab lives in the URL so Back from View Order lands on it.
-  const isTeamLeader = scenario.role === "teamLeader";
+  // Team Leaders and Account Managers get two tabs: My Request (returns they raised) and Task
+  // (dealer returns waiting on their approval — see ordersFor). Dealers only have their own
+  // returns. The tab lives in the URL so Back from View Order lands on it.
+  const hasTasks = scenario.role !== "dealer";
   const [params, setParams] = useSearchParams();
-  const tab: "mine" | "task" = isTeamLeader && params.get("tab") === "task" ? "task" : "mine";
-  const memberName = (o: StockReturn) => o.channelMember ?? scenario.user.name;
+  const tab: "mine" | "task" = hasTasks && params.get("tab") === "task" ? "task" : "mine";
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return stockReturns
+    return ordersFor({ role: scenario.role, name: scenario.user.name }, tab)
       .filter((o) => {
-        if ((o.kind === "task") !== (tab === "task")) return false;
-        if (q && !o.id.toLowerCase().includes(q) && !memberName(o).toLowerCase().includes(q)) return false;
+        if (q && !o.id.toLowerCase().includes(q) && !o.channelMember.toLowerCase().includes(q)) return false;
         if (appliedStatus.length > 0 && !appliedStatus.includes(o.status)) return false;
         if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
         return true;
       })
       .sort((a, b) => STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- memberName only reads the fixed demo scenario
-  }, [search, appliedStatus, appliedRange, tab]);
+  }, [search, appliedStatus, appliedRange, tab, scenario]);
 
   const openFilter = () => {
     setDraftStatus(appliedStatus);
@@ -105,7 +102,7 @@ const StockReturns = () => {
       <AppHeader title={t("stockReturn.title")} showBack />
 
       <div className="px-4 space-y-3">
-        {isTeamLeader && (
+        {hasTasks && (
           <div className="flex border-b border-border">
             {(["mine", "task"] as const).map((k) => (
               <button
@@ -189,7 +186,7 @@ const StockReturns = () => {
                 {tab === "task" && (
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <User className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{memberName(o)}</span>
+                    <span className="truncate">{o.channelMember}</span>
                   </div>
                 )}
                 <TagChips

@@ -1560,7 +1560,19 @@
       "damageNotCovered": "Damage not covered by return policy",
       "duplicateRequest": "Duplicate request",
       "other": "Other"
-    }
+    },
+    "approvalStage": "Approval stage",
+    "stages": {
+      "awaitingTeamLeader": "Awaiting Team Leader Approval",
+      "awaitingAccountManager": "Awaiting Account Manager Approval",
+      "completed": "Final Decision Completed"
+    },
+    "rejectedBy": {
+      "teamLeader": "Rejected by Team Leader",
+      "accountManager": "Rejected by Account Manager",
+      "dealer": "Rejected"
+    },
+    "approveToManagerDesc": "{{member}}'s stock return will be sent to the Account Manager for final approval. It stays Pending until then."
   },
   "purchaseOrders": {
     "title": "Request Stock",

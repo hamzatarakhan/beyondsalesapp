@@ -1582,7 +1582,19 @@
       "damageNotCovered": "الضرر غير مشمول بسياسة الإرجاع",
       "duplicateRequest": "طلب مكرر",
       "other": "أخرى"
-    }
+    },
+    "approvalStage": "مرحلة الموافقة",
+    "stages": {
+      "awaitingTeamLeader": "بانتظار موافقة قائد الفريق",
+      "awaitingAccountManager": "بانتظار موافقة مدير الحساب",
+      "completed": "تم اتخاذ القرار النهائي"
+    },
+    "rejectedBy": {
+      "teamLeader": "رُفض من قائد الفريق",
+      "accountManager": "رُفض من مدير الحساب",
+      "dealer": "مرفوض"
+    },
+    "approveToManagerDesc": "سيتم إرسال طلب إرجاع {{member}} إلى مدير الحساب للموافقة النهائية، ويبقى قيد الانتظار حتى ذلك الحين."
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
