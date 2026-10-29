@@ -279,54 +279,15 @@ const useCustomMonth = (initial: string) => {
 // Twelve months of payouts ending in LATEST_MONTH (Sep 2025 – Aug 2026).
 const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
-const FIRST_MONTH = PAYOUT[0].date;
 const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 
 type Quarter = { year: number; q: number }; // q is 0-based: 0 = Jan–Mar
 const quarterLabel = ({ year, q }: Quarter) => `Q${q + 1} ${year}`;
 const quarterStart = ({ year, q }: Quarter) => new Date(year, q * 3, 1);
-// A quarter is pickable when at least one of its months has payout data.
-const hasData = (qr: Quarter) => quarterStart(qr) <= LATEST_MONTH && addMonths(quarterStart(qr), 2) >= FIRST_MONTH;
-
-// Bottom sheet behind the Payout "Quarterly" chip: year arrows + Q1–Q4, Apply commits.
-const QuarterPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value: Quarter; onApply: (q: Quarter) => void }) => {
-  const { t } = useTranslation();
-  const [draft, setDraft] = useState(value);
-  const [year, setYear] = useState(value.year);
-  useEffect(() => { if (open) { setDraft(value); setYear(value.year); } }, [open, value]);
-  return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
-        <div className="flex items-center justify-between pb-1">
-          <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.selectQuarter")}</DrawerTitle>
-          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
-        </div>
-        <DrawerDescription className="text-xs text-muted-foreground">{quarterLabel(draft)} · {format(quarterStart(draft), "MMM")} – {format(addMonths(quarterStart(draft), 2), "MMM")}</DrawerDescription>
-        <div className="flex items-center justify-between py-4">
-          <button type="button" onClick={() => setYear((y) => y - 1)} disabled={year <= FIRST_MONTH.getFullYear()} aria-label="Previous year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center disabled:opacity-30"><ChevronLeft className="w-4 h-4 rtl:rotate-180" /></button>
-          <span className="text-base font-semibold text-foreground tabular-nums">{year}</span>
-          <button type="button" onClick={() => setYear((y) => y + 1)} disabled={year >= LATEST_MONTH.getFullYear()} aria-label="Next year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center disabled:opacity-30"><ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
-        </div>
-        <div className="grid grid-cols-2 gap-2 pb-4">
-          {[0, 1, 2, 3].map((q) => {
-            const qr = { year, q };
-            const on = draft.year === year && draft.q === q;
-            return (
-              <button key={q} type="button" disabled={!hasData(qr)} onClick={() => setDraft(qr)}
-                className={cn("h-14 rounded-xl border flex flex-col items-center justify-center disabled:opacity-30", on ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground")}>
-                <span className="text-sm font-semibold">Q{q + 1}</span>
-                <span className={cn("text-[11px]", on ? "text-primary-foreground/80" : "text-muted-foreground")}>{format(quarterStart(qr), "MMM")} – {format(addMonths(quarterStart(qr), 2), "MMM")}</span>
-              </button>
-            );
-          })}
-        </div>
-        <Button onClick={() => { onApply(draft); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
-          {t("commissionReport.apply")}
-        </Button>
-      </DrawerContent>
-    </Drawer>
-  );
-};
+const quarterOf = (d: Date): Quarter => ({ year: d.getFullYear(), q: Math.floor(d.getMonth() / 3) });
+// Q1–Q4 of the current year only; quarters that haven't started yet stay visible but disabled.
+const QUARTERS = [0, 1, 2, 3].map((q) => ({ year: LATEST_MONTH.getFullYear(), q }));
+const RANGES = [["quarter", "quarterly"], ["6", "last6"], ["12", "last12"]] as const;
 const MONTH_EARNED: Record<string, number> = { "Aug 2026": 74000, July: 68500, June: 61200 };
 
 // Dealer's own report uses plain month chips and 11,230; a manager viewing a member sees "Aug 2026" and 74,000.
@@ -336,9 +297,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const period = useCustomMonth(first);
   // Payout window: a picked quarter, or the trailing 6 / 12 months.
   const [range, setRange] = useState<"quarter" | "6" | "12">("6");
-  const [quarter, setQuarter] = useState<Quarter>({ year: LATEST_MONTH.getFullYear(), q: Math.floor(LATEST_MONTH.getMonth() / 3) });
-  const [quarterOpen, setQuarterOpen] = useState(false);
-  const quarterChip = range === "quarter" ? quarterLabel(quarter) : t("commissionReport.quarterly");
+  const [quarter, setQuarter] = useState<Quarter>(quarterOf(LATEST_MONTH));
   const payout = range === "quarter"
     ? PAYOUT.filter((p) => p.date >= quarterStart(quarter) && p.date <= addMonths(quarterStart(quarter), 2))
     : PAYOUT.slice(-Number(range));
@@ -363,14 +322,32 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         </div>
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
-      <Chips items={[quarterChip, t("commissionReport.last6"), t("commissionReport.last12")]}
-        value={range === "quarter" ? quarterChip : t(range === "6" ? "commissionReport.last6" : "commissionReport.last12")}
-        onChange={(label) => (label === quarterChip ? setQuarterOpen(true) : setRange(label === t("commissionReport.last6") ? "6" : "12"))} />
-      <QuarterPickerDrawer open={quarterOpen} onOpenChange={setQuarterOpen} value={quarter} onApply={(q) => { setQuarter(q); setRange("quarter"); }} />
+      <div className="flex rounded-full bg-card shadow-sm p-1">
+        {RANGES.map(([k, label]) => (
+          <button key={k} type="button" onClick={() => setRange(k)}
+            className={cn("flex-1 py-1.5 rounded-full text-xs font-medium whitespace-nowrap", range === k ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
+            {t(`commissionReport.${label}`)}
+          </button>
+        ))}
+      </div>
+      {/* Quarterly shows every quarter inline, so switching is one tap with no sheet. */}
+      {range === "quarter" && (
+        <div className="grid grid-cols-4 gap-2">
+          {QUARTERS.map((qr) => (
+            <button key={qr.q} type="button" onClick={() => setQuarter(qr)} disabled={quarterStart(qr) > LATEST_MONTH}
+              className={cn("py-1.5 rounded-full text-xs font-medium border-[0.5px] disabled:opacity-40",
+                qr.q === quarter.q ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border text-muted-foreground")}>
+              Q{qr.q + 1}
+            </button>
+          ))}
+        </div>
+      )}
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
-          <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
+          {range === "quarter"
+            ? <span className="text-xs font-semibold text-foreground"><Money v={payout.reduce((s, p) => s + p.v, 0)} /></span>
+            : <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>}
         </div>
         <div className={cn("flex items-end justify-center h-56", payout.length > 6 ? "gap-1.5" : "gap-3")}>
           {payout.map(({ date, v }) => {
