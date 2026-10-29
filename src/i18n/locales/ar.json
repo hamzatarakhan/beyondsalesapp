@@ -1556,7 +1556,9 @@
     "discardTitle": "تجاهل التغييرات؟",
     "discardDesc": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة فستفقد تغييراتك.",
     "continueEditing": "متابعة التعديل",
-    "discardChanges": "تجاهل التغييرات"
+    "discardChanges": "تجاهل التغييرات",
+    "scannedTotal": "تم مسح {{count}}",
+    "removeRangeAria": "إزالة نطاق الأرقام التسلسلية"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

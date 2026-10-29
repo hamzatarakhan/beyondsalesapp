@@ -1534,7 +1534,9 @@
     "discardTitle": "Discard Changes?",
     "discardDesc": "You have unsaved changes. If you leave this page, your changes will be lost.",
     "continueEditing": "Continue Editing",
-    "discardChanges": "Discard Changes"
+    "discardChanges": "Discard Changes",
+    "scannedTotal": "{{count}} Scanned",
+    "removeRangeAria": "Remove serial number range"
   },
   "purchaseOrders": {
     "title": "Request Stock",
