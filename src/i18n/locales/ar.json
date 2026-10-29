@@ -1623,8 +1623,8 @@
     },
     "createOrderTitle": "إنشاء طلب",
     "editOrderTitle": "تعديل الطلب",
-    "destinations": "الوجهات",
-    "selectDestination": "اختر الوجهة",
+    "destinations": "الموقع",
+    "selectDestination": "اختر الموقع",
     "availableStocks": "{{count}} قطعة متوفرة",
     "decreaseAria": "إنقاص كمية {{product}}",
     "increaseAria": "زيادة كمية {{product}}",
@@ -2194,6 +2194,9 @@
       "rejected": "مرفوض",
       "cancelled": "ملغي"
     }
+  },
+  "splash": {
+    "prototypeNotice": "نموذج أولي فقط — ليست النسخة النهائية"
   },
   "home": {
     "greeting": "مرحباً، حمزة",

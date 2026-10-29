@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
+import { useTranslation } from "react-i18next";
+import { Flag } from "lucide-react";
 import splashLight from "@/assets/splash-light.json";
 import splashDark from "@/assets/splash-dark.json";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -19,6 +21,7 @@ const PLAY_MS = 2500;
 
 const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const splash = SPLASH[theme];
   const [fadingOut, setFadingOut] = useState(false);
 
@@ -45,6 +48,13 @@ const SplashScreen = ({ onFinish }: SplashScreenProps) => {
         rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
         className="h-full aspect-[9/16] max-w-full"
       />
+      {/* Same yellow marker in light and dark so the notice reads on either backdrop. */}
+      <div className="absolute inset-x-0 bottom-0 flex justify-center px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <div role="note" className="flex items-center gap-2 rounded-full bg-yellow-200/90 px-4 py-2 text-xs font-medium text-yellow-900 shadow-sm ring-1 ring-yellow-400/40 backdrop-blur-sm opacity-0 animate-fade-in-up">
+          <Flag className="h-3.5 w-3.5 shrink-0 fill-yellow-600/70 text-yellow-700" />
+          {t("splash.prototypeNotice")}
+        </div>
+      </div>
     </div>
   );
 };

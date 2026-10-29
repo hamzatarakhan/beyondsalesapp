@@ -1601,8 +1601,8 @@
     },
     "createOrderTitle": "Create Request",
     "editOrderTitle": "Edit Request",
-    "destinations": "Destinations",
-    "selectDestination": "Select destination",
+    "destinations": "Location",
+    "selectDestination": "Select location",
     "availableStocks": "{{count}} Available Stocks",
     "decreaseAria": "Decrease {{product}} quantity",
     "increaseAria": "Increase {{product}} quantity",
@@ -2268,6 +2268,9 @@
       "rejected": "Rejected",
       "cancelled": "Cancelled"
     }
+  },
+  "splash": {
+    "prototypeNotice": "Prototype only — not the final version"
   },
   "home": {
     "greeting": "Hello, Hamza",

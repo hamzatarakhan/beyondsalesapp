@@ -361,7 +361,7 @@ const Home = () => {
   const [stockRoleOpen, setStockRoleOpen] = useState<"request" | "push" | null>(null);
   const stockRoles = {
     request: [
-      { id: "dealer", icon: User, label: t("home.roleDealer"), sub: t("home.roleDealerSub"), go: () => choosePurchaseOrdersMode("single") },
+      { id: "dealer", icon: User, label: t("home.roleDealer"), sub: t("home.roleDealerSub"), go: () => choosePurchaseOrdersMode("multi") },
       { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlRequestSub"), go: () => navigate("/stock-opt2?role=tl") },
     ],
     push: [
