@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import TagChips from "@/components/TagChips";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
@@ -19,7 +20,9 @@ const STATUS_STYLE: Record<StockReturnStatus, string> = {
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+const RETURN_CHIP = "px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground";
+
+const fmtShort =(d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 const inRange = (d: Date, from: Date, to: Date) => {
   const day = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   return day >= new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime() && day <= new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
@@ -85,6 +88,7 @@ const StockReturns = () => {
 
   const productName = (productId: string) =>
     t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId)?.nameKey}`);
+  const moreLabel = useCallback((n: number) => t("stockReturn.moreItems", { count: n }), [t]);
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
@@ -142,8 +146,6 @@ const StockReturns = () => {
         ) : (
           <div className="space-y-3">
             {filtered.map((o) => {
-              const shown = o.lines.slice(0, 3);
-              const extra = o.lines.length - shown.length;
               return (
                 <div
                   key={o.id}
@@ -157,18 +159,12 @@ const StockReturns = () => {
                     <Clock className="w-3.5 h-3.5 shrink-0" />
                     {o.date}
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {shown.map((l) => (
-                      <span key={l.productId} className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                        {productName(l.productId)}
-                      </span>
-                    ))}
-                    {extra > 0 && (
-                      <span className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                        {t("stockReturn.moreItems", { count: extra })}
-                      </span>
-                    )}
-                  </div>
+                  <TagChips
+                    chips={o.lines.map((l) => ({ key: l.productId, label: productName(l.productId) }))}
+                    moreLabel={moreLabel}
+                    chipClassName={RETURN_CHIP}
+                    moreClassName={RETURN_CHIP}
+                  />
                 </div>
               );
             })}
