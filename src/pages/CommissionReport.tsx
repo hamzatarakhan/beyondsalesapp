@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronLeft, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
@@ -217,13 +217,14 @@ const useCustomRange = (initial: string) => {
 
 // Demo "today" for the commission figures: Aug 2026 is the latest month with data.
 const LATEST_MONTH = new Date(2026, 7, 1);
+// Months of this year not already on a chip (Last month, July, June): Jan – May.
+const EARLIER_MONTHS = Array.from({ length: Math.max(0, LATEST_MONTH.getMonth() - 2) }, (_, m) => new Date(LATEST_MONTH.getFullYear(), m, 1));
 
-// Bottom sheet behind the commission "Custom" chip: pick one whole month (year arrows + month grid), never a day.
+// Bottom sheet behind the commission "Custom" chip: the rest of this year's months, pick one and Apply.
 const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value?: Date; onApply: (d: Date) => void }) => {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<Date | undefined>(value);
-  const [year, setYear] = useState((value ?? LATEST_MONTH).getFullYear());
-  useEffect(() => { if (open) { setDraft(value); setYear((value ?? LATEST_MONTH).getFullYear()); } }, [open, value]);
+  useEffect(() => { if (open) setDraft(value); }, [open, value]);
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
@@ -232,21 +233,13 @@ const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boole
           <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
         <DrawerDescription className="text-xs text-muted-foreground">{draft ? format(draft, "MMMM yyyy") : t("commissionReport.selectMonthHint")}</DrawerDescription>
-        <div className="flex items-center justify-between py-4">
-          <button type="button" onClick={() => setYear((y) => y - 1)} aria-label="Previous year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center"><ChevronLeft className="w-4 h-4 rtl:rotate-180" /></button>
-          <span className="text-base font-semibold text-foreground tabular-nums">{year}</span>
-          <button type="button" onClick={() => setYear((y) => y + 1)} disabled={year >= LATEST_MONTH.getFullYear()} aria-label="Next year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center disabled:opacity-30"><ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
-        </div>
-        <div className="grid grid-cols-3 gap-2 pb-4">
-          {Array.from({ length: 12 }, (_, m) => new Date(year, m, 1)).map((d) => {
-            const on = draft?.getTime() === d.getTime();
-            return (
-              <button key={d.getMonth()} type="button" disabled={d > LATEST_MONTH} onClick={() => setDraft(d)}
-                className={cn("h-11 rounded-xl text-sm font-medium border disabled:opacity-30", on ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground")}>
-                {format(d, "MMM")}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-3 gap-2 py-4">
+          {EARLIER_MONTHS.map((d) => (
+            <button key={d.getMonth()} type="button" onClick={() => setDraft(d)}
+              className={cn("h-11 rounded-xl text-sm font-medium border", draft?.getTime() === d.getTime() ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground")}>
+              {format(d, "MMMM")}
+            </button>
+          ))}
         </div>
         <Button disabled={!draft} onClick={() => { onApply(draft!); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
           {t("commissionReport.apply")}
@@ -256,18 +249,18 @@ const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boole
   );
 };
 
-// Like useCustomRange, but the "Custom" chip picks a whole month and then shows it ("Mar 2026").
+// Like useCustomRange, but the "Custom" chip picks a whole month and then shows its name ("March").
 const useCustomMonth = (initial: string) => {
   const { t } = useTranslation();
   const [selected, setSelected] = useState(initial);
   const [month, setMonth] = useState<Date>();
   const [open, setOpen] = useState(false);
-  const customLabel = month ? format(month, "MMM yyyy") : t("commissionReport.custom");
+  const customLabel = month ? format(month, "MMMM") : t("commissionReport.custom");
   const isCustom = selected === "__custom";
   return {
     customLabel,
     month: isCustom ? month : undefined,
-    label: isCustom && month ? format(month, "MMMM yyyy") : selected,
+    label: isCustom && month ? format(month, "MMMM") : selected,
     chipValue: isCustom ? customLabel : selected,
     onChipChange: (v: string) => (v === customLabel ? setOpen(true) : setSelected(v)),
     drawer: <MonthPickerDrawer open={open} onOpenChange={setOpen} value={month} onApply={(d) => { setMonth(d); setSelected("__custom"); }} />,
@@ -281,12 +274,12 @@ const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
-const MONTH_EARNED: Record<string, number> = { "Aug 2026": 74000, July: 68500, June: 61200 };
+const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June: 61200 };
 
-// Dealer's own report uses plain month chips and 11,230; a manager viewing a member sees "Aug 2026" and 74,000.
+// Dealer's own report shows 11,230; a manager viewing a member sees that member's month figures (74,000 for August).
 const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolean }) => {
   const { t } = useTranslation();
-  const first = member ? "Aug 2026" : "Aug";
+  const first = t("commissionReport.lastMonth");
   const period = useCustomMonth(first);
   // Payout window: the trailing 3, 6 or 12 months.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
@@ -299,7 +292,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={[first, "July", "June", period.customLabel]} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[period.label] ?? 52300 : 11230} badge={t("commissionReport.approved")} />
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : 11230} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
