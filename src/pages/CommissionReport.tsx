@@ -448,18 +448,15 @@ const activityRows = (kind: BreakdownKind) => {
   return b.lines ?? demoRows(Number(b.activities.replace(/[^\d]/g, "")), b.bad ? -5 : 5);
 };
 
-// Same cards for every breakdown; the kind chips come from the rows, so they always match what is listed.
+// Same cards for every breakdown: search by MSISDN only, no type chips.
 const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
-  const [f, setF] = useState("All");
   const all = useMemo(() => activityRows(kind), [kind]);
-  const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
-  const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
+  const rows = all.filter((r) => !q || r.phone.includes(q));
   return (
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
-      <Chips items={kinds} value={f} onChange={setF} />
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
         <Card key={r.phone + r.detail} className="py-3 flex items-center justify-between">
