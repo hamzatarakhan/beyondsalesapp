@@ -42,12 +42,13 @@ const StockReturns = () => {
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
-  // Team Leaders and Account Managers get two tabs: My Request (returns they raised) and Task
-  // (dealer returns waiting on their approval — see ordersFor). Dealers only have their own
-  // returns. The tab lives in the URL so Back from View Order lands on it.
-  const hasTasks = scenario.role !== "dealer";
+  // Team Leaders get two tabs: My Request (returns they raised) and Task (dealer returns waiting
+  // on their approval — see ordersFor). The Account Manager only reviews, so they see just the
+  // Task list with no tabs and no New order; Dealers see just their own returns. The tab lives
+  // in the URL so Back from View Order lands on it.
+  const hasTasks = scenario.role === "teamLeader";
   const [params, setParams] = useSearchParams();
-  const tab: "mine" | "task" = hasTasks && params.get("tab") === "task" ? "task" : "mine";
+  const tab: "mine" | "task" = scenario.role === "accountManager" || (hasTasks && params.get("tab") === "task") ? "task" : "mine";
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

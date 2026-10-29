@@ -119,16 +119,15 @@ const SEED: StockReturn[] = [
   mk("3515165605", "pending", "14, Dec, 2026 – 3:10 PM", new Date(2026, 11, 14), [line("vmSim", 6), line("voucher50", 2), line("router3", 1)], dealer("Reem Aldosari", "Dammam – Corniche Branch", "awaitingAccountManager", { teamLeaderApproved: true })),
   mk("3515165604", "rejected", "13, Dec, 2026 – 12:00 PM", new Date(2026, 11, 13), [line("fingerprint", 3), line("voucher20", 5), line("router1", 1), line("vmSim", 2)], dealer("Omar Alharbi", "Riyadh – Malaz Branch", "completed", { rejectedBy: "teamLeader", rejectReason: "Serial numbers don't match" })),
   mk("3515165603", "approved", "11, Dec, 2026 – 9:30 AM", new Date(2026, 11, 11), [line("voucher100", 4)], dealer("Mohammed Al-Dosari", "Khobar – Rakah Branch", "completed", { teamLeaderApproved: true })),
-  // The demo Team Leader's and Account Manager's own returns (their approval chain isn't modelled).
+  // The demo Team Leader's own returns (their approval chain isn't modelled). The Account Manager
+  // only reviews and raises none.
   mk("3515165610", "approved", "14, Dec, 2026 – 11:30 AM", new Date(2026, 11, 14), [line("voucher10", 20)], ownBy("teamLeader", "Noura Alqahtani", "Riyadh Warehouse")),
   mk("3515165609", "pending", "13, Dec, 2026 – 4:15 PM", new Date(2026, 11, 13), [line("router1", 3), line("router2", 2)], ownBy("teamLeader", "Noura Alqahtani", "Riyadh Warehouse")),
-  mk("3515165602", "pending", "10, Dec, 2026 – 2:00 PM", new Date(2026, 11, 10), [line("vmSim", 20), line("router3", 2)], ownBy("accountManager", "Ahmed Al-Otaibi", "Riyadh Warehouse")),
-  mk("3515165601", "approved", "8, Dec, 2026 – 11:00 AM", new Date(2026, 11, 8), [line("fingerprint", 5)], ownBy("accountManager", "Ahmed Al-Otaibi", "Jeddah Warehouse")),
 ];
 
 // Orders are one shared list for every demo role, kept in sessionStorage so an approval made as
 // one demo user is still there after switching to another (even across a page reload).
-const STORAGE_KEY = "stockReturns.v2";
+const STORAGE_KEY = "stockReturns.v3";
 const load = (): StockReturn[] => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
