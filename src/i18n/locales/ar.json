@@ -1456,7 +1456,11 @@
       "serialsShort": "لقد أضفت {{added}} من {{required}} أرقام تسلسلية. يرجى إضافة الأرقام التسلسلية المتبقية البالغ عددها {{remaining}} قبل الإرسال.",
       "submitTitle": "لم يتم إرسال الإرجاع",
       "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى.",
-      "remarkRequired": "يرجى إدخال سبب إرجاع هذا المنتج."
+      "remarkRequired": "يرجى إدخال سبب إرجاع هذا المنتج.",
+      "rangeMismatch": "يجب أن يتطابق الرقمان التسلسليان الأول والأخير باستثناء الأرقام الأخيرة.",
+      "rangeOrder": "يجب أن يأتي الرقم التسلسلي الأخير بعد الرقم التسلسلي الأول.",
+      "rangeOverlap": "يتضمن هذا النطاق أرقامًا تسلسلية تمت إضافتها بالفعل.",
+      "rangeExceedsRequired": "يحتوي هذا النطاق على أرقام تسلسلية أكثر من {{remaining}} المتبقية لكمية الإرجاع."
     },
     "title": "إرجاع المخزون",
     "createOrderTitle": "إنشاء طلب",
@@ -1552,7 +1556,9 @@
     "discardTitle": "تجاهل التغييرات؟",
     "discardDesc": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة فستفقد تغييراتك.",
     "continueEditing": "متابعة التعديل",
-    "discardChanges": "تجاهل التغييرات"
+    "discardChanges": "تجاهل التغييرات",
+    "scannedTotal": "تم مسح {{count}}",
+    "removeRangeAria": "إزالة نطاق الأرقام التسلسلية"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
@@ -2407,7 +2413,6 @@
     "showQrAria": "إظهار رمز QR",
     "notificationsAria": "الإشعارات",
     "badgeOption1": "الخيار 1",
-    "badgeOption2": "الخيار 2",
     "badgePlansOption1": "خيار الباقات 1",
     "badgePlansOption2": "خيار الباقات 2",
     "badgePlansOption3": "خيار الباقات 3",

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronDown, ChevronRight, Info, Search, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
@@ -242,6 +242,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const period = useCustomMonth(first);
   // Payout window: the trailing 3, 6 or 12 months.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
+  const [rangeOpen, setRangeOpen] = useState(false);
   const payout = PAYOUT.slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
@@ -263,15 +264,32 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} danger onClick={() => go("clawbacks")} />
         </div>
       </Card>
-      <Heading>{t("commissionReport.payout")}</Heading>
-      <div className="flex rounded-full bg-card shadow-sm p-1">
-        {RANGES.map(([k, label]) => (
-          <button key={k} type="button" onClick={() => setRange(k)}
-            className={cn("flex-1 py-1.5 rounded-full text-xs font-medium whitespace-nowrap", range === k ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
-            {t(`commissionReport.${label}`)}
-          </button>
-        ))}
+      <div className="flex items-center justify-between">
+        <Heading>{t("commissionReport.payout")}</Heading>
+        {/* Small pill as designed; the ::after box stretches its tap target to ~44px tall. */}
+        <button type="button" onClick={() => setRangeOpen(true)} aria-haspopup="dialog"
+          className="relative px-3 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium inline-flex items-center gap-1 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']">
+          {rangeTitle} <ChevronDown className="w-3 h-3" />
+        </button>
       </div>
+      {/* Bottom sheet like the Custom month sheet: full-width rows, tap one to pick and close. */}
+      <Drawer open={rangeOpen} onOpenChange={setRangeOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2">
+          <div className="flex items-center justify-between pb-2">
+            <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.period")}</DrawerTitle>
+            <button type="button" onClick={() => setRangeOpen(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
+          </div>
+          <DrawerDescription className="sr-only">{t("commissionReport.payout")}</DrawerDescription>
+          <div className="divide-y divide-border">
+            {RANGES.map(([k, label]) => (
+              <button key={k} type="button" onClick={() => { setRange(k); setRangeOpen(false); }}
+                className={cn("w-full h-12 flex items-center justify-between text-sm", range === k ? "font-semibold text-primary" : "text-foreground")}>
+                {t(`commissionReport.${label}`)} {range === k && <Check className="w-4 h-4" />}
+              </button>
+            ))}
+          </div>
+        </DrawerContent>
+      </Drawer>
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>

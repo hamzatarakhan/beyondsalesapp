@@ -35,6 +35,8 @@ export interface ReturnDraftItem {
   productId: ProductId;
   qty: number;
   serials: string[];
+  // The one Range Scan pair, if used; its serials are also in `serials`.
+  range?: { first: string; last: string };
   reason: ReturnReasonKey;
   remark: string;
 }
