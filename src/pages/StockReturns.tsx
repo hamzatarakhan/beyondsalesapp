@@ -185,10 +185,13 @@ const StockReturns = () => {
                   <Clock className="w-3.5 h-3.5 shrink-0" />
                   {o.date}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <User className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{memberName(o)}</span>
-                </div>
+                {/* Only Task cards name the channel member — on My Request it's always the user. */}
+                {tab === "task" && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <User className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{memberName(o)}</span>
+                  </div>
+                )}
                 <TagChips
                   chips={o.lines.map((l) => ({ key: l.productId, label: productName(l.productId) }))}
                   moreLabel={moreLabel}
