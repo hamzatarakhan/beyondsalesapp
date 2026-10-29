@@ -9,8 +9,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
-import { stockReturns, PURCHASE_ORDER_PRODUCTS, type StockReturnStatus } from "@/data/stockReturnStore";
-import { getStockReturnScenario } from "@/data/stockReturnScenarios";
+import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnStatus } from "@/data/stockReturnStore";
+import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
 
@@ -174,7 +174,11 @@ const StockReturns = () => {
 
       <button
         type="button"
-        onClick={() => navigate("/stock-returns/new")}
+        onClick={() => {
+          // Dealer / Team Leader start with Location & Destination; Account Manager goes straight to products.
+          setReturnDraft({});
+          navigate(usesLocationStep(scenario) ? "/stock-returns/location" : "/stock-returns/new");
+        }}
         className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5"
       >
         <Plus className="w-4 h-4" /> {t("stockReturn.newOrder")}

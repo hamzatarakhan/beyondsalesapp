@@ -4,6 +4,7 @@ import AppHeader from "@/components/AppHeader";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { ChevronRight, Boxes } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS } from "@/data/stockReturnStore";
+import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const StockReturnCreate = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const StockReturnCreate = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-10">
-      <AppHeader title={t("stockReturn.createOrderTitle")} showBack onBackClick={() => navigate("/stock-returns")} />
+      <AppHeader title={t("stockReturn.createOrderTitle")} showBack onBackClick={() => navigate(usesLocationStep(getStockReturnScenario()) ? "/stock-returns/location" : "/stock-returns")} />
 
       <div className="px-4 space-y-3">
         {PURCHASE_ORDER_PRODUCTS.map((p) => {

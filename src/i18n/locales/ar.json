@@ -1527,7 +1527,13 @@
       "locationsCount_few": "{{count}} مواقع",
       "locationsCount_many": "{{count}} موقعًا",
       "locationsCount_other": "{{count}} موقع"
-    }
+    },
+    "locationStepTitle": "الموقع والوجهة",
+    "location": "الموقع",
+    "selectLocation": "اختر الموقع",
+    "destination": "الوجهة",
+    "selectDestination": "اختر الوجهة",
+    "continue": "متابعة"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

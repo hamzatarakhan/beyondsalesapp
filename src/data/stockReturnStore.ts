@@ -23,7 +23,14 @@ export interface StockReturn {
   date: string;
   dateObj: Date;
   lines: StockReturnLine[];
+  location?: string;
+  destination?: string;
 }
+
+// Location & Destination picked on the first step of New Order (Dealer / Team Leader only),
+// carried through the product screens and stamped onto the return when it's submitted.
+export let returnDraft: { location?: string; destination?: string } = {};
+export const setReturnDraft = (d: { location?: string; destination?: string }) => { returnDraft = d; };
 
 export const RETURN_REASONS = ["damagedSim", "defectiveDevice", "wrongItem", "expiredVoucher", "excessStock"] as const;
 export type ReturnReasonKey = (typeof RETURN_REASONS)[number];
@@ -59,6 +66,7 @@ export const addStockReturn = (lines: StockReturnLine[]) => {
     date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     dateObj: new Date(),
     lines,
+    ...returnDraft,
   };
   stockReturns.unshift(order);
   return order;

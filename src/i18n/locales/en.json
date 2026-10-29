@@ -1509,7 +1509,13 @@
       "accountManager": "Account Manager",
       "locationsCount_one": "{{count}} location",
       "locationsCount_other": "{{count}} locations"
-    }
+    },
+    "locationStepTitle": "Location & Destination",
+    "location": "Location",
+    "selectLocation": "Select location",
+    "destination": "Destination",
+    "selectDestination": "Select destination",
+    "continue": "Continue"
   },
   "purchaseOrders": {
     "title": "Request Stock",

@@ -26,6 +26,19 @@ export const STOCK_RETURN_SCENARIOS: StockReturnScenario[] = [
   { id: "accountManager", role: "accountManager", locationMode: "multi", user: { name: "Ahmed Al-Otaibi", code: "AM-310982" }, locations: ["Riyadh Warehouse", "Jeddah Warehouse", "Dammam Warehouse", "Medina Warehouse"] },
 ];
 
+// Where returned stock can be sent back to — shared by every scenario.
+export const STOCK_RETURN_DESTINATIONS = [
+  "Riyadh Central Warehouse",
+  "Jeddah Returns Center",
+  "Dammam Distribution Center",
+  "Medina Regional Warehouse",
+  "Head Office – Riyadh",
+];
+
+// Dealers and Team Leaders pick a Location & Destination before choosing products; Account
+// Manager keeps the original flow for now. One Location shows its location read-only.
+export const usesLocationStep = (s: StockReturnScenario) => s.role !== "accountManager";
+
 const STORAGE_KEY = "stockReturnScenario";
 
 export const getStockReturnScenario = (): StockReturnScenario => {
