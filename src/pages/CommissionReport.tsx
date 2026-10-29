@@ -537,7 +537,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
               <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-primary")}>{top === "top" ? i + 1 : 5 - i}</span>
               <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
-              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 inline-flex items-center gap-1 tabular-nums"><RiyalSymbol /> {v.toFixed(2)}</span>
+              <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-primary")}><RiyalSymbol /> {v.toFixed(2)}</span>
             </div>
           ))}
         </div>
