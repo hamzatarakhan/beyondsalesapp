@@ -486,7 +486,8 @@ const ActivitiesScreen = ({ deduction }: { deduction?: boolean }) => {
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{format(subDays(new Date(), r.daysAgo), "d, MMM, yyyy")} - 1:00 AM</p></div>
-          <span className="text-xs font-semibold"><Money v={deduction ? -5 : 5} sign />.00</span>
+          {/* Colour the wrapper too, so the ".00" matches the signed amount. */}
+          <span className={cn("text-xs font-semibold", deduction ? "text-primary" : POS)}><Money v={deduction ? -5 : 5} sign />.00</span>
         </Card>
       ))}
     </div>
