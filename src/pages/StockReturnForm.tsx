@@ -32,40 +32,32 @@ const StockReturnForm = () => {
   // There is no quantity stepper: the return quantity is simply how many serials are scanned.
   // Range Scan takes ONE First/Last pair through the single input: Add saves the First Serial
   // Number (rangeFirst, shown below the input), the same input then asks for the Last, and that
-  // Add saves the range — after which Range Scan is locked until the range is deleted. Item By
-  // Item Scan adds single serials and stays open until the available stock is reached.
+  // Add expands the range into individual serials. Every serial — from the range or from Item By
+  // Item Scan — is listed and deleted on its own; `rangeSerials` remembers which came from the
+  // range, and Range Scan stays locked while any of them remain. Item By Item Scan stays open
+  // until the available stock is reached.
   const [serial, setSerial] = useState("");
   const [rangeFirst, setRangeFirst] = useState<string | null>(null);
-  const [range, setRange] = useState<{ first: string; last: string } | null>(saved?.range ?? null);
-  const [itemSerials, setItemSerials] = useState<string[]>(() => {
-    if (!saved) return [];
-    const inRange = new Set(saved.range ? expandSerialRange(saved.range.first, saved.range.last) : []);
-    return saved.serials.filter((s) => !inRange.has(s));
-  });
+  const [serials, setSerials] = useState<string[]>(saved?.serials ?? []);
+  const [rangeSerials, setRangeSerials] = useState<string[]>(saved?.rangeSerials ?? []);
   const [reason, setReason] = useState<ReturnReasonKey>(saved?.reason ?? "damagedSim");
   const [reasonOpen, setReasonOpen] = useState(false);
   const [remark, setRemark] = useState(saved?.remark ?? "");
   const [discardOpen, setDiscardOpen] = useState(false);
   const [viewAllOpen, setViewAllOpen] = useState(false);
 
-  const rangeSerials = useMemo(() => (range ? expandSerialRange(range.first, range.last) : []), [range]);
-  const serials = useMemo(() => [...rangeSerials, ...itemSerials], [rangeSerials, itemSerials]);
-
   // What the page started from (the saved product, or a blank one) — anything different is unsaved.
-  const [initial] = useState(() => JSON.stringify({ range, itemSerials, reason, remark }));
-  const dirty = JSON.stringify({ range, itemSerials, reason, remark }) !== initial;
+  const [initial] = useState(() => JSON.stringify({ serials, reason, remark }));
+  const dirty = JSON.stringify({ serials, reason, remark }) !== initial;
 
-  // Newest first for display; itemSerials keeps insertion order.
-  const recentItems = useMemo(() => [...itemSerials].reverse().slice(0, 5), [itemSerials]);
+  // Newest first for display; serials keeps insertion order.
+  const recentSerials = useMemo(() => [...serials].reverse().slice(0, 5), [serials]);
 
-  const removeItem = (value: string) => {
-    setItemSerials((prev) => prev.filter((s) => s !== value));
-    setSerialFeedback(undefined);
-  };
-  // Deleting the saved range resets Range Scan to First Serial Number and re-enables it.
-  const removeRange = () => {
-    setRange(null);
-    setRangeFirst(null);
+  // Removes just this serial. Once the last serial from the range is gone, Range Scan unlocks
+  // and starts again at First Serial Number.
+  const removeSerial = (value: string) => {
+    setSerials((prev) => prev.filter((s) => s !== value));
+    setRangeSerials((prev) => prev.filter((s) => s !== value));
     setSerialFeedback(undefined);
   };
 
@@ -78,7 +70,7 @@ const StockReturnForm = () => {
   }, [product, navigate]);
 
   const stockFull = serials.length >= available;
-  const inputLocked = scanMode === "range" ? !!range || stockFull : stockFull;
+  const inputLocked = scanMode === "range" ? rangeSerials.length > 0 || stockFull : stockFull;
 
   const addSerial = () => {
     const v = serial.trim();
@@ -86,7 +78,9 @@ const StockReturnForm = () => {
       const error = serialRangeError(rangeFirst, v, serials, available);
       setSerialFeedback(error);
       if (error) return;
-      setRange({ first: rangeFirst, last: v });
+      const added = expandSerialRange(rangeFirst, v);
+      setSerials((prev) => [...prev, ...added]);
+      setRangeSerials(added);
       setRangeFirst(null);
       setSerial("");
       return;
@@ -95,7 +89,7 @@ const StockReturnForm = () => {
     setSerialFeedback(error);
     if (error) return;
     if (scanMode === "range") setRangeFirst(v);
-    else setItemSerials((prev) => [...prev, v]);
+    else setSerials((prev) => [...prev, v]);
     setSerial("");
   };
 
@@ -110,23 +104,11 @@ const StockReturnForm = () => {
     if (!product || !canSubmit) return;
     setRemarkErrorShown(!!remarkFeedback);
     if (remarkFeedback) return;
-    saveDraftItem({ productId: product.id, qty: serials.length, serials, range: range ?? undefined, reason, remark });
+    saveDraftItem({ productId: product.id, qty: serials.length, serials, rangeSerials, reason, remark });
     navigate("/stock-returns/new");
   };
 
   const back = () => (dirty ? setDiscardOpen(true) : navigate("/stock-returns/new"));
-
-  const rangeRow = range && (
-    <div className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
-      <span className="text-sm font-medium text-foreground min-w-0 truncate" dir="ltr">#{range.first} – #{range.last}</span>
-      <span className="flex items-center gap-2 shrink-0">
-        <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">{t("stockReturn.scannedTotal", { count: rangeSerials.length })}</span>
-        <button type="button" onClick={removeRange} aria-label={t("stockReturn.removeRangeAria")} className="text-destructive">
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </span>
-    </div>
-  );
 
   if (!product) {
     return null;
@@ -212,9 +194,7 @@ const StockReturnForm = () => {
           )}
           {scanMode === "range" && rangeFirst && (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
-              <span className="text-sm text-muted-foreground">
-                {t("stockReturn.firstSerial")}: <span className="font-medium text-foreground" dir="ltr">#{rangeFirst}</span>
-              </span>
+              <span className="text-sm font-medium text-foreground" dir="ltr">#{rangeFirst}</span>
               <button type="button" onClick={() => setRangeFirst(null)} aria-label={t("stockReturn.removeSerialAria")} className="text-destructive">
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -224,13 +204,12 @@ const StockReturnForm = () => {
           {serials.length > 0 && (
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">{t("stockReturn.recentlyScanned")}</p>
-              {rangeRow}
-              {recentItems.map((s) => (
+              {recentSerials.map((s) => (
                 <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
                   <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
                   <button
                     type="button"
-                    onClick={() => removeItem(s)}
+                    onClick={() => removeSerial(s)}
                     aria-label={t("stockReturn.removeSerialAria")}
                     className="text-destructive"
                   >
@@ -238,13 +217,13 @@ const StockReturnForm = () => {
                   </button>
                 </div>
               ))}
-              {itemSerials.length > 5 && (
+              {serials.length > 5 && (
                 <button
                   type="button"
                   onClick={() => setViewAllOpen(true)}
                   className="w-full text-center text-sm font-semibold text-primary py-1"
                 >
-                  {t("stockReturn.viewAll", { count: itemSerials.length })}
+                  {t("stockReturn.viewAll", { count: serials.length })}
                 </button>
               )}
             </div>
@@ -333,13 +312,12 @@ const StockReturnForm = () => {
             </button>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto space-y-2 -mx-1 px-1">
-            {rangeRow}
-            {[...itemSerials].reverse().map((s) => (
+            {[...serials].reverse().map((s) => (
               <div key={s} className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
                 <span className="text-sm font-medium text-foreground" dir="ltr">#{s}</span>
                 <button
                   type="button"
-                  onClick={() => removeItem(s)}
+                  onClick={() => removeSerial(s)}
                   aria-label={t("stockReturn.removeSerialAria")}
                   className="text-destructive"
                 >

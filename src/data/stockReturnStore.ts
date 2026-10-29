@@ -35,8 +35,9 @@ export interface ReturnDraftItem {
   productId: ProductId;
   qty: number;
   serials: string[];
-  // The one Range Scan pair, if used; its serials are also in `serials`.
-  range?: { first: string; last: string };
+  // Serials that came from the product's one Range Scan (also in `serials`), so Edit keeps
+  // Range Scan locked while any of them remain.
+  rangeSerials?: string[];
   reason: ReturnReasonKey;
   remark: string;
 }
