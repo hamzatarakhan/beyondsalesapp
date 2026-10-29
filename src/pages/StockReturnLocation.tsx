@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Search, X as XIcon, MapPin, Lock } from "lucide-react";
+import { ChevronRight, Search, X as XIcon, MapPin } from "lucide-react";
 import { getStockReturnScenario, STOCK_RETURN_DESTINATIONS } from "@/data/stockReturnScenarios";
 import { returnDraft, setReturnDraft } from "@/data/stockReturnStore";
 
@@ -64,10 +64,9 @@ const StockReturnLocation = () => {
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-foreground px-1">{t("stockReturn.location")}</p>
           {single ? (
-            <div className="w-full h-12 rounded-xl bg-muted/50 border border-border px-3.5 flex items-center gap-2.5 text-sm" aria-readonly>
+            <div className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center gap-2.5 text-sm" aria-readonly>
               <MapPin className="w-4 h-4 text-primary shrink-0" />
               <span className="flex-1 text-foreground font-medium truncate">{location}</span>
-              <Lock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             </div>
           ) : (
             selectField("location", location, t("stockReturn.selectLocation"))
