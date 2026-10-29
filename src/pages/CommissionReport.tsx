@@ -472,7 +472,8 @@ const PHONES = ["+966500653226", "+966570902726", "+966584235976", "+96656284345
 const DAYS_AGO = [0, 2, 5, 9, 15, 25, 40];
 const ACTIVITY_ROWS = PHONES.map((phone, i) => ({ phone, kind: i % 3 === 0 ? "Acquisition" : "3rd Bill", daysAgo: DAYS_AGO[i] }));
 
-const ActivitiesScreen = () => {
+// Opened from Clawbacks, each activity is money taken back, so amounts show as minus.
+const ActivitiesScreen = ({ deduction }: { deduction?: boolean }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
@@ -485,7 +486,7 @@ const ActivitiesScreen = () => {
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{format(subDays(new Date(), r.daysAgo), "d, MMM, yyyy")} - 1:00 AM</p></div>
-          <span className="text-xs font-semibold"><Money v={5} sign />.00</span>
+          <span className="text-xs font-semibold"><Money v={deduction ? -5 : 5} sign />.00</span>
         </Card>
       ))}
     </div>
@@ -622,7 +623,7 @@ const CommissionReport = () => {
         {screen === "scheme1" && <Scheme1Screen go={go} />}
         {screen === "kpi" && <KpiScreen />}
         {(screen === "scheme2prepaid" || screen === "scheme2postpaid" || screen === "hbb" || screen === "clawbacks") && <BreakdownScreen kind={screen} go={go} />}
-        {screen === "activities" && <ActivitiesScreen />}
+        {screen === "activities" && <ActivitiesScreen deduction={stack[stack.length - 2] === "clawbacks"} />}
       </div>
     </div>
   );
