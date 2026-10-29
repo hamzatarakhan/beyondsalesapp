@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronLeft, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ const Money = ({ v, sign, className }: { v: number | string; sign?: boolean; cla
   const prefix = n !== null && sign ? (n < 0 ? "-" : "+") : "";
   return (
     <span className={cn("inline-flex items-center gap-1 tabular-nums", n !== null && sign && (n < 0 ? "text-primary" : POS), className)}>
-      {prefix}<RiyalSymbol /> {n !== null ? Math.abs(n).toLocaleString() : v}
+      <RiyalSymbol /> {prefix}{n !== null ? Math.abs(n).toLocaleString() : v}
     </span>
   );
 };
@@ -48,7 +48,7 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
   <div className={cn("rounded-2xl bg-card shadow-sm p-4", className)}>{children}</div>
 );
 
-const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="text-[15px] font-semibold text-foreground px-1 pt-1">{children}</h3>;
+const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="text-sm font-semibold text-foreground px-1 pt-1">{children}</h3>;
 
 const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "good" | "bad" }) => (
   <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium border-[0.5px] inline-flex items-center gap-1 whitespace-nowrap",
@@ -83,8 +83,8 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain }: { title:
     className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 disabled:cursor-default", plain ? "bg-card shadow-sm" : "bg-muted/50 border border-border/50")}>
     {danger && <IconBox tone="bad"><ArrowDown className="w-4 h-4" /></IconBox>}
     <div className="flex-1 min-w-0">
-      <p className={cn("font-semibold text-foreground truncate", danger ? "text-[15px]" : "text-sm")}>{title}</p>
-      {sub && <p className="text-xs text-muted-foreground truncate">{sub}</p>}
+      <p className="text-[13px] font-medium text-foreground truncate">{title}</p>
+      {sub && <p className="text-[11px] text-muted-foreground truncate mt-0.5">{sub}</p>}
       {weight && <WeightChip />}
     </div>
     <span className="text-xs font-semibold"><Money v={value} sign /></span>
@@ -115,7 +115,7 @@ const Tabs = ({ items, value, onChange }: { items: [string, string][]; value: st
   </div>
 );
 
-const SearchBar = ({ value, onChange, placeholder, onFocus, onClear, onFilter }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void; onFilter?: () => void }) => (
+const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void }) => (
   <div className="flex gap-2">
     <div className="relative flex-1">
       <Input value={value} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} placeholder={placeholder} className="h-12 bg-card rounded-xl pe-10 border-0 shadow-sm" />
@@ -123,49 +123,8 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear, onFilter }:
         <button type="button" onClick={onClear} aria-label={placeholder} className="absolute end-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
       ) : <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
     </div>
-    {onFilter && <button type="button" aria-label="Filter" onClick={onFilter} className="w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0"><SlidersHorizontal className="w-4 h-4 text-primary" /></button>}
   </div>
 );
-
-type FilterGroup = { key: string; title: string; options: [string, string][] };
-
-// Single-choice filter groups in a bottom sheet; Apply commits, Reset restores each group's first option.
-const FilterSheet = ({ open, onOpenChange, groups, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; groups: FilterGroup[]; value: Record<string, string>; onApply: (v: Record<string, string>) => void }) => {
-  const { t } = useTranslation();
-  const [draft, setDraft] = useState(value);
-  useEffect(() => { if (open) setDraft(value); }, [open, value]);
-  const reset = Object.fromEntries(groups.map((g) => [g.key, g.options[0][0]]));
-  return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[85vh]">
-        <div className="flex items-center justify-between pb-3 shrink-0">
-          <DrawerTitle className="text-lg font-bold text-foreground">{t("commissionReport.filter")}</DrawerTitle>
-          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
-        </div>
-        <DrawerDescription className="sr-only">{t("commissionReport.filter")}</DrawerDescription>
-        <div className="space-y-4 overflow-y-auto pb-4">
-          {groups.map((g) => (
-            <div key={g.key}>
-              <p className="text-sm font-semibold text-foreground mb-2">{g.title}</p>
-              <div className="flex flex-wrap gap-2">
-                {g.options.map(([v, label]) => (
-                  <button key={v} type="button" onClick={() => setDraft((d) => ({ ...d, [g.key]: v }))}
-                    className={cn("px-4 py-1.5 rounded-full text-xs font-medium border-[0.5px]", draft[g.key] === v ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border text-muted-foreground")}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-3 shrink-0">
-          <Button variant="outline" onClick={() => setDraft(reset)} className="flex-1 h-12 rounded-full">{t("commissionReport.reset")}</Button>
-          <Button onClick={() => { onApply(draft); onOpenChange(false); }} className="flex-1 h-12 rounded-full">{t("commissionReport.apply")}</Button>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
-};
 
 const rangeLabel = (r?: DateRange) => (r?.from && r.to ? `${format(r.from, "MMM d")} – ${format(r.to, "MMM d")}` : undefined);
 
@@ -217,13 +176,14 @@ const useCustomRange = (initial: string) => {
 
 // Demo "today" for the commission figures: Aug 2026 is the latest month with data.
 const LATEST_MONTH = new Date(2026, 7, 1);
+// Months of this year not already on a chip (Last month, July, June): Jan – May.
+const EARLIER_MONTHS = Array.from({ length: Math.max(0, LATEST_MONTH.getMonth() - 2) }, (_, m) => new Date(LATEST_MONTH.getFullYear(), m, 1));
 
-// Bottom sheet behind the commission "Custom" chip: pick one whole month (year arrows + month grid), never a day.
+// Bottom sheet behind the commission "Custom" chip: the rest of this year's months, pick one and Apply.
 const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value?: Date; onApply: (d: Date) => void }) => {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<Date | undefined>(value);
-  const [year, setYear] = useState((value ?? LATEST_MONTH).getFullYear());
-  useEffect(() => { if (open) { setDraft(value); setYear((value ?? LATEST_MONTH).getFullYear()); } }, [open, value]);
+  useEffect(() => { if (open) setDraft(value); }, [open, value]);
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
@@ -232,21 +192,13 @@ const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boole
           <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
         <DrawerDescription className="text-xs text-muted-foreground">{draft ? format(draft, "MMMM yyyy") : t("commissionReport.selectMonthHint")}</DrawerDescription>
-        <div className="flex items-center justify-between py-4">
-          <button type="button" onClick={() => setYear((y) => y - 1)} aria-label="Previous year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center"><ChevronLeft className="w-4 h-4 rtl:rotate-180" /></button>
-          <span className="text-base font-semibold text-foreground tabular-nums">{year}</span>
-          <button type="button" onClick={() => setYear((y) => y + 1)} disabled={year >= LATEST_MONTH.getFullYear()} aria-label="Next year" className="w-9 h-9 rounded-full border border-border flex items-center justify-center disabled:opacity-30"><ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
-        </div>
-        <div className="grid grid-cols-3 gap-2 pb-4">
-          {Array.from({ length: 12 }, (_, m) => new Date(year, m, 1)).map((d) => {
-            const on = draft?.getTime() === d.getTime();
-            return (
-              <button key={d.getMonth()} type="button" disabled={d > LATEST_MONTH} onClick={() => setDraft(d)}
-                className={cn("h-11 rounded-xl text-sm font-medium border disabled:opacity-30", on ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground")}>
-                {format(d, "MMM")}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-3 gap-2 py-4">
+          {EARLIER_MONTHS.map((d) => (
+            <button key={d.getMonth()} type="button" onClick={() => setDraft(d)}
+              className={cn("h-11 rounded-xl text-sm font-medium border", draft?.getTime() === d.getTime() ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground")}>
+              {format(d, "MMMM")}
+            </button>
+          ))}
         </div>
         <Button disabled={!draft} onClick={() => { onApply(draft!); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">
           {t("commissionReport.apply")}
@@ -256,18 +208,18 @@ const MonthPickerDrawer = ({ open, onOpenChange, value, onApply }: { open: boole
   );
 };
 
-// Like useCustomRange, but the "Custom" chip picks a whole month and then shows it ("Mar 2026").
+// Like useCustomRange, but the "Custom" chip picks a whole month and then shows its name ("March").
 const useCustomMonth = (initial: string) => {
   const { t } = useTranslation();
   const [selected, setSelected] = useState(initial);
   const [month, setMonth] = useState<Date>();
   const [open, setOpen] = useState(false);
-  const customLabel = month ? format(month, "MMM yyyy") : t("commissionReport.custom");
+  const customLabel = month ? format(month, "MMMM") : t("commissionReport.custom");
   const isCustom = selected === "__custom";
   return {
     customLabel,
     month: isCustom ? month : undefined,
-    label: isCustom && month ? format(month, "MMMM yyyy") : selected,
+    label: isCustom && month ? format(month, "MMMM") : selected,
     chipValue: isCustom ? customLabel : selected,
     onChipChange: (v: string) => (v === customLabel ? setOpen(true) : setSelected(v)),
     drawer: <MonthPickerDrawer open={open} onOpenChange={setOpen} value={month} onApply={(d) => { setMonth(d); setSelected("__custom"); }} />,
@@ -280,28 +232,18 @@ const useCustomMonth = (initial: string) => {
 const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
+const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June: 61200 };
 
-type Quarter = { year: number; q: number }; // q is 0-based: 0 = Jan–Mar
-const quarterLabel = ({ year, q }: Quarter) => `Q${q + 1} ${year}`;
-const quarterStart = ({ year, q }: Quarter) => new Date(year, q * 3, 1);
-const quarterOf = (d: Date): Quarter => ({ year: d.getFullYear(), q: Math.floor(d.getMonth() / 3) });
-// Q1–Q4 of the current year only; quarters that haven't started yet stay visible but disabled.
-const QUARTERS = [0, 1, 2, 3].map((q) => ({ year: LATEST_MONTH.getFullYear(), q }));
-const RANGES = [["quarter", "quarterly"], ["6", "last6"], ["12", "last12"]] as const;
-const MONTH_EARNED: Record<string, number> = { "Aug 2026": 74000, July: 68500, June: 61200 };
-
-// Dealer's own report uses plain month chips and 11,230; a manager viewing a member sees "Aug 2026" and 74,000.
+// Dealer's own report shows 11,230; a manager viewing a member sees that member's month figures (74,000 for August).
 const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolean }) => {
   const { t } = useTranslation();
-  const first = member ? "Aug 2026" : "Aug";
+  const first = t("commissionReport.lastMonth");
   const period = useCustomMonth(first);
-  // Payout window: a picked quarter, or the trailing 6 / 12 months.
-  const [range, setRange] = useState<"quarter" | "6" | "12">("6");
-  const [quarter, setQuarter] = useState<Quarter>(quarterOf(LATEST_MONTH));
-  const payout = range === "quarter"
-    ? PAYOUT.filter((p) => p.date >= quarterStart(quarter) && p.date <= addMonths(quarterStart(quarter), 2))
-    : PAYOUT.slice(-Number(range));
-  const rangeTitle = range === "quarter" ? quarterLabel(quarter) : t(range === "6" ? "commissionReport.last6" : "commissionReport.last12");
+  // Payout window: the trailing 3, 6 or 12 months.
+  const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
+  const payout = PAYOUT.slice(-Number(range));
+  const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
   const month = period.label === first ? "August" : period.label;
   const lit = (period.month ?? { July: new Date(2026, 6, 1), June: new Date(2026, 5, 1) }[period.label] ?? LATEST_MONTH).getTime();
@@ -309,7 +251,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={[first, "July", "June", period.customLabel]} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[period.label] ?? 52300 : 11230} badge={t("commissionReport.approved")} />
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : 11230} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
@@ -330,24 +272,10 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           </button>
         ))}
       </div>
-      {/* Quarterly shows every quarter inline, so switching is one tap with no sheet. */}
-      {range === "quarter" && (
-        <div className="grid grid-cols-4 gap-2">
-          {QUARTERS.map((qr) => (
-            <button key={qr.q} type="button" onClick={() => setQuarter(qr)} disabled={quarterStart(qr) > LATEST_MONTH}
-              className={cn("py-1.5 rounded-full text-xs font-medium border-[0.5px] disabled:opacity-40",
-                qr.q === quarter.q ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border text-muted-foreground")}>
-              Q{qr.q + 1}
-            </button>
-          ))}
-        </div>
-      )}
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
-          {range === "quarter"
-            ? <span className="text-xs font-semibold text-foreground"><Money v={payout.reduce((s, p) => s + p.v, 0)} /></span>
-            : <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>}
+          <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
         <div className={cn("flex items-end justify-center h-56", payout.length > 6 ? "gap-1.5" : "gap-3")}>
           {payout.map(({ date, v }) => {
@@ -541,13 +469,10 @@ const ActivitiesScreen = () => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const [filter, setFilter] = useState({ period: "all" });
-  const [open, setOpen] = useState(false);
-  const limit = filter.period === "all" ? Infinity : Number(filter.period);
-  const rows = ACTIVITY_ROWS.filter((r) => (f === "All" || r.kind === f) && r.daysAgo <= limit && (!q || r.phone.includes(q)));
+  const rows = ACTIVITY_ROWS.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
   return (
     <div className="space-y-3">
-      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onFilter={() => setOpen(true)} />
+      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
       <Chips items={["All", "Acquisition", "3rd Bill"]} value={f} onChange={setF} />
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
@@ -556,8 +481,6 @@ const ActivitiesScreen = () => {
           <span className="text-xs font-semibold"><Money v={5} sign />.00</span>
         </Card>
       ))}
-      <FilterSheet open={open} onOpenChange={setOpen} value={filter} onApply={(v) => setFilter(v as typeof filter)}
-        groups={[{ key: "period", title: t("commissionReport.period"), options: [["all", t("commissionReport.anyTime")], ["7", t("commissionReport.last7")], ["30", t("commissionReport.last30")]] }]} />
     </div>
   );
 };

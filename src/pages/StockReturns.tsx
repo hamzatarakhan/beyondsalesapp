@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import TagChips from "@/components/TagChips";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
@@ -7,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
-import { stockReturns, PURCHASE_ORDER_PRODUCTS, type StockReturnStatus } from "@/data/stockReturnStore";
+import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check } from "lucide-react";
+import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnStatus } from "@/data/stockReturnStore";
+import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
 
@@ -18,7 +20,9 @@ const STATUS_STYLE: Record<StockReturnStatus, string> = {
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+const RETURN_CHIP = "px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground";
+
+const fmtShort =(d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 const inRange = (d: Date, from: Date, to: Date) => {
   const day = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   return day >= new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime() && day <= new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
@@ -27,11 +31,13 @@ const inRange = (d: Date, from: Date, to: Date) => {
 const StockReturns = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [scenario] = useState(getStockReturnScenario);
 
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [draftStatus, setDraftStatus] = useState<StockReturnStatus | null>(null);
-  const [appliedStatus, setAppliedStatus] = useState<StockReturnStatus | null>(null);
+  // Order Status is multi-select; an empty list means "All".
+  const [draftStatus, setDraftStatus] = useState<StockReturnStatus[]>([]);
+  const [appliedStatus, setAppliedStatus] = useState<StockReturnStatus[]>([]);
   const [appliedRange, setAppliedRange] = useState<{ from: Date; to: Date; label: string } | null>(null);
 
   const [pickDateOpen, setPickDateOpen] = useState(false);
@@ -42,7 +48,7 @@ const StockReturns = () => {
     return stockReturns
       .filter((o) => {
         if (q && !o.id.toLowerCase().includes(q)) return false;
-        if (appliedStatus && o.status !== appliedStatus) return false;
+        if (appliedStatus.length > 0 && !appliedStatus.includes(o.status)) return false;
         if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
         return true;
       })
@@ -60,8 +66,8 @@ const StockReturns = () => {
   };
 
   const clearFilter = () => {
-    setDraftStatus(null);
-    setAppliedStatus(null);
+    setDraftStatus([]);
+    setAppliedStatus([]);
     setAppliedRange(null);
     setDraftRange(undefined);
     setFilterOpen(false);
@@ -83,12 +89,23 @@ const StockReturns = () => {
 
   const productName = (productId: string) =>
     t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId)?.nameKey}`);
+  const moreLabel = useCallback((n: number) => t("stockReturn.moreItems", { count: n }), [t]);
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-24">
       <AppHeader title={t("stockReturn.title")} showBack />
 
       <div className="px-4 space-y-3">
+        {/* Prototype-only: which demo user (picked on Home) this session is previewing as. */}
+        <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2">
+          <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+            {t("stockReturn.scenario.testingAs")} {t(`stockReturn.scenario.${scenario.id}`)}
+          </p>
+          <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 leading-snug">
+            {scenario.user.name} ({scenario.user.code}) · {scenario.locations.join(" · ")}
+          </p>
+        </div>
+
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -104,16 +121,16 @@ const StockReturns = () => {
           </button>
         </div>
 
-        {(appliedStatus || appliedRange) && (
+        {(appliedStatus.length > 0 || appliedRange) && (
           <div className="flex items-center gap-2 flex-wrap">
-            {appliedStatus && (
-              <span className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                {t(`stockReturn.status.${appliedStatus}`)}
-                <button type="button" onClick={() => setAppliedStatus(null)} aria-label={t("stockReturn.removeFilter")} className="w-4 h-4 rounded-full flex items-center justify-center">
+            {appliedStatus.map((s) => (
+              <span key={s} className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                {t(`stockReturn.status.${s}`)}
+                <button type="button" onClick={() => setAppliedStatus((cur) => cur.filter((x) => x !== s))} aria-label={t("stockReturn.removeFilter")} className="w-4 h-4 rounded-full flex items-center justify-center">
                   <XIcon className="w-3 h-3" />
                 </button>
               </span>
-            )}
+            ))}
             {appliedRange && (
               <span className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                 {appliedRange.label}
@@ -130,8 +147,6 @@ const StockReturns = () => {
         ) : (
           <div className="space-y-3">
             {filtered.map((o) => {
-              const shown = o.lines.slice(0, 3);
-              const extra = o.lines.length - shown.length;
               return (
                 <div
                   key={o.id}
@@ -145,18 +160,12 @@ const StockReturns = () => {
                     <Clock className="w-3.5 h-3.5 shrink-0" />
                     {o.date}
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {shown.map((l) => (
-                      <span key={l.productId} className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                        {productName(l.productId)}
-                      </span>
-                    ))}
-                    {extra > 0 && (
-                      <span className="px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground">
-                        {t("stockReturn.moreItems", { count: extra })}
-                      </span>
-                    )}
-                  </div>
+                  <TagChips
+                    chips={o.lines.map((l) => ({ key: l.productId, label: productName(l.productId) }))}
+                    moreLabel={moreLabel}
+                    chipClassName={RETURN_CHIP}
+                    moreClassName={RETURN_CHIP}
+                  />
                 </div>
               );
             })}
@@ -166,7 +175,11 @@ const StockReturns = () => {
 
       <button
         type="button"
-        onClick={() => navigate("/stock-returns/new")}
+        onClick={() => {
+          // Dealer / Team Leader start with Location & Destination; Account Manager goes straight to products.
+          setReturnDraft({});
+          navigate(usesLocationStep(scenario) ? "/stock-returns/location" : "/stock-returns/new");
+        }}
         className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5"
       >
         <Plus className="w-4 h-4" /> {t("stockReturn.newOrder")}
@@ -188,21 +201,26 @@ const StockReturns = () => {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setDraftStatus(null)}
-                  className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus === null ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
+                  onClick={() => setDraftStatus([])}
+                  className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus.length === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
                 >
                   {t("stockReturn.filter.all")}
                 </button>
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setDraftStatus(s)}
-                    className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", draftStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
-                  >
-                    {t(`stockReturn.status.${s}`)}
-                  </button>
-                ))}
+                {STATUSES.map((s) => {
+                  const on = draftStatus.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setDraftStatus((cur) => (on ? cur.filter((x) => x !== s) : [...cur, s]))}
+                      className={cn("inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}
+                    >
+                      {on ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                      {t(`stockReturn.status.${s}`)}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

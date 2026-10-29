@@ -1334,7 +1334,6 @@
     "kpiEligible": "مستحق",
     "kpiNotEligible": "غير مستحق",
     "killerKpi": "Killer",
-
     "achievementsTitle": "الإنجازات",
     "text": "نص",
     "seeAll": "عرض الكل",
@@ -1456,7 +1455,8 @@
       "serialDuplicate": "تمت إضافة هذا الرقم التسلسلي مسبقًا. أدخل رقمًا تسلسليًا آخر.",
       "serialsShort": "لقد أضفت {{added}} من {{required}} أرقام تسلسلية. يرجى إضافة الأرقام التسلسلية المتبقية البالغ عددها {{remaining}} قبل الإرسال.",
       "submitTitle": "لم يتم إرسال الإرجاع",
-      "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى."
+      "submitRetry": "تم الاحتفاظ ببياناتك. يرجى المحاولة مرة أخرى.",
+      "remarkRequired": "يرجى إدخال سبب إرجاع هذا المنتج."
     },
     "title": "إرجاع المخزون",
     "createOrderTitle": "إنشاء طلب",
@@ -1489,6 +1489,7 @@
     "rangeScan": "مسح نطاق",
     "itemScan": "مسح عنصر بعنصر",
     "firstSerial": "الرقم التسلسلي الأول",
+    "lastSerial": "الرقم التسلسلي الأخير",
     "serialNumber": "الرقم التسلسلي",
     "scanAria": "مسح الرقم التسلسلي",
     "add": "إضافة",
@@ -1509,12 +1510,49 @@
       "defectiveDevice": "جهاز معيب",
       "wrongItem": "عنصر خاطئ",
       "expiredVoucher": "قسيمة منتهية الصلاحية",
-      "excessStock": "مخزون زائد"
+      "excessStock": "مخزون زائد",
+      "others": "أخرى"
     },
     "recentlyScanned": "الممسوحة مؤخرًا",
     "viewAll": "عرض الكل ({{count}})",
     "removeSerialAria": "إزالة الرقم التسلسلي",
-    "allSerialsTitle": "الأرقام التسلسلية الممسوحة"
+    "allSerialsTitle": "الأرقام التسلسلية الممسوحة",
+    "scenario": {
+      "testingAs": "للنموذج الأولي فقط — الاختبار كـ",
+      "dealerSingle": "وكيل — موقع واحد",
+      "dealerMulti": "وكيل — مواقع متعددة",
+      "teamLeaderSingle": "قائد فريق — موقع واحد",
+      "teamLeaderMulti": "قائد فريق — مواقع متعددة",
+      "accountManager": "مدير حساب",
+      "locationsCount_zero": "{{count}} مواقع",
+      "locationsCount_one": "موقع واحد",
+      "locationsCount_two": "موقعان",
+      "locationsCount_few": "{{count}} مواقع",
+      "locationsCount_many": "{{count}} موقعًا",
+      "locationsCount_other": "{{count}} موقع"
+    },
+    "locationStepTitle": "الموقع والوجهة",
+    "location": "الموقع",
+    "selectLocation": "اختر الموقع",
+    "destination": "الوجهة",
+    "selectDestination": "اختر الوجهة",
+    "continue": "متابعة",
+    "serialNumberTitle": "الرقم التسلسلي",
+    "returnQuantity": "كمية الإرجاع : {{count}} قطعة",
+    "reasonForReturnLabel": "سبب الإرجاع :",
+    "editProductAria": "تعديل {{product}}",
+    "submitOrder": "إرسال الطلب",
+    "submitOrderTitle": "إرسال طلب الإرجاع؟",
+    "submitOrderDesc_zero": "سيتم إرسال {{count}} منتجات كطلب إرجاع واحد.",
+    "submitOrderDesc_one": "سيتم إرسال منتج واحد كطلب إرجاع واحد.",
+    "submitOrderDesc_two": "سيتم إرسال منتجين معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_few": "سيتم إرسال {{count}} منتجات معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_many": "سيتم إرسال {{count}} منتجًا معًا كطلب إرجاع واحد.",
+    "submitOrderDesc_other": "سيتم إرسال {{count}} منتج معًا كطلب إرجاع واحد.",
+    "discardTitle": "تجاهل التغييرات؟",
+    "discardDesc": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة فستفقد تغييراتك.",
+    "continueEditing": "متابعة التعديل",
+    "discardChanges": "تجاهل التغييرات"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
@@ -2070,7 +2108,8 @@
     "payout": "الدفعات",
     "selectMonth": "اختر الشهر",
     "selectMonthHint": "اختر شهرًا",
-    "quarterly": "ربع سنوي",
+    "lastMonth": "الشهر الماضي",
+    "last3": "آخر 3 أشهر",
     "last6": "آخر 6 أشهر",
     "last12": "آخر 12 شهرًا",
     "searchMsisdn": "البحث برقم MSISDN",
@@ -2414,7 +2453,8 @@
       "successTitle": "تم إنشاء الزيارة",
       "successText": "تم إنشاء الزيارة الطارئة بنجاح.",
       "goHome": "العودة للرئيسية"
-    }
+    },
+    "chooseStockReturnScenarioSub": "اختر المستخدم التجريبي لعرض إرجاع المخزون"
   },
   "nav": {
     "home": "الرئيسية",

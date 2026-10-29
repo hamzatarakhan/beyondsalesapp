@@ -1,42 +1,52 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { quantityError, serialCountError, serialError } from "@/lib/stockReturnValidation";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
+import { quantityError, remarkError, serialCountError, serialError } from "@/lib/stockReturnValidation";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
-import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, CheckCircle2, Trash2, X } from "lucide-react";
-import { PURCHASE_ORDER_PRODUCTS, RETURN_REASONS, addStockReturn, type ProductId, type ReturnReasonKey } from "@/data/stockReturnStore";
+import { Minus, Plus, Boxes, ScanBarcode, ChevronDown, Trash2, X } from "lucide-react";
+import { PURCHASE_ORDER_PRODUCTS, RETURN_REASONS, getDraftItem, saveDraftItem, type ProductId, type ReturnReasonKey } from "@/data/stockReturnStore";
 
 type ScanMode = "range" | "item";
 
+// One product's return details inside a multi-product Stock Return order. Submit here only
+// saves this product into the order draft and goes back to the product list (Submit Order
+// there sends the whole order). Opened via Edit, it starts from the last saved version, and
+// leaving with unsaved changes asks first so that saved version is never lost by accident.
 const StockReturnForm = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { productId } = useParams<{ productId: ProductId }>();
   const product = PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId);
+  const [saved] = useState(() => (productId ? getDraftItem(productId) : undefined));
 
-  const [qty, setQty] = useState(0);
-  const [qtyInput, setQtyInput] = useState("");
+  const [qty, setQty] = useState(saved?.qty ?? 0);
+  const [qtyInput, setQtyInput] = useState(saved?.qty ? String(saved.qty) : "");
   const [qtyTouched, setQtyTouched] = useState(false);
   const [serialFeedback, setSerialFeedback] = useState<ReturnType<typeof serialError>>();
   const [countErrorShown, setCountErrorShown] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const failureToast = useRef<ReturnType<typeof toast>>();
+  const [remarkErrorShown, setRemarkErrorShown] = useState(false);
   const [scanMode, setScanMode] = useState<ScanMode>("range");
+  // Range Scan takes serials in first/last pairs: after a first serial is added, the input
+  // asks for the last one, then goes back to asking for the next range's first serial.
+  const [awaitingLast, setAwaitingLast] = useState(false);
   const [serial, setSerial] = useState("");
-  const [serials, setSerials] = useState<string[]>([]);
-  const [reason, setReason] = useState<ReturnReasonKey>("damagedSim");
+  const [serials, setSerials] = useState<string[]>(saved?.serials ?? []);
+  const [reason, setReason] = useState<ReturnReasonKey>(saved?.reason ?? "damagedSim");
   const [reasonOpen, setReasonOpen] = useState(false);
-  const [remark, setRemark] = useState("");
-  const [successOpen, setSuccessOpen] = useState(false);
+  const [remark, setRemark] = useState(saved?.remark ?? "");
+  const [discardOpen, setDiscardOpen] = useState(false);
   const [viewAllOpen, setViewAllOpen] = useState(false);
+
+  // What the page started from (the saved product, or a blank one) — anything different is unsaved.
+  const [initial] = useState(() => JSON.stringify({ qty, serials, reason, remark }));
+  const dirty = JSON.stringify({ qty, serials, reason, remark }) !== initial;
 
   // Newest first for display; serials state keeps insertion order.
   const recentSerials = useMemo(() => [...serials].reverse().slice(0, 5), [serials]);
@@ -71,29 +81,25 @@ const StockReturnForm = () => {
     if (error) return;
     setSerials((prev) => [...prev, v]);
     setSerial("");
+    if (scanMode === "range") setAwaitingLast((a) => !a);
     // Prototype: each added serial counts toward the returned quantity, but never
     // raises a quantity the dealer already entered.
     setQtyClamped(Math.max(qty, serials.length + 1));
   };
 
-  const canSubmit = !qtyFeedback && qty > 0 && !!reason && !submitted;
+  const remarkFeedback = remarkError(reason, remark);
+  const canSubmit = !qtyFeedback && qty > 0 && !!reason;
 
   const submit = () => {
     if (!product || !canSubmit) return;
-    if (countFeedback) {
-      setCountErrorShown(true);
-      return;
-    }
-    setCountErrorShown(false);
-    failureToast.current?.dismiss();
-    try {
-      addStockReturn([{ productId: product.id, qty, serials, reason: t(`stockReturn.reasons.${reason}`), remark: remark.trim() || undefined }]);
-      setSubmitted(true);
-      setSuccessOpen(true);
-    } catch {
-      failureToast.current = toast({ title: t("stockReturn.errors.submitTitle"), description: t("stockReturn.errors.submitRetry"), variant: "destructive" });
-    }
+    setCountErrorShown(!!countFeedback);
+    setRemarkErrorShown(!!remarkFeedback);
+    if (countFeedback || remarkFeedback) return;
+    saveDraftItem({ productId: product.id, qty, serials, reason, remark });
+    navigate("/stock-returns/new");
   };
+
+  const back = () => (dirty ? setDiscardOpen(true) : navigate("/stock-returns/new"));
 
   const scannedLabel = useMemo(() => t("stockReturn.scannedCount", { scanned: serials.length, total: qty }), [serials.length, qty, t]);
 
@@ -103,7 +109,7 @@ const StockReturnForm = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-28">
-      <AppHeader title={productName} showBack onBackClick={() => navigate("/stock-returns/new")} />
+      <AppHeader title={productName} showBack onBackClick={back} />
 
       <div className="px-4 space-y-4">
         {/* Product card with quantity stepper */}
@@ -165,7 +171,7 @@ const StockReturnForm = () => {
         {/* Member / scan card */}
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-bold text-foreground">{t("stockReturn.memberName")}</p>
+            <p className="text-sm font-bold text-foreground">{t("stockReturn.serialNumberTitle")}</p>
             <span className="px-2.5 py-1 rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">{scannedLabel}</span>
           </div>
 
@@ -174,7 +180,7 @@ const StockReturnForm = () => {
               <button
                 key={mode}
                 type="button"
-                onClick={() => setScanMode(mode)}
+                onClick={() => { setScanMode(mode); setAwaitingLast(false); }}
                 className={cn(
                   "flex-1 pb-2 text-sm font-medium transition-colors",
                   scanMode === mode ? "text-primary border-b-2 border-primary -mb-px" : "text-muted-foreground"
@@ -192,7 +198,7 @@ const StockReturnForm = () => {
                 onChange={(e) => { setSerial(e.target.value); setSerialFeedback(undefined); }}
                 aria-invalid={!!serialFeedback}
                 aria-describedby={serialFeedback ? "stock-return-serial-error" : undefined}
-                placeholder={t(scanMode === "range" ? "stockReturn.firstSerial" : "stockReturn.serialNumber")}
+                placeholder={t(scanMode === "item" ? "stockReturn.serialNumber" : awaitingLast ? "stockReturn.lastSerial" : "stockReturn.firstSerial")}
                 className={cn("h-11 bg-card rounded-xl pe-10", serialFeedback && "border-destructive")}
               />
               <button
@@ -273,7 +279,7 @@ const StockReturnForm = () => {
                   <button
                     key={r}
                     type="button"
-                    onClick={() => { setReason(r); setReasonOpen(false); }}
+                    onClick={() => { setReason(r); setReasonOpen(false); setRemarkErrorShown(false); }}
                     className={cn("w-full text-start px-3.5 py-2.5 text-sm", r === reason ? "bg-primary/10 text-primary font-semibold" : "text-foreground")}
                   >
                     {t(`stockReturn.reasons.${r}`)}
@@ -286,13 +292,23 @@ const StockReturnForm = () => {
 
         {/* Remark */}
         <div className="space-y-1.5">
-          <p className="text-sm font-medium text-foreground px-1">{t("stockReturn.reasonRemark")}</p>
+          <p className="text-sm font-medium text-foreground px-1">
+            {t("stockReturn.reasonRemark")} {reason === "others" && <span className="text-destructive">*</span>}
+          </p>
           <Textarea
             value={remark}
-            onChange={(e) => setRemark(e.target.value)}
+            onChange={(e) => { setRemark(e.target.value); setRemarkErrorShown(false); }}
             placeholder={t("stockReturn.reasonRemarkPlaceholder")}
-            className="min-h-[110px] bg-card rounded-xl resize-none"
+            aria-required={reason === "others"}
+            aria-invalid={remarkErrorShown && !!remarkFeedback}
+            aria-describedby={remarkErrorShown && remarkFeedback ? "stock-return-remark-error" : undefined}
+            className={cn("min-h-[110px] bg-card rounded-xl resize-none", remarkErrorShown && remarkFeedback && "border-destructive")}
           />
+          {remarkErrorShown && remarkFeedback && (
+            <p id="stock-return-remark-error" role="alert" className="text-xs text-destructive px-1">
+              {t("stockReturn.errors.remarkRequired")}
+            </p>
+          )}
         </div>
       </div>
 
@@ -342,23 +358,17 @@ const StockReturnForm = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Success dialog */}
-      <Dialog open={successOpen} onOpenChange={(open) => { setSuccessOpen(open); if (!open && submitted) navigate("/stock-returns"); }}>
-        <DialogContent className="max-w-[320px] rounded-2xl text-center">
-          <div className="flex flex-col items-center gap-3 py-2">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500" />
-            <p className="text-base font-bold text-foreground">{t("stockReturn.successTitle")}</p>
-            <p className="text-sm text-muted-foreground">{t("stockReturn.successMessage")}</p>
-            <button
-              type="button"
-              onClick={() => { setSuccessOpen(false); navigate("/stock-returns"); }}
-              className="w-full h-11 rounded-full bg-primary text-primary-foreground font-semibold text-sm mt-1"
-            >
-              {t("stockReturn.goToList")}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Leaving with unsaved changes */}
+      <ConfirmMessageDrawer
+        open={discardOpen}
+        onOpenChange={setDiscardOpen}
+        title={t("stockReturn.discardTitle")}
+        description={t("stockReturn.discardDesc")}
+        confirmLabel={t("stockReturn.continueEditing")}
+        onConfirm={() => setDiscardOpen(false)}
+        cancelLabel={t("stockReturn.discardChanges")}
+        onCancel={() => { setDiscardOpen(false); navigate("/stock-returns/new"); }}
+      />
     </div>
   );
 };

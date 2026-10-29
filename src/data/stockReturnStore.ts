@@ -23,10 +23,53 @@ export interface StockReturn {
   date: string;
   dateObj: Date;
   lines: StockReturnLine[];
+  location?: string;
+  destination?: string;
 }
 
-export const RETURN_REASONS = ["damagedSim", "defectiveDevice", "wrongItem", "expiredVoucher", "excessStock"] as const;
+export const RETURN_REASONS = ["damagedSim", "defectiveDevice", "wrongItem", "expiredVoucher", "excessStock", "others"] as const;
 export type ReturnReasonKey = (typeof RETURN_REASONS)[number];
+
+// One product's saved return details inside the order being built.
+export interface ReturnDraftItem {
+  productId: ProductId;
+  qty: number;
+  serials: string[];
+  reason: ReturnReasonKey;
+  remark: string;
+}
+
+// The Stock Return order being built: Location & Destination from the first step (Dealer /
+// Team Leader only) plus every product the user has saved with the product page's Submit.
+// Products are keyed by productId, so saving the same product again updates it instead of
+// adding a duplicate. Submit Order on the product list turns the whole draft into one return.
+export interface ReturnDraft {
+  location?: string;
+  destination?: string;
+  items: ReturnDraftItem[];
+}
+
+export let returnDraft: ReturnDraft = { items: [] };
+export const setReturnDraft = (d: Partial<ReturnDraft>) => { returnDraft = { items: [], ...d }; };
+export const getDraftItem = (productId: ProductId) => returnDraft.items.find((i) => i.productId === productId);
+export const saveDraftItem = (item: ReturnDraftItem) => {
+  const exists = returnDraft.items.some((i) => i.productId === item.productId);
+  returnDraft = {
+    ...returnDraft,
+    items: exists ? returnDraft.items.map((i) => (i.productId === item.productId ? item : i)) : [...returnDraft.items, item],
+  };
+};
+// `reasonLabel` turns a reason key into the display text stored on the return, same as the
+// single-product submit did before.
+export const submitReturnDraft = (reasonLabel: (r: ReturnReasonKey) => string) => {
+  const { location, destination, items } = returnDraft;
+  const order = addStockReturn(
+    items.map((i) => ({ productId: i.productId, qty: i.qty, serials: i.serials, reason: reasonLabel(i.reason), remark: i.remark.trim() || undefined })),
+    { location, destination },
+  );
+  returnDraft = { items: [] };
+  return order;
+};
 
 const line = (productId: ProductId, qty: number, reason: ReturnReasonKey = "damagedSim"): StockReturnLine => ({
   productId,
@@ -52,13 +95,14 @@ export const stockReturns: StockReturn[] = [
 export const getStockReturn = (id: string) => stockReturns.find((o) => o.id === id);
 
 let nextSeq = 3515165614;
-export const addStockReturn = (lines: StockReturnLine[]) => {
+export const addStockReturn = (lines: StockReturnLine[], where: { location?: string; destination?: string } = {}) => {
   const order: StockReturn = {
     id: String(nextSeq++),
     status: "pending",
     date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     dateObj: new Date(),
     lines,
+    ...where,
   };
   stockReturns.unshift(order);
   return order;

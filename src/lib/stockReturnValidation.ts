@@ -20,3 +20,6 @@ export const serialError = (value: string, serials: string[], available: number)
 // scanned count must reach the requested quantity (excess is clamped upstream).
 export const serialCountError = (scanned: number, required: number): "serialsShort" | undefined =>
   scanned < required ? "serialsShort" : undefined;
+// The remark is optional, except when the reason is "Others" — then it explains the return.
+export const remarkError = (reason: string, remark: string): "remarkRequired" | undefined =>
+  reason === "others" && !remark.trim() ? "remarkRequired" : undefined;
