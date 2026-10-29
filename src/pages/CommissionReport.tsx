@@ -92,11 +92,12 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain }: { title:
   </button>
 );
 
-const Chips = ({ items, value, onChange }: { items: string[]; value: string; onChange: (v: string) => void }) => (
+// `fill` makes the chips share the row equally instead of scrolling, so a short fixed set always fits.
+const Chips = ({ items, value, onChange, fill }: { items: string[]; value: string; onChange: (v: string) => void; fill?: boolean }) => (
   <div className="flex gap-2 overflow-x-auto no-scrollbar">
     {items.map((c) => (
       <button key={c} type="button" onClick={() => onChange(c)}
-        className={cn("px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border shrink-0",
+        className={cn("py-1.5 rounded-full text-xs font-medium whitespace-nowrap border", fill ? "flex-1 min-w-0 px-2" : "px-4 shrink-0",
           value === c ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground")}>
         {c}
       </button>
@@ -254,6 +255,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const payout = PAYOUT.slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
+  const dense = payout.length > 6;
   const month = period.monthName;
   const lit = period.month.getTime();
   return (
@@ -274,22 +276,23 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
       {/* Same pill chips as the month row at the top, per design. */}
-      <Chips items={RANGES.map(([, label]) => t(`commissionReport.${label}`))} value={rangeTitle}
+      <Chips fill items={RANGES.map(([, label]) => t(`commissionReport.${label}`))} value={rangeTitle}
         onChange={(v) => setRange(RANGES.find(([, label]) => t(`commissionReport.${label}`) === v)![0])} />
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
           <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
-        <div className={cn("flex items-end justify-center h-56", payout.length > 6 ? "gap-1.5" : "gap-3")}>
+        {/* 12 bars share ~340px: min-w-0 lets columns shrink below their labels, and labels drop to 9–10px to fit. */}
+        <div className={cn("flex items-end justify-center h-56", dense ? "gap-1" : "gap-3")}>
           {payout.map(({ date, v }) => {
             const last = date.getTime() === lit;
             const m = format(date, "MMM");
             return (
-              <div key={m} className="flex-1 max-w-16 flex flex-col items-center gap-1.5 h-full justify-end">
-                <span className={cn("text-[11px] tabular-nums", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{payout.length > 6 ? compact(v) : v.toLocaleString()}</span>
-                <div className="w-full rounded-md" style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
-                <span className="text-[11px] text-muted-foreground">{m}</span>
+              <div key={m} className="flex-1 min-w-0 max-w-16 flex flex-col items-center gap-1.5 h-full justify-end">
+                <span className={cn("tabular-nums whitespace-nowrap", dense ? "text-[9px] tracking-tighter" : "text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{dense ? compact(v) : v.toLocaleString()}</span>
+                <div className={cn("w-full", dense ? "rounded" : "rounded-md")} style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
+                <span className={cn("text-muted-foreground", dense ? "text-[10px]" : "text-[11px]")}>{m}</span>
               </div>
             );
           })}
