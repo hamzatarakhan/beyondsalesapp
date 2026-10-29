@@ -25,6 +25,12 @@ export interface StockReturn {
   lines: StockReturnLine[];
   location?: string;
   destination?: string;
+  // Who raised the return. Unset on the user's own demo returns (the page shows the demo user).
+  channelMember?: string;
+  // "mine" (default): raised by the signed-in user — My Request. "task": raised by a dealer
+  // reporting to a Team Leader and reviewed by that Team Leader — the Task tab.
+  kind?: "mine" | "task";
+  rejectReason?: string;
 }
 
 export const RETURN_REASONS = ["damagedSim", "defectiveDevice", "wrongItem", "expiredVoucher", "excessStock", "others"] as const;
@@ -64,11 +70,11 @@ export const saveDraftItem = (item: ReturnDraftItem) => {
 };
 // `reasonLabel` turns a reason key into the display text stored on the return, same as the
 // single-product submit did before.
-export const submitReturnDraft = (reasonLabel: (r: ReturnReasonKey) => string) => {
+export const submitReturnDraft = (reasonLabel: (r: ReturnReasonKey) => string, channelMember?: string) => {
   const { location, destination, items } = returnDraft;
   const order = addStockReturn(
     items.map((i) => ({ productId: i.productId, qty: i.qty, serials: i.serials, reason: reasonLabel(i.reason), remark: i.remark.trim() || undefined })),
-    { location, destination },
+    { location, destination, channelMember },
   );
   returnDraft = { items: [] };
   return order;
@@ -81,8 +87,12 @@ const line = (productId: ProductId, qty: number, reason: ReturnReasonKey = "dama
   reason,
 });
 
-const mk = (id: string, status: StockReturnStatus, date: string, dateObj: Date, lines: StockReturnLine[]): StockReturn => ({
-  id, status, date, dateObj, lines,
+const mk = (id: string, status: StockReturnStatus, date: string, dateObj: Date, lines: StockReturnLine[], extra: Partial<StockReturn> = {}): StockReturn => ({
+  id, status, date, dateObj, lines, ...extra,
+});
+
+const task = (channelMember: string, location: string, rejectReason?: string): Partial<StockReturn> => ({
+  kind: "task", channelMember, location, destination: "Riyadh Central Warehouse", rejectReason,
 });
 
 // One demo return per status, so every state is directly visible in the list.
@@ -93,12 +103,22 @@ export const stockReturns: StockReturn[] = [
   mk("3515165610", "approved", "14, Dec, 2026 – 11:30 AM", new Date(2026, 11, 14), [line("voucher10", 20)],),
   mk("3515165609", "approved", "13, Dec, 2026 – 4:15 PM", new Date(2026, 11, 13), [line("router1", 3), line("router2", 2)]),
   mk("3515165608", "pending", "12, Dec, 2026 – 9:00 AM", new Date(2026, 11, 12), [line("vmSim", 15), line("voucher20", 10)]),
+  // Dealers' returns waiting on (or already reviewed by) their Team Leader — the Task tab.
+  mk("3515165607", "pending", "16, Dec, 2026 – 10:20 AM", new Date(2026, 11, 16), [line("vmSim", 2), line("router1", 1), line("fingerprint", 1), line("voucher10", 3)], task("Fahad Alotaibi", "Riyadh – Olaya Branch")),
+  mk("3515165606", "pending", "16, Dec, 2026 – 8:45 AM", new Date(2026, 11, 16), [line("router2", 2), line("digitalVoucher", 4)], task("Saad Alghamdi", "Jeddah – Tahlia Branch")),
+  mk("3515165605", "approved", "14, Dec, 2026 – 3:10 PM", new Date(2026, 11, 14), [line("vmSim", 6), line("voucher50", 2), line("router3", 1)], task("Reem Aldosari", "Dammam – Corniche Branch")),
+  mk("3515165604", "rejected", "13, Dec, 2026 – 12:00 PM", new Date(2026, 11, 13), [line("fingerprint", 3), line("voucher20", 5), line("router1", 1), line("vmSim", 2)], task("Omar Alharbi", "Riyadh – Malaz Branch", "Serial numbers don't match the dealer's stock.")),
+  mk("3515165603", "approved", "11, Dec, 2026 – 9:30 AM", new Date(2026, 11, 11), [line("voucher100", 4)], task("Mohammed Al-Dosari", "Khobar – Rakah Branch")),
 ];
 
 export const getStockReturn = (id: string) => stockReturns.find((o) => o.id === id);
+export const updateStockReturn = (id: string, patch: Partial<StockReturn>) => {
+  const o = getStockReturn(id);
+  if (o) Object.assign(o, patch);
+};
 
 let nextSeq = 3515165614;
-export const addStockReturn = (lines: StockReturnLine[], where: { location?: string; destination?: string } = {}) => {
+export const addStockReturn = (lines: StockReturnLine[], where: { location?: string; destination?: string; channelMember?: string } = {}) => {
   const order: StockReturn = {
     id: String(nextSeq++),
     status: "pending",

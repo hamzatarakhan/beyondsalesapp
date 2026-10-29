@@ -1557,7 +1557,22 @@
     "discardDesc": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة فستفقد تغييراتك.",
     "continueEditing": "متابعة التعديل",
     "discardChanges": "تجاهل التغييرات",
-    "scannedTotal": "تم مسح {{count}}"
+    "scannedTotal": "تم مسح {{count}}",
+    "tabs": {
+      "myRequest": "طلباتي",
+      "task": "المهام"
+    },
+    "viewOrderTitle": "عرض الطلب",
+    "shippingFrom": "الشحن من",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "approveTitle": "الموافقة على طلب الإرجاع؟",
+    "approveDesc": "ستتم الموافقة على طلب إرجاع {{member}}.",
+    "rejectTitle": "رفض طلب الإرجاع؟",
+    "rejectDesc": "سيرى {{member}} أن طلب الإرجاع هذا قد رُفض.",
+    "rejectReasonLabel": "سبب الرفض (اختياري)",
+    "rejectReason": "سبب الرفض",
+    "viewSerialsAria": "عرض الأرقام التسلسلية لـ {{product}}"
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

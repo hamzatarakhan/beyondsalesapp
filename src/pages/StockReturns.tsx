@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import TagChips from "@/components/TagChips";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
 import AppHeader from "@/components/AppHeader";
@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check } from "lucide-react";
-import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnStatus } from "@/data/stockReturnStore";
+import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check, User } from "lucide-react";
+import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
@@ -20,7 +20,6 @@ const STATUS_STYLE: Record<StockReturnStatus, string> = {
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-const RETURN_CHIP = "px-2.5 py-1 rounded-full bg-muted/70 border border-border/60 text-[11px] font-medium text-muted-foreground";
 
 const fmtShort =(d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 const inRange = (d: Date, from: Date, to: Date) => {
@@ -43,17 +42,27 @@ const StockReturns = () => {
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
+  // Team Leaders get two tabs: My Request (their own returns, which go up to their manager)
+  // and Task (returns from their dealers, which they approve or reject). Everyone else only
+  // has their own returns. The tab lives in the URL so Back from View Order lands on it.
+  const isTeamLeader = scenario.role === "teamLeader";
+  const [params, setParams] = useSearchParams();
+  const tab: "mine" | "task" = isTeamLeader && params.get("tab") === "task" ? "task" : "mine";
+  const memberName = (o: StockReturn) => o.channelMember ?? scenario.user.name;
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return stockReturns
       .filter((o) => {
-        if (q && !o.id.toLowerCase().includes(q)) return false;
+        if ((o.kind === "task") !== (tab === "task")) return false;
+        if (q && !o.id.toLowerCase().includes(q) && !memberName(o).toLowerCase().includes(q)) return false;
         if (appliedStatus.length > 0 && !appliedStatus.includes(o.status)) return false;
         if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
         return true;
       })
       .sort((a, b) => STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status));
-  }, [search, appliedStatus, appliedRange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- memberName only reads the fixed demo scenario
+  }, [search, appliedStatus, appliedRange, tab]);
 
   const openFilter = () => {
     setDraftStatus(appliedStatus);
@@ -96,6 +105,21 @@ const StockReturns = () => {
       <AppHeader title={t("stockReturn.title")} showBack />
 
       <div className="px-4 space-y-3">
+        {isTeamLeader && (
+          <div className="flex border-b border-border">
+            {(["mine", "task"] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setParams(k === "task" ? { tab: "task" } : {}, { replace: true })}
+                className={cn("flex-1 py-2.5 text-sm font-semibold border-b-2 -mb-px", tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground")}
+              >
+                {t(k === "mine" ? "stockReturn.tabs.myRequest" : "stockReturn.tabs.task")}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Prototype-only: which demo user (picked on Home) this session is previewing as. */}
         <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2">
           <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">
@@ -146,34 +170,36 @@ const StockReturns = () => {
           <div className="py-16 text-center text-sm text-muted-foreground">{t("stockReturn.noReturns")}</div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((o) => {
-              return (
-                <div
-                  key={o.id}
-                  className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-bold text-foreground">{o.id}</p>
-                    <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`stockReturn.status.${o.status}`)}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="w-3.5 h-3.5 shrink-0" />
-                    {o.date}
-                  </div>
-                  <TagChips
-                    chips={o.lines.map((l) => ({ key: l.productId, label: productName(l.productId) }))}
-                    moreLabel={moreLabel}
-                    chipClassName={RETURN_CHIP}
-                    moreClassName={RETURN_CHIP}
-                  />
+            {filtered.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => navigate(`/stock-returns/view/${o.id}${tab === "task" ? "?tab=task" : ""}`)}
+                className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-foreground">{o.id}</p>
+                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`stockReturn.status.${o.status}`)}</span>
                 </div>
-              );
-            })}
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  {o.date}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{memberName(o)}</span>
+                </div>
+                <TagChips
+                  chips={o.lines.map((l) => ({ key: l.productId, label: productName(l.productId) }))}
+                  moreLabel={moreLabel}
+                />
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      <button
+      {tab === "mine" && <button
         type="button"
         onClick={() => {
           // Dealer / Team Leader start with Location & Destination; Account Manager goes straight to products.
@@ -183,7 +209,7 @@ const StockReturns = () => {
         className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5"
       >
         <Plus className="w-4 h-4" /> {t("stockReturn.newOrder")}
-      </button>
+      </button>}
 
       {/* ---------- Filter drawer — same pattern as Request Stock ---------- */}
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>

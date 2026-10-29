@@ -95,6 +95,7 @@ import StockReturns from "./pages/StockReturns";
 import StockReturnCreate from "./pages/StockReturnCreate";
 import StockReturnForm from "./pages/StockReturnForm";
 import StockReturnLocation from "./pages/StockReturnLocation";
+import StockReturnView from "./pages/StockReturnView";
 import StockTransferView from "./pages/StockTransferView";
 import PhaseTwo from "./pages/PhaseTwo";
 import ChannelOnboarding from "./pages/ChannelOnboarding";
@@ -239,6 +240,7 @@ const App = () => {
 <Route path="/stock-transfer/new" element={<StockTransferForm />} />
           <Route path="/stock-returns" element={<StockReturns />} />
           <Route path="/stock-returns/location" element={<StockReturnLocation />} />
+          <Route path="/stock-returns/view/:id" element={<StockReturnView />} />
           <Route path="/stock-returns/new" element={<StockReturnCreate />} />
           <Route path="/stock-returns/new/:productId" element={<StockReturnForm />} />
           <Route path="/stock-transfer/:id" element={<StockTransferView />} />
