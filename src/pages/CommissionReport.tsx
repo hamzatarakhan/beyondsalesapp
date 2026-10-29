@@ -280,14 +280,7 @@ const useCustomMonth = (initial: string) => {
 const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
-
-type Quarter = { year: number; q: number }; // q is 0-based: 0 = Jan–Mar
-const quarterLabel = ({ year, q }: Quarter) => `Q${q + 1} ${year}`;
-const quarterStart = ({ year, q }: Quarter) => new Date(year, q * 3, 1);
-const quarterOf = (d: Date): Quarter => ({ year: d.getFullYear(), q: Math.floor(d.getMonth() / 3) });
-// Q1–Q4 of the current year only; quarters that haven't started yet stay visible but disabled.
-const QUARTERS = [0, 1, 2, 3].map((q) => ({ year: LATEST_MONTH.getFullYear(), q }));
-const RANGES = [["quarter", "quarterly"], ["6", "last6"], ["12", "last12"]] as const;
+const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
 const MONTH_EARNED: Record<string, number> = { "Aug 2026": 74000, July: 68500, June: 61200 };
 
 // Dealer's own report uses plain month chips and 11,230; a manager viewing a member sees "Aug 2026" and 74,000.
@@ -295,13 +288,10 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const { t } = useTranslation();
   const first = member ? "Aug 2026" : "Aug";
   const period = useCustomMonth(first);
-  // Payout window: a picked quarter, or the trailing 6 / 12 months.
-  const [range, setRange] = useState<"quarter" | "6" | "12">("6");
-  const [quarter, setQuarter] = useState<Quarter>(quarterOf(LATEST_MONTH));
-  const payout = range === "quarter"
-    ? PAYOUT.filter((p) => p.date >= quarterStart(quarter) && p.date <= addMonths(quarterStart(quarter), 2))
-    : PAYOUT.slice(-Number(range));
-  const rangeTitle = range === "quarter" ? quarterLabel(quarter) : t(range === "6" ? "commissionReport.last6" : "commissionReport.last12");
+  // Payout window: the trailing 3, 6 or 12 months.
+  const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
+  const payout = PAYOUT.slice(-Number(range));
+  const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
   const month = period.label === first ? "August" : period.label;
   const lit = (period.month ?? { July: new Date(2026, 6, 1), June: new Date(2026, 5, 1) }[period.label] ?? LATEST_MONTH).getTime();
@@ -330,24 +320,10 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           </button>
         ))}
       </div>
-      {/* Quarterly shows every quarter inline, so switching is one tap with no sheet. */}
-      {range === "quarter" && (
-        <div className="grid grid-cols-4 gap-2">
-          {QUARTERS.map((qr) => (
-            <button key={qr.q} type="button" onClick={() => setQuarter(qr)} disabled={quarterStart(qr) > LATEST_MONTH}
-              className={cn("py-1.5 rounded-full text-xs font-medium border-[0.5px] disabled:opacity-40",
-                qr.q === quarter.q ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border text-muted-foreground")}>
-              Q{qr.q + 1}
-            </button>
-          ))}
-        </div>
-      )}
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
-          {range === "quarter"
-            ? <span className="text-xs font-semibold text-foreground"><Money v={payout.reduce((s, p) => s + p.v, 0)} /></span>
-            : <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>}
+          <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
         <div className={cn("flex items-end justify-center h-56", payout.length > 6 ? "gap-1.5" : "gap-3")}>
           {payout.map(({ date, v }) => {
