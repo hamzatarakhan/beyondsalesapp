@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
@@ -420,21 +420,29 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
 
 const PHONES = ["+966500653226", "+966570902726", "+966584235976", "+966562843451", "+966592643132", "+966504396022", "+966505006971"];
 const DAYS_AGO = [0, 2, 5, 9, 15, 25, 40];
-const ACTIVITY_ROWS = PHONES.map((phone, i) => ({ phone, kind: i % 3 === 0 ? "Acquisition" : "3rd Bill", daysAgo: DAYS_AGO[i] }));
+// Demo rows: the seven designed numbers first, then generated ones so the list can match any line count.
+const activityRows = (count: number) => Array.from({ length: count }, (_, i) => ({
+  phone: PHONES[i] ?? `+9665${String(10000000 + ((i * 7919) % 90000000)).padStart(8, "0")}`,
+  kind: i % 3 === 0 ? "Acquisition" : "3rd Bill",
+  daysAgo: DAYS_AGO[i] ?? 40 + (i % 50),
+}));
+// Line count shown on a breakdown's Activities row ("6 Lines", "3,000 Line").
+const lineCount = (kind: keyof typeof BREAKDOWNS) => Number(BREAKDOWNS[kind].activities.replace(/[^\d]/g, ""));
 
-// Opened from Clawbacks, each activity is money taken back, so amounts show as minus.
-const ActivitiesScreen = ({ deduction }: { deduction?: boolean }) => {
+// Lists exactly as many activities as the breakdown said; opened from Clawbacks, each is money taken back, so minus.
+const ActivitiesScreen = ({ count, deduction }: { count: number; deduction?: boolean }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const rows = ACTIVITY_ROWS.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
+  const all = useMemo(() => activityRows(count), [count]);
+  const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
   return (
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
       <Chips items={["All", "Acquisition", "3rd Bill"]} value={f} onChange={setF} />
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
-        <Card key={r.phone} className="py-3 flex items-center justify-between">
+        <Card key={r.phone + r.daysAgo} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{format(subDays(new Date(), r.daysAgo), "d, MMM, yyyy")} - 1:00 AM</p></div>
           {/* Colour the wrapper too, so the ".00" matches the signed amount. */}
           <span className={cn("text-xs font-semibold", deduction ? "text-primary" : POS)}><Money v={deduction ? -5 : 5} sign />.00</span>
@@ -520,15 +528,14 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <div><p className="text-xs font-semibold text-amber-600 dark:text-amber-300">{t("commissionReport.needsAttention")}</p><p className="text-xs text-foreground/80">{t("commissionReport.needsAttentionSub", { n: 6 })}</p></div>
       </div>
       <Card>
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.dealersCommission")}</h3>
-          <button type="button" onClick={() => setSheet(true)} className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
         <div className="mt-3 space-y-2.5">
           {list.map(([n, p, v], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
-              <span className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 text-xs font-semibold flex items-center justify-center shrink-0">{top === "top" ? i + 1 : 5 - i}</span>
+              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-primary")}>{top === "top" ? i + 1 : 5 - i}</span>
               <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
               <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 inline-flex items-center gap-1 tabular-nums"><RiyalSymbol /> {v.toFixed(2)}</span>
             </div>
@@ -575,7 +582,7 @@ const CommissionReport = () => {
         {screen === "scheme1" && <Scheme1Screen go={go} />}
         {screen === "kpi" && <KpiScreen />}
         {(screen === "scheme2prepaid" || screen === "scheme2postpaid" || screen === "hbb" || screen === "clawbacks") && <BreakdownScreen kind={screen} go={go} />}
-        {screen === "activities" && <ActivitiesScreen deduction={stack[stack.length - 2] === "clawbacks"} />}
+        {screen === "activities" && <ActivitiesScreen count={lineCount(stack[stack.length - 2] as keyof typeof BREAKDOWNS)} deduction={stack[stack.length - 2] === "clawbacks"} />}
       </div>
     </div>
   );
