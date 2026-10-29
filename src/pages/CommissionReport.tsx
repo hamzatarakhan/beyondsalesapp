@@ -361,7 +361,8 @@ const KpiScreen = () => (
 );
 
 type Section = { title: string; amount: string | number; rows: [string, string][] };
-type Breakdown = { banner: string; value: number; bad?: boolean; activities: string; head: string; sections: Section[]; conditions?: boolean };
+type ActivityRow = { phone: string; kind: string; detail: string; amount: number };
+type Breakdown = { banner: string; value: number; bad?: boolean; activities: string; head: string; sections: Section[]; conditions?: boolean; lines?: ActivityRow[] };
 const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
   scheme2prepaid: { banner: "Total Earned", value: 9800, activities: "3,000 Line", head: "Earnings breakdown", sections: [
     { title: "Prepaid Activations", amount: "00", rows: [["Any", "0%"]] }, { title: "IBR", amount: 10176, rows: [["Any", "40%"]] },
@@ -380,7 +381,13 @@ const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
   clawbacks: { banner: "Taken Back", value: -550, bad: true, activities: "6 Lines", head: "Deduction reasons", sections: [
     { title: "Acquisition received", amount: -550, rows: [["Below 200 . 3 Lines", "-50%"], ["Below 200 . 3 Lines", "-50%"]] } ] },
   hbbClawbacks: { banner: "Taken Back", value: -150, bad: true, activities: "3 Lines", head: "Deduction reasons", sections: [
-    { title: "Early disconnect", amount: -150, rows: [["Any . 3 Lines", "-50 SAR"]] } ] },
+    { title: "Early disconnect", amount: -150, rows: [["Any . 3 Lines", "-50 SAR"]] } ],
+    // From the HBB / V-Net early-disconnect design; the 150 is paid on the total, shown here as 50 per line.
+    lines: [
+      { phone: "+966500002210", kind: "HBB unlimited", detail: "Stopped 20 Sep · 1 bill issued", amount: -50 },
+      { phone: "+966500002214", kind: "V-Net 200", detail: "Stopped 22 Sep · 2 bills issued", amount: -50 },
+      { phone: "+966500002231", kind: "HBB unlimited", detail: "Stopped 27 Sep · 1 bill issued", amount: -50 },
+    ] },
 };
 
 const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: Screen) => void }) => {
@@ -429,31 +436,36 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
 const PHONES = ["+966500653226", "+966570902726", "+966584235976", "+966562843451", "+966592643132", "+966504396022", "+966505006971"];
 const DAYS_AGO = [0, 2, 5, 9, 15, 25, 40];
 // Demo rows: the seven designed numbers first, then generated ones so the list can match any line count.
-const activityRows = (count: number) => Array.from({ length: count }, (_, i) => ({
+const demoRows = (count: number, amount: number): ActivityRow[] => Array.from({ length: count }, (_, i) => ({
   phone: PHONES[i] ?? `+9665${String(10000000 + ((i * 7919) % 90000000)).padStart(8, "0")}`,
   kind: i % 3 === 0 ? "Acquisition" : "3rd Bill",
-  daysAgo: DAYS_AGO[i] ?? 40 + (i % 50),
+  detail: `${format(subDays(new Date(), DAYS_AGO[i] ?? 40 + (i % 50)), "d, MMM, yyyy")} - 1:00 AM`,
+  amount,
 }));
-// Line count shown on a breakdown's Activities row ("6 Lines", "3,000 Line").
-const lineCount = (kind: keyof typeof BREAKDOWNS) => Number(BREAKDOWNS[kind].activities.replace(/[^\d]/g, ""));
+// A breakdown's own lines when it has them, else demo rows matching its Activities count ("6 Lines", "3,000 Line").
+const activityRows = (kind: BreakdownKind) => {
+  const b = BREAKDOWNS[kind];
+  return b.lines ?? demoRows(Number(b.activities.replace(/[^\d]/g, "")), b.bad ? -5 : 5);
+};
 
-// Lists exactly as many activities as the breakdown said; opened from Clawbacks, each is money taken back, so minus.
-const ActivitiesScreen = ({ count, deduction }: { count: number; deduction?: boolean }) => {
+// Same cards for every breakdown; the kind chips come from the rows, so they always match what is listed.
+const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const all = useMemo(() => activityRows(count), [count]);
+  const all = useMemo(() => activityRows(kind), [kind]);
+  const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
   const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
   return (
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
-      <Chips items={["All", "Acquisition", "3rd Bill"]} value={f} onChange={setF} />
+      <Chips items={kinds} value={f} onChange={setF} />
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
-        <Card key={r.phone + r.daysAgo} className="py-3 flex items-center justify-between">
-          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{format(subDays(new Date(), r.daysAgo), "d, MMM, yyyy")} - 1:00 AM</p></div>
+        <Card key={r.phone + r.detail} className="py-3 flex items-center justify-between">
+          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{r.detail}</p></div>
           {/* Colour the wrapper too, so the ".00" matches the signed amount. */}
-          <span className={cn("text-xs font-semibold", deduction ? "text-primary" : POS)}><Money v={deduction ? -5 : 5} sign />.00</span>
+          <span className={cn("text-xs font-semibold", r.amount < 0 ? "text-primary" : POS)}><Money v={r.amount} sign />.00</span>
         </Card>
       ))}
     </div>
@@ -590,7 +602,7 @@ const CommissionReport = () => {
         {screen === "scheme1" && <Scheme1Screen go={go} />}
         {screen === "kpi" && <KpiScreen />}
         {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
-        {screen === "activities" && <ActivitiesScreen count={lineCount(stack[stack.length - 2] as BreakdownKind)} deduction={BREAKDOWNS[stack[stack.length - 2] as BreakdownKind].bad} />}
+        {screen === "activities" && <ActivitiesScreen kind={stack[stack.length - 2] as BreakdownKind} />}
       </div>
     </div>
   );
