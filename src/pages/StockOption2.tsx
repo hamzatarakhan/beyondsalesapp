@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { DateRange } from "react-day-picker";
-import { Boxes, Check, ChevronRight, Clock, Eye, FileText, Image as ImageIcon, MapPin, Minus, Plus, Search, SlidersHorizontal, Trash2, UploadCloud, User, X as XIcon } from "lucide-react";
+import { Boxes, Check, ChevronRight, Clock, Eye, FileText, Image as ImageIcon, MapPin, Minus, Plus, ScanLine, Search, SlidersHorizontal, Trash2, UploadCloud, User, X as XIcon } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import TagChips from "@/components/TagChips";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
+import { DeliveryActions, IssueDetails } from "@/components/OrderDeliveryPanels";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -15,31 +16,43 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { DEMO_DESTINATIONS, PURCHASE_ORDER_PRODUCTS, type ProductId } from "@/data/purchaseOrdersStore";
 import {
-  chainOrders, getChainOrder, saveChainOrder, statusLabelKey, updateChainOrder, visibleTo,
+  CHANNEL_MEMBERS, ROLE_FLOW, chainOrders, getChainOrder, resetChainOrders, saveChainOrder, statusLabelKey, updateChainOrder, visibleTo,
   type ChainLine, type ChainOrder, type ChainRole,
 } from "@/data/stockChainStore";
 import { cn } from "@/lib/utils";
 
-// Request/Push Stock "Option 2": Team Leader → Regional Manager → Sales Support. One page serves
-// all three roles (?role=tl|rm|ss); list → view → form is a local stack so Back steps up one level.
-// Filter, confirm, success and picker sheets reuse the Request Stock (purchaseOrders.*) patterns.
+// Request/Push Stock "Option 2". One page serves every role (?role=dealer|tlPush|tl|rm|ss):
+//   dealer flow: Dealer ↔ Team Leader (tlPush)         chain flow: Team Leader (tl) → Regional Manager (rm) → Sales Support (ss)
+// list → view → form is a local stack so Back steps up one level. Filter, confirm, success and
+// picker sheets reuse the Request Stock (purchaseOrders.*) patterns.
 
+const AMBER = "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300";
+const GREEN = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
+const SKY = "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
+const TEAL = "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300";
 const BADGE: Record<string, string> = {
-  pendingApproval: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-  orderPending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-  orderPlaced: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-  approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-  delivered: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
-  completed: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  orderSubmitted: AMBER, awaitingApproval: AMBER, pendingApproval: AMBER, orderPending: AMBER,
+  awaitingScanning: SKY, delivered: SKY, completed: SKY,
+  awaitingDelivery: TEAL,
+  orderPlaced: GREEN, approved: GREEN,
+  received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
+  issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
   cancelled: "bg-muted text-muted-foreground",
 };
 
 const FILTERS: Record<ChainRole, string[]> = {
+  dealer: ["orderSubmitted", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"],
+  tlPush: ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected"],
   tl: ["pendingApproval", "approved", "rejected", "cancelled"],
   rm: ["pendingApproval", "approved", "orderPlaced", "delivered", "rejected"],
   ss: ["orderPending", "orderPlaced", "completed", "rejected"],
 };
+const ROLES = Object.keys(ROLE_FLOW) as ChainRole[];
+const REQUESTERS: ChainRole[] = ["dealer", "tl"];
+// Roles that can start an order: requesters, plus the Team Leader pushing stock to a channel member.
+// The Regional Manager and Sales Support only process orders, so they get no New Order button.
+const CREATORS: ChainRole[] = [...REQUESTERS, "tlPush"];
 const REASON_OPTIONS = ["budget", "incorrectItems", "duplicateRequest", "pricingNotApproved", "other"] as const;
 
 const fmtShort = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
@@ -55,6 +68,20 @@ const Badge = ({ role, o }: { role: ChainRole; o: ChainOrder }) => {
 };
 
 const productName = (t: (k: string) => string, id: ProductId) => t(`purchaseOrders.product.${id}`);
+
+// "Requested by" line: who the current role is receiving the order from.
+const useRequester = (role: ChainRole) => {
+  const { t } = useTranslation();
+  const key = { dealer: null, tl: null, tlPush: "dealerName", rm: "teamLeaderName", ss: "regionalManagerName" }[role];
+  return key ? t(`stockOpt2.${key}`) : null;
+};
+
+// The other party on an order, as shown on cards and in View Order.
+const whoFor = (t: (k: string) => string, role: ChainRole, o: ChainOrder, base: string | null) => {
+  if (role === "tlPush") return o.member ?? base;
+  if (role === "dealer" && o.pushed) return t("stockOpt2.teamLeaderName");
+  return base;
+};
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();
@@ -76,6 +103,8 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
   const [appliedRange, setAppliedRange] = useState<{ from: Date; to: Date; label: string } | null>(null);
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
+  const [, bump] = useState(0);
+  const person = useRequester(role);
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -84,7 +113,6 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
       && (appliedStatus.length === 0 || appliedStatus.includes(statusLabelKey(role, o)))
       && (!appliedRange || inRange(o.dateObj, appliedRange.from, appliedRange.to)));
   }, [role, search, appliedStatus, appliedRange]);
-  const person = role === "tl" ? null : t(role === "rm" ? "stockOpt2.teamLeaderName" : "stockOpt2.regionalManagerName");
 
   const openFilter = () => { setDraftStatus(appliedStatus); setFilterOpen(true); };
   const applyFilter = () => { setAppliedStatus(draftStatus); setFilterOpen(false); };
@@ -136,14 +164,15 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
             <button key={o.id} type="button" onClick={() => onOpen(o.id)} className="w-full text-start bg-card rounded-2xl border-s-[3px] border-s-primary border border-border/60 p-4 space-y-2.5">
               <div className="flex items-center justify-between gap-2"><p className="text-base font-bold text-foreground">{o.id}</p><Badge role={role} o={o} /></div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5 shrink-0" />{o.date}</div>
-              {person && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="w-3.5 h-3.5 shrink-0" />{person}</div>}
+              {(() => { const who = whoFor(t, role, o, person); return who && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="w-3.5 h-3.5 shrink-0" />{who}</div>; })()}
               <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: productName(t, l.productId) }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
             </button>
           ))}
         </div>
       )}
+      <button type="button" onClick={() => { resetChainOrders(); bump((n) => n + 1); }} className="w-full py-2 text-xs font-medium text-muted-foreground">{t("stockOpt2.resetDemo")}</button>
 
-      {role === "tl" && (
+      {CREATORS.includes(role) && (
         <button type="button" onClick={onNew} className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5">
           <Plus className="w-4 h-4" /> {t("stockOpt2.newOrder")}
         </button>
@@ -224,14 +253,20 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
   );
 };
 
-// ------------------------------------------------------------------ create / edit (Team Leader)
+// ------------------------------------------------------------------ create / edit (Dealer and Team Leader)
 
-const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
+// `step` lives in the page so the header Back can step from the order form to the member step.
+const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string; step: "member" | "order"; onStep: (s: "member" | "order") => void; onDone: () => void }) => {
   const { t } = useTranslation();
   const existing = id ? getChainOrder(id) : undefined;
   const isEdit = !!existing;
   const [location, setLocation] = useState(existing?.location ?? "");
   const [qtys, setQtys] = useState<Record<string, number>>(() => Object.fromEntries((existing?.lines ?? []).map((l) => [l.productId, l.qty])));
+  const isPush = role === "tlPush";
+  const members = CHANNEL_MEMBERS;
+  const [member, setMember] = useState("");
+  const memberDone = step === "order";
+  const setMemberDone = (v: boolean) => onStep(v ? "order" : "member");
   const [pick, setPick] = useState(false);
   const [search, setSearch] = useState("");
   const [confirm, setConfirm] = useState(false);
@@ -241,11 +276,45 @@ const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
   const places = useMemo(() => DEMO_DESTINATIONS.filter((d) => d.toLowerCase().includes(search.trim().toLowerCase())), [search]);
 
   const submit = () => {
-    const ls: ChainLine[] = Object.entries(qtys).filter(([, n]) => n > 0).map(([productId, qty]) => ({ productId: productId as ProductId, qty }));
-    saveChainOrder(location, ls, id);
+    const ls = Object.entries(qtys).filter(([, n]) => n > 0).map(([productId, qty]) => ({ productId: productId as ProductId, qty }));
+    saveChainOrder(ROLE_FLOW[role], location, ls, id, isPush ? { member } : undefined);
     setConfirm(false);
     setSuccess(true);
   };
+
+  if (isPush && !memberDone) {
+    return (
+      <div className="space-y-3 pb-28">
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.channelMember")}</p>
+          <Select value={member} onValueChange={setMember}>
+            <SelectTrigger className="h-12 rounded-xl bg-card"><SelectValue placeholder={t("stockOpt2.selectMember")} /></SelectTrigger>
+            <SelectContent>{members.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+        {member ? (
+          <div className="rounded-2xl bg-card shadow-sm px-4 py-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-sky-600 dark:text-sky-300" /></div>
+            <div className="flex-1 min-w-0"><p className="text-sm font-semibold text-foreground truncate">{member}</p><p className="text-[11px] text-muted-foreground">{t("stockOpt2.dealerCode", { code: 100000 + members.indexOf(member) * 137 })}</p></div>
+            <button type="button" aria-label={t("stockOpt2.remove")} onClick={() => setMember("")}><XIcon className="w-4 h-4 text-primary" /></button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 px-2 text-[11px] text-muted-foreground"><span className="h-px flex-1 bg-border" />{t("stockOpt2.or")}<span className="h-px flex-1 bg-border" /></div>
+            {/* Prototype: tapping the scan card "reads" a member's QR straight away. */}
+            <button type="button" onClick={() => setMember(members[1])} className="w-full rounded-2xl bg-card shadow-sm py-8 flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"><ScanLine className="w-5 h-5 text-primary" /></div>
+              <p className="text-xs text-muted-foreground">{t("stockOpt2.tapScan")}</p>
+              <p className="text-xs font-semibold text-sky-600 flex items-center gap-1">{t("stockOpt2.scanQr")} <Plus className="w-3 h-3" /></p>
+            </button>
+          </>
+        )}
+        <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
+          <Button disabled={!member} onClick={() => setMemberDone(true)} className="w-full h-12 rounded-full text-base">{t("stockOpt2.continue")}</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 pb-28">
@@ -265,7 +334,14 @@ const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
               <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Icon className="w-5 h-5 text-primary" /></div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-foreground">{productName(t, p.id)}</p>
-                <p className="text-[11px] text-primary font-semibold flex items-center gap-1"><Boxes className="w-3 h-3" /> {t("purchaseOrders.availableStocks", { count: p.availableStocks })}</p>
+                {isPush ? (
+                  <>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Boxes className="w-3 h-3 text-primary" /> {t("stockOpt2.dealerStock", { count: 25 })}</p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Boxes className="w-3 h-3 text-primary" /> {t("stockOpt2.myStock", { count: p.availableStocks })}</p>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-primary font-semibold flex items-center gap-1"><Boxes className="w-3 h-3" /> {t("purchaseOrders.availableStocks", { count: p.availableStocks })}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center h-11 rounded-full bg-card border border-border overflow-hidden">
@@ -279,7 +355,7 @@ const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
         );
       })}
       <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
-        <Button disabled={!location || total === 0} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
+        <Button disabled={!location || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
       </div>
 
       {/* ---------- Location picker ---------- */}
@@ -329,33 +405,64 @@ const Form = ({ id, onDone }: { id?: string; onDone: () => void }) => {
   );
 };
 
+// ------------------------------------------------------------------ serial numbers (scan / view)
+
+// Read-only list of the serial numbers scanned for one product.
+const SerialSheet = ({ onClose, orderId, productId }: { onClose: () => void; orderId: string; productId: ProductId }) => {
+  const { t } = useTranslation();
+  const line = getChainOrder(orderId)?.lines.find((l) => l.productId === productId);
+  if (!line) return null;
+  return (
+    <Drawer open onOpenChange={(o) => !o && onClose()}>
+      <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col">
+        <CloseButton onClick={onClose} />
+        <DrawerHeader className="text-center pt-8">
+          <DrawerTitle className="text-lg font-semibold">{t("stockOpt2.serialNumbers")}</DrawerTitle>
+          <DrawerDescription className="text-xs text-muted-foreground">{productName(t, productId)} · {t("purchaseOrders.scannedCount", { scanned: line.serials.length, qty: line.qty })}</DrawerDescription>
+        </DrawerHeader>
+        <div className="px-4 pb-6 space-y-2 overflow-y-auto">
+          {line.serials.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">{t("stockOpt2.noSerials")}</p>}
+          {line.serials.map((s) => <div key={s} className="rounded-xl bg-muted/50 px-3 py-2.5 text-sm text-foreground tabular-nums">{s}</div>)}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
 // ------------------------------------------------------------------ view order
 
-type Action = "approve" | "reject" | "confirm" | "cancel" | "submit";
+type Action = "approve" | "reject" | "confirm" | "cancel" | "submit" | "scan";
 
 const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; onEdit: () => void; onChanged: () => void }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const o = getChainOrder(id)!;
   const [action, setAction] = useState<Action | null>(null);
   const [reasonKey, setReasonKey] = useState("");
   const [remark, setRemark] = useState("");
   const [tracking, setTracking] = useState("");
+  const [serialFor, setSerialFor] = useState<ProductId | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const requester = whoFor(t, role, o, useRequester(role));
+  const s = o.status;
 
-  const canUpload = role === "rm" && o.status === "pendingApproval";
+  const canUpload = role === "rm" && s === "pendingApproval";
   const showProof = o.proofs.length > 0 || canUpload;
-  const requester = role === "tl" ? null : t(role === "rm" ? "stockOpt2.teamLeaderName" : "stockOpt2.regionalManagerName");
+  const scanning = role === "tlPush" && s === "awaitingScanning";
+  const allScanned = o.lines.every((l) => l.serials.length >= l.qty);
   const needsReason = action === "reject" || action === "cancel";
-  const hasActions = (role === "rm" && (o.status === "pendingApproval" || o.status === "orderPlaced")) || (role === "ss" && o.status === "orderPending") || (role === "tl" && o.status === "pendingApproval");
+  const delivery = role === "dealer" && s === "awaitingDelivery";
 
   const run = () => {
     const reason = needsReason ? t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") : undefined;
+    const approved = o.flow === "dealer" ? "awaitingScanning" : "orderPending";
     const patch: Record<Action, Partial<ChainOrder>> = {
-      approve: { status: "orderPending" },
+      approve: { status: approved },
+      scan: { status: "awaitingDelivery" },
       confirm: { status: "orderPlaced" },
       submit: { status: "delivered", trackingId: tracking.trim() },
       cancel: { status: "cancelled", reason },
-      reject: { status: "rejected", rejectedBy: role === "ss" ? "ss" : "rm", reason },
+      reject: { status: "rejected", rejectedBy: role === "ss" ? "ss" : role === "rm" ? "rm" : undefined, reason },
     };
     updateChainOrder(id, patch[action!]);
     setAction(null); setReasonKey(""); setRemark("");
@@ -366,23 +473,35 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
     approve: { title: t("purchaseOrders.approveRequestTitle"), desc: t("purchaseOrders.approveRequestDesc"), confirm: t("purchaseOrders.approve") },
     reject: { title: t("purchaseOrders.rejectRequestTitle"), desc: t("purchaseOrders.rejectRequestDesc"), confirm: t("purchaseOrders.submit") },
     cancel: { title: t("purchaseOrders.cancelRequestTitle"), desc: t("purchaseOrders.cancelRequestDesc"), confirm: t("purchaseOrders.submit") },
+    scan: { title: t("purchaseOrders.submitScanningRequestTitle"), desc: t("purchaseOrders.submitScanningRequestDesc"), confirm: t("purchaseOrders.confirm") },
     confirm: { title: t("stockOpt2.confirmRequest"), desc: t("stockOpt2.confirmQ"), confirm: t("stockOpt2.confirm") },
     submit: { title: t("stockOpt2.deliverRequest"), desc: t("stockOpt2.deliverQ"), confirm: t("purchaseOrders.submit") },
   };
 
   const primary = (label: string, a: Action, disabled?: boolean) => <Button disabled={disabled} onClick={() => setAction(a)} className="w-full h-12 rounded-full text-base">{label}</Button>;
-  const link = (label: string, a: Action) => <button type="button" onClick={() => setAction(a)} className="w-full py-3 text-sm font-semibold text-primary">{label}</button>;
+  const link = (label: string, a: Action) => <button type="button" onClick={() => setAction(a)} className="flex-1 py-3 text-sm font-semibold text-primary">{label}</button>;
+  const soft = (label: string, onClick: () => void) => <Button onClick={onClick} className="w-full h-12 rounded-full text-base">{label}</Button>;
+
+  // One pinned footer per (role, status); the delivery panel pins its own.
+  let footer: React.ReactNode = null;
+  if (role === "rm" && s === "pendingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve", o.proofs.length === 0)}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
+  else if (role === "rm" && s === "orderPlaced") footer = primary(t("purchaseOrders.submit"), "submit", !tracking.trim());
+  else if (role === "ss" && s === "orderPending") footer = <>{primary(t("stockOpt2.confirm"), "confirm")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
+  else if ((role === "tl" || role === "dealer") && (s === "pendingApproval" || s === "awaitingApproval")) footer = <>{soft(t("purchaseOrders.edit"), onEdit)}<div className="flex">{link(t("purchaseOrders.cancelOrder"), "cancel")}</div></>;
+  else if (role === "tlPush" && s === "awaitingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}{link(t("purchaseOrders.cancelOrder"), "cancel")}</div></>;
+  else if (scanning) footer = primary(t("purchaseOrders.submit"), "scan", !allScanned);
+  else if (role === "tlPush" && s === "awaitingDelivery") footer = <div className="flex">{link(t("purchaseOrders.cancelOrder"), "cancel")}</div>;
 
   return (
-    <div className={cn("space-y-3", hasActions ? "pb-40" : "pb-8")}>
+    <div className={cn("space-y-3", delivery ? "pb-80" : footer ? "pb-40" : "pb-8")}>
       <div className="rounded-2xl bg-card shadow-sm p-4">
         <div className="flex items-center justify-between gap-2">
           <p className="text-base font-bold text-foreground">{o.id}</p>
           <Badge role={role} o={o} />
         </div>
-        {(o.status === "rejected" || o.status === "cancelled") && o.reason && (
+        {(s === "rejected" || s === "cancelled") && o.reason && (
           <div className="mt-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 px-3 py-2">
-            <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t(o.status === "cancelled" ? "purchaseOrders.cancelReason" : "purchaseOrders.rejectReason")}</p>
+            <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t(s === "cancelled" ? "purchaseOrders.cancelReason" : "purchaseOrders.rejectReason")}</p>
             <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{o.reason}</p>
           </div>
         )}
@@ -395,10 +514,26 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
 
       {o.lines.map((l) => {
         const Icon = PRODUCT_ICON[l.productId];
+        const full = l.serials.length >= l.qty;
+        const iconBtn = "w-8 h-8 rounded-lg border border-border flex items-center justify-center";
         return (
-          <div key={l.productId} className="rounded-2xl bg-card shadow-sm px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Icon className="w-5 h-5 text-primary" /></div>
-            <div><p className="text-sm font-semibold text-foreground">{productName(t, l.productId)}</p><p className="text-[11px] text-muted-foreground">{t("stockOpt2.pcs", { count: l.qty })}</p></div>
+          <div key={l.productId} className="bg-card rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Icon className="w-5 h-5 text-primary" /></div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">{productName(t, l.productId)}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("stockOpt2.pcs", { count: l.qty })}</p>
+            </div>
+            {scanning && (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold", full ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300")}>
+                  {t("purchaseOrders.scannedCount", { scanned: l.serials.length, qty: l.qty })}
+                </span>
+                {full
+                  ? <button type="button" onClick={() => setSerialFor(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className={iconBtn}><Eye className="w-4 h-4 text-primary" /></button>
+                  : <button type="button" onClick={() => navigate(`/stock-opt2/${id}/scan/${l.productId}`)} aria-label={t("purchaseOrders.scanAria")} className={iconBtn}><ScanLine className="w-4 h-4 text-primary" /></button>}
+              </div>
+            )}
+            {!scanning && l.serials.length > 0 && <button type="button" onClick={() => setSerialFor(l.productId)} aria-label={t("purchaseOrders.viewSerialsAria")} className={iconBtn}><Eye className="w-4 h-4 text-primary" /></button>}
           </div>
         );
       })}
@@ -429,7 +564,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
         </>
       )}
 
-      {(o.trackingId || (role === "rm" && o.status === "orderPlaced")) && (
+      {(o.trackingId || (role === "rm" && s === "orderPlaced")) && (
         <>
           <p className="text-sm font-semibold text-foreground pt-2 px-1">{t("stockOpt2.trackingId")}</p>
           {o.trackingId
@@ -438,14 +573,17 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
         </>
       )}
 
-      {hasActions && (
-        <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
-          {role === "rm" && o.status === "pendingApproval" && <>{primary(t("purchaseOrders.approve"), "approve", o.proofs.length === 0)}{link(t("stockOpt2.reject"), "reject")}</>}
-          {role === "ss" && o.status === "orderPending" && <>{primary(t("stockOpt2.confirm"), "confirm")}{link(t("stockOpt2.reject"), "reject")}</>}
-          {role === "rm" && o.status === "orderPlaced" && primary(t("purchaseOrders.submit"), "submit", !tracking.trim())}
-          {role === "tl" && o.status === "pendingApproval" && <><Button onClick={onEdit} className="w-full h-12 rounded-full text-base">{t("purchaseOrders.edit")}</Button>{link(t("purchaseOrders.cancelOrder"), "cancel")}</>}
-        </div>
+      {delivery && (
+        <DeliveryActions
+          onConfirm={() => { updateChainOrder(id, { status: "received" }); onChanged(); }}
+          onReportIssue={() => navigate("/tickets/new", { state: { orderId: id } })}
+          onReject={() => setAction("reject")}
+        />
       )}
+      {s === "issueReported" && o.issue && <IssueDetails issue={o.issue} />}
+
+      {footer && <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">{footer}</div>}
+      {serialFor && <SerialSheet onClose={() => setSerialFor(null)} orderId={id} productId={serialFor} />}
 
       <ConfirmMessageDrawer
         open={!!action}
@@ -483,22 +621,27 @@ const StockOption2 = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [params] = useSearchParams();
-  const r = params.get("role");
-  const role: ChainRole = r === "rm" || r === "ss" ? r : "tl";
-  const [screen, setScreen] = useState<Screen | null>(null);
+  const r = params.get("role") as ChainRole | null;
+  const role: ChainRole = r && ROLES.includes(r) ? r : "tl";
+  // ?order=<id> reopens an order (used when coming back from the ticket screen).
+  const [screen, setScreen] = useState<Screen | null>(() => {
+    const id = params.get("order");
+    return id && getChainOrder(id) ? { k: "view", id } : null;
+  });
+  const [pushStep, setPushStep] = useState<"member" | "order">("member");
   const [, bump] = useState(0);
-  useEffect(() => { window.scrollTo(0, 0); }, [screen]);
+  useEffect(() => { window.scrollTo(0, 0); }, [screen, pushStep]);
 
-  const title = screen?.k === "form" ? t(screen.id ? "stockOpt2.editOrder" : "stockOpt2.createOrder") : screen ? t("stockOpt2.viewOrder") : t(role === "tl" ? "stockOpt2.requestStock" : "stockOpt2.pushStock");
-  const back = () => (screen?.k === "form" && screen.id ? setScreen({ k: "view", id: screen.id }) : screen ? setScreen(null) : navigate("/"));
+  const title = screen?.k === "form" ? t(screen.id ? "stockOpt2.editOrder" : "stockOpt2.createOrder") : screen ? t("stockOpt2.viewOrder") : t(REQUESTERS.includes(role) ? "stockOpt2.requestStock" : "stockOpt2.pushStock");
+  const back = () => (screen?.k === "form" && !screen.id && role === "tlPush" && pushStep === "order" ? setPushStep("member") : screen?.k === "form" && screen.id ? setScreen({ k: "view", id: screen.id }) : screen ? setScreen(null) : navigate("/"));
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
       <AppHeader title={title} showBack onBackClick={back} />
       <div className="px-4">
-        {!screen && <List role={role} onOpen={(id) => setScreen({ k: "view", id })} onNew={() => setScreen({ k: "form" })} />}
+        {!screen && <List role={role} onOpen={(id) => setScreen({ k: "view", id })} onNew={() => { setPushStep("member"); setScreen({ k: "form" }); }} />}
         {screen?.k === "view" && <View key={screen.id} role={role} id={screen.id} onEdit={() => setScreen({ k: "form", id: screen.id })} onChanged={() => bump((n) => n + 1)} />}
-        {screen?.k === "form" && <Form id={screen.id} onDone={() => setScreen(null)} />}
+        {screen?.k === "form" && <Form role={role} id={screen.id} step={pushStep} onStep={setPushStep} onDone={() => setScreen(null)} />}
       </div>
     </div>
   );

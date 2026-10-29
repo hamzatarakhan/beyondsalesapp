@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ScanLine, Camera, X as XIcon } from "lucide-react";
 import { getPurchaseOrder, updatePurchaseOrder, PURCHASE_ORDER_PRODUCTS, type ProductId } from "@/data/purchaseOrdersStore";
+import { getChainOrder, updateChainOrder } from "@/data/stockChainStore";
 
 // No real camera access in this prototype — the viewfinder is a static mock, and its
 // capture button just "reads" a freshly generated fake serial into whichever field is
@@ -19,15 +20,18 @@ const PurchaseOrderScan = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { id, productId } = useParams<{ id: string; productId: ProductId }>();
-  const order = id ? getPurchaseOrder(id) : undefined;
-  const line = order?.lines.find((l) => l.productId === productId);
+  // Request Stock orders and Option 2 (stockChainStore) orders share this screen; only the store and the way back differ.
+  const chain = id ? getChainOrder(id) : undefined;
+  const order = chain ?? (id ? getPurchaseOrder(id) : undefined);
+  const lines = (order?.lines ?? []) as { productId: ProductId; qty: number; serials: string[]; scanned?: number }[];
+  const line = lines.find((l) => l.productId === productId);
   const product = PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId);
 
   const [mode, setMode] = useState<"range" | "item">("range");
   const [startRange, setStartRange] = useState("");
   const [lastNumber, setLastNumber] = useState("");
 
-  const remaining = line ? Math.max(0, line.qty - line.scanned) : 0;
+  const remaining = line ? Math.max(0, line.qty - (line.scanned ?? line.serials.length)) : 0;
   const itemSlots = Math.min(remaining, 5);
   const [itemSerials, setItemSerials] = useState<string[]>(() => Array(itemSlots).fill(""));
 
@@ -64,8 +68,13 @@ const PurchaseOrderScan = () => {
       newSerials = itemSerials.filter((s) => s.trim());
     }
     const mergedSerials = [...line.serials, ...newSerials].slice(0, line.qty);
+    if (chain) {
+      updateChainOrder(chain.id, { lines: chain.lines.map((l) => (l.productId === productId ? { ...l, serials: mergedSerials } : l)) });
+      navigate(`/stock-opt2?role=tlPush&order=${chain.id}`, { replace: true });
+      return;
+    }
     updatePurchaseOrder(order.id, {
-      lines: order.lines.map((l) => (l.productId === productId ? { ...l, serials: mergedSerials, scanned: mergedSerials.length } : l)),
+      lines: (order as NonNullable<ReturnType<typeof getPurchaseOrder>>).lines.map((l) => (l.productId === productId ? { ...l, serials: mergedSerials, scanned: mergedSerials.length } : l)),
     });
     navigate(`/purchase-orders/${order.id}`);
   };

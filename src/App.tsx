@@ -192,6 +192,7 @@ const App = () => {
           <Route path="/ewallet" element={<EWallet />} />
           <Route path="/commission-report" element={<CommissionReport />} />
           <Route path="/stock-opt2" element={<StockOption2 />} />
+          <Route path="/stock-opt2/:id/scan/:productId" element={<PurchaseOrderScan />} />
           <Route path="/prepaid-search" element={<PrepaidSearchCustomer />} />
           <Route path="/prepaid-activation" element={<PrepaidActivation />} />
           <Route path="/prepaid-existing-customer" element={<ExistingCustomerFound />} />

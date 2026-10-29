@@ -356,16 +356,16 @@ const Home = () => {
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
   const [commissionViewOpen, setCommissionViewOpen] = useState(false);
-  // Option 2 stock tiles: which side of the flow to preview. Dealer and the Team Leader's push
-  // side reuse the existing Request/Push Stock screens; the rest open the new chain page.
+  // Option 2 stock tiles: which role's side of the flow to preview. Every role opens the shared
+  // StockOption2 page, so an order created by one role shows up for the next.
   const [stockRoleOpen, setStockRoleOpen] = useState<"request" | "push" | null>(null);
   const stockRoles = {
     request: [
-      { id: "dealer", icon: User, label: t("home.roleDealer"), sub: t("home.roleDealerSub"), go: () => choosePurchaseOrdersMode("multi") },
+      { id: "dealer", icon: User, label: t("home.roleDealer"), sub: t("home.roleDealerSub"), go: () => navigate("/stock-opt2?role=dealer") },
       { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlRequestSub"), go: () => navigate("/stock-opt2?role=tl") },
     ],
     push: [
-      { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlPushSub"), go: () => navigate("/sales-orders") },
+      { id: "tl", icon: Users, label: t("home.roleTl"), sub: t("home.roleTlPushSub"), go: () => navigate("/stock-opt2?role=tlPush") },
       { id: "rm", icon: Building2, label: t("home.roleRm"), sub: t("home.roleRmSub"), go: () => navigate("/stock-opt2?role=rm") },
       { id: "ss", icon: ClipboardList, label: t("home.roleSs"), sub: t("home.roleSsSub"), go: () => navigate("/stock-opt2?role=ss") },
     ],
