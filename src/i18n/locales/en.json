@@ -1493,7 +1493,8 @@
     "status": {
       "pending": "Pending",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "pendingManager": "Pending Manager"
     },
     "reasons": {
       "damagedSim": "Damaged SIM Card",
@@ -1548,9 +1549,42 @@
     "approveDesc": "{{member}}'s stock return will be approved.",
     "rejectTitle": "Reject Stock Return?",
     "rejectDesc": "{{member}} will see that this stock return was rejected.",
-    "rejectReasonLabel": "Reason for rejection (optional)",
+    "rejectReasonLabel": "Reason for rejection",
     "rejectReason": "Rejection Reason",
-    "viewSerialsAria": "View serial numbers for {{product}}"
+    "viewSerialsAria": "View serial numbers for {{product}}",
+    "selectRejectReason": "Select a reason",
+    "rejectRemarkLabel": "Remark (optional)",
+    "rejectReasons": {
+      "serialMismatch": "Serial numbers don't match",
+      "notReturnable": "Item is not returnable",
+      "missingItems": "Items missing or incomplete",
+      "damageNotCovered": "Damage not covered by return policy",
+      "duplicateRequest": "Duplicate request",
+      "other": "Other"
+    },
+    "approvalStage": "Approval stage",
+    "stages": {
+      "awaitingTeamLeader": "Awaiting Team Leader Approval",
+      "awaitingAccountManager": "Awaiting Account Manager Approval",
+      "completed": "Final Decision Completed"
+    },
+    "rejectedBy": {
+      "teamLeader": "Rejected by Team Leader",
+      "accountManager": "Rejected by Account Manager",
+      "dealer": "Rejected"
+    },
+    "approveToManagerDesc": "{{member}}'s stock return will be sent to the Account Manager for final approval. It stays Pending until then.",
+    "historySteps": {
+      "submitted": "Submitted",
+      "teamLeaderApproved": "Approval Pending 2",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "roles": {
+      "dealer": "Dealer",
+      "teamLeader": "Team Leader",
+      "accountManager": "Account Manager"
+    }
   },
   "purchaseOrders": {
     "title": "Request Stock",
@@ -2200,8 +2234,8 @@
     "approved": "Approved",
     "myPlan": "My Plan",
     "payout": "Payout",
-    "selectMonth": "Select Month",
-    "selectMonthHint": "Pick a month",
+    "selectCustomMonth": "Select Custom Month",
+    "clearFilter": "Clear Filter",
     "lastMonth": "Last month",
     "last3": "Last 3 months",
     "last6": "Last 6 months",

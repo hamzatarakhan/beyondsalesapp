@@ -3,23 +3,28 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
+import StockReturnStatusHistory from "@/components/StockReturnStatusHistory";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { PRODUCT_ICON } from "@/data/stockProductVisuals";
 import { cn } from "@/lib/utils";
 import { Clock, MapPin, Package, Eye, Info, X as XIcon } from "lucide-react";
-import { PURCHASE_ORDER_PRODUCTS, getStockReturn, updateStockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
+import { PURCHASE_ORDER_PRODUCTS, approveStockReturn, badgeFor, canReview, getStockReturn, rejectStockReturn, type StockReturnBadge } from "@/data/stockReturnStore";
 import { getStockReturnScenario } from "@/data/stockReturnScenarios";
 
-const STATUS_STYLE: Record<StockReturnStatus, string> = {
+const REJECT_REASONS = ["serialMismatch", "notReturnable", "missingItems", "damageNotCovered", "duplicateRequest", "other"] as const;
+
+const STATUS_STYLE: Record<StockReturnBadge, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  pendingManager: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
 
-// View Order for one Stock Return. A Team Leader opening a pending return from their Task tab
-// (a dealer's return) gets Approve / Reject; everything else is read-only. Same layout and
-// confirm pattern as Request Stock's View Order.
+// View Order for one Stock Return. A dealer's return gets Approve / Reject for whichever approver
+// it's waiting on (Team Leader, then Account Manager — see canReview); everything else is
+// read-only. Same layout and confirm pattern as Request Stock's View Order.
 const StockReturnView = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -30,8 +35,10 @@ const StockReturnView = () => {
   const backTo = `/stock-returns${params.get("tab") === "task" ? "?tab=task" : ""}`;
 
   const [confirm, setConfirm] = useState<"approve" | "reject" | null>(null);
+  const [rejectReasonKey, setRejectReasonKey] = useState("");
   const [rejectRemark, setRejectRemark] = useState("");
   const [serialsOf, setSerialsOf] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (!order) {
     return (
@@ -42,35 +49,51 @@ const StockReturnView = () => {
     );
   }
 
-  const canReview = order.kind === "task" && scenario.role === "teamLeader" && order.status === "pending";
+  const reviewable = canReview(order, scenario.role);
   const productName = (productId: string) => t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId)?.nameKey}`);
 
   const resolve = () => {
-    if (confirm === "approve") updateStockReturn(order.id, { status: "approved" });
-    if (confirm === "reject") updateStockReturn(order.id, { status: "rejected", rejectReason: rejectRemark.trim() || undefined });
+    const approver = { role: scenario.role, name: scenario.user.name };
+    if (confirm === "approve") approveStockReturn(order.id, approver);
+    if (confirm === "reject") {
+      if (!rejectReasonKey) return;
+      const reason = t(`stockReturn.rejectReasons.${rejectReasonKey}`);
+      rejectStockReturn(order.id, approver, rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason);
+    }
     setConfirm(null);
     navigate(backTo);
   };
 
   return (
-    <div className={cn("mobile-container min-h-screen bg-background", canReview ? "pb-40" : "pb-8")}>
+    <div className={cn("mobile-container min-h-screen bg-background", reviewable ? "pb-40" : "pb-8")}>
       <AppHeader title={t("stockReturn.viewOrderTitle")} showBack onBackClick={() => navigate(backTo)} />
 
       <div className="px-4 space-y-3">
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
+              <button type="button" onClick={() => setHistoryOpen(true)} aria-label={t("purchaseOrders.history.title")} className="text-primary">
+                <Clock className="w-4 h-4" />
+              </button>
               <p className="text-sm font-bold text-foreground">{order.id}</p>
             </div>
-            <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[order.status])}>{t(`stockReturn.status.${order.status}`)}</span>
+            <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[badgeFor(order, scenario.role)])}>{t(`stockReturn.status.${badgeFor(order, scenario.role)}`)}</span>
           </div>
+
+          {/* Dealer returns: where the two-level approval is, apart from the status above. */}
+          {order.stage && (
+            <p className="text-xs text-muted-foreground">
+              {t("stockReturn.approvalStage")}: <span className="font-semibold text-foreground">{t(`stockReturn.stages.${order.stage}`)}</span>
+            </p>
+          )}
 
           {order.status === "rejected" && order.rejectReason && (
             <div className="flex items-start gap-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 p-3.5">
               <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t("stockReturn.rejectReason")}</p>
+                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                  {t("stockReturn.rejectReason")}{order.rejectedBy && ` · ${t(`stockReturn.rejectedBy.${order.rejectedBy}`)}`}
+                </p>
                 <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{order.rejectReason}</p>
               </div>
             </div>
@@ -87,7 +110,7 @@ const StockReturnView = () => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {order.date} · <span className="font-semibold text-primary">{order.channelMember ?? scenario.user.name}</span>
+            {order.date} · <span className="font-semibold text-primary">{order.channelMember}</span>
           </p>
         </div>
 
@@ -124,12 +147,12 @@ const StockReturnView = () => {
         })}
       </div>
 
-      {canReview && (
+      {reviewable && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3 space-y-3">
           <button type="button" onClick={() => setConfirm("approve")} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
             {t("stockReturn.approve")}
           </button>
-          <button type="button" onClick={() => { setRejectRemark(""); setConfirm("reject"); }} className="w-full text-center text-sm font-semibold text-primary">
+          <button type="button" onClick={() => { setRejectReasonKey(""); setRejectRemark(""); setConfirm("reject"); }} className="w-full text-center text-sm font-semibold text-primary">
             {t("stockReturn.reject")}
           </button>
         </div>
@@ -139,18 +162,39 @@ const StockReturnView = () => {
         open={!!confirm}
         onOpenChange={(o) => { if (!o) setConfirm(null); }}
         title={t(confirm === "reject" ? "stockReturn.rejectTitle" : "stockReturn.approveTitle")}
-        description={t(confirm === "reject" ? "stockReturn.rejectDesc" : "stockReturn.approveDesc", { member: order.channelMember ?? "" })}
+        description={t(confirm === "reject" ? "stockReturn.rejectDesc" : scenario.role === "teamLeader" ? "stockReturn.approveToManagerDesc" : "stockReturn.approveDesc", { member: order.channelMember })}
         confirmLabel={t(confirm === "reject" ? "stockReturn.reject" : "stockReturn.approve")}
         onConfirm={resolve}
+        // A rejection needs a reason picked; the remark below it stays optional.
+        confirmDisabled={confirm === "reject" && !rejectReasonKey}
         cancelLabel={t("purchaseOrders.cancel")}
       >
         {confirm === "reject" && (
-          <div className="space-y-1.5 text-start">
-            <p className="text-xs font-medium text-muted-foreground">{t("stockReturn.rejectReasonLabel")}</p>
-            <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder={t("purchaseOrders.writeHere")} className="rounded-xl min-h-[90px]" />
+          <div className="space-y-3 text-start">
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("stockReturn.rejectReasonLabel")} <span className="text-destructive">*</span>
+              </p>
+              <Select value={rejectReasonKey} onValueChange={setRejectReasonKey}>
+                <SelectTrigger className="h-11 rounded-xl" aria-required>
+                  <SelectValue placeholder={t("stockReturn.selectRejectReason")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECT_REASONS.map((r) => (
+                    <SelectItem key={r} value={r}>{t(`stockReturn.rejectReasons.${r}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">{t("stockReturn.rejectRemarkLabel")}</p>
+              <Textarea value={rejectRemark} onChange={(e) => setRejectRemark(e.target.value)} placeholder={t("purchaseOrders.writeHere")} className="rounded-xl min-h-[90px]" />
+            </div>
           </div>
         )}
       </ConfirmMessageDrawer>
+
+      <StockReturnStatusHistory open={historyOpen} onOpenChange={setHistoryOpen} history={order.history} />
 
       <Drawer open={!!serialsOf} onOpenChange={(o) => { if (!o) setSerialsOf(null); }}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh] overflow-y-auto">

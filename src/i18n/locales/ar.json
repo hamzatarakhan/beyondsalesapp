@@ -1507,7 +1507,8 @@
     "status": {
       "pending": "قيد الانتظار",
       "approved": "مقبول",
-      "rejected": "مرفوض"
+      "rejected": "مرفوض",
+      "pendingManager": "بانتظار المدير"
     },
     "reasons": {
       "damagedSim": "شريحة تالفة",
@@ -1570,9 +1571,42 @@
     "approveDesc": "ستتم الموافقة على طلب إرجاع {{member}}.",
     "rejectTitle": "رفض طلب الإرجاع؟",
     "rejectDesc": "سيرى {{member}} أن طلب الإرجاع هذا قد رُفض.",
-    "rejectReasonLabel": "سبب الرفض (اختياري)",
+    "rejectReasonLabel": "سبب الرفض",
     "rejectReason": "سبب الرفض",
-    "viewSerialsAria": "عرض الأرقام التسلسلية لـ {{product}}"
+    "viewSerialsAria": "عرض الأرقام التسلسلية لـ {{product}}",
+    "selectRejectReason": "اختر سببًا",
+    "rejectRemarkLabel": "ملاحظة (اختياري)",
+    "rejectReasons": {
+      "serialMismatch": "الأرقام التسلسلية غير مطابقة",
+      "notReturnable": "المنتج غير قابل للإرجاع",
+      "missingItems": "منتجات ناقصة أو غير مكتملة",
+      "damageNotCovered": "الضرر غير مشمول بسياسة الإرجاع",
+      "duplicateRequest": "طلب مكرر",
+      "other": "أخرى"
+    },
+    "approvalStage": "مرحلة الموافقة",
+    "stages": {
+      "awaitingTeamLeader": "بانتظار موافقة قائد الفريق",
+      "awaitingAccountManager": "بانتظار موافقة مدير الحساب",
+      "completed": "تم اتخاذ القرار النهائي"
+    },
+    "rejectedBy": {
+      "teamLeader": "رُفض من قائد الفريق",
+      "accountManager": "رُفض من مدير الحساب",
+      "dealer": "مرفوض"
+    },
+    "approveToManagerDesc": "سيتم إرسال طلب إرجاع {{member}} إلى مدير الحساب للموافقة النهائية، ويبقى قيد الانتظار حتى ذلك الحين.",
+    "historySteps": {
+      "submitted": "تم الإرسال",
+      "teamLeaderApproved": "بانتظار الموافقة 2",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض"
+    },
+    "roles": {
+      "dealer": "وكيل",
+      "teamLeader": "قائد فريق",
+      "accountManager": "مدير حساب"
+    }
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
@@ -2126,8 +2160,8 @@
     "approved": "معتمد",
     "myPlan": "خطتي",
     "payout": "الدفعات",
-    "selectMonth": "اختر الشهر",
-    "selectMonthHint": "اختر شهرًا",
+    "selectCustomMonth": "اختر شهرًا مخصصًا",
+    "clearFilter": "مسح الفلتر",
     "lastMonth": "الشهر الماضي",
     "last3": "آخر 3 أشهر",
     "last6": "آخر 6 أشهر",

@@ -9,13 +9,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus, Check, User } from "lucide-react";
-import { stockReturns, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturn, type StockReturnStatus } from "@/data/stockReturnStore";
+import { badgeFor, ordersFor, PURCHASE_ORDER_PRODUCTS, setReturnDraft, type StockReturnBadge, type StockReturnStatus } from "@/data/stockReturnStore";
 import { getStockReturnScenario, usesLocationStep } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
 
-const STATUS_STYLE: Record<StockReturnStatus, string> = {
+const STATUS_STYLE: Record<StockReturnBadge, string> = {
   pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  pendingManager: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
   rejected: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
@@ -42,27 +43,25 @@ const StockReturns = () => {
   const [pickDateOpen, setPickDateOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(undefined);
 
-  // Team Leaders get two tabs: My Request (their own returns, which go up to their manager)
-  // and Task (returns from their dealers, which they approve or reject). Everyone else only
-  // has their own returns. The tab lives in the URL so Back from View Order lands on it.
-  const isTeamLeader = scenario.role === "teamLeader";
+  // Team Leaders get two tabs: My Request (returns they raised) and Task (dealer returns waiting
+  // on their approval — see ordersFor). The Account Manager only reviews, so they see just the
+  // Task list with no tabs and no New order; Dealers see just their own returns. The tab lives
+  // in the URL so Back from View Order lands on it.
+  const hasTasks = scenario.role === "teamLeader";
   const [params, setParams] = useSearchParams();
-  const tab: "mine" | "task" = isTeamLeader && params.get("tab") === "task" ? "task" : "mine";
-  const memberName = (o: StockReturn) => o.channelMember ?? scenario.user.name;
+  const tab: "mine" | "task" = scenario.role === "accountManager" || (hasTasks && params.get("tab") === "task") ? "task" : "mine";
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return stockReturns
+    return ordersFor({ role: scenario.role, name: scenario.user.name }, tab)
       .filter((o) => {
-        if ((o.kind === "task") !== (tab === "task")) return false;
-        if (q && !o.id.toLowerCase().includes(q) && !memberName(o).toLowerCase().includes(q)) return false;
+        if (q && !o.id.toLowerCase().includes(q) && !o.channelMember.toLowerCase().includes(q)) return false;
         if (appliedStatus.length > 0 && !appliedStatus.includes(o.status)) return false;
         if (appliedRange && !inRange(o.dateObj, appliedRange.from, appliedRange.to)) return false;
         return true;
       })
       .sort((a, b) => STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- memberName only reads the fixed demo scenario
-  }, [search, appliedStatus, appliedRange, tab]);
+  }, [search, appliedStatus, appliedRange, tab, scenario]);
 
   const openFilter = () => {
     setDraftStatus(appliedStatus);
@@ -105,7 +104,7 @@ const StockReturns = () => {
       <AppHeader title={t("stockReturn.title")} showBack />
 
       <div className="px-4 space-y-3">
-        {isTeamLeader && (
+        {hasTasks && (
           <div className="flex border-b border-border">
             {(["mine", "task"] as const).map((k) => (
               <button
@@ -179,7 +178,7 @@ const StockReturns = () => {
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-bold text-foreground">{o.id}</p>
-                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[o.status])}>{t(`stockReturn.status.${o.status}`)}</span>
+                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[badgeFor(o, scenario.role)])}>{t(`stockReturn.status.${badgeFor(o, scenario.role)}`)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock className="w-3.5 h-3.5 shrink-0" />
@@ -189,7 +188,7 @@ const StockReturns = () => {
                 {tab === "task" && (
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <User className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{memberName(o)}</span>
+                    <span className="truncate">{o.channelMember}</span>
                   </div>
                 )}
                 <TagChips
