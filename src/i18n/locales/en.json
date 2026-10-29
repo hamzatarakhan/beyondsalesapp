@@ -1572,7 +1572,18 @@
       "accountManager": "Rejected by Account Manager",
       "dealer": "Rejected"
     },
-    "approveToManagerDesc": "{{member}}'s stock return will be sent to the Account Manager for final approval. It stays Pending until then."
+    "approveToManagerDesc": "{{member}}'s stock return will be sent to the Account Manager for final approval. It stays Pending until then.",
+    "historySteps": {
+      "submitted": "Submitted",
+      "teamLeaderApproved": "Approval Pending 2",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "roles": {
+      "dealer": "Dealer",
+      "teamLeader": "Team Leader",
+      "accountManager": "Account Manager"
+    }
   },
   "purchaseOrders": {
     "title": "Request Stock",

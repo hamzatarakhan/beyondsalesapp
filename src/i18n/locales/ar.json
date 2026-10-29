@@ -1594,7 +1594,18 @@
       "accountManager": "رُفض من مدير الحساب",
       "dealer": "مرفوض"
     },
-    "approveToManagerDesc": "سيتم إرسال طلب إرجاع {{member}} إلى مدير الحساب للموافقة النهائية، ويبقى قيد الانتظار حتى ذلك الحين."
+    "approveToManagerDesc": "سيتم إرسال طلب إرجاع {{member}} إلى مدير الحساب للموافقة النهائية، ويبقى قيد الانتظار حتى ذلك الحين.",
+    "historySteps": {
+      "submitted": "تم الإرسال",
+      "teamLeaderApproved": "بانتظار الموافقة 2",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض"
+    },
+    "roles": {
+      "dealer": "وكيل",
+      "teamLeader": "قائد فريق",
+      "accountManager": "مدير حساب"
+    }
   },
   "purchaseOrders": {
     "title": "طلب مخزون",

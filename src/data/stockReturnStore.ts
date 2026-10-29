@@ -40,6 +40,16 @@ export interface StockReturn {
   teamLeaderApproved?: boolean;
   rejectReason?: string;
   rejectedBy?: StockReturnRole;
+  // Who did what, oldest first — shown in View Order's Status History.
+  history: StockReturnHistoryEntry[];
+}
+
+export interface StockReturnHistoryEntry {
+  action: "submit" | "approve" | "reject";
+  role: StockReturnRole;
+  name: string;
+  date: string;
+  reason?: string;
 }
 
 export const RETURN_REASONS = ["damagedSim", "defectiveDevice", "wrongItem", "expiredVoucher", "excessStock", "others"] as const;
@@ -96,9 +106,33 @@ const line = (productId: ProductId, qty: number, reason: ReturnReasonKey = "dama
   reason,
 });
 
-const mk = (id: string, status: StockReturnStatus, date: string, dateObj: Date, lines: StockReturnLine[], who: Pick<StockReturn, "raisedBy" | "channelMember"> & Partial<StockReturn>): StockReturn => ({
-  id, status, date, dateObj, lines, destination: "Riyadh Central Warehouse", ...who,
-});
+// The demo approvers who acted on the seeded returns.
+const APPROVER: Record<"teamLeader" | "accountManager", string> = { teamLeader: "Noura Alqahtani", accountManager: "Ahmed Al-Otaibi" };
+
+// Seeded returns get the history their current state implies: submitted, then any Team Leader
+// approval, then the Account Manager's approval or whichever approver rejected it.
+const seedHistory = (o: Omit<StockReturn, "history">): StockReturnHistoryEntry[] => {
+  const h: StockReturnHistoryEntry[] = [{ action: "submit", role: o.raisedBy, name: o.channelMember, date: o.date }];
+  if (o.raisedBy !== "dealer") return h;
+  if (o.teamLeaderApproved) h.push({ action: "approve", role: "teamLeader", name: APPROVER.teamLeader, date: o.date });
+  if (o.status === "approved") h.push({ action: "approve", role: "accountManager", name: APPROVER.accountManager, date: o.date });
+  if (o.status === "rejected" && (o.rejectedBy === "teamLeader" || o.rejectedBy === "accountManager")) {
+    h.push({ action: "reject", role: o.rejectedBy, name: APPROVER[o.rejectedBy], date: o.date, reason: o.rejectReason });
+  }
+  return h;
+};
+
+const mk = (id: string, status: StockReturnStatus, date: string, dateObj: Date, lines: StockReturnLine[], who: Pick<StockReturn, "raisedBy" | "channelMember"> & Partial<StockReturn>): StockReturn => {
+  const o = { id, status, date, dateObj, lines, destination: "Riyadh Central Warehouse", ...who };
+  return { ...o, history: seedHistory(o) };
+};
+
+// Same "15, Dec, 2026 – 1:00 AM" format as the order dates.
+const nowLabel = () => {
+  const d = new Date();
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return `${d.getDate()}, ${d.toLocaleString("en-GB", { month: "short" })}, ${d.getFullYear()} – ${time}`;
+};
 
 // Dealer returns, one per approval state. Hamza Tarkan is the demo Dealer user; the others are
 // other dealers under the same Team Leader, so they only show in the approvers' Task tabs.
@@ -127,7 +161,7 @@ const SEED: StockReturn[] = [
 
 // Orders are one shared list for every demo role, kept in sessionStorage so an approval made as
 // one demo user is still there after switching to another (even across a page reload).
-const STORAGE_KEY = "stockReturns.v3";
+const STORAGE_KEY = "stockReturns.v4";
 const load = (): StockReturn[] => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -165,12 +199,20 @@ export const canReview = (o: StockReturn, role: StockReturnRole) =>
 
 // Team Leader approval only moves the order on to the Account Manager — it stays Pending.
 // Account Manager approval is final. Either approver rejecting ends the process.
-export const approveStockReturn = (id: string, role: StockReturnRole) =>
-  updateStockReturn(id, role === "teamLeader"
-    ? { stage: "awaitingAccountManager", teamLeaderApproved: true }
-    : { status: "approved", stage: "completed" });
-export const rejectStockReturn = (id: string, role: StockReturnRole, rejectReason: string) =>
-  updateStockReturn(id, { status: "rejected", stage: "completed", rejectedBy: role, rejectReason });
+// Each decision is also added to the order's history with who made it and when.
+const withEntry = (id: string, entry: Omit<StockReturnHistoryEntry, "date">) =>
+  [...(getStockReturn(id)?.history ?? []), { ...entry, date: nowLabel() }];
+
+export const approveStockReturn = (id: string, approver: { role: StockReturnRole; name: string }) =>
+  updateStockReturn(id, {
+    ...(approver.role === "teamLeader" ? { stage: "awaitingAccountManager", teamLeaderApproved: true } : { status: "approved", stage: "completed" }),
+    history: withEntry(id, { action: "approve", ...approver }),
+  });
+export const rejectStockReturn = (id: string, approver: { role: StockReturnRole; name: string }, rejectReason: string) =>
+  updateStockReturn(id, {
+    status: "rejected", stage: "completed", rejectedBy: approver.role, rejectReason,
+    history: withEntry(id, { action: "reject", ...approver, reason: rejectReason }),
+  });
 
 let nextSeq = Math.max(3515165614, ...stockReturns.map((o) => Number(o.id) + 1));
 // A Dealer's return starts with their Team Leader; anyone else's has no approval stage here.
@@ -178,11 +220,12 @@ export const addStockReturn = (lines: StockReturnLine[], where: { location?: str
   const order: StockReturn = {
     id: String(nextSeq++),
     status: "pending",
-    date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+    date: nowLabel(),
     dateObj: new Date(),
     lines,
     ...where,
     stage: where.raisedBy === "dealer" ? "awaitingTeamLeader" : undefined,
+    history: [{ action: "submit", role: where.raisedBy, name: where.channelMember, date: nowLabel() }],
   };
   stockReturns.unshift(order);
   persist();

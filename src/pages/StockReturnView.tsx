@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import ConfirmMessageDrawer from "@/components/ConfirmMessageDrawer";
+import StockReturnStatusHistory from "@/components/StockReturnStatusHistory";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -36,6 +37,7 @@ const StockReturnView = () => {
   const [rejectReasonKey, setRejectReasonKey] = useState("");
   const [rejectRemark, setRejectRemark] = useState("");
   const [serialsOf, setSerialsOf] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (!order) {
     return (
@@ -50,11 +52,12 @@ const StockReturnView = () => {
   const productName = (productId: string) => t(`purchaseOrders.product.${PURCHASE_ORDER_PRODUCTS.find((p) => p.id === productId)?.nameKey}`);
 
   const resolve = () => {
-    if (confirm === "approve") approveStockReturn(order.id, scenario.role);
+    const approver = { role: scenario.role, name: scenario.user.name };
+    if (confirm === "approve") approveStockReturn(order.id, approver);
     if (confirm === "reject") {
       if (!rejectReasonKey) return;
       const reason = t(`stockReturn.rejectReasons.${rejectReasonKey}`);
-      rejectStockReturn(order.id, scenario.role, rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason);
+      rejectStockReturn(order.id, approver, rejectRemark.trim() ? `${reason} — ${rejectRemark.trim()}` : reason);
     }
     setConfirm(null);
     navigate(backTo);
@@ -68,7 +71,9 @@ const StockReturnView = () => {
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
+              <button type="button" onClick={() => setHistoryOpen(true)} aria-label={t("purchaseOrders.history.title")} className="text-primary">
+                <Clock className="w-4 h-4" />
+              </button>
               <p className="text-sm font-bold text-foreground">{order.id}</p>
             </div>
             <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0", STATUS_STYLE[order.status])}>{t(`stockReturn.status.${order.status}`)}</span>
@@ -187,6 +192,8 @@ const StockReturnView = () => {
           </div>
         )}
       </ConfirmMessageDrawer>
+
+      <StockReturnStatusHistory open={historyOpen} onOpenChange={setHistoryOpen} history={order.history} />
 
       <Drawer open={!!serialsOf} onOpenChange={(o) => { if (!o) setSerialsOf(null); }}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[80vh] overflow-y-auto">
