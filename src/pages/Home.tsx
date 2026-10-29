@@ -65,6 +65,7 @@ import { ListChecks, LayoutList, X as XIcon, Target, BarChart3, Boxes, RotateCcw
 import QRCode from "react-qr-code";
 import { BarChart, Bar, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import { cn } from "@/lib/utils";
+import { STOCK_RETURN_SCENARIOS, setStockReturnScenario, type StockReturnScenarioId } from "@/data/stockReturnScenarios";
 
 // labels resolved dynamically inside component via t()
 
@@ -360,6 +361,15 @@ const Home = () => {
   // hides the Destination field on Create/Edit Order (see purchaseOrdersMode in
   // PurchaseOrderForm.tsx), there's no separate multi-location list/flow like Sales Orders has.
   const [purchaseOrdersEntryOpen, setPurchaseOrdersEntryOpen] = useState(false);
+  // Stock Return: asks which of the five demo users to preview as. Every option opens the
+  // same Stock Return flow — only the demo user/location context differs (see
+  // stockReturnScenarios.ts).
+  const [stockReturnEntryOpen, setStockReturnEntryOpen] = useState(false);
+  const chooseStockReturnScenario = (id: StockReturnScenarioId) => {
+    setStockReturnScenario(id);
+    setStockReturnEntryOpen(false);
+    navigate("/stock-returns");
+  };
   const choosePurchaseOrdersMode = (mode: "single" | "multi") => {
     try { sessionStorage.setItem("purchaseOrdersMode", mode); } catch {}
     setPurchaseOrdersEntryOpen(false);
@@ -396,6 +406,10 @@ const Home = () => {
     // Dealer stock/inventory browsing, not a customer-record action — no Nafath gate.
     if (path === "/purchase-orders") {
       setPurchaseOrdersEntryOpen(true);
+      return;
+    }
+    if (path === "/stock-returns") {
+      setStockReturnEntryOpen(true);
       return;
     }
     if (path === "/inventory-dashboard") {
@@ -1123,6 +1137,48 @@ const Home = () => {
                 <p className="text-xs text-muted-foreground mt-0.5">{t("home.multipleLocationsSub")}</p>
               </div>
             </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={stockReturnEntryOpen} onOpenChange={setStockReturnEntryOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setStockReturnEntryOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("home.stockReturn")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("home.chooseStockReturnScenarioSub")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-3 overflow-y-auto">
+            <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+              </div>
+              <p className="text-[12px] leading-snug text-blue-900/70 dark:text-blue-300/80">{t("home.purchaseOrdersDemoNote")}</p>
+            </div>
+            {STOCK_RETURN_SCENARIOS.map((s) => {
+              const Icon = s.role === "accountManager" ? UserCog : s.role === "teamLeader" ? Users : s.locationMode === "multi" ? Building2 : MapPin;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => chooseStockReturnScenario(s.id)}
+                  className="w-full text-start flex items-start gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/60 transition"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm text-foreground">{t(`stockReturn.scenario.${s.id}`)}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{s.user.name} · {t("stockReturn.scenario.locationsCount", { count: s.locations.length })}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </DrawerContent>
       </Drawer>

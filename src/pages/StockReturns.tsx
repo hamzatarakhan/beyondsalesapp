@@ -9,6 +9,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } f
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X as XIcon, Clock, Plus } from "lucide-react";
 import { stockReturns, PURCHASE_ORDER_PRODUCTS, type StockReturnStatus } from "@/data/stockReturnStore";
+import { getStockReturnScenario } from "@/data/stockReturnScenarios";
 
 const STATUSES: StockReturnStatus[] = ["pending", "approved", "rejected"];
 
@@ -27,6 +28,7 @@ const inRange = (d: Date, from: Date, to: Date) => {
 const StockReturns = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [scenario] = useState(getStockReturnScenario);
 
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -89,6 +91,16 @@ const StockReturns = () => {
       <AppHeader title={t("stockReturn.title")} showBack />
 
       <div className="px-4 space-y-3">
+        {/* Prototype-only: which demo user (picked on Home) this session is previewing as. */}
+        <div className="rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/10 px-3 py-2">
+          <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+            {t("stockReturn.scenario.testingAs")} {t(`stockReturn.scenario.${scenario.id}`)}
+          </p>
+          <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 leading-snug">
+            {scenario.user.name} ({scenario.user.code}) · {scenario.locations.join(" · ")}
+          </p>
+        </div>
+
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

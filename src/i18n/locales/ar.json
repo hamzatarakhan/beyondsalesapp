@@ -1334,7 +1334,6 @@
     "kpiEligible": "مستحق",
     "kpiNotEligible": "غير مستحق",
     "killerKpi": "Killer",
-
     "achievementsTitle": "الإنجازات",
     "text": "نص",
     "seeAll": "عرض الكل",
@@ -1514,7 +1513,21 @@
     "recentlyScanned": "الممسوحة مؤخرًا",
     "viewAll": "عرض الكل ({{count}})",
     "removeSerialAria": "إزالة الرقم التسلسلي",
-    "allSerialsTitle": "الأرقام التسلسلية الممسوحة"
+    "allSerialsTitle": "الأرقام التسلسلية الممسوحة",
+    "scenario": {
+      "testingAs": "للنموذج الأولي فقط — الاختبار كـ",
+      "dealerSingle": "وكيل — موقع واحد",
+      "dealerMulti": "وكيل — مواقع متعددة",
+      "teamLeaderSingle": "قائد فريق — موقع واحد",
+      "teamLeaderMulti": "قائد فريق — مواقع متعددة",
+      "accountManager": "مدير حساب",
+      "locationsCount_zero": "{{count}} مواقع",
+      "locationsCount_one": "موقع واحد",
+      "locationsCount_two": "موقعان",
+      "locationsCount_few": "{{count}} مواقع",
+      "locationsCount_many": "{{count}} موقعًا",
+      "locationsCount_other": "{{count}} موقع"
+    }
   },
   "purchaseOrders": {
     "title": "طلب مخزون",
@@ -2329,7 +2342,8 @@
       "successTitle": "تم إنشاء الزيارة",
       "successText": "تم إنشاء الزيارة الطارئة بنجاح.",
       "goHome": "العودة للرئيسية"
-    }
+    },
+    "chooseStockReturnScenarioSub": "اختر المستخدم التجريبي لعرض إرجاع المخزون"
   },
   "nav": {
     "home": "الرئيسية",

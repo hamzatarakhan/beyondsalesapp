@@ -1320,7 +1320,6 @@
     "kpiEligible": "Eligible",
     "kpiNotEligible": "Not eligible",
     "killerKpi": "Killer",
-
     "achievementsTitle": "Achievements",
     "text": "Text",
     "seeAll": "See all",
@@ -1500,7 +1499,17 @@
     "recentlyScanned": "Recently Scanned",
     "viewAll": "View All ({{count}})",
     "removeSerialAria": "Remove serial",
-    "allSerialsTitle": "Scanned Serial Numbers"
+    "allSerialsTitle": "Scanned Serial Numbers",
+    "scenario": {
+      "testingAs": "Prototype only — testing as",
+      "dealerSingle": "Dealer — One Location",
+      "dealerMulti": "Dealer — Multiple Locations",
+      "teamLeaderSingle": "Team Leader — One Location",
+      "teamLeaderMulti": "Team Leader — Multiple Locations",
+      "accountManager": "Account Manager",
+      "locationsCount_one": "{{count}} location",
+      "locationsCount_other": "{{count}} locations"
+    }
   },
   "purchaseOrders": {
     "title": "Request Stock",
@@ -2412,7 +2421,8 @@
       "successTitle": "Visit Created",
       "successText": "Your add-hoc visit has been created successfully.",
       "goHome": "Go to Home"
-    }
+    },
+    "chooseStockReturnScenarioSub": "Choose which demo user to preview Stock Return as"
   },
   "nav": {
     "home": "Home",
