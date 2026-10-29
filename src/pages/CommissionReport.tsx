@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 // the Overview tab (team commission, dealers list) in front of the same "My Commission" tab.
 // Drill-down screens are a local stack so Back always steps up one level, then leaves.
 
-type Screen = "plans" | "scheme1" | "kpi" | "scheme2prepaid" | "scheme2postpaid" | "hbb" | "clawbacks" | "activities";
+type BreakdownKind = "scheme2prepaid" | "scheme2postpaid" | "pli" | "hbb" | "fr" | "clawbacks" | "hbbClawbacks";
+type Screen = "plans" | "scheme1" | "kpi" | BreakdownKind | "activities";
 
 const GAUGE = "hsl(var(--kpi-gauge))";
 const GAUGE_BRIGHT = "hsl(var(--kpi-gauge-bright))";
@@ -262,13 +263,13 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => (
     <PlanRow plain title="Scheme 2 Prepaid" weight value={5250} onClick={() => go("scheme2prepaid")} />
     <PlanRow plain title="Scheme 2 Postpaid" weight value={5250} onClick={() => go("scheme2postpaid")} />
     <Heading>Partner Level Incentive</Heading>
-    <PlanRow plain title="Partner Level Incentive" value={5250} />
+    <PlanRow plain title="Partner Level Incentive" value={5250} onClick={() => go("pli")} />
     <Heading>Change Requests</Heading>
     <PlanRow plain title="HBB/ V-Net Commission" value={10500} onClick={() => go("hbb")} />
-    <PlanRow plain title="FR Promotional Packages" value={1200} />
+    <PlanRow plain title="FR Promotional Packages" value={1200} onClick={() => go("fr")} />
     <Heading>Clawbacks</Heading>
     <PlanRow plain danger title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} onClick={() => go("clawbacks")} />
-    <PlanRow plain danger title="HBB/V-Net Claw backs" sub="3 Lines early disconnect" value={-150} onClick={() => go("clawbacks")} />
+    <PlanRow plain danger title="HBB/V-Net Claw backs" sub="3 Lines early disconnect" value={-150} onClick={() => go("hbbClawbacks")} />
   </div>
 );
 
@@ -361,7 +362,7 @@ const KpiScreen = () => (
 
 type Section = { title: string; amount: string | number; rows: [string, string][] };
 type Breakdown = { banner: string; value: number; bad?: boolean; activities: string; head: string; sections: Section[]; conditions?: boolean };
-const BREAKDOWNS: Record<"scheme2prepaid" | "scheme2postpaid" | "hbb" | "clawbacks", Breakdown> = {
+const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
   scheme2prepaid: { banner: "Total Earned", value: 9800, activities: "3,000 Line", head: "Earnings breakdown", sections: [
     { title: "Prepaid Activations", amount: "00", rows: [["Any", "0%"]] }, { title: "IBR", amount: 10176, rows: [["Any", "40%"]] },
     { title: "First Recharge", amount: 6176, rows: [["Any", "20%"]] }, { title: "Second Recharge", amount: 6176, rows: [["Any", "20%"]] } ] },
@@ -369,10 +370,17 @@ const BREAKDOWNS: Record<"scheme2prepaid" | "scheme2postpaid" | "hbb" | "clawbac
     { title: "Postpaid Activations", amount: "0.0", rows: [["Any", "0%"]] },
     { title: "Acquisition", amount: 5850, rows: [["Below 200 . 22 Line", "50%"], ["Above 200 . 42 Line", "100 SAR"]] },
     { title: "3rd Bill Issued, Line Active", amount: 1750, rows: [["Below 200 . 22 Line", "50%"], ["Above 200 . 42 Line", "100 SAR"]] } ] },
+  pli: { banner: "Total Earned", value: 5250, activities: "42 Line", head: "Earnings breakdown", sections: [
+    { title: "Partner Level Target", amount: 3750, rows: [["Silver level . 30 Line", "75%"]] },
+    { title: "Level Bonus", amount: 1500, rows: [["Any", "Fixed Amount"]] } ] },
   hbb: { banner: "Total Earned", value: 9800, activities: "105 Line", head: "Earnings breakdown", conditions: true, sections: [
     { title: "Activated Units", amount: 5250, rows: [["Any", "50% Fixed Amount"]] }, { title: "Activated Units(Incentive)", amount: 5250, rows: [["Any", "50% Fixed Amount"]] } ] },
+  fr: { banner: "Total Earned", value: 1200, activities: "24 Line", head: "Earnings breakdown", sections: [
+    { title: "FR Promotional Packages", amount: 1200, rows: [["Any . 24 Line", "50 SAR"]] } ] },
   clawbacks: { banner: "Taken Back", value: -550, bad: true, activities: "6 Lines", head: "Deduction reasons", sections: [
     { title: "Acquisition received", amount: -550, rows: [["Below 200 . 3 Lines", "-50%"], ["Below 200 . 3 Lines", "-50%"]] } ] },
+  hbbClawbacks: { banner: "Taken Back", value: -150, bad: true, activities: "3 Lines", head: "Deduction reasons", sections: [
+    { title: "Early disconnect", amount: -150, rows: [["Any . 3 Lines", "-50 SAR"]] } ] },
 };
 
 const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: Screen) => void }) => {
@@ -551,7 +559,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
 
 const TITLES: Record<Screen, string> = {
   plans: "My Plans", scheme1: "Scheme 1 Breakdown", kpi: "Scheme 1 Breakdown", scheme2prepaid: "Scheme 2 Prepaid", scheme2postpaid: "Scheme 2 Postpaid",
-  hbb: "HBB/ V-Net", clawbacks: "Postpaid Clawbacks", activities: "Activities",
+  pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities",
 };
 
 const CommissionReport = () => {
@@ -581,8 +589,8 @@ const CommissionReport = () => {
         {screen === "plans" && <PlansScreen go={go} />}
         {screen === "scheme1" && <Scheme1Screen go={go} />}
         {screen === "kpi" && <KpiScreen />}
-        {(screen === "scheme2prepaid" || screen === "scheme2postpaid" || screen === "hbb" || screen === "clawbacks") && <BreakdownScreen kind={screen} go={go} />}
-        {screen === "activities" && <ActivitiesScreen count={lineCount(stack[stack.length - 2] as keyof typeof BREAKDOWNS)} deduction={stack[stack.length - 2] === "clawbacks"} />}
+        {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
+        {screen === "activities" && <ActivitiesScreen count={lineCount(stack[stack.length - 2] as BreakdownKind)} deduction={BREAKDOWNS[stack[stack.length - 2] as BreakdownKind].bad} />}
       </div>
     </div>
   );
