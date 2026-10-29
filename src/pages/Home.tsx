@@ -339,13 +339,15 @@ const Home = () => {
   // rather than a customer-record action.
   const otherWidgetsOptions = [
     // Order History moved into the E Wallets widget (per request).
-    { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // Original Request Stock / Push Stock tiles hidden for now (routes and pages kept) — the Option 2
+    // tiles below replace them on Home. Uncomment to bring them back.
+    // { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    // Stock Return — feature not built yet, lands on Coming Soon for now.
     // Option 2 — Team Leader → Regional Manager → Sales Support chain; each opens a role picker.
-    { id: "request-stock-opt2", icon: Package, label: t("home.purchaseOrders"), path: "/stock-opt2/request", badge: t("home.badgeOption2"), badgeTone: "special" as const },
-    { id: "push-stock-opt2", icon: ShoppingCart, label: t("home.salesOrders"), path: "/stock-opt2/push", badge: t("home.badgeOption2"), badgeTone: "special" as const },
+    { id: "request-stock-opt2", icon: Package, label: t("home.purchaseOrders"), path: "/stock-opt2/request", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "push-stock-opt2", icon: ShoppingCart, label: t("home.salesOrders"), path: "/stock-opt2/push", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    // Stock Return — feature not built yet, lands on Coming Soon for now.
     { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/stock-returns", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
   ];
 
