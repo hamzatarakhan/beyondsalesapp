@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronDown, ChevronRight, Info, Search, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 // Prototype-only: every figure below is demo data copied from the Commission Report designs.
@@ -263,14 +264,22 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} danger onClick={() => go("clawbacks")} />
         </div>
       </Card>
-      <Heading>{t("commissionReport.payout")}</Heading>
-      <div className="flex rounded-full bg-card shadow-sm p-1">
-        {RANGES.map(([k, label]) => (
-          <button key={k} type="button" onClick={() => setRange(k)}
-            className={cn("flex-1 py-1.5 rounded-full text-xs font-medium whitespace-nowrap", range === k ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
-            {t(`commissionReport.${label}`)}
-          </button>
-        ))}
+      <div className="flex items-center justify-between">
+        <Heading>{t("commissionReport.payout")}</Heading>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium inline-flex items-center gap-1">
+              {rangeTitle} <ChevronDown className="w-3 h-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {RANGES.map(([k, label]) => (
+              <DropdownMenuItem key={k} onClick={() => setRange(k)} className="text-xs justify-between gap-4">
+                {t(`commissionReport.${label}`)} {range === k && <Check className="w-3.5 h-3.5 text-primary" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <Card>
         <div className="flex items-center justify-between mb-4">
