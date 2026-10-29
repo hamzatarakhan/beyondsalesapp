@@ -60,6 +60,12 @@ describe("Stock Return range scan", () => {
     expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3004", ["SN-VMSIM-3002"], 100)).toBe("rangeOverlap");
     expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3004", [], 100)).toBeUndefined();
   });
+  test("a range may not hold more serials than the return quantity still needs", () => {
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3002", [], 100, 3)).toBeUndefined();
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3001", [], 100, 3)).toBeUndefined();
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3003", [], 100, 3)).toBe("rangeExceedsRequired");
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3001", ["SN-VMSIM-2000", "SN-VMSIM-2001"], 100, 3)).toBe("rangeExceedsRequired");
+  });
   test("offsets a serial for the prototype scan button", () => {
     expect(offsetSerial("SN-VMSIM-3000", 4)).toBe("SN-VMSIM-3004");
   });

@@ -1445,7 +1445,8 @@
       "remarkRequired": "Please enter a reason for returning this item.",
       "rangeMismatch": "The first and last serial numbers must match except for their final digits.",
       "rangeOrder": "The last serial number must come after the first serial number.",
-      "rangeOverlap": "This range includes serial numbers that have already been added."
+      "rangeOverlap": "This range includes serial numbers that have already been added.",
+      "rangeExceedsRequired": "This range has more serial numbers than the {{remaining}} still needed for the return quantity."
     },
     "title": "Stock Return",
     "createOrderTitle": "Create Order",
@@ -1533,9 +1534,7 @@
     "discardTitle": "Discard Changes?",
     "discardDesc": "You have unsaved changes. If you leave this page, your changes will be lost.",
     "continueEditing": "Continue Editing",
-    "discardChanges": "Discard Changes",
-    "rangeFrom": "Range from",
-    "clearRangeAria": "Clear first serial number"
+    "discardChanges": "Discard Changes"
   },
   "purchaseOrders": {
     "title": "Request Stock",
@@ -2487,7 +2486,6 @@
     "showQrAria": "Show QR code",
     "notificationsAria": "Notifications",
     "badgeOption1": "Option 1",
-    "badgeOption2": "Option 2",
     "badgePlansOption1": "Plans option 1",
     "badgePlansOption2": "Plans option 2",
     "badgePlansOption3": "Plans option 3",

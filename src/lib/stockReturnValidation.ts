@@ -27,7 +27,8 @@ export const remarkError = (reason: string, remark: string): "remarkRequired" | 
 // Range Scan: a serial is a prefix plus a trailing number, e.g. SN-VMSIM-3000 or a purely
 // numeric 3676837484836. First and last must share the prefix; the range is every number
 // from first to last inclusive, keeping the first serial's zero padding. BigInt keeps long
-// numeric serials exact.
+// numeric serials exact. When a return quantity is set (`required` > 0), a range may not
+// hold more serials than are still needed to reach it.
 const splitSerial = (value: string) => {
   const m = value.trim().match(/^(.*?)(\d+)$/);
   return m ? { prefix: m[1], digits: m[2] } : undefined;
@@ -38,7 +39,8 @@ export const serialRangeError = (
   last: string,
   serials: string[],
   available: number,
-): "serialInvalid" | "rangeMismatch" | "rangeOrder" | "rangeOverlap" | "quantityLimit" | undefined => {
+  required = 0,
+): "serialInvalid" | "rangeMismatch" | "rangeOrder" | "rangeOverlap" | "quantityLimit" | "rangeExceedsRequired" | undefined => {
   if (!isValidSerialFormat(last)) return "serialInvalid";
   const a = splitSerial(first);
   const b = splitSerial(last);
@@ -47,6 +49,7 @@ export const serialRangeError = (
   const end = BigInt(b.digits);
   if (end < start) return "rangeOrder";
   if (end - start + 1n > BigInt(available - serials.length)) return "quantityLimit";
+  if (required > 0 && end - start + 1n > BigInt(required - serials.length)) return "rangeExceedsRequired";
   const range = expandSerialRange(first, last);
   // The last serial must be written the way the range would write it (same padding).
   if (range[range.length - 1].toUpperCase() !== last.trim().toUpperCase()) return "rangeMismatch";

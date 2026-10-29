@@ -33,11 +33,10 @@ const StockReturnForm = () => {
   const [countErrorShown, setCountErrorShown] = useState(false);
   const [remarkErrorShown, setRemarkErrorShown] = useState(false);
   const [scanMode, setScanMode] = useState<ScanMode>("range");
-  // Range Scan takes serials in first/last pairs: the first serial is held here (not yet
-  // counted) while the input asks for the last one; adding the last one counts every serial
-  // from first to last as scanned, then the input asks for the next range's first serial.
-  const [rangeFirst, setRangeFirst] = useState<string | null>(null);
+  // Range Scan has a First and a Last Serial Number field; Add counts every serial from first
+  // to last as scanned. Item By Item Scan uses `serial` alone, one serial per Add.
   const [serial, setSerial] = useState("");
+  const [lastSerial, setLastSerial] = useState("");
   const [serials, setSerials] = useState<string[]>(saved?.serials ?? []);
   const [reason, setReason] = useState<ReturnReasonKey>(saved?.reason ?? "damagedSim");
   const [reasonOpen, setReasonOpen] = useState(false);
@@ -79,29 +78,53 @@ const StockReturnForm = () => {
     const v = serial.trim();
     const available = product?.availableStocks ?? 0;
     let added: string[];
-    if (scanMode === "range" && rangeFirst) {
-      const error = serialRangeError(rangeFirst, v, serials, available);
+    if (scanMode === "range") {
+      // The range must fit the return quantity still to scan: exactly the remainder completes
+      // the scan (e.g. 3/3), fewer leaves it partial, more is refused.
+      const error = serialError(v, serials, available) ?? serialRangeError(v, lastSerial, serials, available, qty);
       setSerialFeedback(error);
       if (error) return;
-      added = expandSerialRange(rangeFirst, v);
-      setRangeFirst(null);
+      added = expandSerialRange(v, lastSerial);
     } else {
       const error = serialError(v, serials, available);
       setSerialFeedback(error);
       if (error) return;
-      if (scanMode === "range") {
-        setRangeFirst(v);
-        setSerial("");
-        return;
-      }
       added = [v];
     }
     setSerials((prev) => [...prev, ...added]);
     setSerial("");
+    setLastSerial("");
     // Prototype: each added serial counts toward the returned quantity, but never
     // lowers a quantity the dealer already entered.
     setQtyClamped(Math.max(qty, serials.length + added.length));
   };
+
+  const scanComplete = qty > 0 && serials.length === qty;
+  // Prototype scan button: the next demo serial for this product.
+  const nextScanSerial = () => `SN-${product?.id.toUpperCase()}-${3000 + serials.length}`;
+
+  // One serial input with its scan button; Range Scan shows two (First / Last), Item By Item one.
+  const serialField = (value: string, set: (v: string) => void, placeholderKey: string, scanValue: () => string) => (
+    <div className="relative flex-1">
+      <Input
+        value={value}
+        onChange={(e) => { set(e.target.value); setSerialFeedback(undefined); }}
+        aria-invalid={!!serialFeedback}
+        aria-describedby={serialFeedback ? "stock-return-serial-error" : undefined}
+        placeholder={t(placeholderKey)}
+        aria-label={t(placeholderKey)}
+        className={cn("h-11 bg-card rounded-xl pe-10", serialFeedback && "border-destructive")}
+      />
+      <button
+        type="button"
+        aria-label={`${t("stockReturn.scanAria")} — ${t(placeholderKey)}`}
+        onClick={() => { set(scanValue()); setSerialFeedback(undefined); }}
+        className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
+      >
+        <ScanBarcode className="w-5 h-5" />
+      </button>
+    </div>
+  );
 
   const remarkFeedback = remarkError(reason, remark);
   const canSubmit = !qtyFeedback && qty > 0 && !!reason;
@@ -188,7 +211,10 @@ const StockReturnForm = () => {
         <div className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-bold text-foreground">{t("stockReturn.serialNumberTitle")}</p>
-            <span className="px-2.5 py-1 rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">{scannedLabel}</span>
+            <span className={cn(
+              "px-2.5 py-1 rounded-full text-[10px] font-semibold",
+              scanComplete ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-muted text-muted-foreground",
+            )}>{scannedLabel}</span>
           </div>
 
           <div className="flex border-b border-border">
@@ -196,7 +222,7 @@ const StockReturnForm = () => {
               <button
                 key={mode}
                 type="button"
-                onClick={() => { setScanMode(mode); setRangeFirst(null); setSerialFeedback(undefined); }}
+                onClick={() => { setScanMode(mode); setSerialFeedback(undefined); }}
                 className={cn(
                   "flex-1 pb-2 text-sm font-medium transition-colors",
                   scanMode === mode ? "text-primary border-b-2 border-primary -mb-px" : "text-muted-foreground"
@@ -207,30 +233,15 @@ const StockReturnForm = () => {
             ))}
           </div>
 
+          {scanMode === "range" && serialField(serial, setSerial, "stockReturn.firstSerial", nextScanSerial)}
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Input
-                value={serial}
-                onChange={(e) => { setSerial(e.target.value); setSerialFeedback(undefined); }}
-                aria-invalid={!!serialFeedback}
-                aria-describedby={serialFeedback ? "stock-return-serial-error" : undefined}
-                placeholder={t(scanMode === "item" ? "stockReturn.serialNumber" : rangeFirst ? "stockReturn.lastSerial" : "stockReturn.firstSerial")}
-                className={cn("h-11 bg-card rounded-xl pe-10", serialFeedback && "border-destructive")}
-              />
-              <button
-                type="button"
-                aria-label={t("stockReturn.scanAria")}
-                // Prototype scan: a range's last serial lands 4 after its first (a 5-serial range).
-                onClick={() => { setSerial(rangeFirst ? offsetSerial(rangeFirst, 4) : `SN-${product.id.toUpperCase()}-${3000 + serials.length}`); setSerialFeedback(undefined); }}
-                className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
-              >
-                <ScanBarcode className="w-5 h-5" />
-              </button>
-            </div>
+            {scanMode === "range"
+              ? serialField(lastSerial, setLastSerial, "stockReturn.lastSerial", () => offsetSerial(serial.trim() || nextScanSerial(), Math.max(qty - serials.length, 1) - 1))
+              : serialField(serial, setSerial, "stockReturn.serialNumber", nextScanSerial)}
             <Button
               type="button"
               onClick={addSerial}
-              disabled={!serial.trim()}
+              disabled={!serial.trim() || (scanMode === "range" && !lastSerial.trim())}
               className="h-11 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-40"
             >
               {t("stockReturn.add")}
@@ -238,18 +249,8 @@ const StockReturnForm = () => {
           </div>
           {serialFeedback && (
             <p id="stock-return-serial-error" role="alert" className="text-xs text-destructive">
-              {t(`stockReturn.errors.${serialFeedback}`, { count: product.availableStocks })}
+              {t(`stockReturn.errors.${serialFeedback}`, { count: product.availableStocks, remaining: qty - serials.length })}
             </p>
-          )}
-          {rangeFirst && (
-            <div className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 px-3.5 py-2.5">
-              <span className="text-xs text-muted-foreground">
-                {t("stockReturn.rangeFrom")} <span className="font-semibold text-foreground" dir="ltr">#{rangeFirst}</span>
-              </span>
-              <button type="button" onClick={() => setRangeFirst(null)} aria-label={t("stockReturn.clearRangeAria")} className="text-muted-foreground">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
           )}
 
           {serials.length > 0 && (
