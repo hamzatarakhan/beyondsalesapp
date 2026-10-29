@@ -212,9 +212,7 @@ const StockReturnForm = () => {
           )}
           {scanMode === "range" && rangeFirst && (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-muted/50 border border-border/50 px-3.5 py-3">
-              <span className="text-sm text-muted-foreground">
-                {t("stockReturn.firstSerial")}: <span className="font-medium text-foreground" dir="ltr">#{rangeFirst}</span>
-              </span>
+              <span className="text-sm font-medium text-foreground" dir="ltr">#{rangeFirst}</span>
               <button type="button" onClick={() => setRangeFirst(null)} aria-label={t("stockReturn.removeSerialAria")} className="text-destructive">
                 <Trash2 className="w-4 h-4" />
               </button>
