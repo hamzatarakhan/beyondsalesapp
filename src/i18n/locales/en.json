@@ -1475,6 +1475,7 @@
     "rangeScan": "Range Scan",
     "itemScan": "Item By item Scan",
     "firstSerial": "First Serial Number",
+    "lastSerial": "Last Serial Number",
     "serialNumber": "Serial Number",
     "scanAria": "Scan serial",
     "add": "Add",

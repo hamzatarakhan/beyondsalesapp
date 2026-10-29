@@ -33,6 +33,9 @@ const StockReturnForm = () => {
   const [countErrorShown, setCountErrorShown] = useState(false);
   const [remarkErrorShown, setRemarkErrorShown] = useState(false);
   const [scanMode, setScanMode] = useState<ScanMode>("range");
+  // Range Scan takes serials in first/last pairs: after a first serial is added, the input
+  // asks for the last one, then goes back to asking for the next range's first serial.
+  const [awaitingLast, setAwaitingLast] = useState(false);
   const [serial, setSerial] = useState("");
   const [serials, setSerials] = useState<string[]>(saved?.serials ?? []);
   const [reason, setReason] = useState<ReturnReasonKey>(saved?.reason ?? "damagedSim");
@@ -78,6 +81,7 @@ const StockReturnForm = () => {
     if (error) return;
     setSerials((prev) => [...prev, v]);
     setSerial("");
+    if (scanMode === "range") setAwaitingLast((a) => !a);
     // Prototype: each added serial counts toward the returned quantity, but never
     // raises a quantity the dealer already entered.
     setQtyClamped(Math.max(qty, serials.length + 1));
@@ -176,7 +180,7 @@ const StockReturnForm = () => {
               <button
                 key={mode}
                 type="button"
-                onClick={() => setScanMode(mode)}
+                onClick={() => { setScanMode(mode); setAwaitingLast(false); }}
                 className={cn(
                   "flex-1 pb-2 text-sm font-medium transition-colors",
                   scanMode === mode ? "text-primary border-b-2 border-primary -mb-px" : "text-muted-foreground"
@@ -194,7 +198,7 @@ const StockReturnForm = () => {
                 onChange={(e) => { setSerial(e.target.value); setSerialFeedback(undefined); }}
                 aria-invalid={!!serialFeedback}
                 aria-describedby={serialFeedback ? "stock-return-serial-error" : undefined}
-                placeholder={t(scanMode === "range" ? "stockReturn.firstSerial" : "stockReturn.serialNumber")}
+                placeholder={t(scanMode === "item" ? "stockReturn.serialNumber" : awaitingLast ? "stockReturn.lastSerial" : "stockReturn.firstSerial")}
                 className={cn("h-11 bg-card rounded-xl pe-10", serialFeedback && "border-destructive")}
               />
               <button
