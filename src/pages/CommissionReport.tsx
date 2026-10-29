@@ -379,14 +379,23 @@ const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
   fr: { banner: "Total Earned", value: 1200, activities: "24 Line", head: "Earnings breakdown", sections: [
     { title: "FR Promotional Packages", amount: 1200, rows: [["Any . 24 Line", "50 SAR"]] } ] },
   clawbacks: { banner: "Taken Back", value: -550, bad: true, activities: "6 Lines", head: "Deduction reasons", sections: [
-    { title: "Acquisition received", amount: -550, rows: [["Below 200 . 3 Lines", "-50%"], ["Below 200 . 3 Lines", "-50%"]] } ] },
+    { title: "Acquisition received", amount: -550, rows: [["Below 200 . 3 Lines", "-50%"], ["Below 200 . 3 Lines", "-50%"]] } ],
+    // Placeholder lines in the HBB design's format: stopped before the 3rd bill, so 1 or 2 bills issued.
+    lines: [
+      { phone: "+966500653226", kind: "Postpaid 150 · stopped 3 Sep · 2 bills issued", detail: "", amount: -5 },
+      { phone: "+966570902726", kind: "Postpaid 200 · stopped 8 Sep · 1 bill issued", detail: "", amount: -5 },
+      { phone: "+966584235976", kind: "Postpaid 150 · stopped 12 Sep · 2 bills issued", detail: "", amount: -5 },
+      { phone: "+966562843451", kind: "Postpaid 300 · stopped 15 Sep · 1 bill issued", detail: "", amount: -5 },
+      { phone: "+966592643132", kind: "Postpaid 200 · stopped 21 Sep · 2 bills issued", detail: "", amount: -5 },
+      { phone: "+966504396022", kind: "Postpaid 150 · stopped 26 Sep · 1 bill issued", detail: "", amount: -5 },
+    ] },
   hbbClawbacks: { banner: "Taken Back", value: -150, bad: true, activities: "3 Lines", head: "Deduction reasons", sections: [
     { title: "Early disconnect", amount: -150, rows: [["Any . 3 Lines", "-50 SAR"]] } ],
     // From the HBB / V-Net early-disconnect design; the 150 is paid on the total, shown here as 50 per line.
     lines: [
-      { phone: "+966500002210", kind: "HBB unlimited", detail: "Stopped 20 Sep · 1 bill issued", amount: -50 },
-      { phone: "+966500002214", kind: "V-Net 200", detail: "Stopped 22 Sep · 2 bills issued", amount: -50 },
-      { phone: "+966500002231", kind: "HBB unlimited", detail: "Stopped 27 Sep · 1 bill issued", amount: -50 },
+      { phone: "+966500002210", kind: "HBB unlimited · stopped 20 Sep · 1 bill issued", detail: "", amount: -50 },
+      { phone: "+966500002214", kind: "V-Net 200 · stopped 22 Sep · 2 bills issued", detail: "", amount: -50 },
+      { phone: "+966500002231", kind: "HBB unlimited · stopped 27 Sep · 1 bill issued", detail: "", amount: -50 },
     ] },
 };
 
@@ -464,8 +473,8 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
       {showChips && <Chips items={kinds} value={f} onChange={setF} />}
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
       {rows.map((r) => (
-        <Card key={r.phone + r.detail} className="py-3 flex items-center justify-between">
-          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p><p className="text-xs text-muted-foreground">{r.detail}</p></div>
+        <Card key={r.phone} className="py-3 flex items-center justify-between">
+          <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p>{r.detail && <p className="text-xs text-muted-foreground">{r.detail}</p>}</div>
           {/* Colour the wrapper too, so the ".00" matches the signed amount. */}
           <span className={cn("text-xs font-semibold", r.amount < 0 ? "text-primary" : POS)}><Money v={r.amount} sign />.00</span>
         </Card>
