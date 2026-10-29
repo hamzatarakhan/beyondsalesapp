@@ -48,7 +48,7 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
   <div className={cn("rounded-2xl bg-card shadow-sm p-4", className)}>{children}</div>
 );
 
-const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="text-[15px] font-semibold text-foreground px-1 pt-1">{children}</h3>;
+const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="text-sm font-semibold text-foreground px-1 pt-1">{children}</h3>;
 
 const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "good" | "bad" }) => (
   <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium border-[0.5px] inline-flex items-center gap-1 whitespace-nowrap",
@@ -83,8 +83,8 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain }: { title:
     className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 disabled:cursor-default", plain ? "bg-card shadow-sm" : "bg-muted/50 border border-border/50")}>
     {danger && <IconBox tone="bad"><ArrowDown className="w-4 h-4" /></IconBox>}
     <div className="flex-1 min-w-0">
-      <p className={cn("font-semibold text-foreground truncate", danger ? "text-[15px]" : "text-sm")}>{title}</p>
-      {sub && <p className="text-xs text-muted-foreground truncate">{sub}</p>}
+      <p className="text-[13px] font-medium text-foreground truncate">{title}</p>
+      {sub && <p className="text-[11px] text-muted-foreground truncate mt-0.5">{sub}</p>}
       {weight && <WeightChip />}
     </div>
     <span className="text-xs font-semibold"><Money v={value} sign /></span>
