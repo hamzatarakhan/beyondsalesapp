@@ -1442,7 +1442,10 @@
       "serialsShort": "You have added {{added}} of {{required}} serial numbers. Please add the remaining {{remaining}} serial numbers before submitting.",
       "submitTitle": "Return not submitted",
       "submitRetry": "Your details have been kept. Please try again.",
-      "remarkRequired": "Please enter a reason for returning this item."
+      "remarkRequired": "Please enter a reason for returning this item.",
+      "rangeMismatch": "The first and last serial numbers must match except for their final digits.",
+      "rangeOrder": "The last serial number must come after the first serial number.",
+      "rangeOverlap": "This range includes serial numbers that have already been added."
     },
     "title": "Stock Return",
     "createOrderTitle": "Create Order",
@@ -1530,7 +1533,9 @@
     "discardTitle": "Discard Changes?",
     "discardDesc": "You have unsaved changes. If you leave this page, your changes will be lost.",
     "continueEditing": "Continue Editing",
-    "discardChanges": "Discard Changes"
+    "discardChanges": "Discard Changes",
+    "rangeFrom": "Range from",
+    "clearRangeAria": "Clear first serial number"
   },
   "purchaseOrders": {
     "title": "Request Stock",

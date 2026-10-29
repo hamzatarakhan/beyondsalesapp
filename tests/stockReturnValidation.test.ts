@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { quantityError, remarkError, serialCountError, serialError } from "../src/lib/stockReturnValidation";
+import { expandSerialRange, offsetSerial, quantityError, remarkError, serialCountError, serialError, serialRangeError } from "../src/lib/stockReturnValidation";
 
 describe("Stock Return validation", () => {
   test("requires a positive quantity", () => {
@@ -45,5 +45,22 @@ describe("Stock Return validation", () => {
     expect(remarkError("others", "   ")).toBe("remarkRequired");
     expect(remarkError("others", "Box arrived crushed")).toBeUndefined();
     expect(remarkError("damagedSim", "")).toBeUndefined();
+  });
+});
+
+describe("Stock Return range scan", () => {
+  test("expands first to last inclusive, keeping prefix and padding", () => {
+    expect(expandSerialRange("SN-VMSIM-0098", "SN-VMSIM-0101")).toEqual(["SN-VMSIM-0098", "SN-VMSIM-0099", "SN-VMSIM-0100", "SN-VMSIM-0101"]);
+    expect(expandSerialRange("3676837484836", "3676837484838")).toEqual(["3676837484836", "3676837484837", "3676837484838"]);
+  });
+  test("rejects ranges that cannot be expanded", () => {
+    expect(serialRangeError("SN-VMSIM-3000", "SN-ROUTER-3005", [], 100)).toBe("rangeMismatch");
+    expect(serialRangeError("SN-VMSIM-3005", "SN-VMSIM-3000", [], 100)).toBe("rangeOrder");
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3200", [], 100)).toBe("quantityLimit");
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3004", ["SN-VMSIM-3002"], 100)).toBe("rangeOverlap");
+    expect(serialRangeError("SN-VMSIM-3000", "SN-VMSIM-3004", [], 100)).toBeUndefined();
+  });
+  test("offsets a serial for the prototype scan button", () => {
+    expect(offsetSerial("SN-VMSIM-3000", 4)).toBe("SN-VMSIM-3004");
   });
 });
