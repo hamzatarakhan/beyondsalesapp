@@ -31,7 +31,7 @@ const Money = ({ v, sign, className }: { v: number | string; sign?: boolean; cla
   const prefix = n !== null && sign ? (n < 0 ? "-" : "+") : "";
   return (
     <span className={cn("inline-flex items-center gap-1 tabular-nums", n !== null && sign && (n < 0 ? "text-primary" : POS), className)}>
-      {prefix}<RiyalSymbol /> {n !== null ? Math.abs(n).toLocaleString() : v}
+      <RiyalSymbol /> {prefix}{n !== null ? Math.abs(n).toLocaleString() : v}
     </span>
   );
 };
