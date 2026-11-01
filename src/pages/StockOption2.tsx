@@ -34,7 +34,8 @@ const BADGE: Record<string, string> = {
   orderSubmitted: AMBER, awaitingApproval: AMBER, pendingApproval: AMBER, orderPending: AMBER,
   awaitingScanning: SKY, delivered: SKY, completed: SKY,
   awaitingDelivery: TEAL,
-  orderPlaced: GREEN, approved: GREEN,
+  approved: GREEN,
+  orderPlaced: "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/15 dark:text-yellow-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
@@ -45,7 +46,7 @@ const FILTERS: Record<ChainRole, string[]> = {
   dealer: ["orderSubmitted", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"],
   tlPush: ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected"],
   tl: ["pendingApproval", "approved", "rejected", "cancelled"],
-  rm: ["pendingApproval", "approved", "orderPlaced", "delivered", "rejected"],
+  rm: ["pendingApproval", "orderPending", "orderPlaced", "delivered", "rejected"],
   ss: ["orderPending", "orderPlaced", "completed", "rejected"],
 };
 const ROLES = Object.keys(ROLE_FLOW) as ChainRole[];
@@ -89,6 +90,24 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
     <button onClick={onClick} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
       <XIcon className="w-4 h-4 text-foreground" />
     </button>
+  );
+};
+
+const SuccessSheet = ({ open, onClose, title, desc }: { open: boolean; onClose: () => void; title: string; desc: string }) => {
+  const { t } = useTranslation();
+  return (
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
+        <div className="flex flex-col items-center mb-4">
+          <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center"><Check className="w-8 h-8 text-white" strokeWidth={3} /></div>
+          </div>
+          <DrawerTitle className="font-semibold text-foreground text-base mb-1 text-center">{title}</DrawerTitle>
+          <DrawerDescription className="text-xs text-muted-foreground mt-2 text-center">{desc}</DrawerDescription>
+        </div>
+        <button type="button" onClick={onClose} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">{t("purchaseOrders.done")}</button>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
@@ -261,23 +280,28 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
   const existing = id ? getChainOrder(id) : undefined;
   const isEdit = !!existing;
   const [location, setLocation] = useState(existing?.location ?? "");
+  const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<string, number>>(() => Object.fromEntries((existing?.lines ?? []).map((l) => [l.productId, l.qty])));
   const isPush = role === "tlPush";
   const members = CHANNEL_MEMBERS;
   const [member, setMember] = useState("");
   const memberDone = step === "order";
   const setMemberDone = (v: boolean) => onStep(v ? "order" : "member");
-  const [pick, setPick] = useState(false);
+  const [pick, setPick] = useState<"location" | "destination" | null>(null);
   const [search, setSearch] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [success, setSuccess] = useState(false);
   const total = Object.values(qtys).reduce((a, b) => a + b, 0);
   const setQty = (pid: string, n: number, max: number) => setQtys((q) => ({ ...q, [pid]: Math.max(0, Math.min(n, max)) }));
-  const places = useMemo(() => DEMO_DESTINATIONS.filter((d) => d.toLowerCase().includes(search.trim().toLowerCase())), [search]);
+  // Location lists places; Request From lists member names.
+  const pickOptions = useMemo(() => (pick === "destination" ? members : DEMO_DESTINATIONS).filter((d) => d.toLowerCase().includes(search.trim().toLowerCase())), [pick, members, search]);
+  const picked = pick === "destination" ? destination : location;
+  const openPick = (field: "location" | "destination") => { setSearch(""); setPick(field); };
+  const choose = (place: string) => { (pick === "destination" ? setDestination : setLocation)(place); setPick(null); };
 
   const submit = () => {
     const ls = Object.entries(qtys).filter(([, n]) => n > 0).map(([productId, qty]) => ({ productId: productId as ProductId, qty }));
-    saveChainOrder(ROLE_FLOW[role], location, ls, id, isPush ? { member } : undefined);
+    saveChainOrder(ROLE_FLOW[role], location, destination, ls, id, isPush ? { member } : undefined);
     setConfirm(false);
     setSuccess(true);
   };
@@ -320,8 +344,15 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
     <div className="space-y-3 pb-28">
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.location")}</p>
-        <button type="button" onClick={() => setPick(true)} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+        <button type="button" onClick={() => openPick("location")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
           <span className={location ? "text-foreground font-medium" : "text-muted-foreground"}>{location || t("stockOpt2.selectLocation")}</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.destination")}</p>
+        <button type="button" onClick={() => openPick("destination")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+          <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("stockOpt2.selectDestination")}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
         </button>
       </div>
@@ -355,16 +386,16 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
         );
       })}
       <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
-        <Button disabled={!location || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
+        <Button disabled={!location || !destination || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
       </div>
 
-      {/* ---------- Location picker ---------- */}
-      <Drawer open={pick} onOpenChange={setPick}>
+      {/* ---------- Location / Destination picker ---------- */}
+      <Drawer open={!!pick} onOpenChange={(open) => { if (!open) setPick(null); }}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col">
-          <CloseButton onClick={() => setPick(false)} />
+          <CloseButton onClick={() => setPick(null)} />
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("stockOpt2.location")}</DrawerTitle>
-            <DrawerDescription className="sr-only">{t("stockOpt2.selectLocation")}</DrawerDescription>
+            <DrawerTitle className="text-lg font-semibold">{t(pick === "destination" ? "stockOpt2.destination" : "stockOpt2.location")}</DrawerTitle>
+            <DrawerDescription className="sr-only">{t(pick === "destination" ? "stockOpt2.selectDestination" : "stockOpt2.selectLocation")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-3">
             <div className="relative">
@@ -373,10 +404,10 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
             </div>
           </div>
           <div className="px-4 pb-8 space-y-2 overflow-y-auto flex-1">
-            {places.map((d) => (
-              <button key={d} type="button" onClick={() => { setLocation(d); setPick(false); }}
-                className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl transition text-start", location === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-muted/50")}>
-                <div className="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" /></div>
+            {pickOptions.map((d) => (
+              <button key={d} type="button" onClick={() => choose(d)}
+                className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl transition text-start", picked === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-muted/50")}>
+                <div className="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center shrink-0">{pick === "destination" ? <User className="w-4 h-4 text-sky-600 dark:text-sky-300" /> : <MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" />}</div>
                 <span className="text-sm font-semibold text-foreground flex-1">{d}</span>
               </button>
             ))}
@@ -388,19 +419,8 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
         description={t(isEdit ? "purchaseOrders.saveRequestDesc" : "purchaseOrders.submitRequestDesc")} confirmLabel={t(isEdit ? "purchaseOrders.save" : "purchaseOrders.submit")}
         onConfirm={submit} cancelLabel={t("purchaseOrders.cancel")} />
 
-      {/* ---------- Success ---------- */}
-      <Drawer open={success} onOpenChange={(o) => { if (!o) { setSuccess(false); onDone(); } }}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
-          <div className="flex flex-col items-center mb-4">
-            <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center"><Check className="w-8 h-8 text-white" strokeWidth={3} /></div>
-            </div>
-            <DrawerTitle className="font-semibold text-foreground text-base mb-1 text-center">{t(isEdit ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")}</DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground mt-2 text-center">{t(isEdit ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")}</DrawerDescription>
-          </div>
-          <button type="button" onClick={() => { setSuccess(false); onDone(); }} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">{t("purchaseOrders.done")}</button>
-        </DrawerContent>
-      </Drawer>
+      <SuccessSheet open={success} onClose={() => { setSuccess(false); onDone(); }}
+        title={t(isEdit ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")} desc={t(isEdit ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")} />
     </div>
   );
 };
@@ -438,6 +458,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
   const navigate = useNavigate();
   const o = getChainOrder(id)!;
   const [action, setAction] = useState<Action | null>(null);
+  const [succeeded, setSucceeded] = useState<"approve" | "confirm" | null>(null);
   const [reasonKey, setReasonKey] = useState("");
   const [remark, setRemark] = useState("");
   const [tracking, setTracking] = useState("");
@@ -465,6 +486,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
       reject: { status: "rejected", rejectedBy: role === "ss" ? "ss" : role === "rm" ? "rm" : undefined, reason },
     };
     updateChainOrder(id, patch[action!]);
+    if (action === "approve" || action === "confirm") setSucceeded(action);
     setAction(null); setReasonKey(""); setRemark("");
     onChanged();
   };
@@ -584,6 +606,9 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
 
       {footer && <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">{footer}</div>}
       {serialFor && <SerialSheet onClose={() => setSerialFor(null)} orderId={id} productId={serialFor} />}
+
+      <SuccessSheet open={!!succeeded} onClose={() => setSucceeded(null)}
+        title={t(succeeded === "confirm" ? "stockOpt2.confirmRequest" : "purchaseOrders.approveRequestTitle")} desc={t(succeeded === "confirm" ? "stockOpt2.confirmSuccessDesc" : "stockOpt2.approveSuccessDesc")} />
 
       <ConfirmMessageDrawer
         open={!!action}

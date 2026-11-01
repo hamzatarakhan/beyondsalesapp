@@ -26,6 +26,7 @@ export interface ChainOrder {
   flow: Flow;
   status: ChainStatus;
   location: string;
+  destination: string;
   date: string;
   dateObj: Date;
   lines: ChainLine[];
@@ -49,7 +50,7 @@ export const statusLabelKey = (role: ChainRole, o: Pick<ChainOrder, "status" | "
   if (o.flow === "dealer") return s === "awaitingApproval" && role === "dealer" ? "orderSubmitted" : s;
   if (s === "rejected" || s === "cancelled" || s === "pendingApproval") return s;
   if (role === "tl") return "approved";
-  if (role === "rm") return s === "orderPending" ? "approved" : s;
+  if (role === "rm") return s;
   return s === "delivered" ? "completed" : s;
 };
 
@@ -68,7 +69,7 @@ const lines = (scanned = false): ChainLine[] =>
   ([["vmSim", 10], ["voucher10", 10], ["router1", 10]] as [ProductId, number][]).map(([productId, qty]) => ({ productId, qty, serials: scanned ? serials(productId, qty) : [] }));
 
 const mk = (id: string, flow: Flow, status: ChainStatus, location: string, when: Date, extra?: Partial<ChainOrder>): ChainOrder =>
-  ({ id, flow, status, location, date: fmt(when), dateObj: when, lines: lines(), proofs: [], ...extra });
+  ({ id, flow, status, location, destination: CHANNEL_MEMBERS[0], date: fmt(when), dateObj: when, lines: lines(), proofs: [], ...extra });
 
 const PROOFS = ["Payment proof.pdf", "Transfer receipt.png"];
 const seed = (): ChainOrder[] => [
@@ -93,7 +94,7 @@ const seed = (): ChainOrder[] => [
   mk("3515165610", "chain", "cancelled", "California, USA", d(23, 10), { reason: "Budget constraints" }),
 ];
 
-const KEY = "stockOpt2.orders.v5";
+const KEY = "stockOpt2.orders.v7";
 const load = (): ChainOrder[] => {
   try {
     const raw = localStorage.getItem(KEY);
@@ -114,14 +115,14 @@ export const updateChainOrder = (id: string, patch: Partial<ChainOrder>) => {
   if (i !== -1) { chainOrders[i] = { ...chainOrders[i], ...patch }; persist(); }
 };
 
-// Create a new order, or replace the location and quantities of an existing one (Edit).
-export const saveChainOrder = (flow: Flow, location: string, qtys: { productId: ProductId; qty: number }[], id?: string, push?: { member: string }) => {
+// Create a new order, or replace the location, destination and quantities of an existing one (Edit).
+export const saveChainOrder = (flow: Flow, location: string, destination: string, qtys: { productId: ProductId; qty: number }[], id?: string, push?: { member: string }) => {
   const ls: ChainLine[] = qtys.map((q) => ({ ...q, serials: [] }));
-  if (id) return updateChainOrder(id, { location, lines: ls });
+  if (id) return updateChainOrder(id, { location, destination, lines: ls });
   const now = new Date();
   const next = Math.max(...chainOrders.map((o) => Number(o.id)), 3515165700) + 1;
   // A pushed order skips Awaiting Approval: the Team Leader already decided, so it goes straight to scanning.
   const status: ChainStatus = push ? "awaitingScanning" : flow === "dealer" ? "awaitingApproval" : "pendingApproval";
-  chainOrders.unshift({ id: String(next), flow, status, location, date: fmt(now), dateObj: now, lines: ls, proofs: [], ...(push ? { pushed: true, member: push.member } : {}) });
+  chainOrders.unshift({ id: String(next), flow, status, location, destination, date: fmt(now), dateObj: now, lines: ls, proofs: [], ...(push ? { pushed: true, member: push.member } : {}) });
   persist();
 };
