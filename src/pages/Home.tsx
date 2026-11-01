@@ -849,8 +849,8 @@ const Home = () => {
       {/* Prototype hint — replaces the hero carousel while it is hidden */}
       {!SHOW_HERO_BANNER && (
         <div className="px-4 pb-4">
-          <div role="note" className="flex items-start gap-3 rounded-2xl bg-sky-50 dark:bg-sky-500/10 px-4 py-3.5">
-            <div className="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
+          <div role="note" className="flex items-start gap-3 rounded-2xl bg-sky-100 dark:bg-sky-500/20 border border-sky-300 dark:border-sky-400/40 px-4 py-3.5">
+            <div className="w-8 h-8 rounded-full bg-sky-200 dark:bg-sky-500/30 flex items-center justify-center shrink-0">
               <Info className="w-4 h-4 text-sky-600 dark:text-sky-300" />
             </div>
             <div className="min-w-0">
