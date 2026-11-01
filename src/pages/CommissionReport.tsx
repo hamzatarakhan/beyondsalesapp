@@ -59,7 +59,7 @@ const IconBox = ({ tone = "good", children }: { tone?: "good" | "bad"; children:
   <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : "bg-rose-100 text-primary dark:bg-rose-500/20")}>{children}</div>
 );
 
-const Banner = ({ label, value, tone = "good", badge }: { label: string; value: number; tone?: "good" | "bad"; badge?: string }) => (
+const Banner = ({ label, value, tone = "good", badge, note }: { label: string; value: number; tone?: "good" | "bad"; badge?: string; note?: string }) => (
   <div className={cn("rounded-2xl px-4 py-3 border", tone === "good" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30" : "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -69,6 +69,7 @@ const Banner = ({ label, value, tone = "good", badge }: { label: string; value: 
       {badge && <Pill>{badge}</Pill>}
     </div>
     <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-primary" : POS)}><Money v={value} /></p>
+    {note && <p className="text-xs text-primary mt-1">{note}</p>}
   </div>
 );
 
@@ -77,16 +78,16 @@ const Chev = () => <ChevronRight className="w-4 h-4 text-primary shrink-0 rtl:ro
 const WeightChip = () => <span className="mt-1 inline-block px-2 py-0.5 rounded-md text-[10px] font-medium bg-sky-50 text-sky-700 border-[0.5px] border-sky-200 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30">Weight 100%</span>;
 
 // One plan line. `plain` = white card (My Plans list); default = grey inner card (My Plan card).
-const PlanRow = ({ title, sub, weight, value, onClick, danger, plain }: { title: string; sub?: string; weight?: boolean; value: number; onClick?: () => void; danger?: boolean; plain?: boolean }) => (
+const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed }: { title: string; sub?: string; weight?: boolean; value: number; onClick?: () => void; danger?: boolean; plain?: boolean; missed?: boolean }) => (
   <button type="button" onClick={onClick} disabled={!onClick}
     className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 disabled:cursor-default", plain ? "bg-card shadow-sm" : "bg-muted/50 border border-border/50")}>
     {danger && <IconBox tone="bad"><ArrowDown className="w-4 h-4" /></IconBox>}
     <div className="flex-1 min-w-0">
       <p className="text-[13px] font-medium text-foreground truncate">{title}</p>
-      {sub && <p className="text-[11px] text-muted-foreground truncate mt-0.5">{sub}</p>}
+      {sub && <p className={cn("text-[11px] truncate mt-0.5", missed ? "text-primary" : "text-muted-foreground")}>{sub}</p>}
       {weight && <WeightChip />}
     </div>
-    <span className="text-xs font-semibold"><Money v={value} sign /></span>
+    <span className="text-xs font-semibold">{missed ? <Money v={0} className="text-primary" /> : <Money v={value} sign />}</span>
     {onClick && <Chev />}
   </button>
 );
@@ -188,6 +189,24 @@ const useCustomMonth = (first: string) => {
   };
 };
 
+// Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0; raise F FPE to 70+ to see the paid state.
+const KPI_MIN = 70;
+const KPI_MAX = 120;
+const KPI_ROWS: { name: string; achieved: number; killer: boolean }[] = [
+  { name: "V FPE", achieved: 80, killer: true }, { name: "F FPE", achieved: 60, killer: true }, { name: "V IBR", achieved: 80, killer: false },
+  { name: "F IBR", achieved: 80, killer: false }, { name: "F IBR", achieved: 80, killer: false },
+];
+const missedKiller = (k: (typeof KPI_ROWS)[number]) => k.killer && k.achieved < KPI_MIN;
+const MISSED_KILLERS = KPI_ROWS.filter(missedKiller);
+const SCHEME1_MISSED = MISSED_KILLERS.length > 0;
+const MISSED_NOTE = MISSED_KILLERS.length === 1
+  ? `${MISSED_KILLERS[0].name} is a killer KPI and missed its ${KPI_MIN}% minimum.`
+  : `${MISSED_KILLERS.map((k) => k.name).join(" and ")} are killer KPIs and missed their ${KPI_MIN}% minimum.`;
+const MissedBanner = () => <Banner label="No commission" value={0} tone="bad" note={MISSED_NOTE} />;
+const scheme1Row = (plain?: boolean, go?: (s: Screen) => void) => (
+  <PlanRow plain={plain} title="Scheme 1 Commission" weight value={6550} missed={SCHEME1_MISSED} sub={SCHEME1_MISSED ? "Killer KPI missed" : undefined} onClick={() => go?.("scheme1")} />
+);
+
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
 
 // Twelve months of payouts ending in LATEST_MONTH (Sep 2025 – Aug 2026).
@@ -197,7 +216,7 @@ const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
 const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June: 61200 };
 
-// Dealer's own report shows 11,230; a manager viewing a member sees that member's month figures (74,000 for August).
+// Dealer's own report shows 11,230 (5,100 without Scheme 1); a manager viewing a member sees that member's month figures (74,000 for August).
 const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolean }) => {
   const { t } = useTranslation();
   const first = t("commissionReport.lastMonth");
@@ -214,14 +233,14 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : 11230} badge={t("commissionReport.approved")} />
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : SCHEME1_MISSED ? 5100 : 11230} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <div className="space-y-3">
-          <PlanRow title="Scheme 1 Commission" weight value={6550} onClick={() => go("scheme1")} />
+          {scheme1Row(false, go)}
           <PlanRow title="Scheme 2 Prepaid KPI" weight value={5250} onClick={() => go("scheme2prepaid")} />
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} danger onClick={() => go("clawbacks")} />
         </div>
@@ -259,7 +278,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
 const PlansScreen = ({ go }: { go: (s: Screen) => void }) => (
   <div className="space-y-3">
     <Heading>Scheme 1</Heading>
-    <PlanRow plain title="Scheme 1 Commission" weight value={6550} onClick={() => go("scheme1")} />
+    {scheme1Row(true, go)}
     <Heading>Scheme 2</Heading>
     <PlanRow plain title="Scheme 2 Prepaid" weight value={5250} onClick={() => go("scheme2prepaid")} />
     <PlanRow plain title="Scheme 2 Postpaid" weight value={5250} onClick={() => go("scheme2postpaid")} />
@@ -277,8 +296,8 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => (
 const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: number }) => (
   <div className="flex items-center gap-3 text-xs text-muted-foreground">
     <span className="w-24 shrink-0">{label}</span>
-    <div className="flex-1"><Gauge pct={pct} tick={tick} /></div>
-    <span className={cn("w-9 text-end font-semibold", POS)}>{pct}%</span>
+    <div className="flex-1"><Gauge pct={pct} tick={tick} danger={pct < tick} /></div>
+    <span className={cn("w-9 text-end font-semibold", pct < tick ? "text-primary" : POS)}>{pct}%</span>
   </div>
 );
 
@@ -295,15 +314,17 @@ const BandRow = ({ label, value, on, accent }: { label: string; value: string; o
 
 const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => (
   <div className="space-y-4 pb-20">
-    <Banner label="Earned in August" value={74000} badge="Approved" />
+    {SCHEME1_MISSED ? <MissedBanner /> : <Banner label="Earned in August" value={74000} badge="Approved" />}
     <Card>
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-semibold text-foreground">Conditions</h3>
-        <Pill><Check className="w-3 h-3" /> All Met</Pill>
+        {SCHEME1_MISSED ? <Pill tone="bad"><X className="w-3 h-3" /> {MISSED_KILLERS.length} Not Met</Pill> : <Pill><Check className="w-3 h-3" /> All Met</Pill>}
       </div>
       <p className="text-xs text-muted-foreground mb-3">Must be met to earn enything from this scheme</p>
-      <div className="space-y-2.5"><ConditionBar label="V FPE  Min70%" pct={88} tick={70} /><ConditionBar label="F FPE  Min70%" pct={81} tick={70} /></div>
+      <div className="space-y-2.5">{KPI_ROWS.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
     </Card>
+    {/* Payout bands and the bonus don't apply once a killer KPI zeroes the plan. */}
+    {!SCHEME1_MISSED && <>
     <Card>
       <h3 className="text-sm font-semibold text-foreground mb-8">KPI Score Payout</h3>
       <div className="relative">
@@ -329,35 +350,41 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => (
       <BandRow on label="90-100% . your band" value="+1,000" />
       <BandRow label="From 100%" value="1,500" />
     </Card>
+    </>}
     <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
       <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
     </div>
   </div>
 );
 
-const KPI_ROWS: [string, number, boolean, boolean][] = [
-  ["V FPE", 80, true, false], ["F FPE", 60, true, true], ["V IBR", 80, false, false], ["F IBR", 80, false, false], ["F IBR", 80, false, false],
-];
-
+// Bars share one 0–120% scale, so the tick sits exactly on the 70% minimum. Once a killer KPI is missed it moves
+// to the top in red, and the other KPIs dim with their share crossed out because nothing is paid.
 const KpiScreen = () => (
   <div className="space-y-3">
+    {SCHEME1_MISSED && <MissedBanner />}
     <Heading>KPI breakdown</Heading>
-    {KPI_ROWS.map(([l, p, killer, low], i) => (
-      <Card key={i} className="p-3.5">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-foreground">{l}</span>
-            {killer && <Pill tone="bad">Killer</Pill>}
+    {[...MISSED_KILLERS, ...KPI_ROWS.filter((k) => !missedKiller(k))].map((k, i) => {
+      const missed = missedKiller(k);
+      const share = `+${(k.achieved * 0.2).toFixed(1)}%`;
+      return (
+        <Card key={k.name + i} className={cn("p-3.5", missed && "border border-primary/40", SCHEME1_MISSED && !missed && "opacity-60")}>
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground">{k.name}</span>
+              {k.killer && <Pill tone="bad">Killer</Pill>}
+            </div>
+            <Pill tone={missed ? "bad" : "good"}>Achieved {k.achieved}%</Pill>
           </div>
-          <Pill tone={low ? "bad" : "good"}>Achieved {p}%</Pill>
-        </div>
-        <Gauge pct={low ? 62 : 85} tick={75} danger={low} thick />
-        <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
-          <span>Min 70% · Max 120%</span>
-          <span>Weight 20% · <b className={low ? "text-primary" : POS}>{low ? "+0.0%" : "+16.0%"}</b></span>
-        </div>
-      </Card>
-    ))}
+          <Gauge pct={(k.achieved / KPI_MAX) * 100} tick={(KPI_MIN / KPI_MAX) * 100} danger={missed} thick />
+          <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
+            <span>Min {KPI_MIN}% · Max {KPI_MAX}%</span>
+            {missed ? <b className="text-primary">{KPI_MIN - k.achieved}% below minimum</b>
+              : SCHEME1_MISSED ? <span>Weight 20% · <s>{share}</s> not paid</span>
+              : <span>Weight 20% · <b className={POS}>{share}</b></span>}
+          </div>
+        </Card>
+      );
+    })}
   </div>
 );
 
