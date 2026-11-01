@@ -283,6 +283,8 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
   const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<string, number>>(() => Object.fromEntries((existing?.lines ?? []).map((l) => [l.productId, l.qty])));
   const isPush = role === "tlPush";
+  // The Team Leader's Request Stock has one approver (Regional Manager), so there is no one to pick.
+  const asksRequestFrom = role !== "tl";
   const members = CHANNEL_MEMBERS;
   const [member, setMember] = useState("");
   const memberDone = step === "order";
@@ -349,13 +351,15 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
           <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
         </button>
       </div>
-      <div className="space-y-1.5">
-        <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.destination")}</p>
-        <button type="button" onClick={() => openPick("destination")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
-          <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("stockOpt2.selectDestination")}</span>
-          <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
-        </button>
-      </div>
+      {asksRequestFrom && (
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.destination")}</p>
+          <button type="button" onClick={() => openPick("destination")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+            <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("stockOpt2.selectDestination")}</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+          </button>
+        </div>
+      )}
       {PURCHASE_ORDER_PRODUCTS.map((p) => {
         const Icon = PRODUCT_ICON[p.id];
         const qty = qtys[p.id] ?? 0;
@@ -386,7 +390,7 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
         );
       })}
       <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
-        <Button disabled={!location || !destination || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
+        <Button disabled={!location || (asksRequestFrom && !destination) || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
       </div>
 
       {/* ---------- Location / Destination picker ---------- */}
