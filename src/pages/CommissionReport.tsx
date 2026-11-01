@@ -29,7 +29,7 @@ const Money = ({ v, sign, className }: { v: number | string; sign?: boolean; cla
   const n = typeof v === "number" ? v : null;
   const prefix = n !== null && sign ? (n < 0 ? "-" : "+") : "";
   return (
-    <span className={cn("inline-flex items-center gap-1 tabular-nums", n !== null && sign && (n < 0 ? "text-primary" : POS), className)}>
+    <span className={cn("inline-flex items-center gap-1 tabular-nums", n !== null && sign && (n < 0 ? "text-rose-600" : POS), className)}>
       <RiyalSymbol /> {prefix}{n !== null ? Math.abs(n).toLocaleString() : v}
     </span>
   );
@@ -52,11 +52,11 @@ const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="
 const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "good" | "bad" }) => (
   <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium border-[0.5px] inline-flex items-center gap-1 whitespace-nowrap",
     tone === "good" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30"
-      : "bg-rose-50 text-primary border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>{children}</span>
+      : "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>{children}</span>
 );
 
 const IconBox = ({ tone = "good", children }: { tone?: "good" | "bad"; children: React.ReactNode }) => (
-  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : "bg-rose-100 text-primary dark:bg-rose-500/20")}>{children}</div>
+  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : "bg-rose-100 text-rose-600 dark:bg-rose-500/20")}>{children}</div>
 );
 
 const Banner = ({ label, value, tone = "good", badge }: { label: string; value: number; tone?: "good" | "bad"; badge?: string }) => (
@@ -68,7 +68,7 @@ const Banner = ({ label, value, tone = "good", badge }: { label: string; value: 
       </div>
       {badge && <Pill>{badge}</Pill>}
     </div>
-    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-primary" : POS)}><Money v={value} /></p>
+    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : POS)}><Money v={value} /></p>
   </div>
 );
 
@@ -217,7 +217,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
-          <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
+          <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <div className="space-y-3">
           <PlanRow title="Scheme 1 Commission" weight value={6550} onClick={() => go("scheme1")} />
@@ -353,7 +353,7 @@ const KpiScreen = () => (
         <Gauge pct={low ? 62 : 85} tick={75} danger={low} thick />
         <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
           <span>Min 70% · Max 120%</span>
-          <span>Weight 20% · <b className={low ? "text-primary" : POS}>{low ? "+0.0%" : "+16.0%"}</b></span>
+          <span>Weight 20% · <b className={low ? "text-rose-600" : POS}>{low ? "+0.0%" : "+16.0%"}</b></span>
         </div>
       </Card>
     ))}
@@ -431,7 +431,7 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
                 <div key={i} className={cn("flex justify-between text-sm rounded-lg px-3 py-2.5 border-[0.5px]",
                   neg ? "bg-rose-50 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20" : "bg-teal-50 border-teal-100 dark:bg-teal-500/10 dark:border-teal-500/20")}>
                   <span className="text-foreground">{l}</span>
-                  <span className={cn("font-semibold", neg ? "text-primary" : "text-teal-600 dark:text-teal-400")}>{v}</span>
+                  <span className={cn("font-semibold", neg ? "text-rose-600" : "text-teal-600 dark:text-teal-400")}>{v}</span>
                 </div>
               ))}
             </div>
@@ -476,7 +476,7 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
         <Card key={r.phone} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p>{r.detail && <p className="text-xs text-muted-foreground">{r.detail}</p>}</div>
           {/* Colour the wrapper too, so the ".00" matches the signed amount. */}
-          <span className={cn("text-xs font-semibold", r.amount < 0 ? "text-primary" : POS)}><Money v={r.amount} sign />.00</span>
+          <span className={cn("text-xs font-semibold", r.amount < 0 ? "text-rose-600" : POS)}><Money v={r.amount} sign />.00</span>
         </Card>
       ))}
     </div>
@@ -519,7 +519,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           {people.map(([n, c]) => (
             <button key={c + n} type="button" onClick={() => { setMember(n); setQ(""); setSheet(false); }}
               className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 border", member === n ? "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30" : "bg-muted/40 border-border/60")}>
-              <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-primary" /></div>
+              <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-rose-600" /></div>
               <div><p className="text-sm font-semibold text-foreground">{n}</p><p className="text-xs text-muted-foreground">{c}</p></div>
             </button>
           ))}
@@ -566,9 +566,9 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <div className="mt-3 space-y-2.5">
           {list.map(([n, p, v], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
-              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-primary")}>{top === "top" ? i + 1 : 5 - i}</span>
+              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : 5 - i}</span>
               <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
-              <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-primary")}><RiyalSymbol /> {v.toFixed(2)}</span>
+              <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-rose-600")}><RiyalSymbol /> {v.toFixed(2)}</span>
             </div>
           ))}
         </div>
