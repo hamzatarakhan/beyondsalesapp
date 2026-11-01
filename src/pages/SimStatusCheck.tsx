@@ -9,7 +9,7 @@ import PrototypeTestBox from "@/components/PrototypeTestBox";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Package, Phone, ScanLine, BadgeCheck, AlertCircle, CheckCircle2, AlertTriangle, Ban } from "lucide-react";
+import { Package, Phone, ScanLine, BadgeCheck, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw } from "lucide-react";
 
 // ---------- Local UI primitives (mirrors CustomerSearch.tsx / BillPayment.tsx) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -66,6 +66,8 @@ interface DemoSimRecord {
   msisdn: string;
   imsi: string;
   status: SimStatus;
+  /** Provisioning failed on this number — it can be resubmitted to TCC to try activating it again. */
+  eligibleForResubmission?: boolean;
 }
 
 // ---------- Demo data — same three identifiers all resolve to the same record, so any of
@@ -74,6 +76,7 @@ const DEMO_SIM_RECORDS: DemoSimRecord[] = [
   { kit: "1234567890", msisdn: "0501110001", imsi: "420011234567890", status: "active" },
   { kit: "2345678901", msisdn: "0501110002", imsi: "420011234567891", status: "not-active" },
   { kit: "3456789012", msisdn: "0501110003", imsi: "420011234567892", status: "defected" },
+  { kit: "4567890123", msisdn: "0501110004", imsi: "420011234567893", status: "not-active", eligibleForResubmission: true },
 ];
 
 // Inline result banner — same colored-card pattern as ExistingCustomerFound.tsx, one row
@@ -121,6 +124,8 @@ const SimStatusCheck = () => {
   const [checking, setChecking] = useState(false);
   const [record, setRecord] = useState<DemoSimRecord | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [resubmitted, setResubmitted] = useState(false);
 
   const kitValid = /^\d{10}$/.test(kit);
   const msisdnValid = /^0\d{9}$/.test(msisdn);
@@ -130,6 +135,15 @@ const SimStatusCheck = () => {
   const resetLookup = () => {
     setRecord(null);
     setLookupError(null);
+    setResubmitted(false);
+  };
+
+  const handleResubmit = () => {
+    setResubmitting(true);
+    setTimeout(() => {
+      setResubmitting(false);
+      setResubmitted(true);
+    }, 800);
   };
 
   const switchMethod = (m: LookupMethod) => {
@@ -252,6 +266,29 @@ const SimStatusCheck = () => {
           );
         })()}
 
+        {record?.eligibleForResubmission && (
+          resubmitted ? (
+            <div className="rounded-2xl border p-3 flex items-start gap-2 bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-sm text-emerald-800 dark:text-emerald-300">{t("simStatusCheck.resubmitSuccess")}</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border p-3 space-y-3 bg-card border-border/60">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t("simStatusCheck.resubmitTitle")}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{t("simStatusCheck.resubmitMessage")}</p>
+                </div>
+              </div>
+              <Button type="button" className="w-full h-12 rounded-xl gap-2" disabled={resubmitting} onClick={handleResubmit}>
+                <RefreshCw className="w-4 h-4" />
+                {t("simStatusCheck.resubmit")}
+              </Button>
+            </div>
+          )
+        )}
+
         <PrototypeTestBox
           heading={t("simStatusCheck.testValuesHeading")}
           description={t("simStatusCheck.testValuesDescription")}
@@ -261,6 +298,7 @@ const SimStatusCheck = () => {
                   { value: "1234567890", note: t("simStatusCheck.testNoteActive") },
                   { value: "2345678901", note: t("simStatusCheck.testNoteNotActive") },
                   { value: "3456789012", note: t("simStatusCheck.testNoteDefected") },
+                  { value: "4567890123", note: t("simStatusCheck.testNoteResubmit") },
                   { value: "9999999999", note: t("simStatusCheck.testNoteInvalid") },
                 ]
               : method === "msisdn"
@@ -268,12 +306,14 @@ const SimStatusCheck = () => {
                   { value: "0501110001", note: t("simStatusCheck.testNoteActive") },
                   { value: "0501110002", note: t("simStatusCheck.testNoteNotActive") },
                   { value: "0501110003", note: t("simStatusCheck.testNoteDefected") },
+                  { value: "0501110004", note: t("simStatusCheck.testNoteResubmit") },
                   { value: "0509999999", note: t("simStatusCheck.testNoteInvalid") },
                 ]
               : [
                   { value: "420011234567890", note: t("simStatusCheck.testNoteActive") },
                   { value: "420011234567891", note: t("simStatusCheck.testNoteNotActive") },
                   { value: "420011234567892", note: t("simStatusCheck.testNoteDefected") },
+                  { value: "420011234567893", note: t("simStatusCheck.testNoteResubmit") },
                   { value: "420019999999999", note: t("simStatusCheck.testNoteInvalid") },
                 ]
           }
@@ -306,7 +346,7 @@ const SimStatusCheck = () => {
         </DialogContent>
       </Dialog>
 
-      <BrandLoadingOverlay open={checking} />
+      <BrandLoadingOverlay open={checking || resubmitting} />
     </div>
   );
 };

@@ -726,7 +726,12 @@
     "gotIt": "Done",
     "numberIsActive": "The Number is Active",
     "numberIsNotActive": "The Number is Not Active",
-    "numberIsDefected": "The Number is Defected"
+    "numberIsDefected": "The Number is Defected",
+    "testNoteResubmit": "Not Active — can be resubmitted",
+    "resubmitTitle": "Provisioning issue",
+    "resubmitMessage": "This number hit a provisioning issue. You can resubmit it to try activating it again.",
+    "resubmit": "Resubmit",
+    "resubmitSuccess": "Resubmitted. Check the status again in a few minutes."
   },
   "creditLimitAdjustment": {
     "title": "Credit Limit Adjustment",

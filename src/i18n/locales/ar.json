@@ -742,7 +742,12 @@
     "gotIt": "تم",
     "numberIsActive": "الرقم نشط",
     "numberIsNotActive": "الرقم غير نشط",
-    "numberIsDefected": "الرقم تالف"
+    "numberIsDefected": "الرقم تالف",
+    "testNoteResubmit": "غير مفعّل — يمكن إعادة الإرسال",
+    "resubmitTitle": "مشكلة في التفعيل",
+    "resubmitMessage": "واجه هذا الرقم مشكلة أثناء التفعيل. يمكنك إعادة إرساله لمحاولة تفعيله مرة أخرى.",
+    "resubmit": "إعادة الإرسال",
+    "resubmitSuccess": "تمت إعادة الإرسال. تحقق من الحالة مرة أخرى بعد بضع دقائق."
   },
   "creditLimitAdjustment": {
     "title": "تعديل حد الائتمان",
