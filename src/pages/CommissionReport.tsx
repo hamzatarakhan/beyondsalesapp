@@ -328,10 +328,6 @@ const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: 
   </div>
 );
 
-// Bands sit on a 0–140% scale; the bar is segmented per band and "You" marks the current score.
-const BAR_SEGMENTS: [number, string][] = [[50, GAUGE_TRACK], [14, `${GAUGE_BRIGHT.slice(0, -1)} / 0.45)`], [7, `${GAUGE_BRIGHT.slice(0, -1)} / 0.8)`], [15, GAUGE], [14, "hsl(var(--kpi-gauge) / 0.85)"]];
-const BAND_LABELS: [string, number][] = [["0", 0], ["70", 50], ["90", 64], ["100", 71], ["120%", 86]];
-
 const BandRow = ({ label, value, on, accent, struck }: { label: string; value: string; on?: boolean; accent?: boolean; struck?: boolean }) => (
   <div className={cn("flex justify-between text-sm px-3 py-2.5 rounded-lg", on ? "bg-teal-50 dark:bg-teal-500/10 font-medium" : "text-muted-foreground")}>
     <span className={cn(on && "text-foreground")}>{label}</span>
@@ -354,14 +350,9 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
     </Card>
     {/* Shown on client request even when a killer KPI zeroes the plan: dimmed, marked Not paid, earned amounts crossed out. */}
     <Card className={cn(missed && "opacity-60")}>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">KPI Score Payout</h3>
         {missed && <Pill tone="bad">Not paid</Pill>}
-      </div>
-      <div className="relative">
-        <div className="absolute -top-7 -translate-x-1/2 rtl:translate-x-1/2 px-2.5 py-1 rounded-lg bg-foreground text-background text-[11px] font-medium whitespace-nowrap" style={{ insetInlineStart: "66%" }}>You · 93%</div>
-        <div className="flex h-3 rounded-sm overflow-hidden">{BAR_SEGMENTS.map(([w, bg], i) => <div key={i} style={{ width: `${w}%`, background: bg }} />)}</div>
-        <div className="relative h-5 mt-1 text-[11px] text-muted-foreground">{BAND_LABELS.map(([l, p]) => <span key={l} className="absolute -translate-x-1/2 rtl:translate-x-1/2" style={{ insetInlineStart: `${p}%` }}>{l}</span>)}</div>
       </div>
       <div className="mt-3 space-y-0.5">
         <BandRow label="0-70%" value="Nothing" />
