@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
@@ -189,23 +189,49 @@ const useCustomMonth = (first: string) => {
   };
 };
 
-// Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0; raise F FPE to 70+ to see the paid state.
+// Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0.
 const KPI_MIN = 70;
 const KPI_MAX = 120;
-const KPI_ROWS: { name: string; achieved: number; killer: boolean }[] = [
-  { name: "V FPE", achieved: 80, killer: true }, { name: "F FPE", achieved: 60, killer: true }, { name: "V IBR", achieved: 80, killer: false },
+type Kpi = { name: string; achieved: number; killer: boolean };
+const missedKiller = (k: Kpi) => k.killer && k.achieved < KPI_MIN;
+const kpiRows = (killerMissed: boolean): Kpi[] => [
+  { name: "V FPE", achieved: killerMissed ? 80 : 88, killer: true }, { name: "F FPE", achieved: killerMissed ? 60 : 81, killer: true }, { name: "V IBR", achieved: 80, killer: false },
   { name: "F IBR", achieved: 80, killer: false }, { name: "F IBR", achieved: 80, killer: false },
 ];
-const missedKiller = (k: (typeof KPI_ROWS)[number]) => k.killer && k.achieved < KPI_MIN;
-const MISSED_KILLERS = KPI_ROWS.filter(missedKiller);
-const SCHEME1_MISSED = MISSED_KILLERS.length > 0;
-const MISSED_NOTE = MISSED_KILLERS.length === 1
-  ? `${MISSED_KILLERS[0].name} is a killer KPI and missed its ${KPI_MIN}% minimum.`
-  : `${MISSED_KILLERS.map((k) => k.name).join(" and ")} are killer KPIs and missed their ${KPI_MIN}% minimum.`;
-const MissedBanner = () => <Banner label="No commission" value={0} tone="bad" note={MISSED_NOTE} />;
-const scheme1Row = (plain?: boolean, go?: (s: Screen) => void) => (
-  <PlanRow plain={plain} title="Scheme 1 Commission" weight value={6550} missed={SCHEME1_MISSED} sub={SCHEME1_MISSED ? "Killer KPI missed" : undefined} onClick={() => go?.("scheme1")} />
+
+// Demo only: lets a walkthrough show both outcomes. True = a killer KPI is below its minimum.
+const KillerDemoContext = createContext(false);
+const useScheme1 = () => {
+  const killerMissed = useContext(KillerDemoContext);
+  const rows = kpiRows(killerMissed);
+  return { rows, missedKillers: rows.filter(missedKiller), missed: killerMissed };
+};
+
+const KillerDemoSwitch = ({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) => (
+  <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
+    <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300">Demo: Killer KPI</span>
+    <div className="flex gap-1">
+      {([[false, "Above min"], [true, "Below min"]] as const).map(([v, label]) => (
+        <button key={label} type="button" onClick={() => onChange(v)} aria-pressed={value === v}
+          className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium", value === v ? "bg-amber-600 text-white" : "text-amber-700 dark:text-amber-300")}>
+          {label}
+        </button>
+      ))}
+    </div>
+  </div>
 );
+
+const MissedBanner = () => {
+  const { missedKillers } = useScheme1();
+  const note = missedKillers.length === 1
+    ? `${missedKillers[0].name} is a killer KPI and missed its ${KPI_MIN}% minimum.`
+    : `${missedKillers.map((k) => k.name).join(" and ")} are killer KPIs and missed their ${KPI_MIN}% minimum.`;
+  return <Banner label="No commission" value={0} tone="bad" note={note} />;
+};
+const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void }) => {
+  const { missed } = useScheme1();
+  return <PlanRow plain={plain} title="Scheme 1 Commission" weight value={6550} missed={missed} sub={missed ? "Killer KPI missed" : undefined} onClick={() => go("scheme1")} />;
+};
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
 
@@ -221,6 +247,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const { t } = useTranslation();
   const first = t("commissionReport.lastMonth");
   const period = useCustomMonth(first);
+  const { missed } = useScheme1();
   // Payout window: the trailing 3, 6 or 12 months.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
   const payout = PAYOUT.slice(-Number(range));
@@ -233,14 +260,14 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : SCHEME1_MISSED ? 5100 : 11230} badge={t("commissionReport.approved")} />
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : missed ? 5100 : 11230} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <div className="space-y-3">
-          {scheme1Row(false, go)}
+          <Scheme1Row go={go} />
           <PlanRow title="Scheme 2 Prepaid KPI" weight value={5250} onClick={() => go("scheme2prepaid")} />
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} danger onClick={() => go("clawbacks")} />
         </div>
@@ -278,7 +305,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
 const PlansScreen = ({ go }: { go: (s: Screen) => void }) => (
   <div className="space-y-3">
     <Heading>Scheme 1</Heading>
-    {scheme1Row(true, go)}
+    <Scheme1Row plain go={go} />
     <Heading>Scheme 2</Heading>
     <PlanRow plain title="Scheme 2 Prepaid" weight value={5250} onClick={() => go("scheme2prepaid")} />
     <PlanRow plain title="Scheme 2 Postpaid" weight value={5250} onClick={() => go("scheme2postpaid")} />
@@ -312,19 +339,21 @@ const BandRow = ({ label, value, on, accent }: { label: string; value: string; o
   </div>
 );
 
-const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => (
+const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
+  const { rows, missedKillers, missed } = useScheme1();
+  return (
   <div className="space-y-4 pb-20">
-    {SCHEME1_MISSED ? <MissedBanner /> : <Banner label="Earned in August" value={74000} badge="Approved" />}
+    {missed ? <MissedBanner /> : <Banner label="Earned in August" value={74000} badge="Approved" />}
     <Card>
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-semibold text-foreground">Conditions</h3>
-        {SCHEME1_MISSED ? <Pill tone="bad"><X className="w-3 h-3" /> {MISSED_KILLERS.length} Not Met</Pill> : <Pill><Check className="w-3 h-3" /> All Met</Pill>}
+        {missed ? <Pill tone="bad"><X className="w-3 h-3" /> {missedKillers.length} Not Met</Pill> : <Pill><Check className="w-3 h-3" /> All Met</Pill>}
       </div>
       <p className="text-xs text-muted-foreground mb-3">Must be met to earn enything from this scheme</p>
-      <div className="space-y-2.5">{KPI_ROWS.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
+      <div className="space-y-2.5">{rows.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
     </Card>
     {/* Payout bands and the bonus don't apply once a killer KPI zeroes the plan. */}
-    {!SCHEME1_MISSED && <>
+    {!missed && <>
     <Card>
       <h3 className="text-sm font-semibold text-foreground mb-8">KPI Score Payout</h3>
       <div className="relative">
@@ -355,19 +384,22 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => (
       <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
     </div>
   </div>
-);
+  );
+};
 
 // Bars share one 0–120% scale, so the tick sits exactly on the 70% minimum. Once a killer KPI is missed it moves
 // to the top in red, and the other KPIs dim with their share crossed out because nothing is paid.
-const KpiScreen = () => (
+const KpiScreen = () => {
+  const { rows, missedKillers, missed: planMissed } = useScheme1();
+  return (
   <div className="space-y-3">
-    {SCHEME1_MISSED && <MissedBanner />}
+    {planMissed && <MissedBanner />}
     <Heading>KPI breakdown</Heading>
-    {[...MISSED_KILLERS, ...KPI_ROWS.filter((k) => !missedKiller(k))].map((k, i) => {
+    {[...missedKillers, ...rows.filter((k) => !missedKiller(k))].map((k, i) => {
       const missed = missedKiller(k);
       const share = `+${(k.achieved * 0.2).toFixed(1)}%`;
       return (
-        <Card key={k.name + i} className={cn("p-3.5", missed && "border border-primary/40", SCHEME1_MISSED && !missed && "opacity-60")}>
+        <Card key={k.name + i} className={cn("p-3.5", missed && "border border-primary/40", planMissed && !missed && "opacity-60")}>
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-foreground">{k.name}</span>
@@ -379,14 +411,15 @@ const KpiScreen = () => (
           <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
             <span>Min {KPI_MIN}% · Max {KPI_MAX}%</span>
             {missed ? <b className="text-primary">{KPI_MIN - k.achieved}% below minimum</b>
-              : SCHEME1_MISSED ? <span>Weight 20% · <s>{share}</s> not paid</span>
+              : planMissed ? <span>Weight 20% · <s>{share}</s> not paid</span>
               : <span>Weight 20% · <b className={POS}>{share}</b></span>}
           </div>
         </Card>
       );
     })}
   </div>
-);
+  );
+};
 
 type Section = { title: string; amount: string | number; rows: [string, string][] };
 type ActivityRow = { phone: string; kind: string; detail: string; amount: number };
@@ -619,6 +652,7 @@ const CommissionReport = () => {
   const [params] = useSearchParams();
   const manager = params.get("view") === "manager";
   const [stack, setStack] = useState<Screen[]>([]);
+  const [killerMissed, setKillerMissed] = useState(false);
   const [tab, setTab] = useState<"overview" | "mine">(manager ? "overview" : "mine");
   const screen = stack[stack.length - 1];
   const go = (s: Screen) => setStack((st) => [...st, s]);
@@ -636,12 +670,15 @@ const CommissionReport = () => {
             <Tabs items={[["overview", t("commissionReport.overview")], ["mine", t("commissionReport.myCommission")]]} value={tab} onChange={(k) => setTab(k as "overview" | "mine")} />
           </div>
         )}
+        {(screen === "plans" || screen === "scheme1" || screen === "kpi" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
+        <KillerDemoContext.Provider value={killerMissed}>
         {!screen && (tab === "overview" && manager ? <Overview go={go} /> : <MyCommission go={go} />)}
         {screen === "plans" && <PlansScreen go={go} />}
         {screen === "scheme1" && <Scheme1Screen go={go} />}
         {screen === "kpi" && <KpiScreen />}
         {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
         {screen === "activities" && <ActivitiesScreen kind={stack[stack.length - 2] as BreakdownKind} />}
+        </KillerDemoContext.Provider>
       </div>
     </div>
   );
