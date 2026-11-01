@@ -332,10 +332,10 @@ const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: 
 const BAR_SEGMENTS: [number, string][] = [[50, GAUGE_TRACK], [14, `${GAUGE_BRIGHT.slice(0, -1)} / 0.45)`], [7, `${GAUGE_BRIGHT.slice(0, -1)} / 0.8)`], [15, GAUGE], [14, "hsl(var(--kpi-gauge) / 0.85)"]];
 const BAND_LABELS: [string, number][] = [["0", 0], ["70", 50], ["90", 64], ["100", 71], ["120%", 86]];
 
-const BandRow = ({ label, value, on, accent }: { label: string; value: string; on?: boolean; accent?: boolean }) => (
+const BandRow = ({ label, value, on, accent, struck }: { label: string; value: string; on?: boolean; accent?: boolean; struck?: boolean }) => (
   <div className={cn("flex justify-between text-sm px-3 py-2.5 rounded-lg", on ? "bg-teal-50 dark:bg-teal-500/10 font-medium" : "text-muted-foreground")}>
     <span className={cn(on && "text-foreground")}>{label}</span>
-    <span className={cn("tabular-nums", (on || accent) && "text-teal-600 dark:text-teal-400 font-semibold", !on && !accent && "text-foreground font-medium")}>{value}</span>
+    <span className={cn("tabular-nums", (on || accent) && "text-teal-600 dark:text-teal-400 font-semibold", !on && !accent && "text-foreground font-medium", struck && "line-through")}>{value}</span>
   </div>
 );
 
@@ -352,10 +352,12 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
       <p className="text-xs text-muted-foreground mb-3">Must be met to earn enything from this scheme</p>
       <div className="space-y-2.5">{rows.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
     </Card>
-    {/* Payout bands and the bonus don't apply once a killer KPI zeroes the plan. */}
-    {!missed && <>
-    <Card>
-      <h3 className="text-sm font-semibold text-foreground mb-8">KPI Score Payout</h3>
+    {/* Shown on client request even when a killer KPI zeroes the plan: dimmed, marked Not paid, earned amounts crossed out. */}
+    <Card className={cn(missed && "opacity-60")}>
+      <div className="flex items-center justify-between mb-8">
+        <h3 className="text-sm font-semibold text-foreground">KPI Score Payout</h3>
+        {missed && <Pill tone="bad">Not paid</Pill>}
+      </div>
       <div className="relative">
         <div className="absolute -top-7 -translate-x-1/2 rtl:translate-x-1/2 px-2.5 py-1 rounded-lg bg-foreground text-background text-[11px] font-medium whitespace-nowrap" style={{ insetInlineStart: "66%" }}>You · 93%</div>
         <div className="flex h-3 rounded-sm overflow-hidden">{BAR_SEGMENTS.map(([w, bg], i) => <div key={i} style={{ width: `${w}%`, background: bg }} />)}</div>
@@ -364,22 +366,23 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
       <div className="mt-3 space-y-0.5">
         <BandRow label="0-70%" value="Nothing" />
         <BandRow label="70-90%" value="3,300" />
-        <BandRow on label="90-100% . your band" value="+5,400" />
+        <BandRow on struck={missed} label="90-100% . your band" value="+5,400" />
         <BandRow label="100-120%" value="6,660" />
         <BandRow label="From 120%" value="7,900 max" />
         <BandRow label="From 120%" value="7,900 max" />
-        <BandRow accent label="5,400 x 95%(fixed rate)" value="5,130" />
+        <BandRow accent struck={missed} label="5,400 x 95%(fixed rate)" value="5,130" />
       </div>
-      <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border-[0.5px] border-amber-200 dark:border-amber-500/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-        <Info className="w-4 h-4 shrink-0" /> Reach 100% (7% more) to move to 6,600 band
-      </div>
+      {!missed && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border-[0.5px] border-amber-200 dark:border-amber-500/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+          <Info className="w-4 h-4 shrink-0" /> Reach 100% (7% more) to move to 6,600 band
+        </div>
+      )}
     </Card>
-    <Card>
-      <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-semibold text-foreground">Incentive bonus</h3><span className="text-xs text-muted-foreground"><b className={POS}>93%</b> of Target</span></div>
-      <BandRow on label="90-100% . your band" value="+1,000" />
+    <Card className={cn(missed && "opacity-60")}>
+      <div className="flex justify-between items-center mb-2"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-foreground">Incentive bonus</h3>{missed && <Pill tone="bad">Not paid</Pill>}</div><span className="text-xs text-muted-foreground"><b className={POS}>93%</b> of Target</span></div>
+      <BandRow on struck={missed} label="90-100% . your band" value="+1,000" />
       <BandRow label="From 100%" value="1,500" />
     </Card>
-    </>}
     <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
       <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
     </div>
@@ -393,7 +396,6 @@ const KpiScreen = () => {
   const { rows, missedKillers, missed: planMissed } = useScheme1();
   return (
   <div className="space-y-3">
-    {planMissed && <MissedBanner />}
     <Heading>KPI breakdown</Heading>
     {[...missedKillers, ...rows.filter((k) => !missedKiller(k))].map((k, i) => {
       const missed = missedKiller(k);
