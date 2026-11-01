@@ -45,7 +45,7 @@ const FILTERS: Record<ChainRole, string[]> = {
   dealer: ["orderSubmitted", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"],
   tlPush: ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected"],
   tl: ["pendingApproval", "approved", "rejected", "cancelled"],
-  rm: ["pendingApproval", "approved", "orderPlaced", "delivered", "rejected"],
+  rm: ["pendingApproval", "orderPending", "orderPlaced", "delivered", "rejected"],
   ss: ["orderPending", "orderPlaced", "completed", "rejected"],
 };
 const ROLES = Object.keys(ROLE_FLOW) as ChainRole[];

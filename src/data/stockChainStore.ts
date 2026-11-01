@@ -49,7 +49,7 @@ export const statusLabelKey = (role: ChainRole, o: Pick<ChainOrder, "status" | "
   if (o.flow === "dealer") return s === "awaitingApproval" && role === "dealer" ? "orderSubmitted" : s;
   if (s === "rejected" || s === "cancelled" || s === "pendingApproval") return s;
   if (role === "tl") return "approved";
-  if (role === "rm") return s === "orderPending" ? "approved" : s;
+  if (role === "rm") return s;
   return s === "delivered" ? "completed" : s;
 };
 
