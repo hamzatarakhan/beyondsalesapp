@@ -522,10 +522,6 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
           <MapPin className="w-4 h-4 text-primary shrink-0" />
           <div><p className="text-[11px] text-muted-foreground">{t("stockOpt2.shippingTo")}</p><p className="text-sm font-semibold text-foreground">{o.location}</p></div>
         </div>
-        <div className="mt-2 rounded-xl bg-muted/50 px-3 py-2.5 flex items-center gap-2.5">
-          <User className="w-4 h-4 text-primary shrink-0" />
-          <div><p className="text-[11px] text-muted-foreground">{t("stockOpt2.destination")}</p><p className="text-sm font-semibold text-foreground">{o.destination}</p></div>
-        </div>
         <p className="mt-2 text-[11px] text-muted-foreground">{o.date}{requester && <> · <span className="text-primary">{requester}</span></>}</p>
       </div>
 
