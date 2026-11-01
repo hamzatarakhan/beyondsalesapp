@@ -283,8 +283,8 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
   const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<string, number>>(() => Object.fromEntries((existing?.lines ?? []).map((l) => [l.productId, l.qty])));
   const isPush = role === "tlPush";
-  // The Team Leader's Request Stock has one approver (Regional Manager), so there is no one to pick.
-  const asksRequestFrom = role !== "tl";
+  // Only the Dealer picks who to request from; neither Team Leader form has anyone to pick.
+  const asksRequestFrom = role === "dealer";
   const members = CHANNEL_MEMBERS;
   const [member, setMember] = useState("");
   const memberDone = step === "order";
