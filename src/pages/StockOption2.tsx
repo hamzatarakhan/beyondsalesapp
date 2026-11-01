@@ -262,23 +262,27 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
   const existing = id ? getChainOrder(id) : undefined;
   const isEdit = !!existing;
   const [location, setLocation] = useState(existing?.location ?? "");
+  const [destination, setDestination] = useState(existing?.destination ?? "");
   const [qtys, setQtys] = useState<Record<string, number>>(() => Object.fromEntries((existing?.lines ?? []).map((l) => [l.productId, l.qty])));
   const isPush = role === "tlPush";
   const members = CHANNEL_MEMBERS;
   const [member, setMember] = useState("");
   const memberDone = step === "order";
   const setMemberDone = (v: boolean) => onStep(v ? "order" : "member");
-  const [pick, setPick] = useState(false);
+  const [pick, setPick] = useState<"location" | "destination" | null>(null);
   const [search, setSearch] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [success, setSuccess] = useState(false);
   const total = Object.values(qtys).reduce((a, b) => a + b, 0);
   const setQty = (pid: string, n: number, max: number) => setQtys((q) => ({ ...q, [pid]: Math.max(0, Math.min(n, max)) }));
   const places = useMemo(() => DEMO_DESTINATIONS.filter((d) => d.toLowerCase().includes(search.trim().toLowerCase())), [search]);
+  const picked = pick === "destination" ? destination : location;
+  const openPick = (field: "location" | "destination") => { setSearch(""); setPick(field); };
+  const choose = (place: string) => { (pick === "destination" ? setDestination : setLocation)(place); setPick(null); };
 
   const submit = () => {
     const ls = Object.entries(qtys).filter(([, n]) => n > 0).map(([productId, qty]) => ({ productId: productId as ProductId, qty }));
-    saveChainOrder(ROLE_FLOW[role], location, ls, id, isPush ? { member } : undefined);
+    saveChainOrder(ROLE_FLOW[role], location, destination, ls, id, isPush ? { member } : undefined);
     setConfirm(false);
     setSuccess(true);
   };
@@ -321,8 +325,15 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
     <div className="space-y-3 pb-28">
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.location")}</p>
-        <button type="button" onClick={() => setPick(true)} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+        <button type="button" onClick={() => openPick("location")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
           <span className={location ? "text-foreground font-medium" : "text-muted-foreground"}>{location || t("stockOpt2.selectLocation")}</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        <p className="text-sm font-medium text-foreground px-1">{t("stockOpt2.destination")}</p>
+        <button type="button" onClick={() => openPick("destination")} className="w-full h-12 rounded-xl bg-card border border-border px-3.5 flex items-center justify-between text-sm">
+          <span className={destination ? "text-foreground font-medium" : "text-muted-foreground"}>{destination || t("stockOpt2.selectDestination")}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
         </button>
       </div>
@@ -356,16 +367,16 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
         );
       })}
       <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
-        <Button disabled={!location || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
+        <Button disabled={!location || !destination || total === 0 || (isPush && !member)} onClick={() => setConfirm(true)} className="w-full h-12 rounded-full text-base">{t(isEdit ? "purchaseOrders.save" : "stockOpt2.submitOrder")}</Button>
       </div>
 
-      {/* ---------- Location picker ---------- */}
-      <Drawer open={pick} onOpenChange={setPick}>
+      {/* ---------- Location / Destination picker ---------- */}
+      <Drawer open={!!pick} onOpenChange={(open) => { if (!open) setPick(null); }}>
         <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col">
-          <CloseButton onClick={() => setPick(false)} />
+          <CloseButton onClick={() => setPick(null)} />
           <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("stockOpt2.location")}</DrawerTitle>
-            <DrawerDescription className="sr-only">{t("stockOpt2.selectLocation")}</DrawerDescription>
+            <DrawerTitle className="text-lg font-semibold">{t(pick === "destination" ? "stockOpt2.destination" : "stockOpt2.location")}</DrawerTitle>
+            <DrawerDescription className="sr-only">{t(pick === "destination" ? "stockOpt2.selectDestination" : "stockOpt2.selectLocation")}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-3">
             <div className="relative">
@@ -375,8 +386,8 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
           </div>
           <div className="px-4 pb-8 space-y-2 overflow-y-auto flex-1">
             {places.map((d) => (
-              <button key={d} type="button" onClick={() => { setLocation(d); setPick(false); }}
-                className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl transition text-start", location === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-muted/50")}>
+              <button key={d} type="button" onClick={() => choose(d)}
+                className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl transition text-start", picked === d ? "border-[0.5px] bg-primary/10 border-primary/20" : "bg-muted/50")}>
                 <div className="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4 text-sky-600 dark:text-sky-300" /></div>
                 <span className="text-sm font-semibold text-foreground flex-1">{d}</span>
               </button>
@@ -509,6 +520,10 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
         <div className="mt-3 rounded-xl bg-muted/50 px-3 py-2.5 flex items-center gap-2.5">
           <MapPin className="w-4 h-4 text-primary shrink-0" />
           <div><p className="text-[11px] text-muted-foreground">{t("stockOpt2.shippingTo")}</p><p className="text-sm font-semibold text-foreground">{o.location}</p></div>
+        </div>
+        <div className="mt-2 rounded-xl bg-muted/50 px-3 py-2.5 flex items-center gap-2.5">
+          <MapPin className="w-4 h-4 text-primary shrink-0" />
+          <div><p className="text-[11px] text-muted-foreground">{t("stockOpt2.destination")}</p><p className="text-sm font-semibold text-foreground">{o.destination}</p></div>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">{o.date}{requester && <> · <span className="text-primary">{requester}</span></>}</p>
       </div>

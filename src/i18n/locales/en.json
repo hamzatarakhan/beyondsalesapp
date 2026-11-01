@@ -2280,6 +2280,8 @@
     "viewOrder": "View Order",
     "location": "Location",
     "selectLocation": "Select location",
+    "destination": "Destination",
+    "selectDestination": "Select destination",
     "submitOrder": "Submit Order",
     "save": "Save",
     "orderId": "Order ID",

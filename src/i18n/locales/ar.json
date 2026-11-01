@@ -2206,6 +2206,8 @@
     "viewOrder": "عرض الطلب",
     "location": "الموقع",
     "selectLocation": "اختر الموقع",
+    "destination": "الوجهة",
+    "selectDestination": "اختر الوجهة",
     "submitOrder": "إرسال الطلب",
     "save": "حفظ",
     "orderId": "رقم الطلب",
