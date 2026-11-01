@@ -2231,6 +2231,7 @@
     "approveSuccessDesc": "تمت الموافقة على الطلب بنجاح.",
     "confirmRequest": "تأكيد الطلب",
     "confirmQ": "هل تريد تأكيد الطلب؟",
+    "confirmSuccessDesc": "تم تأكيد الطلب بنجاح.",
     "rejectRequest": "رفض الطلب",
     "rejectQ": "هل تريد رفض الطلب؟",
     "cancelRequest": "إلغاء الطلب",

@@ -2305,6 +2305,7 @@
     "approveSuccessDesc": "The request has been approved successfully.",
     "confirmRequest": "Confirm Request",
     "confirmQ": "Do you want to confirm the request?",
+    "confirmSuccessDesc": "The request has been confirmed successfully.",
     "rejectRequest": "Reject Request",
     "rejectQ": "Do you want to reject the order?",
     "cancelRequest": "Cancel Request",

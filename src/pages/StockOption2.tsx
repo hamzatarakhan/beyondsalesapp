@@ -458,7 +458,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
   const navigate = useNavigate();
   const o = getChainOrder(id)!;
   const [action, setAction] = useState<Action | null>(null);
-  const [approvedOpen, setApprovedOpen] = useState(false);
+  const [succeeded, setSucceeded] = useState<"approve" | "confirm" | null>(null);
   const [reasonKey, setReasonKey] = useState("");
   const [remark, setRemark] = useState("");
   const [tracking, setTracking] = useState("");
@@ -486,7 +486,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
       reject: { status: "rejected", rejectedBy: role === "ss" ? "ss" : role === "rm" ? "rm" : undefined, reason },
     };
     updateChainOrder(id, patch[action!]);
-    if (action === "approve") setApprovedOpen(true);
+    if (action === "approve" || action === "confirm") setSucceeded(action);
     setAction(null); setReasonKey(""); setRemark("");
     onChanged();
   };
@@ -607,7 +607,8 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
       {footer && <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">{footer}</div>}
       {serialFor && <SerialSheet onClose={() => setSerialFor(null)} orderId={id} productId={serialFor} />}
 
-      <SuccessSheet open={approvedOpen} onClose={() => setApprovedOpen(false)} title={t("purchaseOrders.approveRequestTitle")} desc={t("stockOpt2.approveSuccessDesc")} />
+      <SuccessSheet open={!!succeeded} onClose={() => setSucceeded(null)}
+        title={t(succeeded === "confirm" ? "stockOpt2.confirmRequest" : "purchaseOrders.approveRequestTitle")} desc={t(succeeded === "confirm" ? "stockOpt2.confirmSuccessDesc" : "stockOpt2.approveSuccessDesc")} />
 
       <ConfirmMessageDrawer
         open={!!action}
