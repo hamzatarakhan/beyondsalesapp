@@ -130,9 +130,10 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: 
 const LATEST_MONTH = new Date(2026, 7, 1);
 // The three months that have their own chip: Last month, then the two before it (July, June).
 const CHIP_MONTHS = [0, -1, -2].map((n) => addMonths(LATEST_MONTH, n));
-const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(LATEST_MONTH.getFullYear(), m, 1));
+// Custom sheet: past months of the year only, up to Last month; the current and future months never appear.
+const YEAR_MONTHS = Array.from({ length: LATEST_MONTH.getMonth() + 1 }, (_, m) => new Date(LATEST_MONTH.getFullYear(), m, 1));
 
-// "Filter" bottom sheet behind the Custom chip: every month of this year as pills, opened on the month
+// "Filter" bottom sheet behind the Custom chip: the past months of this year as pills, opened on the month
 // the home chips currently show. Apply commits; Clear Filter goes back to Last month.
 const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { open: boolean; onOpenChange: (o: boolean) => void; value: Date; onApply: (d: Date) => void; onClear: () => void }) => {
   const { t } = useTranslation();
