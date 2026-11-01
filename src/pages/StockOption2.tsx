@@ -93,6 +93,24 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
+const SuccessSheet = ({ open, onClose, title, desc }: { open: boolean; onClose: () => void; title: string; desc: string }) => {
+  const { t } = useTranslation();
+  return (
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
+        <div className="flex flex-col items-center mb-4">
+          <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center"><Check className="w-8 h-8 text-white" strokeWidth={3} /></div>
+          </div>
+          <DrawerTitle className="font-semibold text-foreground text-base mb-1 text-center">{title}</DrawerTitle>
+          <DrawerDescription className="text-xs text-muted-foreground mt-2 text-center">{desc}</DrawerDescription>
+        </div>
+        <button type="button" onClick={onClose} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">{t("purchaseOrders.done")}</button>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
 // ------------------------------------------------------------------ list
 
 const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) => void; onNew: () => void }) => {
@@ -401,19 +419,8 @@ const Form = ({ role, id, step, onStep, onDone }: { role: ChainRole; id?: string
         description={t(isEdit ? "purchaseOrders.saveRequestDesc" : "purchaseOrders.submitRequestDesc")} confirmLabel={t(isEdit ? "purchaseOrders.save" : "purchaseOrders.submit")}
         onConfirm={submit} cancelLabel={t("purchaseOrders.cancel")} />
 
-      {/* ---------- Success ---------- */}
-      <Drawer open={success} onOpenChange={(o) => { if (!o) { setSuccess(false); onDone(); } }}>
-        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
-          <div className="flex flex-col items-center mb-4">
-            <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center"><Check className="w-8 h-8 text-white" strokeWidth={3} /></div>
-            </div>
-            <DrawerTitle className="font-semibold text-foreground text-base mb-1 text-center">{t(isEdit ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")}</DrawerTitle>
-            <DrawerDescription className="text-xs text-muted-foreground mt-2 text-center">{t(isEdit ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")}</DrawerDescription>
-          </div>
-          <button type="button" onClick={() => { setSuccess(false); onDone(); }} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm">{t("purchaseOrders.done")}</button>
-        </DrawerContent>
-      </Drawer>
+      <SuccessSheet open={success} onClose={() => { setSuccess(false); onDone(); }}
+        title={t(isEdit ? "purchaseOrders.saveSuccessTitle" : "purchaseOrders.submitSuccessTitle")} desc={t(isEdit ? "purchaseOrders.saveSuccessDesc" : "purchaseOrders.submitSuccessDesc")} />
     </div>
   );
 };
@@ -451,6 +458,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
   const navigate = useNavigate();
   const o = getChainOrder(id)!;
   const [action, setAction] = useState<Action | null>(null);
+  const [approvedOpen, setApprovedOpen] = useState(false);
   const [reasonKey, setReasonKey] = useState("");
   const [remark, setRemark] = useState("");
   const [tracking, setTracking] = useState("");
@@ -478,6 +486,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
       reject: { status: "rejected", rejectedBy: role === "ss" ? "ss" : role === "rm" ? "rm" : undefined, reason },
     };
     updateChainOrder(id, patch[action!]);
+    if (action === "approve") setApprovedOpen(true);
     setAction(null); setReasonKey(""); setRemark("");
     onChanged();
   };
@@ -597,6 +606,8 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
 
       {footer && <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">{footer}</div>}
       {serialFor && <SerialSheet onClose={() => setSerialFor(null)} orderId={id} productId={serialFor} />}
+
+      <SuccessSheet open={approvedOpen} onClose={() => setApprovedOpen(false)} title={t("purchaseOrders.approveRequestTitle")} desc={t("stockOpt2.approveSuccessDesc")} />
 
       <ConfirmMessageDrawer
         open={!!action}

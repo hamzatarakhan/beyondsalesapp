@@ -2228,6 +2228,7 @@
     "confirmationMessage": "رسالة تأكيد",
     "approveRequest": "الموافقة على الطلب",
     "approveQ": "هل تريد الموافقة على الطلب؟",
+    "approveSuccessDesc": "تمت الموافقة على الطلب بنجاح.",
     "confirmRequest": "تأكيد الطلب",
     "confirmQ": "هل تريد تأكيد الطلب؟",
     "rejectRequest": "رفض الطلب",

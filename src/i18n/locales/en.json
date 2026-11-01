@@ -2302,6 +2302,7 @@
     "confirmationMessage": "Confirmation Message",
     "approveRequest": "Approve Request",
     "approveQ": "Do you want to approve the order?",
+    "approveSuccessDesc": "The request has been approved successfully.",
     "confirmRequest": "Confirm Request",
     "confirmQ": "Do you want to confirm the request?",
     "rejectRequest": "Reject Request",
