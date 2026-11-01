@@ -2281,7 +2281,7 @@
     "location": "Location",
     "selectLocation": "Select location",
     "destination": "Request From",
-    "selectDestination": "Select where to request from",
+    "selectDestination": "Select who to request from",
     "submitOrder": "Submit Order",
     "save": "Save",
     "orderId": "Order ID",

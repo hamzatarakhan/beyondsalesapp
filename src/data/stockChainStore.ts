@@ -69,7 +69,7 @@ const lines = (scanned = false): ChainLine[] =>
   ([["vmSim", 10], ["voucher10", 10], ["router1", 10]] as [ProductId, number][]).map(([productId, qty]) => ({ productId, qty, serials: scanned ? serials(productId, qty) : [] }));
 
 const mk = (id: string, flow: Flow, status: ChainStatus, location: string, when: Date, extra?: Partial<ChainOrder>): ChainOrder =>
-  ({ id, flow, status, location, destination: "Riyadh Main Warehouse", date: fmt(when), dateObj: when, lines: lines(), proofs: [], ...extra });
+  ({ id, flow, status, location, destination: CHANNEL_MEMBERS[0], date: fmt(when), dateObj: when, lines: lines(), proofs: [], ...extra });
 
 const PROOFS = ["Payment proof.pdf", "Transfer receipt.png"];
 const seed = (): ChainOrder[] => [
@@ -94,7 +94,7 @@ const seed = (): ChainOrder[] => [
   mk("3515165610", "chain", "cancelled", "California, USA", d(23, 10), { reason: "Budget constraints" }),
 ];
 
-const KEY = "stockOpt2.orders.v6";
+const KEY = "stockOpt2.orders.v7";
 const load = (): ChainOrder[] => {
   try {
     const raw = localStorage.getItem(KEY);
