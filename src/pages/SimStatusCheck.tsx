@@ -172,7 +172,7 @@ const SimStatusCheck = () => {
   };
 
   return (
-    <div className="mobile-container min-h-screen bg-background pb-10">
+    <div className="mobile-container min-h-screen bg-background pb-28">
       <AppHeader title={t("simStatusCheck.title")} showBack onBackClick={() => navigate("/")} />
 
       <div className="px-4 space-y-4">
@@ -187,27 +187,22 @@ const SimStatusCheck = () => {
 
         {method === "kit" && (
           <Field label={t("simStatusCheck.kitCode")}>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input
-                  value={kit}
-                  onChange={(e) => { setKit(e.target.value.replace(/\D/g, "").slice(0, 10)); resetLookup(); }}
-                  placeholder={t("simStatusCheck.kitCodePlaceholder")}
-                  inputMode="numeric"
-                  className="h-12 bg-card rounded-xl w-full pe-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => { setKit("1234567890"); resetLookup(); }}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
-                  aria-label="Scan KIT Code"
-                >
-                  <ScanLine className="w-5 h-5" />
-                </button>
-              </div>
-              <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!kitValid || checking} onClick={handleSearch}>
-                {t("simStatusCheck.search")}
-              </Button>
+            <div className="relative">
+              <Input
+                value={kit}
+                onChange={(e) => { setKit(e.target.value.replace(/\D/g, "").slice(0, 10)); resetLookup(); }}
+                placeholder={t("simStatusCheck.kitCodePlaceholder")}
+                inputMode="numeric"
+                className="h-12 bg-card rounded-xl w-full pe-12"
+              />
+              <button
+                type="button"
+                onClick={() => { setKit("1234567890"); resetLookup(); }}
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
+                aria-label="Scan KIT Code"
+              >
+                <ScanLine className="w-5 h-5" />
+              </button>
             </div>
             {kit.length > 0 && !kitValid && (
               <p className="text-[11px] text-destructive mt-1.5">{t("simStatusCheck.kitCodeInvalidHint")}</p>
@@ -217,38 +212,28 @@ const SimStatusCheck = () => {
 
         {method === "msisdn" && (
           <Field label={t("simStatusCheck.msisdn")}>
-            <div className="flex gap-2">
-              <PhoneNumberInput value={msisdn} onChange={(v) => { setMsisdn(v); resetLookup(); }} icon={<Phone className="w-4 h-4" />} className="flex-1" />
-              <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!msisdnValid || checking} onClick={handleSearch}>
-                {t("simStatusCheck.search")}
-              </Button>
-            </div>
+            <PhoneNumberInput value={msisdn} onChange={(v) => { setMsisdn(v); resetLookup(); }} icon={<Phone className="w-4 h-4" />} />
           </Field>
         )}
 
         {method === "imsi" && (
           <Field label={t("simStatusCheck.imsiCode")}>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input
-                  value={imsi}
-                  onChange={(e) => { setImsi(e.target.value.replace(/\D/g, "").slice(0, 15)); resetLookup(); }}
-                  placeholder={t("simStatusCheck.imsiCodePlaceholder")}
-                  inputMode="numeric"
-                  className="h-12 bg-card rounded-xl w-full pe-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => { setImsi("420011234567890"); resetLookup(); }}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
-                  aria-label="Scan IMSI"
-                >
-                  <ScanLine className="w-5 h-5" />
-                </button>
-              </div>
-              <Button type="button" className="h-12 w-20 rounded-xl shrink-0" disabled={!imsiValid || checking} onClick={handleSearch}>
-                {t("simStatusCheck.search")}
-              </Button>
+            <div className="relative">
+              <Input
+                value={imsi}
+                onChange={(e) => { setImsi(e.target.value.replace(/\D/g, "").slice(0, 15)); resetLookup(); }}
+                placeholder={t("simStatusCheck.imsiCodePlaceholder")}
+                inputMode="numeric"
+                className="h-12 bg-card rounded-xl w-full pe-12"
+              />
+              <button
+                type="button"
+                onClick={() => { setImsi("420011234567890"); resetLookup(); }}
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-primary"
+                aria-label="Scan IMSI"
+              >
+                <ScanLine className="w-5 h-5" />
+              </button>
             </div>
             {imsi.length > 0 && !imsiValid && (
               <p className="text-[11px] text-destructive mt-1.5">{t("simStatusCheck.imsiCodeInvalidHint")}</p>
@@ -324,6 +309,12 @@ const SimStatusCheck = () => {
             resetLookup();
           }}
         />
+      </div>
+
+      <div className="fixed bottom-0 start-0 end-0 z-40 bg-background border-t border-border px-4 py-3">
+        <Button type="button" className="w-full h-12 rounded-full text-base" disabled={!inputValid || checking} onClick={handleSearch}>
+          {t("simStatusCheck.search")}
+        </Button>
       </div>
 
       {/* Invalid / not found — same popup pattern used app-wide for a lookup failure. */}
