@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
+import LottieImport from "lottie-react";
 import { useTranslation } from "react-i18next";
 import { Flag } from "lucide-react";
 import splashLight from "@/assets/splash-light.json";
@@ -16,6 +16,9 @@ const SPLASH = {
   light: { data: splashLight, background: "linear-gradient(135deg, #BCD6F7 0%, #ECE5F1 50%, #FAD0BE 100%)" },
   dark: { data: splashDark, background: "linear-gradient(135deg, #13243A 0%, #15131B 50%, #2C1620 100%)" },
 } as const;
+
+// lottie-react can arrive as a CJS namespace object under some bundlers; unwrap its default.
+const Lottie = ((LottieImport as unknown as { default?: typeof LottieImport }).default ?? LottieImport) as typeof LottieImport;
 
 const PLAY_MS = 2500;
 
