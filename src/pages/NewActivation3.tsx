@@ -966,10 +966,9 @@ const NewActivation3 = () => {
   const isNewCustomer     = !isFulfilment && idNumber.trim().length === 10 && idNumber.trim().endsWith(NEW_CUSTOMER_TEST_ID_SUFFIX);
   const showOtp           = !isNewCustomer;
   const otpRequired       = !isNewCustomer;
-  // Postpaid: OTP goes to the Absher number (preselected). Prepaid: the customer picks one of their numbers.
+  // Postpaid: OTP always goes to the Absher-registered number (no choice). Prepaid: the customer picks one of their numbers.
   const isPostpaidOtp     = payType === "postpaid";
-  const otpNumbers        = isPostpaidOtp ? [ABSHER_NUMBER, ...CUSTOMER_NUMBERS.filter((n) => n !== ABSHER_NUMBER)] : CUSTOMER_NUMBERS;
-  const otpTarget         = otpNumber || (isPostpaidOtp ? ABSHER_NUMBER : "");
+  const otpTarget         = isPostpaidOtp ? ABSHER_NUMBER : otpNumber;
   // Postpaid contact numbers must pass the Tahaqoq check (number belongs to the customer's civil ID).
   const contactNeedsVerify = payType === "postpaid" && !!contactNumber.trim();
   const contactVerified    = verifiedContactNumber === contactNumber;
@@ -3002,7 +3001,7 @@ const NewActivation3 = () => {
                   <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpNumberOpen(true)}>{t("activation3.checkout.sendOtp")}</Button>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => (isPostpaidOtp ? setOtpOpen(true) : setOtpNumberOpen(true))}>{t("activation3.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
                       <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
                     )}
@@ -3471,7 +3470,7 @@ const NewActivation3 = () => {
               <DrawerDescription className="text-sm text-muted-foreground">{t("activation3.checkout.otpPickNumber")}</DrawerDescription>
             </div>
             <div className="space-y-2">
-              {otpNumbers.map((n) => (
+              {CUSTOMER_NUMBERS.map((n) => (
                 <button
                   key={n}
                   type="button"
@@ -3482,7 +3481,6 @@ const NewActivation3 = () => {
                   )}
                 >
                   <span dir="ltr">{maskPhone(n)}</span>
-                  {isPostpaidOtp && n === ABSHER_NUMBER && <span className="text-[11px] font-medium text-muted-foreground">{t("activation3.checkout.otpAbsher")}</span>}
                 </button>
               ))}
             </div>
