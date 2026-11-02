@@ -23,17 +23,21 @@ interface EmailOtpSheetProps {
   onVerified: () => void;
 }
 
-// ponytail: OTP is a stub (any 6 digits pass) until a backend exists.
+// ponytail: OTP is a stub (any 6 digits pass, except the demo wrong code 111111) until a backend exists.
+const WRONG_CODE = "111111";
 export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpSheetProps) => {
   const { t } = useTranslation();
   const [digits, setDigits] = useState<string[]>(emptyDigits());
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
   const complete = digits.every((d) => d !== "");
+  const [wrong, setWrong] = useState(false);
+  const submit = () => { if (digits.join("") === WRONG_CODE) setWrong(true); else onVerified(); };
 
   useEffect(() => {
     if (open) {
       setDigits(emptyDigits());
       setSeconds(RESEND_SECONDS);
+      setWrong(false);
     }
   }, [open]);
 
@@ -49,6 +53,7 @@ export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpShee
   // Handles typing, autofill and paste: spreads all digits from index i onward.
   const setDigit = (i: number, v: string) => {
     const chars = v.replace(/\D/g, "").split("");
+    setWrong(false);
     setDigits((prev) => {
       const next = [...prev];
       if (!chars.length) next[i] = "";
@@ -60,7 +65,7 @@ export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpShee
 
   const onKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !digits[i] && i > 0) focusBox(i - 1);
-    if (e.key === "Enter" && complete) onVerified();
+    if (e.key === "Enter" && complete) submit();
   };
 
   const resend = () => {
@@ -94,10 +99,11 @@ export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpShee
               onChange={(e) => setDigit(i, e.target.value)}
               onKeyDown={(e) => onKeyDown(i, e)}
               onFocus={(e) => e.target.select()}
-              className="w-11 h-11 rounded-full border border-border bg-card text-center text-lg font-semibold text-foreground focus:outline-none focus:border-primary"
+              className={cn("w-11 h-11 rounded-full border bg-card text-center text-lg font-semibold text-foreground focus:outline-none", wrong ? "border-destructive" : "border-border focus:border-primary")}
             />
           ))}
         </div>
+        {wrong && <p className="text-center text-xs text-destructive mt-3">{t("emailVerify.wrongCode")}</p>}
         <p className="text-center text-xs text-muted-foreground mt-5">
           {t("emailVerify.didntReceive")}{" "}
           {seconds > 0 ? (
@@ -110,7 +116,7 @@ export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpShee
             </button>
           )}
         </p>
-        <Button className="w-full h-12 rounded-full font-semibold mt-5" disabled={!complete} onClick={onVerified}>
+        <Button className="w-full h-12 rounded-full font-semibold mt-5" disabled={!complete} onClick={submit}>
           {t("emailVerify.verify")}
         </Button>
       </DrawerContent>

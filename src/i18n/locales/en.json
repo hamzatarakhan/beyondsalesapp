@@ -30,7 +30,8 @@
     "verify": "Submit",
     "verifyBtn": "Verify",
     "verified": "Verified",
-    "mustVerify": "Verify the email to continue"
+    "mustVerify": "Verify the email to continue",
+    "wrongCode": "The verification code is incorrect. Please try again."
   },
   "common": {
     "toppedUp": "Topped up"

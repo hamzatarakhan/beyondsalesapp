@@ -1613,7 +1613,7 @@ const NewActivation3 = () => {
               <>
               <PrototypeTestBox
                 heading="test ID numbers"
-                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check. This box won't appear in the real implementation."
+                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check, and the code 111111 fails the email and OTP codes. This box won't appear in the real implementation."
                 items={isFriendi ? [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
                   { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },
