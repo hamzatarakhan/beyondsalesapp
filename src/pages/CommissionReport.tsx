@@ -263,6 +263,15 @@ const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 // Bar labels must stay within ~4-5 characters: 14.2k, then 123k (no decimal once it reaches six digits), then 1.2M.
 const compact = (v: number) => v >= 999500 ? `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M` : v >= 1e5 ? `${Math.round(v / 1000)}k` : `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+// Prototype-only payout sizes for the chart: the real data, ten times, a hundred times, and one of every label length.
+const MIXED = [450, 7400, 14200, 99949, 122660, 456000, 999500, 1226600, 3400000, 12500000, 7400, 14200];
+const PAYOUT_DEMO = {
+  normal: (v: number) => v,
+  hundredK: (v: number) => v * 10,
+  millions: (v: number) => v * 100,
+  mixed: (_: number, i: number) => MIXED[i],
+};
+const PAYOUT_DEMO_LABEL = { normal: "Thousands", hundredK: "100k+", millions: "Millions", mixed: "Mixed" };
 const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
 const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June: 61200 };
 
@@ -274,7 +283,9 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const { missed } = useScheme1();
   // Payout window: the trailing 3, 6 or 12 months.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
-  const payout = PAYOUT.slice(-Number(range));
+  // Demo only: shows how the bar labels cope with bigger payouts (hundreds of thousands, millions, or a mix).
+  const [size, setSize] = useState<keyof typeof PAYOUT_DEMO>("normal");
+  const payout = PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
   const dense = payout.length > 6;
@@ -298,6 +309,17 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         </div>
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
+        <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 shrink-0">Demo: amounts</span>
+        <div className="flex gap-1 overflow-x-auto no-scrollbar">
+          {(Object.keys(PAYOUT_DEMO) as (keyof typeof PAYOUT_DEMO)[]).map((k) => (
+            <button key={k} type="button" onClick={() => setSize(k)} aria-pressed={size === k}
+              className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap", size === k ? "bg-amber-600 text-white" : "text-amber-700 dark:text-amber-300")}>
+              {PAYOUT_DEMO_LABEL[k]}
+            </button>
+          ))}
+        </div>
+      </div>
       {/* Same pill chips as the month row at the top, per design. */}
       <Chips fill items={RANGES.map(([, label]) => t(`commissionReport.${label}`))} value={rangeTitle}
         onChange={(v) => setRange(RANGES.find(([, label]) => t(`commissionReport.${label}`) === v)![0])} />
