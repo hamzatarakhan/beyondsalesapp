@@ -261,7 +261,8 @@ const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void })
 // Twelve months of payouts ending in LATEST_MONTH (Sep 2025 – Aug 2026).
 const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
-const compact = (v: number) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+// Bar labels must stay within ~4-5 characters: 14.2k, then 123k (no decimal once it reaches six digits), then 1.2M.
+const compact = (v: number) => v >= 1e6 ? `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M` : v >= 1e5 ? `${Math.round(v / 1000)}k` : `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
 const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June: 61200 };
 
@@ -312,7 +313,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
             const m = format(date, "MMM");
             return (
               <div key={m} className="flex-1 min-w-0 max-w-16 flex flex-col items-center gap-1.5 h-full justify-end">
-                <span className={cn("tabular-nums whitespace-nowrap", dense ? "text-[9px] tracking-tighter" : "text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{dense ? compact(v) : v.toLocaleString()}</span>
+                <span className={cn("tabular-nums whitespace-nowrap", dense ? "text-[9px] tracking-tighter" : "text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{dense || v >= 1e6 ? compact(v) : v.toLocaleString()}</span>
                 <div className={cn("w-full", dense ? "rounded" : "rounded-md")} style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
                 <span className={cn("text-muted-foreground", dense ? "text-[10px]" : "text-[11px]")}>{m}</span>
               </div>
