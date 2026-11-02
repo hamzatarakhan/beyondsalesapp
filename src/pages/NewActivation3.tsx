@@ -962,10 +962,11 @@ const NewActivation3 = () => {
   // For E-SIM, it stays visible but is never required, even on those three cases.
   const contactNumberRequired = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
   // OTP verification is mandatory for every activation case, regardless of plan type or SIM type.
-  // New customers (known from the identity step) have no CAS numbers list, so the OTP is skipped and hidden.
+  // Prepaid new customers (known from the identity step) have no CAS numbers list, so the OTP is skipped and hidden.
+  // Postpaid always needs the OTP (Absher number), new customer or not.
   const isNewCustomer     = !isFulfilment && idNumber.trim().length === 10 && idNumber.trim().endsWith(NEW_CUSTOMER_TEST_ID_SUFFIX);
-  const showOtp           = !isNewCustomer;
-  const otpRequired       = !isNewCustomer;
+  const showOtp           = payType === "postpaid" || !isNewCustomer;
+  const otpRequired       = showOtp;
   // Postpaid: OTP always goes to the Absher-registered number (no choice). Prepaid: the customer picks one of their numbers.
   const isPostpaidOtp     = payType === "postpaid";
   const otpTarget         = isPostpaidOtp ? ABSHER_NUMBER : otpNumber;
@@ -1615,14 +1616,14 @@ const NewActivation3 = () => {
                 description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check. This box won't appear in the real implementation."
                 items={isFriendi ? [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
-                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (no numbers list: OTP hidden)" },
+                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },
                   { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
                   { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
                   { value: demoIdFor(idNumberRule, FAILED_ACTIVATION_TEST_ID_SUFFIX), note: "Forces Failed Request at Yes, Confirm" },
                 ] : [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer (existing: OTP with numbers list)" },
-                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (no numbers list: OTP hidden)" },
+                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
                   { value: demoIdFor(idNumberRule, DEVICE_PRICED_TEST_ID_SUFFIX), note: "Vnet router has a price (200.00)" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
