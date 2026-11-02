@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
@@ -176,18 +176,47 @@ const useCustomMonth = (first: string) => {
   const { t } = useTranslation();
   const [month, setMonth] = useState(LATEST_MONTH);
   const [open, setOpen] = useState(false);
+  // Picking another month "reloads" the data: figures are replaced by a skeleton for a moment, then the month's numbers appear.
+  const [loading, setLoading] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const pick = (d: Date) => {
+    if (d.getTime() === month.getTime()) return;
+    setMonth(d);
+    setLoading(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setLoading(false), 700);
+  };
   const chipLabels = [first, ...CHIP_MONTHS.slice(1).map((d) => format(d, "MMMM"))];
   const chip = CHIP_MONTHS.findIndex((d) => d.getTime() === month.getTime());
   const customLabel = chip === -1 ? format(month, "MMMM") : t("commissionReport.custom");
   return {
     month,
+    loading,
+    factor: monthFactor(month),
     monthName: format(month, "MMMM"),
     items: [...chipLabels, customLabel],
     chipValue: chip === -1 ? customLabel : chipLabels[chip],
-    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : setMonth(CHIP_MONTHS[chipLabels.indexOf(v)])),
-    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} onApply={setMonth} onClear={() => setMonth(LATEST_MONTH)} />,
+    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : pick(CHIP_MONTHS[chipLabels.indexOf(v)])),
+    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} onApply={pick} onClear={() => pick(LATEST_MONTH)} />,
   };
 };
+
+// One selected month for the whole report (both roles, every tab and drill-down). Every figure is scaled by that
+// month's payout relative to the latest month, so the numbers change whichever screen the filter was used on.
+const monthFactor = (d: Date) => (PAYOUT.find((p) => p.date.getTime() === d.getTime())?.v ?? PAYOUT[PAYOUT.length - 1].v) / PAYOUT[PAYOUT.length - 1].v;
+const PeriodContext = createContext<ReturnType<typeof useCustomMonth> | null>(null);
+const usePeriod = () => useContext(PeriodContext)!;
+const useScale = () => { const { factor } = usePeriod(); return (v: number) => Math.round(v * factor); };
+const scaleCount = (text: string, factor: number) => text.replace(/[\d,]+/, (n) => Math.max(1, Math.round(Number(n.replace(/,/g, "")) * factor)).toLocaleString());
+
+const ReloadSkeleton = () => (
+  <div className="space-y-4 animate-pulse" aria-busy="true">
+    <div className="h-24 rounded-2xl bg-muted" />
+    <div className="h-56 rounded-2xl bg-muted" />
+    <div className="h-40 rounded-2xl bg-muted" />
+  </div>
+);
 
 // Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0.
 const KPI_MIN = 70;
@@ -230,7 +259,8 @@ const MissedBanner = () => {
 };
 const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void }) => {
   const { missed } = useScheme1();
-  return <PlanRow plain={plain} title="Scheme 1 Commission" weight value={6550} missed={missed} sub={missed ? "Killer KPI missed" : undefined} onClick={() => go("scheme1")} />;
+  const sc = useScale();
+  return <PlanRow plain={plain} title="Scheme 1 Commission" weight value={sc(6550)} missed={missed} sub={missed ? "Killer KPI missed" : undefined} onClick={() => go("scheme1")} />;
 };
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
@@ -245,8 +275,8 @@ const MONTH_EARNED: Record<string, number> = { August: 74000, July: 68500, June:
 // Dealer's own report shows 11,230 (5,100 without Scheme 1); a manager viewing a member sees that member's month figures (74,000 for August).
 const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolean }) => {
   const { t } = useTranslation();
-  const first = t("commissionReport.lastMonth");
-  const period = useCustomMonth(first);
+  const period = usePeriod();
+  const sc = useScale();
   const { missed } = useScheme1();
   // Payout window: the trailing 3, 6 or 12 months.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
@@ -260,7 +290,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : missed ? 5100 : 11230} badge={t("commissionReport.approved")} />
+      {period.loading ? <ReloadSkeleton /> : <>
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
@@ -268,8 +299,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         </div>
         <div className="space-y-3">
           <Scheme1Row go={go} />
-          <PlanRow title="Scheme 2 Prepaid KPI" weight value={5250} onClick={() => go("scheme2prepaid")} />
-          <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} danger onClick={() => go("clawbacks")} />
+          <PlanRow title="Scheme 2 Prepaid KPI" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
+          <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
@@ -296,29 +327,33 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           })}
         </div>
       </Card>
+      </>}
     </div>
   );
 };
 
 // ---------------------------------------------------------------- drill-down screens
 
-const PlansScreen = ({ go }: { go: (s: Screen) => void }) => (
+const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
+  const sc = useScale();
+  return (
   <div className="space-y-3">
     <Heading>Scheme 1</Heading>
     <Scheme1Row plain go={go} />
     <Heading>Scheme 2</Heading>
-    <PlanRow plain title="Scheme 2 Prepaid" weight value={5250} onClick={() => go("scheme2prepaid")} />
-    <PlanRow plain title="Scheme 2 Postpaid" weight value={5250} onClick={() => go("scheme2postpaid")} />
+    <PlanRow plain title="Scheme 2 Prepaid" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
+    <PlanRow plain title="Scheme 2 Postpaid" weight value={sc(5250)} onClick={() => go("scheme2postpaid")} />
     <Heading>Partner Level Incentive</Heading>
-    <PlanRow plain title="Partner Level Incentive" value={5250} onClick={() => go("pli")} />
+    <PlanRow plain title="Partner Level Incentive" value={sc(5250)} onClick={() => go("pli")} />
     <Heading>Change Requests</Heading>
-    <PlanRow plain title="HBB/ V-Net Commission" value={10500} onClick={() => go("hbb")} />
-    <PlanRow plain title="FR Promotional Packages" value={1200} onClick={() => go("fr")} />
+    <PlanRow plain title="HBB/ V-Net Commission" value={sc(10500)} onClick={() => go("hbb")} />
+    <PlanRow plain title="FR Promotional Packages" value={sc(1200)} onClick={() => go("fr")} />
     <Heading>Clawbacks</Heading>
-    <PlanRow plain danger title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={-150} onClick={() => go("clawbacks")} />
-    <PlanRow plain danger title="HBB/V-Net Claw backs" sub="3 Lines early disconnect" value={-150} onClick={() => go("hbbClawbacks")} />
+    <PlanRow plain danger title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} onClick={() => go("clawbacks")} />
+    <PlanRow plain danger title="HBB/V-Net Claw backs" sub="3 Lines early disconnect" value={sc(-150)} onClick={() => go("hbbClawbacks")} />
   </div>
-);
+  );
+};
 
 const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: number }) => (
   <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -337,9 +372,12 @@ const BandRow = ({ label, value, on, accent, struck }: { label: string; value: s
 
 const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
   const { rows, missedKillers, missed } = useScheme1();
+  const { monthName } = usePeriod();
+  const sc = useScale();
+  const fmt = (v: number) => sc(v).toLocaleString();
   return (
   <div className="space-y-4 pb-20">
-    {missed ? <MissedBanner /> : <Banner label="Earned in August" value={74000} badge="Approved" />}
+    {missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
     <Card>
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-semibold text-foreground">Conditions</h3>
@@ -356,23 +394,23 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
       </div>
       <div className="mt-3 space-y-0.5">
         <BandRow label="0-70%" value="Nothing" />
-        <BandRow label="70-90%" value="3,300" />
-        <BandRow on struck={missed} label="90-100% . your band" value="+5,400" />
-        <BandRow label="100-120%" value="6,660" />
-        <BandRow label="From 120%" value="7,900 max" />
-        <BandRow label="From 120%" value="7,900 max" />
-        <BandRow accent struck={missed} label="5,400 x 95%(fixed rate)" value="5,130" />
+        <BandRow label="70-90%" value={fmt(3300)} />
+        <BandRow on struck={missed} label="90-100% . your band" value={`+${fmt(5400)}`} />
+        <BandRow label="100-120%" value={fmt(6660)} />
+        <BandRow label="From 120%" value={`${fmt(7900)} max`} />
+        <BandRow label="From 120%" value={`${fmt(7900)} max`} />
+        <BandRow accent struck={missed} label={`${fmt(5400)} x 95%(fixed rate)`} value={fmt(5130)} />
       </div>
       {!missed && (
         <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border-[0.5px] border-amber-200 dark:border-amber-500/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-          <Info className="w-4 h-4 shrink-0" /> Reach 100% (7% more) to move to 6,600 band
+          <Info className="w-4 h-4 shrink-0" /> Reach 100% (7% more) to move to {fmt(6600)} band
         </div>
       )}
     </Card>
     <Card className={cn(missed && "opacity-60")}>
       <div className="flex justify-between items-center mb-2"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-foreground">Incentive bonus</h3>{missed && <Pill tone="bad">Not paid</Pill>}</div><span className="text-xs text-muted-foreground"><b className={POS}>93%</b> of Target</span></div>
-      <BandRow on struck={missed} label="90-100% . your band" value="+1,000" />
-      <BandRow label="From 100%" value="1,500" />
+      <BandRow on struck={missed} label="90-100% . your band" value={`+${fmt(1000)}`} />
+      <BandRow label="From 100%" value={fmt(1500)} />
     </Card>
     <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
       <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
@@ -455,11 +493,13 @@ const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
 
 const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: Screen) => void }) => {
   const b = BREAKDOWNS[kind];
+  const { factor } = usePeriod();
+  const sc = useScale();
   return (
     <div className="space-y-4">
-      <Banner label={b.banner} value={b.value} tone={b.bad ? "bad" : "good"} />
+      <Banner label={b.banner} value={sc(b.value)} tone={b.bad ? "bad" : "good"} />
       <button type="button" onClick={() => go("activities")} className="w-full text-start flex items-center justify-between rounded-2xl bg-card shadow-sm px-4 py-3">
-        <div><p className="text-sm font-semibold text-foreground">Activities</p><p className="text-xs text-muted-foreground">{b.activities}</p></div>
+        <div><p className="text-sm font-semibold text-foreground">Activities</p><p className="text-xs text-muted-foreground">{scaleCount(b.activities, factor)}</p></div>
         <Chev />
       </button>
       {b.conditions && (
@@ -478,7 +518,7 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
           <Card key={s.title} className="p-3.5">
             <div className="flex justify-between items-center mb-2.5">
               <span className="text-sm font-semibold text-foreground">{s.title}</span>
-              <span className="text-xs font-semibold text-muted-foreground">{typeof s.amount === "number" ? <Money v={s.amount} sign /> : <span className="inline-flex items-center gap-1"><RiyalSymbol /> {s.amount}</span>}</span>
+              <span className="text-xs font-semibold text-muted-foreground">{typeof s.amount === "number" ? <Money v={sc(s.amount)} sign /> : <span className="inline-flex items-center gap-1"><RiyalSymbol /> {s.amount}</span>}</span>
             </div>
             <div className="space-y-2">
               {s.rows.map(([l, v], i) => (
@@ -506,9 +546,9 @@ const demoRows = (count: number, amount: number): ActivityRow[] => Array.from({ 
   amount,
 }));
 // A breakdown's own lines when it has them, else demo rows matching its Activities count ("6 Lines", "3,000 Line").
-const activityRows = (kind: BreakdownKind) => {
+const activityRows = (kind: BreakdownKind, factor: number) => {
   const b = BREAKDOWNS[kind];
-  return b.lines ?? demoRows(Number(b.activities.replace(/[^\d]/g, "")), b.bad ? -5 : 5);
+  return b.lines ?? demoRows(Number(scaleCount(b.activities, factor).replace(/[^\d]/g, "")), b.bad ? -5 : 5);
 };
 
 // Same cards for every breakdown. Earnings lists filter by type chips (taken from the rows);
@@ -517,7 +557,8 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const all = useMemo(() => activityRows(kind), [kind]);
+  const { factor } = usePeriod();
+  const all = useMemo(() => activityRows(kind, factor), [kind, factor]);
   const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
   const showChips = !BREAKDOWNS[kind].bad;
   const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
@@ -548,7 +589,7 @@ const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784291"], ["Member Name", "MBR
 const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const { t } = useTranslation();
   // Same month chips and Custom month Filter sheet as the dealer report.
-  const period = useCustomMonth(t("commissionReport.lastMonth"));
+  const period = usePeriod();
   const [top, setTop] = useState("top");
   const [sheet, setSheet] = useState(false);
   const [q, setQ] = useState("");
@@ -598,14 +639,15 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
+      {period.loading ? <ReloadSkeleton /> : <>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 p-3">
           <div className="flex items-center gap-2"><IconBox><Banknote className="w-4 h-4" /></IconBox><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.dealersCommission")}</p></div>
-          <p className={cn("text-xl font-bold mt-2", POS)}><Money v="505.20" /></p>
+          <p className={cn("text-xl font-bold mt-2", POS)}><Money v={(505.2 * period.factor).toFixed(2)} /></p>
         </div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
           <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
-          <p className="text-xl font-bold mt-2 text-sky-600 dark:text-sky-400"><Money v={11230} /></p>
+          <p className="text-xl font-bold mt-2 text-sky-600 dark:text-sky-400"><Money v={Math.round(11230 * period.factor)} /></p>
         </div>
       </div>
       <div className="rounded-2xl bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-3 flex items-center gap-3">
@@ -622,11 +664,12 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
               <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : 5 - i}</span>
               <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
-              <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-rose-600")}><RiyalSymbol /> {v.toFixed(2)}</span>
+              <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-rose-600")}><RiyalSymbol /> {(v * period.factor).toFixed(2)}</span>
             </div>
           ))}
         </div>
       </Card>
+      </>}
       {sheetEl}
     </div>
   );
@@ -647,6 +690,7 @@ const CommissionReport = () => {
   const [stack, setStack] = useState<Screen[]>([]);
   const [killerMissed, setKillerMissed] = useState(false);
   const [tab, setTab] = useState<"overview" | "mine">(manager ? "overview" : "mine");
+  const period = useCustomMonth(t("commissionReport.lastMonth"));
   const screen = stack[stack.length - 1];
   const go = (s: Screen) => setStack((st) => [...st, s]);
 
@@ -664,6 +708,7 @@ const CommissionReport = () => {
           </div>
         )}
         {(screen === "plans" || screen === "scheme1" || screen === "kpi" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
+        <PeriodContext.Provider value={period}>
         <KillerDemoContext.Provider value={killerMissed}>
         {!screen && (tab === "overview" && manager ? <Overview go={go} /> : <MyCommission go={go} />)}
         {screen === "plans" && <PlansScreen go={go} />}
@@ -672,6 +717,7 @@ const CommissionReport = () => {
         {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
         {screen === "activities" && <ActivitiesScreen kind={stack[stack.length - 2] as BreakdownKind} />}
         </KillerDemoContext.Provider>
+        </PeriodContext.Provider>
       </div>
     </div>
   );
