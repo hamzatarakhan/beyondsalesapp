@@ -4259,7 +4259,8 @@
       "contactMustVerify": "Verify the contact number",
       "otpSendTo": "Send the OTP to",
       "otpAbsher": "Absher number",
-      "otpPickNumber": "Select a number to send the OTP to."
+      "otpPickNumber": "Select the number to receive the code.",
+      "otpSend": "Send OTP"
     },
     "success": {
       "title": "Success",

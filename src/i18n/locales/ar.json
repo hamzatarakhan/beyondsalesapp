@@ -4203,7 +4203,8 @@
       "contactMustVerify": "تحقق من رقم التواصل",
       "otpSendTo": "إرسال رمز التحقق إلى",
       "otpAbsher": "رقم أبشر",
-      "otpPickNumber": "اختر رقمًا لإرسال رمز التحقق إليه."
+      "otpPickNumber": "اختر الرقم الذي سيصله الرمز.",
+      "otpSend": "إرسال رمز التحقق"
     },
     "success": {
       "title": "تم بنجاح",

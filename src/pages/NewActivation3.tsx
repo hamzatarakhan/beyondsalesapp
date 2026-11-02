@@ -750,6 +750,7 @@ const NewActivation3 = () => {
   const [verifiedContactNumber, setVerifiedContactNumber] = useState("");
   const [contactError, setContactError] = useState(false);
   const [otpNumber, setOtpNumber] = useState("");
+  const [otpNumberOpen, setOtpNumberOpen] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
   const [locationRegion, setLocationRegion] = useState("");
@@ -1355,7 +1356,7 @@ const NewActivation3 = () => {
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
   // Verifications are sequential: Customer → OTP → Nafith. Each unlocks the next.
-  const otpGateOk = customerVerified && !!otpTarget;
+  const otpGateOk = customerVerified;
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
 
   // Demo Tahaqoq check: a valid 05 number passes unless it ends in 0000 (simulates a number not linked to the customer's ID).
@@ -2990,26 +2991,9 @@ const NewActivation3 = () => {
                   <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
-                    <p className="text-xs font-medium text-muted-foreground">{t("activation3.checkout.otpSendTo")}</p>
-                    <div className="space-y-2">
-                      {otpNumbers.map((n) => (
-                        <button
-                          key={n}
-                          type="button"
-                          onClick={() => setOtpNumber(n)}
-                          className={cn(
-                            "w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-start text-sm border",
-                            otpTarget === n ? "border-[0.5px] bg-primary/10 border-primary/20 text-foreground font-semibold" : "border-border bg-card text-foreground",
-                          )}
-                        >
-                          <span dir="ltr">{maskPhone(n)}</span>
-                          {isPostpaidOtp && n === ABSHER_NUMBER && <span className="text-[11px] font-medium text-muted-foreground">{t("activation3.checkout.otpAbsher")}</span>}
-                        </button>
-                      ))}
-                    </div>
-                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation3.checkout.sendOtp")}</Button>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpNumberOpen(true)}>{t("activation3.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">{customerVerified ? t("activation3.checkout.otpPickNumber") : "Complete the previous verification to unlock this verification."}</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
                     )}
                   </>
                 )}
@@ -3463,6 +3447,35 @@ const NewActivation3 = () => {
           </div>
           <div className="px-5 pb-6 pt-2">
             <Button className="w-full rounded-xl" onClick={() => setEsimInfoOpen(false)}>{t("activation3.checkout.gotIt")}</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* OTP number sheet — the customer picks which of their numbers receives the code */}
+      <Drawer open={otpNumberOpen} onOpenChange={setOtpNumberOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
+          <div className="py-4 space-y-4">
+            <div className="text-center space-y-1">
+              <DrawerTitle className="text-lg font-bold text-foreground">{t("activation3.checkout.otpSendTo")}</DrawerTitle>
+              <DrawerDescription className="text-sm text-muted-foreground">{t("activation3.checkout.otpPickNumber")}</DrawerDescription>
+            </div>
+            <div className="space-y-2">
+              {otpNumbers.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setOtpNumber(n)}
+                  className={cn(
+                    "w-full flex items-center justify-between rounded-xl px-3 py-3 text-start text-sm border",
+                    otpTarget === n ? "border-[0.5px] bg-primary/10 border-primary/20 text-foreground font-semibold" : "border-border bg-card text-foreground",
+                  )}
+                >
+                  <span dir="ltr">{maskPhone(n)}</span>
+                  {isPostpaidOtp && n === ABSHER_NUMBER && <span className="text-[11px] font-medium text-muted-foreground">{t("activation3.checkout.otpAbsher")}</span>}
+                </button>
+              ))}
+            </div>
+            <Button className="w-full h-12 rounded-full" disabled={!otpTarget} onClick={() => { setOtpNumberOpen(false); setOtpOpen(true); }}>{t("activation3.checkout.otpSend")}</Button>
           </div>
         </DrawerContent>
       </Drawer>
