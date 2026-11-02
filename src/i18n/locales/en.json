@@ -2249,7 +2249,8 @@
     "searchMsisdn": "Search MSISDN",
     "selectDates": "Select Dates",
     "selectDatesHint": "Pick a start and end date",
-    "apply": "Apply"
+    "apply": "Apply",
+    "swipeHint": "Swipe to see earlier months"
   },
   "stockOpt2": {
     "dealerCode": "Dealer Code: {{code}}",

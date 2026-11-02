@@ -2175,7 +2175,8 @@
     "searchMsisdn": "البحث برقم MSISDN",
     "selectDates": "اختر التواريخ",
     "selectDatesHint": "اختر تاريخ البداية والنهاية",
-    "apply": "تطبيق"
+    "apply": "تطبيق",
+    "swipeHint": "اسحب لعرض الأشهر السابقة"
   },
   "stockOpt2": {
     "dealerCode": "رمز الموزع: {{code}}",

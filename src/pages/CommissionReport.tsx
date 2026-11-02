@@ -288,7 +288,17 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const payout = PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
-  const dense = payout.length > 6;
+  // 12 months don't fit side by side on small phones (320px leaves ~18px per bar), so they scroll sideways at the same
+  // bar size as the 6-month chart, opening on the latest month; a fade on the left shows there is more.
+  const scroll = payout.length > 6;
+  const scroller = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || !scroll) return;
+    el.scrollLeft = el.scrollWidth;
+    setAtStart(el.scrollLeft < 4);
+  }, [scroll, size]);
   const month = period.monthName;
   const lit = period.month.getTime();
   return (
@@ -328,20 +338,21 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
           <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
-        {/* 12 bars share ~340px: min-w-0 lets columns shrink below their labels, and labels drop to 9–10px to fit. */}
-        <div className={cn("flex items-end justify-center h-56", dense ? "gap-1" : "gap-3")}>
+        <div ref={scroller} onScroll={(e) => setAtStart(e.currentTarget.scrollLeft < 4)}
+          className={cn("flex items-end h-56", scroll ? "gap-2 overflow-x-auto no-scrollbar snap-x" : "justify-center gap-3", scroll && !atStart && "[mask-image:linear-gradient(to_right,transparent,black_28px)]")}>
           {payout.map(({ date, v }) => {
             const last = date.getTime() === lit;
             const m = format(date, "MMM");
             return (
-              <div key={m} className="flex-1 min-w-0 max-w-16 flex flex-col items-center gap-1.5 h-full justify-end">
-                <span className={cn("tabular-nums whitespace-nowrap", dense ? "text-[9px] tracking-tighter" : "text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{dense || v >= 999500 ? compact(v) : v.toLocaleString()}</span>
-                <div className={cn("w-full", dense ? "rounded" : "rounded-md")} style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
-                <span className={cn("text-muted-foreground", dense ? "text-[10px]" : "text-[11px]")}>{m}</span>
+              <div key={m} className={cn("flex flex-col items-center gap-1.5 h-full justify-end", scroll ? "w-11 shrink-0 snap-start" : "flex-1 min-w-0 max-w-16")}>
+                <span className={cn("tabular-nums whitespace-nowrap text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{v >= (scroll ? 1e5 : 999500) ? compact(v) : v.toLocaleString()}</span>
+                <div className="w-full rounded-md" style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
+                <span className="text-muted-foreground text-[11px]">{m}</span>
               </div>
             );
           })}
         </div>
+        {scroll && <p className="mt-3 text-center text-[11px] text-muted-foreground">{t("commissionReport.swipeHint")}</p>}
       </Card>
       </>
     </div>
