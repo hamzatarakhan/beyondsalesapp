@@ -5,6 +5,7 @@ import { addMonths, format, subDays } from "date-fns";
 import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
@@ -176,7 +177,7 @@ const useCustomMonth = (first: string) => {
   const { t } = useTranslation();
   const [month, setMonth] = useState(LATEST_MONTH);
   const [open, setOpen] = useState(false);
-  // Picking another month "reloads" the data: figures are replaced by a skeleton for a moment, then the month's numbers appear.
+  // Picking another month "reloads" the data: the shared brand loader covers the page for a moment, then the month's numbers show.
   const [loading, setLoading] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -185,7 +186,7 @@ const useCustomMonth = (first: string) => {
     setMonth(d);
     setLoading(true);
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setLoading(false), 700);
+    timer.current = setTimeout(() => setLoading(false), 1000);
   };
   const chipLabels = [first, ...CHIP_MONTHS.slice(1).map((d) => format(d, "MMMM"))];
   const chip = CHIP_MONTHS.findIndex((d) => d.getTime() === month.getTime());
@@ -209,14 +210,6 @@ const PeriodContext = createContext<ReturnType<typeof useCustomMonth> | null>(nu
 const usePeriod = () => useContext(PeriodContext)!;
 const useScale = () => { const { factor } = usePeriod(); return (v: number) => Math.round(v * factor); };
 const scaleCount = (text: string, factor: number) => text.replace(/[\d,]+/, (n) => Math.max(1, Math.round(Number(n.replace(/,/g, "")) * factor)).toLocaleString());
-
-const ReloadSkeleton = () => (
-  <div className="space-y-4 animate-pulse" aria-busy="true">
-    <div className="h-24 rounded-2xl bg-muted" />
-    <div className="h-56 rounded-2xl bg-muted" />
-    <div className="h-40 rounded-2xl bg-muted" />
-  </div>
-);
 
 // Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0.
 const KPI_MIN = 70;
@@ -290,7 +283,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      {period.loading ? <ReloadSkeleton /> : <>
+      <>
       <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
@@ -327,7 +320,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           })}
         </div>
       </Card>
-      </>}
+      </>
     </div>
   );
 };
@@ -639,7 +632,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
-      {period.loading ? <ReloadSkeleton /> : <>
+      <>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 p-3">
           <div className="flex items-center gap-2"><IconBox><Banknote className="w-4 h-4" /></IconBox><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.dealersCommission")}</p></div>
@@ -669,7 +662,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           ))}
         </div>
       </Card>
-      </>}
+      </>
       {sheetEl}
     </div>
   );
@@ -696,6 +689,7 @@ const CommissionReport = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-8">
+      <BrandLoadingOverlay open={period.loading} />
       <AppHeader
         title={screen ? TITLES[screen] : t("commissionReport.title")}
         showBack
