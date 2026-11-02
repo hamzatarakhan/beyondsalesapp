@@ -2880,19 +2880,30 @@ const NewActivation3 = () => {
                   )}
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation3.checkout.contactNumber")} *` : t("activation3.checkout.contactNumber")}>
-                  <PhoneNumberInput
-                    value={contactNumber}
-                    onChange={(v) => { setContactNumber(v); setContactError(false); }}
-                    error={contactError}
-                  />
-                  {contactNeedsVerify && (contactVerified ? (
-                    <VerifiedBanner label={t("activation3.checkout.contactVerified")} />
-                  ) : (
-                    <>
-                      <Button type="button" variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={contactNumber.length !== 10} onClick={verifyContactNumber}>{t("activation3.checkout.verifyContact")}</Button>
-                      {contactError && <p className="text-xs text-destructive">{t("activation3.checkout.contactNotLinked")}</p>}
-                    </>
-                  ))}
+                  {/* Same layout as the email field: input with the Verify button beside it (postpaid only) */}
+                  <div className="flex items-center gap-2">
+                    <PhoneNumberInput
+                      className="flex-1"
+                      value={contactNumber}
+                      onChange={(v) => { setContactNumber(v); setContactError(false); }}
+                      error={contactError}
+                    />
+                    {isPostpaidOtp && (contactNeedsVerify && contactVerified ? (
+                      <span className="shrink-0 flex items-center gap-1 px-3 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
+                        <Check className="w-3.5 h-3.5" /> {t("emailVerify.verified")}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={contactNumber.length !== 10}
+                        onClick={verifyContactNumber}
+                        className="shrink-0 px-4 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
+                      >
+                        {t("emailVerify.verifyBtn")}
+                      </button>
+                    ))}
+                  </div>
+                  {contactError && <p className="text-xs text-destructive">{t("activation3.checkout.contactNotLinked")}</p>}
                 </Field>
               </div>
             </div>
