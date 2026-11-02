@@ -263,6 +263,8 @@ const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 // Bar labels must stay within ~4-5 characters: 14.2k, then 123k (no decimal once it reaches six digits), then 1.2M.
 const compact = (v: number) => v >= 999500 ? `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M` : v >= 1e5 ? `${Math.round(v / 1000)}k` : `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+// Flip to true to show the "Demo: amounts" switch above the payout chart.
+const SHOW_PAYOUT_DEMO = false;
 // Prototype-only payout sizes for the chart: the real data, ten times, a hundred times, and one of every label length.
 const MIXED = [450, 7400, 14200, 99949, 122660, 456000, 999500, 1226600, 3400000, 12500000, 7400, 14200];
 const PAYOUT_DEMO = {
@@ -319,7 +321,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         </div>
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
-      <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
+      {SHOW_PAYOUT_DEMO && <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
         <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 shrink-0">Demo: amounts</span>
         <div className="flex gap-1 overflow-x-auto no-scrollbar">
           {(Object.keys(PAYOUT_DEMO) as (keyof typeof PAYOUT_DEMO)[]).map((k) => (
@@ -329,7 +331,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
             </button>
           ))}
         </div>
-      </div>
+      </div>}
       {/* Same pill chips as the month row at the top, per design. */}
       <Chips fill items={RANGES.map(([, label]) => t(`commissionReport.${label}`))} value={rangeTitle}
         onChange={(v) => setRange(RANGES.find(([, label]) => t(`commissionReport.${label}`) === v)![0])} />
