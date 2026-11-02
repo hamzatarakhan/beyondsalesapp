@@ -4252,7 +4252,14 @@
       "imsiLabel": "IMSI",
       "topupValue": "Top-up Value",
       "device": "Device",
-      "confirmPayDesc": "Please confirm the payment has been completed using the selected payment method."
+      "confirmPayDesc": "Please confirm the payment has been completed using the selected payment method.",
+      "verifyContact": "Verify",
+      "contactVerified": "Contact number verified",
+      "contactNotLinked": "This number isn't linked to the customer's ID. Enter a correct number.",
+      "contactMustVerify": "Verify the contact number",
+      "otpSendTo": "Send the OTP to",
+      "otpAbsher": "Absher number",
+      "otpPickNumber": "Select a number to send the OTP to."
     },
     "success": {
       "title": "Success",
@@ -4329,7 +4336,8 @@
       "errorSubtitle": "The verification code you entered is incorrect. Please try again.",
       "noCode": "Didn't receive the code?",
       "resendLabel": "Resend the code ?",
-      "resend": "Resend"
+      "resend": "Resend",
+      "sentTo": "Code sent to {{number}}"
     },
     "termsSheet": {
       "title": "Terms and Conditions",

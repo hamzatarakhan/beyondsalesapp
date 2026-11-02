@@ -251,8 +251,10 @@ const FM_TOPUP_REQUIRED_ID_SUFFIX = "234512345";
 const FM_NO_PAYG_ID_SUFFIX = "555544444";
 export const DEALER_WALLET_BALANCE = 550;
 const CITIES = ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"];
-// Sample existing contact numbers for the checkout combo field (prototype data).
-const EXISTING_CONTACT_NUMBERS = ["0512345678", "0509876543", "0551112233"];
+// Sample numbers the customer already holds (the CAS list the OTP can be sent to) — prototype data.
+const CUSTOMER_NUMBERS = ["0512345678", "0509876543", "0551112233"];
+// The customer's Absher-registered number: the OTP target for postpaid activations.
+const ABSHER_NUMBER = "0501234567";
 
 export const NATIONALITY_CODES = [
   "sa", "jo", "eg", "in", "pk", "bd", "sy", "lb", "ye", "sd",
@@ -400,6 +402,8 @@ const WHITELISTED_TEST_ID_SUFFIX = "876543210";
 // Identity test ID suffix that simulates a customer who has hit KSA's regulatory limit on
 // prepaid activation count — Prepaid is disabled and Continue blocks with an explanation.
 const PREPAID_LIMIT_REACHED_ID_SUFFIX = "999988888";
+// Identity test ID suffix that simulates a new customer — CAS returns no list of numbers, so the OTP is hidden.
+const NEW_CUSTOMER_TEST_ID_SUFFIX = "111122222";
 // Deterministic trigger for the Failed Request popup at Yes, Confirm — otherwise that case
 // only shows up on the random ~15% chance, which makes it hard to demo on demand.
 const FAILED_ACTIVATION_TEST_ID_SUFFIX = "555511111";
@@ -739,8 +743,11 @@ const NewActivation3 = () => {
   const [verifiedContactEmail, setVerifiedContactEmail] = useState("");
   // Continue Activation: contact number starts blank — the dealer collects it fresh at
   // handover rather than it coming pre-filled with the demo default.
-  const [contactNumber, setContactNumber] = useState(() => (isFulfilment ? "" : "0512345678"));
-  const [contactListOpen, setContactListOpen] = useState(false);
+  // The contact number is always typed in by the dealer. Postpaid also needs the Tahaqoq check (verified number is kept here).
+  const [contactNumber, setContactNumber] = useState("");
+  const [verifiedContactNumber, setVerifiedContactNumber] = useState("");
+  const [contactError, setContactError] = useState(false);
+  const [otpNumber, setOtpNumber] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
   const [locationRegion, setLocationRegion] = useState("");
@@ -952,8 +959,17 @@ const NewActivation3 = () => {
   // For E-SIM, it stays visible but is never required, even on those three cases.
   const contactNumberRequired = (isPrepaidInternet || isPostpaidInternet || isPostpaidMobile) && simType !== "esim";
   // OTP verification is mandatory for every activation case, regardless of plan type or SIM type.
-  const showOtp           = true;
-  const otpRequired       = true;
+  // New customers (known from the identity step) have no CAS numbers list, so the OTP is skipped and hidden.
+  const isNewCustomer     = !isFulfilment && idNumber.trim().length === 10 && idNumber.trim().endsWith(NEW_CUSTOMER_TEST_ID_SUFFIX);
+  const showOtp           = !isNewCustomer;
+  const otpRequired       = !isNewCustomer;
+  // Postpaid: OTP goes to the Absher number (preselected). Prepaid: the customer picks one of their numbers.
+  const isPostpaidOtp     = payType === "postpaid";
+  const otpNumbers        = isPostpaidOtp ? [ABSHER_NUMBER, ...CUSTOMER_NUMBERS.filter((n) => n !== ABSHER_NUMBER)] : CUSTOMER_NUMBERS;
+  const otpTarget         = otpNumber || (isPostpaidOtp ? ABSHER_NUMBER : "");
+  // Postpaid contact numbers must pass the Tahaqoq check (number belongs to the customer's civil ID).
+  const contactNeedsVerify = payType === "postpaid" && !!contactNumber.trim();
+  const contactVerified    = verifiedContactNumber === contactNumber;
   const showNumber       = isPrepaidMobile || isPostpaidMobile;
   const showMnp          = isPrepaidMobile || isPostpaidMobile;
   const showBooked = canActivateBookedNumber(payType);
@@ -1329,7 +1345,7 @@ const NewActivation3 = () => {
   // dealer needs to see (and for the unpaid case, still be able to adjust) them as reference
   // regardless of what's going on with the physical SIM's KIT code.
   const kitVerified = isFulfilment || simType === "esim" || (kitChecked && !kitError);
-  const emailRequired = isPrepaidInternet;
+  const emailRequired = isPostpaidMobile || isPostpaidInternet;
   // Fulfilment reads the email off the already-identified online application; otherwise any entered email must be OTP-verified.
   const emailNeedsVerify = !isFulfilment;
   const cityRequired = true;
@@ -1337,8 +1353,15 @@ const NewActivation3 = () => {
   // whenever a vanity commitment is ON.
   const showNafith = isPostpaidInternet || (isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment);
   // Verifications are sequential: Customer → OTP → Nafith. Each unlocks the next.
-  const otpGateOk = customerVerified;
+  const otpGateOk = customerVerified && !!otpTarget;
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
+
+  // Demo Tahaqoq check: a valid 05 number passes unless it ends in 0000 (simulates a number not linked to the customer's ID).
+  const verifyContactNumber = () => {
+    if (contactNumber.length !== 10 || contactNumber.endsWith("0000")) { setContactError(true); return; }
+    setContactError(false);
+    setVerifiedContactNumber(contactNumber);
+  };
 
   // ---------- Stage gating ----------
   // Each step's Continue/Pay button is driven by a list of what's still missing, rather than a
@@ -1387,6 +1410,7 @@ const NewActivation3 = () => {
     if (emailNeedsVerify && contactEmail.trim() && !(isValidEmail(contactEmail) && isEmailVerified(contactEmail, verifiedContactEmail))) missing.push(t("emailVerify.mustVerify"));
     if (cityRequired && !contactCity.trim()) missing.push(t("activation3.subscription.city"));
     if (contactNumberRequired && !contactNumber.trim()) missing.push(t("activation3.checkout.contactNumber"));
+    if (contactNeedsVerify && !contactVerified) missing.push(t("activation3.checkout.contactMustVerify"));
     if (isVnetMode && !nationalAddress.trim()) missing.push(t("activation3.subscription.nationalAddress"));
     if (showDelivery && !deliveryAddress.trim()) missing.push(t("activation3.checkout.addressLine"));
     if (showHandoverOption && isDealerHandover && !deviceSerialNumber.trim()) missing.push(t("activation3.handover.deviceSerialNumber"));
@@ -1398,7 +1422,7 @@ const NewActivation3 = () => {
     if (!terms) missing.push(t("activation3.checkout.terms"));
     if (pay === "card" && total > DEALER_WALLET_BALANCE) missing.push(t("activation3.missing.walletBalance"));
     return missing;
-  }, [emailRequired, emailNeedsVerify, contactEmail, verifiedContactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, pay, total, DEALER_WALLET_BALANCE, t]);
+  }, [emailRequired, emailNeedsVerify, contactEmail, verifiedContactEmail, cityRequired, contactCity, contactNumberRequired, contactNumber, contactNeedsVerify, contactVerified, isVnetMode, nationalAddress, showDelivery, deliveryAddress, showHandoverOption, isDealerHandover, deviceSerialNumber, customerVerified, otpRequired, otpVerified, showNafith, nafithVerified, customerSig, dealerSig, terms, pay, total, DEALER_WALLET_BALANCE, t]);
 
   const stepMissing = step === 0 ? step0Missing : step === 1 ? step1Missing : step2Missing;
   const canContinue = step === 0 ? step0Missing.length === 0 : step1Missing.length === 0;
@@ -1586,15 +1610,17 @@ const NewActivation3 = () => {
               <>
               <PrototypeTestBox
                 heading="test ID numbers"
-                description="Use these to try both cases. This box won't appear in the real implementation."
+                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check. This box won't appear in the real implementation."
                 items={isFriendi ? [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
+                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (no numbers list: OTP hidden)" },
                   { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
                   { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
                   { value: demoIdFor(idNumberRule, FAILED_ACTIVATION_TEST_ID_SUFFIX), note: "Forces Failed Request at Yes, Confirm" },
                 ] : [
-                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer" },
+                  { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer (existing: OTP with numbers list)" },
+                  { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (no numbers list: OTP hidden)" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
                   { value: demoIdFor(idNumberRule, DEVICE_PRICED_TEST_ID_SUFFIX), note: "Vnet router has a price (200.00)" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
@@ -2851,42 +2877,19 @@ const NewActivation3 = () => {
                   )}
                 </Field>
                 <Field label={contactNumberRequired ? `${t("activation3.checkout.contactNumber")} *` : t("activation3.checkout.contactNumber")}>
-                  {/* Combo field: type a new number, or open the dropdown to pick an existing one */}
-                  <div className="relative">
-                    <PhoneNumberInput
-                      value={contactNumber}
-                      onChange={setContactNumber}
-                      masked
-                      onClick={() => setContactListOpen((o) => !o)}
-                      icon={
-                        <button
-                          type="button"
-                          aria-label={t("activation3.checkout.existingNumbers", "Existing numbers")}
-                          onClick={() => setContactListOpen((o) => !o)}
-                          className="flex items-center text-muted-foreground hover:text-foreground"
-                        >
-                          <ChevronDown className={cn("h-4 w-4 transition-transform", contactListOpen && "rotate-180")} />
-                        </button>
-                      }
-                    />
-                    {contactListOpen && (
-                      <div dir="ltr" className="absolute z-30 mt-1 w-full rounded-xl border border-border bg-card shadow-lg overflow-hidden">
-                        {EXISTING_CONTACT_NUMBERS.map((n) => (
-                          <button
-                            key={n}
-                            type="button"
-                            onClick={() => { setContactNumber(n); setContactListOpen(false); }}
-                            className={cn(
-                              "w-full px-3 py-2.5 text-start text-sm hover:bg-muted/60",
-                              contactNumber === n && "bg-primary/10 text-primary font-semibold",
-                            )}
-                          >
-                            {maskPhone(n)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <PhoneNumberInput
+                    value={contactNumber}
+                    onChange={(v) => { setContactNumber(v); setContactError(false); }}
+                    error={contactError}
+                  />
+                  {contactNeedsVerify && (contactVerified ? (
+                    <VerifiedBanner label={t("activation3.checkout.contactVerified")} />
+                  ) : (
+                    <>
+                      <Button type="button" variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={contactNumber.length !== 10} onClick={verifyContactNumber}>{t("activation3.checkout.verifyContact")}</Button>
+                      {contactError && <p className="text-xs text-destructive">{t("activation3.checkout.contactNotLinked")}</p>}
+                    </>
+                  ))}
                 </Field>
               </div>
             </div>
@@ -2985,9 +2988,26 @@ const NewActivation3 = () => {
                   <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
+                    <p className="text-xs font-medium text-muted-foreground">{t("activation3.checkout.otpSendTo")}</p>
+                    <div className="space-y-2">
+                      {otpNumbers.map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setOtpNumber(n)}
+                          className={cn(
+                            "w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-start text-sm border",
+                            otpTarget === n ? "border-[0.5px] bg-primary/10 border-primary/20 text-foreground font-semibold" : "border-border bg-card text-foreground",
+                          )}
+                        >
+                          <span dir="ltr">{maskPhone(n)}</span>
+                          {isPostpaidOtp && n === ABSHER_NUMBER && <span className="text-[11px] font-medium text-muted-foreground">{t("activation3.checkout.otpAbsher")}</span>}
+                        </button>
+                      ))}
+                    </div>
                     <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation3.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
-                      <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
+                      <p className="text-[11px] text-muted-foreground mt-2">{customerVerified ? t("activation3.checkout.otpPickNumber") : "Complete the previous verification to unlock this verification."}</p>
                     )}
                   </>
                 )}
@@ -3453,6 +3473,7 @@ const NewActivation3 = () => {
             <p className="text-sm text-muted-foreground text-center px-4">
               {otpError ? t("activation3.otpSheet.errorSubtitle") : t("activation3.otpSheet.subtitle")}
             </p>
+            {otpTarget && <p dir="ltr" className="text-sm font-semibold text-foreground -mt-2">{t("activation3.otpSheet.sentTo", { number: maskPhone(otpTarget) })}</p>}
             <div className="flex gap-2">
               {otpDigits.map((d, i) => (
                 <input
