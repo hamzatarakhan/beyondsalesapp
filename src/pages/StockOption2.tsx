@@ -184,7 +184,7 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
               <div className="flex items-center justify-between gap-2"><p className="text-base font-bold text-foreground">{o.id}</p><Badge role={role} o={o} /></div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5 shrink-0" />{o.date}</div>
               {(() => { const who = whoFor(t, role, o, person); return who && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="w-3.5 h-3.5 shrink-0" />{who}</div>; })()}
-              <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: <span className="flex min-w-0"><span className="truncate">{productName(t, l.productId)}</span><span className="shrink-0 ps-1" dir="ltr">({l.qty.toLocaleString()})</span></span> }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
+              <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: <span className="flex min-w-0"><span className="truncate">{l.label ?? productName(t, l.productId)}</span><span className="shrink-0 ps-1" dir="ltr">({l.qty.toLocaleString()})</span></span> }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
             </button>
           ))}
         </div>
@@ -546,7 +546,7 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
           <div key={l.productId} className="bg-card rounded-2xl p-4 shadow-sm flex items-center gap-3">
             <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Icon className="w-5 h-5 text-primary" /></div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-foreground">{productName(t, l.productId)}</p>
+              <p className="text-sm font-bold text-foreground">{l.label ?? productName(t, l.productId)}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">{t("stockOpt2.pcs", { count: l.qty })}</p>
             </div>
             {scanning && (

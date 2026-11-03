@@ -19,7 +19,8 @@ export type ChainStatus =
   | "rejected" | "cancelled"; // either
 export type ChainRole = "dealer" | "tlPush" | "tl" | "rm" | "ss";
 
-export interface ChainLine { productId: ProductId; qty: number; serials: string[] }
+// `label` overrides the catalogue name for this line (demo only: shows how a very long product title behaves).
+export interface ChainLine { productId: ProductId; qty: number; serials: string[]; label?: string }
 
 export interface ChainOrder {
   id: string;
@@ -68,6 +69,10 @@ const serials = (p: ProductId, n: number) => Array.from({ length: n }, (_, i) =>
 const lines = (scanned = false): ChainLine[] =>
   ([["vmSim", 10], ["voucher10", 10], ["router1", 10]] as [ProductId, number][]).map(([productId, qty]) => ({ productId, qty, serials: scanned ? serials(productId, qty) : [] }));
 
+// Demo order lines for the card-chip cases: [product, quantity, optional long title].
+const L = (...rows: [ProductId, number, string?][]): ChainLine[] => rows.map(([productId, qty, label]) => ({ productId, qty, serials: [], ...(label ? { label } : {}) }));
+const LONG = "Prepaid Starter Kit with Extended Validity";
+
 const mk = (id: string, flow: Flow, status: ChainStatus, location: string, when: Date, extra?: Partial<ChainOrder>): ChainOrder =>
   ({ id, flow, status, location, destination: CHANNEL_MEMBERS[0], date: fmt(when), dateObj: when, lines: lines(), proofs: [], ...extra });
 
@@ -85,6 +90,15 @@ const seed = (): ChainOrder[] => [
   }),
   mk("3515165696", "dealer", "rejected", "Riyadh Main Warehouse", d(22, 9), { reason: "Incorrect items or quantities — please resubmit." }),
   mk("3515165695", "dealer", "cancelled", "Jeddah Branch", d(21, 9), { reason: "Budget constraints" }),
+  // item-chip cases on the order cards: 1 item, 2 items, 4 items, 7 items, big quantities, long titles
+  mk("3515165694", "dealer", "awaitingApproval", "Riyadh Main Warehouse", d(20, 9), { lines: L(["vmSim", 5]) }),
+  mk("3515165693", "dealer", "awaitingApproval", "Jeddah Branch", d(19, 9), { lines: L(["vmSim", 10], ["voucher10", 25]) }),
+  mk("3515165692", "dealer", "awaitingApproval", "Dammam Branch", d(18, 9), { lines: L(["vmSim", 10], ["voucher10", 20], ["router1", 5], ["fingerprint", 2]) }),
+  mk("3515165691", "dealer", "awaitingApproval", "Mecca Branch", d(17, 9), { lines: L(["vmSim", 10], ["voucher10", 20], ["voucher20", 20], ["voucher50", 10], ["router1", 5], ["router2", 5], ["digitalVoucher", 100]) }),
+  mk("3515165690", "dealer", "awaitingApproval", "Khobar Branch", d(16, 9), { lines: L(["vmSim", 12500], ["voucher100", 3400]) }),
+  mk("3515165689", "dealer", "awaitingApproval", "Medina Branch", d(15, 9), { lines: L(["vmSim", 10, LONG], ["router1", 10]) }),
+  mk("3515165688", "dealer", "awaitingApproval", "Riyadh Main Warehouse", d(14, 9), { lines: L(["vmSim", 12500, LONG], ["voucher100", 3400], ["router3", 40], ["fingerprint", 2]) }),
+  mk("3515165687", "dealer", "awaitingApproval", "Jeddah Branch", d(13, 9), { lines: L(["vmSim", 10, LONG]) }),
   // chain flow — one order per status
   mk("3515165615", "chain", "pendingApproval", "California, USA", d(28, 9)),
   mk("3515165614", "chain", "orderPending", "California, USA", d(27, 10), { proofs: PROOFS }),
@@ -94,7 +108,7 @@ const seed = (): ChainOrder[] => [
   mk("3515165610", "chain", "cancelled", "California, USA", d(23, 10), { reason: "Budget constraints" }),
 ];
 
-const KEY = "stockOpt2.orders.v7";
+const KEY = "stockOpt2.orders.v8";
 const load = (): ChainOrder[] => {
   try {
     const raw = localStorage.getItem(KEY);
