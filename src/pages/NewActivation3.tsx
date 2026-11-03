@@ -753,6 +753,7 @@ const NewActivation3 = () => {
   const [contactError, setContactError] = useState(false);
   const [otpNumber, setOtpNumber] = useState("");
   const [otpNumberOpen, setOtpNumberOpen] = useState(false);
+  const [contactChecking, setContactChecking] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("123 King Fahd Road, Riyadh 12345");
   const [nationalAddress, setNationalAddress] = useState("");
   const [locationRegion, setLocationRegion] = useState("");
@@ -1362,11 +1363,18 @@ const NewActivation3 = () => {
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
 
   // Demo Tahaqoq check: a full number passes, unless the identity is the TAHAQOQ_FAIL test ID (number not linked to that ID).
+  // The button shows a spinner while the (demo) request is in flight, then the result appears.
   const verifyContactNumber = () => {
+    if (contactChecking) return;
+    const n = contactNumber;
     const notLinked = idNumber.trim().length === 10 && idNumber.trim().endsWith(TAHAQOQ_FAIL_TEST_ID_SUFFIX);
-    if (contactNumber.length !== 10 || notLinked) { setContactError(true); return; }
     setContactError(false);
-    setVerifiedContactNumber(contactNumber);
+    setContactChecking(true);
+    setTimeout(() => {
+      setContactChecking(false);
+      if (n.length !== 10 || notLinked) { setContactError(true); return; }
+      setVerifiedContactNumber(n);
+    }, 1500);
   };
 
   // ---------- Stage gating ----------
@@ -2902,9 +2910,10 @@ const NewActivation3 = () => {
                         type="button"
                         disabled={contactNumber.length !== 10}
                         onClick={verifyContactNumber}
-                        className="shrink-0 px-4 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
+                        aria-busy={contactChecking}
+                        className={cn("shrink-0 min-w-[72px] px-4 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 flex items-center justify-center", contactChecking && "pointer-events-none")}
                       >
-                        {t("emailVerify.verifyBtn")}
+                        {contactChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : t("emailVerify.verifyBtn")}
                       </button>
                     ))}
                   </div>
