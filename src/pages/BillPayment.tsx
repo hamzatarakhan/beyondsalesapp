@@ -327,7 +327,7 @@ const BillPayment = () => {
     setExpandedAccounts(new Set());
   };
 
-  // Account cards all start expanded, regardless of how many there are.
+  // Single-account lookups start expanded (Civil ID with several accounts starts collapsed, see handleSearch).
   const initExpandedAccounts = (found: BillAccount[]) => {
     setExpandedAccounts(new Set(found.map((a) => a.msisdn)));
   };
@@ -381,7 +381,9 @@ const BillPayment = () => {
       setAmounts(Object.fromEntries(found.map((a) => [a.msisdn, money(totalDueOf(a))])));
       // Pre-select everything so a dealer settling the whole ID can just continue.
       setSelected(Object.fromEntries(found.map((a) => [a.msisdn, true])));
-      initExpandedAccounts(found);
+      // Several accounts on one ID: all selected but collapsed so the list stays scannable.
+      if (found.length > 1) setExpandedAccounts(new Set());
+      else initExpandedAccounts(found);
     }, 800);
   };
 
