@@ -12,7 +12,7 @@ export const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.t
 export const isEmailVerified = (value: string, verifiedEmail: string) =>
   !!value.trim() && value.trim() === verifiedEmail;
 
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 4;
 const RESEND_SECONDS = 30;
 const emptyDigits = () => Array(OTP_LENGTH).fill("");
 
@@ -23,8 +23,8 @@ interface EmailOtpSheetProps {
   onVerified: () => void;
 }
 
-// ponytail: OTP is a stub (any 6 digits pass, except the demo wrong code 111111) until a backend exists.
-const WRONG_CODE = "111111";
+// ponytail: OTP is a stub (any 4 digits pass, except the demo wrong code 1111) until a backend exists.
+const WRONG_CODE = "1111";
 export const EmailOtpSheet = ({ open, email, onClose, onVerified }: EmailOtpSheetProps) => {
   const { t } = useTranslation();
   const [digits, setDigits] = useState<string[]>(emptyDigits());

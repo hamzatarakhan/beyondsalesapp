@@ -806,7 +806,7 @@ const NewActivation3 = () => {
   const promoDiscount = activePromo?.benefits.find(b => b.type === "discount")?.value ?? 0;
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
   const [customerVerifyOpen, setCustomerVerifyOpen] = useState(false);
@@ -1218,7 +1218,7 @@ const NewActivation3 = () => {
   // OTP sheet: reset digits/error and start the resend countdown whenever it opens
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -1232,10 +1232,10 @@ const NewActivation3 = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 5) {
+      if (d && i === 3) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "111111") {
+          if (code === "1111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -1246,14 +1246,14 @@ const NewActivation3 = () => {
       }
       return next;
     });
-    if (d && i < 5) {
+    if (d && i < 3) {
       const el = document.getElementById(`checkout-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("checkout-otp-0") as HTMLInputElement | null;
@@ -1613,7 +1613,7 @@ const NewActivation3 = () => {
               <>
               <PrototypeTestBox
                 heading="test ID numbers"
-                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check, and the code 111111 fails the email and OTP codes. This box won't appear in the real implementation."
+                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check, and the code 1111 fails the email and OTP codes. This box won't appear in the real implementation."
                 items={isFriendi ? [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
                   { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },

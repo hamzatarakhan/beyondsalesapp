@@ -24,7 +24,7 @@
   },
   "emailVerify": {
     "title": "التحقق من البريد الإلكتروني",
-    "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",
+    "subtitle": "أدخل الرمز المكون من 4 أرقام المرسل إلى {{email}}",
     "didntReceive": "لم يصلك الرمز؟",
     "resend": "إعادة الإرسال",
     "verify": "إرسال",
@@ -167,7 +167,7 @@
     "verifyEmail": "تحقق",
     "emailVerified": "تم التحقق",
     "emailOtpTitle": "التحقق من البريد الإلكتروني",
-    "emailOtpSubtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",
+    "emailOtpSubtitle": "أدخل الرمز المكون من 4 أرقام المرسل إلى {{email}}",
     "otpDidntReceive": "لم يصلك الرمز؟",
     "otpResend": "إعادة الإرسال",
     "verify": "تحقق",
@@ -677,7 +677,7 @@
     "submit": "إرسال",
     "enterVerificationCode": "أدخل رمز التحقق",
     "otpIncorrect": "رمز غير صحيح. يرجى المحاولة مرة أخرى.",
-    "otpSentToCustomer": "لقد أرسلنا رمزاً مكوّناً من 6 أرقام إلى رقم العميل.",
+    "otpSentToCustomer": "لقد أرسلنا رمزاً مكوّناً من 4 أرقام إلى رقم العميل.",
     "resendCodeQuestion": "لم يصلك الرمز؟",
     "resend": "إعادة الإرسال",
     "didntReceiveCode": "لم يصلك الرمز؟",
@@ -692,7 +692,7 @@
     "contactNumberOtpHint": "سيتم إرسال رمز التحقق إلى هذا الرقم",
     "issueNumber": "الرقم المتأثر بالمشكلة",
     "issueNumberPlaceholder": "أي نوع خط (10 أو 13 رقماً)",
-    "otpSentTo": "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى {{number}}."
+    "otpSentTo": "لقد أرسلنا رمزاً مكوناً من 4 أرقام إلى {{number}}."
   },
   "customerSearch": {
     "title": "البحث عن عميل",

@@ -144,7 +144,7 @@ const ChangePrepaidBundle = () => {
   // OTP happens on step 0 against a specific number — editing the number invalidates it.
   const [verifiedMsisdn, setVerifiedMsisdn] = useState("");
   const otpVerified = !!msisdn && verifiedMsisdn === msisdn;
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
@@ -239,7 +239,7 @@ const ChangePrepaidBundle = () => {
   // ---------- OTP handlers (same behavior as SubscriptionMigration's checkout OTP) ----------
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -253,10 +253,10 @@ const ChangePrepaidBundle = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 5) {
+      if (d && i === 3) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "111111") {
+          if (code === "1111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -269,14 +269,14 @@ const ChangePrepaidBundle = () => {
       }
       return next;
     });
-    if (d && i < 5) {
+    if (d && i < 3) {
       const el = document.getElementById(`prepaid-change-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("prepaid-change-otp-0") as HTMLInputElement | null;

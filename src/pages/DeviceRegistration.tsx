@@ -16,7 +16,7 @@ const DEVICE_INFO = {
   deviceModel: "Samsung S23 Ultra",
 };
 
-const CODE_LENGTH = 6;
+const CODE_LENGTH = 4;
 const RESEND_SECONDS = 30;
 
 const DeviceRegistration = () => {

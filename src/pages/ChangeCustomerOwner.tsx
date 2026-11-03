@@ -151,7 +151,7 @@ const ChangeCustomerOwner = () => {
 
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
@@ -222,7 +222,7 @@ const ChangeCustomerOwner = () => {
   // ---------- OTP handlers ----------
   useEffect(() => {
     if (!otpOpen) return;
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => {
@@ -236,10 +236,10 @@ const ChangeCustomerOwner = () => {
     setOtpDigits((prev) => {
       const next = [...prev];
       next[i] = d;
-      if (d && i === 5) {
+      if (d && i === 3) {
         const code = next.join("");
         setTimeout(() => {
-          if (code === "111111") {
+          if (code === "1111") {
             setOtpError(true);
           } else {
             setOtpError(false);
@@ -250,14 +250,14 @@ const ChangeCustomerOwner = () => {
       }
       return next;
     });
-    if (d && i < 5) {
+    if (d && i < 3) {
       const el = document.getElementById(`change-owner-otp-${i + 1}`) as HTMLInputElement | null;
       el?.focus();
     }
   };
 
   const resendOtp = () => {
-    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpDigits(["", "", "", ""]);
     setOtpError(false);
     setOtpSecondsLeft(30);
     const el = document.getElementById("change-owner-otp-0") as HTMLInputElement | null;

@@ -1585,12 +1585,12 @@ const PrepaidActivation = () => {
         <DrawerContent className="bg-card rounded-t-3xl">
           <DrawerHeader>
             <DrawerTitle className="text-center">OTP Verification</DrawerTitle>
-            <DrawerDescription className="text-center text-xs">Enter the 6-digit code sent to the customer's number</DrawerDescription>
+            <DrawerDescription className="text-center text-xs">Enter the 4-digit code sent to the customer's number</DrawerDescription>
           </DrawerHeader>
           <div className="px-5 pb-6 space-y-3">
-            <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="••••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
+            <Input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" className="text-center tracking-[0.5em] text-lg" />
             <p className="text-xs text-muted-foreground text-center">Demo: any 6 digits will work</p>
-            <Button className="w-full" disabled={otpCode.length !== 6} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>Verify</Button>
+            <Button className="w-full" disabled={otpCode.length !== 4} onClick={() => { setOtpVerified(true); setOtpOpen(false); setOtpCode(""); }}>Verify</Button>
           </div>
         </DrawerContent>
       </Drawer>
