@@ -404,6 +404,8 @@ const WHITELISTED_TEST_ID_SUFFIX = "876543210";
 const PREPAID_LIMIT_REACHED_ID_SUFFIX = "999988888";
 // Identity test ID suffix that simulates a new customer — CAS returns no list of numbers, so the OTP is hidden.
 const NEW_CUSTOMER_TEST_ID_SUFFIX = "111122222";
+// Identity test ID suffix whose contact number never passes the Tahaqoq check ("not linked to this ID").
+const TAHAQOQ_FAIL_TEST_ID_SUFFIX = "333344444";
 // Deterministic trigger for the Failed Request popup at Yes, Confirm — otherwise that case
 // only shows up on the random ~15% chance, which makes it hard to demo on demand.
 const FAILED_ACTIVATION_TEST_ID_SUFFIX = "555511111";
@@ -1359,9 +1361,10 @@ const NewActivation3 = () => {
   const otpGateOk = customerVerified;
   const nafithGateOk = customerVerified && (!showOtp || otpVerified);
 
-  // Demo Tahaqoq check: a valid 05 number passes unless it ends in 0000 (simulates a number not linked to the customer's ID).
+  // Demo Tahaqoq check: a full number passes, unless the identity is the TAHAQOQ_FAIL test ID (number not linked to that ID).
   const verifyContactNumber = () => {
-    if (contactNumber.length !== 10 || contactNumber.endsWith("0000")) { setContactError(true); return; }
+    const notLinked = idNumber.trim().length === 10 && idNumber.trim().endsWith(TAHAQOQ_FAIL_TEST_ID_SUFFIX);
+    if (contactNumber.length !== 10 || notLinked) { setContactError(true); return; }
     setContactError(false);
     setVerifiedContactNumber(contactNumber);
   };
@@ -1613,10 +1616,11 @@ const NewActivation3 = () => {
               <>
               <PrototypeTestBox
                 heading="test ID numbers"
-                description="Use these to try both cases. At checkout, a postpaid contact number ending 0000 fails the Tahaqoq check, and the code 1111 fails the email and OTP codes. This box won't appear in the real implementation."
+                description="Use these to try both cases. At checkout, the code 1111 fails the email and OTP codes. This box won't appear in the real implementation."
                 items={isFriendi ? [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "PAYG top-up optional (can skip)" },
                   { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },
+                  { value: demoIdFor(idNumberRule, TAHAQOQ_FAIL_TEST_ID_SUFFIX), note: "Postpaid contact number fails Tahaqoq (not linked to this ID)" },
                   { value: demoIdFor(idNumberRule, FM_TOPUP_REQUIRED_ID_SUFFIX), note: "PAYG top-up required (min 10)" },
                   { value: demoIdFor(idNumberRule, FM_NO_PAYG_ID_SUFFIX), note: "No PAYG plan type offered" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
@@ -1624,6 +1628,7 @@ const NewActivation3 = () => {
                 ] : [
                   { value: demoIdFor(idNumberRule, NORMAL_TEST_ID_SUFFIX), note: "Normal customer (existing: OTP with numbers list)" },
                   { value: demoIdFor(idNumberRule, NEW_CUSTOMER_TEST_ID_SUFFIX), note: "New customer (prepaid: OTP hidden, postpaid: OTP still required)" },
+                  { value: demoIdFor(idNumberRule, TAHAQOQ_FAIL_TEST_ID_SUFFIX), note: "Postpaid contact number fails Tahaqoq (not linked to this ID)" },
                   { value: demoIdFor(idNumberRule, WHITELISTED_TEST_ID_SUFFIX), note: "Whitelisted customer" },
                   { value: demoIdFor(idNumberRule, DEVICE_PRICED_TEST_ID_SUFFIX), note: "Vnet router has a price (200.00)" },
                   { value: demoIdFor(idNumberRule, PREPAID_LIMIT_REACHED_ID_SUFFIX), note: "Hit prepaid activation limit" },
