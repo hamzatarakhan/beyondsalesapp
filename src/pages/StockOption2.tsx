@@ -184,7 +184,7 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
               <div className="flex items-center justify-between gap-2"><p className="text-base font-bold text-foreground">{o.id}</p><Badge role={role} o={o} /></div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5 shrink-0" />{o.date}</div>
               {(() => { const who = whoFor(t, role, o, person); return who && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="w-3.5 h-3.5 shrink-0" />{who}</div>; })()}
-              <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: productName(t, l.productId) }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
+              <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: <span className="flex min-w-0"><span className="truncate">{productName(t, l.productId)}</span><span className="shrink-0 ps-1" dir="ltr">({l.qty.toLocaleString()})</span></span> }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
             </button>
           ))}
         </div>
