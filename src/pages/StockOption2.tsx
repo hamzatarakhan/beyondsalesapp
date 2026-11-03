@@ -68,6 +68,8 @@ const Badge = ({ role, o }: { role: ChainRole; o: ChainOrder }) => {
   return <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0", BADGE[key])}>{t(`stockOpt2.status.${key}`)}</span>;
 };
 
+// Item chips under each order card (VM SIM Cards (10) +2 More). Hidden for now: the summary line already gives the product types and total items.
+const SHOW_CARD_CHIPS = false;
 const productName = (t: (k: string) => string, id: ProductId) => t(`purchaseOrders.product.${id}`);
 
 // "Requested by" line: who the current role is receiving the order from.
@@ -184,7 +186,11 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
               <div className="flex items-center justify-between gap-2"><p className="text-base font-bold text-foreground">{o.id}</p><Badge role={role} o={o} /></div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5 shrink-0" />{o.date}</div>
               {(() => { const who = whoFor(t, role, o, person); return who && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="w-3.5 h-3.5 shrink-0" />{who}</div>; })()}
-              <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: <span className="flex min-w-0"><span className="truncate">{l.label ?? productName(t, l.productId)}</span><span className="shrink-0 ps-1" dir="ltr">({l.qty.toLocaleString()})</span></span> }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Boxes className="w-3.5 h-3.5 shrink-0" />
+                {t("stockOpt2.productTypes", { count: o.lines.length })} · {t("stockOpt2.itemsTotal", { count: o.lines.reduce((n, l) => n + l.qty, 0), total: o.lines.reduce((n, l) => n + l.qty, 0).toLocaleString() })}
+              </div>
+              {SHOW_CARD_CHIPS && <TagChips chips={o.lines.map((l) => ({ key: l.productId, label: <span className="flex min-w-0"><span className="truncate">{l.label ?? productName(t, l.productId)}</span><span className="shrink-0 ps-1" dir="ltr">({l.qty.toLocaleString()})</span></span> }))} moreLabel={(n) => `+${n} ${t("purchaseOrders.moreItems")}`} />}
             </button>
           ))}
         </div>

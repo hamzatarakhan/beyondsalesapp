@@ -2277,7 +2277,19 @@
       "completed": "مكتمل",
       "rejected": "مرفوض",
       "cancelled": "ملغي"
-    }
+    },
+    "productTypes_zero": "{{count}} أنواع",
+    "productTypes_one": "نوع واحد",
+    "productTypes_two": "نوعان",
+    "productTypes_few": "{{count}} أنواع",
+    "productTypes_many": "{{count}} نوعًا",
+    "productTypes_other": "{{count}} نوع",
+    "itemsTotal_zero": "إجمالي {{total}} قطع",
+    "itemsTotal_one": "إجمالي قطعة واحدة",
+    "itemsTotal_two": "إجمالي قطعتين",
+    "itemsTotal_few": "إجمالي {{total}} قطع",
+    "itemsTotal_many": "إجمالي {{total}} قطعة",
+    "itemsTotal_other": "إجمالي {{total}} قطعة"
   },
   "splash": {
     "prototypeNotice": "تصميم تفاعلي فقط — وليس تطبيقًا فعليًا"

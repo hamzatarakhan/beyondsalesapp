@@ -2351,7 +2351,11 @@
       "completed": "Completed",
       "rejected": "Rejected",
       "cancelled": "Cancelled"
-    }
+    },
+    "productTypes_one": "{{count}} product type",
+    "productTypes_other": "{{count}} product types",
+    "itemsTotal_one": "{{total}} item in total",
+    "itemsTotal_other": "{{total}} items in total"
   },
   "splash": {
     "prototypeNotice": "Interactive design only — not a real implementation"
