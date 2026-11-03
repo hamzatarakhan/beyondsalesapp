@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -157,15 +157,15 @@ const EmailVerifyInput = ({
           className={cn("h-12 rounded-xl bg-card flex-1", invalid && "border-destructive focus-visible:ring-destructive", className)}
         />
         {verified ? (
-          <span className="shrink-0 w-[72px] flex items-center justify-center gap-1 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
-            <Check className="w-3.5 h-3.5" /> {t("emailVerify.verified")}
+          <span className="shrink-0 w-16 flex items-center justify-center gap-1 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
+            {t("emailVerify.verified")}
           </span>
         ) : (
           <button
             type="button"
             disabled={!isValidEmail(value)}
             onClick={() => setSheetOpen(true)}
-            className="shrink-0 w-[72px] h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
+            className="shrink-0 w-16 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
           >
             {t("emailVerify.verifyBtn")}
           </button>

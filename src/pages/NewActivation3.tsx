@@ -2902,8 +2902,8 @@ const NewActivation3 = () => {
                       error={contactError}
                     />
                     {isPostpaidOtp && (contactNeedsVerify && contactVerified ? (
-                      <span className="shrink-0 w-[72px] flex items-center justify-center gap-1 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
-                        <Check className="w-3.5 h-3.5" /> {t("emailVerify.verified")}
+                      <span className="shrink-0 w-16 flex items-center justify-center gap-1 h-12 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold border border-emerald-200">
+                        {t("emailVerify.verified")}
                       </span>
                     ) : (
                       <button
@@ -2911,7 +2911,7 @@ const NewActivation3 = () => {
                         disabled={contactNumber.length !== 10}
                         onClick={verifyContactNumber}
                         aria-busy={contactChecking}
-                        className={cn("shrink-0 w-[72px] h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 flex items-center justify-center", contactChecking && "pointer-events-none")}
+                        className={cn("shrink-0 w-16 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 flex items-center justify-center", contactChecking && "pointer-events-none")}
                       >
                         {contactChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : t("emailVerify.verifyBtn")}
                       </button>
