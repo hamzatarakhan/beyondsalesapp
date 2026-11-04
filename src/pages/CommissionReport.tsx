@@ -706,7 +706,7 @@ const MembersFilterSheet = ({ open, onOpenChange, value, onApply }: { open: bool
   );
 };
 
-// Whole team with search and filters. Ranks come from the full ranking: top 5 green, lowest 5 red, the rest neutral.
+// Whole team with search and filters: plain rows, no rank numbers or colour coding.
 const AllMembersScreen = () => {
   const { t } = useTranslation();
   const { factor } = usePeriod();
@@ -728,14 +728,12 @@ const AllMembersScreen = () => {
       </div>
       <p className="text-xs text-muted-foreground px-1">{t("commissionReport.membersCount", { n: rows.length })}</p>
       {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
-      {rows.map(({ d: [n, p, v, r], rank }) => {
-        const tone = rank <= 5 ? "top" : rank > DEALERS.length - 5 ? "low" : "mid";
+      {rows.map(({ d: [n, p, v, r] }) => {
         return (
           <div key={n} className="flex items-center gap-3 rounded-xl bg-card shadow-sm px-3 py-3">
-            <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0",
-              tone === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : tone === "low" ? "bg-rose-50 dark:bg-rose-500/15 text-rose-600" : "bg-muted text-muted-foreground")}>{rank}</span>
+            <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-primary" /></div>
             <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><RoleLine role={r} detail={p} className="text-[11px] mt-0.5" /></div>
-            <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", tone === "top" ? POS : tone === "low" ? "text-rose-600" : "text-foreground")}><RiyalSymbol /> {(v * factor).toFixed(2)}</span>
+            <span className="text-xs font-semibold inline-flex items-center gap-1 tabular-nums text-foreground"><RiyalSymbol /> {(v * factor).toFixed(2)}</span>
           </div>
         );
       })}
