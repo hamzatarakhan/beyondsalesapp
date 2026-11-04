@@ -645,6 +645,8 @@ const NewActivation3 = () => {
   const [searchParams] = useSearchParams();
   const isFulfilment = searchParams.get("flow") === "fulfilment";
   const isMnp = searchParams.get("flow") === "mnp";
+  // Option 2 is the same flow without the vanity numbers promo banner.
+  const isOption2 = searchParams.get("option") === "2";
   // Friendi (FM) brand divergence — prepaid only, its own plan catalog & chips,
   // standard numbers only, top-up on PAYG only. Everything else matches Virgin.
   const { brand } = useBrand();
@@ -2048,7 +2050,7 @@ const NewActivation3 = () => {
               <button
                 type="button"
                 disabled={subType === "booked" && !bookedHasPlan}
-                onClick={() => navigate("/new-activation-3/plans", {
+                onClick={() => navigate({ pathname: "/new-activation-3/plans", search: location.search }, {
                   // Identity fields are forwarded so the round trip back can restore them too —
                   // /plans is a separate route, so returning here remounts this page from
                   // scratch otherwise, losing anything the dealer had already filled in.
@@ -2343,7 +2345,7 @@ const NewActivation3 = () => {
                 </div>
 
                 {/* Vanity numbers available for this plan — simple promo banner. Not relevant when porting an existing number. */}
-                {subType === "sim" && isPostpaidMobile && selectedPlanObj && (() => {
+                {!isOption2 && subType === "sim" && isPostpaidMobile && selectedPlanObj && (() => {
                   const eligibleTierCats = eligibleVanityCategories.filter(c => c.months > 0);
                   if (eligibleTierCats.length === 0) return null;
                   return (

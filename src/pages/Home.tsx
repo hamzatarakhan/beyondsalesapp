@@ -290,7 +290,7 @@ const Home = () => {
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "sim-3-option-2", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeOption2"), badgeTone: "approved" as const },
+    { id: "sim-3-option-2", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3?option=2", badge: t("home.badgeOption2"), badgeTone: "approved" as const },
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Pre to Post, Post to Pre, Bill Payment, and Credit Limit Adjustment are all
     // postpaid-related, so Virgin-only — Friendi has no postpaid product.

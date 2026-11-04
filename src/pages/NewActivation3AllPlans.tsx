@@ -70,14 +70,14 @@ const NewActivation3AllPlans = () => {
   const selectPayType = (v: PayType) => { setPayType(v); setChip("all"); };
 
   const pickPlan = (title: string) => {
-    navigate("/new-activation-3", { state: { pickPlan: { payType, lineType, chip: effectiveChip, title }, resume: initial.resume } });
+    navigate({ pathname: "/new-activation-3", search: location.search }, { state: { pickPlan: { payType, lineType, chip: effectiveChip, title }, resume: initial.resume } });
   };
 
   // Back restores the Subscription step exactly as it was before this page opened —
   // original payType/lineType/chip, plus whatever plan was already selected, if any —
   // rather than whatever filters the dealer may have changed while just browsing here.
   const goBack = () => {
-    navigate("/new-activation-3", {
+    navigate({ pathname: "/new-activation-3", search: location.search }, {
       state: {
         pickPlan: {
           payType: initial.payType ?? "prepaid",
