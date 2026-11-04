@@ -392,19 +392,11 @@ const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: 
   </div>
 );
 
-const BandRow = ({ label, value, on, accent, struck }: { label: string; value: string; on?: boolean; accent?: boolean; struck?: boolean }) => (
-  <div className={cn("flex justify-between text-sm px-3 py-2.5 rounded-lg", on ? "bg-teal-50 dark:bg-teal-500/10 font-medium" : "text-muted-foreground")}>
-    <span className={cn(on && "text-foreground")}>{label}</span>
-    <span className={cn("tabular-nums", (on || accent) && "text-teal-600 dark:text-teal-400 font-semibold", !on && !accent && "text-foreground font-medium", struck && "line-through")}>{value}</span>
-  </div>
-);
-
-// Scheme 1 Breakdown: result, killer conditions, the KPI list, then payout bands and bonus.
+// Scheme 1 Breakdown: result, killer conditions, then the KPI list.
 const Scheme1Screen = () => {
   const { rows, missedKillers, missed } = useScheme1();
   const { monthName } = usePeriod();
   const sc = useScale();
-  const fmt = (v: number) => sc(v).toLocaleString();
   return (
   <div className="space-y-4">
     {missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
@@ -417,32 +409,6 @@ const Scheme1Screen = () => {
       <div className="space-y-2.5">{rows.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
     </Card>
     <KpiBreakdown />
-    {/* Shown on client request even when a killer KPI zeroes the plan: dimmed, marked Not paid, earned amounts crossed out. */}
-    <Card className={cn(missed && "opacity-60")}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">KPI Score Payout</h3>
-        {missed && <Pill tone="bad">Not paid</Pill>}
-      </div>
-      <div className="mt-3 space-y-0.5">
-        <BandRow label="0-70%" value="Nothing" />
-        <BandRow label="70-90%" value={fmt(3300)} />
-        <BandRow on struck={missed} label="90-100% . your band" value={`+${fmt(5400)}`} />
-        <BandRow label="100-120%" value={fmt(6660)} />
-        <BandRow label="From 120%" value={`${fmt(7900)} max`} />
-        <BandRow label="From 120%" value={`${fmt(7900)} max`} />
-        <BandRow accent struck={missed} label={`${fmt(5400)} x 95%(fixed rate)`} value={fmt(5130)} />
-      </div>
-      {!missed && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border-[0.5px] border-amber-200 dark:border-amber-500/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-          <Info className="w-4 h-4 shrink-0" /> Reach 100% (7% more) to move to {fmt(6600)} band
-        </div>
-      )}
-    </Card>
-    <Card className={cn(missed && "opacity-60")}>
-      <div className="flex justify-between items-center mb-2"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-foreground">Incentive bonus</h3>{missed && <Pill tone="bad">Not paid</Pill>}</div><span className="text-xs text-muted-foreground"><b className={POS}>93%</b> of Target</span></div>
-      <BandRow on struck={missed} label="90-100% . your band" value={`+${fmt(1000)}`} />
-      <BandRow label="From 100%" value={fmt(1500)} />
-    </Card>
   </div>
   );
 };
