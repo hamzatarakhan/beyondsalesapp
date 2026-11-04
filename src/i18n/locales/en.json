@@ -2234,6 +2234,8 @@
     "needsAttentionSub": "{{n}} dealers earned nothing this month",
     "top5": "Top 5",
     "lowest5": "Lowest 5",
+    "top": "Top",
+    "lowest": "Lowest",
     "seeAll": "See all",
     "searchDealers": "Search Dealers",
     "earnedIn": "Earned in {{month}}",

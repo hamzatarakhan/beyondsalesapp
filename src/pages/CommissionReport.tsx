@@ -609,11 +609,19 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
 
 // ---------------------------------------------------------------- manager "Overview"
 
-const DEALERS: [string, string, number][] = [
-  ["Fahad Alotaibi", "30 Plans", 145], ["Noura Alqahtani", "27 Plans", 132], ["Saad Alghamdi", "22 Plans", 98],
-  ["Reem Aldosari", "18 Plans", 76.2], ["Omar Alharbi", "14 Plans", 54],
+// Whole team ranked by commission, highest first. Top / Lowest show 5 rows and scroll for the rest.
+// Each row also carries the member's role (Search Dealers design: "Sales Manager | MBR-784291").
+const DEALERS: [string, string, number, string][] = [
+  ["Fahad Alotaibi", "30 Plans", 145, "Sales Manager"], ["Noura Alqahtani", "27 Plans", 132, "Supervisor"], ["Saad Alghamdi", "22 Plans", 98, "Dealer"],
+  ["Reem Aldosari", "18 Plans", 76.2, "Sales Agent"], ["Omar Alharbi", "14 Plans", 54, "Dealer"], ["Lama Alshehri", "12 Plans", 47.5, "Sales Agent"],
+  ["Turki Almutairi", "11 Plans", 41, "Supervisor"], ["Hessa Alzahrani", "9 Plans", 33.8, "Sales Agent"], ["Majed Alsubaie", "8 Plans", 27, "Dealer"],
+  ["Abeer Alanazi", "6 Plans", 19.5, "Sales Agent"], ["Yousef Alqarni", "4 Plans", 12, "Dealer"], ["Sara Alrashid", "2 Plans", 6.4, "Sales Agent"],
 ];
-const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784291"], ["Member Name", "MBR-784291"], ["Mohammed Al-Dosari", "MBR-921674"], ["Khalid Al-Ghamdi", "MBR-468235"], ["Nasser Al-Harbi", "MBR-613852"]];
+// "Role | detail" line under a member's name, with a thin divider as in the design.
+const RoleLine = ({ role, detail, className }: { role: string; detail: string; className?: string }) => (
+  <p className={cn("flex items-center gap-2 text-muted-foreground", className)}>{role}<span className="w-px h-3 bg-border" aria-hidden="true" />{detail}</p>
+);
+const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784291", "Sales Manager"], ["Faisal Al-Otaibi", "MBR-356108", "Dealer"], ["Mohammed Al-Dosari", "MBR-921674", "Supervisor"], ["Khalid Al-Ghamdi", "MBR-468235", "Sales Agent"], ["Nasser Al-Harbi", "MBR-613852", "Administrator"]];
 
 const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const { t } = useTranslation();
@@ -624,7 +632,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const [q, setQ] = useState("");
   const [member, setMember] = useState<string>();
   const list = top === "top" ? DEALERS : [...DEALERS].reverse();
-  const people = ALL_DEALERS.filter(([n, c]) => !q || (n + c).toLowerCase().includes(q.toLowerCase()));
+  const people = ALL_DEALERS.filter(([n, c, r]) => !q || (n + c + r).toLowerCase().includes(q.toLowerCase()));
 
   const sheetEl = (
     <Drawer open={sheet} onOpenChange={setSheet}>
@@ -640,11 +648,11 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         </div>
         <div className="space-y-2 overflow-y-auto">
-          {people.map(([n, c]) => (
+          {people.map(([n, c, r]) => (
             <button key={c + n} type="button" onClick={() => { setMember(n); setQ(""); setSheet(false); }}
               className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 border", member === n ? "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30" : "bg-muted/40 border-border/60")}>
               <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-rose-600" /></div>
-              <div><p className="text-sm font-semibold text-foreground">{n}</p><p className="text-xs text-muted-foreground">{c}</p></div>
+              <div className="min-w-0"><p className="text-sm font-semibold text-foreground truncate">{n}</p><RoleLine role={r} detail={c} className="text-xs mt-0.5" /></div>
             </button>
           ))}
         </div>
@@ -683,12 +691,13 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <div className="mb-2">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.dealersCommission")}</h3>
         </div>
-        <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
-        <div className="mt-3 space-y-2.5">
-          {list.map(([n, p, v], i) => (
+        <Tabs items={[["top", t("commissionReport.top")], ["low", t("commissionReport.lowest")]]} value={top} onChange={setTop} />
+        {/* Fixed height of 5 rows; the rest of the team scrolls inside the card. */}
+        <div className="mt-3 space-y-2.5 max-h-[358px] overflow-y-auto no-scrollbar">
+          {list.map(([n, p, v, r], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
-              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : 5 - i}</span>
-              <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><p className="text-[11px] text-muted-foreground mt-0.5">{p}</p></div>
+              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : DEALERS.length - i}</span>
+              <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><RoleLine role={r} detail={p} className="text-[11px] mt-0.5" /></div>
               <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-rose-600")}><RiyalSymbol /> {(v * period.factor).toFixed(2)}</span>
             </div>
           ))}
