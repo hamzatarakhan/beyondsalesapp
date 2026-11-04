@@ -258,8 +258,9 @@ const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void })
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
 
-// Twelve months of payouts ending in LATEST_MONTH (Sep 2025 – Aug 2026).
-const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200]
+// Payouts Sep 2025 – Aug 2027: the year up to Last month, plus the Custom sheet's year (demo values).
+const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200,
+  14600, 15100, 13900, 16200, 12800, 13500, 14900, 15800, 15200, 16700, 17300, 17900]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
 // Bar labels must stay within ~4-5 characters: 14.2k, then 123k (no decimal once it reaches six digits), then 1.2M.
 const compact = (v: number) => v >= 999500 ? `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M` : v >= 1e5 ? `${Math.round(v / 1000)}k` : `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`;
@@ -271,7 +272,7 @@ const PAYOUT_DEMO = {
   normal: (v: number) => v,
   hundredK: (v: number) => v * 10,
   millions: (v: number) => v * 100,
-  mixed: (_: number, i: number) => MIXED[i],
+  mixed: (_: number, i: number) => MIXED[i % MIXED.length],
 };
 const PAYOUT_DEMO_LABEL = { normal: "Thousands", hundredK: "100k+", millions: "Millions", mixed: "Mixed" };
 const RANGES = [["3", "last3"], ["6", "last6"], ["12", "last12"]] as const;
@@ -283,11 +284,12 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const period = usePeriod();
   const sc = useScale();
   const { missed } = useScheme1();
-  // Payout window: the trailing 3, 6 or 12 months.
+  // Payout window: the 3, 6 or 12 months ending at the selected month, which is the highlighted last bar.
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("6");
   // Demo only: shows how the bar labels cope with bigger payouts (hundreds of thousands, millions, or a mix).
   const [size, setSize] = useState<keyof typeof PAYOUT_DEMO>("normal");
-  const payout = PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(-Number(range));
+  const end = PAYOUT.findIndex((p) => p.date.getTime() === period.month.getTime());
+  const payout = PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
   // 12 months don't fit side by side on small phones (320px leaves ~18px per bar), so they scroll sideways at the same
@@ -300,7 +302,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     if (!el || !scroll) return;
     el.scrollLeft = el.scrollWidth;
     setAtStart(el.scrollLeft < 4);
-  }, [scroll, size]);
+  }, [scroll, size, end]);
   const month = period.monthName;
   const lit = period.month.getTime();
   return (
