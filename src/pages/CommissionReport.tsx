@@ -669,11 +669,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
       {period.drawer}
       <>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 p-3">
-          <div className="flex items-center gap-2"><IconBox><Banknote className="w-4 h-4" /></IconBox><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.dealersCommission")}</p></div>
-          <p className={cn("text-xl font-bold mt-2", POS)}><Money v={(505.2 * period.factor).toFixed(2)} /></p>
-        </div>
+      <div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
           <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
           <p className="text-xl font-bold mt-2 text-sky-600 dark:text-sky-400"><Money v={Math.round(11230 * period.factor)} /></p>
