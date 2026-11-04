@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 // Drill-down screens are a local stack so Back always steps up one level, then leaves.
 
 type BreakdownKind = "scheme2prepaid" | "scheme2postpaid" | "pli" | "hbb" | "fr" | "clawbacks" | "hbbClawbacks";
-type Screen = "plans" | "scheme1" | BreakdownKind | "activities";
+type Screen = "plans" | "scheme1" | BreakdownKind | "activities" | "members";
 
 const GAUGE = "hsl(var(--kpi-gauge))";
 const GAUGE_BRIGHT = "hsl(var(--kpi-gauge-bright))";
@@ -583,7 +583,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const [sheet, setSheet] = useState(false);
   const [q, setQ] = useState("");
   const [member, setMember] = useState<string>();
-  const list = top === "top" ? DEALERS : [...DEALERS].reverse();
+  const list = (top === "top" ? DEALERS : [...DEALERS].reverse()).slice(0, 5);
   const people = ALL_DEALERS.filter(([n, c, r]) => !q || (n + c + r).toLowerCase().includes(q.toLowerCase()));
 
   const sheetEl = (
@@ -640,12 +640,12 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <div><p className="text-xs font-semibold text-amber-600 dark:text-amber-300">{t("commissionReport.needsAttention")}</p><p className="text-xs text-foreground/80">{t("commissionReport.needsAttentionSub", { n: 6 })}</p></div>
       </div>
       <Card>
-        <div className="mb-2">
+        <div className="flex items-center justify-between mb-2">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.dealersCommission")}</h3>
+          <button type="button" onClick={() => go("members")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
-        <Tabs items={[["top", t("commissionReport.top")], ["low", t("commissionReport.lowest")]]} value={top} onChange={setTop} />
-        {/* Fixed height of 5 rows; the rest of the team scrolls inside the card. */}
-        <div className="mt-3 space-y-2.5 max-h-[358px] overflow-y-auto no-scrollbar">
+        <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
+        <div className="mt-3 space-y-2.5">
           {list.map(([n, p, v, r], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
               <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : DEALERS.length - i}</span>
@@ -663,9 +663,90 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
 
 // ---------------------------------------------------------------- page
 
+// ---------------------------------------------------------------- manager "See all" members
+
+const MEMBER_ROLES = [...new Set(DEALERS.map((d) => d[3]))];
+type MemberFilter = { role: string; sort: "high" | "low" };
+const NO_MEMBER_FILTER: MemberFilter = { role: "all", sort: "high" };
+
+// Same bottom-sheet pattern as the Custom month Filter: pill groups, Apply commits, Clear Filter resets.
+const MembersFilterSheet = ({ open, onOpenChange, value, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; value: MemberFilter; onApply: (f: MemberFilter) => void }) => {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { if (open) setDraft(value); }, [open, value]);
+  const pill = (on: boolean) => cn("px-3 py-1.5 rounded-full text-xs font-medium", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground");
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
+        <div className="relative flex items-center justify-center py-2">
+          <DrawerTitle className="text-lg font-medium text-foreground">{t("commissionReport.filter")}</DrawerTitle>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="absolute end-0 w-9 h-9 rounded-full border border-border flex items-center justify-center"><X className="w-4 h-4" /></button>
+        </div>
+        <DrawerDescription className="sr-only">{t("commissionReport.allMembers")}</DrawerDescription>
+        <p className="text-sm text-foreground pt-3 pb-2">{t("commissionReport.role")}</p>
+        <div className="flex flex-wrap gap-2">
+          {["all", ...MEMBER_ROLES].map((r) => (
+            <button key={r} type="button" aria-pressed={draft.role === r} onClick={() => setDraft((d) => ({ ...d, role: r }))} className={pill(draft.role === r)}>
+              {r === "all" ? t("commissionReport.allRoles") : r}
+            </button>
+          ))}
+        </div>
+        <p className="text-sm text-foreground pt-4 pb-2">{t("commissionReport.sortBy")}</p>
+        <div className="flex flex-wrap gap-2 pb-4">
+          {(["high", "low"] as const).map((k) => (
+            <button key={k} type="button" aria-pressed={draft.sort === k} onClick={() => setDraft((d) => ({ ...d, sort: k }))} className={pill(draft.sort === k)}>
+              {t(k === "high" ? "commissionReport.highestFirst" : "commissionReport.lowestFirst")}
+            </button>
+          ))}
+        </div>
+        <Button onClick={() => { onApply(draft); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">{t("commissionReport.apply")}</Button>
+        <button type="button" onClick={() => { onApply(NO_MEMBER_FILTER); onOpenChange(false); }} className="w-full h-11 mt-1 text-sm font-medium text-primary">{t("commissionReport.clearFilter")}</button>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+// Whole team with search and filters. Ranks come from the full ranking: top 5 green, lowest 5 red, the rest neutral.
+const AllMembersScreen = () => {
+  const { t } = useTranslation();
+  const { factor } = usePeriod();
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<MemberFilter>(NO_MEMBER_FILTER);
+  const [open, setOpen] = useState(false);
+  const ranked = DEALERS.map((d, i) => ({ d, rank: i + 1 }));
+  const rows = (filter.sort === "high" ? ranked : [...ranked].reverse())
+    .filter(({ d: [n, , , r] }) => (filter.role === "all" || r === filter.role) && (!q || (n + r).toLowerCase().includes(q.toLowerCase())));
+  const active = filter.role !== NO_MEMBER_FILTER.role || filter.sort !== NO_MEMBER_FILTER.sort;
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} /></div>
+        <button type="button" aria-label={t("commissionReport.filter")} onClick={() => setOpen(true)} className="relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0">
+          <SlidersHorizontal className="w-4 h-4 text-primary" />
+          {active && <span className="absolute top-2.5 end-2.5 w-2 h-2 rounded-full bg-primary" />}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground px-1">{t("commissionReport.membersCount", { n: rows.length })}</p>
+      {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
+      {rows.map(({ d: [n, p, v, r], rank }) => {
+        const tone = rank <= 5 ? "top" : rank > DEALERS.length - 5 ? "low" : "mid";
+        return (
+          <div key={n} className="flex items-center gap-3 rounded-xl bg-card shadow-sm px-3 py-3">
+            <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0",
+              tone === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : tone === "low" ? "bg-rose-50 dark:bg-rose-500/15 text-rose-600" : "bg-muted text-muted-foreground")}>{rank}</span>
+            <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><RoleLine role={r} detail={p} className="text-[11px] mt-0.5" /></div>
+            <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", tone === "top" ? POS : tone === "low" ? "text-rose-600" : "text-foreground")}><RiyalSymbol /> {(v * factor).toFixed(2)}</span>
+          </div>
+        );
+      })}
+      <MembersFilterSheet open={open} onOpenChange={setOpen} value={filter} onApply={setFilter} />
+    </div>
+  );
+};
+
 const TITLES: Record<Screen, string> = {
   plans: "My Plans", scheme1: "Scheme 1 Breakdown", scheme2prepaid: "Scheme 2 Prepaid", scheme2postpaid: "Scheme 2 Postpaid",
-  pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities",
+  pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities", members: "All Members",
 };
 
 const CommissionReport = () => {
@@ -702,6 +783,7 @@ const CommissionReport = () => {
         {screen === "scheme1" && <Scheme1Screen />}
         {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
         {screen === "activities" && <ActivitiesScreen kind={stack[stack.length - 2] as BreakdownKind} />}
+        {screen === "members" && <AllMembersScreen />}
         </KillerDemoContext.Provider>
         </PeriodContext.Provider>
       </div>
