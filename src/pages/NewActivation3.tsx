@@ -855,6 +855,10 @@ const NewActivation3 = () => {
   const [payConfirmOpen, setPayConfirmOpen] = useState(false);
   // Vanity commitment for the picked number: ON = free + Nafith; OFF = pay the vanity price.
   const [vanityCommitment, setVanityCommitment] = useState(true);
+  // Option 2: "Change Number Option" sheet — switches the reserved vanity number between
+  // free-with-commitment and paid without releasing it. Draft holds the radio choice until Confirm.
+  const [changeOptionOpen, setChangeOptionOpen] = useState(false);
+  const [vanityCommitmentDraft, setVanityCommitmentDraft] = useState(true);
 
   // ---------- Derived flags ----------
   // Plans catalogue — Line Type (Mobile/Data) and Subscription (Prepaid/Postpaid) are two
@@ -1278,6 +1282,8 @@ const NewActivation3 = () => {
   const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
+  // Option 2 only: the Change action is offered when the picked number supports both free-with-commitment and paid.
+  const canChangeVanityOption = isOption2 && isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree;
   const bookedTopupAmount = bookedTopupManual ? Number(bookedTopupManual) : 0;
   const topupAmount = subType === "booked" ? bookedTopupAmount : (topupManual ? Number(topupManual) : topupDenom ?? 0);
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
@@ -2400,6 +2406,32 @@ const NewActivation3 = () => {
                         const tab = NUMBER_TABS.find(t => t.value === tier);
                         if (!tab || tab.value === "all") return null;
                         const showCommitted = isPostpaidMobile && pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree && vanityCommitment;
+                        if (canChangeVanityOption && pickedVanityCat) return (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {tab.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: tab.color }} />}
+                              <span className="text-[11px] font-semibold" style={{ color: tab.color ?? undefined }}>{t(`activation.subscription.numberTabs.${tab.value}`, tab.label)}</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              {vanityCommitment ? (
+                                <span className="text-[11px] font-semibold text-emerald-600">
+                                  {t("activation3.vanity.commitmentOn", { months: pickedVanityCat.months })}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-semibold text-foreground">
+                                  {t("activation3.vanity.paidOption")} · <RiyalSymbol /> {pickedVanityCat.price.toFixed(2)}
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => { setVanityCommitmentDraft(vanityCommitment); setChangeOptionOpen(true); }}
+                                className="text-link text-[11px] font-semibold"
+                              >
+                                {t("activation3.vanity.change")}
+                              </button>
+                            </div>
+                          </div>
+                        );
                         return (
                           <div className="flex flex-col items-center gap-0.5">
                             <div className="flex items-center justify-center gap-1.5">
@@ -3393,6 +3425,56 @@ const NewActivation3 = () => {
           </Dialog>
         );
       })()}
+
+      {/* Option 2: Change Number Option sheet — same two choices as the selection popup, for the already-reserved number */}
+      {canChangeVanityOption && pickedVanityCat && (
+        <Drawer open={changeOptionOpen} onOpenChange={setChangeOptionOpen}>
+          <DrawerContent className="bg-card rounded-t-3xl">
+            <div className="flex items-start justify-between gap-3 px-5 pt-3 pb-4">
+              <div className="min-w-0">
+                <DrawerTitle className="text-lg font-bold text-foreground">{t("activation3.vanity.changeOptionTitle")}</DrawerTitle>
+                <DrawerDescription className="text-xs text-muted-foreground mt-1">{t("activation3.vanity.changeOptionDesc")}</DrawerDescription>
+              </div>
+              <button onClick={() => setChangeOptionOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div role="radiogroup" className="px-5 space-y-2">
+              {[true, false].map((committed) => {
+                const on = vanityCommitmentDraft === committed;
+                return (
+                  <button
+                    key={String(committed)}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setVanityCommitmentDraft(committed)}
+                    className={cn("w-full flex items-center gap-3 p-3.5 rounded-2xl border text-start transition-colors", on ? "border-primary/20 bg-primary/5" : "border-border bg-card")}
+                  >
+                    <span className="flex-1 min-w-0 text-sm font-semibold text-foreground">
+                      {committed
+                        ? t("activation3.vanity.getFreeWithCommitment", { months: pickedVanityCat.months })
+                        : t("activation3.vanity.payNumberPrice", { price: pickedVanityCat.price.toFixed(2) })}
+                    </span>
+                    <span className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0", on ? "border-primary" : "border-border")}>
+                      {on && <span className="w-2 h-2 rounded-full bg-primary" />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="px-5 pt-5 pb-6">
+              <Button
+                className="w-full h-12 rounded-full text-base"
+                disabled={vanityCommitmentDraft === vanityCommitment}
+                onClick={() => { setVanityCommitment(vanityCommitmentDraft); setChangeOptionOpen(false); }}
+              >
+                {t("activation3.vanity.confirmChange")}
+              </Button>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {/* Nationality picker drawer */}
       <Drawer open={nationalityPickerOpen} onOpenChange={(o) => { setNationalityPickerOpen(o); if (!o) setNationalitySearch(""); }}>

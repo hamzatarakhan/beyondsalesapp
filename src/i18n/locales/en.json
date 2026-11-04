@@ -4314,6 +4314,11 @@
       "choosePrompt": "This number is free with a commitment period, or can be purchased outright.",
       "getFreeWithCommitment": "Get it free with {{months}}-month commitment",
       "payNumberPrice": "Pay {{price}} SAR",
+      "paidOption": "Paid",
+      "change": "Change",
+      "changeOptionTitle": "Change Number Option",
+      "changeOptionDesc": "Choose how you'd like to get this number.",
+      "confirmChange": "Confirm Change",
       "categories": {
         "exotics": "Exotics",
         "legendary": "Legendary",
