@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 // Drill-down screens are a local stack so Back always steps up one level, then leaves.
 
 type BreakdownKind = "scheme2prepaid" | "scheme2postpaid" | "pli" | "hbb" | "fr" | "clawbacks" | "hbbClawbacks";
-type Screen = "plans" | "scheme1" | "kpi" | BreakdownKind | "activities";
+type Screen = "plans" | "scheme1" | BreakdownKind | "activities";
 
 const GAUGE = "hsl(var(--kpi-gauge))";
 const GAUGE_BRIGHT = "hsl(var(--kpi-gauge-bright))";
@@ -399,13 +399,14 @@ const BandRow = ({ label, value, on, accent, struck }: { label: string; value: s
   </div>
 );
 
-const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
+// Scheme 1 Breakdown: result, killer conditions, the KPI list, then payout bands and bonus.
+const Scheme1Screen = () => {
   const { rows, missedKillers, missed } = useScheme1();
   const { monthName } = usePeriod();
   const sc = useScale();
   const fmt = (v: number) => sc(v).toLocaleString();
   return (
-  <div className="space-y-4 pb-20">
+  <div className="space-y-4">
     {missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
     <Card>
       <div className="flex items-center justify-between mb-1">
@@ -415,6 +416,7 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
       <p className="text-xs text-muted-foreground mb-3">Must be met to earn enything from this scheme</p>
       <div className="space-y-2.5">{rows.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
     </Card>
+    <KpiBreakdown />
     {/* Shown on client request even when a killer KPI zeroes the plan: dimmed, marked Not paid, earned amounts crossed out. */}
     <Card className={cn(missed && "opacity-60")}>
       <div className="flex items-center justify-between">
@@ -441,16 +443,13 @@ const Scheme1Screen = ({ go }: { go: (s: Screen) => void }) => {
       <BandRow on struck={missed} label="90-100% . your band" value={`+${fmt(1000)}`} />
       <BandRow label="From 100%" value={fmt(1500)} />
     </Card>
-    <div className="fixed bottom-0 inset-x-0 mx-auto sm:max-w-[430px] px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background to-transparent">
-      <Button onClick={() => go("kpi")} className="w-full h-12 rounded-full text-base font-medium">See KPI Scorecard</Button>
-    </div>
   </div>
   );
 };
 
 // Bars share one 0–120% scale, so the tick sits exactly on the 70% minimum. Once a killer KPI is missed it moves
 // to the top in red, and the other KPIs dim with their share crossed out because nothing is paid.
-const KpiScreen = () => {
+const KpiBreakdown = () => {
   const { rows, missedKillers, missed: planMissed } = useScheme1();
   return (
   <div className="space-y-3">
@@ -712,7 +711,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
 // ---------------------------------------------------------------- page
 
 const TITLES: Record<Screen, string> = {
-  plans: "My Plans", scheme1: "Scheme 1 Breakdown", kpi: "Scheme 1 Breakdown", scheme2prepaid: "Scheme 2 Prepaid", scheme2postpaid: "Scheme 2 Postpaid",
+  plans: "My Plans", scheme1: "Scheme 1 Breakdown", scheme2prepaid: "Scheme 2 Prepaid", scheme2postpaid: "Scheme 2 Postpaid",
   pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities",
 };
 
@@ -742,13 +741,12 @@ const CommissionReport = () => {
             <Tabs items={[["overview", t("commissionReport.overview")], ["mine", t("commissionReport.myCommission")]]} value={tab} onChange={(k) => setTab(k as "overview" | "mine")} />
           </div>
         )}
-        {(screen === "plans" || screen === "scheme1" || screen === "kpi" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
+        {(screen === "plans" || screen === "scheme1" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
         <PeriodContext.Provider value={period}>
         <KillerDemoContext.Provider value={killerMissed}>
         {!screen && (tab === "overview" && manager ? <Overview go={go} /> : <MyCommission go={go} />)}
         {screen === "plans" && <PlansScreen go={go} />}
-        {screen === "scheme1" && <Scheme1Screen go={go} />}
-        {screen === "kpi" && <KpiScreen />}
+        {screen === "scheme1" && <Scheme1Screen />}
         {screen && screen in BREAKDOWNS && <BreakdownScreen kind={screen as BreakdownKind} go={go} />}
         {screen === "activities" && <ActivitiesScreen kind={stack[stack.length - 2] as BreakdownKind} />}
         </KillerDemoContext.Provider>
