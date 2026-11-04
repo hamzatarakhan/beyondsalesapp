@@ -386,30 +386,15 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
   );
 };
 
-const ConditionBar = ({ label, pct, tick }: { label: string; pct: number; tick: number }) => (
-  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-    <span className="w-24 shrink-0">{label}</span>
-    <div className="flex-1"><Gauge pct={pct} tick={tick} danger={pct < tick} /></div>
-    <span className={cn("w-9 text-end font-semibold", pct < tick ? "text-rose-600" : POS)}>{pct}%</span>
-  </div>
-);
 
-// Scheme 1 Breakdown: result, killer conditions, then the KPI list.
+// Scheme 1 Breakdown: result banner, then the KPI list.
 const Scheme1Screen = () => {
-  const { rows, missedKillers, missed } = useScheme1();
+  const { missed } = useScheme1();
   const { monthName } = usePeriod();
   const sc = useScale();
   return (
   <div className="space-y-4">
     {missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
-    <Card>
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-sm font-semibold text-foreground">Conditions</h3>
-        {missed ? <Pill tone="bad"><X className="w-3 h-3" /> {missedKillers.length} Not Met</Pill> : <Pill><Check className="w-3 h-3" /> All Met</Pill>}
-      </div>
-      <p className="text-xs text-muted-foreground mb-3">Must be met to earn enything from this scheme</p>
-      <div className="space-y-2.5">{rows.filter((k) => k.killer).map((k) => <ConditionBar key={k.name} label={`${k.name}  Min${KPI_MIN}%`} pct={k.achieved} tick={KPI_MIN} />)}</div>
-    </Card>
     <KpiBreakdown />
   </div>
   );
