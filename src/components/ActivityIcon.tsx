@@ -3,8 +3,8 @@ import { LucideIcon } from "lucide-react";
 /** Where a service sits in its rollout: still being built, awaiting sign-off, or signed off.
  * "special" is a standalone highlight tone (e.g. flagging alternate options), not a rollout stage.
  * "review" flags a service under LP (Leading Point) review, distinct from "confirm" (awaiting
- * the client's own sign-off). */
-export type BadgeTone = "progress" | "confirm" | "approved" | "special" | "review" | "devready";
+ * the client's own sign-off). "option" marks an alternative variant of an existing service. */
+export type BadgeTone = "progress" | "confirm" | "approved" | "special" | "review" | "devready" | "option";
 
 interface ActivityIconProps {
   icon: LucideIcon;
@@ -22,6 +22,7 @@ const badgeToneMap: Record<BadgeTone, string> = {
   special: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/30",
   devready: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-500/30",
   review: "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30",
+  option: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/30",
 };
 
 const colorMap = {
