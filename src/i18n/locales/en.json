@@ -4314,7 +4314,7 @@
       "commitmentOn": "Free with {{months}}-month commitment",
       "commitmentOff": "Pay {{price}} SAR — no commitment period",
       "monthsPill": "{{months}} month",
-      "availableBannerTitle": "Free vanity numbers available for this plan",
+      "availableBannerTitle": "This plan has vanity numbers available with a commitment option.",
       "nafithNote": "A Promissory Note will be signed via Nafith at checkout.",
       "notEligible": "Not eligible for free commitment on this plan — pay the number price below.",
       "selectPlanFirst": "Select a plan above to see the Vanity Number categories available for it.",
