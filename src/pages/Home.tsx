@@ -132,6 +132,9 @@ const KPI_CHARTS: Record<KpiTab, KpiChart[][]> = {
   ],
 };
 
+// SIM Activation Option 2 card on the dashboard is hidden for now; flip to bring it back.
+const SHOW_SIM_OPTION_2 = false;
+
 const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -290,7 +293,9 @@ const Home = () => {
   // "progress" is still being built.
   const activities = [
     { id: "sim-3", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "sim-3-option-2", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3?option=2", badge: t("home.badgeOption2"), badgeTone: "option" as const },
+    ...(SHOW_SIM_OPTION_2
+      ? [{ id: "sim-3-option-2", icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3?option=2", badge: t("home.badgeOption2"), badgeTone: "option" as const }]
+      : []),
     { id: "fulfilment", icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Pre to Post, Post to Pre, Bill Payment, and Credit Limit Adjustment are all
     // postpaid-related, so Virgin-only — Friendi has no postpaid product.
