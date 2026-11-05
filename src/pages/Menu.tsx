@@ -17,6 +17,11 @@ import {
   Headphones,
   ChevronRight,
   ArrowLeftRight,
+  Send,
+  Zap,
+  Receipt,
+  FileBarChart,
+  History,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -60,6 +65,16 @@ const Menu = () => {
       items: [
         { icon: Target, label: t("menu.salesKpis"), path: "/sales-kpis" },
         { icon: BarChart3, label: t("menu.performanceAtGlance"), path: "/performance-at-glance" },
+      ],
+    },
+    {
+      title: t("menu.eWallets"),
+      items: [
+        { icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer" },
+        { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
+        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
+        { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
+        { icon: History, label: t("home.orderHistory"), path: "/order-history" },
       ],
     },
     {
