@@ -10,7 +10,9 @@ import {
   ClipboardList,
   Target,
   BarChart3,
-  GraduationCap,
+  PackagePlus,
+  PackageOpen,
+  Undo2,
   Calendar,
   Headphones,
   ChevronRight,
@@ -38,9 +40,12 @@ const Menu = () => {
     {
       title: t("menu.stockManagement"),
       items: [
-        { icon: Network, label: t("menu.myHierarchy") },
-        { icon: ClipboardCheck, label: t("menu.checkIn") },
+        { icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },
+        { icon: ClipboardCheck, label: t("menu.checkIn"), path: "/visit-management" },
         { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
+        { icon: PackagePlus, label: t("home.purchaseOrders"), path: "/purchase-orders" },
+        { icon: PackageOpen, label: t("home.salesOrders"), path: "/sales-orders" },
+        { icon: Undo2, label: t("home.stockReturn"), path: "/stock-returns" },
       ],
     },
     {
@@ -53,16 +58,16 @@ const Menu = () => {
     {
       title: t("menu.kpiDashboard"),
       items: [
-        { icon: Target, label: t("menu.salesKpis") },
-        { icon: BarChart3, label: t("menu.performanceAtGlance") },
+        { icon: Target, label: t("menu.salesKpis"), path: "/sales-kpis" },
+        { icon: BarChart3, label: t("menu.performanceAtGlance"), path: "/performance-at-glance" },
       ],
     },
     {
       title: t("menu.otherWidgets"),
       items: [
-        { icon: GraduationCap, label: t("menu.trainingHub") },
+        // Training Hub hidden for now (no screen yet)
         { icon: Calendar, label: t("menu.myShifts"), path: "/my-shifts" },
-        { icon: Headphones, label: t("menu.tickets") },
+        { icon: Headphones, label: t("menu.tickets"), path: "/tickets" },
       ],
     },
   ];
