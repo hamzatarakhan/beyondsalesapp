@@ -2350,26 +2350,18 @@ const NewActivation3 = () => {
                   </div>
                 </div>
 
-                {/* Vanity numbers available for this plan — simple promo banner. Not relevant when porting an existing number. */}
-                {!isOption2 && subType === "sim" && isPostpaidMobile && selectedPlanObj && (() => {
-                  const eligibleTierCats = eligibleVanityCategories.filter(c => c.months > 0);
-                  if (eligibleTierCats.length === 0) return null;
-                  return (
-                    <div className="mb-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-center gap-2.5">
-                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[12.5px] font-semibold text-foreground">{t("activation3.vanity.availableBannerTitle")}</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {eligibleTierCats.map((c) => (
-                            <span key={c.tier} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${c.color}1A`, color: c.color }}>
-                              {t(`activation.vanity.tiers.${c.tier}`)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
+                {/* Vanity availability for the selected plan — generic notice in the same
+                    concept as the MNP eligibility note. The real vanity tier per plan can't be
+                    resolved from the catalogue yet, so we only tell the dealer that this plan
+                    offers a vanity number with a commitment option, never which tiers. */}
+                {!isOption2 && subType === "sim" && isPostpaidMobile && selectedPlanObj && (
+                  <div className="mb-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 p-3 flex items-start gap-2.5">
+                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-[12.5px] font-medium text-foreground">
+                      {t("activation3.vanity.availableBannerTitle")}
+                    </p>
+                  </div>
+                )}
 
                 {subType === "sim" ? (
                   <>
