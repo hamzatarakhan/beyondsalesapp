@@ -8,8 +8,7 @@ import {
   ClipboardCheck,
   UserPlus,
   ClipboardList,
-  Target,
-  BarChart3,
+  // Target, BarChart3, // used by the hidden KPI Dashboard section
   PackagePlus,
   PackageOpen,
   Undo2,
@@ -22,6 +21,17 @@ import {
   Receipt,
   FileBarChart,
   History,
+  Microchip,
+  PackageCheck,
+  Receipt as BillIcon,
+  CreditCard,
+  IdCard,
+  Repeat,
+  Ban,
+  ArrowUpDown,
+  UserCog,
+  Users,
+  MapPin,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -29,6 +39,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useTranslation } from "react-i18next";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface ServiceItem {
   icon: LucideIcon;
@@ -40,8 +51,42 @@ const Menu = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
+  const { brand } = useBrand();
+  // Friendi has no postpaid product, so postpaid-only activities are Virgin-only (same as Home).
+  const postpaid = brand !== "friendi";
 
   const sections: { title: string; items: ServiceItem[] }[] = [
+    {
+      title: t("menu.eWallets"),
+      items: [
+        { icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer" },
+        { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
+        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
+        { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
+        { icon: History, label: t("home.orderHistory"), path: "/order-history" },
+      ],
+    },
+    {
+      title: t("home.customerActivities"),
+      items: [
+        { icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3" },
+        { icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment" },
+        ...(postpaid
+          ? [
+              { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post" },
+              { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre" },
+              { icon: BillIcon, label: t("home.billPayment"), path: "/bill-payment?option=2" },
+              { icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5" },
+            ]
+          : []),
+        { icon: IdCard, label: t("home.customerSearch"), path: "/customer-search" },
+        { icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle" },
+        ...(postpaid ? [{ icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan" }] : []),
+        { icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in" },
+        { icon: UserCog, label: t("home.updateId"), path: "/update-id" },
+        { icon: Users, label: t("home.changeOwner"), path: "/change-owner" },
+      ],
+    },
     {
       title: t("menu.stockManagement"),
       items: [
@@ -60,28 +105,20 @@ const Menu = () => {
         { icon: ClipboardList, label: t("home.onboardingRequests"), path: "/onboarding-requests" },
       ],
     },
-    {
-      title: t("menu.kpiDashboard"),
-      items: [
-        { icon: Target, label: t("menu.salesKpis"), path: "/sales-kpis" },
-        { icon: BarChart3, label: t("menu.performanceAtGlance"), path: "/performance-at-glance" },
-      ],
-    },
-    {
-      title: t("menu.eWallets"),
-      items: [
-        { icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer" },
-        { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
-        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
-        { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
-        { icon: History, label: t("home.orderHistory"), path: "/order-history" },
-      ],
-    },
+    // KPI Dashboard hidden to match Home (KPI widget is hidden there); uncomment to bring it back.
+    // {
+    // title: t("menu.kpiDashboard"),
+    // items: [
+    // { icon: Target, label: t("menu.salesKpis"), path: "/sales-kpis" },
+    // { icon: BarChart3, label: t("menu.performanceAtGlance"), path: "/performance-at-glance" },
+    // ],
+    // },
     {
       title: t("menu.otherWidgets"),
       items: [
         // Training Hub hidden for now (no screen yet)
         { icon: Calendar, label: t("menu.myShifts"), path: "/my-shifts" },
+        { icon: MapPin, label: t("home.dealerVisit.title"), path: "/visit-management" },
         { icon: Headphones, label: t("menu.tickets"), path: "/tickets" },
       ],
     },
