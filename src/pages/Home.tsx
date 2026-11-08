@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Send,
   Zap,
+  SmartphoneCharging,
   MessageSquareWarning,
   IdCard,
   BadgeCheck,
@@ -334,6 +335,7 @@ const Home = () => {
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "customer-recharge", icon: SmartphoneCharging, label: t("home.customerRecharge"), path: "/customer-recharge", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeLpReview"), badgeTone: "review" as const },
     { id: "commission-report", icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },

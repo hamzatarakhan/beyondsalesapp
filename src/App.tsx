@@ -30,6 +30,7 @@ import Notifications from "./pages/Notifications";
 import BillPayment from "./pages/BillPayment";
 import CreditTransfer from "./pages/CreditTransfer";
 import WalletRecharge from "./pages/WalletRecharge";
+import CustomerRecharge, { EReloadWallet, ChargeVoucher } from "./pages/CustomerRecharge";
 import CustomerComplaint from "./pages/CustomerComplaint";
 import CustomerSearch from "./pages/CustomerSearch";
 import SimStatusCheck from "./pages/SimStatusCheck";
@@ -172,6 +173,9 @@ const App = () => {
           <Route path="/bill-payment" element={<BillPayment />} />
           <Route path="/credit-transfer" element={<CreditTransfer />} />
           <Route path="/wallet-recharge" element={<WalletRecharge />} />
+          <Route path="/customer-recharge" element={<CustomerRecharge />} />
+          <Route path="/customer-recharge/e-reload" element={<EReloadWallet />} />
+          <Route path="/customer-recharge/voucher" element={<ChargeVoucher />} />
           <Route path="/customer-complaint" element={<CustomerComplaint />} />
           <Route path="/customer-search" element={<CustomerSearch />} />
           <Route path="/sim-status-check" element={<SimStatusCheck />} />
