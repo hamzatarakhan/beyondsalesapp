@@ -16,5 +16,5 @@ ls roadmap.md >/dev/null && tail -4 roadmap.md
 - [x] E-Wallet filter chips: unselected options now show a single "+" (the extra literal plus was removed where it doubled the styled one).
 
 ## Service organization (Nov 8)
-- [ ] Hide Sales KPIs and Performance at a Glance everywhere and verify the hidden entry points.
-- [ ] Propose smaller task-based customer-service categories before changing their layout.
+- [x] Hide Sales KPIs and Performance at a Glance everywhere and verify the hidden entry points; saved URLs now return Home.
+- [x] Propose smaller task-based customer-service categories before changing their layout.
