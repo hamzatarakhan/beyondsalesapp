@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Clock, FilterX, Inbox, Info, Search, SearchX, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -74,24 +74,6 @@ const Banner = ({ label, value, tone = "good", badge, note }: { label: string; v
     {note && <p className="text-xs text-rose-600 mt-1">{note}</p>}
   </div>
 );
-
-// A month whose calculation is delayed: no amount (a 0 would read as "earned nothing"), just a Pending state.
-const PendingBanner = ({ label, note }: { label: string; note: string }) => {
-  const { t } = useTranslation();
-  return (
-    <div className="rounded-2xl px-4 py-3 border bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-amber-100 text-amber-600 dark:bg-amber-500/20"><Clock className="w-4 h-4" /></div>
-          <span className="text-xs font-medium text-foreground">{label}</span>
-        </div>
-        <Pill tone="wait">{t("commissionReport.pending")}</Pill>
-      </div>
-      <p className="text-2xl font-bold mt-2 text-muted-foreground">—</p>
-      <p className="text-xs text-muted-foreground mt-1">{note}</p>
-    </div>
-  );
-};
 
 const Chev = () => <ChevronRight className="w-4 h-4 text-primary shrink-0 rtl:rotate-180" />;
 
@@ -374,20 +356,21 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   }, [scroll, size, end]);
   const month = period.monthName;
   const lit = period.month.getTime();
+  // Last month's calculation delayed (not calculated yet): only the month chips and the No Commissions screen.
+  if (pending) return (
+    <div className="space-y-4">
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
+      {period.drawer}
+      <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} />
+    </div>
+  );
   return (
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
       <>
-      {pending
-        ? <PendingBanner label={t("commissionReport.earnedIn", { month })} note={t("commissionReport.pendingNote", { month })} />
-        : <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />}
-      {pending ? (
-        <Card>
-          <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
-          <p className="text-sm text-muted-foreground mt-2">{t("commissionReport.pendingPlans")}</p>
-        </Card>
-      ) : <Card>
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />
+      <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
@@ -399,7 +382,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
         )}
-      </Card>}
+      </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
       {SHOW_PAYOUT_DEMO && <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
         <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 shrink-0">Demo: amounts</span>
@@ -713,17 +696,21 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
     );
   }
 
+  if (period.pending) return (
+    <div className="space-y-4">
+      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
+      {period.drawer}
+      <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} />
+      {sheetEl}
+    </div>
+  );
   return (
     <div className="space-y-4">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      {period.pending ? (
-        <>
-          <PendingBanner label={t("commissionReport.earnedIn", { month: period.monthName })} note={t("commissionReport.pendingNote", { month: period.monthName })} />
-          <Card><p className="text-sm text-muted-foreground">{t("commissionReport.pendingTeam")}</p></Card>
-        </>
-      ) : <>
+      <>
       <div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
           <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
@@ -751,7 +738,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           ))}
         </div>
       </Card>
-      </>}
+      </>
       {sheetEl}
     </div>
   );

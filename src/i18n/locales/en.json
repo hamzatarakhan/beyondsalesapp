@@ -2352,6 +2352,8 @@
     "noMatchDealers": "No Matching Dealers",
     "noMatchActivities": "No Matching Activities",
     "noMatchHint": "Try adjusting your search or filters.",
+    "noCommissionsTitle": "No Commissions",
+    "noCommissionsHint": "No commissions available for the selected period",
     "noActivitiesTitle": "No activities yet",
     "noPlansTitle": "No plans yet",
     "noPayoutTitle": "No payouts yet",

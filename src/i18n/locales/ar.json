@@ -2278,6 +2278,8 @@
     "noMatchDealers": "لا يوجد موزعون مطابقون",
     "noMatchActivities": "لا توجد أنشطة مطابقة",
     "noMatchHint": "حاول تعديل البحث أو عوامل التصفية.",
+    "noCommissionsTitle": "لا توجد عمولات",
+    "noCommissionsHint": "لا توجد عمولات متاحة للفترة المحددة",
     "noActivitiesTitle": "لا توجد أنشطة بعد",
     "noPlansTitle": "لا توجد خطط بعد",
     "noPayoutTitle": "لا توجد دفعات بعد",
