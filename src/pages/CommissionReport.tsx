@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, FilterX, Inbox, Info, Search, SearchX, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -116,6 +116,31 @@ const Tabs = ({ items, value, onChange }: { items: [string, string][]; value: st
     ))}
   </div>
 );
+
+// Flip to true to empty every Commission Report list and preview the "No data found" states.
+const DEMO_NO_DATA = false;
+
+// One empty state for every Commission Report list:
+// noData = nothing to show at all; search = the query matched nothing; filter = the filters matched nothing (with Clear filters).
+type EmptyKind = "noData" | "search" | "filter";
+const EmptyState = ({ kind, hint, query, onClear, compact }: { kind: EmptyKind; hint?: string; query?: string; onClear?: () => void; compact?: boolean }) => {
+  const { t } = useTranslation();
+  const Icon = kind === "noData" ? Inbox : kind === "search" ? SearchX : FilterX;
+  const title = kind === "noData" ? t("commissionReport.noData") : kind === "search" ? t("commissionReport.noResultsFor", { q: query }) : t("commissionReport.noFilterResults");
+  return (
+    <div className={cn("flex flex-col items-center text-center gap-2 px-6", compact ? "py-6" : "py-12")}>
+      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center"><Icon className="w-5 h-5 text-muted-foreground" /></div>
+      <p className="text-sm font-semibold text-foreground break-all">{title}</p>
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {kind === "filter" && onClear && (
+        <Button variant="outline" onClick={onClear} className="mt-1 h-9 rounded-full px-4 text-xs">{t("commissionReport.clearFilters")}</Button>
+      )}
+    </div>
+  );
+};
+// Which empty state a filtered list needs: none when it has rows, else no data, filters, or search, in that order.
+const emptyKind = (total: number, shown: number, filtered: boolean): EmptyKind | null =>
+  shown > 0 ? null : total === 0 ? "noData" : filtered ? "filter" : "search";
 
 const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void }) => (
   <div className="flex gap-2">
@@ -289,7 +314,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   // Demo only: shows how the bar labels cope with bigger payouts (hundreds of thousands, millions, or a mix).
   const [size, setSize] = useState<keyof typeof PAYOUT_DEMO>("normal");
   const end = PAYOUT.findIndex((p) => p.date.getTime() === period.month.getTime());
-  const payout = PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).slice(-Number(range));
+  const payout = DEMO_NO_DATA ? [] : PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const max = Math.max(...payout.map((p) => p.v));
   // 12 months don't fit side by side on small phones (320px leaves ~18px per bar), so they scroll sideways at the same
@@ -316,11 +341,13 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
+        {DEMO_NO_DATA ? <EmptyState kind="noData" hint={t("commissionReport.noPlansHint")} compact /> : (
         <div className="space-y-3">
           <Scheme1Row go={go} />
           <PlanRow title="Scheme 2 Prepaid KPI" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
+        )}
       </Card>
       <Heading>{t("commissionReport.payout")}</Heading>
       {SHOW_PAYOUT_DEMO && <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
@@ -342,7 +369,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
           <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
-        <div ref={scroller} onScroll={(e) => setAtStart(e.currentTarget.scrollLeft < 4)}
+        {payout.length === 0 && <EmptyState kind="noData" hint={t("commissionReport.noPayoutHint")} compact />}
+        {payout.length > 0 && <div ref={scroller} onScroll={(e) => setAtStart(e.currentTarget.scrollLeft < 4)}
           className={cn("flex items-end h-56", scroll ? "gap-2 overflow-x-auto no-scrollbar snap-x" : "justify-center gap-3", scroll && !atStart && "[mask-image:linear-gradient(to_right,transparent,black_28px)]")}>
           {payout.map(({ date, v }) => {
             const last = date.getTime() === lit;
@@ -355,8 +383,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
               </div>
             );
           })}
-        </div>
-        {scroll && <p className="mt-3 text-center text-[11px] text-muted-foreground">{t("commissionReport.swipeHint")}</p>}
+        </div>}
+        {scroll && payout.length > 0 && <p className="mt-3 text-center text-[11px] text-muted-foreground">{t("commissionReport.swipeHint")}</p>}
       </Card>
       </>
     </div>
@@ -367,6 +395,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
 
 const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
   const sc = useScale();
+  const { t } = useTranslation();
+  if (DEMO_NO_DATA) return <EmptyState kind="noData" hint={t("commissionReport.noPlansHint")} />;
   return (
   <div className="space-y-3">
     <Heading>Scheme 1</Heading>
@@ -539,15 +569,16 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
   const { factor } = usePeriod();
-  const all = useMemo(() => activityRows(kind, factor), [kind, factor]);
+  const all = useMemo(() => (DEMO_NO_DATA ? [] : activityRows(kind, factor)), [kind, factor]);
   const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
   const showChips = !BREAKDOWNS[kind].bad;
   const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
+  const empty = emptyKind(all.length, rows.length, f !== "All");
   return (
     <div className="space-y-3">
-      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} />
-      {showChips && <Chips items={kinds} value={f} onChange={setF} />}
-      {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
+      <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onClear={() => setQ("")} />
+      {showChips && all.length > 0 && <Chips items={kinds} value={f} onChange={setF} />}
+      {empty && <EmptyState kind={empty} query={q} hint={empty === "noData" ? t("commissionReport.noActivitiesHint") : undefined} onClear={() => setF("All")} />}
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p>{r.detail && <p className="text-xs text-muted-foreground">{r.detail}</p>}</div>
@@ -583,8 +614,11 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const [sheet, setSheet] = useState(false);
   const [q, setQ] = useState("");
   const [member, setMember] = useState<string>();
-  const list = (top === "top" ? DEALERS : [...DEALERS].reverse()).slice(0, 5);
-  const people = ALL_DEALERS.filter(([n, c, r]) => !q || (n + c + r).toLowerCase().includes(q.toLowerCase()));
+  const team = DEMO_NO_DATA ? [] : DEALERS;
+  const list = (top === "top" ? team : [...team].reverse()).slice(0, 5);
+  const allPeople = DEMO_NO_DATA ? [] : ALL_DEALERS;
+  const people = allPeople.filter(([n, c, r]) => !q || (n + c + r).toLowerCase().includes(q.toLowerCase()));
+  const peopleEmpty = emptyKind(allPeople.length, people.length, false);
 
   const sheetEl = (
     <Drawer open={sheet} onOpenChange={setSheet}>
@@ -597,8 +631,10 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <DrawerDescription className="sr-only">{t("commissionReport.searchDealers")}</DrawerDescription>
         <div className="relative mb-3">
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("commissionReport.searchMember")} className="h-12 rounded-xl pe-10" />
-          <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          {q ? <button type="button" onClick={() => setQ("")} aria-label={t("commissionReport.searchMember")} className="absolute end-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
+            : <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
         </div>
+        {peopleEmpty && <EmptyState kind={peopleEmpty} query={q} hint={peopleEmpty === "noData" ? t("commissionReport.noMembersHint") : undefined} />}
         <div className="space-y-2 overflow-y-auto">
           {people.map(([n, c, r]) => (
             <button key={c + n} type="button" onClick={() => { setMember(n); setQ(""); setSheet(false); }}
@@ -645,10 +681,11 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           <button type="button" onClick={() => go("members")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
+        {list.length === 0 && <EmptyState kind="noData" hint={t("commissionReport.noMembersHint")} compact />}
         <div className="mt-3 space-y-2.5">
           {list.map(([n, p, v, r], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
-              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : DEALERS.length - i}</span>
+              <span className={cn("w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0", top === "top" ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600" : "bg-rose-50 dark:bg-rose-500/15 text-rose-600")}>{top === "top" ? i + 1 : team.length - i}</span>
               <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{n}</p><RoleLine role={r} detail={p} className="text-[11px] mt-0.5" /></div>
               <span className={cn("text-xs font-semibold inline-flex items-center gap-1 tabular-nums", top === "top" ? POS : "text-rose-600")}><RiyalSymbol /> {(v * period.factor).toFixed(2)}</span>
             </div>
@@ -713,21 +750,23 @@ const AllMembersScreen = () => {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<MemberFilter>(NO_MEMBER_FILTER);
   const [open, setOpen] = useState(false);
-  const ranked = DEALERS.map((d, i) => ({ d, rank: i + 1 }));
+  const ranked = (DEMO_NO_DATA ? [] : DEALERS).map((d, i) => ({ d, rank: i + 1 }));
   const rows = (filter.sort === "high" ? ranked : [...ranked].reverse())
     .filter(({ d: [n, , , r] }) => (filter.role === "all" || r === filter.role) && (!q || (n + r).toLowerCase().includes(q.toLowerCase())));
   const active = filter.role !== NO_MEMBER_FILTER.role || filter.sort !== NO_MEMBER_FILTER.sort;
+  // Sorting never hides anyone, so only the role filter can be why the list is empty.
+  const empty = emptyKind(ranked.length, rows.length, filter.role !== NO_MEMBER_FILTER.role);
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} /></div>
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onClear={() => setQ("")} /></div>
         <button type="button" aria-label={t("commissionReport.filter")} onClick={() => setOpen(true)} className="relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0">
           <SlidersHorizontal className="w-4 h-4 text-primary" />
           {active && <span className="absolute top-2.5 end-2.5 w-2 h-2 rounded-full bg-primary" />}
         </button>
       </div>
       <p className="text-xs text-muted-foreground px-1">{t("commissionReport.membersCount", { n: rows.length })}</p>
-      {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">{t("commissionReport.noResults")}</p>}
+      {empty && <EmptyState kind={empty} query={q} hint={empty === "noData" ? t("commissionReport.noMembersHint") : undefined} onClear={() => setFilter(NO_MEMBER_FILTER)} />}
       {rows.map(({ d: [n, p, v, r] }) => {
         return (
           <div key={n} className="flex items-center gap-3 rounded-xl bg-card shadow-sm px-3 py-3">
