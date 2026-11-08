@@ -578,6 +578,15 @@
     "eReloadSuccess": "{{amount}} SAR has been recharged to {{msisdn}}.",
     "voucherSuccess": "The voucher has been redeemed for {{msisdn}}."
   },
+  "walletTopUp": {
+    "title": "Wallet Topup",
+    "walletName": "Wallet Name",
+    "paymentMethod": "Payment method",
+    "voucherCode": "Voucher code",
+    "recharge": "Recharge",
+    "successTitle": "Top-Up Successful",
+    "successMessage": "Your wallet has been topped up successfully."
+  },
   "creditTransfer": {
     "title": "Credit Transfer",
     "msisdn": "MSISDN",
@@ -2585,6 +2594,7 @@
     "creditTransfer": "Credit Transfer",
     "walletRecharge": "eWallet Recharge",
     "customerRecharge": "Customer Recharge",
+    "walletTopUp": "Wallet Top-Up",
     "ewalletTransactions": "E-Wallet Transactions",
     "customerComplaint": "Raise Complaint",
     "badgeApproved": "Approved",

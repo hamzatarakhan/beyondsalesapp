@@ -21,6 +21,7 @@ import {
   Send,
   Zap,
   SmartphoneCharging,
+  WalletCards,
   MessageSquareWarning,
   IdCard,
   BadgeCheck,
@@ -336,6 +337,7 @@ const Home = () => {
     // specific than a generic plus for topping up the dealer's own wallet balance.
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "customer-recharge", icon: SmartphoneCharging, label: t("home.customerRecharge"), path: "/customer-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "wallet-top-up", icon: WalletCards, label: t("home.walletTopUp"), path: "/wallet-top-up", badge: t("home.badgeInProgress"), badgeTone: "progress" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "commission-report", icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },

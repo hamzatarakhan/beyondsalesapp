@@ -1,24 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
-import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import RiyalSymbol from "@/components/RiyalSymbol";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Ticket, Wallet, X } from "lucide-react";
+import PinCodeSheet from "@/components/PinCodeSheet";
+import { ChevronRight, Ticket, Wallet } from "lucide-react";
 
 // Customer Recharge: the dealer tops up a customer's line either from the dealer's
 // E-Reload wallet (amount + PIN) or by redeeming a charge voucher code.
 
 // ---------- Demo data ----------
 const E_RELOAD_BALANCE = 456.78;
-// Prototype PIN — any other 4 digits count as wrong so QA can reach the error state.
-// Real PIN verification must happen server-side.
-const VALID_RECHARGE_PIN = "1234";
 const isValidMsisdn = (v: string) => /^05\d{8}$/.test(v);
 const newReference = (prefix: string) => `${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -78,42 +74,11 @@ export const EReloadWallet = () => {
   const [msisdn, setMsisdn] = useState("");
   const [amountText, setAmountText] = useState("");
   const [pinOpen, setPinOpen] = useState(false);
-  const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
-  const [pinError, setPinError] = useState(false);
-  const [resent, setResent] = useState(false);
   const [reference, setReference] = useState("");
 
   const amount = amountText === "" ? 0 : Number(amountText);
   const overBalance = amount > E_RELOAD_BALANCE;
   const canRecharge = isValidMsisdn(msisdn) && amount > 0 && !overBalance;
-  const pin = pinDigits.join("");
-
-  const changePinSheet = (open: boolean) => {
-    setPinDigits(["", "", "", ""]);
-    setPinError(false);
-    setResent(false);
-    setPinOpen(open);
-  };
-
-  // Focus the first PIN box as soon as the sheet opens.
-  useEffect(() => {
-    if (pinOpen) setTimeout(() => (document.getElementById("customer-recharge-pin-0") as HTMLInputElement | null)?.focus({ preventScroll: true }), 400);
-  }, [pinOpen]);
-
-  const setPinDigitAt = (i: number, v: string) => {
-    const d = v.replace(/\D/g, "").slice(-1);
-    setPinDigits((prev) => { const next = [...prev]; next[i] = d; return next; });
-    setPinError(false);
-    if (d && i < 3) (document.getElementById(`customer-recharge-pin-${i + 1}`) as HTMLInputElement | null)?.focus({ preventScroll: true });
-    if (!d && i > 0) (document.getElementById(`customer-recharge-pin-${i - 1}`) as HTMLInputElement | null)?.focus({ preventScroll: true });
-  };
-
-  const submitPin = () => {
-    if (!canRecharge || !/^\d{4}$/.test(pin)) return;
-    if (pin !== VALID_RECHARGE_PIN) { setPinError(true); return; }
-    changePinSheet(false);
-    setReference(newReference("ER"));
-  };
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
@@ -148,60 +113,9 @@ export const EReloadWallet = () => {
         </Field>
       </div>
 
-      <StickyAction label={t("customerRecharge.recharge")} disabled={!canRecharge} onClick={() => changePinSheet(true)} />
+      <StickyAction label={t("customerRecharge.recharge")} disabled={!canRecharge} onClick={() => setPinOpen(true)} />
 
-      {/* PIN Code sheet */}
-      <Drawer open={pinOpen} onOpenChange={changePinSheet}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-8 pt-2">
-          <form onSubmit={(e) => { e.preventDefault(); submitPin(); }} className="relative flex flex-col items-center gap-4 py-4">
-            <button
-              type="button"
-              onClick={() => changePinSheet(false)}
-              className="absolute end-0 top-3 w-8 h-8 rounded-full border border-border flex items-center justify-center"
-              aria-label={t("customerRecharge.close")}
-            >
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <div className="text-center">
-              <DrawerTitle className="text-lg font-bold text-foreground">{t("customerRecharge.pinTitle")}</DrawerTitle>
-              <DrawerDescription className="text-sm text-muted-foreground mt-1">{t("customerRecharge.pinDesc")}</DrawerDescription>
-            </div>
-            <div className="flex gap-3" dir="ltr">
-              {[0, 1, 2, 3].map((i) => (
-                <input
-                  key={i}
-                  id={`customer-recharge-pin-${i}`}
-                  inputMode="numeric"
-                  autoComplete="off"
-                  maxLength={1}
-                  value={pinDigits[i]}
-                  onChange={(e) => setPinDigitAt(i, e.target.value)}
-                  className={cn(
-                    "w-12 h-12 rounded-full border-2 text-center text-base font-semibold focus:outline-none text-foreground",
-                    pinError ? "border-destructive" : "border-border focus:border-primary",
-                  )}
-                />
-              ))}
-            </div>
-            {pinError ? (
-              <p className="text-xs text-destructive">{t("customerRecharge.pinInvalid")}</p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                {resent ? t("customerRecharge.otpResent") : t("customerRecharge.noOtp")}{" "}
-                {!resent && (
-                  <button type="button" className="text-link font-semibold" onClick={() => setResent(true)}>
-                    {t("customerRecharge.resend")}
-                  </button>
-                )}
-              </p>
-            )}
-            <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 text-center">{t("customerRecharge.pinHint")}</p>
-            <Button type="submit" className="w-full h-12 rounded-full font-semibold" disabled={pin.length !== 4}>
-              {t("customerRecharge.submit")}
-            </Button>
-          </form>
-        </DrawerContent>
-      </Drawer>
+      <PinCodeSheet open={pinOpen} onOpenChange={setPinOpen} onVerified={() => setReference(newReference("ER"))} idPrefix="customer-recharge" />
 
       <SuccessBottomSheet
         open={!!reference}

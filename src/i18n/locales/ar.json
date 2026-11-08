@@ -581,6 +581,15 @@
     "eReloadSuccess": "تم شحن {{amount}} ر.س إلى {{msisdn}}.",
     "voucherSuccess": "تم استخدام القسيمة للرقم {{msisdn}}."
   },
+  "walletTopUp": {
+    "title": "تعبئة المحفظة",
+    "walletName": "اسم المحفظة",
+    "paymentMethod": "طريقة الدفع",
+    "voucherCode": "رمز القسيمة",
+    "recharge": "شحن",
+    "successTitle": "تمت التعبئة بنجاح",
+    "successMessage": "تمت تعبئة محفظتك بنجاح."
+  },
   "creditTransfer": {
     "title": "تحويل رصيد",
     "msisdn": "رقم الجوال",
@@ -2518,6 +2527,7 @@
     "creditTransfer": "تحويل رصيد",
     "walletRecharge": "شحن المحفظة الإلكترونية",
     "customerRecharge": "شحن رصيد العميل",
+    "walletTopUp": "تعبئة المحفظة",
     "ewalletTransactions": "معاملات المحافظ الإلكترونية",
     "customerComplaint": "تقديم شكوى",
     "badgeApproved": "معتمد",
