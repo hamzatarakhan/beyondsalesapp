@@ -172,12 +172,12 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: 
   </div>
 );
 
-// Demo "today" for the commission figures: Aug 2026 is the latest month with data.
-const LATEST_MONTH = new Date(2026, 7, 1);
+// Demo "today" is Nov 2026. The running month is never shown (its calculation hasn't run), so Last month, Oct 2026, is the latest.
+const LATEST_MONTH = new Date(2026, 9, 1);
 // The three months that have their own chip: Last month, then the two before it (July, June).
 const CHIP_MONTHS = [0, -1, -2].map((n) => addMonths(LATEST_MONTH, n));
-// Custom sheet: a fixed 12-month range, Sep 2026 – Aug 2027, each pill labelled with its year.
-const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(2026, 8 + m, 1));
+// Custom sheet: the 12 completed months up to Last month (Nov 2025 – Oct 2026), each pill labelled with its year.
+const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(2025, 10 + m, 1));
 
 // "Filter" bottom sheet behind the Custom chip: the YEAR_MONTHS range as pills, opened on the month
 // the home chips currently show. Apply commits; Clear Filter goes back to Last month.
@@ -220,6 +220,9 @@ const MonthFilterSheet = ({ open, onOpenChange, value, months, onApply, onClear 
 const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; join: Date | null }) => {
   const since = (d: Date) => !join || d.getTime() >= join.getTime();
   const chipMonths = CHIP_MONTHS.filter(since);
+  const sheetMonths = YEAR_MONTHS.filter(since);
+  // A dealer who joined after Last month has no chips: the report opens on their first active month instead.
+  const home = chipMonths.length ? LATEST_MONTH : sheetMonths[0];
   const { t } = useTranslation();
   const [month, setMonth] = useState(LATEST_MONTH);
   const [open, setOpen] = useState(false);
@@ -234,6 +237,8 @@ const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; jo
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setLoading(false), 1000);
   };
+  // Join date moved past the month on screen: jump to the first month the dealer was active.
+  useEffect(() => { if (!since(month)) pick(home); }, [join]);
   const chipLabels = chipMonths.map((d) => (d.getTime() === LATEST_MONTH.getTime() ? first : format(d, "MMMM")));
   const chip = chipMonths.findIndex((d) => d.getTime() === month.getTime());
   const customLabel = chip === -1 ? format(month, "MMM yyyy") : t("commissionReport.custom");
@@ -249,7 +254,7 @@ const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; jo
     items: [...chipLabels, customLabel],
     chipValue: chip === -1 ? customLabel : chipLabels[chip],
     onChipChange: (v: string) => (v === customLabel ? setOpen(true) : pick(chipMonths[chipLabels.indexOf(v)])),
-    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} months={YEAR_MONTHS.filter(since)} onApply={pick} onClear={() => pick(LATEST_MONTH)} />,
+    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} months={sheetMonths} onApply={pick} onClear={() => pick(home)} />,
   };
 };
 
@@ -307,7 +312,7 @@ const DemoRow = ({ label, options, value, onChange }: { label: string; options: 
   </div>
 );
 // Demo: when the dealer joined. Months before that month are hidden from the chips, the filter sheet and the payout chart.
-const JOIN_DEMO: [string, Date | null][] = [["Full year", null], ["Jul 2026", new Date(2026, 6, 1)], ["Aug 2026", new Date(2026, 7, 1)]];
+const JOIN_DEMO: [string, Date | null][] = [["Full year", null], ["Mar 2026", new Date(2026, 2, 1)], ["Sep 2026", new Date(2026, 8, 1)]];
 
 const MissedBanner = () => {
   const { missedKillers } = useScheme1();
@@ -324,7 +329,7 @@ const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void })
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
 
-// Payouts Sep 2025 – Aug 2027: the year up to Last month, plus the Custom sheet's year (demo values).
+// Payouts Nov 2025 – Oct 2027: the year up to Last month, plus a year after it (demo values).
 const PAYOUT = [7400, 8900, 9600, 12100, 7800, 9100, 8200, 11400, 10200, 13200, 13800, 14200,
   14600, 15100, 13900, 16200, 12800, 13500, 14900, 15800, 15200, 16700, 17300, 17900]
   .map((v, i) => ({ date: addMonths(LATEST_MONTH, i - 11), v }));
