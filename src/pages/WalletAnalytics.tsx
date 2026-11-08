@@ -162,6 +162,10 @@ const WalletAnalytics = () => {
   const [draft, setDraft] = useState<Filters>(DEFAULT_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
   const [memberPickerOpen, setMemberPickerOpen] = useState(false);
+  // Custom Date opens its own "Pick a Date" sheet on top of the filter flow; the range is
+  // only copied into the filter draft on Apply.
+  const [pickDateOpen, setPickDateOpen] = useState(false);
+  const [rangeDraft, setRangeDraft] = useState<DateRange | undefined>();
   const [memberSearch, setMemberSearch] = useState("");
   const [ranking, setRanking] = useState<"top" | "lowest">("top");
 
@@ -182,6 +186,12 @@ const WalletAnalytics = () => {
 
   const openFilters = () => { setDraft(filters); setFilterOpen(true); };
   const applyFilters = () => { setFilters(draft); setFilterOpen(false); };
+  const openPickDate = () => { setRangeDraft(draft.range); setFilterOpen(false); setPickDateOpen(true); };
+  const closePickDate = () => { setPickDateOpen(false); setFilterOpen(true); };
+  const applyPickDate = () => {
+    if (rangeDraft?.from) setDraft((f) => ({ ...f, date: "custom", range: rangeDraft }));
+    closePickDate();
+  };
   const clearFilters = () => { setDraft(DEFAULT_FILTERS); setFilters(DEFAULT_FILTERS); setFilterOpen(false); };
 
   const dateLabel = (f: Filters) => {
@@ -436,23 +446,12 @@ const WalletAnalytics = () => {
                 ))}
                 <Chip
                   on={draft.date === "custom"}
-                  onClick={() => setDraft((f) => ({ ...f, date: "custom" }))}
+                  onClick={openPickDate}
                   icon={<CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />}
                 >
                   {draft.date === "custom" && draft.range?.from ? dateLabel(draft) : t("walletAnalytics.customDate")}
                 </Chip>
               </div>
-              {draft.date === "custom" && (
-                <div className="rounded-xl border border-border/60">
-                  <Calendar
-                    mode="range"
-                    selected={draft.range}
-                    onSelect={(range) => setDraft((f) => ({ ...f, range }))}
-                    disabled={{ after: new Date() }}
-                    className="w-full p-2 [&_.rdp-month]:w-full [&_table]:w-full"
-                  />
-                </div>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -502,6 +501,67 @@ const WalletAnalytics = () => {
                 {t("walletAnalytics.clearFilter")}
               </button>
             </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Pick a Date sheet (Custom Date) */}
+      <Drawer open={pickDateOpen} onOpenChange={(o) => { if (!o) closePickDate(); }}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 max-h-[92vh] overflow-hidden">
+          <div className="relative px-5 pt-3 pb-2 text-center">
+            <DrawerTitle className="text-lg font-bold text-foreground">{t("walletAnalytics.pickDate")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground mt-0.5">{t("walletAnalytics.pickDateDesc")}</DrawerDescription>
+            <button
+              type="button"
+              onClick={closePickDate}
+              className="absolute end-5 top-3 w-8 h-8 rounded-full border border-border flex items-center justify-center"
+              aria-label={t("walletAnalytics.close")}
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3 space-y-3">
+            <Calendar
+              mode="range"
+              selected={rangeDraft}
+              onSelect={setRangeDraft}
+              defaultMonth={rangeDraft?.from ?? new Date()}
+              disabled={{ after: new Date() }}
+              className="w-full p-0"
+              classNames={{
+                months: "w-full",
+                month: "w-full space-y-4",
+                caption_label: "text-sm font-semibold text-primary",
+                nav_button: "h-7 w-7 flex items-center justify-center text-sky-600 disabled:opacity-30",
+                table: "w-full border-collapse",
+                head_row: "flex w-full",
+                head_cell: "flex-1 text-foreground font-semibold text-[0.8rem]",
+                row: "flex w-full mt-1",
+                cell: "flex-1 text-center text-sm p-0 relative",
+                day: "h-10 w-10 mx-auto p-0 font-normal rounded-full hover:bg-muted aria-selected:opacity-100",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                day_range_middle: "aria-selected:bg-primary/10 aria-selected:text-primary",
+                day_today: "font-semibold text-primary",
+              }}
+            />
+            <div className="rounded-xl bg-muted/50 px-3">
+              <div className="flex items-center justify-between py-2.5 border-b border-border/60">
+                <span className="text-[11px] text-muted-foreground">{t("walletAnalytics.dateFrom")}</span>
+                <span className="text-xs font-semibold text-foreground">{rangeDraft?.from ? format(rangeDraft.from, "d MMM yyyy") : "—"}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-[11px] text-muted-foreground">{t("walletAnalytics.dateTo")}</span>
+                <span className="text-xs font-semibold text-foreground">{rangeDraft?.from ? format(rangeDraft.to ?? rangeDraft.from, "d MMM yyyy") : "—"}</span>
+              </div>
+            </div>
+          </div>
+          <div className="shrink-0 px-5 pt-2 pb-6 space-y-2">
+            <Button className="w-full h-12 rounded-full font-semibold" disabled={!rangeDraft?.from} onClick={applyPickDate}>
+              {t("walletAnalytics.apply")}
+            </Button>
+            <button type="button" onClick={() => setRangeDraft(undefined)} className="w-full h-10 text-sm font-semibold text-primary">
+              {t("walletAnalytics.clearFilter")}
+            </button>
           </div>
         </DrawerContent>
       </Drawer>

@@ -646,6 +646,10 @@
     "all": "الكل",
     "apply": "تطبيق",
     "clearFilter": "مسح الفلتر",
+    "pickDate": "اختر التاريخ",
+    "pickDateDesc": "يرجى اختيار التاريخ",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ",
     "selectMember": "اختر العضو",
     "searchMemberName": "ابحث باسم العضو",
     "noMembers": "لا يوجد أعضاء"

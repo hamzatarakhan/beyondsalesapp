@@ -643,6 +643,10 @@
     "all": "All",
     "apply": "Apply",
     "clearFilter": "Clear Filter",
+    "pickDate": "Pick a Date",
+    "pickDateDesc": "Please select a date",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
     "selectMember": "Select Member",
     "searchMemberName": "Search Member name",
     "noMembers": "No members found"
