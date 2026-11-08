@@ -367,7 +367,8 @@ const WalletAnalytics = () => {
           />
         </Section>
 
-        {team && (
+        {/* Ranking compares the whole team, so it is hidden while one member is selected. */}
+        {team && !member && (
           <Section title={t("walletAnalytics.memberRanking")}>
             <div className="grid grid-cols-2 border-b border-border mb-3">
               {(["top", "lowest"] as const).map((v) => (
