@@ -14,3 +14,7 @@ ls roadmap.md >/dev/null && tail -4 roadmap.md
 - [x] E-Wallet now shows only the signed-in dealer's own wallet and transactions — the Parent/Child role toggle, My/Team Wallets switch, member filter, member chips and Member Wallet Ranking were all removed.
 - [x] E-Wallet wallet balance cards row removed; the active wallet is now chosen in the filter drawer's Wallet section (Transactions and Analytics), default E-Topup.
 - [x] E-Wallet filter chips: unselected options now show a single "+" (the extra literal plus was removed where it doubled the styled one).
+
+## Service organization (Nov 8)
+- [ ] Hide Sales KPIs and Performance at a Glance everywhere and verify the hidden entry points.
+- [ ] Propose smaller task-based customer-service categories before changing their layout.
