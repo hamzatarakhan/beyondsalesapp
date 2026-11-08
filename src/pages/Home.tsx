@@ -22,6 +22,7 @@ import {
   Zap,
   SmartphoneCharging,
   WalletCards,
+  PieChart,
   MessageSquareWarning,
   IdCard,
   BadgeCheck,
@@ -340,6 +341,7 @@ const Home = () => {
     { id: "wallet-top-up", icon: WalletCards, label: t("home.walletTopUp"), path: "/wallet-top-up", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "e-wallet-analytics", icon: PieChart, label: t("home.eWalletAnalytics"), path: "/e-wallet-analytics", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "commission-report", icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "order-history", icon: History, label: t("home.orderHistory"), path: "/order-history", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
@@ -370,6 +372,9 @@ const Home = () => {
   // the dealer Nafath gate for it and offer a Member/Parent view picker instead, so the
   // client can preview both without needing two separate demo logins.
   const [orderHistoryViewOpen, setOrderHistoryViewOpen] = useState(false);
+  // Same Member/Parent picker also fronts E-Wallet Analytics; this records which service it opens.
+  const [viewPickerPath, setViewPickerPath] = useState<"/order-history" | "/e-wallet-analytics">("/order-history");
+  const viewPickerIsAnalytics = viewPickerPath === "/e-wallet-analytics";
   const [commissionViewOpen, setCommissionViewOpen] = useState(false);
   // Option 2 stock tiles: which role's side of the flow to preview. Every role opens the shared
   // StockOption2 page, so an order created by one role shows up for the next.
@@ -437,7 +442,8 @@ const Home = () => {
       setCommissionViewOpen(true);
       return;
     }
-    if (path === "/order-history") {
+    if (path === "/order-history" || path === "/e-wallet-analytics") {
+      setViewPickerPath(path);
       setOrderHistoryViewOpen(true);
       return;
     }
@@ -468,7 +474,7 @@ const Home = () => {
 
   const goToOrderHistory = (view: "member" | "parent") => {
     setOrderHistoryViewOpen(false);
-    navigate(`/order-history?view=${view}`);
+    navigate(`${viewPickerPath}?view=${view}`);
   };
 
   const goWithMode = (mode: "classic" | "staged") => {
@@ -1095,7 +1101,7 @@ const Home = () => {
           <DrawerHeader className="text-center pt-8">
             <DrawerTitle className="text-lg font-semibold">{t("home.chooseOrderHistoryView")}</DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
-              {t("home.chooseOrderHistoryViewSub")}
+              {t(viewPickerIsAnalytics ? "home.chooseAnalyticsViewSub" : "home.chooseOrderHistoryViewSub")}
             </DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-6 space-y-3">
@@ -1114,7 +1120,7 @@ const Home = () => {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-sm text-foreground">{t("home.memberView")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("home.memberViewSub")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t(viewPickerIsAnalytics ? "home.analyticsMemberViewSub" : "home.memberViewSub")}</p>
               </div>
             </button>
             <button
@@ -1126,7 +1132,7 @@ const Home = () => {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-sm text-foreground">{t("home.parentView")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("home.parentViewSub")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t(viewPickerIsAnalytics ? "home.analyticsParentViewSub" : "home.parentViewSub")}</p>
               </div>
             </button>
           </div>
