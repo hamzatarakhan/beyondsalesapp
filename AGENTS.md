@@ -7,3 +7,4 @@
 - Distinguish explicit picker selections from automatic reservation requests in the shared UAT service; validate replacements atomically so unavailable choices never discard a reservation or silently change the selected number.
 - Keep Stock Return input validation in a pure helper and reuse existing field feedback and toast controls; this makes corrective errors testable without adding a new error interaction.
 - Render every commission KPI chart through the shared KpiDonut ring and the KPI gauge colour tokens; this keeps rings and bars identical across screens and stops per-screen colour choices from drifting.
+- Redirect retired performance-page URLs to Home while preserving their source pages; this prevents saved links from exposing hidden services without deleting reusable work.
