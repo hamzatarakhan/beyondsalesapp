@@ -113,15 +113,21 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed }: 
 );
 
 // `fill` makes the chips share the row equally instead of scrolling, so a short fixed set always fits.
-const Chips = ({ items, value, onChange, fill, dotItem }: { items: string[]; value: string; onChange: (v: string) => void; fill?: boolean; dotItem?: string }) => (
+// `clearable`: the first item means "no filter"; any other selected item shows as a red outline chip with ×, and tapping it
+// clears back to the first item (Activities design).
+const Chips = ({ items, value, onChange, fill, dotItem, clearable }: { items: string[]; value: string; onChange: (v: string) => void; fill?: boolean; dotItem?: string; clearable?: boolean }) => (
   <div className="flex gap-2 overflow-x-auto no-scrollbar">
-    {items.map((c) => (
-      <button key={c} type="button" onClick={() => onChange(c)}
-        className={cn("py-1.5 rounded-full text-xs font-medium whitespace-nowrap border", fill ? "flex-1 min-w-0 px-2" : "px-4 shrink-0",
-          value === c ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground")}>
-        {c}{dotItem === c && <span className="ms-1.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-500 align-middle" />}
-      </button>
-    ))}
+    {items.map((c) => {
+      const on = value === c;
+      const filterChip = clearable && on && c !== items[0];
+      return (
+        <button key={c} type="button" onClick={() => onChange(filterChip ? items[0] : c)} aria-pressed={on}
+          className={cn("py-1.5 rounded-full text-xs font-medium whitespace-nowrap border inline-flex items-center justify-center gap-1", fill ? "flex-1 min-w-0 px-2" : "px-4 shrink-0",
+            filterChip ? "bg-card border-primary text-primary" : on ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground")}>
+          {c}{filterChip && <X className="w-3 h-3" />}{dotItem === c && <span className="ms-0.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-500 align-middle" />}
+        </button>
+      );
+    })}
   </div>
 );
 
@@ -139,27 +145,18 @@ const Tabs = ({ items, value, onChange }: { items: [string, string][]; value: st
 // Flip to true to empty every Commission Report list and preview the "No data found" states.
 const DEMO_NO_DATA = false;
 
-// One empty state for every Commission Report list:
-// noData = nothing to show at all; search = the query matched nothing; filter = the filters matched nothing (with Clear filters).
-type EmptyKind = "noData" | "search" | "filter";
-const EmptyState = ({ kind, hint, query, onClear, compact }: { kind: EmptyKind; hint?: string; query?: string; onClear?: () => void; compact?: boolean }) => {
-  const { t } = useTranslation();
-  const Icon = kind === "noData" ? Inbox : kind === "search" ? SearchX : FilterX;
-  const title = kind === "noData" ? t("commissionReport.noData") : kind === "search" ? t("commissionReport.noResultsFor", { q: query }) : t("commissionReport.noFilterResults");
-  return (
-    <div className={cn("flex flex-col items-center text-center gap-2 px-6", compact ? "py-6" : "py-12")}>
-      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center"><Icon className="w-5 h-5 text-muted-foreground" /></div>
-      <p className="text-sm font-semibold text-foreground break-all">{title}</p>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-      {kind === "filter" && onClear && (
-        <Button variant="outline" onClick={onClear} className="mt-1 h-9 rounded-full px-4 text-xs">{t("commissionReport.clearFilters")}</Button>
-      )}
-    </div>
-  );
-};
-// Which empty state a filtered list needs: none when it has rows, else no data, filters, or search, in that order.
-const emptyKind = (total: number, shown: number, filtered: boolean): EmptyKind | null =>
-  shown > 0 ? null : total === 0 ? "noData" : filtered ? "filter" : "search";
+// One empty state for every Commission Report list, as designed: red user icon in a pink circle, bold title,
+// grey hint. noData = nothing to show at all; match = search or filters matched nothing (filters clear from their chips).
+type EmptyKind = "noData" | "match";
+const EmptyState = ({ title, hint, compact }: { title: string; hint: string; compact?: boolean }) => (
+  <div className={cn("flex flex-col items-center justify-center text-center gap-1.5 px-6", compact ? "py-6" : "min-h-[50vh] py-12")}>
+    <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center mb-1"><User className="w-4 h-4 text-primary" /></div>
+    <p className="text-sm font-semibold text-foreground">{title}</p>
+    <p className="text-xs text-muted-foreground">{hint}</p>
+  </div>
+);
+// Which empty state a list needs: none when it has rows, "noData" when there is nothing at all, else "match".
+const emptyKind = (total: number, shown: number): EmptyKind | null => (shown > 0 ? null : total === 0 ? "noData" : "match");
 
 const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: string; onChange: (v: string) => void; placeholder: string; onFocus?: () => void; onClear?: () => void }) => (
   <div className="flex gap-2">
@@ -395,7 +392,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
-        {DEMO_NO_DATA ? <EmptyState kind="noData" hint={t("commissionReport.noPlansHint")} compact /> : (
+        {DEMO_NO_DATA ? <EmptyState title={t("commissionReport.noPlansTitle")} hint={t("commissionReport.noPlansHint")} compact /> : (
         <div className="space-y-3">
           <Scheme1Row go={go} />
           <PlanRow title="Scheme 2 Prepaid KPI" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
@@ -423,7 +420,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <h3 className="text-sm font-semibold text-foreground">{rangeTitle}</h3>
           <span className="text-[11px] text-muted-foreground">SAR, Approved Runs</span>
         </div>
-        {payout.length === 0 && <EmptyState kind="noData" hint={t("commissionReport.noPayoutHint")} compact />}
+        {payout.length === 0 && <EmptyState title={t("commissionReport.noPayoutTitle")} hint={t("commissionReport.noPayoutHint")} compact />}
         {payout.length > 0 && <div ref={scroller} onScroll={(e) => setAtStart(e.currentTarget.scrollLeft < 4)}
           className={cn("flex items-end h-56", scroll ? "gap-2 overflow-x-auto no-scrollbar snap-x" : "justify-center gap-3", scroll && !atStart && "[mask-image:linear-gradient(to_right,transparent,black_28px)]")}>
           {payout.map(({ date, v }) => {
@@ -451,7 +448,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
 const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
   const sc = useScale();
   const { t } = useTranslation();
-  if (DEMO_NO_DATA) return <EmptyState kind="noData" hint={t("commissionReport.noPlansHint")} />;
+  if (DEMO_NO_DATA) return <EmptyState title={t("commissionReport.noPlansTitle")} hint={t("commissionReport.noPlansHint")} />;
   return (
   <div className="space-y-3">
     <Heading>Scheme 1</Heading>
@@ -628,12 +625,13 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
   const showChips = !BREAKDOWNS[kind].bad;
   const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
-  const empty = emptyKind(all.length, rows.length, f !== "All");
+  const empty = emptyKind(all.length, rows.length);
+  if (empty === "noData") return <EmptyState title={t("commissionReport.noActivitiesTitle")} hint={t("commissionReport.noActivitiesHint")} />;
   return (
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onClear={() => setQ("")} />
-      {showChips && all.length > 0 && <Chips items={kinds} value={f} onChange={setF} />}
-      {empty && <EmptyState kind={empty} query={q} hint={empty === "noData" ? t("commissionReport.noActivitiesHint") : undefined} onClear={() => setF("All")} />}
+      {showChips && <Chips clearable items={kinds} value={f} onChange={setF} />}
+      {empty && <EmptyState title={t("commissionReport.noMatchActivities")} hint={t("commissionReport.noMatchHint")} />}
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
           <div><p className="text-sm font-semibold text-foreground">{r.phone}</p><p className="text-xs text-muted-foreground">{r.kind}</p>{r.detail && <p className="text-xs text-muted-foreground">{r.detail}</p>}</div>
@@ -657,7 +655,7 @@ const DEALERS: [string, string, number, string][] = [
 ];
 // "Role | detail" line under a member's name, with a thin divider as in the design.
 const RoleLine = ({ role, detail, className }: { role: string; detail: string; className?: string }) => (
-  <p className={cn("flex items-center gap-2 text-muted-foreground", className)}>{role}<span className="w-px h-3 bg-border" aria-hidden="true" />{detail}</p>
+  <p className={cn("flex items-center gap-2 text-muted-foreground whitespace-nowrap min-w-0", className)}><span className="truncate">{role}</span><span className="w-px h-3 bg-border shrink-0" aria-hidden="true" /><span className="shrink-0">{detail}</span></p>
 );
 const ALL_DEALERS = [["Abdullah Al-Qahtani", "MBR-784291", "Sales Manager"], ["Faisal Al-Otaibi", "MBR-356108", "Dealer"], ["Mohammed Al-Dosari", "MBR-921674", "Supervisor"], ["Khalid Al-Ghamdi", "MBR-468235", "Sales Agent"], ["Nasser Al-Harbi", "MBR-613852", "Administrator"]];
 
@@ -673,7 +671,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   const list = (top === "top" ? team : [...team].reverse()).slice(0, 5);
   const allPeople = DEMO_NO_DATA ? [] : ALL_DEALERS;
   const people = allPeople.filter(([n, c, r]) => !q || (n + c + r).toLowerCase().includes(q.toLowerCase()));
-  const peopleEmpty = emptyKind(allPeople.length, people.length, false);
+  const peopleEmpty = emptyKind(allPeople.length, people.length);
 
   const sheetEl = (
     <Drawer open={sheet} onOpenChange={setSheet}>
@@ -689,7 +687,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           {q ? <button type="button" onClick={() => setQ("")} aria-label={t("commissionReport.searchMember")} className="absolute end-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
             : <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
         </div>
-        {peopleEmpty && <EmptyState kind={peopleEmpty} query={q} hint={peopleEmpty === "noData" ? t("commissionReport.noMembersHint") : undefined} />}
+        {peopleEmpty && <EmptyState compact title={t(peopleEmpty === "noData" ? "commissionReport.noDealersTitle" : "commissionReport.noMatchDealers")} hint={t(peopleEmpty === "noData" ? "commissionReport.noDealersHint" : "commissionReport.noMatchHint")} />}
         <div className="space-y-2 overflow-y-auto">
           {people.map(([n, c, r]) => (
             <button key={c + n} type="button" onClick={() => { setMember(n); setQ(""); setSheet(false); }}
@@ -741,7 +739,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           <button type="button" onClick={() => go("members")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
         <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
-        {list.length === 0 && <EmptyState kind="noData" hint={t("commissionReport.noMembersHint")} compact />}
+        {list.length === 0 && <EmptyState title={t("commissionReport.noDealersTitle")} hint={t("commissionReport.noDealersHint")} compact />}
         <div className="mt-3 space-y-2.5">
           {list.map(([n, p, v, r], i) => (
             <div key={n} className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/50 px-3 py-3">
@@ -776,7 +774,7 @@ const MembersFilterSheet = ({ open, onOpenChange, value, onApply }: { open: bool
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
         <div className="relative flex items-center justify-center py-2">
-          <DrawerTitle className="text-lg font-medium text-foreground">{t("commissionReport.filter")}</DrawerTitle>
+          <DrawerTitle className="text-lg font-medium text-foreground">{t("commissionReport.filters")}</DrawerTitle>
           <button type="button" onClick={() => onOpenChange(false)} aria-label={t("settings.close")} className="absolute end-0 w-9 h-9 rounded-full border border-border flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
         <DrawerDescription className="sr-only">{t("commissionReport.allMembers")}</DrawerDescription>
@@ -797,7 +795,7 @@ const MembersFilterSheet = ({ open, onOpenChange, value, onApply }: { open: bool
           ))}
         </div>
         <Button onClick={() => { onApply(draft); onOpenChange(false); }} className="w-full h-12 rounded-full text-base font-medium">{t("commissionReport.apply")}</Button>
-        <button type="button" onClick={() => { onApply(NO_MEMBER_FILTER); onOpenChange(false); }} className="w-full h-11 mt-1 text-sm font-medium text-primary">{t("commissionReport.clearFilter")}</button>
+        <button type="button" onClick={() => { onApply(NO_MEMBER_FILTER); onOpenChange(false); }} className="w-full h-11 mt-1 text-sm font-medium text-primary">{t("commissionReport.clearFilters")}</button>
       </DrawerContent>
     </Drawer>
   );
@@ -815,18 +813,33 @@ const AllMembersScreen = () => {
     .filter(({ d: [n, , , r] }) => (filter.role === "all" || r === filter.role) && (!q || (n + r).toLowerCase().includes(q.toLowerCase())));
   const active = filter.role !== NO_MEMBER_FILTER.role || filter.sort !== NO_MEMBER_FILTER.sort;
   // Sorting never hides anyone, so only the role filter can be why the list is empty.
-  const empty = emptyKind(ranked.length, rows.length, filter.role !== NO_MEMBER_FILTER.role);
+  const empty = emptyKind(ranked.length, rows.length);
+  if (empty === "noData") return <EmptyState title={t("commissionReport.noDealersTitle")} hint={t("commissionReport.noDealersHint")} />;
+  // Applied filters show as removable red chips under the search, as in the design.
+  const chips = [
+    filter.role !== NO_MEMBER_FILTER.role && { label: filter.role, clear: () => setFilter((f) => ({ ...f, role: NO_MEMBER_FILTER.role })) },
+    filter.sort !== NO_MEMBER_FILTER.sort && { label: t("commissionReport.lowestFirst"), clear: () => setFilter((f) => ({ ...f, sort: NO_MEMBER_FILTER.sort })) },
+  ].filter(Boolean) as { label: string; clear: () => void }[];
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onClear={() => setQ("")} /></div>
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMemberShort")} onClear={() => setQ("")} /></div>
         <button type="button" aria-label={t("commissionReport.filter")} onClick={() => setOpen(true)} className="relative w-12 h-12 rounded-xl bg-card shadow-sm flex items-center justify-center shrink-0">
           <SlidersHorizontal className="w-4 h-4 text-primary" />
           {active && <span className="absolute top-2.5 end-2.5 w-2 h-2 rounded-full bg-primary" />}
         </button>
       </div>
-      <p className="text-xs text-muted-foreground px-1">{t("commissionReport.membersCount", { n: rows.length })}</p>
-      {empty && <EmptyState kind={empty} query={q} hint={empty === "noData" ? t("commissionReport.noMembersHint") : undefined} onClear={() => setFilter(NO_MEMBER_FILTER)} />}
+      {chips.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {chips.map((c) => (
+            <button key={c.label} type="button" onClick={c.clear} className="px-3 py-1 rounded-full text-xs font-medium border border-primary text-primary bg-card inline-flex items-center gap-1">
+              {c.label} <X className="w-3 h-3" />
+            </button>
+          ))}
+        </div>
+      )}
+      {empty ? <EmptyState title={t("commissionReport.noMatchDealers")} hint={t("commissionReport.noMatchHint")} />
+        : <p className="text-xs text-muted-foreground px-1">{t("commissionReport.membersCount", { n: rows.length })}</p>}
       {rows.map(({ d: [n, p, v, r] }) => {
         return (
           <div key={n} className="flex items-center gap-3 rounded-xl bg-card shadow-sm px-3 py-3">
@@ -843,7 +856,7 @@ const AllMembersScreen = () => {
 
 const TITLES: Record<Screen, string> = {
   plans: "My Plans", scheme1: "Scheme 1 Breakdown", scheme2prepaid: "Scheme 2 Prepaid", scheme2postpaid: "Scheme 2 Postpaid",
-  pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities", members: "All Members",
+  pli: "Partner Level Incentive", hbb: "HBB/ V-Net", fr: "FR Promotional Packages", clawbacks: "Postpaid Clawbacks", hbbClawbacks: "HBB/V-Net Clawbacks", activities: "Activities", members: "Dealers",
 };
 
 const CommissionReport = () => {
