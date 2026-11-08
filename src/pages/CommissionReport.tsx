@@ -622,7 +622,8 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const [f, setF] = useState("All");
   const { factor } = usePeriod();
   const all = useMemo(() => (DEMO_NO_DATA ? [] : activityRows(kind, factor)), [kind, factor]);
-  const kinds = useMemo(() => ["All", ...new Set(all.map((r) => r.kind))], [all]);
+  // Plus Activation, which has no lines in the demo data, so picking it shows "No Matching Activities".
+  const kinds = useMemo(() => ["All", ...new Set([...all.map((r) => r.kind), "Activation"])], [all]);
   const showChips = !BREAKDOWNS[kind].bad;
   const rows = all.filter((r) => (f === "All" || r.kind === f) && (!q || r.phone.includes(q)));
   const empty = emptyKind(all.length, rows.length);
@@ -760,7 +761,8 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
 
 // ---------------------------------------------------------------- manager "See all" members
 
-const MEMBER_ROLES = [...new Set(DEALERS.map((d) => d[3]))];
+// Roles in the ranking, plus Administrator (in Search Dealers but not ranked), so picking it shows "No Matching Dealers".
+const MEMBER_ROLES = [...new Set([...DEALERS.map((d) => d[3]), "Administrator"])];
 type MemberFilter = { role: string; sort: "high" | "low" };
 const NO_MEMBER_FILTER: MemberFilter = { role: "all", sort: "high" };
 
