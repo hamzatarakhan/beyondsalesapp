@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, FilterX, Inbox, Info, Search, SearchX, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Clock, FilterX, Inbox, Info, Search, SearchX, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -50,9 +50,10 @@ const Card = ({ children, className }: { children: React.ReactNode; className?: 
 
 const Heading = ({ children }: { children: React.ReactNode }) => <h3 className="text-sm font-semibold text-foreground px-1 pt-1">{children}</h3>;
 
-const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "good" | "bad" }) => (
+const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "good" | "bad" | "wait" }) => (
   <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium border-[0.5px] inline-flex items-center gap-1 whitespace-nowrap",
     tone === "good" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30"
+      : tone === "wait" ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30"
       : "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>{children}</span>
 );
 
@@ -74,6 +75,24 @@ const Banner = ({ label, value, tone = "good", badge, note }: { label: string; v
   </div>
 );
 
+// A month whose calculation is delayed: no amount (a 0 would read as "earned nothing"), just a Pending state.
+const PendingBanner = ({ label, note }: { label: string; note: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="rounded-2xl px-4 py-3 border bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-amber-100 text-amber-600 dark:bg-amber-500/20"><Clock className="w-4 h-4" /></div>
+          <span className="text-xs font-medium text-foreground">{label}</span>
+        </div>
+        <Pill tone="wait">{t("commissionReport.pending")}</Pill>
+      </div>
+      <p className="text-2xl font-bold mt-2 text-muted-foreground">—</p>
+      <p className="text-xs text-muted-foreground mt-1">{note}</p>
+    </div>
+  );
+};
+
 const Chev = () => <ChevronRight className="w-4 h-4 text-primary shrink-0 rtl:rotate-180" />;
 
 const WeightChip = () => <span className="mt-1 inline-block px-2 py-0.5 rounded-md text-[10px] font-medium bg-sky-50 text-sky-700 border-[0.5px] border-sky-200 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30">Weight 100%</span>;
@@ -94,13 +113,13 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed }: 
 );
 
 // `fill` makes the chips share the row equally instead of scrolling, so a short fixed set always fits.
-const Chips = ({ items, value, onChange, fill }: { items: string[]; value: string; onChange: (v: string) => void; fill?: boolean }) => (
+const Chips = ({ items, value, onChange, fill, dotItem }: { items: string[]; value: string; onChange: (v: string) => void; fill?: boolean; dotItem?: string }) => (
   <div className="flex gap-2 overflow-x-auto no-scrollbar">
     {items.map((c) => (
       <button key={c} type="button" onClick={() => onChange(c)}
         className={cn("py-1.5 rounded-full text-xs font-medium whitespace-nowrap border", fill ? "flex-1 min-w-0 px-2" : "px-4 shrink-0",
           value === c ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground")}>
-        {c}
+        {c}{dotItem === c && <span className="ms-1.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-500 align-middle" />}
       </button>
     ))}
   </div>
@@ -162,7 +181,7 @@ const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(2026, 8 + m, 1
 
 // "Filter" bottom sheet behind the Custom chip: the YEAR_MONTHS range as pills, opened on the month
 // the home chips currently show. Apply commits; Clear Filter goes back to Last month.
-const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { open: boolean; onOpenChange: (o: boolean) => void; value: Date; onApply: (d: Date) => void; onClear: () => void }) => {
+const MonthFilterSheet = ({ open, onOpenChange, value, months, onApply, onClear }: { open: boolean; onOpenChange: (o: boolean) => void; value: Date; months: Date[]; onApply: (d: Date) => void; onClear: () => void }) => {
   const { t } = useTranslation();
   const [draft, setDraft] = useState(value);
   useEffect(() => { if (open) setDraft(value); }, [open, value]);
@@ -175,7 +194,7 @@ const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { ope
         </div>
         <DrawerDescription className="text-sm text-foreground pt-3 pb-2">{t("commissionReport.selectCustomMonth")}</DrawerDescription>
         <div className="flex flex-wrap gap-2 pb-4">
-          {YEAR_MONTHS.map((d) => {
+          {months.map((d) => {
             const on = draft.getTime() === d.getTime();
             return (
               <button key={d.getMonth()} type="button" onClick={() => setDraft(d)} aria-pressed={on}
@@ -198,7 +217,9 @@ const MonthFilterSheet = ({ open, onOpenChange, value, onApply, onClear }: { ope
 
 // Month chips (Last month, July, June) plus a Custom chip that opens MonthFilterSheet. One selected month drives
 // both: picking a chip month in the sheet lights that chip; any other month shows its name on the Custom chip.
-const useCustomMonth = (first: string) => {
+const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; join: Date | null }) => {
+  const since = (d: Date) => !join || d.getTime() >= join.getTime();
+  const chipMonths = CHIP_MONTHS.filter(since);
   const { t } = useTranslation();
   const [month, setMonth] = useState(LATEST_MONTH);
   const [open, setOpen] = useState(false);
@@ -213,18 +234,22 @@ const useCustomMonth = (first: string) => {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setLoading(false), 1000);
   };
-  const chipLabels = [first, ...CHIP_MONTHS.slice(1).map((d) => format(d, "MMMM"))];
-  const chip = CHIP_MONTHS.findIndex((d) => d.getTime() === month.getTime());
+  const chipLabels = chipMonths.map((d) => (d.getTime() === LATEST_MONTH.getTime() ? first : format(d, "MMMM")));
+  const chip = chipMonths.findIndex((d) => d.getTime() === month.getTime());
   const customLabel = chip === -1 ? format(month, "MMM yyyy") : t("commissionReport.custom");
   return {
     month,
     loading,
     factor: monthFactor(month),
     monthName: format(month, "MMMM"),
+    join,
+    // Last month's calculation can be delayed; the chip gets a dot and the report shows a Pending state.
+    pending: delayed && month.getTime() === LATEST_MONTH.getTime(),
+    pendingChip: delayed ? first : undefined,
     items: [...chipLabels, customLabel],
     chipValue: chip === -1 ? customLabel : chipLabels[chip],
-    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : pick(CHIP_MONTHS[chipLabels.indexOf(v)])),
-    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} onApply={pick} onClear={() => pick(LATEST_MONTH)} />,
+    onChipChange: (v: string) => (v === customLabel ? setOpen(true) : pick(chipMonths[chipLabels.indexOf(v)])),
+    drawer: <MonthFilterSheet open={open} onOpenChange={setOpen} value={month} months={YEAR_MONTHS.filter(since)} onApply={pick} onClear={() => pick(LATEST_MONTH)} />,
   };
 };
 
@@ -267,6 +292,22 @@ const KillerDemoSwitch = ({ value, onChange }: { value: boolean; onChange: (v: b
     </div>
   </div>
 );
+
+const DemoRow = ({ label, options, value, onChange }: { label: string; options: string[]; value: number; onChange: (i: number) => void }) => (
+  <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
+    <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 shrink-0">{label}</span>
+    <div className="flex gap-1 overflow-x-auto no-scrollbar">
+      {options.map((o, i) => (
+        <button key={o} type="button" onClick={() => onChange(i)} aria-pressed={value === i}
+          className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap", value === i ? "bg-amber-600 text-white" : "text-amber-700 dark:text-amber-300")}>
+          {o}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+// Demo: when the dealer joined. Months before that month are hidden from the chips, the filter sheet and the payout chart.
+const JOIN_DEMO: [string, Date | null][] = [["Full year", null], ["Jul 2026", new Date(2026, 6, 1)], ["Aug 2026", new Date(2026, 7, 1)]];
 
 const MissedBanner = () => {
   const { missedKillers } = useScheme1();
@@ -314,9 +355,10 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   // Demo only: shows how the bar labels cope with bigger payouts (hundreds of thousands, millions, or a mix).
   const [size, setSize] = useState<keyof typeof PAYOUT_DEMO>("normal");
   const end = PAYOUT.findIndex((p) => p.date.getTime() === period.month.getTime());
-  const payout = DEMO_NO_DATA ? [] : PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).slice(-Number(range));
+  const payout = DEMO_NO_DATA ? [] : PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).filter((p) => !period.join || p.date.getTime() >= period.join.getTime()).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
-  const max = Math.max(...payout.map((p) => p.v));
+  const pending = period.pending;
+  const max = Math.max(...payout.filter((p) => !(pending && p.date.getTime() === period.month.getTime())).map((p) => p.v));
   // 12 months don't fit side by side on small phones (320px leaves ~18px per bar), so they scroll sideways at the same
   // bar size as the 6-month chart, opening on the latest month; a fade on the left shows there is more.
   const scroll = payout.length > 6;
@@ -332,11 +374,18 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   const lit = period.month.getTime();
   return (
     <div className="space-y-4">
-      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
       <>
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />
-      <Card>
+      {pending
+        ? <PendingBanner label={t("commissionReport.earnedIn", { month })} note={t("commissionReport.pendingNote", { month })} />
+        : <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />}
+      {pending ? (
+        <Card>
+          <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
+          <p className="text-sm text-muted-foreground mt-2">{t("commissionReport.pendingPlans")}</p>
+        </Card>
+      ) : <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
           <button type="button" onClick={() => go("plans")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
@@ -348,7 +397,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
         )}
-      </Card>
+      </Card>}
       <Heading>{t("commissionReport.payout")}</Heading>
       {SHOW_PAYOUT_DEMO && <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
         <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 shrink-0">Demo: amounts</span>
@@ -375,10 +424,11 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
           {payout.map(({ date, v }) => {
             const last = date.getTime() === lit;
             const m = format(date, "MMM");
+            const wait = last && pending;
             return (
               <div key={m} className={cn("flex flex-col items-center gap-1.5 h-full justify-end", scroll ? "w-11 shrink-0 snap-start" : "flex-1 min-w-0 max-w-16")}>
-                <span className={cn("tabular-nums whitespace-nowrap text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{v >= (scroll ? 1e5 : 999500) ? compact(v) : v.toLocaleString()}</span>
-                <div className="w-full rounded-md" style={{ height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
+                <span className={cn("tabular-nums whitespace-nowrap text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{wait ? "—" : v >= (scroll ? 1e5 : 999500) ? compact(v) : v.toLocaleString()}</span>
+                <div className={cn("w-full rounded-md", wait && "border border-dashed border-muted-foreground/40")} style={wait ? { height: "12%" } : { height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
                 <span className="text-muted-foreground text-[11px]">{m}</span>
               </div>
             );
@@ -662,9 +712,14 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
   return (
     <div className="space-y-4">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
-      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} />
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <>
+      {period.pending ? (
+        <>
+          <PendingBanner label={t("commissionReport.earnedIn", { month: period.monthName })} note={t("commissionReport.pendingNote", { month: period.monthName })} />
+          <Card><p className="text-sm text-muted-foreground">{t("commissionReport.pendingTeam")}</p></Card>
+        </>
+      ) : <>
       <div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
           <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
@@ -692,7 +747,7 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
           ))}
         </div>
       </Card>
-      </>
+      </>}
       {sheetEl}
     </div>
   );
@@ -794,7 +849,10 @@ const CommissionReport = () => {
   const [stack, setStack] = useState<Screen[]>([]);
   const [killerMissed, setKillerMissed] = useState(false);
   const [tab, setTab] = useState<"overview" | "mine">(manager ? "overview" : "mine");
-  const period = useCustomMonth(t("commissionReport.lastMonth"));
+  // Demo: Last month's calculation delayed, and when the dealer joined.
+  const [delayed, setDelayed] = useState(0);
+  const [joinIdx, setJoinIdx] = useState(0);
+  const period = useCustomMonth(t("commissionReport.lastMonth"), { delayed: delayed === 1, join: JOIN_DEMO[joinIdx][1] });
   const screen = stack[stack.length - 1];
   const go = (s: Screen) => setStack((st) => [...st, s]);
 
@@ -811,6 +869,12 @@ const CommissionReport = () => {
           <div className="mb-4">
             <Tabs items={[["overview", t("commissionReport.overview")], ["mine", t("commissionReport.myCommission")]]} value={tab} onChange={(k) => setTab(k as "overview" | "mine")} />
           </div>
+        )}
+        {!screen && (
+          <>
+            <DemoRow label="Demo: Last month" options={["Calculated", "Delayed"]} value={delayed} onChange={setDelayed} />
+            <DemoRow label="Demo: Joined" options={JOIN_DEMO.map(([l]) => l)} value={joinIdx} onChange={setJoinIdx} />
+          </>
         )}
         {(screen === "plans" || screen === "scheme1" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
         <PeriodContext.Provider value={period}>
