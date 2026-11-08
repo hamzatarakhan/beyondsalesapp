@@ -609,7 +609,9 @@ const BillPayment = () => {
     if (totalDueOf(a) === 0) {
       return <p className="text-[11px] text-muted-foreground">{t("billPayment.noPaymentRequired")}</p>;
     }
-    const err = amountErrorFor(a);
+    // An unselected account shows the field empty and without an error; typing selects it.
+    const isOn = !isMulti || !!selected[a.msisdn];
+    const err = isOn ? amountErrorFor(a) : null;
     const raw = amounts[a.msisdn] ?? "";
     return (
       <div className="space-y-1.5">
@@ -621,6 +623,7 @@ const BillPayment = () => {
                 // Digits with at most one decimal point — no minus signs or stray characters.
                 const cleaned = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
                 setAmounts((prev) => ({ ...prev, [a.msisdn]: cleaned }));
+                if (isMulti && cleaned !== "") setSelected((prev) => ({ ...prev, [a.msisdn]: true }));
               }}
               inputMode="decimal"
               className={cn("h-12 bg-card rounded-xl ps-10", err && "border-destructive focus-visible:ring-destructive")}
@@ -630,6 +633,7 @@ const BillPayment = () => {
             </span>
           </div>
         </Field>
+        {err && <p className="text-xs font-medium text-destructive" role="alert">{err}</p>}
         {/* Fixed range hint — never changes with the entered amount, default colour always. */}
         <p className="text-[11px] text-muted-foreground">
           {t("billPayment.amountRangeHint", { min: money(minFor(a)), max: money(maxFor(a)) })}
@@ -778,7 +782,7 @@ const BillPayment = () => {
                 </div>
                 {(isMulti || totalBillsCount > 1) && (
                   <div className="flex items-center justify-between px-1 pt-3 mt-2 border-t border-border">
-                    <span className="text-sm font-semibold text-foreground">{t("billPayment.total")}</span>
+                    <span className="text-sm font-semibold text-foreground">{t("billPayment.totalBills")}</span>
                     <span className="text-base font-bold text-primary">
                       <RiyalSymbol /> {money(grandTotalDue)}
                     </span>
@@ -818,6 +822,11 @@ const BillPayment = () => {
                             e.stopPropagation();
                             const turningOn = !isOn;
                             setSelected((prev) => ({ ...prev, [a.msisdn]: turningOn }));
+                            // Unchecking empties the amount; checking with nothing typed refills the full due.
+                            setAmounts((prev) => ({
+                              ...prev,
+                              [a.msisdn]: turningOn ? (prev[a.msisdn]?.trim() ? prev[a.msisdn] : money(totalDueOf(a))) : "",
+                            }));
                             // Checking a collapsed account opens it too — no point selecting
                             // one for payment while its bills/amount stay tucked away.
                             if (turningOn && !isExpanded) toggleAccountExpanded(a.msisdn);
@@ -862,7 +871,7 @@ const BillPayment = () => {
                       </div>
                     )}
 
-                    {isExpanded && (!isMulti || isOn) && renderAmountInput(a)}
+                    {isExpanded && renderAmountInput(a)}
                   </div>
                 </section>
               );

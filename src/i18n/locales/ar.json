@@ -472,6 +472,7 @@
     "amountErrorMin": "الحد الأدنى للدفع هو {{min}} ريال.",
     "amountErrorMax": "الحد الأقصى للدفع هو {{max}} ريال.",
     "outstandingBillsHeading": "الفواتير المستحقة ({{count}} حسابات)",
+    "totalBills": "إجمالي الفواتير",
     "accountTypeSwitchPostpaid": "سويتش فوترة",
     "accountTypeVnet": "Vnet",
     "statusActive": "نشط",
