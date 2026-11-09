@@ -10,10 +10,10 @@ import RiyalSymbol from "@/components/RiyalSymbol";
 import { cn } from "@/lib/utils";
 import friendiLogo from "@/assets/friendi-mobile-logo.svg";
 import virginLogo from "@/assets/virgin-mobile-logo.svg";
-import { Apple, BadgeCheck, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, Gamepad2, MessageSquareText, Printer, Ticket, X, AlertCircle } from "lucide-react";
+import { Apple, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, Gamepad2, MessageSquareText, Printer, Ticket, X, AlertCircle } from "lucide-react";
 
 // E-Voucher: the dealer sells prepaid vouchers from the E-Voucher wallet, either sent to a
-// customer by SMS (number verified by OTP first) or printed. Both end with PIN → confirm → success.
+// customer by SMS or printed. Both go Submit → OTP → confirmation message → success.
 
 // ---------- Demo data ----------
 const E_VOUCHER_BALANCE = 456.789;
@@ -62,27 +62,24 @@ const EVoucher = () => {
   );
 };
 
-// ---------- Voucher form — shared by Send by SMS (with verified number) and Print ----------
+// ---------- Voucher form — shared by Send by SMS (with mobile number) and Print ----------
 export const EVoucherForm = ({ mode }: { mode: "sms" | "print" }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const isSms = mode === "sms";
 
   const [msisdn, setMsisdn] = useState("");
-  const [verifiedMsisdn, setVerifiedMsisdn] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
   const [operator, setOperator] = useState("");
   const [countText, setCountText] = useState("");
   const [amount, setAmount] = useState<number | null>(null);
-  const [pinOpen, setPinOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
 
-  const verified = isSms && !!msisdn && msisdn === verifiedMsisdn;
   const count = countText === "" ? 0 : Number(countText);
   const total = amount ? amount * count : 0;
   const overBalance = total > E_VOUCHER_BALANCE;
-  const canSubmit = (!isSms || verified) && !!operator && count > 0 && !!amount && !overBalance;
+  const canSubmit = (!isSms || isValidMsisdn(msisdn)) && !!operator && count > 0 && !!amount && !overBalance;
 
   const setCount = (n: number) => setCountText(String(Math.max(0, Math.min(MAX_VOUCHERS, n))));
 
@@ -99,24 +96,13 @@ export const EVoucherForm = ({ mode }: { mode: "sms" | "print" }) => {
           <p className="text-base font-semibold"><RiyalSymbol /> {E_VOUCHER_BALANCE.toFixed(3)}</p>
         </div>
 
-        {/* Mobile number + Verify (SMS only) */}
+        {/* Mobile number (SMS only) */}
         {isSms && (
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">
               {t("eVoucher.mobileNumber")} <span className="text-destructive">*</span>
             </label>
-            <div className="flex gap-2">
-              <PhoneNumberInput value={msisdn} onChange={setMsisdn} placeholder={t("eVoucher.mobilePlaceholder")} className="flex-1" />
-              {verified ? (
-                <span className="h-12 px-3 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1 shrink-0">
-                  <BadgeCheck className="w-4 h-4" /> {t("eVoucher.verified")}
-                </span>
-              ) : (
-                <Button type="button" className="h-12 px-4 rounded-xl text-xs font-semibold shrink-0" disabled={!isValidMsisdn(msisdn)} onClick={() => setOtpOpen(true)}>
-                  {t("eVoucher.verify")}
-                </Button>
-              )}
-            </div>
+            <PhoneNumberInput value={msisdn} onChange={setMsisdn} placeholder={t("eVoucher.mobilePlaceholder")} />
           </div>
         )}
 
@@ -195,7 +181,7 @@ export const EVoucherForm = ({ mode }: { mode: "sms" | "print" }) => {
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="sm:max-w-[390px] mx-auto">
           {/* Count badge · Submit · total, once a count and amount are picked */}
-          <Button className="w-full h-12 text-sm font-semibold rounded-full px-2 pe-5" disabled={!canSubmit} onClick={() => setPinOpen(true)}>
+          <Button className="w-full h-12 text-sm font-semibold rounded-full px-2 pe-5" disabled={!canSubmit} onClick={() => setOtpOpen(true)}>
             {total > 0 ? (
               <>
                 <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-semibold shrink-0">{count}</span>
@@ -209,18 +195,15 @@ export const EVoucherForm = ({ mode }: { mode: "sms" | "print" }) => {
         </div>
       </div>
 
-      {/* OTP — verifies the customer's number before vouchers can be sent to it */}
+      {/* OTP — Submit → OTP → confirmation message */}
       <PinCodeSheet
         open={otpOpen}
         onOpenChange={setOtpOpen}
-        onVerified={() => setVerifiedMsisdn(msisdn)}
+        onVerified={() => setConfirmOpen(true)}
         idPrefix="e-voucher-otp"
         title={t("eVoucher.otpTitle")}
-        description={t("eVoucher.otpDesc", { msisdn })}
+        description={t("eVoucher.otpDesc")}
       />
-
-      {/* Dealer PIN */}
-      <PinCodeSheet open={pinOpen} onOpenChange={setPinOpen} onVerified={() => setConfirmOpen(true)} idPrefix="e-voucher-pin" />
 
       {/* Confirmation message */}
       <Drawer open={confirmOpen} onOpenChange={setConfirmOpen}>
