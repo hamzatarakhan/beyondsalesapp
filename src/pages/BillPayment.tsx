@@ -611,8 +611,8 @@ const BillPayment = () => {
     }
     // An unselected account shows the field empty and without an error; typing selects it.
     const isOn = !isMulti || !!selected[a.msisdn];
-    const err = isOn ? amountErrorFor(a) : null;
     const raw = amounts[a.msisdn] ?? "";
+    const err = isOn || raw.trim() !== "" ? amountErrorFor(a) : null;
     return (
       <div className="space-y-1.5">
         <Field label={t("billPayment.amountToPay")}>
@@ -623,7 +623,10 @@ const BillPayment = () => {
                 // Digits with at most one decimal point — no minus signs or stray characters.
                 const cleaned = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
                 setAmounts((prev) => ({ ...prev, [a.msisdn]: cleaned }));
-                if (isMulti && cleaned !== "") setSelected((prev) => ({ ...prev, [a.msisdn]: true }));
+                // Selection follows validity: a valid amount (within min and max) selects the
+                // account, and editing a selected account to an invalid one unselects it.
+                const n = Number(cleaned);
+                if (isMulti) setSelected((prev) => ({ ...prev, [a.msisdn]: cleaned !== "" && n >= minFor(a) && n <= maxFor(a) }));
               }}
               inputMode="decimal"
               className={cn("h-12 bg-card rounded-xl ps-10", err && "border-destructive focus-visible:ring-destructive")}
