@@ -188,18 +188,23 @@ export const EVoucherForm = ({ mode }: { mode: "sms" | "print" }) => {
               </button>
             ))}
           </div>
-          {total > 0 && (
-            <p className={cn("text-xs", overBalance ? "text-destructive" : "text-muted-foreground")}>
-              {overBalance ? t("eVoucher.overBalance") : <>{t("eVoucher.total")}: <RiyalSymbol /> {total.toFixed(2)}</>}
-            </p>
-          )}
+          {overBalance && <p className="text-xs text-destructive">{t("eVoucher.overBalance")}</p>}
         </div>
       </div>
 
       <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
         <div className="sm:max-w-[390px] mx-auto">
-          <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canSubmit} onClick={() => setPinOpen(true)}>
-            {t("eVoucher.submit")}
+          {/* Count badge · Submit · total, once a count and amount are picked */}
+          <Button className="w-full h-12 text-sm font-semibold rounded-full px-2 pe-5" disabled={!canSubmit} onClick={() => setPinOpen(true)}>
+            {total > 0 ? (
+              <>
+                <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-semibold shrink-0">{count}</span>
+                <span className="flex-1 text-start ps-1 text-base">{t("eVoucher.submit")}</span>
+                <span className="text-base font-semibold" aria-label={t("eVoucher.total")}><RiyalSymbol /> {Number.isInteger(total) ? total : total.toFixed(2)}</span>
+              </>
+            ) : (
+              t("eVoucher.submit")
+            )}
           </Button>
         </div>
       </div>
