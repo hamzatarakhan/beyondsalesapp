@@ -22,6 +22,7 @@ import {
   Zap,
   SmartphoneCharging,
   WalletCards,
+  Ticket,
   PieChart,
   MessageSquareWarning,
   IdCard,
@@ -339,6 +340,7 @@ const Home = () => {
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "customer-recharge", icon: SmartphoneCharging, label: t("home.customerRecharge"), path: "/customer-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "wallet-top-up", icon: WalletCards, label: t("home.walletTopUp"), path: "/wallet-top-up", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "e-voucher", icon: Ticket, label: t("home.eVoucher"), path: "/e-voucher", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "e-wallet-analytics", icon: PieChart, label: t("home.eWalletAnalytics"), path: "/e-wallet-analytics", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },

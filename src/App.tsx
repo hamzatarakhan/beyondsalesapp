@@ -33,6 +33,7 @@ import WalletRecharge from "./pages/WalletRecharge";
 import CustomerRecharge, { EReloadWallet, ChargeVoucher } from "./pages/CustomerRecharge";
 import WalletTopUp from "./pages/WalletTopUp";
 import WalletAnalytics from "./pages/WalletAnalytics";
+import EVoucher, { EVoucherSms, EVoucherPrint } from "./pages/EVoucher";
 import CustomerComplaint from "./pages/CustomerComplaint";
 import CustomerSearch from "./pages/CustomerSearch";
 import SimStatusCheck from "./pages/SimStatusCheck";
@@ -180,6 +181,9 @@ const App = () => {
           <Route path="/customer-recharge/voucher" element={<ChargeVoucher />} />
           <Route path="/wallet-top-up" element={<WalletTopUp />} />
           <Route path="/e-wallet-analytics" element={<WalletAnalytics />} />
+          <Route path="/e-voucher" element={<EVoucher />} />
+          <Route path="/e-voucher/sms" element={<EVoucherSms />} />
+          <Route path="/e-voucher/print" element={<EVoucherPrint />} />
           <Route path="/customer-complaint" element={<CustomerComplaint />} />
           <Route path="/customer-search" element={<CustomerSearch />} />
           <Route path="/sim-status-check" element={<SimStatusCheck />} />

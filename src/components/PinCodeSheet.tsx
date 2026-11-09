@@ -16,11 +16,14 @@ interface PinCodeSheetProps {
   onVerified: () => void;
   /** Keeps the digit input ids unique per page. */
   idPrefix: string;
+  /** Overrides for reusing the sheet as an OTP step (e.g. E-Voucher number verification). */
+  title?: string;
+  description?: string;
 }
 
 // "PIN Code" bottom sheet: 4 round digit boxes, Resend link and Submit — shared by the
 // Customer Recharge (E-Reload) and Wallet Top-Up flows.
-const PinCodeSheet = ({ open, onOpenChange, onVerified, idPrefix }: PinCodeSheetProps) => {
+const PinCodeSheet = ({ open, onOpenChange, onVerified, idPrefix, title, description }: PinCodeSheetProps) => {
   const { t } = useTranslation();
   const [digits, setDigits] = useState(["", "", "", ""]);
   const [error, setError] = useState(false);
@@ -67,8 +70,8 @@ const PinCodeSheet = ({ open, onOpenChange, onVerified, idPrefix }: PinCodeSheet
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
           <div className="text-center">
-            <DrawerTitle className="text-lg font-bold text-foreground">{t("customerRecharge.pinTitle")}</DrawerTitle>
-            <DrawerDescription className="text-sm text-muted-foreground mt-1">{t("customerRecharge.pinDesc")}</DrawerDescription>
+            <DrawerTitle className="text-lg font-bold text-foreground">{title ?? t("customerRecharge.pinTitle")}</DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground mt-1">{description ?? t("customerRecharge.pinDesc")}</DrawerDescription>
           </div>
           <div className="flex gap-3" dir="ltr">
             {[0, 1, 2, 3].map((i) => (
