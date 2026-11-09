@@ -57,12 +57,12 @@ const Pill = ({ children, tone = "good" }: { children: React.ReactNode; tone?: "
       : "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>{children}</span>
 );
 
-const IconBox = ({ tone = "good", children }: { tone?: "good" | "bad"; children: React.ReactNode }) => (
-  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : "bg-rose-100 text-rose-600 dark:bg-rose-500/20")}>{children}</div>
+const IconBox = ({ tone = "good", children }: { tone?: "good" | "bad" | "none"; children: React.ReactNode }) => (
+  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : tone === "none" ? "bg-muted text-muted-foreground" : "bg-rose-100 text-rose-600 dark:bg-rose-500/20")}>{children}</div>
 );
 
-const Banner = ({ label, value, tone = "good", badge, note }: { label: string; value: number; tone?: "good" | "bad"; badge?: string; note?: string }) => (
-  <div className={cn("rounded-2xl px-4 py-3 border", tone === "good" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30" : "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>
+const Banner = ({ label, value, tone = "good", badge, note }: { label: string; value: number; tone?: "good" | "bad" | "none"; badge?: string; note?: string }) => (
+  <div className={cn("rounded-2xl px-4 py-3 border", tone === "good" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30" : tone === "none" ? "bg-card border-border" : "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <IconBox tone={tone}><Banknote className="w-4 h-4" /></IconBox>
@@ -70,8 +70,8 @@ const Banner = ({ label, value, tone = "good", badge, note }: { label: string; v
       </div>
       {badge && <Pill>{badge}</Pill>}
     </div>
-    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : POS)}><Money v={value} /></p>
-    {note && <p className="text-xs text-rose-600 mt-1">{note}</p>}
+    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : tone === "none" ? "text-muted-foreground" : POS)}><Money v={value} /></p>
+    {note && <p className={cn("text-xs mt-1", tone === "none" ? "text-muted-foreground" : "text-rose-600")}>{note}</p>}
   </div>
 );
 
@@ -89,7 +89,7 @@ const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed }: 
       {sub && <p className={cn("text-[11px] truncate mt-0.5", missed ? "text-rose-600" : "text-muted-foreground")}>{sub}</p>}
       {weight && <WeightChip />}
     </div>
-    <span className="text-xs font-semibold">{missed ? <Money v={0} className="text-rose-600" /> : <Money v={value} sign />}</span>
+    <span className="text-xs font-semibold">{missed ? <Money v={0} className="text-rose-600" /> : value === 0 ? <Money v={0} className="text-muted-foreground" /> : <Money v={value} sign />}</span>
     {onClick && <Chev />}
   </button>
 );
@@ -243,7 +243,7 @@ const monthFactor = (d: Date) => (PAYOUT.find((p) => p.date.getTime() === d.getT
 const PeriodContext = createContext<ReturnType<typeof useCustomMonth> | null>(null);
 const usePeriod = () => useContext(PeriodContext)!;
 const useScale = () => { const { factor } = usePeriod(); return (v: number) => Math.round(v * factor); };
-const scaleCount = (text: string, factor: number) => text.replace(/[\d,]+/, (n) => Math.max(1, Math.round(Number(n.replace(/,/g, "")) * factor)).toLocaleString());
+const scaleCount = (text: string, factor: number) => text.replace(/[\d,]+/, (n) => { const v = Number(n.replace(/,/g, "")); return (v === 0 ? 0 : Math.max(1, Math.round(v * factor))).toLocaleString(); });
 
 // Scheme 1 KPIs. A killer KPI below its minimum sets the whole plan to 0.
 const KPI_MIN = 70;
@@ -369,7 +369,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
       <>
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 5100 : 11230)} badge={t("commissionReport.approved")} />
+      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 0 : 5980)} badge={t("commissionReport.approved")} />
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
@@ -378,7 +378,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         {DEMO_NO_DATA ? <EmptyState title={t("commissionReport.noPlansTitle")} hint={t("commissionReport.noPlansHint")} compact /> : (
         <div className="space-y-3">
           <Scheme1Row go={go} />
-          <PlanRow title="Scheme 2 Prepaid KPI" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
+          <PlanRow title="Scheme 2 Prepaid KPI" weight value={0} sub={ZERO_PLAN_REASON} onClick={() => go("scheme2prepaid")} />
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
         )}
@@ -437,7 +437,7 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
     <Heading>Scheme 1</Heading>
     <Scheme1Row plain go={go} />
     <Heading>Scheme 2</Heading>
-    <PlanRow plain title="Scheme 2 Prepaid" weight value={sc(5250)} onClick={() => go("scheme2prepaid")} />
+    <PlanRow plain title="Scheme 2 Prepaid" weight value={0} sub={ZERO_PLAN_REASON} onClick={() => go("scheme2prepaid")} />
     <PlanRow plain title="Scheme 2 Postpaid" weight value={sc(5250)} onClick={() => go("scheme2postpaid")} />
     <Heading>Partner Level Incentive</Heading>
     <PlanRow plain title="Partner Level Incentive" value={sc(5250)} onClick={() => go("pli")} />
@@ -500,11 +500,13 @@ const KpiBreakdown = () => {
 
 type Section = { title: string; amount: string | number; rows: [string, string][] };
 type ActivityRow = { phone: string; kind: string; detail: string; amount: number };
-type Breakdown = { banner: string; value: number; bad?: boolean; activities: string; head: string; sections: Section[]; conditions?: boolean; lines?: ActivityRow[] };
+type Breakdown = { banner: string; value: number; bad?: boolean; note?: string; activities: string; head: string; sections: Section[]; conditions?: boolean; lines?: ActivityRow[] };
+// Demo: Scheme 2 Prepaid calculated to 0 this period. The reason shows on its plan row and in its breakdown.
+const ZERO_PLAN_REASON = "No qualifying activations";
 const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
-  scheme2prepaid: { banner: "Total Earned", value: 9800, activities: "3,000 Line", head: "Earnings breakdown", sections: [
-    { title: "Prepaid Activations", amount: "00", rows: [["Any", "0%"]] }, { title: "IBR", amount: 10176, rows: [["Any", "40%"]] },
-    { title: "First Recharge", amount: 6176, rows: [["Any", "20%"]] }, { title: "Second Recharge", amount: 6176, rows: [["Any", "20%"]] } ] },
+  scheme2prepaid: { banner: "Total Earned", value: 0, note: "No activations qualified this period.", activities: "0 Line", head: "Earnings breakdown", sections: [
+    { title: "Prepaid Activations", amount: 0, rows: [["Any", "0%"]] }, { title: "IBR", amount: 0, rows: [["Any", "40%"]] },
+    { title: "First Recharge", amount: 0, rows: [["Any", "20%"]] }, { title: "Second Recharge", amount: 0, rows: [["Any", "20%"]] } ] },
   scheme2postpaid: { banner: "Total Earned", value: 9800, activities: "83 Line", head: "Earnings breakdown", sections: [
     { title: "Postpaid Activations", amount: "0.0", rows: [["Any", "0%"]] },
     { title: "Acquisition", amount: 5850, rows: [["Below 200 . 22 Line", "50%"], ["Above 200 . 42 Line", "100 SAR"]] },
@@ -543,7 +545,7 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
   const sc = useScale();
   return (
     <div className="space-y-4">
-      <Banner label={b.banner} value={sc(b.value)} tone={b.bad ? "bad" : "good"} />
+      <Banner label={b.banner} value={sc(b.value)} tone={b.bad ? "bad" : b.value === 0 ? "none" : "good"} note={b.note} />
       <button type="button" onClick={() => go("activities")} className="w-full text-start flex items-center justify-between rounded-2xl bg-card shadow-sm px-4 py-3">
         <div><p className="text-sm font-semibold text-foreground">Activities</p><p className="text-xs text-muted-foreground">{scaleCount(b.activities, factor)}</p></div>
         <Chev />
@@ -560,18 +562,19 @@ const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: 
       <Heading>{b.head}</Heading>
       {b.sections.map((s) => {
         const neg = typeof s.amount === "number" && s.amount < 0;
+        const zero = s.amount === 0;
         return (
           <Card key={s.title} className="p-3.5">
             <div className="flex justify-between items-center mb-2.5">
               <span className="text-sm font-semibold text-foreground">{s.title}</span>
-              <span className="text-xs font-semibold text-muted-foreground">{typeof s.amount === "number" ? <Money v={sc(s.amount)} sign /> : <span className="inline-flex items-center gap-1"><RiyalSymbol /> {s.amount}</span>}</span>
+              <span className="text-xs font-semibold text-muted-foreground">{zero ? <Money v={0} /> : typeof s.amount === "number" ? <Money v={sc(s.amount)} sign /> : <span className="inline-flex items-center gap-1"><RiyalSymbol /> {s.amount}</span>}</span>
             </div>
             <div className="space-y-2">
               {s.rows.map(([l, v], i) => (
                 <div key={i} className={cn("flex justify-between text-sm rounded-lg px-3 py-2.5 border-[0.5px]",
-                  neg ? "bg-rose-50 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20" : "bg-teal-50 border-teal-100 dark:bg-teal-500/10 dark:border-teal-500/20")}>
+                  neg ? "bg-rose-50 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20" : zero ? "bg-muted/50 border-border" : "bg-teal-50 border-teal-100 dark:bg-teal-500/10 dark:border-teal-500/20")}>
                   <span className="text-foreground">{l}</span>
-                  <span className={cn("font-semibold", neg ? "text-rose-600" : "text-teal-600 dark:text-teal-400")}>{v}</span>
+                  <span className={cn("font-semibold", neg ? "text-rose-600" : zero ? "text-muted-foreground" : "text-teal-600 dark:text-teal-400")}>{v}</span>
                 </div>
               ))}
             </div>
