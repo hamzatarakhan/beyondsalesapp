@@ -38,13 +38,12 @@ import {
   Building2,
   Info,
   FileBarChart,
-  Network,
   Search,
   LucideIcon,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import ActivityIcon, { BadgeTone } from "@/components/ActivityIcon";
+import ActivityIcon, { ActivityColor, BadgeTone } from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 import DealerVisitWidget from "@/components/DealerVisitWidget";
 import UatTag from "@/components/UatTag";
@@ -502,19 +501,18 @@ const Home = () => {
   type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
   const extraTiles: Tile[] = [
     { id: "stock-transfer", icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "my-hierarchy", icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },
   ];
   const tileById: Record<string, Tile> = Object.fromEntries(
     [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...extraTiles].map((x) => [x.id, x as Tile]),
   );
-  const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean }[] = [
-    { id: "sim-numbers", title: t("home.catSimNumbers"), ids: ["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
-    { id: "plans-subscription", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
-    { id: "billing-credit", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
-    { id: "customer-care", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
-    { id: "wallet-topup", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher"], walletBalance: true },
-    { id: "reports-earnings", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history", "my-hierarchy"] },
-    { id: "stock-inventory", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-transfer", "stock-return"] },
+  const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean; color: ActivityColor }[] = [
+    { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
+    { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
+    { id: "billing-credit", color: "emerald", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
+    { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
+    { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher"], walletBalance: true },
+    { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history"] },
+    { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-transfer", "stock-return"] },
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
   // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer
@@ -560,7 +558,7 @@ const Home = () => {
                 key={item.id}
                 icon={item.icon}
                 label={item.label}
-                color="teal"
+                color={c.color}
                 badge={item.badge}
                 badgeTone={item.badgeTone}
                 onClick={() => handleActivityClick(item.path)}

@@ -6,14 +6,19 @@ import { LucideIcon } from "lucide-react";
  * the client's own sign-off). "option" marks an alternative variant of an existing service. */
 export type BadgeTone = "progress" | "confirm" | "approved" | "special" | "review" | "devready" | "option";
 
+export type ActivityColor = "teal" | "amber" | "primary" | "violet" | "emerald" | "rose" | "indigo" | "sky";
+
 interface ActivityIconProps {
   icon: LucideIcon;
   label: string;
   onClick?: () => void;
-  color?: "teal" | "amber" | "primary";
+  color?: ActivityColor;
   badge?: string;
   badgeTone?: BadgeTone;
 }
+
+/** Rollout-status tags (Confirmed, Needs Confirm…) are hidden on every service; flip to true to show them again. */
+const SHOW_STATUS_TAGS = false;
 
 const badgeToneMap: Record<BadgeTone, string> = {
   progress: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30",
@@ -41,6 +46,12 @@ const colorMap = {
     icon: "text-primary",
     hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70",
   },
+  // One hue per widget so each group reads at a glance (same neutral tile, tinted icon).
+  violet: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-violet-600 dark:text-violet-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
+  emerald: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-emerald-600 dark:text-emerald-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
+  rose: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-rose-600 dark:text-rose-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
+  indigo: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-indigo-600 dark:text-indigo-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
+  sky: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-sky-600 dark:text-sky-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
 };
 
 const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badgeTone = "progress" }: ActivityIconProps) => {
@@ -54,7 +65,7 @@ const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badge
         <div className={`w-14 h-14 rounded-2xl ${c.bg} flex items-center justify-center transition-all ${c.hover} group-active:scale-95`}>
           <Icon className={`w-6 h-6 ${c.icon}`} strokeWidth={1.75} />
         </div>
-        {badge && (
+        {SHOW_STATUS_TAGS && badge && (
           <span className={`absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-semibold leading-none whitespace-nowrap border shadow-sm ${badgeToneMap[badgeTone]}`}>
             {badge}
           </span>
