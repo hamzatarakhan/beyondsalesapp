@@ -825,7 +825,22 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Service search — filters every service across the widgets into one list */}
+      {/* Prototype hint — replaces the hero carousel while it is hidden */}
+      {!SHOW_HERO_BANNER && (
+        <div className="px-4 pb-4">
+          <div role="note" className="flex items-start gap-3 rounded-2xl bg-sky-100 dark:bg-sky-500/20 border border-sky-200 dark:border-sky-400/25 px-4 py-3.5">
+            <div className="w-8 h-8 rounded-full bg-sky-200 dark:bg-sky-500/30 flex items-center justify-center shrink-0">
+              <Info className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-sky-900 dark:text-sky-100">{t("home.prototypeBanner.title")}</p>
+              <p className="text-xs text-sky-900/70 dark:text-sky-200/70 leading-snug mt-0.5">{t("home.prototypeBanner.text")}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Service search — filters the widgets below */}
       {searchEnabled && (
       <div className="px-4 pb-4">
         <div className="relative">
@@ -853,21 +868,6 @@ const Home = () => {
           )}
         </div>
       </div>
-      )}
-
-      {/* Prototype hint — replaces the hero carousel while it is hidden */}
-      {!SHOW_HERO_BANNER && (
-        <div className="px-4 pb-4">
-          <div role="note" className="flex items-start gap-3 rounded-2xl bg-sky-100 dark:bg-sky-500/20 border border-sky-200 dark:border-sky-400/25 px-4 py-3.5">
-            <div className="w-8 h-8 rounded-full bg-sky-200 dark:bg-sky-500/30 flex items-center justify-center shrink-0">
-              <Info className="w-4 h-4 text-sky-600 dark:text-sky-300" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-sky-900 dark:text-sky-100">{t("home.prototypeBanner.title")}</p>
-              <p className="text-xs text-sky-900/70 dark:text-sky-200/70 leading-snug mt-0.5">{t("home.prototypeBanner.text")}</p>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Hero Banner — auto-advances on a timer, swipeable with a finger */}

@@ -47,7 +47,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useTranslation } from "react-i18next";
-import { hasSearchTerm, matchesServiceSearch, searchRank } from "@/lib/serviceSearch";
+import { hasSearchTerm, matchesServiceSearch } from "@/lib/serviceSearch";
 import { useServiceSearchEnabled } from "@/lib/serviceSearchFlag";
 import { useBrand } from "@/contexts/BrandContext";
 
@@ -168,17 +168,19 @@ const Menu = () => {
     },
   ];
 
-  // Same search as Home: whole-word prefix matching across every service on this page.
+  // Same approach as Home: typing filters the sections in place. Each section keeps only its matching
+  // services (all of them when its name matches) and hides when nothing in it matches.
   // Hidden until switched on in Settings (needs the PM-approval password).
   const searchEnabled = useServiceSearchEnabled();
   const isSearching = searchEnabled && hasSearchTerm(query);
-  const searchResults = isSearching
-    ? sections.flatMap((section) =>
-        section.items
-          .filter((item) => matchesServiceSearch(query, item.label, section.title, item.path))
-          .map((item) => ({ item, group: section.title })),
-      ).sort((a, b) => searchRank(query, a.item.label) - searchRank(query, b.item.label))
-    : [];
+  const visibleSections = isSearching
+    ? sections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => matchesServiceSearch(query, item.label, section.title, item.path)),
+        }))
+        .filter((section) => section.items.length > 0)
+    : sections;
 
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
@@ -240,37 +242,13 @@ const Menu = () => {
       )}
 
       <div className="px-4 space-y-4">
-        {isSearching && (
-          <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-            {searchResults.length > 0 ? (
-              <>
-                <h3 className="font-semibold text-foreground mb-2">{t("home.searchResults", { count: searchResults.length })}</h3>
-                <div className="divide-y divide-border/60">
-                  {searchResults.map(({ item, group }) => (
-                    <button
-                      key={item.label + (item.path ?? "")}
-                      onClick={() => navigate(item.path ?? "/coming-soon", item.path ? undefined : { state: { feature: item.label } })}
-                      className="w-full flex items-center gap-3 py-3 text-start"
-                    >
-                      <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-sm text-foreground">{item.label}</span>
-                        <span className="block text-xs text-muted-foreground">{group}</span>
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 rtl:rotate-180" />
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="py-6 text-center">
-                <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
-              </div>
-            )}
+        {isSearching && visibleSections.length === 0 && (
+          <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60 py-10 text-center">
+            <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
           </div>
         )}
-        {!isSearching && sections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.title} className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
             <h3 className="font-semibold text-foreground mb-2">{section.title}</h3>
             <div className="divide-y divide-border/60">

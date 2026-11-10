@@ -54,12 +54,19 @@ const SEARCH_KEYWORDS: Record<string, string> = {
   "/onboarding-requests": "onboarding requests channel member طلبات تسجيل",
 };
 
-/** True when every typed word starts a word in the service's label, group name or keywords. */
+/**
+ * True when every typed word starts a word in what the dealer can see (the service name or its
+ * group name). Hidden keywords only count once at least 3 letters are typed, so a single letter
+ * like "d" never surfaces a service whose visible name has no word starting with "d".
+ */
 export const matchesServiceSearch = (query: string, label: string, group: string, path?: string) => {
   const tokens = searchWords(query);
   if (tokens.length === 0) return false;
-  const hayWords = searchWords(`${label} ${group} ${(path && SEARCH_KEYWORDS[path]) || ""}`);
-  return tokens.every((tok) => hayWords.some((w) => w.startsWith(tok)));
+  const visibleWords = searchWords(`${label} ${group}`);
+  const keywordWords = searchWords((path && SEARCH_KEYWORDS[path]) || "");
+  return tokens.every(
+    (tok) => visibleWords.some((w) => w.startsWith(tok)) || (tok.length >= 3 && keywordWords.some((w) => w.startsWith(tok))),
+  );
 };
 
 /** Lower is better: 0 = the name starts with what was typed, 1 = a word in the name does, 2 = only the group or keywords matched. */
