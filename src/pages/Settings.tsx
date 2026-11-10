@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme, type ThemeMode } from "@/contexts/ThemeContext";
 import { useWidgets, WIDGET_LABEL_KEYS } from "@/contexts/WidgetsContext";
 import { cn } from "@/lib/utils";
+import { SERVICE_SEARCH_PASSWORD, setServiceSearchEnabled, useServiceSearchEnabled } from "@/lib/serviceSearchFlag";
 import { useTranslation } from "react-i18next";
 
 const SettingsPage = () => {
@@ -26,6 +27,11 @@ const SettingsPage = () => {
   const [appearanceSheetOpen, setAppearanceSheetOpen] = useState(false);
   const [widgetsSheetOpen, setWidgetsSheetOpen] = useState(false);
   const [pinSheetOpen, setPinSheetOpen] = useState(false);
+  // Service search is hidden by default; turning it on needs a password (PM approval gate).
+  const serviceSearchEnabled = useServiceSearchEnabled();
+  const [searchPwOpen, setSearchPwOpen] = useState(false);
+  const [searchPw, setSearchPw] = useState("");
+  const [searchPwError, setSearchPwError] = useState(false);
 
   const [faceId, setFaceId] = useState(true);
   const [biometrics, setBiometrics] = useState(true);
@@ -92,6 +98,26 @@ const SettingsPage = () => {
     setLangSheetOpen(false);
   };
 
+  const toggleServiceSearch = (on: boolean) => {
+    if (!on) {
+      setServiceSearchEnabled(false);
+      return;
+    }
+    setSearchPw("");
+    setSearchPwError(false);
+    setSearchPwOpen(true);
+  };
+
+  const submitSearchPw = () => {
+    if (searchPw === SERVICE_SEARCH_PASSWORD) {
+      setServiceSearchEnabled(true);
+      setSearchPwOpen(false);
+      setSearchPw("");
+    } else {
+      setSearchPwError(true);
+    }
+  };
+
   const submitPin = () => {
     setPinSheetOpen(false);
     setCurrentPin("");
@@ -111,6 +137,13 @@ const SettingsPage = () => {
           <p className="text-sm font-semibold text-foreground">{t("settings.widgets")}</p>
           <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
         </button>
+
+        <div className="w-full bg-card rounded-2xl shadow-sm p-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">{t("settings.serviceSearch")}</p>
+          </div>
+          <Switch checked={serviceSearchEnabled} onCheckedChange={toggleServiceSearch} aria-label={t("settings.serviceSearch")} />
+        </div>
 
         <button
           onClick={() => setPinSheetOpen(true)}
@@ -364,6 +397,52 @@ const SettingsPage = () => {
               {t("settings.submitPin")}
             </button>
           </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={searchPwOpen} onOpenChange={setSearchPwOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[90vh]">
+          <button
+            onClick={() => setSearchPwOpen(false)}
+            aria-label={t("settings.close")}
+            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
+          >
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8">
+            <DrawerTitle className="text-lg font-semibold">{t("settings.serviceSearchPasswordTitle")}</DrawerTitle>
+          </DrawerHeader>
+          <form
+            className="px-4 pb-8 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitSearchPw();
+            }}
+          >
+            <div className="space-y-1.5">
+              <Input
+                type="password"
+                inputMode="numeric"
+                autoFocus
+                value={searchPw}
+                onChange={(e) => {
+                  setSearchPw(e.target.value);
+                  setSearchPwError(false);
+                }}
+                placeholder={t("settings.serviceSearchPasswordPlaceholder")}
+                aria-label={t("settings.serviceSearchPasswordPlaceholder")}
+                className={cn("h-12 bg-card rounded-xl", searchPwError && "border-destructive focus-visible:ring-destructive")}
+              />
+              {searchPwError && <p className="text-xs font-medium text-destructive" role="alert">{t("settings.serviceSearchPasswordWrong")}</p>}
+            </div>
+            <button
+              type="submit"
+              disabled={searchPw.length === 0}
+              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
+            >
+              {t("settings.serviceSearchPasswordConfirm")}
+            </button>
+          </form>
         </DrawerContent>
       </Drawer>
     </div>

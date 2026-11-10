@@ -39,6 +39,7 @@ import {
   Ticket,
   PieChart,
   Boxes,
+  Search,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -46,6 +47,8 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useTranslation } from "react-i18next";
+import { hasSearchTerm, matchesServiceSearch } from "@/lib/serviceSearch";
+import { useServiceSearchEnabled } from "@/lib/serviceSearchFlag";
 import { useBrand } from "@/contexts/BrandContext";
 
 interface ServiceItem {
@@ -58,6 +61,7 @@ const Menu = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const { brand } = useBrand();
   // Friendi has no postpaid product, so postpaid-only activities are Virgin-only (same as Home).
   const postpaid = brand !== "friendi";
@@ -164,6 +168,18 @@ const Menu = () => {
     },
   ];
 
+  // Same search as Home: whole-word prefix matching across every service on this page.
+  // Hidden until switched on in Settings (needs the PM-approval password).
+  const searchEnabled = useServiceSearchEnabled();
+  const isSearching = searchEnabled && hasSearchTerm(query);
+  const searchResults = isSearching
+    ? sections.flatMap((section) =>
+        section.items
+          .filter((item) => matchesServiceSearch(query, item.label, section.title, item.path))
+          .map((item) => ({ item, group: section.title })),
+      )
+    : [];
+
   return (
     <div className="mobile-container pb-24 min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-background px-4 py-4 grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
@@ -194,8 +210,67 @@ const Menu = () => {
         </div>
       </header>
 
+      {searchEnabled && (
+      <div className="px-4 pb-4">
+        <div className="relative">
+          <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("home.searchServicesPlaceholder")}
+            aria-label={t("home.searchServicesPlaceholder")}
+            inputMode="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            className="w-full h-11 rounded-xl bg-card border border-border/60 shadow-sm ps-10 pe-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label={t("home.clearSearchAria")}
+              className="absolute end-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground"
+            >
+              <XIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+      )}
+
       <div className="px-4 space-y-4">
-        {sections.map((section) => (
+        {isSearching && (
+          <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+            {searchResults.length > 0 ? (
+              <>
+                <h3 className="font-semibold text-foreground mb-2">{t("home.searchResults", { count: searchResults.length })}</h3>
+                <div className="divide-y divide-border/60">
+                  {searchResults.map(({ item, group }) => (
+                    <button
+                      key={item.label + (item.path ?? "")}
+                      onClick={() => navigate(item.path ?? "/coming-soon", item.path ? undefined : { state: { feature: item.label } })}
+                      className="w-full flex items-center gap-3 py-3 text-start"
+                    >
+                      <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-foreground">{item.label}</span>
+                        <span className="block text-xs text-muted-foreground">{group}</span>
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 rtl:rotate-180" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="py-6 text-center">
+                <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
+              </div>
+            )}
+          </div>
+        )}
+        {!isSearching && sections.map((section) => (
           <div key={section.title} className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
             <h3 className="font-semibold text-foreground mb-2">{section.title}</h3>
             <div className="divide-y divide-border/60">

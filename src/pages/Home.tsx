@@ -39,6 +39,7 @@ import {
   Info,
   FileBarChart,
   Network,
+  Search,
   LucideIcon,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
@@ -55,6 +56,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "react-i18next";
+import { hasSearchTerm, matchesServiceSearch } from "@/lib/serviceSearch";
+import { useServiceSearchEnabled } from "@/lib/serviceSearchFlag";
 import heroBanner from "@/assets/hero-banner.jpg";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
@@ -548,6 +551,21 @@ const Home = () => {
     ]),
   );
 
+  // Service search: type a word and every matching tile (any category, plus Member Onboarding)
+  // shows up in one list, so dealers never have to scroll through the widgets to find a service.
+  // Same matching rules as the Services page (see lib/serviceSearch.ts).
+  const [serviceQuery, setServiceQuery] = useState("");
+  const searchPool: { tile: Tile; group: string }[] = [
+    ...categories.flatMap((c) => c.ids.map((id) => tileById[id]).filter(Boolean).map((tile) => ({ tile, group: c.title }))),
+    ...memberOnboarding.map((m) => ({ tile: { id: "mo-" + m.path, ...m } as Tile, group: t("home.memberOnboarding") })),
+  ];
+  // Hidden until switched on in Settings (needs the PM-approval password).
+  const searchEnabled = useServiceSearchEnabled();
+  const isSearching = searchEnabled && hasSearchTerm(serviceQuery);
+  const searchResults = isSearching
+    ? searchPool.filter(({ tile, group }) => matchesServiceSearch(serviceQuery, tile.label, group, tile.path))
+    : [];
+
   // Keyed by the same widget ids Settings reorders/toggles — rendered below in
   // whatever order `widgets` currently has, skipping any that are disabled there.
   const widgetNodes: Record<string, JSX.Element> = {
@@ -800,6 +818,66 @@ const Home = () => {
         </div>
       </header>
 
+      {/* Service search — filters every service across the widgets into one list */}
+      {searchEnabled && (
+      <div className="px-4 pb-4">
+        <div className="relative">
+          <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={serviceQuery}
+            onChange={(e) => setServiceQuery(e.target.value)}
+            placeholder={t("home.searchServicesPlaceholder")}
+            aria-label={t("home.searchServicesPlaceholder")}
+            inputMode="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            className="w-full h-11 rounded-xl bg-card border border-border/60 shadow-sm ps-10 pe-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+          {serviceQuery && (
+            <button
+              type="button"
+              onClick={() => setServiceQuery("")}
+              aria-label={t("home.clearSearchAria")}
+              className="absolute end-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground"
+            >
+              <XIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+      )}
+
+      {isSearching && (
+        <div className="px-4 mb-4">
+          <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+            {searchResults.length > 0 ? (
+              <>
+                <h3 className="font-semibold text-foreground mb-4">{t("home.searchResults", { count: searchResults.length })}</h3>
+                <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+                  {searchResults.map(({ tile }) => (
+                    <ActivityIcon
+                      key={tile.id}
+                      icon={tile.icon}
+                      label={tile.label}
+                      color="teal"
+                      badge={tile.badge}
+                      badgeTone={tile.badgeTone}
+                      onClick={() => handleActivityClick(tile.path)}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="py-6 text-center">
+                <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Prototype hint — replaces the hero carousel while it is hidden */}
       {!SHOW_HERO_BANNER && (
         <div className="px-4 pb-4">
@@ -856,7 +934,7 @@ const Home = () => {
       )}
 
       {/* Widgets — order and visibility come from Settings, dealer-configurable there. */}
-      {widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}
+      {!isSearching && widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}
 
       {/*
         NOTE: Hidden per request — keep this widget in source for future use.
