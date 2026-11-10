@@ -47,6 +47,9 @@ const SEARCH_KEYWORDS: Record<string, string> = {
   "/sales-orders": "push stock sales order distribute توزيع",
   "/stock-transfer": "transfer stock move نقل مخزون",
   "/stock-returns": "return stock رجوع إرجاع مخزون",
+  "/tickets": "tickets ticket support help issue request تذاكر تذكرة دعم مساعدة",
+  "/visit-management": "visit visits dealer visit check in checkin schedule زيارة زيارات تسجيل حضور",
+  "/my-shifts": "shift shifts working shift schedule attendance clock دوام وردية مناوبة",
   "/channel-onboarding": "onboarding channel member register تسجيل",
   "/onboarding-requests": "onboarding requests channel member طلبات تسجيل",
 };
@@ -57,6 +60,15 @@ export const matchesServiceSearch = (query: string, label: string, group: string
   if (tokens.length === 0) return false;
   const hayWords = searchWords(`${label} ${group} ${(path && SEARCH_KEYWORDS[path]) || ""}`);
   return tokens.every((tok) => hayWords.some((w) => w.startsWith(tok)));
+};
+
+/** Lower is better: 0 = the name starts with what was typed, 1 = a word in the name does, 2 = only the group or keywords matched. */
+export const searchRank = (query: string, label: string) => {
+  const tokens = searchWords(query);
+  const words = searchWords(label);
+  if (tokens.length === 0) return 2;
+  if (searchNorm(label).startsWith(searchNorm(query).trim())) return 0;
+  return tokens.every((tok) => words.some((w) => w.startsWith(tok))) ? 1 : 2;
 };
 
 export const hasSearchTerm = (query: string) => searchWords(query).length > 0;

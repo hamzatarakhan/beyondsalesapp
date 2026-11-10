@@ -369,12 +369,12 @@ const Home = () => {
     // tiles below replace them on Home. Uncomment to bring them back.
     // { id: "purchase-orders", icon: Package, label: t("home.purchaseOrders"), path: "/purchase-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
     // { id: "sales-orders", icon: ShoppingCart, label: t("home.salesOrders"), path: "/sales-orders", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "inventory-dashboard", icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Option 2 — Team Leader → Regional Manager → Sales Support chain; each opens a role picker.
-    { id: "request-stock-opt2", icon: Package, label: t("home.purchaseOrders"), path: "/stock-opt2/request", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
-    { id: "push-stock-opt2", icon: ShoppingCart, label: t("home.salesOrders"), path: "/stock-opt2/push", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "request-stock-opt2", icon: Package, label: t("home.purchaseOrders"), path: "/stock-opt2/request", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    { id: "push-stock-opt2", icon: ShoppingCart, label: t("home.salesOrders"), path: "/stock-opt2/push", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Stock Return — feature not built yet, lands on Coming Soon for now.
-    { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/stock-returns", badge: t("home.badgeNeedsConfirm"), badgeTone: "confirm" as const },
+    { id: "stock-return", icon: RotateCcw, label: t("home.stockReturn"), path: "/stock-returns", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
   // Order History is a browse-only/reporting service, not a customer-record action — skip
@@ -501,7 +501,7 @@ const Home = () => {
   // drop out on their own. Customer Recharge and Wallet Top-Up are hidden (see eWalletOptions).
   type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
   const extraTiles: Tile[] = [
-    { id: "stock-transfer", icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
+    { id: "stock-transfer", icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "my-hierarchy", icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },
   ];
   const tileById: Record<string, Tile> = Object.fromEntries(
@@ -516,15 +516,36 @@ const Home = () => {
     { id: "reports-earnings", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history", "my-hierarchy"] },
     { id: "stock-inventory", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-transfer", "stock-return"] },
   ];
-  const categoryWidgets: Record<string, JSX.Element> = Object.fromEntries(
-    categories.map((c) => [
+  // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
+  // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer
+  // Visit, Working Shift, Member Onboarding) stay, as the real widget, only if the word matches them.
+  // Same matching rules as the Services page (see lib/serviceSearch.ts).
+  const [serviceQuery, setServiceQuery] = useState("");
+  // Hidden until switched on in Settings (needs the PM-approval password).
+  const searchEnabled = useServiceSearchEnabled();
+  const isSearching = searchEnabled && hasSearchTerm(serviceQuery);
+  const memberOnboardingShown = isSearching
+    ? memberOnboarding.filter((m) => matchesServiceSearch(serviceQuery, m.label, t("home.memberOnboarding"), m.path))
+    : memberOnboarding;
+  const standaloneSearch: Record<string, { label: string; path: string }> = {
+    "working-shift": { label: t("home.workingShift.title"), path: "/my-shifts" },
+    "dealer-visit": { label: t("home.dealerVisit.title"), path: "/visit-management" },
+    tickets: { label: t("home.tickets.title"), path: "/tickets" },
+  };
+
+  const categoryWidgets: Record<string, JSX.Element | null> = Object.fromEntries(
+    categories.map((c) => {
+      const all = c.ids.map((id) => tileById[id]).filter(Boolean);
+      const shown = isSearching ? all.filter((item) => matchesServiceSearch(serviceQuery, item.label, c.title, item.path)) : all;
+      if (isSearching && shown.length === 0) return [c.id, null];
+      return [
       c.id,
       <div key={c.id} className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">{c.title}</h3>
           </div>
-          {c.walletBalance && (
+          {c.walletBalance && !isSearching && (
             <div className="flex items-center justify-between rounded-2xl px-4 py-3 mb-4 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
               <div>
                 <span className="text-[11px] font-medium opacity-90">{t("home.dealerWalletBalance")}</span>
@@ -534,7 +555,7 @@ const Home = () => {
             </div>
           )}
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {c.ids.map((id) => tileById[id]).filter(Boolean).map((item) => (
+            {shown.map((item) => (
               <ActivityIcon
                 key={item.id}
                 icon={item.icon}
@@ -548,27 +569,13 @@ const Home = () => {
           </div>
         </div>
       </div>,
-    ]),
+      ];
+    }),
   );
-
-  // Service search: type a word and every matching tile (any category, plus Member Onboarding)
-  // shows up in one list, so dealers never have to scroll through the widgets to find a service.
-  // Same matching rules as the Services page (see lib/serviceSearch.ts).
-  const [serviceQuery, setServiceQuery] = useState("");
-  const searchPool: { tile: Tile; group: string }[] = [
-    ...categories.flatMap((c) => c.ids.map((id) => tileById[id]).filter(Boolean).map((tile) => ({ tile, group: c.title }))),
-    ...memberOnboarding.map((m) => ({ tile: { id: "mo-" + m.path, ...m } as Tile, group: t("home.memberOnboarding") })),
-  ];
-  // Hidden until switched on in Settings (needs the PM-approval password).
-  const searchEnabled = useServiceSearchEnabled();
-  const isSearching = searchEnabled && hasSearchTerm(serviceQuery);
-  const searchResults = isSearching
-    ? searchPool.filter(({ tile, group }) => matchesServiceSearch(serviceQuery, tile.label, group, tile.path))
-    : [];
 
   // Keyed by the same widget ids Settings reorders/toggles — rendered below in
   // whatever order `widgets` currently has, skipping any that are disabled there.
-  const widgetNodes: Record<string, JSX.Element> = {
+  const widgetNodes: Record<string, JSX.Element | null> = {
     ...categoryWidgets,
     "working-shift": <WorkingShiftWidget key="working-shift" />,
     "dealer-visit": <DealerVisitWidget key="dealer-visit" />,
@@ -628,7 +635,7 @@ const Home = () => {
             <h3 className="font-semibold text-foreground">{t("home.memberOnboarding")}</h3>
           </div>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {memberOnboarding.map((item) => (
+            {memberOnboardingShown.map((item) => (
               <ActivityIcon
                 key={item.label}
                 icon={item.icon}
@@ -848,36 +855,6 @@ const Home = () => {
       </div>
       )}
 
-      {isSearching && (
-        <div className="px-4 mb-4">
-          <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-            {searchResults.length > 0 ? (
-              <>
-                <h3 className="font-semibold text-foreground mb-4">{t("home.searchResults", { count: searchResults.length })}</h3>
-                <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-                  {searchResults.map(({ tile }) => (
-                    <ActivityIcon
-                      key={tile.id}
-                      icon={tile.icon}
-                      label={tile.label}
-                      color="teal"
-                      badge={tile.badge}
-                      badgeTone={tile.badgeTone}
-                      onClick={() => handleActivityClick(tile.path)}
-                    />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="py-6 text-center">
-                <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Prototype hint — replaces the hero carousel while it is hidden */}
       {!SHOW_HERO_BANNER && (
         <div className="px-4 pb-4">
@@ -934,7 +911,28 @@ const Home = () => {
       )}
 
       {/* Widgets — order and visibility come from Settings, dealer-configurable there. */}
-      {!isSearching && widgets.filter((w) => w.enabled).map((w) => widgetNodes[w.id])}
+      {(() => {
+        const visible = widgets
+          .filter((w) => w.enabled)
+          .filter((w) => {
+            if (!isSearching) return true;
+            if (w.id === "member-onboarding") return memberOnboardingShown.length > 0;
+            const standalone = standaloneSearch[w.id];
+            if (standalone) return matchesServiceSearch(serviceQuery, standalone.label, "", standalone.path);
+            return widgetNodes[w.id] != null;
+          });
+        if (isSearching && visible.length === 0) {
+          return (
+            <div className="px-4 mb-4">
+              <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60 py-10 text-center">
+                <p className="text-sm font-semibold text-foreground">{t("home.searchNoResults")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("home.searchNoResultsHint")}</p>
+              </div>
+            </div>
+          );
+        }
+        return visible.map((w) => widgetNodes[w.id]);
+      })()}
 
       {/*
         NOTE: Hidden per request — keep this widget in source for future use.

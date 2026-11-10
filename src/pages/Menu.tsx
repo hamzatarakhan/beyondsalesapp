@@ -47,7 +47,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { X as XIcon } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useTranslation } from "react-i18next";
-import { hasSearchTerm, matchesServiceSearch } from "@/lib/serviceSearch";
+import { hasSearchTerm, matchesServiceSearch, searchRank } from "@/lib/serviceSearch";
 import { useServiceSearchEnabled } from "@/lib/serviceSearchFlag";
 import { useBrand } from "@/contexts/BrandContext";
 
@@ -177,7 +177,7 @@ const Menu = () => {
         section.items
           .filter((item) => matchesServiceSearch(query, item.label, section.title, item.path))
           .map((item) => ({ item, group: section.title })),
-      )
+      ).sort((a, b) => searchRank(query, a.item.label) - searchRank(query, b.item.label))
     : [];
 
   return (
