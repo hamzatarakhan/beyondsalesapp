@@ -32,6 +32,13 @@ import {
   UserCog,
   Users,
   MapPin,
+  BadgeCheck,
+  RefreshCw,
+  PhoneOff,
+  MessageSquareWarning,
+  Ticket,
+  PieChart,
+  Boxes,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -56,45 +63,77 @@ const Menu = () => {
   const postpaid = brand !== "friendi";
 
   const sections: { title: string; items: ServiceItem[] }[] = [
+    // The seven service groups follow the Services Categories proposal, in the same order as Home.
+    // Customer Recharge and Wallet Top-Up are hidden (same as Home).
     {
-      title: t("menu.eWallets"),
-      items: [
-        { icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer" },
-        { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
-        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
-        { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
-        { icon: History, label: t("home.orderHistory"), path: "/order-history" },
-      ],
-    },
-    {
-      title: t("home.customerActivities"),
+      title: t("home.catSimNumbers"),
       items: [
         { icon: Microchip, label: t("home.simActivation"), path: "/new-activation-3" },
         { icon: PackageCheck, label: t("home.fulfilment"), path: "/new-activation-3?flow=fulfilment" },
+        { icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check" },
+        { icon: RefreshCw, label: t("home.simReplacement"), path: "/sim-replacement?option=2" },
+        { icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3" },
+        { icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in" },
+      ],
+    },
+    {
+      title: t("home.catPlansSubscription"),
+      items: [
+        { icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle" },
         ...(postpaid
           ? [
+              { icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan" },
               { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.preToPost"), path: "/subscription-migration?direction=pre-to-post" },
               { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre" },
+            ]
+          : []),
+      ],
+    },
+    {
+      title: t("home.catBillingCredit"),
+      items: [
+        { icon: Send, label: t("home.creditTransfer"), path: "/credit-transfer" },
+        ...(postpaid
+          ? [
               { icon: BillIcon, label: t("home.billPayment"), path: "/bill-payment?option=2" },
               { icon: CreditCard, label: t("home.creditLimitAdjustment"), path: "/credit-limit-adjustment?option=5" },
             ]
           : []),
-        { icon: IdCard, label: t("home.customerSearch"), path: "/customer-search" },
-        { icon: Repeat, label: t("home.changePrepaidBundle"), path: "/change-prepaid-bundle" },
-        ...(postpaid ? [{ icon: ArrowUpDown, label: t("home.changePostpaidPlan"), path: "/change-postpaid-plan" }] : []),
-        { icon: Ban, label: t("home.cancelPortIn"), path: "/cancel-port-in" },
-        { icon: UserCog, label: t("home.updateId"), path: "/update-id" },
-        { icon: Users, label: t("home.changeOwner"), path: "/change-owner" },
       ],
     },
     {
-      title: t("menu.stockManagement"),
+      title: t("home.catCustomerCare"),
       items: [
+        { icon: Users, label: t("home.changeOwner"), path: "/change-owner" },
+        { icon: UserCog, label: t("home.updateId"), path: "/update-id" },
+        { icon: IdCard, label: t("home.customerSearch"), path: "/customer-search" },
+        { icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint" },
+      ],
+    },
+    {
+      title: t("home.catWalletTopup"),
+      items: [
+        { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
+        { icon: Ticket, label: t("home.eVoucher"), path: "/e-voucher" },
+      ],
+    },
+    {
+      title: t("home.catReportsEarnings"),
+      items: [
+        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
+        { icon: PieChart, label: t("home.eWalletAnalytics"), path: "/e-wallet-analytics" },
+        { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
+        { icon: History, label: t("home.orderHistory"), path: "/order-history" },
         { icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },
-        { icon: ClipboardCheck, label: t("menu.checkIn"), path: "/visit-management" },
-        { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
+      ],
+    },
+    {
+      title: t("home.catStockInventory"),
+      items: [
+        { icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard" },
         { icon: PackagePlus, label: t("home.purchaseOrders"), path: "/purchase-orders" },
         { icon: PackageOpen, label: t("home.salesOrders"), path: "/sales-orders" },
+        { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
         { icon: Undo2, label: t("home.stockReturn"), path: "/stock-returns" },
       ],
     },
@@ -119,6 +158,7 @@ const Menu = () => {
         // Training Hub hidden for now (no screen yet)
         { icon: Calendar, label: t("menu.myShifts"), path: "/my-shifts" },
         { icon: MapPin, label: t("home.dealerVisit.title"), path: "/visit-management" },
+        { icon: ClipboardCheck, label: t("menu.checkIn"), path: "/visit-management" },
         { icon: Headphones, label: t("menu.tickets"), path: "/tickets" },
       ],
     },

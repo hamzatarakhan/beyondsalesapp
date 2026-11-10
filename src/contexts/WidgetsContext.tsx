@@ -9,14 +9,17 @@ export interface WidgetConfig {
 // today. Widgets still commented out there (Tickets) aren't listed since there's
 // nothing on Home for the dealer to toggle/reorder yet.
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "e-wallets", enabled: true },
-  { id: "customer-activities", enabled: true },
-  { id: "sim-services", enabled: true },
+  // The seven service widgets follow the Services Categories proposal, in that order.
+  { id: "sim-numbers", enabled: true },
+  { id: "plans-subscription", enabled: true },
+  { id: "billing-credit", enabled: true },
+  { id: "customer-care", enabled: true },
+  { id: "wallet-topup", enabled: true },
+  { id: "reports-earnings", enabled: true },
+  { id: "stock-inventory", enabled: true },
   // "other-options" hidden per request — commented out, not deleted, until asked to bring
   // it back. widgetNodes["other-options"] in Home.tsx is commented out to match.
   // { id: "other-options", enabled: true },
-  { id: "other-services", enabled: true },
-  { id: "other-widgets", enabled: true },
   // KPI's hidden per request — commented out, not deleted, until asked to bring it back.
   // widgetNodes["kpis"] in Home.tsx is commented out to match.
   // { id: "kpis", enabled: true },
@@ -30,11 +33,13 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
 // widgets everywhere immediately instead of leaving stale text baked into storage.
 export const WIDGET_LABEL_KEYS: Record<string, string> = {
   "working-shift": "home.workingShift.title",
-  "customer-activities": "home.customerActivities",
-  "e-wallets": "home.eWallets",
-  "other-services": "home.otherServices",
-  "other-widgets": "home.otherWidgets",
-  "sim-services": "home.simServices",
+  "sim-numbers": "home.catSimNumbers",
+  "plans-subscription": "home.catPlansSubscription",
+  "billing-credit": "home.catBillingCredit",
+  "customer-care": "home.catCustomerCare",
+  "wallet-topup": "home.catWalletTopup",
+  "reports-earnings": "home.catReportsEarnings",
+  "stock-inventory": "home.catStockInventory",
   // "other-options": "home.otherOptions.title",
   "member-onboarding": "home.memberOnboarding",
   // "kpis": "home.kpis.title",
@@ -64,7 +69,9 @@ const WidgetsContext = createContext<WidgetsContextValue | undefined>(undefined)
 // stale v14 snapshot saved before that fix went live. A version bump is the only reliable
 // way to force those devices to drop what they've got and re-read DEFAULT_WIDGETS fresh.
 // Bumped again to v16: KPI's moved to sit right before Member Onboarding instead of after.
-const STORAGE_KEY = "app-widgets-v16";
+// Bumped again to v17: service widgets regrouped into the seven Services Categories (renamed and
+// reordered), replacing E Wallets / Customer Activities / SIM Services / Other Services / Other widgets.
+const STORAGE_KEY = "app-widgets-v17";
 
 function getInitialWidgets(): WidgetConfig[] {
   if (typeof window === "undefined") return DEFAULT_WIDGETS;

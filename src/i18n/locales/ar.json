@@ -2557,6 +2557,13 @@
     "oldApproaches": "الطرق القديمة",
     "newPlanCardOptions": "خيارات بطاقة الباقة الجديدة",
     "simServices": "خدمات الشريحة",
+    "catSimNumbers": "الشريحة والأرقام",
+    "catPlansSubscription": "الباقات والاشتراكات",
+    "catBillingCredit": "الفواتير والرصيد",
+    "catCustomerCare": "خدمة العملاء",
+    "catWalletTopup": "المحفظة والشحن",
+    "catReportsEarnings": "التقارير والأرباح",
+    "catStockInventory": "المخزون",
     "memberOnboarding": "تأهيل الأعضاء",
     "kpis": {
       "title": "مؤشرات الأداء",

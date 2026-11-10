@@ -2623,6 +2623,13 @@
     "oldApproaches": "Old approaches",
     "newPlanCardOptions": "New plan card options",
     "simServices": "SIM Services",
+    "catSimNumbers": "SIM & Numbers",
+    "catPlansSubscription": "Plans & Subscription",
+    "catBillingCredit": "Billing & Credit",
+    "catCustomerCare": "Customer Care",
+    "catWalletTopup": "Wallet & Top-up",
+    "catReportsEarnings": "Reports & Earnings",
+    "catStockInventory": "Stock & Inventory",
     "memberOnboarding": "Member Onboarding",
     "kpis": {
       "title": "KPI's",

@@ -38,10 +38,12 @@ import {
   Building2,
   Info,
   FileBarChart,
+  Network,
+  LucideIcon,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import ActivityIcon from "@/components/ActivityIcon";
+import ActivityIcon, { BadgeTone } from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 import DealerVisitWidget from "@/components/DealerVisitWidget";
 import UatTag from "@/components/UatTag";
@@ -338,8 +340,10 @@ const Home = () => {
     // Lightning bolt reads as "recharge/top-up" — the standard telecom convention, more
     // specific than a generic plus for topping up the dealer's own wallet balance.
     { id: "wallet-recharge", icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "customer-recharge", icon: SmartphoneCharging, label: t("home.customerRecharge"), path: "/customer-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-    { id: "wallet-top-up", icon: WalletCards, label: t("home.walletTopUp"), path: "/wallet-top-up", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // Customer Recharge hidden per request (route and page kept) — uncomment to bring it back.
+    //     { id: "customer-recharge", icon: SmartphoneCharging, label: t("home.customerRecharge"), path: "/customer-recharge", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // Wallet Top-Up hidden per request (route and page kept) — uncomment to bring it back.
+    //     { id: "wallet-top-up", icon: WalletCards, label: t("home.walletTopUp"), path: "/wallet-top-up", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     { id: "e-voucher", icon: Ticket, label: t("home.eVoucher"), path: "/e-voucher", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Opens E Wallets directly on its transactions tab.
     { id: "ewallet-transactions", icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
@@ -489,110 +493,67 @@ const Home = () => {
     if (path) navigate(path);
   };
 
+  // Home widgets follow the Services Categories proposal (7 groups, in that order). Tiles are
+  // looked up by id from the arrays above, so postpaid-only tiles (Friendi) and hidden options
+  // drop out on their own. Customer Recharge and Wallet Top-Up are hidden (see eWalletOptions).
+  type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
+  const extraTiles: Tile[] = [
+    { id: "stock-transfer", icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
+    { id: "my-hierarchy", icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },
+  ];
+  const tileById: Record<string, Tile> = Object.fromEntries(
+    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...extraTiles].map((x) => [x.id, x as Tile]),
+  );
+  const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean }[] = [
+    { id: "sim-numbers", title: t("home.catSimNumbers"), ids: ["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
+    { id: "plans-subscription", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
+    { id: "billing-credit", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
+    { id: "customer-care", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
+    { id: "wallet-topup", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher"], walletBalance: true },
+    { id: "reports-earnings", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history", "my-hierarchy"] },
+    { id: "stock-inventory", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-transfer", "stock-return"] },
+  ];
+  const categoryWidgets: Record<string, JSX.Element> = Object.fromEntries(
+    categories.map((c) => [
+      c.id,
+      <div key={c.id} className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">{c.title}</h3>
+          </div>
+          {c.walletBalance && (
+            <div className="flex items-center justify-between rounded-2xl px-4 py-3 mb-4 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
+              <div>
+                <span className="text-[11px] font-medium opacity-90">{t("home.dealerWalletBalance")}</span>
+                <p className="text-xl font-bold leading-tight"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</p>
+              </div>
+              <Wallet className="w-6 h-6 opacity-90 shrink-0" />
+            </div>
+          )}
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {c.ids.map((id) => tileById[id]).filter(Boolean).map((item) => (
+              <ActivityIcon
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                color="teal"
+                badge={item.badge}
+                badgeTone={item.badgeTone}
+                onClick={() => handleActivityClick(item.path)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>,
+    ]),
+  );
+
   // Keyed by the same widget ids Settings reorders/toggles — rendered below in
   // whatever order `widgets` currently has, skipping any that are disabled there.
   const widgetNodes: Record<string, JSX.Element> = {
+    ...categoryWidgets,
     "working-shift": <WorkingShiftWidget key="working-shift" />,
     "dealer-visit": <DealerVisitWidget key="dealer-visit" />,
-    "customer-activities": (
-      <div key="customer-activities" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.customerActivities")}</h3>
-          </div>
-
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {activities.map((activity) => (
-              <ActivityIcon
-                key={activity.label}
-                icon={activity.icon}
-                label={activity.label}
-                color="teal"
-                badge={activity.badge}
-                badgeTone={activity.badgeTone}
-                onClick={() => handleActivityClick(activity.path)}
-              />
-            ))}
-          </div>
-
-        </div>
-      </div>
-    ),
-    // Dealer-wallet actions (Credit Transfer, eWallet Recharge) — split out of Customer
-    // Activities since neither is really about a customer's own account. VM and FM both.
-    "e-wallets": (
-      <div key="e-wallets" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.eWallets")}</h3>
-          </div>
-          <div className="flex items-center justify-between rounded-2xl px-4 py-3 mb-4 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
-            <div>
-              <span className="text-[11px] font-medium opacity-90">{t("home.dealerWalletBalance")}</span>
-              <p className="text-xl font-bold leading-tight"><RiyalSymbol /> {DEALER_WALLET_BALANCE.toFixed(2)}</p>
-            </div>
-            <Wallet className="w-6 h-6 opacity-90 shrink-0" />
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {eWalletOptions.map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
-    "other-services": (
-      <div key="other-services" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.otherServices")}</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {otherServicesOptions.map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
-    "other-widgets": (
-      <div key="other-widgets" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.otherWidgets")}</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {otherWidgetsOptions.map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
     // "other-options" hidden per request — commented out (not deleted) until asked to bring
     // it back. Matching DEFAULT_WIDGETS/WIDGET_LABEL_KEYS entries in WidgetsContext.tsx are
     // commented out too, so it never renders on Home in the meantime.
@@ -642,31 +603,6 @@ const Home = () => {
       </div>
     ),
     */
-    // Only the SIM Replacement/Termination tiles that used to live in Customer Activities
-    // (option 2 and option 3) — the ones that were already in Other Options stay there —
-    // plus SIM Status Check, also moved over from Customer Activities.
-    "sim-services": (
-      <div key="sim-services" className="px-4 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t("home.simServices")}</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {[simReplacementOptions[1], simTerminationOptions[2], simStatusCheckOption].map((item) => (
-              <ActivityIcon
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                color="teal"
-                badge={item.badge}
-                badgeTone={item.badgeTone}
-                onClick={() => handleActivityClick(item.path)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
     "member-onboarding": (
       <div key="member-onboarding" className="px-4 mb-4">
         <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
