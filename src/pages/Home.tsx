@@ -499,11 +499,8 @@ const Home = () => {
   // looked up by id from the arrays above, so postpaid-only tiles (Friendi) and hidden options
   // drop out on their own. Customer Recharge and Wallet Top-Up are hidden (see eWalletOptions).
   type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
-  const extraTiles: Tile[] = [
-    { id: "stock-transfer", icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
-  ];
   const tileById: Record<string, Tile> = Object.fromEntries(
-    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...extraTiles].map((x) => [x.id, x as Tile]),
+    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions].map((x) => [x.id, x as Tile]),
   );
   const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean; color: ActivityColor }[] = [
     { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
@@ -512,7 +509,7 @@ const Home = () => {
     { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history"] },
-    { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-transfer", "stock-return"] },
+    { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
   // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer

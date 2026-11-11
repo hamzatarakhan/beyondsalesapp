@@ -137,7 +137,6 @@ const Menu = () => {
         { icon: Boxes, label: t("home.inventoryDashboard"), path: "/inventory-dashboard" },
         { icon: PackagePlus, label: t("home.purchaseOrders"), path: "/purchase-orders" },
         { icon: PackageOpen, label: t("home.salesOrders"), path: "/sales-orders" },
-        { icon: ArrowLeftRight, label: t("menu.stockTransfer"), path: "/stock-transfer" },
         { icon: Undo2, label: t("home.stockReturn"), path: "/stock-returns" },
       ],
     },

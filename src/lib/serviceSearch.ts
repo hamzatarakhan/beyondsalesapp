@@ -45,7 +45,6 @@ const SEARCH_KEYWORDS: Record<string, string> = {
   "/purchase-orders": "request stock purchase order طلب مخزون",
   "/stock-opt2/push": "push stock sales order distribute توزيع",
   "/sales-orders": "push stock sales order distribute توزيع",
-  "/stock-transfer": "transfer stock move نقل مخزون",
   "/stock-returns": "return stock رجوع إرجاع مخزون",
   "/tickets": "tickets ticket support help issue request تذاكر تذكرة دعم مساعدة",
   "/visit-management": "visit visits dealer visit check in checkin schedule زيارة زيارات تسجيل حضور",
