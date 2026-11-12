@@ -5,13 +5,12 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Eye, Boxes, Coins, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
+import { Eye, Boxes, Smartphone, CreditCard, Router as RouterIcon, X as XIcon, Fingerprint, Wifi } from "lucide-react";
 import { PURCHASE_ORDER_PRODUCTS, type ProductId } from "@/data/purchaseOrdersStore";
 
 
 // Demo only — every product shows the same generic stock figures and serial list.
 const DEMO_PCS = 10;
-const DEMO_KSA = 135;
 const DEMO_SERIALS = Array.from({ length: 5 }, () => "#15448862233");
 
 const InventoryDashboard = () => {
@@ -36,9 +35,6 @@ const InventoryDashboard = () => {
                 <div className="flex items-center gap-3 mt-1">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[11px] font-semibold text-muted-foreground">
                     <Boxes className="w-3 h-3" /> {t("purchaseOrders.pcs", { count: DEMO_PCS })}
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[11px] font-semibold text-muted-foreground">
-                    <Coins className="w-3 h-3" /> {t("inventoryDashboard.ksa", { value: DEMO_KSA })}
                   </span>
                 </div>
               </div>
