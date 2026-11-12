@@ -2303,7 +2303,24 @@
   "inventoryDashboard": {
     "title": "Inventory Dashboard",
     "ksa": "{{value}} KSA",
-    "viewItem": "View Item"
+    "viewItem": "View Item",
+    "myStock": "My Stock",
+    "teamStock": "Team Stock",
+    "totalUnits": "Total Available Units",
+    "totalTypes": "Total Product Types",
+    "searchProduct": "Search by product name",
+    "searchMember": "Search by member name or code",
+    "searchSerial": "Search serial number",
+    "availableStocks": "{{count}} available stocks",
+    "availableSerials": "{{count}} available serial numbers",
+    "dealerCode": "Dealer Code",
+    "inventoryCode": "Inventory Code",
+    "productTypes": "{{count}} Product Types",
+    "availableUnits": "{{count}} Available Units",
+    "memberInventory": "{{name}} Inventory",
+    "noProducts": "No products found",
+    "noSerials": "No serial numbers found",
+    "noMembers": "No members found"
   },
   "login": {
     "welcome": "Hello, Welcome to Beyond One",

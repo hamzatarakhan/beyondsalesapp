@@ -77,7 +77,7 @@ import OrdersHistory from "./pages/OrdersHistory";
 import OrdersHistoryAchievements from "./pages/OrdersHistoryAchievements";
 import OrdersHistoryCommissionHistory from "./pages/OrdersHistoryCommissionHistory";
 import OrdersHistoryKpiGroup from "./pages/OrdersHistoryKpiGroup";
-import InventoryDashboard from "./pages/InventoryDashboard";
+import InventoryDashboard, { MemberInventory } from "./pages/InventoryDashboard";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import PurchaseOrderForm from "./pages/PurchaseOrderForm";
 import PurchaseOrderView from "./pages/PurchaseOrderView";
@@ -231,6 +231,7 @@ const App = () => {
           <Route path="/sales-kpis" element={<Navigate to="/" replace />} />
           <Route path="/performance-at-glance" element={<Navigate to="/" replace />} />
           <Route path="/inventory-dashboard" element={<InventoryDashboard />} />
+          <Route path="/inventory-dashboard/member/:memberId" element={<MemberInventory />} />
           <Route path="/purchase-orders" element={<PurchaseOrders />} />
           <Route path="/purchase-orders/new" element={<PurchaseOrderForm />} />
           <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />

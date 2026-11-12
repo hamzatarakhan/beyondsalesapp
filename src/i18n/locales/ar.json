@@ -2229,7 +2229,24 @@
   "inventoryDashboard": {
     "title": "لوحة المخزون",
     "ksa": "{{value}} ريال",
-    "viewItem": "عرض الصنف"
+    "viewItem": "عرض الصنف",
+    "myStock": "مخزوني",
+    "teamStock": "مخزون الفريق",
+    "totalUnits": "إجمالي الوحدات المتاحة",
+    "totalTypes": "إجمالي أنواع المنتجات",
+    "searchProduct": "ابحث باسم المنتج",
+    "searchMember": "ابحث باسم العضو أو الرمز",
+    "searchSerial": "ابحث بالرقم التسلسلي",
+    "availableStocks": "{{count}} وحدة متاحة",
+    "availableSerials": "{{count}} رقم تسلسلي متاح",
+    "dealerCode": "رمز الوكيل",
+    "inventoryCode": "رمز المخزون",
+    "productTypes": "{{count}} نوع منتج",
+    "availableUnits": "{{count}} وحدة متاحة",
+    "memberInventory": "مخزون {{name}}",
+    "noProducts": "لا توجد منتجات",
+    "noSerials": "لا توجد أرقام تسلسلية",
+    "noMembers": "لا يوجد أعضاء"
   },
   "login": {
     "welcome": "أهلاً، مرحباً بك في بيوند ون",
