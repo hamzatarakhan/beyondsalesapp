@@ -6,12 +6,13 @@ import AppHeader from "@/components/AppHeader";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Eye, Boxes, ChevronRight, Search, X as XIcon } from "lucide-react";
-import { PURCHASE_ORDER_PRODUCTS, type ProductId } from "@/data/purchaseOrdersStore";
+import { Eye, Boxes, Check, ChevronDown, ChevronRight, MapPin, Search, X as XIcon } from "lucide-react";
+import { DEMO_DESTINATIONS, PURCHASE_ORDER_PRODUCTS, type ProductId } from "@/data/purchaseOrdersStore";
 
 // Inventory Dashboard: My Stock (own inventory) and Team Stock (each team member's inventory,
 // opened on its own page). Every inventory shows totals, a product search and per-product
-// serial numbers in a "View Item" sheet.
+// serial numbers in a "View Item" sheet. A Location picker narrows any inventory to one
+// warehouse/branch; "All Locations" is the sum of every location.
 
 // ---------- Demo data ----------
 type TeamMember = { id: string; name: string; dealerCode: string; inventoryCode: string; scale: number };
@@ -23,17 +24,33 @@ export const TEAM_MEMBERS: TeamMember[] = [
   { id: "fahad-otaibi", name: "Fahad Al-Otaibi", dealerCode: "1157853338", inventoryCode: "257587415", scale: 0.2 },
 ];
 
-/** Units per product for an inventory; `scale` shrinks the dealer's own figures for team members. */
-const stockFor = (scale: number) =>
-  PURCHASE_ORDER_PRODUCTS.map((p, i) => ({ ...p, units: Math.round((p.availableStocks - i * 7) * scale) })).filter((p) => p.units > 0);
+// Demo split of stock across locations (same locations as Request Stock). Some products are
+// missing at some branches so a location can show fewer product types.
+const LOCATIONS = DEMO_DESTINATIONS;
+const LOCATION_WEIGHTS = [0.35, 0.2, 0.15, 0.12, 0.1, 0.08];
+const carries = (productIndex: number, loc: number) => loc === 0 || (productIndex + loc) % 4 !== 3;
 
-const totalsFor = (scale: number) => {
-  const stock = stockFor(scale);
+const unitsAt = (productIndex: number, base: number, scale: number, loc: number) =>
+  carries(productIndex, loc) ? Math.round(base * scale * (LOCATION_WEIGHTS[loc] ?? 0.05)) : 0;
+
+/** Units per product for an inventory at one location (null = all locations);
+ *  `scale` shrinks the dealer's own figures for team members. */
+const stockFor = (scale: number, loc: number | null = null) =>
+  PURCHASE_ORDER_PRODUCTS.map((p, i) => {
+    const base = p.availableStocks - i * 7;
+    const units = loc === null
+      ? LOCATIONS.reduce((sum, _, l) => sum + unitsAt(i, base, scale, l), 0)
+      : unitsAt(i, base, scale, loc);
+    return { ...p, units };
+  }).filter((p) => p.units > 0);
+
+const totalsFor = (scale: number, loc: number | null = null) => {
+  const stock = stockFor(scale, loc);
   return { units: stock.reduce((s, p) => s + p.units, 0), types: stock.length };
 };
 
-const serialsFor = (productId: ProductId, count: number) => {
-  const base = 15448860000 + PURCHASE_ORDER_PRODUCTS.findIndex((p) => p.id === productId) * 1000;
+const serialsFor = (productId: ProductId, count: number, loc: number | null) => {
+  const base = 15448860000 + PURCHASE_ORDER_PRODUCTS.findIndex((p) => p.id === productId) * 1000 + (loc === null ? 0 : (loc + 1) * 100000);
   return Array.from({ length: count }, (_, i) => `#${base + i}`);
 };
 
@@ -54,24 +71,85 @@ const StatTile = ({ label, value }: { label: string; value: number }) => (
   </div>
 );
 
-/** Totals + product search + product list + View Item sheet for one inventory. */
+/** Location field + bottom sheet listing "All Locations" and every location. */
+const LocationPicker = ({ value, onChange }: { value: number | null; onChange: (loc: number | null) => void }) => {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const options: (number | null)[] = [null, ...LOCATIONS.map((_, i) => i)];
+  const label = (loc: number | null) => (loc === null ? t("inventoryDashboard.allLocations") : LOCATIONS[loc]);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-full h-12 bg-card rounded-xl border border-input px-3 flex items-center gap-2.5 text-start"
+      >
+        <MapPin className="w-4 h-4 text-primary shrink-0" />
+        <span className="flex-1 min-w-0">
+          <span className="block text-[10px] text-muted-foreground leading-tight">{t("inventoryDashboard.location")}</span>
+          <span className="block text-sm font-semibold text-foreground truncate">{label(value)}</span>
+        </span>
+        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+      </button>
+
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col">
+          <button onClick={() => setOpen(false)} aria-label={t("settings.close")} className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10">
+            <XIcon className="w-4 h-4 text-foreground" />
+          </button>
+          <DrawerHeader className="text-center pt-8 pb-3">
+            <DrawerTitle className="text-lg font-semibold">{t("inventoryDashboard.selectLocation")}</DrawerTitle>
+            <DrawerDescription className="text-xs text-muted-foreground">{t("inventoryDashboard.selectLocationDesc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8 space-y-2">
+            {options.map((loc) => {
+              const selected = loc === value;
+              return (
+                <button
+                  key={loc ?? "all"}
+                  type="button"
+                  onClick={() => { onChange(loc); setOpen(false); }}
+                  aria-pressed={selected}
+                  className={cn(
+                    "w-full flex items-center gap-3 rounded-xl px-4 py-3.5 text-start border transition-colors",
+                    selected ? "border-primary bg-primary/5" : "border-transparent bg-muted/50",
+                  )}
+                >
+                  <MapPin className={cn("w-4 h-4 shrink-0", selected ? "text-primary" : "text-muted-foreground")} />
+                  <span className="flex-1 text-sm font-semibold text-foreground">{label(loc)}</span>
+                  {selected && <Check className="w-4 h-4 text-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+};
+
+/** Location + totals + product search + product list + View Item sheet for one inventory. */
 const StockOverview = ({ scale }: { scale: number }) => {
   const { t } = useTranslation();
+  const [location, setLocation] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [viewing, setViewing] = useState<{ id: ProductId; units: number } | null>(null);
   const [serialQuery, setSerialQuery] = useState("");
 
-  const stock = useMemo(() => stockFor(scale), [scale]);
-  const totals = useMemo(() => totalsFor(scale), [scale]);
+  const stock = useMemo(() => stockFor(scale, location), [scale, location]);
+  const totals = useMemo(() => totalsFor(scale, location), [scale, location]);
   const q = query.trim().toLowerCase();
   const shown = stock.filter((p) => !q || t(`purchaseOrders.product.${p.nameKey}`).toLowerCase().includes(q));
 
-  const serials = viewing ? serialsFor(viewing.id, viewing.units) : [];
+  const serials = viewing ? serialsFor(viewing.id, viewing.units, location) : [];
   const sq = serialQuery.replace(/\D/g, "");
   const shownSerials = sq ? serials.filter((s) => s.includes(sq)) : serials;
 
   return (
     <>
+      <LocationPicker value={location} onChange={setLocation} />
+
       <div className="grid grid-cols-2 gap-3">
         <StatTile label={t("inventoryDashboard.totalUnits")} value={totals.units} />
         <StatTile label={t("inventoryDashboard.totalTypes")} value={totals.types} />

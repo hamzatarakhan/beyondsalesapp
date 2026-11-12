@@ -2246,7 +2246,11 @@
     "memberInventory": "مخزون {{name}}",
     "noProducts": "لا توجد منتجات",
     "noSerials": "لا توجد أرقام تسلسلية",
-    "noMembers": "لا يوجد أعضاء"
+    "noMembers": "لا يوجد أعضاء",
+    "location": "الموقع",
+    "allLocations": "جميع المواقع",
+    "selectLocation": "اختر الموقع",
+    "selectLocationDesc": "اعرض المخزون المتوفر في موقع محدد"
   },
   "login": {
     "welcome": "أهلاً، مرحباً بك في بيوند ون",

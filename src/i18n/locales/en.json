@@ -2320,7 +2320,11 @@
     "memberInventory": "{{name}} Inventory",
     "noProducts": "No products found",
     "noSerials": "No serial numbers found",
-    "noMembers": "No members found"
+    "noMembers": "No members found",
+    "location": "Location",
+    "allLocations": "All Locations",
+    "selectLocation": "Select Location",
+    "selectLocationDesc": "See the available stock at one location"
   },
   "login": {
     "welcome": "Hello, Welcome to Beyond One",
