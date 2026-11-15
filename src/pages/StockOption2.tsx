@@ -516,7 +516,7 @@ const View = ({ role, id, onChanged }: { role: ChainRole; id: string; onChanged:
   // One pinned footer per (role, status); the delivery panel pins its own.
   let footer: React.ReactNode = null;
   if (role === "rm" && s === "pendingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve", o.proofs.length === 0)}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
-  else if (role === "rm" && s === "orderPlaced") footer = primary(t("purchaseOrders.submit"), "submit", !tracking.trim());
+  else if (role === "rm" && s === "orderPlaced") footer = primary(t("stockOpt2.makeDeliver"), "submit", !tracking.trim());
   else if (role === "ss" && s === "orderPending") footer = <>{primary(t("stockOpt2.confirm"), "confirm")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
   else if ((role === "tl" || role === "dealer") && (s === "pendingApproval" || s === "awaitingApproval")) footer = primary(t("purchaseOrders.cancelOrder"), "cancel");
   else if (role === "tlPush" && s === "awaitingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}{link(t("purchaseOrders.cancelOrder"), "cancel")}</div></>;

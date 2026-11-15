@@ -2498,6 +2498,7 @@
     "rejectQ": "Do you want to reject the order?",
     "cancelRequest": "Cancel Request",
     "cancelQ": "Do you want to cancel the request?",
+    "makeDeliver": "Make Deliver",
     "deliverRequest": "Submit Request",
     "deliverQ": "Do you want to submit the tracking ID and deliver the order?",
     "submitRequest": "Submit Request",

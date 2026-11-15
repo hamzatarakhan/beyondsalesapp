@@ -2424,6 +2424,7 @@
     "rejectQ": "هل تريد رفض الطلب؟",
     "cancelRequest": "إلغاء الطلب",
     "cancelQ": "هل تريد إلغاء الطلب؟",
+    "makeDeliver": "تأكيد التسليم",
     "deliverRequest": "إرسال الطلب",
     "deliverQ": "هل تريد إرسال رقم التتبع وتسليم الطلب؟",
     "submitRequest": "إرسال الطلب",
