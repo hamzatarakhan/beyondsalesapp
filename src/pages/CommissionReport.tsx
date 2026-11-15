@@ -227,10 +227,11 @@ const useCustomMonth = (first: string, { delayed, join, progress }: { delayed: b
   // With progress on, the month in progress leads the chips as "This month".
   const chipMonths = [...(progress === "off" ? [] : [PROGRESS_MONTH]), ...CHIP_MONTHS].filter(since);
   const sheetMonths = YEAR_MONTHS.filter(since);
-  // A dealer who joined after Last month has no chips: the report opens on their first active month instead.
-  const home = chipMonths.length ? LATEST_MONTH : sheetMonths[0];
+  // The report opens on the first chip: This month when progress is on, else Last month. A dealer who joined after
+  // Last month has no closed-month chips, so without progress it opens on their first active month instead.
+  const home = chipMonths[0] ?? sheetMonths[0];
   const { t } = useTranslation();
-  const [month, setMonth] = useState(LATEST_MONTH);
+  const [month, setMonth] = useState(home);
   const [open, setOpen] = useState(false);
   // Picking another month "reloads" the data: the shared brand loader covers the page for a moment, then the month's numbers show.
   const [loading, setLoading] = useState(false);
