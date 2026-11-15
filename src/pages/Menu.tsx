@@ -119,13 +119,13 @@ const Menu = () => {
       items: [
         { icon: Zap, label: t("home.walletRecharge"), path: "/wallet-recharge" },
         { icon: Ticket, label: t("home.eVoucher"), path: "/e-voucher" },
+        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
+        { icon: PieChart, label: t("home.eWalletAnalytics"), path: "/e-wallet-analytics" },
       ],
     },
     {
       title: t("home.catReportsEarnings"),
       items: [
-        { icon: Receipt, label: t("home.ewalletTransactions"), path: "/ewallet?view=transactions" },
-        { icon: PieChart, label: t("home.eWalletAnalytics"), path: "/e-wallet-analytics" },
         { icon: FileBarChart, label: t("home.commissionReport"), path: "/commission-report" },
         { icon: History, label: t("home.orderHistory"), path: "/order-history" },
         { icon: Network, label: t("menu.myHierarchy"), path: "/profile/hierarchy" },

@@ -186,7 +186,7 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     msisdn: "0502222277",
     type: "switch-postpaid",
     status: "active",
-    civilId: "3456789012",
+    civilId: "1456789012",
     bills: [
       makeBill({ number: "BL-2026-07-8842", cycle: "1st July – 31st July, 2026", status: "Paid" }),
     ],
@@ -197,9 +197,29 @@ const DEMO_ACCOUNTS: BillAccount[] = [
     msisdn: "0502222288",
     type: "switch-postpaid",
     status: "active",
-    civilId: "4567890123",
+    civilId: "2567890123",
     bills: [
       makeBill({ number: "BL-2026-07-9915", cycle: "1st July – 31st July, 2026", status: "Paid", currentBalance: -100 }),
+    ],
+  },
+  // One Civil ID mixing a line that owes with a line that owes nothing (advance balance) —
+  // the zero line shows "No Payment Required" and never blocks paying the other one.
+  {
+    msisdn: "0502222299",
+    type: "switch-postpaid",
+    status: "active",
+    civilId: "1678901234",
+    bills: [
+      makeBill({ number: "BL-2026-07-6601", cycle: "1st July – 31st July, 2026", currentBalance: 150 }),
+    ],
+  },
+  {
+    msisdn: "0502222300",
+    type: "switch-postpaid",
+    status: "active",
+    civilId: "1678901234",
+    bills: [
+      makeBill({ number: "BL-2026-07-6602", cycle: "1st July – 31st July, 2026", status: "Paid", currentBalance: -100 }),
     ],
   },
 ];
@@ -758,6 +778,9 @@ const BillPayment = () => {
                       { value: "1324567896", note: t("billPayment.testNoteSaudiSingle") },
                       { value: "1876543210", note: t("billPayment.testNoteSaudiFour") },
                       { value: "2345678901", note: t("billPayment.testNoteIqamaNoOutstanding") },
+                      { value: "1456789012", note: t("billPayment.testNoteIdPaidNoAdvance") },
+                      { value: "2567890123", note: t("billPayment.testNoteIdPaidWithAdvance") },
+                      { value: "1678901234", note: t("billPayment.testNoteIdMixedZero") },
                       { value: "1000000009", note: t("billPayment.testNoteNoPostpaidFound") },
                     ]
               }

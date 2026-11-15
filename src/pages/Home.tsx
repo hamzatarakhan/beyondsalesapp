@@ -507,8 +507,8 @@ const Home = () => {
     { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
     { id: "billing-credit", color: "emerald", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
     { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
-    { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher"], walletBalance: true },
-    { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["ewallet-transactions", "e-wallet-analytics", "commission-report", "order-history"] },
+    { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
+    { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
