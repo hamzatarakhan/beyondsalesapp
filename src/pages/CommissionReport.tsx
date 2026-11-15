@@ -37,9 +37,9 @@ const Money = ({ v, sign, className }: { v: number | string; sign?: boolean; cla
 };
 
 // Progress bar with an optional black target tick, as in the KPI designs.
-const Gauge = ({ pct, tick, danger, thick }: { pct: number; tick?: number; danger?: boolean; thick?: boolean }) => (
+const Gauge = ({ pct, tick, danger, warn, thick }: { pct: number; tick?: number; danger?: boolean; warn?: boolean; thick?: boolean }) => (
   <div className={cn("relative rounded-full", thick ? "h-2" : "h-1.5")} style={{ background: GAUGE_TRACK }}>
-    <div className={cn("h-full rounded-full", danger && "bg-primary")} style={{ width: `${Math.min(100, pct)}%`, background: danger ? undefined : GAUGE }} />
+    <div className={cn("h-full rounded-full", danger && "bg-primary", warn && "bg-amber-500")} style={{ width: `${Math.min(100, pct)}%`, background: danger || warn ? undefined : GAUGE }} />
     {tick !== undefined && <div className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3.5 bg-foreground" style={{ insetInlineStart: `${tick}%` }} />}
   </div>
 );
@@ -61,17 +61,19 @@ const IconBox = ({ tone = "good", children }: { tone?: "good" | "bad" | "none"; 
   <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", tone === "good" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20" : tone === "none" ? "bg-muted text-muted-foreground" : "bg-rose-100 text-rose-600 dark:bg-rose-500/20")}>{children}</div>
 );
 
-const Banner = ({ label, value, tone = "good", badge, note }: { label: string; value: number; tone?: "good" | "bad" | "none"; badge?: string; note?: string }) => (
-  <div className={cn("rounded-2xl px-4 py-3 border", tone === "good" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30" : tone === "none" ? "bg-card border-border" : "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>
+// `estimate`: month-in-progress figures. The Approved badge becomes "Estimated, not final" and the note says how fresh the data is.
+const Banner = ({ label, value, tone = "good", badge, note, estimate }: { label: string; value: number; tone?: "good" | "bad" | "none" | "risk"; badge?: string; note?: string; estimate?: boolean }) => (
+  <div className={cn("rounded-2xl px-4 py-3 border", tone === "good" ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30" : tone === "none" ? "bg-card border-border" : tone === "risk" ? "bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30" : "bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30")}>
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <IconBox tone={tone}><Banknote className="w-4 h-4" /></IconBox>
+        <IconBox tone={tone === "risk" ? "none" : tone}><Banknote className="w-4 h-4" /></IconBox>
         <span className="text-xs font-medium text-foreground">{label}</span>
       </div>
-      {badge && <Pill>{badge}</Pill>}
+      {estimate ? <EstimatePill /> : badge && <Pill>{badge}</Pill>}
     </div>
-    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : tone === "none" ? "text-muted-foreground" : POS)}><Money v={value} /></p>
-    {note && <p className={cn("text-xs mt-1", tone === "none" ? "text-muted-foreground" : "text-rose-600")}>{note}</p>}
+    <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : tone === "none" ? "text-muted-foreground" : tone === "risk" ? "text-amber-700 dark:text-amber-300" : POS)}><Money v={value} /></p>
+    {note && <p className={cn("text-xs mt-1", tone === "bad" ? "text-rose-600" : tone === "risk" ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground")}>{note}</p>}
+    {estimate && <DataUpTo className="mt-1" />}
   </div>
 );
 
@@ -80,16 +82,16 @@ const Chev = () => <ChevronRight className="w-4 h-4 text-primary shrink-0 rtl:ro
 const WeightChip = () => <span className="mt-1 inline-block px-2 py-0.5 rounded-md text-[10px] font-medium bg-sky-50 text-sky-700 border-[0.5px] border-sky-200 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30">Weight 100%</span>;
 
 // One plan line. `plain` = white card (My Plans list); default = grey inner card (My Plan card).
-const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed }: { title: string; sub?: string; weight?: boolean; value: number; onClick?: () => void; danger?: boolean; plain?: boolean; missed?: boolean }) => (
+const PlanRow = ({ title, sub, weight, value, onClick, danger, plain, missed, risk }: { title: string; sub?: string; weight?: boolean; value: number; onClick?: () => void; danger?: boolean; plain?: boolean; missed?: boolean; risk?: boolean }) => (
   <button type="button" onClick={onClick} disabled={!onClick}
     className={cn("w-full text-start flex items-center gap-3 rounded-xl px-3 py-3 disabled:cursor-default", plain ? "bg-card shadow-sm" : "bg-muted/50 border border-border/50")}>
     {danger && <IconBox tone="bad"><ArrowDown className="w-4 h-4" /></IconBox>}
     <div className="flex-1 min-w-0">
       <p className="text-[13px] font-medium text-foreground truncate">{title}</p>
-      {sub && <p className={cn("text-[11px] truncate mt-0.5", missed ? "text-rose-600" : "text-muted-foreground")}>{sub}</p>}
+      {sub && <p className={cn("text-[11px] truncate mt-0.5", missed ? "text-rose-600" : risk ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground")}>{sub}</p>}
       {weight && <WeightChip />}
     </div>
-    <span className="text-xs font-semibold">{missed ? <Money v={0} className="text-rose-600" /> : value === 0 ? <Money v={0} className="text-muted-foreground" /> : <Money v={value} sign />}</span>
+    <span className="text-xs font-semibold">{missed ? <Money v={0} className="text-rose-600" /> : risk ? <Money v={0} className="text-muted-foreground" /> : value === 0 ? <Money v={0} className="text-muted-foreground" /> : <Money v={value} sign />}</span>
     {onClick && <Chev />}
   </button>
 );
@@ -194,11 +196,36 @@ const MonthFilterSheet = ({ open, onOpenChange, value, months, onApply, onClear 
   );
 };
 
+// Month in progress (demo today: 15 Nov 2026). Recalculated nightly from the 1st up to yesterday, never approved or paid.
+const PROGRESS_MONTH = addMonths(LATEST_MONTH, 1);
+const PROGRESS_AS_OF = new Date(2026, 10, 14);
+const PROGRESS_DAY = 14;
+const PROGRESS_DAYS = 30;
+type ProgressStatus = "ready" | "updating" | "unavailable" | "off";
+// Demo: the nightly progress run's state (Off = progress switched off for the cycle plan, so no This month chip).
+const PROGRESS_DEMO: [string, ProgressStatus][] = [["Ready", "ready"], ["Updating", "updating"], ["Unavailable", "unavailable"], ["Off", "off"]];
+
+const EstimatePill = () => {
+  const { t } = useTranslation();
+  return <Pill tone="wait">{t("commissionReport.estimatedNotFinal")}</Pill>;
+};
+// "Data up to 14 Nov · Day 14 of 30": how fresh the estimate is and how far into the month it is.
+const DataUpTo = ({ className }: { className?: string }) => {
+  const { t } = useTranslation();
+  return <p className={cn("text-[11px] text-muted-foreground", className)}>{t("commissionReport.dataUpTo", { date: format(PROGRESS_AS_OF, "d MMM"), day: PROGRESS_DAY, days: PROGRESS_DAYS })}</p>;
+};
+// While the nightly run is updating or has failed there are no figures to show (never a 0): only this message.
+const ProgressUpdating = () => {
+  const { t } = useTranslation();
+  return <EmptyState title={t("commissionReport.progressUpdatingTitle")} hint={t("commissionReport.progressUpdatingHint")} />;
+};
+
 // Month chips (Last month, July, June) plus a Custom chip that opens MonthFilterSheet. One selected month drives
 // both: picking a chip month in the sheet lights that chip; any other month shows its name on the Custom chip.
-const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; join: Date | null }) => {
+const useCustomMonth = (first: string, { delayed, join, progress }: { delayed: boolean; join: Date | null; progress: ProgressStatus }) => {
   const since = (d: Date) => !join || d.getTime() >= join.getTime();
-  const chipMonths = CHIP_MONTHS.filter(since);
+  // With progress on, the month in progress leads the chips as "This month".
+  const chipMonths = [...(progress === "off" ? [] : [PROGRESS_MONTH]), ...CHIP_MONTHS].filter(since);
   const sheetMonths = YEAR_MONTHS.filter(since);
   // A dealer who joined after Last month has no chips: the report opens on their first active month instead.
   const home = chipMonths.length ? LATEST_MONTH : sheetMonths[0];
@@ -218,13 +245,19 @@ const useCustomMonth = (first: string, { delayed, join }: { delayed: boolean; jo
   };
   // Join date moved past the month on screen: jump to the first month the dealer was active.
   useEffect(() => { if (!since(month)) pick(home); }, [join]);
-  const chipLabels = chipMonths.map((d) => (d.getTime() === LATEST_MONTH.getTime() ? first : format(d, "MMMM")));
+  // Progress switched off while This month is on screen: go back to Last month.
+  useEffect(() => { if (progress === "off" && month.getTime() === PROGRESS_MONTH.getTime()) pick(home); }, [progress]);
+  const chipLabels = chipMonths.map((d) => (d.getTime() === PROGRESS_MONTH.getTime() ? t("commissionReport.thisMonth") : d.getTime() === LATEST_MONTH.getTime() ? first : format(d, "MMMM")));
   const chip = chipMonths.findIndex((d) => d.getTime() === month.getTime());
   const customLabel = chip === -1 ? format(month, "MMM yyyy") : t("commissionReport.custom");
+  const estimate = progress !== "off" && month.getTime() === PROGRESS_MONTH.getTime();
   return {
     month,
     loading,
-    factor: monthFactor(month),
+    // An estimate covers the month so far, so its figures are that share of a full month.
+    factor: estimate ? monthFactor(month) * (PROGRESS_DAY / PROGRESS_DAYS) : monthFactor(month),
+    estimate,
+    progressReady: !estimate || progress === "ready",
     monthName: format(month, "MMMM"),
     join,
     // Last month's calculation can be delayed; the chip gets a dot and the report shows a Pending state.
@@ -302,8 +335,12 @@ const MissedBanner = () => {
 };
 const Scheme1Row = ({ plain, go }: { plain?: boolean; go: (s: Screen) => void }) => {
   const { missed } = useScheme1();
+  const { estimate } = usePeriod();
+  const { t } = useTranslation();
   const sc = useScale();
-  return <PlanRow plain={plain} title="Scheme 1 Commission" weight value={sc(6550)} missed={missed} sub={missed ? "Killer KPI missed" : undefined} onClick={() => go("scheme1")} />;
+  // Mid-month a killer KPI below its minimum can still recover: amber "at risk", not the red final "missed".
+  const risk = missed && estimate;
+  return <PlanRow plain={plain} title="Scheme 1 Commission" weight value={sc(6550)} missed={missed && !risk} risk={risk} sub={risk ? t("commissionReport.killerAtRisk") : missed ? "Killer KPI missed" : undefined} onClick={() => go("scheme1")} />;
 };
 
 // ---------------------------------------------------------------- "My Commission" (also the per-member view)
@@ -339,7 +376,8 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
   // Demo only: shows how the bar labels cope with bigger payouts (hundreds of thousands, millions, or a mix).
   const [size, setSize] = useState<keyof typeof PAYOUT_DEMO>("normal");
   const end = PAYOUT.findIndex((p) => p.date.getTime() === period.month.getTime());
-  const payout = DEMO_NO_DATA ? [] : PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) })).slice(0, (end === -1 ? 11 : end) + 1).filter((p) => !period.join || p.date.getTime() >= period.join.getTime()).slice(-Number(range));
+  const payout = DEMO_NO_DATA ? [] : PAYOUT.map((p, i) => ({ ...p, v: PAYOUT_DEMO[size](p.v, i) }))
+    .map((p) => (period.estimate && p.date.getTime() === PROGRESS_MONTH.getTime() ? { ...p, v: Math.round((p.v * PROGRESS_DAY) / PROGRESS_DAYS) } : p)).slice(0, (end === -1 ? 11 : end) + 1).filter((p) => !period.join || p.date.getTime() >= period.join.getTime()).slice(-Number(range));
   const rangeTitle = t(`commissionReport.${RANGES.find(([k]) => k === range)![1]}`);
   const pending = period.pending;
   const max = Math.max(...payout.filter((p) => !(pending && p.date.getTime() === period.month.getTime())).map((p) => p.v));
@@ -364,12 +402,21 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
       <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} />
     </div>
   );
+  if (!period.progressReady) return (
+    <div className="space-y-4">
+      <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
+      {period.drawer}
+      <ProgressUpdating />
+    </div>
+  );
   return (
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
       <>
-      <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 0 : 5980)} badge={t("commissionReport.approved")} />
+      {period.estimate
+        ? <Banner label={t("commissionReport.earnedSoFar", { month })} value={member ? sc(52300) : sc(missed ? 0 : 5980)} estimate />
+        : <Banner label={t("commissionReport.earnedIn", { month })} value={member ? MONTH_EARNED[month] ?? 52300 : sc(missed ? 0 : 5980)} badge={t("commissionReport.approved")} />}
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.myPlan")}</h3>
@@ -410,16 +457,18 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
             const last = date.getTime() === lit;
             const m = format(date, "MMM");
             const wait = last && pending;
+            const est = period.estimate && date.getTime() === PROGRESS_MONTH.getTime();
             return (
               <div key={m} className={cn("flex flex-col items-center gap-1.5 h-full justify-end", scroll ? "w-11 shrink-0 snap-start" : "flex-1 min-w-0 max-w-16")}>
                 <span className={cn("tabular-nums whitespace-nowrap text-[11px]", last ? "font-semibold" : "text-muted-foreground")} style={last ? { color: GAUGE } : undefined}>{wait ? "—" : v >= (scroll ? 1e5 : 999500) ? compact(v) : v.toLocaleString()}</span>
-                <div className={cn("w-full rounded-md", wait && "border border-dashed border-muted-foreground/40")} style={wait ? { height: "12%" } : { height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
+                <div className={cn("w-full rounded-md", wait && "border border-dashed border-muted-foreground/40", est && "border-2 border-dashed")} style={wait ? { height: "12%" } : est ? { height: `${(v / max) * 82}%`, borderColor: GAUGE, background: `${GAUGE_BRIGHT.slice(0, -1)} / 0.12)` } : { height: `${(v / max) * 82}%`, background: last ? GAUGE : `${GAUGE_BRIGHT.slice(0, -1)} / 0.2)` }} />
                 <span className="text-muted-foreground text-[11px]">{m}</span>
               </div>
             );
           })}
         </div>}
         {scroll && payout.length > 0 && <p className="mt-3 text-center text-[11px] text-muted-foreground">{t("commissionReport.swipeHint")}</p>}
+        {period.estimate && payout.length > 0 && <p className="mt-2 text-center text-[11px] text-muted-foreground">{t("commissionReport.estimateLegend")}</p>}
       </Card>
       </>
     </div>
@@ -454,12 +503,19 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
 
 // Scheme 1 Breakdown: result banner, then the KPI list.
 const Scheme1Screen = () => {
-  const { missed } = useScheme1();
-  const { monthName } = usePeriod();
+  const { missed, missedKillers } = useScheme1();
+  const { monthName, estimate } = usePeriod();
+  const { t } = useTranslation();
   const sc = useScale();
+  const names = missedKillers.map((k) => k.name).join(" and ");
   return (
   <div className="space-y-4">
-    {missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
+    {estimate
+      ? missed
+        ? <Banner tone="risk" label={t("commissionReport.noCommissionSoFar")} value={0} estimate
+            note={`${names} ${missedKillers.length === 1 ? "is" : "are"} below the ${KPI_MIN}% minimum so far. If still below at month end, Scheme 1 pays 0.`} />
+        : <Banner label={t("commissionReport.earnedSoFar", { month: monthName })} value={sc(74000)} estimate />
+      : missed ? <MissedBanner /> : <Banner label={`Earned in ${monthName}`} value={sc(74000)} badge="Approved" />}
     <KpiBreakdown />
   </div>
   );
@@ -467,27 +523,35 @@ const Scheme1Screen = () => {
 
 // Bars share one 0–120% scale, so the tick sits exactly on the 70% minimum. Once a killer KPI is missed it moves
 // to the top in red, and the other KPIs dim with their share crossed out because nothing is paid.
+// Mid-month (estimate) the scores are achievement so far: a killer below minimum is amber "at risk", nothing is struck out.
 const KpiBreakdown = () => {
-  const { rows, missedKillers, missed: planMissed } = useScheme1();
+  const { rows, missedKillers, missed: killerMissed } = useScheme1();
+  const { estimate } = usePeriod();
+  const { t } = useTranslation();
+  const planMissed = killerMissed && !estimate;
   return (
   <div className="space-y-3">
     <Heading>KPI breakdown</Heading>
+    {estimate && <p className="text-[11px] text-muted-foreground px-1 -mt-1">{t("commissionReport.achievementSoFar", { day: PROGRESS_DAY, days: PROGRESS_DAYS })}</p>}
     {[...missedKillers, ...rows.filter((k) => !missedKiller(k))].map((k, i) => {
-      const missed = missedKiller(k);
+      const below = missedKiller(k);
+      const missed = below && !estimate;
+      const risk = below && estimate;
       const share = `+${(k.achieved * 0.2).toFixed(1)}%`;
       return (
-        <Card key={k.name + i} className={cn("p-3.5", missed && "border border-primary/40", planMissed && !missed && "opacity-60")}>
+        <Card key={k.name + i} className={cn("p-3.5", missed && "border border-primary/40", risk && "border border-amber-300", planMissed && !missed && "opacity-60")}>
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-foreground">{k.name}</span>
               {k.killer && <Pill tone="bad">Killer</Pill>}
             </div>
-            <Pill tone={missed ? "bad" : "good"}>Achieved {k.achieved}%</Pill>
+            <Pill tone={missed ? "bad" : risk ? "wait" : "good"}>{estimate ? "So far" : "Achieved"} {k.achieved}%</Pill>
           </div>
-          <Gauge pct={(k.achieved / KPI_MAX) * 100} tick={(KPI_MIN / KPI_MAX) * 100} danger={missed} thick />
+          <Gauge pct={(k.achieved / KPI_MAX) * 100} tick={(KPI_MIN / KPI_MAX) * 100} danger={missed} warn={risk} thick />
           <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
             <span>Min {KPI_MIN}% · Max {KPI_MAX}%</span>
             {missed ? <b className="text-rose-600">{KPI_MIN - k.achieved}% below minimum</b>
+              : risk ? <b className="text-amber-700 dark:text-amber-300">{KPI_MIN - k.achieved}% below minimum so far</b>
               : planMissed ? <span>Weight 20% · <s>{share}</s> not paid</span>
               : <span>Weight 20% · <b className={POS}>{share}</b></span>}
           </div>
@@ -541,11 +605,12 @@ const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
 
 const BreakdownScreen = ({ kind, go }: { kind: keyof typeof BREAKDOWNS; go: (s: Screen) => void }) => {
   const b = BREAKDOWNS[kind];
-  const { factor } = usePeriod();
+  const { factor, estimate } = usePeriod();
+  const { t } = useTranslation();
   const sc = useScale();
   return (
     <div className="space-y-4">
-      <Banner label={b.banner} value={sc(b.value)} tone={b.bad ? "bad" : b.value === 0 ? "none" : "good"} note={b.note} />
+      <Banner label={estimate && !b.bad ? t("commissionReport.earnedSoFarShort") : b.banner} value={sc(b.value)} tone={b.bad ? "bad" : b.value === 0 ? "none" : "good"} note={b.note} estimate={estimate} />
       <button type="button" onClick={() => go("activities")} className="w-full text-start flex items-center justify-between rounded-2xl bg-card shadow-sm px-4 py-3">
         <div><p className="text-sm font-semibold text-foreground">Activities</p><p className="text-xs text-muted-foreground">{scaleCount(b.activities, factor)}</p></div>
         <Chev />
@@ -606,7 +671,7 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [f, setF] = useState("All");
-  const { factor } = usePeriod();
+  const { factor, estimate } = usePeriod();
   const all = useMemo(() => (DEMO_NO_DATA ? [] : activityRows(kind, factor)), [kind, factor]);
   // Plus Activation, which has no lines in the demo data, so picking it shows "No Matching Activities".
   const kinds = useMemo(() => ["All", ...new Set([...all.map((r) => r.kind), "Activation"])], [all]);
@@ -618,6 +683,7 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onClear={() => setQ("")} />
       {showChips && <Chips clearable items={kinds} value={f} onChange={setF} />}
+      {estimate && <DataUpTo className="px-1" />}
       {empty && <EmptyState title={t("commissionReport.noMatchActivities")} hint={t("commissionReport.noMatchHint")} />}
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
@@ -699,12 +765,12 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
     );
   }
 
-  if (period.pending) return (
+  if (period.pending || !period.progressReady) return (
     <div className="space-y-4">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} />
+      {period.pending ? <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} /> : <ProgressUpdating />}
       {sheetEl}
     </div>
   );
@@ -718,17 +784,19 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
           <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
           <p className="text-xl font-bold mt-2 text-sky-600 dark:text-sky-400"><Money v={Math.round(11230 * period.factor)} /></p>
+          {period.estimate && <div className="mt-2 flex items-center justify-between gap-2"><DataUpTo /><EstimatePill /></div>}
         </div>
       </div>
       <div className="rounded-2xl bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-3 flex items-center gap-3">
         <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0"><Info className="w-4 h-4 text-amber-600" /></div>
-        <div><p className="text-xs font-semibold text-amber-600 dark:text-amber-300">{t("commissionReport.needsAttention")}</p><p className="text-xs text-foreground/80">{t("commissionReport.needsAttentionSub", { n: 6 })}</p></div>
+        <div><p className="text-xs font-semibold text-amber-600 dark:text-amber-300">{t("commissionReport.needsAttention")}</p><p className="text-xs text-foreground/80">{t(period.estimate ? "commissionReport.needsAttentionSubSoFar" : "commissionReport.needsAttentionSub", { n: 6 })}</p></div>
       </div>
       <Card>
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-base font-semibold text-foreground">{t("commissionReport.dealersCommission")}</h3>
           <button type="button" onClick={() => go("members")} className="text-sm font-medium text-blue-600 dark:text-blue-400 [[data-brand=friendi]_&]:text-primary dark:[[data-brand=friendi]_&]:text-primary flex items-center gap-0.5">{t("commissionReport.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" /></button>
         </div>
+        {period.estimate && <DataUpTo className="-mt-1 mb-2" />}
         <Tabs items={[["top", t("commissionReport.top5")], ["low", t("commissionReport.lowest5")]]} value={top} onChange={setTop} />
         {list.length === 0 && <EmptyState title={t("commissionReport.noDealersTitle")} hint={t("commissionReport.noDealersHint")} compact />}
         <div className="mt-3 space-y-2.5">
@@ -862,7 +930,8 @@ const CommissionReport = () => {
   // Demo: Last month's calculation delayed, and when the dealer joined.
   const [delayed, setDelayed] = useState(0);
   const [joinIdx, setJoinIdx] = useState(0);
-  const period = useCustomMonth(t("commissionReport.lastMonth"), { delayed: delayed === 1, join: JOIN_DEMO[joinIdx][1] });
+  const [progressIdx, setProgressIdx] = useState(0);
+  const period = useCustomMonth(t("commissionReport.lastMonth"), { delayed: delayed === 1, join: JOIN_DEMO[joinIdx][1], progress: PROGRESS_DEMO[progressIdx][1] });
   const screen = stack[stack.length - 1];
   const go = (s: Screen) => setStack((st) => [...st, s]);
 
@@ -882,6 +951,7 @@ const CommissionReport = () => {
         )}
         {!screen && (
           <>
+            <DemoRow label="Demo: This month" options={PROGRESS_DEMO.map(([l]) => l)} value={progressIdx} onChange={setProgressIdx} />
             <DemoRow label="Demo: Last month" options={["Calculated", "Delayed"]} value={delayed} onChange={setDelayed} />
             <DemoRow label="Demo: Joined" options={JOIN_DEMO.map(([l]) => l)} value={joinIdx} onChange={setJoinIdx} />
           </>
