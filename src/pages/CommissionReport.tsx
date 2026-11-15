@@ -73,7 +73,7 @@ const Banner = ({ label, value, tone = "good", badge, note, estimate }: { label:
     </div>
     <p className={cn("text-2xl font-bold mt-2", tone === "bad" ? "text-rose-600" : tone === "none" ? "text-muted-foreground" : tone === "risk" ? "text-amber-700 dark:text-amber-300" : POS)}><Money v={value} /></p>
     {note && <p className={cn("text-xs mt-1", tone === "bad" ? "text-rose-600" : tone === "risk" ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground")}>{note}</p>}
-    {estimate && <DataUpTo className="mt-1" />}
+    {estimate && <MonthProgress tone={tone} />}
   </div>
 );
 
@@ -207,7 +207,34 @@ const PROGRESS_DEMO: [string, ProgressStatus][] = [["Ready", "ready"], ["Updatin
 
 const EstimatePill = () => {
   const { t } = useTranslation();
-  return <Pill tone="wait">{t("commissionReport.estimatedNotFinal")}</Pill>;
+  return <Pill tone="wait">{t("commissionReport.estimate")}</Pill>;
+};
+// Running month only: how much of the month the estimate covers ("Day 14 of 30"), so a small early-month figure reads as
+// "the month just started". At risk, the right label counts the days left to recover instead of the final date.
+type ProgressTone = "good" | "bad" | "none" | "risk" | "sky";
+const MONTH_BAR: Record<ProgressTone, { fill: string; text: string }> = {
+  good: { fill: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300" },
+  risk: { fill: "bg-amber-500", text: "text-amber-700 dark:text-amber-300" },
+  bad: { fill: "bg-rose-500", text: "text-rose-600" },
+  none: { fill: "bg-muted-foreground", text: "text-muted-foreground" },
+  sky: { fill: "bg-sky-500", text: "text-sky-700 dark:text-sky-300" },
+};
+const MonthProgress = ({ tone = "good" }: { tone?: ProgressTone }) => {
+  const { t } = useTranslation();
+  const c = MONTH_BAR[tone];
+  const monthEnd = new Date(PROGRESS_MONTH.getFullYear(), PROGRESS_MONTH.getMonth() + 1, 0);
+  return (
+    <div className="mt-2 space-y-1">
+      <div className="h-1.5 rounded-full bg-white/80 dark:bg-white/10 overflow-hidden" role="progressbar" aria-valuemin={0} aria-valuemax={PROGRESS_DAYS} aria-valuenow={PROGRESS_DAY}>
+        <div className={cn("h-full rounded-full", c.fill)} style={{ width: `${(PROGRESS_DAY / PROGRESS_DAYS) * 100}%` }} />
+      </div>
+      <div className={cn("flex justify-between gap-2 text-[11px]", c.text)}>
+        <span>{t("commissionReport.dayOfDays", { day: PROGRESS_DAY, days: PROGRESS_DAYS })}</span>
+        <span>{tone === "risk" ? t("commissionReport.daysLeftToRecover", { n: PROGRESS_DAYS - PROGRESS_DAY }) : t("commissionReport.finalAfter", { date: format(monthEnd, "d MMM") })}</span>
+      </div>
+      <p className={cn("text-[11px]", c.text)}>{t("commissionReport.dataUpToShort", { date: format(PROGRESS_AS_OF, "d MMM") })}</p>
+    </div>
+  );
 };
 // "Data up to 14 Nov · Day 14 of 30": how fresh the estimate is and how far into the month it is.
 const DataUpTo = ({ className }: { className?: string }) => {
@@ -783,9 +810,9 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <>
       <div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
-          <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p></div>
+          <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-500/20 flex items-center justify-center shrink-0"><Banknote className="w-4 h-4" /></div><p className="text-xs font-semibold text-foreground leading-tight">{t("commissionReport.myCommission")}</p>{period.estimate && <span className="ms-auto"><EstimatePill /></span>}</div>
           <p className="text-xl font-bold mt-2 text-sky-600 dark:text-sky-400"><Money v={Math.round(11230 * period.factor)} /></p>
-          {period.estimate && <div className="mt-2 flex items-center justify-between gap-2"><DataUpTo /><EstimatePill /></div>}
+          {period.estimate && <MonthProgress tone="sky" />}
         </div>
       </div>
       <div className="rounded-2xl bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-3 flex items-center gap-3">
