@@ -463,7 +463,7 @@ const SerialSheet = ({ onClose, orderId, productId }: { onClose: () => void; ord
 
 type Action = "approve" | "reject" | "confirm" | "cancel" | "submit" | "scan";
 
-const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; onEdit: () => void; onChanged: () => void }) => {
+const View = ({ role, id, onChanged }: { role: ChainRole; id: string; onChanged: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const o = getChainOrder(id)!;
@@ -512,14 +512,13 @@ const View = ({ role, id, onEdit, onChanged }: { role: ChainRole; id: string; on
 
   const primary = (label: string, a: Action, disabled?: boolean) => <Button disabled={disabled} onClick={() => setAction(a)} className="w-full h-12 rounded-full text-base">{label}</Button>;
   const link = (label: string, a: Action) => <button type="button" onClick={() => setAction(a)} className="flex-1 py-3 text-sm font-semibold text-primary">{label}</button>;
-  const soft = (label: string, onClick: () => void) => <Button onClick={onClick} className="w-full h-12 rounded-full text-base">{label}</Button>;
 
   // One pinned footer per (role, status); the delivery panel pins its own.
   let footer: React.ReactNode = null;
   if (role === "rm" && s === "pendingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve", o.proofs.length === 0)}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
   else if (role === "rm" && s === "orderPlaced") footer = primary(t("purchaseOrders.submit"), "submit", !tracking.trim());
   else if (role === "ss" && s === "orderPending") footer = <>{primary(t("stockOpt2.confirm"), "confirm")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}</div></>;
-  else if ((role === "tl" || role === "dealer") && (s === "pendingApproval" || s === "awaitingApproval")) footer = <>{soft(t("purchaseOrders.edit"), onEdit)}<div className="flex">{link(t("purchaseOrders.cancelOrder"), "cancel")}</div></>;
+  else if ((role === "tl" || role === "dealer") && (s === "pendingApproval" || s === "awaitingApproval")) footer = <div className="flex">{link(t("purchaseOrders.cancelOrder"), "cancel")}</div>;
   else if (role === "tlPush" && s === "awaitingApproval") footer = <>{primary(t("purchaseOrders.approve"), "approve")}<div className="flex">{link(t("stockOpt2.reject"), "reject")}{link(t("purchaseOrders.cancelOrder"), "cancel")}</div></>;
   else if (scanning) footer = primary(t("purchaseOrders.submit"), "scan", !allScanned);
   else if (role === "tlPush" && s === "awaitingDelivery") footer = <div className="flex">{link(t("purchaseOrders.cancelOrder"), "cancel")}</div>;
@@ -675,7 +674,7 @@ const StockOption2 = () => {
       <AppHeader title={title} showBack onBackClick={back} />
       <div className="px-4">
         {!screen && <List role={role} onOpen={(id) => setScreen({ k: "view", id })} onNew={() => { setPushStep("member"); setScreen({ k: "form" }); }} />}
-        {screen?.k === "view" && <View key={screen.id} role={role} id={screen.id} onEdit={() => setScreen({ k: "form", id: screen.id })} onChanged={() => bump((n) => n + 1)} />}
+        {screen?.k === "view" && <View key={screen.id} role={role} id={screen.id} onChanged={() => bump((n) => n + 1)} />}
         {screen?.k === "form" && <Form role={role} id={screen.id} step={pushStep} onStep={setPushStep} onDone={() => setScreen(null)} />}
       </div>
     </div>
