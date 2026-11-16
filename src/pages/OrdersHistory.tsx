@@ -76,13 +76,19 @@ const CardSection = ({
 export type OrderStatus = "approved" | "pending" | "rejected";
 // One type per service a dealer can complete, grouped like the Services Categories.
 const ORDER_TYPES = [
-  "prepaid", "postpaid", "hbb", "simReplacement", "simTermination", "cancelPortIn",
+  "prepaid", "postpaid", "basicPostpaid", "dataPrepaid", "dataPostpaid", "hbb", "simReplacement", "simTermination", "cancelPortIn",
   "changeBundle", "changePlan", "migrationPreToPost", "migrationPostToPre",
   "billPayment", "creditTransfer", "creditLimit",
   "changeOwner", "updateId",
   "topUp", "eVoucher",
 ] as const;
 export type OrderType = (typeof ORDER_TYPES)[number];
+
+/** SIM activations: their details show the customer's ID and the SIM/plan/payment facts. */
+export const SIM_ACTIVATION_TYPES: OrderType[] = ["prepaid", "postpaid", "basicPostpaid", "dataPrepaid", "dataPostpaid"];
+export const isSimActivation = (o: DemoOrder) => SIM_ACTIVATION_TYPES.includes(o.type);
+/** Data SIMs have no voice number, so their details leave the Number row out. */
+const DATA_SIM_TYPES: OrderType[] = ["dataPrepaid", "dataPostpaid"];
 
 export interface DemoOrder {
   id: string;
@@ -94,6 +100,7 @@ export interface DemoOrder {
   member: string;
   phone: string;
   idType: string;
+  idNumber?: string;
   date: string;
   dateObj: Date;
   commission: number;
@@ -106,6 +113,8 @@ export interface DemoOrder {
 
 export interface OrderDetail {
   plan?: string;
+  /** eSIM or physical SIM (SIM activations). */
+  simType?: string;
   device?: string;
   serial?: string;
   oldSerial?: string;
@@ -143,14 +152,17 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
   const add = (key: string, value: React.ReactNode | undefined) => rows.push(value === undefined || value === "" ? null : { label: t(`ordersHistory.detail.${key}`), value });
   switch (o.type) {
     case "prepaid":
-      add("bundle", d.plan);
-      add("simSerial", d.serial && <span dir="ltr">{d.serial}</span>);
-      add("amount", d.amount !== undefined && money(d.amount));
-      break;
     case "postpaid":
-      add("plan", d.plan);
-      add("simSerial", d.serial && <span dir="ltr">{d.serial}</span>);
-      add("monthlyFee", d.amount !== undefined && money(d.amount));
+    case "basicPostpaid":
+    case "dataPrepaid":
+    case "dataPostpaid":
+      add("simType", d.simType);
+      add("simNumber", d.serial && <span dir="ltr">{d.serial}</span>);
+      add("planName", d.plan);
+      if (!DATA_SIM_TYPES.includes(o.type)) add("number", o.phone && <span dir="ltr">{o.phone}</span>);
+      add("paymentTotal", d.amount !== undefined && money(d.amount));
+      add("paymentMethod", d.paymentMethod);
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "hbb":
       add("plan", d.plan);
@@ -232,6 +244,9 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
 // so the Today/Last 7/Last 30 buckets below stay meaningful regardless of when this runs.
 const TODAY_REF = new Date(2026, 7, 31);
 
+/** Demo ID number for orders that don't carry one: Saudi IDs start with 1, Iqamas with 2. */
+const idNumberFor = (o: DemoOrder) => (o.idType.startsWith("Iqama") ? "2" : "1") + o.phone.slice(-9).padStart(9, "0");
+
 /** Order types that never pay commission — their order details hide the Commission section. */
 export const NO_COMMISSION_TYPES: OrderType[] = ["simTermination", "cancelPortIn", "updateId"];
 export const hasCommission = (o: DemoOrder) => !NO_COMMISSION_TYPES.includes(o.type);
@@ -241,10 +256,10 @@ export const earnedCommission = (o: DemoOrder) => (o.status === "approved" && ha
 
 export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000047", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Layla Al-Subaie", memberCode: "DST001", member: "Sara Ahmad", phone: "0554412090", idType: "National ID", date: "30 Aug 2026 - 3:15 PM", dateObj: new Date(2026, 7, 30), commission: 5.0, detail: { amount: 1200, bills: 3, paymentMethod: "Dealer Wallet", reference: "PAY-88421907" } },
-  { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0, detail: { plan: "Prepaid 50 — 30 days", serial: "8996601234567890123", amount: 50 } },
+  { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0, detail: { simType: "eSIM", plan: "Prepaid 50 — 30 days", serial: "8996601234567890123", amount: 50, paymentMethod: "Dealer Wallet", reference: "PAY-77310452" } },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5, detail: { amount: 512.5, bills: 1, paymentMethod: "POS Terminal", reference: "PAY-88421655" } },
   { id: "ORD-2026-000048", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Hessa Al-Mutairi", memberCode: "DST001", member: "Sara Ahmad", phone: "0561177340", idType: "Iqama ID", date: "27 Aug 2026 - 1:30 PM", dateObj: new Date(2026, 7, 27), commission: 0, rejectedReason: "The SIM serial number could not be verified.", cancellationReason: "Customer didn't pay their bill", detail: { oldSerial: "8996601234567811200", newSerial: "8996601234567899044", replaceReason: "Lost / stolen SIM" } },
-  { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0, detail: { plan: "Postpaid Plus 199", serial: "8996601234567855312", amount: 199 } },
+  { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0, detail: { simType: "Physical SIM", plan: "Postpaid Plus 199", serial: "8996601234567855312", amount: 199, paymentMethod: "Cash", reference: "PAY-77302218" } },
   { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details.", cancellationReason: "Customer didn't pay their bill", detail: { oldSerial: "8996601234567823371", newSerial: "8996601234567877120", replaceReason: "Damaged SIM" } },
   { id: "ORD-2026-000042", status: "approved", commissionStatus: "approved", type: "hbb", customer: "Mona Al-Qahtani", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0567891234", idType: "National ID", date: "10 Aug 2026 - 11:50 AM", dateObj: new Date(2026, 7, 10), commission: 18.0, detail: { plan: "Home Broadband 5G — 300 GB", device: "5G Home Router CPE", serial: "8996601234567866201" } },
   { id: "ORD-2026-000041", status: "approved", commissionStatus: "approved", type: "topUp", customer: "Abdullah Al-Zahrani", memberCode: "DST001", member: "Sara Ahmad", phone: "0512345678", idType: "Iqama ID", date: "2 Aug 2026 - 5:30 PM", dateObj: new Date(2026, 7, 2), commission: 3.25, detail: { amount: 100, paymentMethod: "Dealer Wallet", reference: "TOP-55120874" } },
@@ -260,6 +275,9 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000057", status: "approved", commissionStatus: "approved", type: "changeOwner", customer: "Saad Al-Mutlaq", memberCode: "DST001", member: "Sara Ahmad", phone: "0507765432", idType: "National ID", date: "21 Aug 2026 - 4:25 PM", dateObj: new Date(2026, 7, 21), commission: 5.0, detail: { newOwner: "Nasser Al-Mutlaq", newOwnerId: "1098765432", reason: "Transfer to family member" } },
   { id: "ORD-2026-000058", status: "approved", commissionStatus: "approved", type: "updateId", customer: "Dana Al-Omari", memberCode: "DST001", member: "Sara Ahmad", phone: "0532201987", idType: "Iqama ID", date: "20 Aug 2026 - 10:45 AM", dateObj: new Date(2026, 7, 20), commission: 0, detail: { document: "Iqama ID", expiry: "14 Mar 2028" } },
   { id: "ORD-2026-000059", status: "approved", commissionStatus: "approved", type: "eVoucher", customer: "Fahad Al-Balawi", memberCode: "DST001", member: "Sara Ahmad", phone: "0544519870", idType: "National ID", date: "19 Aug 2026 - 7:35 PM", dateObj: new Date(2026, 7, 19), commission: 2.5, detail: { amount: 50, quantity: 2, delivery: "SMS", reference: "EVC-30018845" } },
+  { id: "ORD-2026-000060", status: "approved", commissionStatus: "approved", type: "basicPostpaid", customer: "Nasser Al-Shammari", memberCode: "DST001", member: "Sara Ahmad", phone: "0507762314", idType: "National ID", idNumber: "1087654321", date: "28 Aug 2026 - 12:20 PM", dateObj: new Date(2026, 7, 28), commission: 10.0, detail: { simType: "Physical SIM", plan: "Basic Postpaid 65", serial: "8996601234567811045", amount: 65, paymentMethod: "Dealer Wallet", reference: "PAY-77298803" } },
+  { id: "ORD-2026-000061", status: "approved", commissionStatus: "approved", type: "dataPrepaid", customer: "Ghada Al-Rashid", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0581234098", idType: "Iqama ID", idNumber: "2456789012", date: "24 Aug 2026 - 8:45 AM", dateObj: new Date(2026, 7, 24), commission: 8.0, detail: { simType: "eSIM", plan: "Data Prepaid 100 GB — 30 days", serial: "8996601234567822781", amount: 100, paymentMethod: "Cash", reference: "PAY-77287314" } },
+  { id: "ORD-2026-000062", status: "pending", commissionStatus: "pending", type: "dataPostpaid", customer: "Turki Al-Ghamdi", memberCode: "DST001", member: "Sara Ahmad", phone: "0587001926", idType: "National ID", idNumber: "1023344556", date: "30 Aug 2026 - 6:30 PM", dateObj: new Date(2026, 7, 30), commission: 12.0, detail: { simType: "Physical SIM", plan: "Data Postpaid Unlimited 175", serial: "8996601234567833590", amount: 175, paymentMethod: "Dealer Wallet", reference: "PAY-77290027" } },
 ];
 
 interface Dealer {
@@ -1191,16 +1209,26 @@ const OrdersHistory = () => {
               )}
 
               <DetailBlock title={t("ordersHistory.customerDetails")}>
+                {isSimActivation(selectedOrder) ? (
+                  <>
+                    <SummaryRow label={t("ordersHistory.idType")} value={selectedOrder.idType} />
+                    <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
+                  </>
+                ) : (<>
                 <SummaryRow label={t("ordersHistory.customerName")} value={view === "member" ? <span dir="ltr">{"*".repeat(8)}</span> : selectedOrder.customer} />
                 <SummaryRow label={t("ordersHistory.msisdn")} value={view === "member" ? <span dir="ltr">{"*".repeat(12)}</span> : selectedOrder.phone} />
                 <SummaryRow label={t("ordersHistory.nationalId")} value={view === "member" ? <span dir="ltr">{"*".repeat(13)}</span> : selectedOrder.idType} />
+                </>)}
               </DetailBlock>
 
               <DetailBlock title={t("ordersHistory.orderDetails")}>
                 {orderDetailRows(selectedOrder, t).map((r) => (
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
-                <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
+                {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
+                {!(isSimActivation(selectedOrder) && view === "member") && (
+                  <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
+                )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
               </DetailBlock>
 
