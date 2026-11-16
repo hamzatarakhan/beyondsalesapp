@@ -1246,16 +1246,6 @@ const OrdersHistory = () => {
               </div>
               <p className="text-sm font-semibold text-foreground">{t(`ordersHistory.orderType.${selectedOrder.type}`)}</p>
 
-              {selectedOrder.status === "rejected" && selectedOrder.rejectedReason && (
-                <div className="flex items-start gap-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 p-3.5">
-                  <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{t("ordersHistory.rejectedReason")}</p>
-                    <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{selectedOrder.rejectedReason}</p>
-                  </div>
-                </div>
-              )}
-
               {/* A SIM status check has no customer, and a bundle change shows its number under
                   Order Details, so both skip Customer Details. */}
               {selectedOrder.type !== "simStatusCheck" && selectedOrder.type !== "changeBundle" && selectedOrder.type !== "changePlan" && selectedOrder.type !== "creditLimit" && (
