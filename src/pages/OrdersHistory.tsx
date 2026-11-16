@@ -85,7 +85,7 @@ const ORDER_TYPES = [
 export type OrderType = (typeof ORDER_TYPES)[number];
 
 /** Types kept in the data but hidden from Order History (orders, filter, summary). */
-const HIDDEN_ORDER_TYPES: OrderType[] = ["topUp"];
+const HIDDEN_ORDER_TYPES: OrderType[] = ["topUp", "hbb"];
 const VISIBLE_ORDER_TYPES = ORDER_TYPES.filter((type) => !HIDDEN_ORDER_TYPES.includes(type));
 
 /** SIM activations: their details show the customer's ID and the SIM/plan/payment facts. */
