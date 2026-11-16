@@ -326,7 +326,7 @@ const useScheme1 = () => {
 
 const KillerDemoSwitch = ({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) => (
   <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 px-3 py-2">
-    <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300">Demo: Killer KPI</span>
+    <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300">Killer KPI</span>
     <div className="flex gap-1">
       {([[false, "Above min"], [true, "Below min"]] as const).map(([v, label]) => (
         <button key={label} type="button" onClick={() => onChange(v)} aria-pressed={value === v}
@@ -351,6 +351,33 @@ const DemoRow = ({ label, options, value, onChange }: { label: string; options: 
     </div>
   </div>
 );
+/** One slim bar instead of a stack of demo rows: it shows the current picks and opens a sheet
+ * holding the controls, so the prototype switches take a single line of the page. */
+const DemoControls = ({ summary, children }: { summary: string[]; children: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}
+        className="mb-4 w-full flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 ps-3 pe-2 py-1.5 text-start">
+        <SlidersHorizontal className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300 shrink-0" />
+        <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 shrink-0">Demo</span>
+        <span className="flex-1 min-w-0 truncate text-[11px] text-amber-700/80 dark:text-amber-300/80">{summary.join(" · ")}</span>
+        <ChevronRight className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300 shrink-0 rtl:rotate-180" />
+      </button>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2 max-h-[90vh]">
+          <div className="relative flex items-center justify-center py-2 mb-2">
+            <DrawerTitle className="text-lg font-medium text-foreground">Demo controls</DrawerTitle>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="absolute end-0 w-9 h-9 rounded-full border border-border flex items-center justify-center"><X className="w-4 h-4" /></button>
+          </div>
+          <DrawerDescription className="sr-only">Prototype-only switches for previewing each commission state.</DrawerDescription>
+          {children}
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+};
+
 // Demo: when the dealer joined. Months before that month are hidden from the chips, the filter sheet and the payout chart.
 const JOIN_DEMO: [string, Date | null][] = [["Full year", null], ["Mar 2026", new Date(2026, 2, 1)], ["Sep 2026", new Date(2026, 8, 1)]];
 
@@ -977,14 +1004,26 @@ const CommissionReport = () => {
             <Tabs items={[["overview", t("commissionReport.overview")], ["mine", t("commissionReport.myCommission")]]} value={tab} onChange={(k) => setTab(k as "overview" | "mine")} />
           </div>
         )}
-        {!screen && (
-          <>
-            <DemoRow label="Demo: This month" options={PROGRESS_DEMO.map(([l]) => l)} value={progressIdx} onChange={setProgressIdx} />
-            <DemoRow label="Demo: Last month" options={["Calculated", "Delayed"]} value={delayed} onChange={setDelayed} />
-            <DemoRow label="Demo: Joined" options={JOIN_DEMO.map(([l]) => l)} value={joinIdx} onChange={setJoinIdx} />
-          </>
-        )}
-        {(screen === "plans" || screen === "scheme1" || (!screen && !(tab === "overview" && manager))) && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
+        {(() => {
+          const showKiller = screen === "plans" || screen === "scheme1" || (!screen && !(tab === "overview" && manager));
+          if (screen && !showKiller) return null;
+          const summary = [
+            ...(!screen ? [PROGRESS_DEMO[progressIdx][0], ["Calculated", "Delayed"][delayed], JOIN_DEMO[joinIdx][0]] : []),
+            ...(showKiller ? [killerMissed ? "Below min" : "Above min"] : []),
+          ];
+          return (
+            <DemoControls summary={summary}>
+              {!screen && (
+                <>
+                  <DemoRow label="This month" options={PROGRESS_DEMO.map(([l]) => l)} value={progressIdx} onChange={setProgressIdx} />
+                  <DemoRow label="Last month" options={["Calculated", "Delayed"]} value={delayed} onChange={setDelayed} />
+                  <DemoRow label="Joined" options={JOIN_DEMO.map(([l]) => l)} value={joinIdx} onChange={setJoinIdx} />
+                </>
+              )}
+              {showKiller && <KillerDemoSwitch value={killerMissed} onChange={setKillerMissed} />}
+            </DemoControls>
+          );
+        })()}
         <PeriodContext.Provider value={period}>
         <KillerDemoContext.Provider value={killerMissed}>
         {!screen && (tab === "overview" && manager ? <Overview go={go} /> : <MyCommission go={go} />)}
