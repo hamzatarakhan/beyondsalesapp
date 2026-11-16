@@ -141,7 +141,8 @@ const SettingsPage = () => {
         <div className="w-full bg-card rounded-2xl shadow-sm p-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">{t("settings.serviceSearch")}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t("settings.serviceSearchSub")}</p>
+            {/* Description hidden per request — kept here (and in the locales) to bring back if needed. */}
+            {/* <p className="text-xs text-muted-foreground mt-0.5">{t("settings.serviceSearchSub")}</p> */}
           </div>
           <Switch checked={serviceSearchEnabled} onCheckedChange={toggleServiceSearch} aria-label={t("settings.serviceSearch")} />
         </div>

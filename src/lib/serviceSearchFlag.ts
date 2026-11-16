@@ -1,6 +1,7 @@
 // Feature flag for the Home/Services search bar. It stays hidden for dealers until the PM
 // approves it: Settings has a toggle that needs a password to turn on (a prototype gate only,
-// not real security). Stored per device in localStorage, off by default.
+// not real security). Stored per device in localStorage, off by default: once turned on it
+// stays on for that device (across reloads, app restarts and logins) until turned off again.
 import { useSyncExternalStore } from "react";
 
 const KEY = "feature-service-search";
