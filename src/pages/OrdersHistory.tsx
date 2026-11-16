@@ -1290,9 +1290,9 @@ const OrdersHistory = () => {
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
               </DetailBlock>
 
-              {/* Commission card for every status: Completed (amount) / Pending / Cancelled (reason) —
-                  pending and cancelled orders earn nothing, so the amount is a dash. */}
-              {hasCommission(selectedOrder) && (() => {
+              {/* Commission card only when the order actually earned commission — a zero or dash
+                  amount (failed orders, zero-commission orders) hides the whole card. */}
+              {earnedCommission(selectedOrder) > 0 && (() => {
                 const st = selectedOrder.status;
                 const tone =
                   st === "approved"
