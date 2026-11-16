@@ -20,6 +20,7 @@ ls roadmap.md >/dev/null && tail -4 roadmap.md
 - [x] Propose smaller task-based customer-service categories before changing their layout.
 
 ## Shared mobile frame (Nov 16)
-- [ ] Use one notch-free 390 × 844 frame on larger screens and full dynamic viewport on phones.
-- [ ] Constrain page scrolling, fixed actions, dialogs, drawers, sheets, toasts, and floating menus to the frame.
-- [ ] Verify login, Home, a form with a fixed action, and open bottom sheets at desktop and mobile sizes.
+- [x] Use one notch-free 390 × 844 frame on larger screens and full dynamic viewport on phones.
+- [x] Constrain page scrolling, fixed actions, dialogs, drawers, sheets, toasts, and floating menus to the frame.
+- [x] Verify login, Home, a form with a fixed action, and open bottom sheets at desktop and mobile sizes.
+- [x] Verify a dropdown and a dialog remain within the desktop frame with no page errors.
