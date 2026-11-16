@@ -104,8 +104,9 @@
     --surface: 220 18% 11%;
     --surface-foreground: 210 40% 98%;
     --frame-canvas: 220 22% 7%;
-    --frame-border: 217 25% 22%;
-    --frame-shadow: 0 24px 70px hsl(220 40% 2% / 0.5);
+    --frame-border: 220 24% 5%;
+    --frame-bezel-highlight: 217 20% 20%;
+    --frame-shadow: 0 28px 80px hsl(220 40% 2% / 0.58);
     /* KPI card palette in dark mode: tinted panels on the card colour, brighter label text. */
     --kpi-header: 205 30% 17%;
     --kpi-chip: 350 45% 22%;
@@ -425,13 +426,28 @@ body {
     --app-frame-top: max(24px, calc((100dvh - 844px) / 2));
     --app-frame-bottom: var(--app-frame-top);
     --app-frame-gutter: calc((100vw - var(--app-frame-width)) / 2);
-    --app-frame-radius: 28px;
+    --app-frame-radius: 32px;
+    --app-frame-bezel: 7px;
   }
 
   #root {
-    border: 1px solid hsl(var(--frame-border));
     border-radius: var(--app-frame-radius);
-    box-shadow: var(--frame-shadow);
+  }
+
+  /* A real outer bezel, drawn above every portal so dialogs and sheets never cover it.
+     It adds no notch, status bar, or other fake device UI to the screen itself. */
+  body::after {
+    content: "";
+    position: fixed;
+    top: calc(var(--app-frame-top) - var(--app-frame-bezel));
+    left: calc(var(--app-frame-gutter) - var(--app-frame-bezel));
+    z-index: 100000;
+    width: calc(var(--app-frame-width) + (var(--app-frame-bezel) * 2));
+    height: calc(var(--app-frame-height) + (var(--app-frame-bezel) * 2));
+    border: var(--app-frame-bezel) solid hsl(var(--frame-border));
+    border-radius: calc(var(--app-frame-radius) + var(--app-frame-bezel));
+    box-shadow: var(--frame-shadow), inset 0 0 0 1px hsl(var(--frame-bezel-highlight) / 0.65);
+    pointer-events: none;
   }
 
   .app-dialog-content {
