@@ -194,16 +194,13 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("subject", d.subject);
       add("category", d.category);
       add("subCategory", d.subCategory);
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "customerSearch":
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "simStatusCheck":
       add("searchType", d.searchType && t(SEARCH_TYPE_LABEL[d.searchType]));
       add("searchValue", d.searchValue && <span dir="ltr">{d.searchValue}</span>);
       add("status", d.simStatus && t(SIM_STATUS_LABEL[d.simStatus]));
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "continueActivation":
       add("simNumber", d.serial && <span dir="ltr">{d.serial}</span>);
@@ -218,7 +215,6 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
     case "simReplacement":
       add("simType", d.simType);
       add("simNumber", d.newSerial && <span dir="ltr">{d.newSerial}</span>);
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "topUp":
       add("rechargeAmount", d.amount !== undefined && money(d.amount));
@@ -232,10 +228,8 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       break;
     case "simTermination":
       add("reason", d.reason);
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "cancelPortIn":
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "changeBundle":
     case "changePlan":
@@ -266,12 +260,10 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
     case "changeOwner":
       add("newIdType", d.newOwnerIdType);
       add("newIdNumber", d.newOwnerId && <span dir="ltr">{d.newOwnerId}</span>);
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "updateId":
       add("newIdType", d.newIdType);
       add("newIdNumber", d.newIdNumber && <span dir="ltr">{d.newIdNumber}</span>);
-      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "eVoucher":
       add("voucherValue", d.amount !== undefined && money(d.amount));
