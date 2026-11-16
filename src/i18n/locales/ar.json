@@ -1419,7 +1419,7 @@
       "eVoucher": "قسيمة إلكترونية"
     },
     "status": {
-      "approved": "مقبول",
+      "approved": "مكتمل",
       "pending": "قيد الانتظار",
       "rejected": "فاشل"
     },
@@ -1513,7 +1513,7 @@
     "email": "البريد الإلكتروني",
     "contactNumber": "رقم التواصل",
     "memberName": "اسم العضو",
-    "rejectedBadge": "مرفوض",
+    "rejectedBadge": "فاشل",
     "commissionPending": "قيد الانتظار",
     "commissionCancelled": "ملغاة",
     "cancellationReason": "سبب الإلغاء",
@@ -1530,6 +1530,7 @@
       "completed": "مكتملة",
       "commission": "العمولة",
       "pending": "قيد الانتظار",
+      "failed": "فاشلة",
       "progressChart": "مخطط الدائرة التقدمي",
       "ordersByStatus": "الطلبات حسب الحالة",
       "ordersByType": "الطلبات حسب النوع",

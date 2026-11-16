@@ -1405,7 +1405,7 @@
       "eVoucher": "E-Voucher"
     },
     "status": {
-      "approved": "Approved",
+      "approved": "Completed",
       "pending": "Pending",
       "rejected": "Failed"
     },
@@ -1499,7 +1499,7 @@
     "email": "Email",
     "contactNumber": "Contact Number",
     "memberName": "Member Name",
-    "rejectedBadge": "Rejected",
+    "rejectedBadge": "Failed",
     "commissionPending": "Pending",
     "commissionCancelled": "Cancelled",
     "cancellationReason": "Cancellation Reason",
@@ -1516,6 +1516,7 @@
       "completed": "Completed",
       "commission": "Commission",
       "pending": "Pending",
+      "failed": "Failed",
       "progressChart": "Progress circle chart",
       "ordersByStatus": "Orders By Status",
       "ordersByType": "Orders By Type",
