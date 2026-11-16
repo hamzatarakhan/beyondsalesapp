@@ -69,9 +69,11 @@
     --app-frame-bottom: 0px;
     --app-frame-gutter: 0px;
     --app-frame-radius: 0px;
+    --app-frame-bezel: 0px;
     --frame-canvas: 220 16% 91%;
-    --frame-border: 214 20% 82%;
-    --frame-shadow: 0 24px 70px hsl(220 25% 20% / 0.18);
+    --frame-border: 222 24% 14%;
+    --frame-bezel-highlight: 220 16% 32%;
+    --frame-shadow: 0 28px 80px hsl(220 25% 20% / 0.24);
 
     /* KPI achievement card palette: pastel header, open teal gauge, and the
      LM / MTD / LMTD tiles. Kept as tokens so dark mode stays legible. */
