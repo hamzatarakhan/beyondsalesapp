@@ -191,9 +191,9 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("simSerial", d.serial && <span dir="ltr">{d.serial}</span>);
       break;
     case "simReplacement":
-      add("oldSim", d.oldSerial && <span dir="ltr">{d.oldSerial}</span>);
-      add("newSim", d.newSerial && <span dir="ltr">{d.newSerial}</span>);
-      add("replaceReason", d.replaceReason);
+      add("simType", d.simType);
+      add("simNumber", d.newSerial && <span dir="ltr">{d.newSerial}</span>);
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "topUp":
       add("rechargeAmount", d.amount !== undefined && money(d.amount));
@@ -279,9 +279,9 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000047", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Layla Al-Subaie", memberCode: "DST001", member: "Sara Ahmad", phone: "0554412090", idType: "National ID", date: "30 Aug 2026 - 3:15 PM", dateObj: new Date(2026, 7, 30), commission: 5.0, detail: { amount: 1200, bills: 3, paymentMethod: "Dealer Wallet", reference: "PAY-88421907" } },
   { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0, detail: { simType: "eSIM", plan: "Prepaid 50 — 30 days", serial: "8996601234567890123", amount: 50, paymentMethod: "Dealer Wallet", reference: "PAY-77310452" } },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5, detail: { amount: 512.5, bills: 1, paymentMethod: "POS Terminal", reference: "PAY-88421655" } },
-  { id: "ORD-2026-000048", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Hessa Al-Mutairi", memberCode: "DST001", member: "Sara Ahmad", phone: "0561177340", idType: "Iqama ID", date: "27 Aug 2026 - 1:30 PM", dateObj: new Date(2026, 7, 27), commission: 0, rejectedReason: "The SIM serial number could not be verified.", cancellationReason: "Customer didn't pay their bill", detail: { oldSerial: "8996601234567811200", newSerial: "8996601234567899044", replaceReason: "Lost / stolen SIM" } },
+  { id: "ORD-2026-000048", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Hessa Al-Mutairi", memberCode: "DST001", member: "Sara Ahmad", phone: "0561177340", idType: "Iqama ID", date: "27 Aug 2026 - 1:30 PM", dateObj: new Date(2026, 7, 27), commission: 0, rejectedReason: "The SIM serial number could not be verified.", cancellationReason: "Customer didn't pay their bill", detail: { simType: "eSIM", oldSerial: "8996601234567811200", newSerial: "8996601234567899044", replaceReason: "Lost / stolen SIM", reference: "REP-61044873" } },
   { id: "ORD-2026-000044", status: "approved", commissionStatus: "approved", type: "postpaid", customer: "Noura Al-Harbi", memberCode: "DST001", member: "Sara Ahmad", phone: "0501234567", idType: "Iqama ID", date: "26 Aug 2026 - 9:05 AM", dateObj: new Date(2026, 7, 26), commission: 22.0, detail: { simType: "Physical SIM", plan: "Postpaid Plus 199", serial: "8996601234567855312", amount: 199, paymentMethod: "Cash", reference: "PAY-77302218" } },
-  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details.", cancellationReason: "Customer didn't pay their bill", detail: { oldSerial: "8996601234567823371", newSerial: "8996601234567877120", replaceReason: "Damaged SIM" } },
+  { id: "ORD-2026-000043", status: "rejected", commissionStatus: "rejected", type: "simReplacement", customer: "Khalid Al-Dosari", memberCode: "DST003", member: "Noura Al-Harbi", phone: "0533456789", idType: "National ID", date: "18 Aug 2026 - 2:20 PM", dateObj: new Date(2026, 7, 18), commission: 0, rejectedReason: "The submitted ID document did not match the customer's registered details.", cancellationReason: "Customer didn't pay their bill", detail: { simType: "Physical SIM", oldSerial: "8996601234567823371", newSerial: "8996601234567877120", replaceReason: "Damaged SIM", reference: "REP-61031590" } },
   { id: "ORD-2026-000042", status: "approved", commissionStatus: "approved", type: "hbb", customer: "Mona Al-Qahtani", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0567891234", idType: "National ID", date: "10 Aug 2026 - 11:50 AM", dateObj: new Date(2026, 7, 10), commission: 18.0, detail: { plan: "Home Broadband 5G — 300 GB", device: "5G Home Router CPE", serial: "8996601234567866201" } },
   { id: "ORD-2026-000041", status: "approved", commissionStatus: "approved", type: "topUp", customer: "Abdullah Al-Zahrani", memberCode: "DST001", member: "Sara Ahmad", phone: "0512345678", idType: "Iqama ID", date: "2 Aug 2026 - 5:30 PM", dateObj: new Date(2026, 7, 2), commission: 3.25, detail: { amount: 100, paymentMethod: "Dealer Wallet", reference: "TOP-55120874" } },
   // One example for every remaining order type, so each Order Details layout can be checked.
@@ -1236,10 +1236,13 @@ const OrdersHistory = () => {
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
-                ) : isSimActivation(selectedOrder) ? (
+                ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" ? (
                   <>
                     <SummaryRow label={t("ordersHistory.idType")} value={selectedOrder.idType} />
                     <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
+                    {selectedOrder.type === "simReplacement" && (
+                      <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
+                    )}
                   </>
                 ) : (<>
                 <SummaryRow label={t("ordersHistory.customerName")} value={view === "member" ? <span dir="ltr">{"*".repeat(8)}</span> : selectedOrder.customer} />
@@ -1254,7 +1257,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
