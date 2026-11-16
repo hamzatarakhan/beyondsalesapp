@@ -1411,7 +1411,7 @@
       "changeBundle": "تغيير باقة مسبقة الدفع",
       "changePlan": "تغيير خطة مفوترة",
       "migrationPreToPost": "التحويل من مسبق إلى مفوتر",
-      "migrationPostToPre": "التحويل من مفوتر إلى مسبق",
+      "migrationPostToPre": "من آجل الدفع إلى مسبق الدفع",
       "creditTransfer": "تحويل رصيد",
       "creditLimit": "تعديل الحد الائتماني",
       "changeOwner": "تغيير المالك",
