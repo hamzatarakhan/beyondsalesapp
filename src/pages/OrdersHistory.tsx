@@ -207,9 +207,8 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("reference", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "simTermination":
-      add("simSerial", d.serial && <span dir="ltr">{d.serial}</span>);
-      add("terminationReason", d.reason);
-      add("finalBill", d.amount !== undefined && money(d.amount));
+      add("reason", d.reason);
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "cancelPortIn":
       add("donorOperator", d.operator);
@@ -285,7 +284,7 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000042", status: "approved", commissionStatus: "approved", type: "hbb", customer: "Mona Al-Qahtani", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0567891234", idType: "National ID", date: "10 Aug 2026 - 11:50 AM", dateObj: new Date(2026, 7, 10), commission: 18.0, detail: { plan: "Home Broadband 5G — 300 GB", device: "5G Home Router CPE", serial: "8996601234567866201" } },
   { id: "ORD-2026-000041", status: "approved", commissionStatus: "approved", type: "topUp", customer: "Abdullah Al-Zahrani", memberCode: "DST001", member: "Sara Ahmad", phone: "0512345678", idType: "Iqama ID", date: "2 Aug 2026 - 5:30 PM", dateObj: new Date(2026, 7, 2), commission: 3.25, detail: { amount: 100, paymentMethod: "Dealer Wallet", reference: "TOP-55120874" } },
   // One example for every remaining order type, so each Order Details layout can be checked.
-  { id: "ORD-2026-000049", status: "approved", commissionStatus: "approved", type: "simTermination", customer: "Turki Al-Shammari", memberCode: "DST001", member: "Sara Ahmad", phone: "0548812300", idType: "National ID", date: "28 Aug 2026 - 11:20 AM", dateObj: new Date(2026, 7, 28), commission: 0, detail: { serial: "8996601234567833450", reason: "Customer request", amount: 85 } },
+  { id: "ORD-2026-000049", status: "approved", commissionStatus: "approved", type: "simTermination", customer: "Turki Al-Shammari", memberCode: "DST001", member: "Sara Ahmad", phone: "0548812300", idType: "National ID", date: "28 Aug 2026 - 11:20 AM", dateObj: new Date(2026, 7, 28), commission: 0, detail: { serial: "8996601234567833450", reason: "Customer request", amount: 85, reference: "TRM-52008164" } },
   { id: "ORD-2026-000050", status: "pending", commissionStatus: "pending", type: "cancelPortIn", customer: "Reem Al-Ghamdi", memberCode: "DST001", member: "Sara Ahmad", phone: "0557730912", idType: "Iqama ID", date: "29 Aug 2026 - 9:40 AM", dateObj: new Date(2026, 7, 29), commission: 0, detail: { operator: "Mobily", requestId: "MNP-2026-118342", reason: "Customer changed their mind" } },
   { id: "ORD-2026-000051", status: "approved", commissionStatus: "approved", type: "changeBundle", customer: "Omar Al-Fahad", memberCode: "DST001", member: "Sara Ahmad", phone: "0503318820", idType: "National ID", date: "25 Aug 2026 - 6:10 PM", dateObj: new Date(2026, 7, 25), commission: 4.0, detail: { fromPlan: "Prepaid 50 — 30 days", toPlan: "Prepaid 100 — 30 days", amount: 100 } },
   { id: "ORD-2026-000052", status: "approved", commissionStatus: "approved", type: "changePlan", customer: "Lama Al-Rashid", memberCode: "DST001", member: "Sara Ahmad", phone: "0566120458", idType: "National ID", date: "24 Aug 2026 - 12:30 PM", dateObj: new Date(2026, 7, 24), commission: 9.0, detail: { fromPlan: "Postpaid 99", toPlan: "Postpaid Plus 199", amount: 199 } },
@@ -1236,11 +1235,11 @@ const OrdersHistory = () => {
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
-                ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" ? (
+                ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" ? (
                   <>
                     <SummaryRow label={t("ordersHistory.idType")} value={selectedOrder.idType} />
                     <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
-                    {selectedOrder.type === "simReplacement" && (
+                    {(selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination") && (
                       <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
                     )}
                   </>
@@ -1257,7 +1256,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
