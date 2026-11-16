@@ -384,6 +384,32 @@ body {
   border-bottom-left-radius: var(--app-frame-radius);
 }
 
+.app-sheet-content[data-side="top"] {
+  top: var(--app-frame-top);
+  right: var(--app-frame-gutter);
+  left: var(--app-frame-gutter);
+  width: auto;
+  max-width: none;
+}
+
+.app-sheet-content[data-side="left"],
+.app-sheet-content[data-side="right"] {
+  top: var(--app-frame-top);
+  bottom: var(--app-frame-bottom);
+  height: var(--app-frame-height);
+  max-width: calc(var(--app-frame-width) - 48px);
+}
+
+.app-sheet-content[data-side="left"] {
+  left: var(--app-frame-gutter);
+  right: auto;
+}
+
+.app-sheet-content[data-side="right"] {
+  right: var(--app-frame-gutter);
+  left: auto;
+}
+
 .app-floating-content {
   max-width: calc(var(--app-frame-width) - 16px);
   max-height: calc(var(--app-frame-height) - 32px);
