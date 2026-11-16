@@ -136,6 +136,8 @@ export interface OrderDetail {
   recipient?: string;
   oldLimit?: number;
   newLimit?: number;
+  /** Change Owner: amount shown as "Adjustment Amount" (demo value). */
+  adjustment?: number;
   newOwner?: string;
   newOwnerId?: string;
   document?: string;
@@ -231,14 +233,15 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "creditLimit":
-      add("currentLimit", d.oldLimit !== undefined && money(d.oldLimit));
-      add("newLimit", d.newLimit !== undefined && money(d.newLimit));
-      add("reason", d.reason);
+      // Adjustment = how much the limit moved (new limit minus current limit).
+      add("adjustmentAmount", d.oldLimit !== undefined && d.newLimit !== undefined && money(d.newLimit - d.oldLimit));
+      add("totalPayment", d.amount !== undefined && money(d.amount));
+      add("paymentMethod", d.paymentMethod);
       break;
     case "changeOwner":
-      add("newOwner", d.newOwner);
-      add("newOwnerId", d.newOwnerId && <span dir="ltr">{d.newOwnerId}</span>);
-      add("reason", d.reason);
+      add("adjustmentAmount", d.adjustment !== undefined && money(d.adjustment));
+      add("totalPayment", d.amount !== undefined && money(d.amount));
+      add("paymentMethod", d.paymentMethod);
       break;
     case "updateId":
       add("idDocument", d.document);
@@ -285,8 +288,8 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000053", status: "pending", commissionStatus: "pending", type: "migrationPreToPost", customer: "Yousef Al-Anazi", memberCode: "DST001", member: "Sara Ahmad", phone: "0539981204", idType: "Iqama ID", date: "30 Aug 2026 - 10:05 AM", dateObj: new Date(2026, 7, 30), commission: 15.0, detail: { fromPlan: "Prepaid 100 — 30 days", toPlan: "Postpaid 149", amount: 149, paymentMethod: "Dealer Wallet", reference: "MIG-48133470" } },
   { id: "ORD-2026-000054", status: "rejected", commissionStatus: "rejected", type: "migrationPostToPre", customer: "Hind Al-Juhani", memberCode: "DST001", member: "Sara Ahmad", phone: "0541276609", idType: "National ID", date: "23 Aug 2026 - 3:50 PM", dateObj: new Date(2026, 7, 23), commission: 0, rejectedReason: "The line has an unpaid final bill.", cancellationReason: "Migration was not completed", detail: { fromPlan: "Postpaid 99", toPlan: "Prepaid 50 — 30 days", amount: 64.3, paymentMethod: "Cash", reference: "MIG-48095582" } },
   { id: "ORD-2026-000055", status: "approved", commissionStatus: "approved", type: "creditTransfer", customer: "Majed Al-Harthi", memberCode: "DST001", member: "Sara Ahmad", phone: "0550098771", idType: "National ID", date: "22 Aug 2026 - 8:15 PM", dateObj: new Date(2026, 7, 22), commission: 1.5, detail: { recipient: "0551234098", amount: 30, reference: "CTR-77310452" } },
-  { id: "ORD-2026-000056", status: "pending", commissionStatus: "pending", type: "creditLimit", customer: "Abeer Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0568844120", idType: "Iqama ID", date: "31 Aug 2026 - 1:00 PM", dateObj: new Date(2026, 7, 31), commission: 2.0, detail: { oldLimit: 500, newLimit: 1000, reason: "Higher monthly usage" } },
-  { id: "ORD-2026-000057", status: "approved", commissionStatus: "approved", type: "changeOwner", customer: "Saad Al-Mutlaq", memberCode: "DST001", member: "Sara Ahmad", phone: "0507765432", idType: "National ID", date: "21 Aug 2026 - 4:25 PM", dateObj: new Date(2026, 7, 21), commission: 5.0, detail: { newOwner: "Nasser Al-Mutlaq", newOwnerId: "1098765432", reason: "Transfer to family member" } },
+  { id: "ORD-2026-000056", status: "pending", commissionStatus: "pending", type: "creditLimit", customer: "Abeer Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0568844120", idType: "Iqama ID", date: "31 Aug 2026 - 1:00 PM", dateObj: new Date(2026, 7, 31), commission: 2.0, detail: { oldLimit: 500, newLimit: 1000, reason: "Higher monthly usage", amount: 500, paymentMethod: "Dealer Wallet" } },
+  { id: "ORD-2026-000057", status: "approved", commissionStatus: "approved", type: "changeOwner", customer: "Saad Al-Mutlaq", memberCode: "DST001", member: "Sara Ahmad", phone: "0507765432", idType: "National ID", date: "21 Aug 2026 - 4:25 PM", dateObj: new Date(2026, 7, 21), commission: 5.0, detail: { newOwner: "Nasser Al-Mutlaq", newOwnerId: "1098765432", reason: "Transfer to family member", adjustment: 25, amount: 25, paymentMethod: "Cash" } },
   { id: "ORD-2026-000058", status: "approved", commissionStatus: "approved", type: "updateId", customer: "Dana Al-Omari", memberCode: "DST001", member: "Sara Ahmad", phone: "0532201987", idType: "Iqama ID", date: "20 Aug 2026 - 10:45 AM", dateObj: new Date(2026, 7, 20), commission: 0, detail: { document: "Iqama ID", expiry: "14 Mar 2028" } },
   { id: "ORD-2026-000059", status: "approved", commissionStatus: "approved", type: "eVoucher", customer: "Fahad Al-Balawi", memberCode: "DST001", member: "Sara Ahmad", phone: "0544519870", idType: "National ID", date: "19 Aug 2026 - 7:35 PM", dateObj: new Date(2026, 7, 19), commission: 2.5, detail: { amount: 50, quantity: 2, delivery: "SMS", reference: "EVC-30018845" } },
   { id: "ORD-2026-000060", status: "approved", commissionStatus: "approved", type: "basicPostpaid", customer: "Nasser Al-Shammari", memberCode: "DST001", member: "Sara Ahmad", phone: "0507762314", idType: "National ID", idNumber: "1087654321", date: "28 Aug 2026 - 12:20 PM", dateObj: new Date(2026, 7, 28), commission: 10.0, detail: { simType: "Physical SIM", plan: "Basic Postpaid 65", serial: "8996601234567811045", amount: 65, paymentMethod: "Dealer Wallet", reference: "PAY-77298803" } },
@@ -1226,7 +1229,7 @@ const OrdersHistory = () => {
 
               {/* A SIM status check has no customer, and a bundle change shows its number under
                   Order Details, so both skip Customer Details. */}
-              {selectedOrder.type !== "simStatusCheck" && selectedOrder.type !== "changeBundle" && selectedOrder.type !== "changePlan" && (
+              {selectedOrder.type !== "simStatusCheck" && selectedOrder.type !== "changeBundle" && selectedOrder.type !== "changePlan" && selectedOrder.type !== "creditLimit" && (
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
@@ -1234,7 +1237,7 @@ const OrdersHistory = () => {
                   <SummaryRow label={t("ordersHistory.detail.number")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
                 ) : selectedOrder.type === "creditTransfer" ? (
                   <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
-                ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" ? (
+                ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "changeOwner" ? (
                   <>
                     <SummaryRow label={t("ordersHistory.idType")} value={selectedOrder.idType} />
                     <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
@@ -1255,7 +1258,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer" || selectedOrder.type === "billPayment") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer" || selectedOrder.type === "billPayment" || selectedOrder.type === "creditLimit" || selectedOrder.type === "changeOwner") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
