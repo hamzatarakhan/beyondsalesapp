@@ -1455,6 +1455,8 @@
       "number": "الرقم",
       "paymentTotal": "إجمالي الدفع",
       "referenceNumber": "الرقم المرجعي",
+      "msisdnNumber": "رقم الجوال",
+      "newPlanName": "اسم الباقة الجديدة",
       "searchType": "نوع البحث",
       "searchValue": "قيمة البحث",
       "status": "الحالة",

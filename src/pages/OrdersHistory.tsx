@@ -214,9 +214,10 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "changeBundle":
-      add("fromBundle", d.fromPlan);
-      add("toBundle", d.toPlan);
-      add("amount", d.amount !== undefined && money(d.amount));
+      add("msisdnNumber", o.phone && <span dir="ltr">{o.phone}</span>);
+      add("newPlanName", d.toPlan);
+      add("paymentTotal", d.amount !== undefined && money(d.amount));
+      add("paymentMethod", d.paymentMethod);
       break;
     case "changePlan":
     case "migrationPreToPost":
@@ -284,7 +285,7 @@ export const ORDERS: DemoOrder[] = [
   // One example for every remaining order type, so each Order Details layout can be checked.
   { id: "ORD-2026-000049", status: "approved", commissionStatus: "approved", type: "simTermination", customer: "Turki Al-Shammari", memberCode: "DST001", member: "Sara Ahmad", phone: "0548812300", idType: "National ID", date: "28 Aug 2026 - 11:20 AM", dateObj: new Date(2026, 7, 28), commission: 0, detail: { serial: "8996601234567833450", reason: "Customer request", amount: 85, reference: "TRM-52008164" } },
   { id: "ORD-2026-000050", status: "pending", commissionStatus: "pending", type: "cancelPortIn", customer: "Reem Al-Ghamdi", memberCode: "DST001", member: "Sara Ahmad", phone: "0557730912", idType: "Iqama ID", date: "29 Aug 2026 - 9:40 AM", dateObj: new Date(2026, 7, 29), commission: 0, detail: { operator: "Mobily", requestId: "MNP-2026-118342", reason: "Customer changed their mind", reference: "CPI-73015526" } },
-  { id: "ORD-2026-000051", status: "approved", commissionStatus: "approved", type: "changeBundle", customer: "Omar Al-Fahad", memberCode: "DST001", member: "Sara Ahmad", phone: "0503318820", idType: "National ID", date: "25 Aug 2026 - 6:10 PM", dateObj: new Date(2026, 7, 25), commission: 4.0, detail: { fromPlan: "Prepaid 50 — 30 days", toPlan: "Prepaid 100 — 30 days", amount: 100 } },
+  { id: "ORD-2026-000051", status: "approved", commissionStatus: "approved", type: "changeBundle", customer: "Omar Al-Fahad", memberCode: "DST001", member: "Sara Ahmad", phone: "0503318820", idType: "National ID", date: "25 Aug 2026 - 6:10 PM", dateObj: new Date(2026, 7, 25), commission: 4.0, detail: { fromPlan: "Prepaid 50 — 30 days", toPlan: "Prepaid 100 — 30 days", amount: 100, paymentMethod: "Dealer Wallet" } },
   { id: "ORD-2026-000052", status: "approved", commissionStatus: "approved", type: "changePlan", customer: "Lama Al-Rashid", memberCode: "DST001", member: "Sara Ahmad", phone: "0566120458", idType: "National ID", date: "24 Aug 2026 - 12:30 PM", dateObj: new Date(2026, 7, 24), commission: 9.0, detail: { fromPlan: "Postpaid 99", toPlan: "Postpaid Plus 199", amount: 199 } },
   { id: "ORD-2026-000053", status: "pending", commissionStatus: "pending", type: "migrationPreToPost", customer: "Yousef Al-Anazi", memberCode: "DST001", member: "Sara Ahmad", phone: "0539981204", idType: "Iqama ID", date: "30 Aug 2026 - 10:05 AM", dateObj: new Date(2026, 7, 30), commission: 15.0, detail: { fromPlan: "Prepaid 100 — 30 days", toPlan: "Postpaid 149", amount: 149 } },
   { id: "ORD-2026-000054", status: "rejected", commissionStatus: "rejected", type: "migrationPostToPre", customer: "Hind Al-Juhani", memberCode: "DST001", member: "Sara Ahmad", phone: "0541276609", idType: "National ID", date: "23 Aug 2026 - 3:50 PM", dateObj: new Date(2026, 7, 23), commission: 0, rejectedReason: "The line has an unpaid final bill.", cancellationReason: "Migration was not completed", detail: { fromPlan: "Postpaid 99", toPlan: "Prepaid 50 — 30 days", amount: 64.3 } },
@@ -1228,8 +1229,9 @@ const OrdersHistory = () => {
                 </div>
               )}
 
-              {/* A SIM status check has no customer, so it skips Customer Details. */}
-              {selectedOrder.type !== "simStatusCheck" && (
+              {/* A SIM status check has no customer, and a bundle change shows its number under
+                  Order Details, so both skip Customer Details. */}
+              {selectedOrder.type !== "simStatusCheck" && selectedOrder.type !== "changeBundle" && (
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
@@ -1254,7 +1256,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />

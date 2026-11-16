@@ -1441,6 +1441,8 @@
       "number": "Number",
       "paymentTotal": "Payment Total",
       "referenceNumber": "Reference Number",
+      "msisdnNumber": "MSISDN Number",
+      "newPlanName": "New Plan Name",
       "searchType": "Search Type",
       "searchValue": "Search Value",
       "status": "Status",
