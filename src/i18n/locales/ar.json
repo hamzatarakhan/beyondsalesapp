@@ -1410,7 +1410,7 @@
       "cancelPortIn": "إلغاء نقل الرقم",
       "changeBundle": "تغيير باقة مسبقة الدفع",
       "changePlan": "تغيير خطة مفوترة",
-      "migrationPreToPost": "التحويل من مسبق إلى مفوتر",
+      "migrationPreToPost": "من مسبق الدفع إلى آجل الدفع",
       "migrationPostToPre": "من آجل الدفع إلى مسبق الدفع",
       "creditTransfer": "تحويل رصيد",
       "creditLimit": "تعديل الحد الائتماني",

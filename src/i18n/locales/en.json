@@ -1396,7 +1396,7 @@
       "cancelPortIn": "Cancel Port-In",
       "changeBundle": "Change Prepaid Bundle",
       "changePlan": "Change Postpaid Plan",
-      "migrationPreToPost": "Migration Pre to Post",
+      "migrationPreToPost": "Prepaid to Postpaid",
       "migrationPostToPre": "Postpaid to Prepaid",
       "creditTransfer": "Credit Transfer",
       "creditLimit": "Credit Limit Adjustment",
