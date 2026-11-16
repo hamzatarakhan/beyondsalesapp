@@ -1442,6 +1442,8 @@
       "paymentTotal": "Payment Total",
       "totalPayment": "Total Payment",
       "adjustmentAmount": "Adjustment Amount",
+      "newIdType": "New ID Type",
+      "newIdNumber": "New ID Number",
       "referenceNumber": "Reference Number",
       "msisdnNumber": "MSISDN Number",
       "newPlanName": "New Plan Name",

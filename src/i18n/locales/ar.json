@@ -1456,6 +1456,8 @@
       "paymentTotal": "إجمالي الدفع",
       "totalPayment": "إجمالي المبلغ المدفوع",
       "adjustmentAmount": "مبلغ التعديل",
+      "newIdType": "نوع الهوية الجديدة",
+      "newIdNumber": "رقم الهوية الجديدة",
       "referenceNumber": "الرقم المرجعي",
       "msisdnNumber": "رقم الجوال",
       "newPlanName": "اسم الباقة الجديدة",
