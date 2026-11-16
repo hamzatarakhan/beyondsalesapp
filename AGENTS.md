@@ -8,3 +8,4 @@
 - Keep Stock Return input validation in a pure helper and reuse existing field feedback and toast controls; this makes corrective errors testable without adding a new error interaction.
 - Render every commission KPI chart through the shared KpiDonut ring and the KPI gauge colour tokens; this keeps rings and bars identical across screens and stops per-screen colour choices from drifting.
 - Redirect retired performance-page URLs to Home while preserving their source pages; this prevents saved links from exposing hidden services without deleting reusable work.
+- Use the shared mobile-frame variables and overlay rules in `src/index.css` for page heights and fixed or portaled UI; this keeps every screen inside one notch-free frame without page-specific widths.

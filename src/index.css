@@ -61,6 +61,18 @@
     --surface: 210 20% 98%;
     --surface-foreground: 220 20% 20%;
 
+    /* Shared mobile frame. Desktop shows a notch-free 390 × 844 device canvas;
+       real phones use the available dynamic viewport with no decorative chrome. */
+    --app-frame-width: 390px;
+    --app-frame-height: 100dvh;
+    --app-frame-top: 0px;
+    --app-frame-bottom: 0px;
+    --app-frame-gutter: 0px;
+    --app-frame-radius: 0px;
+    --frame-canvas: 220 16% 91%;
+    --frame-border: 214 20% 82%;
+    --frame-shadow: 0 24px 70px hsl(220 25% 20% / 0.18);
+
     /* KPI achievement card palette: pastel header, open teal gauge, and the
      LM / MTD / LMTD tiles. Kept as tokens so dark mode stays legible. */
     --kpi-header: 205 60% 93%;
@@ -89,6 +101,9 @@
     /* Slightly deeper than --card so the surface still reads as an inset panel in dark mode. */
     --surface: 220 18% 11%;
     --surface-foreground: 210 40% 98%;
+    --frame-canvas: 220 22% 7%;
+    --frame-border: 217 25% 22%;
+    --frame-shadow: 0 24px 70px hsl(220 40% 2% / 0.5);
     /* KPI card palette in dark mode: tinted panels on the card colour, brighter label text. */
     --kpi-header: 205 30% 17%;
     --kpi-chip: 350 45% 22%;
@@ -141,7 +156,8 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
+    background: hsl(var(--frame-canvas));
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 }
@@ -282,5 +298,159 @@
 @media (max-width: 767px) {
   input, select, textarea {
     font-size: 16px !important;
+  }
+}
+
+/* One scrolling mobile canvas owns every route. Keeping this unlayered makes the frame
+   geometry win over viewport utilities without rewriting each page. */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: var(--app-frame-width);
+  height: var(--app-frame-height);
+  margin: var(--app-frame-top) auto 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  background: hsl(var(--background));
+}
+
+.mobile-container {
+  width: 100%;
+  max-width: var(--app-frame-width);
+  min-height: var(--app-frame-height);
+}
+
+.min-h-screen {
+  min-height: var(--app-frame-height) !important;
+}
+
+.h-screen,
+.h-\[100dvh\] {
+  height: var(--app-frame-height) !important;
+}
+
+.max-h-screen {
+  max-height: var(--app-frame-height);
+}
+
+/* Full-screen loading/camera layers and modal backdrops cover only the device. */
+.fixed.inset-0 {
+  top: var(--app-frame-top);
+  right: var(--app-frame-gutter);
+  bottom: auto;
+  left: var(--app-frame-gutter);
+  width: auto;
+  max-width: none;
+  height: var(--app-frame-height);
+  border-radius: var(--app-frame-radius);
+}
+
+/* Bottom sheets and sticky submit/action bars share exactly the same horizontal bounds. */
+.fixed.bottom-0 {
+  right: var(--app-frame-gutter);
+  bottom: var(--app-frame-bottom);
+  left: var(--app-frame-gutter);
+  width: auto;
+  max-width: none;
+  border-bottom-right-radius: var(--app-frame-radius);
+  border-bottom-left-radius: var(--app-frame-radius);
+}
+
+.fixed.bottom-4 {
+  right: var(--app-frame-gutter);
+  bottom: calc(var(--app-frame-bottom) + 1rem);
+  left: var(--app-frame-gutter);
+  width: auto;
+  max-width: none;
+}
+
+.app-dialog-content {
+  width: min(calc(100% - 32px), calc(var(--app-frame-width) - 32px));
+  max-height: calc(var(--app-frame-height) - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.app-drawer-content {
+  max-height: calc(var(--app-frame-height) - 16px);
+  border-bottom-right-radius: var(--app-frame-radius);
+  border-bottom-left-radius: var(--app-frame-radius);
+}
+
+.app-sheet-content[data-side="top"] {
+  top: var(--app-frame-top);
+  right: var(--app-frame-gutter);
+  left: var(--app-frame-gutter);
+  width: auto;
+  max-width: none;
+}
+
+.app-sheet-content[data-side="left"],
+.app-sheet-content[data-side="right"] {
+  top: var(--app-frame-top);
+  bottom: var(--app-frame-bottom);
+  height: var(--app-frame-height);
+  max-width: calc(var(--app-frame-width) - 48px);
+}
+
+.app-sheet-content[data-side="left"] {
+  left: var(--app-frame-gutter);
+  right: auto;
+}
+
+.app-sheet-content[data-side="right"] {
+  right: var(--app-frame-gutter);
+  left: auto;
+}
+
+.app-floating-content {
+  max-width: calc(var(--app-frame-width) - 16px);
+  max-height: calc(var(--app-frame-height) - 32px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-frame-height: min(844px, calc(100dvh - 48px));
+    --app-frame-top: max(24px, calc((100dvh - 844px) / 2));
+    --app-frame-bottom: var(--app-frame-top);
+    --app-frame-gutter: calc((100vw - var(--app-frame-width)) / 2);
+    --app-frame-radius: 28px;
+  }
+
+  #root {
+    border: 1px solid hsl(var(--frame-border));
+    border-radius: var(--app-frame-radius);
+    box-shadow: var(--frame-shadow);
+  }
+
+  .app-dialog-content {
+    width: calc(var(--app-frame-width) - 32px);
+  }
+
+  .app-toast-viewport {
+    top: auto;
+    right: var(--app-frame-gutter);
+    bottom: calc(var(--app-frame-bottom) + 16px);
+    left: var(--app-frame-gutter);
+    width: auto;
+    max-width: none;
+    max-height: calc(var(--app-frame-height) - 32px);
+    padding: 16px;
+  }
+
+  .app-sonner {
+    right: var(--app-frame-gutter) !important;
+    left: var(--app-frame-gutter) !important;
+    width: auto !important;
+    max-width: none !important;
   }
 }
