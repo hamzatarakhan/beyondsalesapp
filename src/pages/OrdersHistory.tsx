@@ -205,6 +205,7 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
     case "billPayment":
       add("totalPayment", d.amount !== undefined && money(d.amount));
       add("paymentMethod", d.paymentMethod);
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "simTermination":
       add("reason", d.reason);
@@ -237,6 +238,7 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("adjustmentAmount", d.oldLimit !== undefined && d.newLimit !== undefined && money(d.newLimit - d.oldLimit));
       add("totalPayment", d.amount !== undefined && money(d.amount));
       add("paymentMethod", d.paymentMethod);
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "changeOwner":
       add("newIdType", d.newOwnerIdType);
@@ -288,7 +290,7 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000053", status: "pending", commissionStatus: "pending", type: "migrationPreToPost", customer: "Yousef Al-Anazi", memberCode: "DST001", member: "Sara Ahmad", phone: "0539981204", idType: "Iqama ID", date: "30 Aug 2026 - 10:05 AM", dateObj: new Date(2026, 7, 30), commission: 15.0, detail: { fromPlan: "Prepaid 100 — 30 days", toPlan: "Postpaid 149", amount: 149, paymentMethod: "Dealer Wallet", reference: "MIG-48133470" } },
   { id: "ORD-2026-000054", status: "rejected", commissionStatus: "rejected", type: "migrationPostToPre", customer: "Hind Al-Juhani", memberCode: "DST001", member: "Sara Ahmad", phone: "0541276609", idType: "National ID", date: "23 Aug 2026 - 3:50 PM", dateObj: new Date(2026, 7, 23), commission: 0, rejectedReason: "The line has an unpaid final bill.", cancellationReason: "Migration was not completed", detail: { fromPlan: "Postpaid 99", toPlan: "Prepaid 50 — 30 days", amount: 64.3, paymentMethod: "Cash", reference: "MIG-48095582" } },
   { id: "ORD-2026-000055", status: "approved", commissionStatus: "approved", type: "creditTransfer", customer: "Majed Al-Harthi", memberCode: "DST001", member: "Sara Ahmad", phone: "0550098771", idType: "National ID", date: "22 Aug 2026 - 8:15 PM", dateObj: new Date(2026, 7, 22), commission: 1.5, detail: { recipient: "0551234098", amount: 30, reference: "CTR-77310452" } },
-  { id: "ORD-2026-000056", status: "pending", commissionStatus: "pending", type: "creditLimit", customer: "Abeer Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0568844120", idType: "Iqama ID", date: "31 Aug 2026 - 1:00 PM", dateObj: new Date(2026, 7, 31), commission: 2.0, detail: { oldLimit: 500, newLimit: 1000, reason: "Higher monthly usage", amount: 500, paymentMethod: "Dealer Wallet" } },
+  { id: "ORD-2026-000056", status: "pending", commissionStatus: "pending", type: "creditLimit", customer: "Abeer Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0568844120", idType: "Iqama ID", date: "31 Aug 2026 - 1:00 PM", dateObj: new Date(2026, 7, 31), commission: 2.0, detail: { oldLimit: 500, newLimit: 1000, reason: "Higher monthly usage", amount: 500, paymentMethod: "Dealer Wallet", reference: "CLA-26014538" } },
   { id: "ORD-2026-000057", status: "approved", commissionStatus: "approved", type: "changeOwner", customer: "Saad Al-Mutlaq", memberCode: "DST001", member: "Sara Ahmad", phone: "0507765432", idType: "National ID", date: "21 Aug 2026 - 4:25 PM", dateObj: new Date(2026, 7, 21), commission: 5.0, detail: { newOwner: "Nasser Al-Mutlaq", newOwnerId: "1098765432", reason: "Transfer to family member", newOwnerIdType: "National ID", reference: "OWN-39027461" } },
   { id: "ORD-2026-000058", status: "approved", commissionStatus: "approved", type: "updateId", customer: "Dana Al-Omari", memberCode: "DST001", member: "Sara Ahmad", phone: "0532201987", idType: "Iqama ID", date: "20 Aug 2026 - 10:45 AM", dateObj: new Date(2026, 7, 20), commission: 0, detail: { document: "Iqama ID", expiry: "14 Mar 2028" } },
   { id: "ORD-2026-000059", status: "approved", commissionStatus: "approved", type: "eVoucher", customer: "Fahad Al-Balawi", memberCode: "DST001", member: "Sara Ahmad", phone: "0544519870", idType: "National ID", date: "19 Aug 2026 - 7:35 PM", dateObj: new Date(2026, 7, 19), commission: 2.5, detail: { amount: 50, quantity: 2, delivery: "SMS", reference: "EVC-30018845" } },
