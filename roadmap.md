@@ -18,3 +18,8 @@ ls roadmap.md >/dev/null && tail -4 roadmap.md
 ## Service organization (Nov 8)
 - [x] Hide Sales KPIs and Performance at a Glance everywhere and verify the hidden entry points; saved URLs now return Home.
 - [x] Propose smaller task-based customer-service categories before changing their layout.
+
+## Shared mobile frame (Nov 16)
+- [ ] Use one notch-free 390 × 844 frame on larger screens and full dynamic viewport on phones.
+- [ ] Constrain page scrolling, fixed actions, dialogs, drawers, sheets, toasts, and floating menus to the frame.
+- [ ] Verify login, Home, a form with a fixed action, and open bottom sheets at desktop and mobile sizes.

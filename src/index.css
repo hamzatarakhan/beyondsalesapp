@@ -61,6 +61,18 @@
     --surface: 210 20% 98%;
     --surface-foreground: 220 20% 20%;
 
+    /* Shared mobile frame. Desktop shows a notch-free 390 × 844 device canvas;
+       real phones use the available dynamic viewport with no decorative chrome. */
+    --app-frame-width: 390px;
+    --app-frame-height: 100dvh;
+    --app-frame-top: 0px;
+    --app-frame-bottom: 0px;
+    --app-frame-gutter: 0px;
+    --app-frame-radius: 0px;
+    --frame-canvas: 220 16% 91%;
+    --frame-border: 214 20% 82%;
+    --frame-shadow: 0 24px 70px hsl(220 25% 20% / 0.18);
+
     /* KPI achievement card palette: pastel header, open teal gauge, and the
      LM / MTD / LMTD tiles. Kept as tokens so dark mode stays legible. */
     --kpi-header: 205 60% 93%;
