@@ -76,7 +76,7 @@ const CardSection = ({
 export type OrderStatus = "approved" | "pending" | "rejected";
 // One type per service a dealer can complete, grouped like the Services Categories.
 const ORDER_TYPES = [
-  "prepaid", "postpaid", "basicPostpaid", "dataPrepaid", "dataPostpaid", "continueActivation", "simStatusCheck", "hbb", "simReplacement", "simTermination", "cancelPortIn",
+  "prepaid", "postpaid", "basicPostpaid", "dataPrepaid", "dataPostpaid", "continueActivation", "simStatusCheck", "customerSearch", "hbb", "simReplacement", "simTermination", "cancelPortIn",
   "changeBundle", "changePlan", "migrationPreToPost", "migrationPostToPre",
   "billPayment", "creditTransfer", "creditLimit",
   "changeOwner", "updateId",
@@ -179,6 +179,9 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("paymentMethod", d.paymentMethod);
       add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
+    case "customerSearch":
+      add("referenceNumber", d.reference && <span dir="ltr">{d.reference}</span>);
+      break;
     case "simStatusCheck":
       add("searchType", d.searchType && t(SEARCH_TYPE_LABEL[d.searchType]));
       add("searchValue", d.searchValue && <span dir="ltr">{d.searchValue}</span>);
@@ -271,7 +274,7 @@ const TODAY_REF = new Date(2026, 7, 31);
 const idNumberFor = (o: DemoOrder) => (o.idType.startsWith("Iqama") ? "2" : "1") + o.phone.slice(-9).padStart(9, "0");
 
 /** Order types that never pay commission — their order details hide the Commission section. */
-export const NO_COMMISSION_TYPES: OrderType[] = ["simTermination", "cancelPortIn", "updateId", "simStatusCheck"];
+export const NO_COMMISSION_TYPES: OrderType[] = ["simTermination", "cancelPortIn", "updateId", "simStatusCheck", "customerSearch"];
 export const hasCommission = (o: DemoOrder) => !NO_COMMISSION_TYPES.includes(o.type);
 
 // Commission only exists once an order is approved — pending and rejected orders show none.
@@ -303,6 +306,7 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000062", status: "pending", commissionStatus: "pending", type: "dataPostpaid", customer: "Turki Al-Ghamdi", memberCode: "DST001", member: "Sara Ahmad", phone: "0587001926", idType: "National ID", idNumber: "1023344556", date: "30 Aug 2026 - 6:30 PM", dateObj: new Date(2026, 7, 30), commission: 12.0, detail: { simType: "Physical SIM", plan: "Data Postpaid Unlimited 175", serial: "8996601234567833590", amount: 175, paymentMethod: "Dealer Wallet", reference: "PAY-77290027" } },
   { id: "ORD-2026-000063", status: "approved", commissionStatus: "approved", type: "continueActivation", customer: "Rana Al-Mutlaq", memberCode: "DST001", member: "Sara Ahmad", phone: "0509914862", idType: "National ID", email: "rana.almutlaq@example.com", date: "29 Aug 2026 - 2:10 PM", dateObj: new Date(2026, 7, 29), commission: 6.0, detail: { serial: "8996601234567844219", reference: "ACT-55120378" } },
   { id: "ORD-2026-000064", status: "approved", commissionStatus: "approved", type: "simStatusCheck", customer: "", memberCode: "DST001", member: "Sara Ahmad", phone: "0501110002", idType: "", date: "31 Aug 2026 - 9:25 AM", dateObj: new Date(2026, 7, 31), commission: 0, detail: { searchType: "msisdn", searchValue: "0501110002", simStatus: "not-active", reference: "SSC-40027719" } },
+  { id: "ORD-2026-000065", status: "approved", commissionStatus: "approved", type: "customerSearch", customer: "Badr Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0506628413", idType: "National ID", idNumber: "1076543298", date: "30 Aug 2026 - 11:40 AM", dateObj: new Date(2026, 7, 30), commission: 0, detail: { reference: "CUS-17093342" } },
 ];
 
 interface Dealer {
@@ -1239,6 +1243,11 @@ const OrdersHistory = () => {
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
+                ) : selectedOrder.type === "customerSearch" ? (
+                  <>
+                    <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
+                    <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
+                  </>
                 ) : selectedOrder.type === "billPayment" ? (
                   <SummaryRow label={t("ordersHistory.detail.number")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
                 ) : selectedOrder.type === "creditTransfer" ? (
@@ -1264,7 +1273,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer" || selectedOrder.type === "billPayment" || selectedOrder.type === "creditLimit" || selectedOrder.type === "changeOwner" || selectedOrder.type === "updateId") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer" || selectedOrder.type === "billPayment" || selectedOrder.type === "creditLimit" || selectedOrder.type === "changeOwner" || selectedOrder.type === "updateId" || selectedOrder.type === "customerSearch") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />
