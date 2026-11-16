@@ -1449,7 +1449,7 @@
       "subject": "Subject",
       "category": "Category",
       "subCategory": "Sub Category",
-      "referenceNumber": "Reference Number",
+      "referenceNumber": "Payment Reference Number",
       "msisdnNumber": "MSISDN Number",
       "newPlanName": "New Plan Name",
       "searchType": "Search Type",
