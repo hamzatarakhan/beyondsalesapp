@@ -361,6 +361,8 @@ body {
   left: var(--app-frame-gutter);
   width: auto;
   max-width: none;
+  border-bottom-right-radius: var(--app-frame-radius);
+  border-bottom-left-radius: var(--app-frame-radius);
 }
 
 .fixed.bottom-4 {
