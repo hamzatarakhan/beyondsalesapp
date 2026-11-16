@@ -1454,6 +1454,7 @@
       "planName": "اسم الباقة",
       "number": "الرقم",
       "paymentTotal": "إجمالي الدفع",
+      "totalPayment": "إجمالي المبلغ المدفوع",
       "referenceNumber": "الرقم المرجعي",
       "msisdnNumber": "رقم الجوال",
       "newPlanName": "اسم الباقة الجديدة",

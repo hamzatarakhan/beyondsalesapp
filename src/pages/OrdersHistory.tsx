@@ -201,10 +201,8 @@ const orderDetailRows = (o: DemoOrder, t: (k: string) => string): DetailRow[] =>
       add("reference", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "billPayment":
-      add("amountPaid", d.amount !== undefined && money(d.amount));
-      add("billsPaid", d.bills !== undefined && String(d.bills));
+      add("totalPayment", d.amount !== undefined && money(d.amount));
       add("paymentMethod", d.paymentMethod);
-      add("reference", d.reference && <span dir="ltr">{d.reference}</span>);
       break;
     case "simTermination":
       add("reason", d.reason);
@@ -1232,6 +1230,8 @@ const OrdersHistory = () => {
               <DetailBlock title={t("ordersHistory.customerDetails")}>
                 {selectedOrder.type === "continueActivation" ? (
                   <SummaryRow label={t("ordersHistory.email")} value={<span dir="ltr">{selectedOrder.email}</span>} />
+                ) : selectedOrder.type === "billPayment" ? (
+                  <SummaryRow label={t("ordersHistory.detail.number")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
                 ) : selectedOrder.type === "creditTransfer" ? (
                   <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
                 ) : isSimActivation(selectedOrder) || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" ? (
@@ -1255,7 +1255,7 @@ const OrdersHistory = () => {
                   <SummaryRow key={r.label} label={r.label} value={r.value} />
                 ))}
                 {/* SIM activations: the member sees their own orders, so only the parent view names the member. */}
-                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer") && view === "member") && (
+                {!((isSimActivation(selectedOrder) || selectedOrder.type === "continueActivation" || selectedOrder.type === "simStatusCheck" || selectedOrder.type === "simReplacement" || selectedOrder.type === "simTermination" || selectedOrder.type === "cancelPortIn" || selectedOrder.type === "changeBundle" || selectedOrder.type === "changePlan" || selectedOrder.type === "migrationPreToPost" || selectedOrder.type === "migrationPostToPre" || selectedOrder.type === "creditTransfer" || selectedOrder.type === "billPayment") && view === "member") && (
                   <SummaryRow label={t("ordersHistory.memberName")} value={selectedOrder.member} />
                 )}
                 <SummaryRow label={t("ordersHistory.created")} value={selectedOrder.date} />

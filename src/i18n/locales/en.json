@@ -1440,6 +1440,7 @@
       "planName": "Plan Name",
       "number": "Number",
       "paymentTotal": "Payment Total",
+      "totalPayment": "Total Payment",
       "referenceNumber": "Reference Number",
       "msisdnNumber": "MSISDN Number",
       "newPlanName": "New Plan Name",
