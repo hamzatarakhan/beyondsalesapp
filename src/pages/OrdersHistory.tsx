@@ -84,6 +84,10 @@ const ORDER_TYPES = [
 ] as const;
 export type OrderType = (typeof ORDER_TYPES)[number];
 
+/** Types kept in the data but hidden from Order History (orders, filter, summary). */
+const HIDDEN_ORDER_TYPES: OrderType[] = ["topUp"];
+const VISIBLE_ORDER_TYPES = ORDER_TYPES.filter((type) => !HIDDEN_ORDER_TYPES.includes(type));
+
 /** SIM activations: their details show the customer's ID and the SIM/plan/payment facts. */
 export const SIM_ACTIVATION_TYPES: OrderType[] = ["prepaid", "postpaid", "basicPostpaid", "dataPrepaid", "dataPostpaid"];
 export const isSimActivation = (o: DemoOrder) => SIM_ACTIVATION_TYPES.includes(o.type);
@@ -290,7 +294,7 @@ export const hasCommission = (o: DemoOrder) => !NO_COMMISSION_TYPES.includes(o.t
 // Commission only exists once an order is approved — pending and rejected orders show none.
 export const earnedCommission = (o: DemoOrder) => (o.status === "approved" && hasCommission(o) ? o.commission : 0);
 
-export const ORDERS: DemoOrder[] = [
+const ALL_ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000047", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Layla Al-Subaie", memberCode: "DST001", member: "Sara Ahmad", phone: "0554412090", idType: "National ID", date: "30 Aug 2026 - 3:15 PM", dateObj: new Date(2026, 7, 30), commission: 5.0, detail: { amount: 1200, bills: 3, paymentMethod: "Dealer Wallet", reference: "PAY-88421907" } },
   { id: "ORD-2026-000046", status: "approved", commissionStatus: "approved", type: "prepaid", customer: "Sara Ahmad", memberCode: "DST001", member: "Sara Ahmad", phone: "0501047231", idType: "National ID", date: "31 Aug 2026 - 10:15 AM", dateObj: new Date(2026, 7, 31), commission: 14.0, detail: { simType: "eSIM", plan: "Prepaid 50 — 30 days", serial: "8996601234567890123", amount: 50, paymentMethod: "Dealer Wallet", reference: "PAY-77310452" } },
   { id: "ORD-2026-000045", status: "pending", commissionStatus: "pending", type: "billPayment", customer: "Faisal Al-Otaibi", memberCode: "DST002", member: "Faisal Al-Otaibi", phone: "0559812345", idType: "National ID", date: "29 Aug 2026 - 4:40 PM", dateObj: new Date(2026, 7, 29), commission: 6.5, detail: { amount: 512.5, bills: 1, paymentMethod: "POS Terminal", reference: "PAY-88421655" } },
@@ -319,6 +323,8 @@ export const ORDERS: DemoOrder[] = [
   { id: "ORD-2026-000065", status: "approved", commissionStatus: "approved", type: "customerSearch", customer: "Badr Al-Sulami", memberCode: "DST001", member: "Sara Ahmad", phone: "0506628413", idType: "National ID", idNumber: "1076543298", date: "30 Aug 2026 - 11:40 AM", dateObj: new Date(2026, 7, 30), commission: 0, detail: { reference: "CUS-17093342" } },
   { id: "ORD-2026-000066", status: "pending", commissionStatus: "pending", type: "customerComplaint", customer: "Mashael Al-Dossary", memberCode: "DST001", member: "Sara Ahmad", phone: "0552283917", idType: "National ID", date: "31 Aug 2026 - 4:05 PM", dateObj: new Date(2026, 7, 31), commission: 0, detail: { subject: "Charged twice for the same bill", category: "Billing", subCategory: "Duplicate Charge", reference: "CMP-90215473" } },
 ];
+
+export const ORDERS: DemoOrder[] = ALL_ORDERS.filter((o) => !HIDDEN_ORDER_TYPES.includes(o.type));
 
 interface Dealer {
   name: string;
@@ -560,7 +566,7 @@ const OrdersHistory = () => {
     const pending = scopedOrders.filter((o) => o.status === "pending").length;
     const rejected = scopedOrders.filter((o) => o.status === "rejected").length;
     const commission = scopedOrders.reduce((sum, o) => sum + earnedCommission(o), 0);
-    const byType = ORDER_TYPES.map((type) => ({
+    const byType = VISIBLE_ORDER_TYPES.map((type) => ({
       type,
       count: scopedOrders.filter((o) => o.type === type).length,
       commission: scopedOrders.filter((o) => o.type === type).reduce((sum, o) => sum + earnedCommission(o), 0),
@@ -1110,7 +1116,7 @@ const OrdersHistory = () => {
                 >
                   {t("ordersHistory.filter.all")}
                 </button>
-                {ORDER_TYPES.map((type) => (
+                {VISIBLE_ORDER_TYPES.map((type) => (
                   <button
                     key={type}
                     type="button"
