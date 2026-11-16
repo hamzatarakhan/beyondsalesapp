@@ -1454,7 +1454,7 @@
       "simType": "نوع الشريحة",
       "simNumber": "رقم الشريحة",
       "planName": "اسم الباقة",
-      "number": "الرقم",
+      "number": "MSISDN",
       "paymentTotal": "إجمالي الدفع",
       "totalPayment": "إجمالي المبلغ المدفوع",
       "adjustmentAmount": "مبلغ التعديل",

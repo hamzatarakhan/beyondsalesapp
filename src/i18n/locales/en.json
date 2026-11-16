@@ -1440,7 +1440,7 @@
       "simType": "SIM Type",
       "simNumber": "SIM Number",
       "planName": "Plan Name",
-      "number": "Number",
+      "number": "MSISDN",
       "paymentTotal": "Payment Total",
       "totalPayment": "Total Payment",
       "adjustmentAmount": "Adjustment Amount",
