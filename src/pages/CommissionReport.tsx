@@ -480,7 +480,7 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
         {DEMO_NO_DATA ? <EmptyState title={t("commissionReport.noPlansTitle")} hint={t("commissionReport.noPlansHint")} compact /> : (
         <div className="space-y-3">
           <Scheme1Row go={go} />
-          <PlanRow title="Scheme 2 Prepaid KPI" weight value={0} sub={ZERO_PLAN_REASON} onClick={() => go("scheme2prepaid")} />
+          <PlanRow title="Scheme 2 Prepaid KPI" weight value={sc(BREAKDOWNS.scheme2prepaid.value)} onClick={() => go("scheme2prepaid")} />
           <PlanRow title="Postpaid Claw backs" sub="6 Lines stopped before 3rd bill" value={sc(-150)} danger onClick={() => go("clawbacks")} />
         </div>
         )}
@@ -541,7 +541,7 @@ const PlansScreen = ({ go }: { go: (s: Screen) => void }) => {
     <Heading>Scheme 1</Heading>
     <Scheme1Row plain go={go} />
     <Heading>Scheme 2</Heading>
-    <PlanRow plain title="Scheme 2 Prepaid" weight value={0} sub={ZERO_PLAN_REASON} onClick={() => go("scheme2prepaid")} />
+    <PlanRow plain title="Scheme 2 Prepaid" weight value={sc(BREAKDOWNS.scheme2prepaid.value)} onClick={() => go("scheme2prepaid")} />
     <PlanRow plain title="Scheme 2 Postpaid" weight value={sc(5250)} onClick={() => go("scheme2postpaid")} />
     <Heading>Partner Level Incentive</Heading>
     <PlanRow plain title="Partner Level Incentive" value={sc(5250)} onClick={() => go("pli")} />
@@ -620,12 +620,11 @@ const KpiBreakdown = () => {
 type Section = { title: string; amount: string | number; rows: [string, string][] };
 type ActivityRow = { phone: string; kind: string; detail: string; amount: number };
 type Breakdown = { banner: string; value: number; bad?: boolean; note?: string; activities: string; head: string; sections: Section[]; conditions?: boolean; lines?: ActivityRow[] };
-// Demo: Scheme 2 Prepaid calculated to 0 this period. The reason shows on its plan row and in its breakdown.
-const ZERO_PLAN_REASON = "No qualifying activations";
+// Sample prepaid earnings: recharge commissions total 2,400 across 120 qualifying lines.
 const BREAKDOWNS: Record<BreakdownKind, Breakdown> = {
-  scheme2prepaid: { banner: "Total Earned", value: 0, note: "No activations qualified this period.", activities: "0 Line", head: "Earnings breakdown", sections: [
-    { title: "Prepaid Activations", amount: 0, rows: [["Any", "0%"]] }, { title: "IBR", amount: 0, rows: [["Any", "40%"]] },
-    { title: "First Recharge", amount: 0, rows: [["Any", "20%"]] }, { title: "Second Recharge", amount: 0, rows: [["Any", "20%"]] } ] },
+  scheme2prepaid: { banner: "Total Earned", value: 2400, activities: "120 Lines", head: "Earnings breakdown", sections: [
+    { title: "Prepaid Activations", amount: 0, rows: [["Any", "0%"]] }, { title: "IBR", amount: 1200, rows: [["Any", "40%"]] },
+    { title: "First Recharge", amount: 600, rows: [["Any", "20%"]] }, { title: "Second Recharge", amount: 600, rows: [["Any", "20%"]] } ] },
   scheme2postpaid: { banner: "Total Earned", value: 9800, activities: "83 Line", head: "Earnings breakdown", sections: [
     { title: "Postpaid Activations", amount: "0.0", rows: [["Any", "0%"]] },
     { title: "Acquisition", amount: 5850, rows: [["Below 200 . 22 Line", "50%"], ["Above 200 . 42 Line", "100 SAR"]] },
@@ -717,6 +716,10 @@ const demoRows = (count: number, amount: number): ActivityRow[] => Array.from({ 
 // A breakdown's own lines when it has them, else demo rows matching its Activities count ("6 Lines", "3,000 Line").
 const activityRows = (kind: BreakdownKind, factor: number) => {
   const b = BREAKDOWNS[kind];
+  if (kind === "scheme2prepaid") {
+    const count = Number(scaleCount(b.activities, factor).replace(/[^\d]/g, ""));
+    return demoRows(count, 20).map((row) => ({ ...row, kind: "Prepaid Activation", detail: `IBR + First Recharge + Second Recharge · ${row.detail}` }));
+  }
   return b.lines ?? demoRows(Number(scaleCount(b.activities, factor).replace(/[^\d]/g, "")), b.bad ? -5 : 5);
 };
 
