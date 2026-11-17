@@ -9,8 +9,8 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import PinCodeSheet from "@/components/PinCodeSheet";
 import { ChevronRight, Ticket, Wallet } from "lucide-react";
-import CvmOfferBanner from "@/components/CvmOfferBanner";
-import { useCvmOffer } from "@/lib/cvmOffers";
+import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
+import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
 
 // Customer Recharge: the dealer tops up a customer's line either from the dealer's
 // E-Reload wallet (amount + PIN) or by redeeming a charge voucher code.
@@ -87,9 +87,8 @@ export const EReloadWallet = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("customerRecharge.eReloadTitle")} showBack onBackClick={() => (offer ? navigate(-1) : navigate("/customer-recharge"))} />
+      <AppHeader title={t("customerRecharge.eReloadTitle")} showBack onBackClick={() => (offer ? navigate(...cvmExit(offer, false)) : navigate("/customer-recharge"))} />
       <div className="px-4 space-y-4">
-        <CvmOfferBanner offer={offer} large />
         <div className="rounded-2xl bg-teal-700 text-white p-4 flex items-center gap-3">
           <span className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
             <Ticket className="w-4 h-4" />
@@ -126,11 +125,13 @@ export const EReloadWallet = () => {
 
       <SuccessBottomSheet
         open={!!reference}
-        onClose={() => { setReference(""); navigate("/"); }}
+        onClose={() => { setReference(""); navigate(...cvmExit(offer)); }}
         orderId={reference}
         title={t("customerRecharge.successTitle")}
         message={t("customerRecharge.eReloadSuccess", { amount: amount.toFixed(2), msisdn })}
-      />
+      >
+        <CvmOfferSuccessNote offer={offer} />
+      </SuccessBottomSheet>
     </div>
   );
 };

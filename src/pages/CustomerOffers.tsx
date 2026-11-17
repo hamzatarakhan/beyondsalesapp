@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
@@ -7,9 +7,12 @@ import PhoneNumberInput from "@/components/PhoneNumberInput";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import EmptyState from "@/components/EmptyState";
 import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
-import { PREPAID_PLANS, POSTPAID_PLANS } from "@/pages/NewActivation";
+import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
+import { useBrand } from "@/contexts/BrandContext";
 import PlanCard from "@/components/PlanCard";
-import { useCvmOfferText, OfferCard, OfferRow } from "@/components/CvmOfferBanner";
+import { useCvmOfferText } from "@/components/CvmOfferBanner";
+import CvmOfferTile, { OfferAction } from "@/components/CvmOfferTile";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
@@ -19,7 +22,7 @@ import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { CVM_CUSTOMERS, cvmOfferTarget, type CvmCustomer, type CvmOffer, type CvmOfferKind } from "@/lib/cvmOffers";
-import { AlertCircle, ClipboardList, Gift, Phone, Search, SlidersHorizontal, X } from "lucide-react";
+import { AlertCircle, Check, ClipboardList, Gift, Phone, RotateCcw, Search, X, XCircle } from "lucide-react";
 
 // Customer Offers (CVM, from Pelatro): MSISDN → OTP → every offer Pelatro has for the customer.
 // Built only from the same pieces as the other customer flows (Change Prepaid Plan etc.):
@@ -47,6 +50,22 @@ const CTA_KEY: Record<CvmOfferKind, string> = {
   migration: "ctaMigrate",
 };
 
+const MAX_OTP_ATTEMPTS = 3;
+const SHOW_CURRENT_PLAN = false;
+// Offer count above which the text search shows (below it the type chips are enough).
+const SEARCH_MIN_OFFERS = 6;
+// Sections whose offers add a bonus after the transaction — the note shows once under the title.
+const BONUS_NOTE_SECTIONS = ["recharge", "plans", "direct"];
+
+const planOf = (title: string) => [...PREPAID_PLANS, ...POSTPAID_PLANS, ...FRIENDI_PLANS].find((x) => x.title === title);
+const layoutOf = (cats: string[]): "flex" | "postpaid" | "baqa" | "aman" | "combo" =>
+  cats.includes("switch-postpaid") ? "postpaid"
+  : cats.includes("combo") || cats.includes("flexi") ? "combo"
+  : cats.includes("aman") ? "aman"
+  : cats.includes("base-plan") ? "baqa"
+  : "flex";
+const PLAN_KINDS: CvmOfferKind[] = ["changePlan", "postpaidPlan", "btl"];
+
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1.5">
     <label className="text-xs font-medium text-muted-foreground">{label}</label>
@@ -56,14 +75,21 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 
 const CustomerOffers = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const offerText = useCvmOfferText();
+  const chipsDragScroll = useDragScroll<HTMLDivElement>();
+  const [resume] = useState(() => {
+    const r = (location.state as { cvmResume?: { msisdn: string; used: string } } | null)?.cvmResume;
+    const c = r && CVM_CUSTOMERS.find((x) => x.msisdn === r.msisdn);
+    return r && c ? { customer: c, used: r.used } : null;
+  });
+  const { brand, setBrand } = useBrand();
+  // Number belongs to the other brand (FM number while on VM, or the reverse) — offer to switch.
+  const [brandMismatch, setBrandMismatch] = useState<CvmCustomer | null>(null);
   const [search, setSearch] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
-  // Picked in the sheet, applied on "Apply" — same as Order History's filter sheet.
-  const [draftFilter, setDraftFilter] = useState("all");
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(resume ? 1 : 0);
   // Once past step 0, going back no longer offers an easy back-to-Home — only Close (with the
   // cancel-reason prompt), same as every other customer flow.
   const [everProgressed, setEverProgressed] = useState(false);
@@ -72,10 +98,9 @@ const CustomerOffers = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
   const closeCancel = () => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); };
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [msisdn, setMsisdn] = useState("0501234567");
+  const [msisdn, setMsisdn] = useState(resume?.customer.msisdn ?? "0501234567");
   const [checking, setChecking] = useState(false);
-  const [customer, setCustomer] = useState<CvmCustomer | null>(null);
+  const [customer, setCustomer] = useState<CvmCustomer | null>(resume?.customer ?? null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
 
@@ -83,27 +108,67 @@ const CustomerOffers = () => {
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
+  // Result popup after the 4th digit. Wrong code (1111 in the prototype) up to 3 times → blocked.
+  const [otpResult, setOtpResult] = useState<null | "verified" | "wrong" | "blocked">(null);
+  const [otpAttempts, setOtpAttempts] = useState(0);
+  // Closing "verified" always moves on to the offers; closing an error just dismisses it.
+  const closeOtpResult = () => {
+    if (otpResult === "verified") setStep(1);
+    if (otpResult === "blocked") setOtpAttempts(0);
+    setOtpResult(null);
+  };
+  // "Verified" moves on to the offers by itself after 1.5s.
+  useEffect(() => {
+    if (otpResult !== "verified") return;
+    const timer = setTimeout(() => { setOtpResult(null); setStep(1); }, 1500);
+    return () => clearTimeout(timer);
+  }, [otpResult]);
 
   const [optIn, setOptIn] = useState<CvmOffer | null>(null);
-  const [claimed, setClaimed] = useState<string[]>([]);
+  const [claimed, setClaimed] = useState<string[]>(resume ? [resume.used] : []);
+  // Opt-in failed (prototype: first try of a "failsOptIn" gift) → failure sheet with Try again.
+  const [optInFailed, setOptInFailed] = useState<CvmOffer | null>(null);
+  const [failedOnce, setFailedOnce] = useState<string[]>([]);
+  // Offer expired / already used by the time the dealer accepts it.
+  const [goneOffer, setGoneOffer] = useState<CvmOffer | null>(null);
+  // Loading offers from Pelatro: loading → ready, or error with Try again.
+  const [load, setLoad] = useState<"loading" | "error" | "ready">("loading");
+  const [loadFailedFor, setLoadFailedFor] = useState<string[]>([]);
+  const loadOffers = () => {
+    if (!customer) return;
+    setLoad("loading");
+    setTimeout(() => {
+      if (customer.offersFailFirst && !loadFailedFor.includes(customer.msisdn)) {
+        setLoadFailedFor((l) => [...l, customer.msisdn]);
+        setLoad("error");
+      } else setLoad("ready");
+    }, 900);
+  };
+  useEffect(() => {
+    if (step === 1) loadOffers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, customer?.msisdn]);
   const [reference, setReference] = useState("");
 
-  // ---------- MSISDN auto-lookup (same debounced check as the other MSISDN flows) ----------
+  // ---------- MSISDN check — runs on "Verify & Continue", not while typing or picking a test number ----------
   useEffect(() => {
-    setCustomer(null);
+    setCustomer((c) => (c && c.msisdn === msisdn ? c : null));
     setLookupError(null);
-    if (!/^\d{10}$/.test(msisdn)) return;
+    setOtpAttempts(0);
+  }, [msisdn]);
+
+  const verifyNumber = () => {
     setChecking(true);
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       setChecking(false);
       const found = CVM_CUSTOMERS.find((c) => c.msisdn === msisdn);
       if (!found) return setLookupError(t("customerOffers.errorNotFound"));
       if (found.status === "terminated") return setLookupError(t("customerOffers.errorTerminated"));
+      if (found.brand !== brand) return setBrandMismatch(found);
       setCustomer(found);
+      setOtpOpen(true);
     }, 800);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msisdn]);
+  };
 
   // ---------- OTP (same behaviour as Change Prepaid Plan's) ----------
   useEffect(() => {
@@ -117,20 +182,24 @@ const CustomerOffers = () => {
 
   const setOtpDigitAt = (i: number, v: string) => {
     const d = v.replace(/\D/g, "").slice(-1);
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[i] = d;
-      if (d && i === 3) {
-        const code = next.join("");
-        setTimeout(() => {
-          if (code === "1111") return setOtpError(true);
-          setOtpError(false);
-          setOtpOpen(false);
-          setStep(1);
-        }, 300);
-      }
-      return next;
-    });
+    const next = [...otpDigits];
+    next[i] = d;
+    setOtpDigits(next);
+    // Last digit entered → close the sheet and show the result popup (verified / not verified / blocked).
+    if (d && i === 3 && next.every(Boolean)) {
+      const code = next.join("");
+      setTimeout(() => {
+        setOtpOpen(false);
+        if (code !== "1111") {
+          setOtpAttempts(0);
+          setOtpResult("verified");
+          return;
+        }
+        const n = otpAttempts + 1;
+        setOtpAttempts(n);
+        setOtpResult(n >= MAX_OTP_ATTEMPTS ? "blocked" : "wrong");
+      }, 300);
+    }
     if (d && i < 3) (document.getElementById(`cvm-otp-${i + 1}`) as HTMLInputElement | null)?.focus();
   };
 
@@ -142,6 +211,7 @@ const CustomerOffers = () => {
   };
 
   const openOffer = (o: CvmOffer) => {
+    if (o.goneOnAccept) return setGoneOffer(o);
     const target = cvmOfferTarget(o, msisdn);
     if (target) navigate(target.path, { state: target.state });
     else setOptIn(o);
@@ -159,8 +229,6 @@ const CustomerOffers = () => {
     .filter((s) => filter === "all" || s.key === filter)
     .map((s) => ({ ...s, offers: s.offers.filter(matches) }))
     .filter((s) => s.offers.length);
-  // Only an offer still on screen counts — searching/filtering it away clears the action.
-  const selectedOffer = visible.flatMap((s) => s.offers).find((o) => o.id === selectedId) ?? null;
 
   const steps = [
     { label: t("customerOffers.stepNumber"), Icon: Phone },
@@ -172,7 +240,7 @@ const CustomerOffers = () => {
       <AppHeader
         title={t("customerOffers.pageTitle")}
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => { if (step === 0) navigate("/"); else { setStep(0); setSelectedId(null); } }}
+        onBackClick={() => { if (step === 0) navigate("/"); else setStep(0); }}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
@@ -181,7 +249,8 @@ const CustomerOffers = () => {
           ) : undefined
         }
       />
-      <FlowStepper current={step} steps={steps} />
+      {/* Hidden: only two stages, so the stepper adds height without showing real progress (same as Bill Payment). Uncomment to bring it back. */}
+      {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Number ── */}
@@ -197,6 +266,8 @@ const CustomerOffers = () => {
               items={[
                 { value: "0501234567", note: t("customerOffers.testPrepaid"), group: t("customerOffers.testGroupOffers") },
                 { value: "0502222211", note: t("customerOffers.testPostpaid"), group: t("customerOffers.testGroupOffers") },
+                { value: "0501234544", note: t("customerOffers.testFriendi"), group: t("customerOffers.testGroupOffers") },
+                { value: "0501234599", note: t("customerOffers.testPelatroDown"), group: t("customerOffers.testGroupOther") },
                 { value: "0501234512", note: t("customerOffers.testNoOffers"), group: t("customerOffers.testGroupOther") },
                 { value: "0501234533", note: t("customerOffers.testTerminated"), group: t("customerOffers.testGroupOther") },
                 { value: "0509999999", note: t("customerOffers.testNotFound"), group: t("customerOffers.testGroupOther") },
@@ -209,18 +280,13 @@ const CustomerOffers = () => {
         {/* ── Step 1: Offers ── */}
         {step === 1 && customer && (
           <>
-            {/* Current Plan — same header pill + PlanCard as Subscription Migration's. */}
-            {(() => {
-              const p = [...PREPAID_PLANS, ...POSTPAID_PLANS].find((x) => x.title === customer.planName);
+            {/* Current Plan — same header pill + PlanCard as Subscription Migration's. Hidden for
+                now so the offers start right under the stepper; flip SHOW_CURRENT_PLAN to bring it back. */}
+            {SHOW_CURRENT_PLAN && (() => {
+              const p = planOf(customer.planName);
               if (!p) return null;
               const cats = p.categories ?? [];
-              const layout: "flex" | "postpaid" | "baqa" | "aman" = cats.includes("switch-postpaid")
-                ? "postpaid"
-                : cats.includes("aman")
-                ? "aman"
-                : cats.includes("base-plan")
-                ? "baqa"
-                : "flex";
+              const layout = layoutOf(cats);
               return (
                 <div>
                   <div className="flex items-center justify-between gap-2 px-1 mb-3 flex-wrap">
@@ -243,13 +309,38 @@ const CustomerOffers = () => {
               );
             })()}
 
-            {sections.length === 0 ? (
+            {load === "loading" ? (
+              <div className="space-y-3" aria-busy="true" aria-label={t("customerOffers.loadingOffers")}>
+                <div className="h-4 w-32 rounded bg-muted animate-pulse" />
+                {[0, 1].map((i) => (
+                  <div key={i} className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
+                    <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
+                    <div className="h-3 w-full rounded bg-muted animate-pulse" />
+                    <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ) : load === "error" ? (
+              <div className="bg-card rounded-2xl p-6 shadow-sm text-center">
+                <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+                    <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+                  </svg>
+                  <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+                </div>
+                <p className="font-semibold text-foreground mb-1">{t("customerOffers.loadErrorTitle")}</p>
+                <p className="text-sm text-muted-foreground mb-4 leading-snug">{t("customerOffers.loadErrorDesc")}</p>
+                <Button variant="outline" onClick={loadOffers} className="h-11 rounded-full border-primary text-primary px-6">
+                  <RotateCcw className="w-4 h-4" /> {t("customerOffers.tryAgain")}
+                </Button>
+              </div>
+            ) : sections.length === 0 ? (
               <EmptyState icon={Gift} title={t("customerOffers.emptyTitle")} description={t("customerOffers.emptyDesc")} />
             ) : (
               <>
-                {/* Search + filter — same pair as Order History / All Plans. */}
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
+                {/* Text search only earns its place on a long list. */}
+                {offers.length > SEARCH_MIN_OFFERS && (
+                  <div className="relative">
                     <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       value={search}
@@ -258,24 +349,27 @@ const CustomerOffers = () => {
                       className="h-11 bg-card rounded-xl ps-9"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => { setDraftFilter(filter); setFilterOpen(true); }}
-                    aria-label={t("customerOffers.filterTitle")}
-                    className="relative w-11 h-11 rounded-xl bg-card shadow-sm border border-border/60 flex items-center justify-center shrink-0"
-                  >
-                    <SlidersHorizontal className="w-4 h-4 text-primary" />
-                  </button>
-                </div>
+                )}
 
-                {filter !== "all" && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 ps-3 pe-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                      {t(`customerOffers.section.${filter}`)}
-                      <button type="button" onClick={() => setFilter("all")} aria-label={t("customerOffers.removeFilter")} className="w-4 h-4 rounded-full flex items-center justify-center">
-                        <X className="w-3 h-3" />
+                {/* Offer-type chips, visible by default — same pattern as Change Prepaid Plan's plan-type chips. */}
+                {sections.length > 1 && (
+                  <div
+                    {...chipsDragScroll}
+                    className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", chipsDragScroll.className)}
+                  >
+                    {[{ key: "all", count: offers.length }, ...sections.map((x) => ({ key: x.key, count: x.offers.length }))].map((c) => (
+                      <button
+                        key={c.key}
+                        onClick={() => setFilter(c.key)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                          filter === c.key ? "bg-primary text-white" : "bg-card text-foreground shadow-sm",
+                        )}
+                      >
+                        {t(`customerOffers.section.${c.key}`)}
+                        <span className={cn("ms-1.5 text-xs", filter === c.key ? "text-white/80" : "text-muted-foreground")}>{c.count}</span>
                       </button>
-                    </span>
+                    ))}
                   </div>
                 )}
 
@@ -287,15 +381,37 @@ const CustomerOffers = () => {
 
                 {visible.map((s) => (
                   <div key={s.key} className="space-y-3">
-                    <h3 className="text-sm font-semibold text-foreground px-1">{t(`customerOffers.section.${s.key}`)}</h3>
+                    <div className="px-1">
+                      <h3 className="text-sm font-semibold text-foreground">{t(`customerOffers.section.${s.key}`)}</h3>
+                      {BONUS_NOTE_SECTIONS.includes(s.key) && <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{t("customerOffers.note.bonus")}</p>}
+                    </div>
                     {s.offers.map((o) => {
-                      const { title, benefits, note } = offerText(o);
+                      const { benefits } = offerText(o);
+                      const plan = PLAN_KINDS.includes(o.kind) && "planTitle" in o ? planOf(o.planTitle) : undefined;
+                      if (plan) {
+                        return (
+                          <PlanCard
+                            key={o.id}
+                            plan={{ ...plan, badge: undefined, bonuses: o.kind === "btl" || !benefits ? [] : benefits.split(" · ") }}
+                            selected={false}
+                            onSelect={() => {}}
+                            hideRadio
+                            layout={layoutOf(plan.categories ?? [])}
+                            minsLabel={(plan.categories ?? []).includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
+                            footer={
+                              <>
+                                <p className="text-[11px] text-muted-foreground">
+                                  {o.kind === "btl" ? `${t("customerOffers.btlRibbon")} • ` : o.kind === "changePlan" && o.renew ? `${t("customerOffers.renewRibbon")} • ` : ""}
+                                  {t("customerOffers.validUntil", { date: o.validUntil })}
+                                </p>
+                                <OfferAction label={t(`customerOffers.${CTA_KEY[o.kind]}`)} onClick={() => openOffer(o)} />
+                              </>
+                            }
+                          />
+                        );
+                      }
                       return (
-                        <OfferCard key={o.id} title={title} selected={selectedId === o.id} onClick={() => setSelectedId(o.id)}>
-                          {benefits && <OfferRow label={t("customerOffers.benefits")} value={benefits} />}
-                          <OfferRow label={t("customerOffers.validUntilLabel")} value={o.validUntil} />
-                          {note && <p className="text-[11px] text-muted-foreground leading-snug pt-2">{note}</p>}
-                        </OfferCard>
+                        <CvmOfferTile key={o.id} offer={o} action={<OfferAction label={t(`customerOffers.${CTA_KEY[o.kind]}`)} onClick={() => openOffer(o)} />} />
                       );
                     })}
                   </div>
@@ -306,19 +422,13 @@ const CustomerOffers = () => {
         )}
       </div>
 
-      {/* Sticky bottom — pick an offer, then one primary action (same as picking a plan). */}
-      {(step === 0 || sections.length > 0) && (
+      {/* Sticky bottom — number step only; on the offers step each card carries its own action. */}
+      {step === 0 && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="sm:max-w-[390px] mx-auto">
-            {step === 0 ? (
-              <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!customer} onClick={() => setOtpOpen(true)}>
-                {t("customerOffers.verifyAndContinue")}
-              </Button>
-            ) : (
-              <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!selectedOffer} onClick={() => selectedOffer && openOffer(selectedOffer)}>
-                {selectedOffer ? t(`customerOffers.${CTA_KEY[selectedOffer.kind]}`) : t("customerOffers.continue")}
-              </Button>
-            )}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!/^\d{10}$/.test(msisdn) || checking} onClick={verifyNumber}>
+              {t("customerOffers.verifyAndContinue")}
+            </Button>
           </div>
         </div>
       )}
@@ -377,8 +487,14 @@ const CustomerOffers = () => {
                 <Button
                   className="w-full h-12 rounded-full font-semibold"
                   onClick={() => {
+                    if (optIn.failsOptIn && !failedOnce.includes(optIn.id)) {
+                      setFailedOnce((f) => [...f, optIn.id]);
+                      setOptInFailed(optIn);
+                      setOptIn(null);
+                      return;
+                    }
                     setClaimed((c) => [...c, optIn.id]);
-                    setSelectedId(null);
+                   
                     setOptIn(null);
                     setReference(`CVM-${Math.floor(100000 + Math.random() * 900000)}`);
                   }}
@@ -401,49 +517,6 @@ const CustomerOffers = () => {
         title={t("customerOffers.optInSuccessTitle")}
         message={t("customerOffers.optInSuccess")}
       />
-
-      {/* Filter sheet — same layout as All Plans' filter sheet. */}
-      <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl max-h-[85vh] overflow-hidden">
-          <button
-            onClick={() => setFilterOpen(false)}
-            aria-label={t("customerOffers.close")}
-            className="absolute end-4 top-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center z-10"
-          >
-            <X className="w-4 h-4 text-foreground" />
-          </button>
-          <DrawerHeader className="text-center pt-8">
-            <DrawerTitle className="text-lg font-semibold">{t("customerOffers.filterTitle")}</DrawerTitle>
-          </DrawerHeader>
-          <div className="flex-1 min-h-0 px-4 pb-8 space-y-5 overflow-y-auto">
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-foreground">{t("customerOffers.offerType")}</h3>
-              <div className="flex flex-wrap gap-2">
-                {["all", ...sections.map((s) => s.key)].map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setDraftFilter(key)}
-                    className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                      draftFilter === key ? "bg-primary text-white" : "bg-muted text-foreground",
-                    )}
-                  >
-                    {t(`customerOffers.section.${key}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => { setFilter(draftFilter); setFilterOpen(false); }}
-              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-            >
-              {t("customerOffers.applyFilters")}
-            </button>
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* Cancel flow (top-right X) — same cancel-reason sheet as the other customer flows. */}
       <Drawer open={cancelOpen} onOpenChange={(o) => (o ? setCancelOpen(true) : closeCancel())}>
@@ -480,17 +553,163 @@ const CustomerOffers = () => {
         </DrawerContent>
       </Drawer>
 
+      {/* Opt-in failed — same failure sheet as Change Prepaid Plan's. */}
+      <Drawer open={!!optInFailed} onOpenChange={(o) => !o && setOptInFailed(null)}>
+        <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
+          <div className="flex flex-col items-center mb-4">
+            <div className="rounded-full bg-destructive/15 p-3 mb-4">
+              <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
+                <XCircle className="w-8 h-8 text-white" strokeWidth={2} />
+              </div>
+            </div>
+            <h3 className="font-semibold text-foreground text-base mb-1">{t("customerOffers.optInFailedTitle")}</h3>
+            <p className="text-sm text-muted-foreground text-center">{t("customerOffers.optInFailedDesc")}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { const o = optInFailed; setOptInFailed(null); setOptIn(o); }}>
+              {t("customerOffers.tryAgain")}
+            </Button>
+            <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setOptInFailed(null)}>
+              {t("customerOffers.cancel")}
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Offer expired / already used between viewing and accepting — it drops off the list. */}
+      <Dialog open={!!goneOffer} onOpenChange={(o) => { if (!o && goneOffer) { setClaimed((c) => [...c, goneOffer.id]); setGoneOffer(null); } }}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-5 gap-0 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+              <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+            </svg>
+            <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
+          </div>
+          <h4 className="font-semibold text-destructive mb-1 text-lg">{t("customerOffers.goneTitle")}</h4>
+          <p className="text-sm text-muted-foreground mb-5 leading-snug">
+            {goneOffer?.goneOnAccept === "used" ? t("customerOffers.goneUsed") : t("customerOffers.goneExpired")}
+          </p>
+          <button
+            onClick={() => { if (goneOffer) setClaimed((c) => [...c, goneOffer.id]); setGoneOffer(null); }}
+            className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm"
+          >
+            {t("customerOffers.gotIt")}
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Number from the other brand — same blue-hexagon prompt as the app's confirm messages. */}
+      <Dialog open={!!brandMismatch} onOpenChange={(o) => !o && setBrandMismatch(null)}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-5 gap-0 text-center [&>button]:hidden">
+          <button
+            type="button"
+            onClick={() => setBrandMismatch(null)}
+            aria-label={t("customerOffers.close")}
+            className="absolute end-3 top-3 w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+          >
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          {brandMismatch && (() => {
+            const other = t(`customerOffers.brand.${brandMismatch.brand}`);
+            return (
+              <>
+                <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-sky-500" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+                    <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+                  </svg>
+                  <AlertCircle className="w-7 h-7 text-sky-500 relative" strokeWidth={2} />
+                </div>
+                <h4 className="font-semibold text-sky-600 mb-1 text-lg">{t("customerOffers.brandMismatchTitle", { brand: other })}</h4>
+                <p className="text-sm text-muted-foreground mb-5 leading-snug">
+                  {t("customerOffers.brandMismatchDesc", { msisdn: brandMismatch.msisdn, brand: other, current: t(`customerOffers.brand.${brand}`) })}
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => {
+                      const c = brandMismatch;
+                      setBrandMismatch(null);
+                      setBrand(c.brand);
+                      // Brand loader plays first, then verification continues for this customer.
+                      setTimeout(() => { setCustomer(c); setOtpOpen(true); }, 1300);
+                    }}
+                    className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+                  >
+                    {t("customerOffers.brandSwitch", { brand: other })}
+                  </button>
+                  <button onClick={() => setBrandMismatch(null)} className="w-full py-2 text-sm font-semibold text-muted-foreground">
+                    {t("customerOffers.cancel")}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* OTP result — same popup shape as the lookup error: green for verified, red for not verified / blocked. */}
+      <Dialog open={!!otpResult} onOpenChange={(o) => !o && closeOtpResult()}>
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-5 gap-0 text-center [&>button]:hidden">
+          <button
+            type="button"
+            onClick={closeOtpResult}
+            aria-label={t("customerOffers.close")}
+            className="absolute end-3 top-3 w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+          >
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+          {(() => {
+            const ok = otpResult === "verified";
+            const tone = ok ? "text-emerald-600" : "text-destructive";
+            const title = ok ? t("customerOffers.otpVerifiedTitle") : otpResult === "blocked" ? t("customerOffers.otpBlockedTitle") : t("customerOffers.otpWrongTitle");
+            const desc = ok
+              ? t("customerOffers.otpVerifiedDesc", { msisdn })
+              : otpResult === "blocked"
+              ? t("customerOffers.otpBlockedDesc")
+              : t("customerOffers.otpWrongDesc", { count: MAX_OTP_ATTEMPTS - otpAttempts });
+            return (
+              <>
+                <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className={cn("absolute inset-0 w-full h-full", tone)} fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
+                    <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
+                  </svg>
+                  {ok ? <Check className={cn("w-7 h-7 relative", tone)} strokeWidth={2.5} /> : <AlertCircle className={cn("w-7 h-7 relative", tone)} strokeWidth={2} />}
+                </div>
+                <h4 className={cn("font-semibold mb-1 text-lg", tone)}>{title}</h4>
+                <p className="text-sm text-muted-foreground mb-5 leading-snug">{desc}</p>
+                {ok ? (
+                  // No button: the offers open on their own a moment later (or on X / tap outside).
+                  <p className="text-xs text-muted-foreground -mt-2">{t("customerOffers.openingOffers")}</p>
+                ) : otpResult === "wrong" ? (
+                  <div className="flex flex-col gap-2">
+                    <button onClick={() => { setOtpResult(null); setOtpOpen(true); }} className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm">
+                      {t("customerOffers.tryAgain")}
+                    </button>
+                    <button onClick={() => setOtpResult(null)} className="w-full py-2 text-sm font-semibold text-muted-foreground">
+                      {t("customerOffers.cancel")}
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => { setOtpResult(null); setOtpAttempts(0); }} className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm">
+                    {t("customerOffers.gotIt")}
+                  </button>
+                )}
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       {/* Lookup error — same popup pattern used app-wide for a lookup failure. */}
       <Dialog open={!!lookupError} onOpenChange={(o) => !o && setLookupError(null)}>
-        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-6 text-center [&>button]:hidden">
-          <div className="mx-auto mb-2 relative w-16 h-16 flex items-center justify-center">
+        <DialogContent className="max-w-[320px] rounded-3xl border-0 p-5 gap-0 text-center [&>button]:hidden">
+          <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
               <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" />
             </svg>
             <AlertCircle className="w-7 h-7 text-destructive relative" strokeWidth={2} />
           </div>
           <h4 className="font-semibold text-destructive mb-1 text-lg">{t("customerOffers.errorTitle")}</h4>
-          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{lookupError}</p>
+          <p className="text-sm text-muted-foreground mb-5 leading-snug">{lookupError}</p>
           <button onClick={() => setLookupError(null)} className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm">
             {t("customerOffers.gotIt")}
           </button>

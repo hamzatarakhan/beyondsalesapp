@@ -1,5 +1,5 @@
-import CvmOfferBanner from "@/components/CvmOfferBanner";
-import { useCvmOffer, cvmBillRequired } from "@/lib/cvmOffers";
+import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
+import { cvmExit, useCvmOffer, cvmBillRequired } from "@/lib/cvmOffers";
 import { useEffect, useMemo, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -532,7 +532,7 @@ const BillPayment = () => {
 
   const handleBack = () => {
     if (step === 0) {
-      if (offer) return navigate(-1);
+      if (offer) return navigate(...cvmExit(offer, false));
       navigate(backTo);
       return;
     }
@@ -700,7 +700,6 @@ const BillPayment = () => {
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
-        <CvmOfferBanner offer={offer} />
         {/* ── Step 0: Lookup ── */}
         {step === 0 && (
           <>
@@ -1109,7 +1108,7 @@ const BillPayment = () => {
       </Drawer>
 
       {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
+      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
@@ -1124,8 +1123,9 @@ const BillPayment = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {t("billPayment.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
+            <CvmOfferSuccessNote offer={offer} />
           </div>
-          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}>
+          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate(...cvmExit(offer)); }}>
             {t("billPayment.done")}
           </Button>
         </DrawerContent>

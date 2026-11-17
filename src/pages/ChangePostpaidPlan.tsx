@@ -1,5 +1,5 @@
-import CvmOfferBanner from "@/components/CvmOfferBanner";
-import { useCvmOffer } from "@/lib/cvmOffers";
+import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
+import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
 import { useEffect, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -346,7 +346,7 @@ const ChangePostpaidPlan = () => {
       <AppHeader
         title={t("changePostpaidPlan.title")}
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => (offer && step <= 1 ? navigate(-1) : step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        onBackClick={() => (offer && step <= 1 ? navigate(...cvmExit(offer, false)) : step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
@@ -358,7 +358,6 @@ const ChangePostpaidPlan = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
-        {step > 0 && <CvmOfferBanner offer={offer} />}
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>
@@ -739,7 +738,7 @@ const ChangePostpaidPlan = () => {
       </Drawer>
 
       {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
+      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
@@ -752,8 +751,9 @@ const ChangePostpaidPlan = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {t("changePostpaidPlan.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
+            <CvmOfferSuccessNote offer={offer} />
           </div>
-          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}>
+          <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setSuccessOpen(false); resetAll(); navigate(...cvmExit(offer)); }}>
             {t("changePostpaidPlan.done")}
           </Button>
         </DrawerContent>

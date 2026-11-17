@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Gift } from "lucide-react";
-import type { CvmOffer } from "@/lib/cvmOffers";
+import type { CvmOffer, CarriedCvmOffer } from "@/lib/cvmOffers";
 import { cn } from "@/lib/utils";
 
 /** Offer headline, benefits line and footnote — shared by the offers page and the flows it opens. */
@@ -33,7 +33,16 @@ export const useCvmOfferText = () => {
       : o.kind === "migration" ? t(`${k}.note.migration`)
       : o.kind === "btl" ? null
       : t(`${k}.note.bonus`);
-    return { title, benefits, note };
+    // Bill Offer 1 / 3 example: what the customer's next bills will be with the plan discount.
+    const nextBill =
+      o.kind === "billFull" || o.kind === "billWaiverDiscount"
+        ? t(`${k}.nextBillValue`, {
+            price: (o.planPrice * (1 - o.discountPct / 100)).toFixed(2),
+            was: o.planPrice.toFixed(2),
+            months: o.months,
+          })
+        : null;
+    return { title, benefits, note, nextBill };
   };
 };
 
@@ -78,14 +87,36 @@ const CvmOfferBanner = ({ offer, large }: { offer: CvmOffer | null; large?: bool
   const { t } = useTranslation();
   const text = useCvmOfferText();
   if (!offer) return null;
-  const { title, benefits, note } = text(offer);
+  const { title, benefits, note, nextBill } = text(offer);
   return (
     <OfferCard title={t("customerOffers.offerApplied")}>
       <OfferRow large={large} label={t("customerOffers.offer")} value={title} />
       {benefits && <OfferRow large={large} label={t("customerOffers.benefits")} value={benefits} />}
+      {nextBill && <OfferRow large={large} label={t("customerOffers.nextBills")} value={nextBill} />}
       <OfferRow large={large} label={t("customerOffers.validUntilLabel")} value={offer.validUntil} />
       {note && <p className={cn("text-muted-foreground leading-snug pt-2", large ? "text-xs" : "text-[11px]")}>{note}</p>}
     </OfferCard>
+  );
+};
+
+/** Line on a flow's success sheet: what the customer gets from the offer, and where it shows. */
+export const CvmOfferSuccessNote = ({ offer }: { offer: CarriedCvmOffer | null }) => {
+  const { t } = useTranslation();
+  const text = useCvmOfferText();
+  if (!offer) return null;
+  const { benefits, nextBill } = text(offer);
+  const k = "customerOffers.success";
+  const msg =
+    offer.kind === "billWaiver" ? t(`${k}.waiver`)
+    : offer.kind === "billFull" || offer.kind === "billWaiverDiscount" ? t(`${k}.billDiscount`, { nextBill })
+    : offer.kind === "migration" ? t(`${k}.migration`, { pct: offer.discountPct, months: offer.months })
+    : offer.kind === "btl" ? t(`${k}.btl`)
+    : t(`${k}.bonus`, { benefits, msisdn: offer.msisdn });
+  return (
+    <div className="mt-3 w-full rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 flex items-start gap-2 text-start">
+      <Gift className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+      <p className="text-xs text-emerald-700 dark:text-emerald-300 leading-snug">{msg}</p>
+    </div>
   );
 };
 

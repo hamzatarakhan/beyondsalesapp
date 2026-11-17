@@ -65,6 +65,8 @@ interface Props {
   /** Renders the card greyed out and ignores taps — for sections the current flow can't use
    * (e.g. the Booked tab's plan carousel when the brand's activation option excludes plans). */
   disabled?: boolean;
+  /** Extra content at the bottom of the card (e.g. an offer's validity line and action button). */
+  footer?: React.ReactNode;
 }
 
 // Discounted price display — the promotional `discount` field is a display string like
@@ -517,6 +519,7 @@ const PlanCard = ({
   hideTitleRow,
   mnpEligible,
   disabled = false,
+  footer,
 }: Props) => {
   // Single guard for every selection entry point (card body, title row, select radio): a disabled
   // card never reaches the caller's handler, so nothing can be picked from a section the current
@@ -527,6 +530,16 @@ const PlanCard = ({
   const unlimited = t("activation.plan.unlimited");
   const validity = formatValidity(plan.validityLabel);
   const isDataOnly = !plan.mins || plan.mins === "-";
+  // Red "Bonus" tags (e.g. a Customer Offers upgrade: "Bonus +10 GB data") — same look in every layout.
+  const bonusTags = plan.bonuses && plan.bonuses.length > 0 ? (
+    <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
+      {plan.bonuses.map((bonus, i) => (
+        <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold border border-red-200 dark:border-red-500/20 whitespace-nowrap shrink-0">
+          <Gift className="w-3 h-3" /> {t("activation.plan.bonusPrefix")} {bonus}
+        </span>
+      ))}
+    </div>
+  ) : null;
   const [openSheet, setOpenSheet] = useState<null | "apps" | "countries" | "blocked" | "search" | "planCountries">(null);
 
   return (
@@ -576,6 +589,7 @@ const PlanCard = ({
           ) : layout === "combo" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -608,6 +622,7 @@ const PlanCard = ({
           ) : layout === "calls" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins === "Unlimited" ? unlimited : plan.mins} <span className="text-xl">{t("activation.plan.minsUnit")}</span>
@@ -626,6 +641,7 @@ const PlanCard = ({
           ) : isDataOnly ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={!plan.categories?.includes("vnet")} />}
@@ -644,6 +660,7 @@ const PlanCard = ({
           ) : layout === "baqa" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} />}
@@ -668,6 +685,7 @@ const PlanCard = ({
           ) : layout === "aman" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               {/* Trusted for Kids pill — suppressed when embedded, shown as a chip on the
                   collapsed row instead. */}
               {!hideTitleRow && (
@@ -707,15 +725,7 @@ const PlanCard = ({
           ) : layout === "postpaid" ? (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
-              {plan.bonuses && plan.bonuses.length > 0 && (
-                <div className="flex flex-nowrap gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
-                  {plan.bonuses.map((bonus, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-semibold border border-red-200 dark:border-red-500/20 whitespace-nowrap shrink-0">
-                      <Gift className="w-3 h-3" /> {t("activation.plan.bonusPrefix")} {bonus}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">{plan.internet}</p>
                 {!hideTitleRow && <PriceDisplay plan={plan} showVatLabel={false} />}
@@ -750,6 +760,7 @@ const PlanCard = ({
           ) : (
             <>
               <PlanTitleRow title={plan.title} validity={validity} selected={selected} onSelect={handleSelect} onMoreDetails={onMoreDetails} hideRadio={hideRadio} hidden={hideTitleRow} />
+              {bonusTags}
               <div className="flex items-end justify-between mb-4">
                 <p className="text-3xl font-bold leading-none text-primary">
                   {plan.mins !== "Unlimited" && <>{plan.mins}{" "}</>}
@@ -775,6 +786,7 @@ const PlanCard = ({
             </>
           )}
         </div>
+        {footer && <div className="px-4 pb-4 -mt-3">{footer}</div>}
       </div>
 
       <AppsSheet open={openSheet === "apps"} onClose={() => setOpenSheet(null)} />

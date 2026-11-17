@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
+import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -62,6 +64,10 @@ const DEMO_TRANSFER_CUSTOMERS: DemoTransferCustomer[] = [
   { msisdn: "0501111133", name: "Faisal Al-Harbi", status: "active" },
   { msisdn: "0501111122", name: "Noura Al-Qahtani", status: "active" },
   { msisdn: "0501111199", name: "Khalid Al-Dossary", status: "terminated" },
+  // Customer Offers demo customers (recharge offers open Credit Transfer).
+  { msisdn: "0501234567", name: "Mohammed Al-Otaibi", status: "active" },
+  { msisdn: "0501234544", name: "Sultan Al-Mutairi", status: "active" },
+  { msisdn: "0501234599", name: "Reem Al-Shehri", status: "active" },
 ];
 
 // 600 deliberately exceeds DEALER_WALLET_BALANCE (550) so the insufficient-balance
@@ -79,9 +85,13 @@ const CreditTransfer = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE } = useWalletBalance();
+  // Opened from a Customer Offers recharge offer: that customer is looked up straight away and
+  // the transfer must reach the offer's minimum to earn the bonus.
+  const offer = useCvmOffer();
+  const minTransfer = Math.max(MIN_TRANSFER_AMOUNT, offer?.kind === "recharge" ? offer.minAmount : 0);
 
   // ---------- Flow state (single page — no step navigation) ----------
-  const [msisdn, setMsisdn] = useState("0501111133");
+  const [msisdn, setMsisdn] = useState(offer?.msisdn ?? "0501111133");
   const [checking, setChecking] = useState(false);
   const [customer, setCustomer] = useState<DemoTransferCustomer | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
@@ -123,12 +133,20 @@ const CreditTransfer = () => {
     }, 800);
   };
 
+  // From an offer: look the customer up on arrival and start at the offer's minimum amount.
+  useEffect(() => {
+    if (!offer) return;
+    handleSearch();
+    setTimeout(() => setAmount(minTransfer), 850);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const eligible = !!customer && !lookupError;
   const insufficientBalance = amount != null && amount > DEALER_WALLET_BALANCE;
-  const belowMin = amount != null && amount > 0 && amount < MIN_TRANSFER_AMOUNT;
+  const belowMin = amount != null && amount > 0 && amount < minTransfer;
 
   // ---------- Gates ----------
-  const canTransfer = eligible && amount != null && amount >= MIN_TRANSFER_AMOUNT && !insufficientBalance;
+  const canTransfer = eligible && amount != null && amount >= minTransfer && !insufficientBalance;
 
   const pin = pinDigits.join("");
 
@@ -182,7 +200,7 @@ const CreditTransfer = () => {
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("creditTransfer.title")} showBack onBackClick={() => navigate("/")} />
+      <AppHeader title={t("creditTransfer.title")} showBack onBackClick={() => navigate(...cvmExit(offer, false))} />
 
       <div className="px-4 space-y-4">
         <Field label={t("creditTransfer.msisdn")}>
@@ -236,7 +254,7 @@ const CreditTransfer = () => {
                   </span>
                 </div>
                 <p className={cn("text-[11px]", belowMin || insufficientBalance ? "text-destructive" : "text-muted-foreground")}>
-                  {t("creditTransfer.amountRangeHint", { min: MIN_TRANSFER_AMOUNT.toFixed(2), max: DEALER_WALLET_BALANCE.toFixed(2) })}
+                  {t("creditTransfer.amountRangeHint", { min: minTransfer.toFixed(2), max: DEALER_WALLET_BALANCE.toFixed(2) })}
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {AMOUNT_PRESETS.map((amt) => (
@@ -313,7 +331,7 @@ const CreditTransfer = () => {
       </Drawer>
 
       {/* Success */}
-      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
+      <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
             <div className="rounded-full bg-emerald-500/15 p-3 mb-4">
@@ -328,10 +346,11 @@ const CreditTransfer = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {t("creditTransfer.reference")} <span className="font-semibold text-foreground">{orderId}</span>
             </p>
+            <CvmOfferSuccessNote offer={offer} />
           </div>
           <Button
             className="w-full h-12 rounded-full font-semibold"
-            onClick={() => { setSuccessOpen(false); resetAll(); navigate("/"); }}
+            onClick={() => { setSuccessOpen(false); resetAll(); navigate(...cvmExit(offer)); }}
           >
             {t("creditTransfer.done")}
           </Button>
