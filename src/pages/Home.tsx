@@ -772,7 +772,7 @@ const Home = () => {
               </div>
             ))}
           </div>
-          <button onClick={() => navigate("/tickets/new")} className="w-full py-3 rounded-full bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
+          <button onClick={() => navigate("/tickets/new")} className="w-full py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
             + {t("home.tickets.newTicket")}
           </button>
         </div>
@@ -959,7 +959,7 @@ const Home = () => {
               </div>
             ))}
           </div>
-          <button className="w-full py-3 rounded-full bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
+          <button className="w-full py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-primary font-medium text-sm flex items-center justify-center gap-1">
             + New Ticket
           </button>
         </div>

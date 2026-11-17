@@ -24,7 +24,7 @@ const WalletShortNotice = ({ message, buttonLabel }: WalletShortNoticeProps) => 
       <button
         type="button"
         onClick={openTopUp}
-        className="w-full py-2 rounded-lg bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center gap-1"
+        className="w-full py-2 rounded-lg border-[0.5px] border-primary/10 bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center gap-1"
       >
         {buttonLabel}
         <Zap className="w-3.5 h-3.5" />

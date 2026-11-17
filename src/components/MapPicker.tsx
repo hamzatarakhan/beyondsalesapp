@@ -142,7 +142,7 @@ const MapPicker = ({ open, onOpenChange, onConfirm }: MapPickerProps) => {
           </div>
           <button
             onClick={handleCurrentLocation}
-            className="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full"
+            className="flex items-center gap-1.5 text-xs font-medium text-primary border-[0.5px] border-primary/10 bg-primary/10 px-3 py-1.5 rounded-full"
           >
             <Navigation className="w-3 h-3" />
             My Location

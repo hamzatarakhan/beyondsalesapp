@@ -695,7 +695,7 @@ const SimTermination = () => {
                           <button
                             type="button"
                             onClick={() => { setSkipPayment(false); setAmountToPay(money(totalOutstanding)); }}
-                            className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary active:bg-primary/20 transition-colors"
+                            className="w-full h-10 rounded-xl border-[0.5px] border-primary/10 bg-primary/10 text-xs font-semibold text-primary active:bg-primary/20 transition-colors"
                           >
                             {t("simTermination.enterAmountInstead")}
                           </button>
@@ -725,7 +725,7 @@ const SimTermination = () => {
                           <button
                             type="button"
                             onClick={() => { setSkipPayment(true); setAmountToPay("0"); }}
-                            className="w-full h-10 rounded-xl bg-primary/10 text-xs font-semibold text-primary flex items-center justify-center gap-1.5 active:bg-primary/20 transition-colors"
+                            className="w-full h-10 rounded-xl border-[0.5px] border-primary/10 bg-primary/10 text-xs font-semibold text-primary flex items-center justify-center gap-1.5 active:bg-primary/20 transition-colors"
                           >
                             <SkipForward className="w-3.5 h-3.5" /> {t("simTermination.skipPaymentChip")}
                           </button>

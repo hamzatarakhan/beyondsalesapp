@@ -367,7 +367,7 @@ const Notifications = () => {
                             <button
                               type="button"
                               onClick={(e) => goToLinkedAction(n, e)}
-                              className="text-[11px] font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full active:bg-primary/20 transition-colors"
+                              className="text-[11px] font-semibold text-primary border-[0.5px] border-primary/10 bg-primary/10 px-3 py-1.5 rounded-full active:bg-primary/20 transition-colors"
                             >
                               {t("notifications.ctaTakeAction")}
                             </button>

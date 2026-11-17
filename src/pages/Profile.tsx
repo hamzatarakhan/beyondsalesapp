@@ -156,7 +156,7 @@ const Profile = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setLogoutOpen(false)}
-              className="flex-1 py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
+              className="flex-1 py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-foreground font-semibold text-sm"
             >
               {t("profile.cancel")}
             </button>

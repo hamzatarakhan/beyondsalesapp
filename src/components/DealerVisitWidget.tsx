@@ -124,7 +124,7 @@ const DealerVisitWidget = () => {
         {/* Actions */}
         <button
           onClick={() => navigate("/visit-management/VST-1005")}
-          className="w-full mt-4 py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
+          className="w-full mt-4 py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-foreground font-semibold text-sm"
         >
           {t("home.dealerVisit.showDetails")}
         </button>

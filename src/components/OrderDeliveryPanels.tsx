@@ -51,7 +51,7 @@ export const DeliveryActions = ({
         <button type="button" disabled={!canConfirm} onClick={onConfirm} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50">
           {t("salesOrders.delivery.confirmReceipt")}
         </button>
-        <button type="button" onClick={onReportIssue} className="w-full h-12 rounded-full bg-primary/15 text-foreground font-semibold text-sm">
+        <button type="button" onClick={onReportIssue} className="w-full h-12 rounded-full border-[0.5px] border-primary/10 bg-primary/15 text-foreground font-semibold text-sm">
           {t("salesOrders.delivery.reportIssue")}
         </button>
         <button type="button" onClick={onReject} className="w-full text-center text-sm font-semibold text-primary">

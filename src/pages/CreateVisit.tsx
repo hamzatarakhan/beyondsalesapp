@@ -916,7 +916,7 @@ const CreateVisit = () => {
               ))}
               <button
                 onClick={openMembers}
-                className="w-full py-3 rounded-full bg-primary/10 text-foreground font-medium text-sm flex items-center justify-center gap-1.5"
+                className="w-full py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-foreground font-medium text-sm flex items-center justify-center gap-1.5"
               >
                 Add Channel Member <Plus className="w-4 h-4" />
               </button>

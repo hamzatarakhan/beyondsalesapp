@@ -2208,7 +2208,7 @@ const NewActivation5 = () => {
                 <div className="mt-3 space-y-1.5">
                   <div className="flex gap-2">
                     <Input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(false); }} placeholder={t("activation5.checkout.promoPlaceholder")} className={cn("flex-1", promoError && "border-destructive")} />
-                    <Button type="button" className="shrink-0 bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-xl" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation5.checkout.applyPromo")}</Button>
+                    <Button type="button" className="shrink-0 bg-primary/10 hover:bg-primary/20 text-foreground border-[0.5px] border-primary/10 rounded-xl" onClick={() => { if (PROMO_CATALOGUE[promoCode]) { setPromoApplied(true); setPromoError(false); } else setPromoError(true); }}>{t("activation5.checkout.applyPromo")}</Button>
                   </div>
                   <p className="text-[11px] text-muted-foreground">Prototype: try SAVE10 (single discount) or MEGA (discount + data + credit).</p>
                 </div>
@@ -2570,7 +2570,7 @@ const NewActivation5 = () => {
               {customerVerified ? (
                 <VerifiedBanner label="Customer Verified" />
               ) : (
-                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
+                <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-[0.5px] border-primary/10 rounded-full" onClick={() => setCustomerVerifyOpen(true)}>
                   {t("activation5.checkout.verifyCustomer")}
                 </Button>
               )}
@@ -2583,7 +2583,7 @@ const NewActivation5 = () => {
                   <VerifiedBanner label="OTP Verified" />
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation5.checkout.sendOtp")}</Button>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-[0.5px] border-primary/10 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!otpGateOk} onClick={() => setOtpOpen(true)}>{t("activation5.checkout.sendOtp")}</Button>
                     {!otpGateOk && (
                       <p className="text-[11px] text-muted-foreground mt-2">Complete the previous verification to unlock this verification.</p>
                     )}
@@ -2599,7 +2599,7 @@ const NewActivation5 = () => {
                   <VerifiedBanner label="Nafith Verified" onRetry={() => { setNafithVerified(false); setNafithVerifyOpen(true); }} />
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-0 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
+                    <Button variant="outline" className="w-full bg-primary/10 hover:bg-primary/20 text-foreground border-[0.5px] border-primary/10 rounded-full disabled:!opacity-100 disabled:!bg-muted disabled:!text-muted-foreground" disabled={!nafithGateOk} onClick={() => setNafithVerifyOpen(true)}>
                       {t("activation5.checkout.nafathVerify")}
                     </Button>
                     {!nafithGateOk && (
@@ -2913,7 +2913,7 @@ const NewActivation5 = () => {
                 </button>
                 <button
                   onClick={() => { setPhone(pendingVanityNumber.number); setVanityCommitment(false); setPendingVanityNumber(null); setNumberPickerOpen(false); }}
-                  className="w-full py-3 rounded-full bg-primary/10 text-foreground font-semibold text-sm"
+                  className="w-full py-3 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-foreground font-semibold text-sm"
                 >
                   {t("activation5.vanity.payNumberPrice", { price: cat.price.toFixed(2) })}
                 </button>
