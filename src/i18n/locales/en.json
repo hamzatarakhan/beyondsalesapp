@@ -2490,8 +2490,6 @@
     "dayOfDays": "Day {{day}} of {{days}}",
     "finalAfter": "Final after {{date}}",
     "daysLeftToRecover": "{{n}} days left to recover",
-    "dataUpToShort": "Data up to {{date}}",
-    "dataUpTo": "Data up to {{date}} · Day {{day}} of {{days}}",
     "progressUpdatingTitle": "Updating your commission",
     "progressUpdatingHint": "Check again shortly.",
     "needsAttentionSubSoFar": "{{n}} dealers have earned nothing so far this month",

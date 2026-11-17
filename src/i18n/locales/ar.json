@@ -2416,8 +2416,6 @@
     "dayOfDays": "اليوم {{day}} من {{days}}",
     "finalAfter": "نهائي بعد {{date}}",
     "daysLeftToRecover": "متبقٍ {{n}} يومًا للتحسن",
-    "dataUpToShort": "البيانات حتى {{date}}",
-    "dataUpTo": "البيانات حتى {{date}} · اليوم {{day}} من {{days}}",
     "progressUpdatingTitle": "جارٍ تحديث عمولتك",
     "progressUpdatingHint": "تحقق مرة أخرى بعد قليل.",
     "needsAttentionSubSoFar": "{{n}} موزعين لم يكسبوا شيئًا حتى الآن هذا الشهر",
