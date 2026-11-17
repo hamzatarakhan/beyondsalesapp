@@ -36,6 +36,8 @@ import {
   X,
 } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
+import CvmOfferBanner from "@/components/CvmOfferBanner";
+import { useCvmOffer } from "@/lib/cvmOffers";
 
 // ---------- Local UI primitives (mirrors SubscriptionMigration.tsx's page-local helpers) ----------
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -111,6 +113,7 @@ const ChangePrepaidBundle = () => {
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
+  const offer = useCvmOffer();
 
   const CATEGORY_LABEL: Record<string, string> = {
     aman: t("changePrepaidBundle.categoryAman"),
@@ -322,7 +325,7 @@ const ChangePrepaidBundle = () => {
       <AppHeader
         title={t("changePrepaidBundle.title")}
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        onBackClick={() => (offer && step <= 1 ? navigate(-1) : step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
@@ -334,6 +337,7 @@ const ChangePrepaidBundle = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
+        {step > 0 && <CvmOfferBanner offer={offer} />}
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>

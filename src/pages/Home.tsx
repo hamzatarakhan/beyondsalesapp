@@ -39,6 +39,7 @@ import {
   Info,
   FileBarChart,
   Search,
+  Gift,
   LucideIcon,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
@@ -319,6 +320,8 @@ const Home = () => {
         ]),
     // Client requirements — applicable to both VM and FM, so no operator filter.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // CVM offers from Pelatro (client requirement, VM and FM). Shown to dealers with the permission.
+    { id: "customer-offers", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // Physical-SIM prepaid/basic-postpaid vanity-number activation via a pre-booked KIT —
     // client ticket, both VM and FM. Hidden from Home for now (route and page kept intact);
     // uncomment to bring it back.
@@ -506,7 +509,7 @@ const Home = () => {
     { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
     { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
     { id: "billing-credit", color: "emerald", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
-    { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
+    { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-offers", "customer-complaint"] },
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },

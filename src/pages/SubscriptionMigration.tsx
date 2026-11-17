@@ -1,3 +1,5 @@
+import CvmOfferBanner from "@/components/CvmOfferBanner";
+import { useCvmOffer } from "@/lib/cvmOffers";
 import { useEffect, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -126,6 +128,8 @@ interface DemoCustomer {
 
 const DEMO_CUSTOMERS: DemoCustomer[] = [
   { msisdn: "0501111111", subscriptionType: "prepaid", planCategory: "aman", planName: "Virgin Mobile Aman 60" },
+  // Customer Offers demo customer (migration discount offers).
+  { msisdn: "0501234567", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 100" },
   { msisdn: "0501111122", subscriptionType: "prepaid", planCategory: "base-plan", planName: "Baqah 150", isWhitelisted: true },
   { msisdn: "0501111133", subscriptionType: "prepaid", planCategory: "flex", planName: "Baqah Flex 100" },
   { msisdn: "0501111144", subscriptionType: "prepaid", planCategory: "data", planName: "300 GB (5G MBB)" },
@@ -163,6 +167,7 @@ const SubscriptionMigration = () => {
   const { brand } = useBrand();
   const isFriendi = brand === "friendi";
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
+  const offer = useCvmOffer();
   const [searchParams] = useSearchParams();
   // "Option 1" (no param) keeps today's behavior — direction is auto-detected from
   // whichever number the dealer looks up. "Option 2" is two separate Home entry points,
@@ -531,7 +536,7 @@ const SubscriptionMigration = () => {
           : t("subscriptionMigration.title")
         }
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        onBackClick={() => (offer && step <= 1 ? navigate(-1) : step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
@@ -543,6 +548,7 @@ const SubscriptionMigration = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
+        <CvmOfferBanner offer={offer} />
         {/* ── Step 0: Identity ── */}
         {step === 0 && (
           <>

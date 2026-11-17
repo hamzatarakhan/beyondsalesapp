@@ -9,6 +9,8 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import PinCodeSheet from "@/components/PinCodeSheet";
 import { ChevronRight, Ticket, Wallet } from "lucide-react";
+import CvmOfferBanner from "@/components/CvmOfferBanner";
+import { useCvmOffer } from "@/lib/cvmOffers";
 
 // Customer Recharge: the dealer tops up a customer's line either from the dealer's
 // E-Reload wallet (amount + PIN) or by redeeming a charge voucher code.
@@ -71,19 +73,23 @@ const CustomerRecharge = () => {
 export const EReloadWallet = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [msisdn, setMsisdn] = useState("");
-  const [amountText, setAmountText] = useState("");
+  const offer = useCvmOffer();
+  const minAmount = offer?.kind === "recharge" ? offer.minAmount : 0;
+  const [msisdn, setMsisdn] = useState(offer?.msisdn ?? "");
+  const [amountText, setAmountText] = useState(minAmount ? String(minAmount) : "");
   const [pinOpen, setPinOpen] = useState(false);
   const [reference, setReference] = useState("");
 
   const amount = amountText === "" ? 0 : Number(amountText);
   const overBalance = amount > E_RELOAD_BALANCE;
-  const canRecharge = isValidMsisdn(msisdn) && amount > 0 && !overBalance;
+  const belowOffer = minAmount > 0 && amount < minAmount;
+  const canRecharge = isValidMsisdn(msisdn) && amount > 0 && !overBalance && !belowOffer;
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
-      <AppHeader title={t("customerRecharge.eReloadTitle")} showBack onBackClick={() => navigate("/customer-recharge")} />
+      <AppHeader title={t("customerRecharge.eReloadTitle")} showBack onBackClick={() => (offer ? navigate(-1) : navigate("/customer-recharge"))} />
       <div className="px-4 space-y-4">
+        <CvmOfferBanner offer={offer} large />
         <div className="rounded-2xl bg-teal-700 text-white p-4 flex items-center gap-3">
           <span className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
             <Ticket className="w-4 h-4" />
@@ -110,6 +116,7 @@ export const EReloadWallet = () => {
             <span className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"><RiyalSymbol /></span>
           </div>
           {overBalance && <p className="text-[11px] text-destructive">{t("customerRecharge.overBalance")}</p>}
+          {belowOffer && <p className="text-[11px] text-destructive">{t("customerOffers.minRecharge", { amount: minAmount })}</p>}
         </Field>
       </div>
 

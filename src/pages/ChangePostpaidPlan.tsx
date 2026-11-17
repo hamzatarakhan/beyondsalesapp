@@ -1,3 +1,5 @@
+import CvmOfferBanner from "@/components/CvmOfferBanner";
+import { useCvmOffer } from "@/lib/cvmOffers";
 import { useEffect, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -90,6 +92,8 @@ interface DemoPostpaidLine {
 
 const DEMO_POSTPAID_LINES: DemoPostpaidLine[] = [
   { msisdn: "0503334444", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 150" },
+  // Customer Offers demo customer (upgrade offer to Switch Postpaid 150).
+  { msisdn: "0502222211", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 120" },
   { msisdn: "0503334455", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 120" },
   { msisdn: "0503334466", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 365" },
   { msisdn: "0503334499", status: "active", subscriptionType: "postpaid", planName: "Switch Postpaid 365", pendingDowngrade: { PricePlanName: "Virgin Basic 100", EffectiveDate: "2024-04-01" } },
@@ -120,6 +124,7 @@ const ChangePostpaidPlan = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { balance: DEALER_WALLET_BALANCE, justToppedUp } = useWalletBalance();
+  const offer = useCvmOffer();
 
   // Plain-English labels for the shared ID_TYPE_RULES keys — translated via changePostpaidPlan.idType_*
   const ID_TYPE_LABELS: Record<string, string> = {
@@ -150,7 +155,7 @@ const ChangePostpaidPlan = () => {
   const [planSearch, setPlanSearch] = useState("");
 
   const [otpOpen, setOtpOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(!!offer);
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
@@ -341,7 +346,7 @@ const ChangePostpaidPlan = () => {
       <AppHeader
         title={t("changePostpaidPlan.title")}
         showBack={step > 0 || !everProgressed}
-        onBackClick={() => (step === 0 ? navigate("/") : setStep((s) => s - 1))}
+        onBackClick={() => (offer && step <= 1 ? navigate(-1) : step === 0 ? navigate("/") : setStep((s) => s - 1))}
         rightElement={
           (step > 0 || everProgressed) ? (
             <button onClick={() => setCancelOpen(true)} aria-label="Cancel" className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center">
@@ -353,6 +358,7 @@ const ChangePostpaidPlan = () => {
       <FlowStepper current={step} steps={steps} />
 
       <div className="px-4 space-y-4">
+        {step > 0 && <CvmOfferBanner offer={offer} />}
         {/* ── Step 0: Number ── */}
         {step === 0 && (
           <>

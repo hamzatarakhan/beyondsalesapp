@@ -32,6 +32,7 @@ const SEARCH_KEYWORDS: Record<string, string> = {
   "/change-owner": "owner ownership transfer نقل ملكية",
   "/update-id": "id update identity iqama civil تحديث هوية",
   "/customer-search": "search find customer lookup بحث عميل",
+  "/customer-offers": "offers offer cvm gift bonus promotion عروض عرض هدية",
   "/customer-complaint": "complaint ticket issue شكوى",
   "/wallet-recharge": "wallet recharge top up topup my balance شحن محفظة",
   "/e-voucher": "voucher sms print قسيمة",

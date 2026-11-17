@@ -40,6 +40,7 @@ import {
   PieChart,
   Boxes,
   Search,
+  Gift,
   LucideIcon,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -111,6 +112,7 @@ const Menu = () => {
         { icon: Users, label: t("home.changeOwner"), path: "/change-owner" },
         { icon: UserCog, label: t("home.updateId"), path: "/update-id" },
         { icon: IdCard, label: t("home.customerSearch"), path: "/customer-search" },
+        { icon: Gift, label: t("home.customerOffers"), path: "/customer-offers" },
         { icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint" },
       ],
     },

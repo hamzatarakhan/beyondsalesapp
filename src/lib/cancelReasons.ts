@@ -45,6 +45,12 @@ export const CANCEL_REASONS = {
     r("technicalSystemIssue"),
     other(),
   ],
+  customerOffers: [
+    r("customerChangedMind"),
+    r("customerWantsToCompleteLater"),
+    r("technicalSystemIssue"),
+    other(),
+  ],
   billPayment: [
     r("customerChangedMind"),
     r("paymentIssue"),

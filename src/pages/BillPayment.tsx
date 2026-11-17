@@ -1,3 +1,5 @@
+import CvmOfferBanner from "@/components/CvmOfferBanner";
+import { useCvmOffer, cvmBillRequired } from "@/lib/cvmOffers";
 import { useEffect, useMemo, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -251,6 +253,11 @@ const BillPayment = () => {
   // Opened from a notification's deep link → backing out of the whole flow (step 0) returns
   // to Notifications instead of Home.
   const backTo = (location.state as { from?: string } | null)?.from === "notifications" ? "/notifications" : "/";
+  // Opened from Customer Offers: that customer's number is looked up straight away (already
+  // OTP-verified there) and the amount due follows the offer — full bill, or X% on a waiver.
+  const offer = useCvmOffer();
+  const offerRequired = (a: BillAccount) =>
+    offer && a.msisdn === offer.msisdn ? Math.round(cvmBillRequired(offer, totalDueOf(a)) * 100) / 100 : null;
 
   const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
     "switch-postpaid": t("billPayment.accountTypeSwitchPostpaid"),
@@ -293,8 +300,8 @@ const BillPayment = () => {
   useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
 
   // Step 0 — Lookup
-  const [method, setMethod] = useState<LookupMethod>("civil-id");
-  const [msisdn, setMsisdn] = useState("0502222211");
+  const [method, setMethod] = useState<LookupMethod>(offer ? "msisdn" : "civil-id");
+  const [msisdn, setMsisdn] = useState(offer?.msisdn ?? "0502222211");
   const [civilId, setCivilId] = useState("1876543210");
   const [checking, setChecking] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
@@ -314,7 +321,7 @@ const BillPayment = () => {
   // Step 2 — Checkout
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [otpOpen, setOtpOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(!!offer);
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
@@ -380,7 +387,7 @@ const BillPayment = () => {
           return;
         }
         setAccounts([found]);
-        setAmounts({ [found.msisdn]: money(totalDueOf(found)) });
+        setAmounts({ [found.msisdn]: money(offerRequired(found) ?? totalDueOf(found)) });
         setSelected({ [found.msisdn]: true });
         initExpandedAccounts([found]);
         return;
@@ -407,6 +414,9 @@ const BillPayment = () => {
     }, 800);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (offer) handleSearch(); }, []);
+
   // ---------- Derived ----------
   const isMulti = (accounts?.length ?? 0) > 1;
   const primary = accounts?.[0];
@@ -417,8 +427,8 @@ const BillPayment = () => {
   const grandTotalDue = (accounts ?? []).reduce((sum, a) => sum + totalDueOf(a), 0);
 
   /** Pay between MIN_PAY and the account's total amount due (min drops to the total if it is smaller than MIN_PAY). */
-  const maxFor = (a: BillAccount) => totalDueOf(a);
-  const minFor = (a: BillAccount) => Math.min(MIN_PAY, totalDueOf(a));
+  const maxFor = (a: BillAccount) => offerRequired(a) ?? totalDueOf(a);
+  const minFor = (a: BillAccount) => offerRequired(a) ?? Math.min(MIN_PAY, totalDueOf(a));
 
   const amountErrorFor = (a: BillAccount): string | null => {
     // Nothing owed (fully paid, or paid with a leftover advance balance) — trivially valid,
@@ -522,6 +532,7 @@ const BillPayment = () => {
 
   const handleBack = () => {
     if (step === 0) {
+      if (offer) return navigate(-1);
       navigate(backTo);
       return;
     }
@@ -689,6 +700,7 @@ const BillPayment = () => {
       {/* <FlowStepper current={step} steps={steps} /> */}
 
       <div className="px-4 space-y-4">
+        <CvmOfferBanner offer={offer} />
         {/* ── Step 0: Lookup ── */}
         {step === 0 && (
           <>

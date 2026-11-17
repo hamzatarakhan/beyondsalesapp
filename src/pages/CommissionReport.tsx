@@ -198,9 +198,13 @@ const MonthFilterSheet = ({ open, onOpenChange, value, months, onApply, onClear 
 
 // Month in progress (demo today: 15 Nov 2026). Recalculated nightly from the 1st up to yesterday, never approved or paid.
 const PROGRESS_MONTH = addMonths(LATEST_MONTH, 1);
-const PROGRESS_AS_OF = new Date(2026, 10, 14);
-const PROGRESS_DAY = 14;
-const PROGRESS_DAYS = 30;
+// Data runs up to yesterday (today 16 Nov → data up to 15 Nov, day 15). Kept inside the demo month so the
+// prototype stays coherent if it is opened outside November 2026.
+const PROGRESS_MONTH_END = new Date(PROGRESS_MONTH.getFullYear(), PROGRESS_MONTH.getMonth() + 1, 0);
+const YESTERDAY = (() => { const d = subDays(new Date(), 1); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
+const PROGRESS_AS_OF = YESTERDAY < PROGRESS_MONTH ? PROGRESS_MONTH : YESTERDAY > PROGRESS_MONTH_END ? PROGRESS_MONTH_END : YESTERDAY;
+const PROGRESS_DAY = PROGRESS_AS_OF.getDate();
+const PROGRESS_DAYS = PROGRESS_MONTH_END.getDate();
 type ProgressStatus = "ready" | "updating" | "unavailable" | "off";
 // Demo: the nightly progress run's state (Off = progress switched off for the cycle plan, so no This month chip).
 const PROGRESS_DEMO: [string, ProgressStatus][] = [["Ready", "ready"], ["Updating", "updating"], ["Unavailable", "unavailable"], ["Off", "off"]];
