@@ -207,34 +207,10 @@ const PROGRESS_DEMO: [string, ProgressStatus][] = [["Ready", "ready"], ["Updatin
 
 const EstimatePill = () => {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="shrink-0">
-        <Pill tone="wait">{t("commissionReport.notFinalYet")} <Info className="w-3 h-3" /></Pill>
-      </button>
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="bg-card rounded-t-3xl border-0 px-4 pb-6 pt-2">
-          <div className="relative flex items-center justify-center py-2">
-            <DrawerTitle className="text-lg font-medium text-foreground">{t("commissionReport.aboutAmountTitle")}</DrawerTitle>
-            <button type="button" onClick={() => setOpen(false)} aria-label={t("settings.close")} className="absolute end-0 w-9 h-9 rounded-full border border-border flex items-center justify-center"><X className="w-4 h-4" /></button>
-          </div>
-          <DrawerDescription className="sr-only">{t("commissionReport.aboutAmountTitle")}</DrawerDescription>
-          <ul className="space-y-3 py-4">
-            {(["aboutAmount1", "aboutAmount2", "aboutAmount3", "aboutAmount4"] as const).map((k) => (
-              <li key={k} className="flex gap-3 text-sm text-foreground">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />{t(`commissionReport.${k}`)}
-              </li>
-            ))}
-          </ul>
-          <Button onClick={() => setOpen(false)} className="w-full h-12 rounded-full text-base font-medium">{t("commissionReport.gotIt")}</Button>
-        </DrawerContent>
-      </Drawer>
-    </>
-  );
+  return <Pill tone="wait">{t("commissionReport.estimate")}</Pill>;
 };
 // Running month only: how much of the month the estimate covers ("Day 14 of 30"), so a small early-month figure reads as
-// "the month just started". Right: the data date, or at risk the days left to recover (then the data date goes below).
+// "the month just started". At risk, the right label counts the days left to recover instead of the final date.
 type ProgressTone = "good" | "bad" | "none" | "risk" | "sky";
 const MONTH_BAR: Record<ProgressTone, { fill: string; text: string }> = {
   good: { fill: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300" },
@@ -246,6 +222,7 @@ const MONTH_BAR: Record<ProgressTone, { fill: string; text: string }> = {
 const MonthProgress = ({ tone = "good" }: { tone?: ProgressTone }) => {
   const { t } = useTranslation();
   const c = MONTH_BAR[tone];
+  const monthEnd = new Date(PROGRESS_MONTH.getFullYear(), PROGRESS_MONTH.getMonth() + 1, 0);
   return (
     <div className="mt-2 space-y-1">
       <div className="h-1.5 rounded-full bg-white/80 dark:bg-white/10 overflow-hidden" role="progressbar" aria-valuemin={0} aria-valuemax={PROGRESS_DAYS} aria-valuenow={PROGRESS_DAY}>
@@ -253,9 +230,9 @@ const MonthProgress = ({ tone = "good" }: { tone?: ProgressTone }) => {
       </div>
       <div className={cn("flex justify-between gap-2 text-[11px]", c.text)}>
         <span>{t("commissionReport.dayOfDays", { day: PROGRESS_DAY, days: PROGRESS_DAYS })}</span>
-        <span>{tone === "risk" ? t("commissionReport.daysLeftToRecover", { n: PROGRESS_DAYS - PROGRESS_DAY }) : t("commissionReport.dataUpToShort", { date: format(PROGRESS_AS_OF, "d MMM") })}</span>
+        <span>{tone === "risk" ? t("commissionReport.daysLeftToRecover", { n: PROGRESS_DAYS - PROGRESS_DAY }) : t("commissionReport.finalAfter", { date: format(monthEnd, "d MMM") })}</span>
       </div>
-      {tone === "risk" && <p className={cn("text-[11px]", c.text)}>{t("commissionReport.dataUpToShort", { date: format(PROGRESS_AS_OF, "d MMM") })}</p>}
+      <p className={cn("text-[11px]", c.text)}>{t("commissionReport.dataUpToShort", { date: format(PROGRESS_AS_OF, "d MMM") })}</p>
     </div>
   );
 };
