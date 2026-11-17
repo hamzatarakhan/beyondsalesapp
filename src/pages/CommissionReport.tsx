@@ -155,8 +155,8 @@ const SearchBar = ({ value, onChange, placeholder, onFocus, onClear }: { value: 
 
 // Demo "today" is Nov 2026. The running month is never shown (its calculation hasn't run), so Last month, Oct 2026, is the latest.
 const LATEST_MONTH = new Date(2026, 9, 1);
-// The three months that have their own chip: Last month, then the two before it (July, June).
-const CHIP_MONTHS = [0, -1, -2].map((n) => addMonths(LATEST_MONTH, n));
+// Months with their own chip: only Last month (This month comes first when progress is on). Older months are picked from Custom.
+const CHIP_MONTHS = [LATEST_MONTH];
 // Custom sheet: the 12 completed months up to Last month (Nov 2025 – Oct 2026), each pill labelled with its year.
 const YEAR_MONTHS = Array.from({ length: 12 }, (_, m) => new Date(2025, 10 + m, 1));
 
