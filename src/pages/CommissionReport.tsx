@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { addMonths, format, subDays } from "date-fns";
-import { ArrowDown, ArrowLeft, Banknote, CalendarDays, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Banknote, Check, ChevronRight, Info, Search, SlidersHorizontal, User, X } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -239,12 +239,6 @@ const MonthProgress = ({ tone = "good" }: { tone?: ProgressTone }) => {
     </div>
   );
 };
-// The dates the figures on screen cover: "1 – 14 Nov 2026" for the running month (up to the data date), "1 – 31 Oct 2026" for a closed one.
-const PeriodLine = ({ className }: { className?: string }) => {
-  const { month, estimate } = usePeriod();
-  const end = estimate ? PROGRESS_AS_OF : new Date(month.getFullYear(), month.getMonth() + 1, 0);
-  return <p className={cn("flex items-center gap-1.5 text-xs text-muted-foreground", className)}><CalendarDays className="w-3.5 h-3.5 shrink-0" />{`1 – ${format(end, "d MMM yyyy")}`}</p>;
-};
 // While the nightly run is updating or has failed there are no figures to show (never a 0): only this message.
 const ProgressUpdating = () => {
   const { t } = useTranslation();
@@ -458,7 +452,6 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <PeriodLine className="-mt-2 px-1" />
       <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} />
     </div>
   );
@@ -466,7 +459,6 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <PeriodLine className="-mt-2 px-1" />
       <ProgressUpdating />
     </div>
   );
@@ -474,7 +466,6 @@ const MyCommission = ({ go, member }: { go: (s: Screen) => void; member?: boolea
     <div className="space-y-4">
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <PeriodLine className="-mt-2 px-1" />
       <>
       {period.estimate
         ? <Banner label={t("commissionReport.earnedSoFar", { month })} value={member ? sc(52300) : sc(missed ? 0 : 5980)} estimate />
@@ -748,7 +739,6 @@ const ActivitiesScreen = ({ kind }: { kind: BreakdownKind }) => {
     <div className="space-y-3">
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMsisdn")} onClear={() => setQ("")} />
       {showChips && <Chips clearable items={kinds} value={f} onChange={setF} />}
-      <PeriodLine className="px-1" />
       {empty && <EmptyState title={t("commissionReport.noMatchActivities")} hint={t("commissionReport.noMatchHint")} />}
       {rows.map((r) => (
         <Card key={r.phone} className="py-3 flex items-center justify-between">
@@ -835,7 +825,6 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <PeriodLine className="-mt-2 px-1" />
       {period.pending ? <EmptyState title={t("commissionReport.noCommissionsTitle")} hint={t("commissionReport.noCommissionsHint")} /> : <ProgressUpdating />}
       {sheetEl}
     </div>
@@ -845,7 +834,6 @@ const Overview = ({ go }: { go: (s: Screen) => void }) => {
       <SearchBar value={q} onChange={setQ} placeholder={t("commissionReport.searchMember")} onFocus={() => setSheet(true)} />
       <Chips items={period.items} value={period.chipValue} onChange={period.onChipChange} dotItem={period.pendingChip} />
       {period.drawer}
-      <PeriodLine className="-mt-2 px-1" />
       <>
       <div>
         <div className="rounded-2xl bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 p-3">
