@@ -598,7 +598,7 @@ const KpiBreakdown = () => {
               <span className="text-sm font-semibold text-foreground">{k.name}</span>
               {k.killer && <Pill tone="bad">Killer</Pill>}
             </div>
-            <Pill tone={missed ? "bad" : risk ? "wait" : "good"}>{estimate ? "So far" : "Achieved"} {k.achieved}%</Pill>
+            <Pill tone={missed ? "bad" : risk ? "wait" : "good"}>{estimate ? `${k.achieved}%` : `Achieved ${k.achieved}%`}</Pill>
           </div>
           <Gauge pct={(k.achieved / KPI_MAX) * 100} tick={(KPI_MIN / KPI_MAX) * 100} danger={missed} warn={risk} thick />
           <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
