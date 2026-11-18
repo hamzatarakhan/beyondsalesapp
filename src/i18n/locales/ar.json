@@ -3028,7 +3028,10 @@
       "newCount_two": "رسالتان جديدتان",
       "newCount_few": "{{count}} رسائل جديدة",
       "newCount_many": "{{count}} رسالة جديدة",
-      "newCount_other": "{{count}} رسالة جديدة"
+      "newCount_other": "{{count}} رسالة جديدة",
+      "sent": "المرسلة",
+      "received": "المستلمة",
+      "unread": "غير المقروءة"
     }
   },
   "nav": {

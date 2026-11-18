@@ -1,55 +1,55 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronRight, Inbox, Plus } from "lucide-react";
-import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
-import { BroadcastMessage, CAN_SEND_BROADCAST, getReceivedBroadcasts } from "@/data/broadcasts";
+import { ChevronRight, Inbox, Plus, Send } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CAN_SEND_BROADCAST, getReceivedBroadcasts, getSentBroadcasts } from "@/data/broadcasts";
 
-// Home Broadcast widget: the two latest received messages (same card as the See all list), See all, and New Broadcast for users allowed to send.
+// Home Broadcast widget: Sent / Received counters, each opening its own list,
+// See all, and New Broadcast for users allowed to send.
 const BroadcastWidget = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const sent = getSentBroadcasts().length;
   const received = getReceivedBroadcasts();
-  const unread = received.filter((b) => b.unread).length;
-  const latest = received.slice(0, 2);
+
+  const stats = [
+    { key: "sent", label: t("home.broadcastWidget.sent"), count: sent, icon: Send, path: "/broadcast?tab=sent" },
+    { key: "received", label: t("home.broadcastWidget.received"), count: received.length, icon: Inbox, path: "/broadcast?tab=received" },
+    // Unread counter hidden per request — kept for when it comes back.
+    // { key: "unread", label: t("home.broadcastWidget.unread"), count: unread, icon: Mail, path: "/broadcast/received?filter=unread" },
+  ];
 
   return (
     <div className="px-4 mb-4">
       <div className="bg-card rounded-2xl p-4 shadow-[var(--card-shadow)] border border-border/60">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground flex items-center gap-2">
-            {t("home.catBroadcast")}
-            {/* "N new" pill hidden per request — kept for when it comes back.
-            {unread > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary">
-                {t("home.broadcastWidget.newCount", { count: unread })}
-              </span>
-            )} */}
-          </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-foreground">{t("home.catBroadcast")}</h3>
           <button onClick={() => navigate("/broadcast?tab=received")} className="flex items-center gap-1 text-link text-sm font-medium">
             {t("home.broadcastWidget.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
           </button>
         </div>
 
-        <div className="mb-3">
-          {latest.length === 0 ? (
-            <div className="rounded-xl bg-muted/40 py-5 px-4 flex flex-col items-center gap-1.5 text-center">
-              <Inbox className="w-5 h-5 text-muted-foreground" />
-              <p className="text-sm font-medium text-foreground">{t("home.broadcastWidget.emptyTitle")}</p>
-              <p className="text-xs text-muted-foreground">{t("home.broadcastWidget.emptyHint")}</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {latest.map((b: BroadcastMessage) => (
-                <ReceivedBroadcastCard key={b.id} b={b} inset onClick={() => navigate(`/broadcast/received/${b.id}`)} />
-              ))}
-            </div>
-          )}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {stats.map((s) => {
+            // Unread stands out only while there is something unread.
+            const hot = s.key === "unread" && s.count > 0;
+            return (
+              <button
+                key={s.key}
+                onClick={() => navigate(s.path)}
+                className={cn(
+                  "rounded-xl py-3 flex flex-col items-center gap-1 transition-colors active:scale-[0.98]",
+                  hot ? "bg-primary/10" : "bg-muted/40 hover:bg-muted/70",
+                )}
+              >
+                <s.icon className={cn("w-5 h-5", hot ? "text-primary" : "text-amber-600 dark:text-amber-300")} />
+                <p className={cn("text-xl font-bold leading-tight", hot ? "text-primary" : "text-foreground")}>{s.count}</p>
+                <span className={cn("text-[11px] font-medium", hot ? "text-primary" : "text-muted-foreground")}>{s.label}</span>
+              </button>
+            );
+          })}
         </div>
-
-        {unread === 0 && latest.length > 0 && (
-          <p className="mb-3 text-xs text-muted-foreground text-center">{t("home.broadcastWidget.allCaughtUp")}</p>
-        )}
 
         {CAN_SEND_BROADCAST && (
           <button

@@ -3090,7 +3090,10 @@
       "emptyHint": "Broadcasts sent to you will show here.",
       "allCaughtUp": "You're all caught up.",
       "newCount_one": "{{count}} new",
-      "newCount_other": "{{count}} new"
+      "newCount_other": "{{count}} new",
+      "sent": "Sent",
+      "received": "Received",
+      "unread": "Unread"
     }
   },
   "nav": {
