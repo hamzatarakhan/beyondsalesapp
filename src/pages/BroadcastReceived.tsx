@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
-import { FileText, Image as ImageIcon, LucideIcon, Mic } from "lucide-react";
-import { BroadcastMessage, getReceivedBroadcasts, markBroadcastRead } from "@/data/broadcasts";
+import { Calendar, FileText, IdCard, Image as ImageIcon, LucideIcon, Mic, Users } from "lucide-react";
+import { BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
@@ -105,6 +105,91 @@ export const BroadcastReceivedDetail = () => {
               <p className="text-xs text-muted-foreground mt-0.5" dir="ltr">{b.date}</p>
             </div>
           </div>
+
+          {b.message && (
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.message")}</p>
+              <div className="rounded-2xl bg-muted/50 border border-border/60 p-4 text-sm text-foreground whitespace-pre-line">{b.message}</div>
+            </div>
+          )}
+
+          {!!b.documents?.length && (
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.documents")}</p>
+              <div className="rounded-2xl border border-dashed border-border bg-card divide-y divide-border/60">
+                {b.documents.map((doc) => (
+                  <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
+                    {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
+                    <span className="flex-1 text-sm text-foreground truncate" dir="ltr">{doc.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!!b.voiceSeconds && (
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.voiceNote")}</p>
+              <div className="bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-4">
+                <BroadcastVoiceNote seconds={b.voiceSeconds} />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PREVIEW_MEMBERS = 3;
+
+// One sent broadcast as its own page (opened from a Sent card): when it went out, who it went to,
+// the message, documents and voice note.
+export const BroadcastSentDetail = () => {
+  const { t } = useTranslation();
+  const { id } = useParams();
+  const b = getSentBroadcasts().find((x) => x.id === id);
+  const [showAll, setShowAll] = useState(false);
+  const members = b?.members ?? [];
+  const shown = showAll ? members : members.slice(0, PREVIEW_MEMBERS);
+
+  return (
+    <div className="min-h-screen bg-background pb-10">
+      <AppHeader title={t("broadcast.sent")} showBack />
+      {!b ? (
+        <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.notFound")}</p>
+      ) : (
+        <div className="px-4 space-y-5">
+          <div className="bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground">{t("broadcast.sentToMembers", { count: members.length })}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /><span dir="ltr">{b.date}</span></p>
+            </div>
+          </div>
+
+          {members.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-foreground">{t("broadcast.members")} <span className="text-muted-foreground">({members.length})</span></p>
+                {members.length > PREVIEW_MEMBERS && (
+                  <button onClick={() => setShowAll((v) => !v)} className="text-link text-sm font-medium">
+                    {showAll ? t("broadcast.showLess") : t("broadcast.seeAll")}
+                  </button>
+                )}
+              </div>
+              <div className="bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-3 space-y-2">
+                {shown.map((m) => (
+                  <div key={m.code} className="rounded-xl bg-muted/40 px-4 py-3">
+                    <p className="font-medium text-foreground truncate">{m.name}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground"><IdCard className="w-3.5 h-3.5" /><span dir="ltr">{m.code}</span></p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {b.message && (
             <div>

@@ -6284,6 +6284,12 @@
     "dateTo": "إلى",
     "time": "الوقت",
     "timeFrom": "من الساعة",
-    "timeTo": "إلى الساعة"
+    "timeTo": "إلى الساعة",
+    "sentToMembers_zero": "لم تُرسل لأي عضو",
+    "sentToMembers_one": "أُرسلت إلى عضو واحد",
+    "sentToMembers_two": "أُرسلت إلى عضوين",
+    "sentToMembers_few": "أُرسلت إلى {{count}} أعضاء",
+    "sentToMembers_many": "أُرسلت إلى {{count}} عضوًا",
+    "sentToMembers_other": "أُرسلت إلى {{count}} عضو"
   }
 }
