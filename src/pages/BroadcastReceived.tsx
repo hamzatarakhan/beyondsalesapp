@@ -160,6 +160,7 @@ export const BroadcastSentDetail = () => {
         <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.notFound")}</p>
       ) : (
         <div className="px-4 space-y-5">
+          {/* "Sent to N members" summary card hidden per request — kept for when it comes back.
           <div className="bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-4 flex items-center gap-3">
             <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Users className="w-5 h-5" />
@@ -168,7 +169,7 @@ export const BroadcastSentDetail = () => {
               <p className="font-semibold text-foreground">{t("broadcast.sentToMembers", { count: members.length })}</p>
               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /><span dir="ltr">{b.date}</span></p>
             </div>
-          </div>
+          </div> */}
 
           {members.length > 0 && (
             <div>
