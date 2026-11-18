@@ -125,7 +125,26 @@ const CustomerOffers = () => {
   }, [otpResult]);
 
   const [optIn, setOptIn] = useState<CvmOffer | null>(null);
-  const [claimed, setClaimed] = useState<string[]>(resume ? [resume.used] : []);
+  // Used offers are remembered per number for the session, so finishing a second offer
+  // never brings an earlier used one back.
+  const [claimed, setClaimed] = useState<string[]>(() => {
+    if (!resume) return [];
+    const key = `cvmClaimed:${resume.customer.msisdn}`;
+    let prev: string[] = [];
+    try { prev = JSON.parse(sessionStorage.getItem(key) || "[]"); } catch { prev = []; }
+    const all = Array.from(new Set([...prev, resume.used].filter(Boolean)));
+    sessionStorage.setItem(key, JSON.stringify(all));
+    return all;
+  });
+  useEffect(() => {
+    if (!customer) return;
+    const key = `cvmClaimed:${customer.msisdn}`;
+    let prev: string[] = [];
+    try { prev = JSON.parse(sessionStorage.getItem(key) || "[]"); } catch { prev = []; }
+    const all = Array.from(new Set([...prev, ...claimed]));
+    if (all.length !== claimed.length) setClaimed(all);
+    sessionStorage.setItem(key, JSON.stringify(all));
+  }, [customer, claimed]);
   // Opt-in failed (prototype: first try of a "failsOptIn" gift) → failure sheet with Try again.
   const [optInFailed, setOptInFailed] = useState<CvmOffer | null>(null);
   const [failedOnce, setFailedOnce] = useState<string[]>([]);
