@@ -635,11 +635,8 @@ const ChangeCustomerOwner = () => {
       </Drawer>
 
       {/* Privacy Policy */}
-      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen} dismissible={false}>
         <DrawerContent className="max-h-[85vh] overflow-hidden">
-          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
-            <X className="h-5 w-5 text-foreground" />
-          </DrawerClose>
           <DrawerHeader className="text-center">
             <DrawerTitle>{t("changeCustomerOwner.privacyPolicy")}</DrawerTitle>
             <DrawerDescription>{t("changeCustomerOwner.privacyDrawerDesc")}</DrawerDescription>
@@ -654,9 +651,6 @@ const ChangeCustomerOwner = () => {
               <Button onClick={() => { setTermsAccepted(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
                 {t("changeCustomerOwner.accept")}
               </Button>
-            </DrawerClose>
-            <DrawerClose asChild>
-              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("changeCustomerOwner.cancel")}</button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

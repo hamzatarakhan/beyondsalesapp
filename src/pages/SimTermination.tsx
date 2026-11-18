@@ -932,11 +932,8 @@ const SimTermination = () => {
       </Drawer>
 
       {/* Privacy Policy drawer */}
-      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen}>
+      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen} dismissible={false}>
         <DrawerContent className="max-h-[85vh] overflow-hidden">
-          <DrawerClose className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none">
-            <X className="h-5 w-5 text-foreground" />
-          </DrawerClose>
           <DrawerHeader className="text-center">
             <DrawerTitle>{t("activation.privacySheet.title")}</DrawerTitle>
             <DrawerDescription>{t("activation.privacySheet.subtitle")}</DrawerDescription>
@@ -951,9 +948,6 @@ const SimTermination = () => {
               <Button onClick={() => { setTerms(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
                 {t("activation.termsSheet.accept")}
               </Button>
-            </DrawerClose>
-            <DrawerClose asChild>
-              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("activation.termsSheet.cancel")}</button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
