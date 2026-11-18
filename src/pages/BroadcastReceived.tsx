@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
@@ -71,7 +71,7 @@ export const BroadcastReceivedList = () => {
       <AppHeader title={onlyUnread ? t("broadcast.unreadBroadcast") : t("broadcast.receivedBroadcast")} showBack onBackClick={() => navigate("/")} />
       <div className="px-4 space-y-3">
         {list.map((b) => (
-          <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`)} />
+          <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`, { state: { fromList: true } })} />
         ))}
         {list.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">{onlyUnread ? t("broadcast.noUnread") : t("broadcast.empty")}</p>}
       </div>
@@ -82,6 +82,8 @@ export const BroadcastReceivedList = () => {
 // One received broadcast: sender, message, documents and voice note. Opening it marks it read.
 export const BroadcastReceivedDetail = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const fromList = !!(useLocation().state as { fromList?: boolean } | null)?.fromList;
   const { id } = useParams();
   const b = getReceivedBroadcasts().find((x) => x.id === id);
 
@@ -91,7 +93,8 @@ export const BroadcastReceivedDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <AppHeader title={t("broadcast.received")} showBack />
+      {/* Back always lands on the Received list: step back to it when that is where we came from, else open it. */}
+      <AppHeader title={t("broadcast.received")} showBack onBackClick={() => (fromList ? navigate(-1) : navigate("/broadcast?tab=received", { replace: true }))} />
       {!b ? (
         <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.notFound")}</p>
       ) : (
@@ -147,6 +150,8 @@ const PREVIEW_MEMBERS = 3;
 // the message, documents and voice note.
 export const BroadcastSentDetail = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const fromList = !!(useLocation().state as { fromList?: boolean } | null)?.fromList;
   const { id } = useParams();
   const b = getSentBroadcasts().find((x) => x.id === id);
   const [showAll, setShowAll] = useState(false);
@@ -155,7 +160,8 @@ export const BroadcastSentDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <AppHeader title={t("broadcast.sent")} showBack />
+      {/* Back always lands on the Sent list. */}
+      <AppHeader title={t("broadcast.sent")} showBack onBackClick={() => (fromList ? navigate(-1) : navigate("/broadcast?tab=sent", { replace: true }))} />
       {!b ? (
         <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.notFound")}</p>
       ) : (

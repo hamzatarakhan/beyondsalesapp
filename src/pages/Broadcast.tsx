@@ -103,7 +103,7 @@ const Broadcast = () => {
 
       <div className="px-4 mt-4 space-y-3">
         {list.map((b) => tab === "received" ? (
-          <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`)} />
+          <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`, { state: { fromList: true } })} />
         ) : (
           <ReceivedBroadcastCard
             key={b.id}
@@ -111,7 +111,7 @@ const Broadcast = () => {
             title={`${t("broadcast.to")}: ${b.members?.[0]?.name ?? ""}`}
             extra={(b.members?.length ?? 0) > 1 ? `+${(b.members?.length ?? 0) - 1}` : undefined}
             icon={Users}
-            onClick={() => navigate(`/broadcast/sent/${b.id}`)}
+            onClick={() => navigate(`/broadcast/sent/${b.id}`, { state: { fromList: true } })}
           />
         ))}
         {list.length === 0 && (
