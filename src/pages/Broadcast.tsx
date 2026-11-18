@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
@@ -63,21 +64,21 @@ const Broadcast = () => {
     <div className="min-h-screen bg-background pb-28">
       <AppHeader title={t("broadcast.title")} showBack onBackClick={() => navigate("/")} />
 
+      {/* Underline tabs — same style as Orders History (Orders / Summary). */}
       <div className="px-4">
-        <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-muted/60">
-          {(["sent", "received"] as Tab[]).map((k) => (
-            <button
-              key={k}
-              onClick={() => setParams({ tab: k }, { replace: true })}
-              className={cn(
-                "h-9 rounded-full text-sm font-medium transition-colors",
-                tab === k ? "bg-primary text-primary-foreground" : "text-muted-foreground",
-              )}
-            >
-              {t(`broadcast.${k}`)}
-            </button>
-          ))}
-        </div>
+        <Tabs value={tab} onValueChange={(v) => setParams({ tab: v }, { replace: true })}>
+          <TabsList className="w-full grid grid-cols-2 bg-transparent p-0 h-auto border-b border-border rounded-none">
+            {(["sent", "received"] as Tab[]).map((k) => (
+              <TabsTrigger
+                key={k}
+                value={k}
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary"
+              >
+                {t(`broadcast.${k}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="px-4 mt-4 flex items-center gap-3">
