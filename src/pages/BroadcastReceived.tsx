@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
@@ -60,15 +60,17 @@ export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon }: 
 export const BroadcastReceivedList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const list = getReceivedBroadcasts();
+  // ?filter=unread (from the Home widget's Unread counter) lists only messages not opened yet.
+  const onlyUnread = useSearchParams()[0].get("filter") === "unread";
+  const list = getReceivedBroadcasts().filter((b) => !onlyUnread || b.unread);
   return (
     <div className="min-h-screen bg-background pb-10">
-      <AppHeader title={t("broadcast.receivedBroadcast")} showBack onBackClick={() => navigate("/")} />
+      <AppHeader title={onlyUnread ? t("broadcast.unreadBroadcast") : t("broadcast.receivedBroadcast")} showBack onBackClick={() => navigate("/")} />
       <div className="px-4 space-y-3">
         {list.map((b) => (
           <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`)} />
         ))}
-        {list.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.empty")}</p>}
+        {list.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">{onlyUnread ? t("broadcast.noUnread") : t("broadcast.empty")}</p>}
       </div>
     </div>
   );

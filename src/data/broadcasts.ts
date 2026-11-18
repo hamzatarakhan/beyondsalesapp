@@ -53,6 +53,10 @@ const received: BroadcastMessage[] = [
   { id: "BC-2170", message: "The app will be unavailable on Friday from 2:00 AM to 4:00 AM.", date: "3 Nov 2026 - 6:05 PM", from: "Huda Al-Mutairi", voiceSeconds: 5 },
 ];
 
+// Whether the signed-in user may send broadcasts. Demo value: no permissions backend yet, so the
+// "New Broadcast" actions show for everyone; set false to preview a receive-only user.
+export const CAN_SEND_BROADCAST = true;
+
 export const getSentBroadcasts = () => sent;
 export const getReceivedBroadcasts = () => received;
 export const markBroadcastRead = (id: string) => {

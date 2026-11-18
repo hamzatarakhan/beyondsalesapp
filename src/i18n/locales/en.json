@@ -3082,7 +3082,23 @@
     "catBroadcast": "Broadcast",
     "broadcastNew": "Broadcast",
     "broadcastSent": "Sent",
-    "broadcastReceived": "Received"
+    "broadcastReceived": "Received",
+    "broadcastWidget": {
+      "seeAll": "See all",
+      "newBroadcast": "New Broadcast",
+      "new": "New",
+      "sent": "Sent",
+      "received": "Received",
+      "unread": "Unread",
+      "latestMessage": "Latest message",
+      "emptyTitle": "No messages yet",
+      "emptyHint": "Broadcasts sent to you will show here.",
+      "allCaughtUp": "You're all caught up.",
+      "newCount_one": "{{count}} new",
+      "newCount_other": "{{count}} new",
+      "designOption": "Design option",
+      "option": "Option {{n}}"
+    }
   },
   "nav": {
     "home": "Home",
@@ -6286,6 +6302,8 @@
     "receivedBroadcast": "Received Broadcast",
     "file": "File",
     "voice": "Voice",
-    "notFound": "This broadcast is no longer available."
+    "notFound": "This broadcast is no longer available.",
+    "unreadBroadcast": "Unread Broadcast",
+    "noUnread": "No unread messages."
   }
 }

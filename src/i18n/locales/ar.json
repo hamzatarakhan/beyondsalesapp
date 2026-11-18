@@ -3016,7 +3016,27 @@
     "catBroadcast": "البث",
     "broadcastNew": "بث رسالة",
     "broadcastSent": "المرسلة",
-    "broadcastReceived": "المستلمة"
+    "broadcastReceived": "المستلمة",
+    "broadcastWidget": {
+      "seeAll": "عرض الكل",
+      "newBroadcast": "بث جديد",
+      "new": "جديد",
+      "sent": "المرسلة",
+      "received": "المستلمة",
+      "unread": "غير المقروءة",
+      "latestMessage": "آخر رسالة",
+      "emptyTitle": "لا توجد رسائل بعد",
+      "emptyHint": "ستظهر هنا رسائل البث المرسلة إليك.",
+      "allCaughtUp": "لا توجد رسائل جديدة.",
+      "newCount_zero": "{{count}} جديدة",
+      "newCount_one": "رسالة جديدة",
+      "newCount_two": "رسالتان جديدتان",
+      "newCount_few": "{{count}} رسائل جديدة",
+      "newCount_many": "{{count}} رسالة جديدة",
+      "newCount_other": "{{count}} رسالة جديدة",
+      "designOption": "خيار التصميم",
+      "option": "الخيار {{n}}"
+    }
   },
   "nav": {
     "home": "الرئيسية",
@@ -6257,6 +6277,8 @@
     "receivedBroadcast": "بث مستلم",
     "file": "ملف",
     "voice": "صوت",
-    "notFound": "رسالة البث هذه لم تعد متاحة."
+    "notFound": "رسالة البث هذه لم تعد متاحة.",
+    "unreadBroadcast": "البث غير المقروء",
+    "noUnread": "لا توجد رسائل غير مقروءة."
   }
 }

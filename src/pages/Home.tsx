@@ -50,6 +50,7 @@ import BottomNav from "@/components/BottomNav";
 import ActivityIcon, { ActivityColor, BadgeTone } from "@/components/ActivityIcon";
 import WorkingShiftWidget from "@/components/WorkingShiftWidget";
 import DealerVisitWidget from "@/components/DealerVisitWidget";
+import BroadcastWidget from "@/components/BroadcastWidget";
 import UatTag from "@/components/UatTag";
 
 import SematiVerification from "@/components/SematiVerification";
@@ -522,7 +523,7 @@ const Home = () => {
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
-    { id: "broadcast", color: "amber", title: t("home.catBroadcast"), ids: [/* "broadcast-new" and "broadcast-received" hidden per request */ "broadcast-sent"] },
+    // Broadcast is its own widget now (BroadcastWidget) — kept out of the tile categories.
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
   // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer
@@ -539,6 +540,7 @@ const Home = () => {
     "working-shift": { label: t("home.workingShift.title"), path: "/my-shifts" },
     "dealer-visit": { label: t("home.dealerVisit.title"), path: "/visit-management" },
     tickets: { label: t("home.tickets.title"), path: "/tickets" },
+    broadcast: { label: t("home.catBroadcast"), path: "/broadcast" },
   };
 
   const categoryWidgets: Record<string, JSX.Element | null> = Object.fromEntries(
@@ -586,6 +588,7 @@ const Home = () => {
   const widgetNodes: Record<string, JSX.Element | null> = {
     ...categoryWidgets,
     "working-shift": <WorkingShiftWidget key="working-shift" />,
+    broadcast: <BroadcastWidget key="broadcast" />,
     "dealer-visit": <DealerVisitWidget key="dealer-visit" />,
     // "other-options" hidden per request — commented out (not deleted) until asked to bring
     // it back. Matching DEFAULT_WIDGETS/WIDGET_LABEL_KEYS entries in WidgetsContext.tsx are
