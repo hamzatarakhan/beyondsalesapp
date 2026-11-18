@@ -1,0 +1,32 @@
+// Roaming countries for postpaid plans: the same list for every postpaid plan (client list),
+// shown from the "Unlimited Roaming" row. The backend will own this later. `code` is the
+// ISO 3166-1 alpha-2 code used for the flag and the Arabic name lookup. Entries without a code
+// are network operators the client listed alongside the countries (no flag, shown as-is).
+export const POSTPAID_ROAMING_COUNTRIES: { name: string; code?: string }[] = [
+  { name: "Austria", code: "at" }, { name: "Belgium", code: "be" }, { name: "Egypt", code: "eg" },
+  { name: "France", code: "fr" }, { name: "Germany", code: "de" }, { name: "Greece", code: "gr" },
+  { name: "Ireland", code: "ie" }, { name: "Italy", code: "it" }, { name: "Jordan", code: "jo" },
+  { name: "Morocco", code: "ma" }, { name: "Netherlands", code: "nl" }, { name: "Pakistan", code: "pk" },
+  { name: "Portugal", code: "pt" }, { name: "Spain", code: "es" }, { name: "Switzerland", code: "ch" },
+  { name: "Turkey", code: "tr" }, { name: "United States", code: "us" }, { name: "Afghanistan", code: "af" },
+  { name: "Albania", code: "al" }, { name: "Algeria", code: "dz" }, { name: "Australia", code: "au" },
+  { name: "Bangladesh", code: "bd" }, { name: "Bosnia and Herzegovina", code: "ba" }, { name: "Cyprus", code: "cy" },
+  { name: "Czech Republic", code: "cz" }, { name: "Telia" }, { name: "Telia Sonera" }, { name: "Telenor" },
+  { name: "Hi3G" }, { name: "Elisa" }, { name: "Finland", code: "fi" }, { name: "Gabon", code: "ga" },
+  { name: "Ghana", code: "gh" }, { name: "Guinea", code: "gn" }, { name: "Hong Kong", code: "hk" },
+  { name: "Hungary", code: "hu" }, { name: "India", code: "in" }, { name: "Indonesia", code: "id" },
+  { name: "Japan", code: "jp" }, { name: "Kazakhstan", code: "kz" }, { name: "Iraq", code: "iq" },
+  { name: "Kenya", code: "ke" }, { name: "Korea", code: "kr" }, { name: "Lebanon", code: "lb" },
+  { name: "Mauritius", code: "mu" }, { name: "Mauritania", code: "mr" }, { name: "Malta", code: "mt" },
+  { name: "Malaysia", code: "my" }, { name: "Luxembourg", code: "lu" }, { name: "New Zealand", code: "nz" },
+  { name: "Niger", code: "ne" }, { name: "Nigeria", code: "ng" }, { name: "Norway", code: "no" },
+  { name: "Palestine", code: "ps" }, { name: "Philippines", code: "ph" }, { name: "Romania", code: "ro" },
+  { name: "Senegal", code: "sn" }, { name: "Serbia", code: "rs" }, { name: "Singapore", code: "sg" },
+  { name: "Slovakia", code: "sk" }, { name: "South Africa", code: "za" }, { name: "Sri Lanka", code: "lk" },
+  { name: "Sudan", code: "sd" }, { name: "Ukraine", code: "ua" }, { name: "Tunisia", code: "tn" },
+  { name: "Tanzania", code: "tz" }, { name: "Uganda", code: "ug" }, { name: "Azerbaijan", code: "az" },
+  { name: "Brazil", code: "br" }, { name: "Congo", code: "cg" }, { name: "Croatia", code: "hr" },
+  { name: "Georgia", code: "ge" }, { name: "Poland", code: "pl" }, { name: "Russia", code: "ru" },
+  { name: "Sweden", code: "se" }, { name: "United Kingdom", code: "gb" }, { name: "Uzbekistan", code: "uz" },
+  { name: "Yemen", code: "ye" }, { name: "Oman", code: "om" },
+];

@@ -635,7 +635,7 @@ const ChangeCustomerOwner = () => {
       </Drawer>
 
       {/* Privacy Policy */}
-      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen} dismissible={false}>
+      <Drawer open={privacyOpen} onOpenChange={(o) => { setPrivacyOpen(o); if (!o) setTermsChain(false); }}>
         <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerHeader className="text-center">
             <DrawerTitle>{t("changeCustomerOwner.privacyPolicy")}</DrawerTitle>

@@ -3083,7 +3083,7 @@ const NewActivation4 = () => {
       </Drawer>
 
       {/* Privacy Policy drawer */}
-      <Drawer open={privacyOpen} onOpenChange={setPrivacyOpen} dismissible={false}>
+      <Drawer open={privacyOpen} onOpenChange={(o) => { setPrivacyOpen(o); if (!o) setTermsChain(false); }}>
         <DrawerContent className="max-h-[85vh] overflow-hidden">
           <DrawerHeader className="text-center">
             <DrawerTitle>{t("activation4.privacySheet.title")}</DrawerTitle>
