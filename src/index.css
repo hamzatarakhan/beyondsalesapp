@@ -376,6 +376,17 @@ body {
   max-width: none;
 }
 
+/* Floating action buttons: one shared anchor so they sit inside the device screen on a laptop
+   and keep the phone's safe-area margin on a real handset. Logical direction, so Arabic mirrors
+   automatically. Inset is overridable per screen with --app-fab-inset. */
+.app-fab {
+  position: fixed;
+  z-index: 40;
+  bottom: calc(var(--app-frame-bottom) + var(--app-fab-inset-block, 24px) + env(safe-area-inset-bottom, 0px));
+  inset-inline-end: calc(var(--app-frame-gutter) + var(--app-fab-inset, 16px));
+  inset-inline-start: auto;
+}
+
 .app-dialog-content {
   width: min(calc(100% - 32px), calc(var(--app-frame-width) - 32px));
   max-height: calc(var(--app-frame-height) - 32px);

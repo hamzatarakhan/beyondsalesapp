@@ -198,7 +198,7 @@ const List = ({ role, onOpen, onNew }: { role: ChainRole; onOpen: (id: string) =
       <button type="button" onClick={() => { resetChainOrders(); bump((n) => n + 1); }} className="w-full py-2 text-xs font-medium text-muted-foreground">{t("stockOpt2.resetDemo")}</button>
 
       {CREATORS.includes(role) && (
-        <button type="button" onClick={onNew} className="fixed bottom-6 end-6 z-40 h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5">
+        <button type="button" onClick={onNew} className="app-fab [--app-fab-inset:24px] h-12 ps-4 pe-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex items-center gap-1.5">
           <Plus className="w-4 h-4" /> {t("stockOpt2.newOrder")}
         </button>
       )}

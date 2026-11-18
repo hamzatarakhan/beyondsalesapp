@@ -147,7 +147,7 @@ const VisitManagement = () => {
       </div>
 
       {/* Add new visit — expands into the two visit kinds */}
-      <div className="fixed bottom-6 end-4 z-20 flex flex-col items-end gap-3">
+      <div className="app-fab flex flex-col items-end gap-3">
         {addOpen && (
           <>
             <button

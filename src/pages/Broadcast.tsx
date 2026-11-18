@@ -75,7 +75,7 @@ const Broadcast = () => {
       {tab === "sent" && CAN_SEND_BROADCAST && (
       <button
         onClick={() => navigate("/broadcast/new")}
-        className="fixed bottom-6 right-4 rtl:right-auto rtl:left-4 h-12 px-5 rounded-full bg-primary text-primary-foreground font-medium flex items-center gap-2"
+        className="app-fab h-12 px-5 rounded-full bg-primary text-primary-foreground font-medium flex items-center gap-2"
       >
         <Plus className="w-5 h-5" /> {t("broadcast.newBroadcast")}
       </button>
