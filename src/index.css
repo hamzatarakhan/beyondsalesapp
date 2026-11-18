@@ -500,3 +500,10 @@ html[lang="ar"] .text-\[15px\], html[lang="ar"] .text-base { font-size: 16px; li
 html[lang="ar"] .text-\[16px\] { font-size: 16px; }
 html[lang="ar"] .text-lg { font-size: 18px; }
 html[lang="ar"] .text-xl { font-size: 20px; }
+
+/* vaul adds a white ::after (200% tall) under every bottom sheet to hide the gap while dragging.
+   Our sheets scroll (overflow-y-auto), so that block extended the scroll area and let the sheet
+   scroll into blank white. Sheets are pinned to the frame bottom, so the block isn't needed. */
+[data-vaul-drawer]::after {
+  display: none !important;
+}
