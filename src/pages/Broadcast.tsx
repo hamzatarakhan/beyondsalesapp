@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
 import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
 import { Eye, FileText, Image as ImageIcon, Plus, Users, X } from "lucide-react";
-import { BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
+import { BroadcastMessage, CAN_SEND_BROADCAST, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
 type Tab = "sent" | "received";
 
@@ -71,12 +71,15 @@ const Broadcast = () => {
         )}
       </div>
 
+      {/* New Broadcast only on the Sent tab (hidden on Received), and only for users allowed to send. */}
+      {tab === "sent" && CAN_SEND_BROADCAST && (
       <button
         onClick={() => navigate("/broadcast/new")}
         className="fixed bottom-6 right-4 rtl:right-auto rtl:left-4 h-12 px-5 rounded-full bg-primary text-primary-foreground font-medium flex items-center gap-2"
       >
         <Plus className="w-5 h-5" /> {t("broadcast.newBroadcast")}
       </button>
+      )}
 
       <Drawer open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
         <DrawerContent className="px-4 pb-8">
