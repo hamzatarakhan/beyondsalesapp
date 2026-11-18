@@ -508,7 +508,7 @@ const Home = () => {
   // Broadcast widget: compose a broadcast, and the Sent / Received lists.
   const broadcastOptions: Tile[] = [
     { id: "broadcast-new", icon: Megaphone, label: t("home.broadcastNew"), path: "/broadcast/new" },
-    { id: "broadcast-sent", icon: MailCheck, label: t("home.broadcastSent"), path: "/broadcast?tab=sent" },
+    { id: "broadcast-sent", icon: MailCheck, label: t("home.catBroadcast"), path: "/broadcast?tab=sent" },
     { id: "broadcast-received", icon: Inbox, label: t("home.broadcastReceived"), path: "/broadcast/received" },
   ];
   const tileById: Record<string, Tile> = Object.fromEntries(
@@ -522,7 +522,7 @@ const Home = () => {
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
-    { id: "broadcast", color: "amber", title: t("home.catBroadcast"), ids: ["broadcast-new", "broadcast-sent", "broadcast-received"] },
+    { id: "broadcast", color: "amber", title: t("home.catBroadcast"), ids: [/* "broadcast-new" and "broadcast-received" hidden per request */ "broadcast-sent"] },
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
   // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer
