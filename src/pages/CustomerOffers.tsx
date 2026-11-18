@@ -381,12 +381,12 @@ const CustomerOffers = () => {
                         key={c.key}
                         onClick={() => setFilter(c.key)}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors",
+                          "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors flex items-center gap-1.5",
                           filter === c.key ? "bg-primary text-white" : "bg-card text-foreground shadow-sm",
                         )}
                       >
                         {t(`customerOffers.section.${c.key}`)}
-                        <span className={cn("ms-1.5 text-xs", filter === c.key ? "text-white/80" : "text-muted-foreground")}>{c.count}</span>
+                        <span className={cn("min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center", filter === c.key ? "bg-white/25 text-white" : "bg-primary text-primary-foreground")}>{c.count}</span>
                       </button>
                     ))}
                   </div>
