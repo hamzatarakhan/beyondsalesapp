@@ -3012,7 +3012,11 @@
       "goHome": "العودة للرئيسية"
     },
     "chooseStockReturnScenarioSub": "اختر المستخدم التجريبي لعرض إرجاع المخزون",
-    "customerOffers": "عروض العملاء"
+    "customerOffers": "عروض العملاء",
+    "catBroadcast": "البث",
+    "broadcastNew": "بث رسالة",
+    "broadcastSent": "المرسلة",
+    "broadcastReceived": "المستلمة"
   },
   "nav": {
     "home": "الرئيسية",
@@ -6109,5 +6113,29 @@
       "missed": "فائتة",
       "canceled": "ملغاة"
     }
+  },
+  "broadcast": {
+    "title": "البث",
+    "sent": "المرسلة",
+    "received": "المستلمة",
+    "to": "إلى",
+    "from": "من",
+    "unread": "غير مقروءة",
+    "empty": "لا توجد رسائل بث بعد.",
+    "newBroadcast": "بث جديد",
+    "close": "إغلاق",
+    "recipients_one": "أُرسلت إلى عضو واحد",
+    "recipients_other": "أُرسلت إلى {{count}} أعضاء",
+    "sendTo": "إرسال إلى",
+    "selectRecipients": "اختر المستلمين",
+    "allMembers": "جميع الأعضاء",
+    "subject": "الموضوع",
+    "subjectPlaceholder": "أدخل الموضوع",
+    "message": "الرسالة",
+    "messagePlaceholder": "اكتب رسالتك",
+    "send": "إرسال",
+    "sentTitle": "تم إرسال البث",
+    "sentBody": "تم إرسال رسالة البث بنجاح.",
+    "goToSent": "الذهاب إلى المرسلة"
   }
 }

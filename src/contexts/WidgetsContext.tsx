@@ -26,6 +26,7 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "member-onboarding", enabled: true },
   { id: "dealer-visit", enabled: true },
   { id: "tickets", enabled: true },
+  { id: "broadcast", enabled: true },
   { id: "working-shift", enabled: true },
 ];
 
@@ -45,6 +46,7 @@ export const WIDGET_LABEL_KEYS: Record<string, string> = {
   // "kpis": "home.kpis.title",
   "dealer-visit": "home.dealerVisit.title",
   "tickets": "home.tickets.title",
+  "broadcast": "home.catBroadcast",
 };
 
 interface WidgetsContextValue {

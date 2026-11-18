@@ -3078,7 +3078,11 @@
       "goHome": "Go to Home"
     },
     "chooseStockReturnScenarioSub": "Choose which demo user to preview Stock Return as",
-    "customerOffers": "Customer Offers"
+    "customerOffers": "Customer Offers",
+    "catBroadcast": "Broadcast",
+    "broadcastNew": "Broadcast",
+    "broadcastSent": "Sent",
+    "broadcastReceived": "Received"
   },
   "nav": {
     "home": "Home",
@@ -6144,5 +6148,29 @@
       "missed": "Missed",
       "canceled": "Canceled"
     }
+  },
+  "broadcast": {
+    "title": "Broadcast",
+    "sent": "Sent",
+    "received": "Received",
+    "to": "To",
+    "from": "From",
+    "unread": "Unread",
+    "empty": "No broadcasts yet.",
+    "newBroadcast": "New Broadcast",
+    "close": "Close",
+    "recipients_one": "Sent to {{count}} member",
+    "recipients_other": "Sent to {{count}} members",
+    "sendTo": "Send To",
+    "selectRecipients": "Select recipients",
+    "allMembers": "All Members",
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter the subject",
+    "message": "Message",
+    "messagePlaceholder": "Write your message",
+    "send": "Send",
+    "sentTitle": "Broadcast Sent",
+    "sentBody": "Your broadcast has been sent successfully.",
+    "goToSent": "Go to Sent"
   }
 }

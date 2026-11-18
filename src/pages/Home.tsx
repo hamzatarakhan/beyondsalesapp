@@ -41,6 +41,9 @@ import {
   Search,
   Gift,
   LucideIcon,
+  Megaphone,
+  MailCheck,
+  Inbox,
   // Ticket, // used by the hidden Activate Vanity Number tile (see customerOptions)
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
@@ -502,8 +505,14 @@ const Home = () => {
   // looked up by id from the arrays above, so postpaid-only tiles (Friendi) and hidden options
   // drop out on their own. Customer Recharge and Wallet Top-Up are hidden (see eWalletOptions).
   type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
+  // Broadcast widget: compose a broadcast, and the Sent / Received lists.
+  const broadcastOptions: Tile[] = [
+    { id: "broadcast-new", icon: Megaphone, label: t("home.broadcastNew"), path: "/broadcast/new" },
+    { id: "broadcast-sent", icon: MailCheck, label: t("home.broadcastSent"), path: "/broadcast?tab=sent" },
+    { id: "broadcast-received", icon: Inbox, label: t("home.broadcastReceived"), path: "/broadcast?tab=received" },
+  ];
   const tileById: Record<string, Tile> = Object.fromEntries(
-    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions].map((x) => [x.id, x as Tile]),
+    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...broadcastOptions].map((x) => [x.id, x as Tile]),
   );
   const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean; color: ActivityColor }[] = [
     { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
@@ -513,6 +522,7 @@ const Home = () => {
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
+    { id: "broadcast", color: "amber", title: t("home.catBroadcast"), ids: ["broadcast-new", "broadcast-sent", "broadcast-received"] },
   ];
   // Service search (Home): typing filters the real widgets in place. Service widgets keep only their
   // matching tiles and disappear when nothing in them matches; stand-alone widgets (Tickets, Dealer
