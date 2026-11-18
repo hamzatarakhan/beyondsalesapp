@@ -6,7 +6,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
 import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
-import { Calendar, Eye, FileText, Image as ImageIcon, Mic, Paperclip, Plus, Users, User, X } from "lucide-react";
+import { Eye, FileText, Image as ImageIcon, Plus, Users, X } from "lucide-react";
 import { BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
 type Tab = "sent" | "received";
@@ -57,32 +57,14 @@ const Broadcast = () => {
         {list.map((b) => tab === "received" ? (
           <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`)} />
         ) : (
-          <button
+          <ReceivedBroadcastCard
             key={b.id}
+            b={b}
+            title={`${t("broadcast.to")}: ${b.members?.[0]?.name ?? ""}`}
+            extra={(b.members?.length ?? 0) > 1 ? `+${(b.members?.length ?? 0) - 1}` : undefined}
+            icon={Users}
             onClick={() => openItem(b)}
-            className="w-full text-start bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] overflow-hidden flex"
-          >
-            <span className="w-1.5 shrink-0 bg-primary" />
-            <div className="flex-1 p-4 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold text-foreground flex items-center gap-2 min-w-0">
-                  {tab === "sent" ? <Users className="w-4 h-4 shrink-0" /> : <User className="w-4 h-4 shrink-0" />}
-                  <span className="truncate">{partyLine(b)}</span>
-                </p>
-                {b.unread && <span className="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0" aria-label={t("broadcast.unread")} />}
-              </div>
-              {b.message && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{b.message}</p>}
-              <div className="mt-2 space-y-1.5 text-sm text-muted-foreground">
-                {(!!b.documents?.length || !!b.voiceSeconds) && (
-                  <p className="flex items-center gap-4">
-                    {!!b.documents?.length && <span className="flex items-center gap-1.5"><Paperclip className="w-4 h-4" />{t("broadcast.filesCount", { count: b.documents.length })}</span>}
-                    {!!b.voiceSeconds && <span className="flex items-center gap-1.5"><Mic className="w-4 h-4" />{t("broadcast.voiceNote")}</span>}
-                  </p>
-                )}
-                <p className="flex items-center gap-2"><Calendar className="w-4 h-4" /><span dir="ltr">{b.date}</span></p>
-              </div>
-            </div>
-          </button>
+          />
         ))}
         {list.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-10">{t("broadcast.empty")}</p>

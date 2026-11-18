@@ -42,6 +42,7 @@ export const BROADCAST_MEMBERS: BroadcastMember[] = [
 ];
 
 const sent: BroadcastMessage[] = [
+  { id: "BC-1045", message: "New Baqah 100 posters and the updated price list are attached. Listen to the voice note for the key selling points.", date: "17 Nov 2026 - 2:30 PM", members: BROADCAST_MEMBERS.slice(2, 7), documents: [{ id: "d5", name: "Baqah_100_Poster.jpg", kind: "image" }, { id: "d6", name: "Price_List_Nov.pdf", kind: "file" }], voiceSeconds: 18 },
   { id: "BC-1042", message: "Please focus on Mobile Prepaid activations this weekend. Stock is available at all locations.", date: "16 Nov 2026 - 10:15 AM", members: BROADCAST_MEMBERS.slice(0, 4), documents: [{ id: "d1", name: "Weekend_Targets.pdf", kind: "file" }] },
   { id: "BC-1037", message: "Submit your monthly stock count before the end of the day on 30 Nov.", date: "12 Nov 2026 - 4:40 PM", members: [BROADCAST_MEMBERS[0]], voiceSeconds: 12 },
 ];

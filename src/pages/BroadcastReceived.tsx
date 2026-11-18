@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
-import { FileText, Image as ImageIcon, Mic } from "lucide-react";
+import { FileText, Image as ImageIcon, LucideIcon, Mic } from "lucide-react";
 import { BroadcastMessage, getReceivedBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
@@ -18,8 +18,9 @@ export const BroadcastDate = ({ date }: { date: string }) => {
   );
 };
 
-// One received broadcast in a list: sender, date, two lines of the message and File / Voice chips.
-export const ReceivedBroadcastCard = ({ b, onClick }: { b: BroadcastMessage; onClick: () => void }) => {
+// One broadcast in a list: sender (or, for Sent, the "To" line), date, two lines of the message and
+// File / Voice chips. Shared by the Sent and Received lists.
+export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon }: { b: BroadcastMessage; onClick: () => void; title?: string; extra?: string; icon?: LucideIcon }) => {
   const { t } = useTranslation();
   return (
     <button
@@ -28,7 +29,9 @@ export const ReceivedBroadcastCard = ({ b, onClick }: { b: BroadcastMessage; onC
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-semibold text-foreground flex items-center gap-2 min-w-0">
-          <span className="truncate">{b.from}</span>
+          {Icon && <Icon className="w-4 h-4 shrink-0 text-muted-foreground" />}
+          <span className="truncate">{title ?? b.from}</span>
+          {extra && <span className="shrink-0 text-[11px] font-medium text-primary bg-primary/10 rounded-full px-2 py-0.5" dir="ltr">{extra}</span>}
           {b.unread && <span className="w-2 h-2 rounded-full bg-primary shrink-0" aria-label={t("broadcast.unread")} />}
         </p>
         <BroadcastDate date={b.date} />
@@ -38,7 +41,7 @@ export const ReceivedBroadcastCard = ({ b, onClick }: { b: BroadcastMessage; onC
         <div className="mt-3 flex items-center gap-2">
           {!!b.documents?.length && (
             <span className="h-6 px-2.5 rounded-full border border-primary/40 text-primary text-[11px] font-medium flex items-center gap-1">
-              <FileText className="w-3.5 h-3.5" />{t("broadcast.file")}
+              <FileText className="w-3.5 h-3.5" />{t("broadcast.file")}{b.documents.length > 1 && <span dir="ltr">({b.documents.length})</span>}
             </span>
           )}
           {!!b.voiceSeconds && (
