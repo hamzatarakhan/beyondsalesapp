@@ -763,8 +763,8 @@ const SimReplacement = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { if (termsChain) { setTerms(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
-                {t("activation.privacySheet.close")}
+              <Button onClick={() => { setTerms(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
+                {t("activation.termsSheet.accept")}
               </Button>
             </DrawerClose>
           </DrawerFooter>

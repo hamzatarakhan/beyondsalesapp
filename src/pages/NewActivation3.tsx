@@ -3670,7 +3670,7 @@ const NewActivation3 = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { if (termsChain) { setTerms(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">{t("activation3.privacySheet.close")}</Button>
+              <Button onClick={() => { setTerms(true); setTermsChain(false); }} className="w-full h-12 rounded-full">{t("activation3.termsSheet.accept")}</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

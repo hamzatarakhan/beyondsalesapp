@@ -743,7 +743,7 @@ const PlanCard = ({
                   <FeatureRow icon={Phone} label={<><span className="font-semibold">{plan.mins === "Unlimited" ? unlimited : plan.mins}</span> {t("activation.plan.nationalMins")}</>} />
                 )}
                 {plan.roaming !== false && plan.mins && plan.mins !== "-" && (
-                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{unlimited}</span> {t("activation.plan.roaming")}</>} />
+                  <FeatureRow icon={Phone} label={<><span className="font-semibold">{unlimited}</span> {t("activation.plan.roaming")}</>} chip={<FlagChip onClick={() => setOpenSheet("countries")} />} />
                 )}
                 {plan.sms && plan.sms !== "-" && (
                   <FeatureRow icon={MessageSquare} label={<><span className="font-semibold">{plan.sms === "Unlimited" ? unlimited : plan.sms}</span> {t("activation.plan.sms")}</>} />

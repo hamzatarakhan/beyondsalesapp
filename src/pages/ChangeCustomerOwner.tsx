@@ -651,8 +651,8 @@ const ChangeCustomerOwner = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
-                {t("changeCustomerOwner.close")}
+              <Button onClick={() => { setTermsAccepted(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
+                {t("changeCustomerOwner.accept")}
               </Button>
             </DrawerClose>
           </DrawerFooter>

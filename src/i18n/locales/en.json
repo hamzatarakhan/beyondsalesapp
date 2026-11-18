@@ -1257,7 +1257,6 @@
     "privacyParagraph1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
     "privacyParagraph2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
     "privacyParagraph3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-    "close": "Close",
     "notEligible": "Not Eligible",
     "gotIt": "Done",
     "suspensionWarningTitle": "The customer account will be suspended",
@@ -1292,7 +1291,8 @@
     "done": "Done",
     "migrationFailedTitle": "Migration Couldn't Be Completed",
     "migrationFailedDesc": "Something went wrong while processing this request. No charge was made.",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "close": "Close"
   },
   "changePrepaidBundle": {
     "title": "Change Prepaid Bundle",
@@ -2313,7 +2313,6 @@
     "privacyParagraph1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
     "privacyParagraph2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
     "privacyParagraph3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-    "close": "Close",
     "continue": "Continue",
     "submit": "Submit",
     "confirmTitle": "Confirm ID Update",
@@ -2419,7 +2418,6 @@
     "privacyParagraph1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
     "privacyParagraph2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
     "privacyParagraph3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-    "close": "Close",
     "continue": "Continue",
     "submit": "Submit",
     "confirmTitle": "Confirm Ownership Change",
@@ -3588,8 +3586,7 @@
       "subtitle": "Please review how the customer's data is collected and used.",
       "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
       "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
-      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-      "close": "Close"
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations."
     },
     "cancelSheet": {
       "title": "Cancel activation",
@@ -4164,8 +4161,7 @@
       "subtitle": "Please review how the customer's data is collected and used.",
       "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
       "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
-      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-      "close": "Close"
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations."
     },
     "cancelSheet": {
       "title": "Cancel activation",
@@ -4814,8 +4810,7 @@
       "subtitle": "Please review how the customer's data is collected and used.",
       "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
       "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
-      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-      "close": "Close"
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations."
     },
     "cancelSheet": {
       "title": "Cancel activation",
@@ -5388,8 +5383,7 @@
       "subtitle": "Please review how the customer's data is collected and used.",
       "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
       "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
-      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-      "close": "Close"
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations."
     },
     "cancelSheet": {
       "title": "Cancel activation",
@@ -5962,8 +5956,7 @@
       "subtitle": "Please review how the customer's data is collected and used.",
       "p1": "Personal and identity data collected during activation is used solely to process the service request and meet regulatory requirements.",
       "p2": "Data is stored securely and shared only with parties required to complete activation, billing, or number portability.",
-      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations.",
-      "close": "Close"
+      "p3": "The customer may request access to, correction of, or deletion of their data in line with the applicable privacy regulations."
     },
     "cancelSheet": {
       "title": "Cancel activation",

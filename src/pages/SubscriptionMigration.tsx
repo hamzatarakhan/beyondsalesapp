@@ -1129,8 +1129,8 @@ const SubscriptionMigration = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { if (termsChain) { setTermsAccepted(true); setTermsChain(false); } }} className="w-full h-12 rounded-full">
-                {t("subscriptionMigration.close")}
+              <Button onClick={() => { setTermsAccepted(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
+                {t("subscriptionMigration.accept")}
               </Button>
             </DrawerClose>
           </DrawerFooter>
