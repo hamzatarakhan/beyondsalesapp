@@ -34,11 +34,11 @@ export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon }: 
           {extra && <span className="shrink-0 text-[11px] font-medium text-primary bg-primary/10 rounded-full px-2 py-0.5" dir="ltr">{extra}</span>}
           {b.unread && <span className="w-2 h-2 rounded-full bg-primary shrink-0" aria-label={t("broadcast.unread")} />}
         </p>
-        <BroadcastDate date={b.date} />
       </div>
       {b.message && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{b.message}</p>}
-      {(!!b.documents?.length || !!b.voiceSeconds) && (
-        <div className="mt-3 flex items-center gap-2">
+      {/* Footer: File / Voice chips at the start, date and time at the end — keeps the header to the name only. */}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {!!b.documents?.length && (
             <span className="h-6 px-2.5 rounded-full border border-primary/40 text-primary text-[11px] font-medium flex items-center gap-1">
               <FileText className="w-3.5 h-3.5" />{t("broadcast.file")}{b.documents.length > 1 && <span dir="ltr">({b.documents.length})</span>}
@@ -50,7 +50,8 @@ export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon }: 
             </span>
           )}
         </div>
-      )}
+        <BroadcastDate date={b.date} />
+      </div>
     </button>
   );
 };
