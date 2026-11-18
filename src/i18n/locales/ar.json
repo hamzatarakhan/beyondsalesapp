@@ -3020,11 +3020,6 @@
     "broadcastWidget": {
       "seeAll": "عرض الكل",
       "newBroadcast": "بث جديد",
-      "new": "جديد",
-      "sent": "المرسلة",
-      "received": "المستلمة",
-      "unread": "غير المقروءة",
-      "latestMessage": "آخر رسالة",
       "emptyTitle": "لا توجد رسائل بعد",
       "emptyHint": "ستظهر هنا رسائل البث المرسلة إليك.",
       "allCaughtUp": "لا توجد رسائل جديدة.",
@@ -3033,9 +3028,7 @@
       "newCount_two": "رسالتان جديدتان",
       "newCount_few": "{{count}} رسائل جديدة",
       "newCount_many": "{{count}} رسالة جديدة",
-      "newCount_other": "{{count}} رسالة جديدة",
-      "designOption": "خيار التصميم",
-      "option": "الخيار {{n}}"
+      "newCount_other": "{{count}} رسالة جديدة"
     }
   },
   "nav": {
