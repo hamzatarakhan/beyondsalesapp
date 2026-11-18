@@ -20,12 +20,15 @@ export const BroadcastDate = ({ date }: { date: string }) => {
 
 // One broadcast in a list: sender (or, for Sent, the "To" line), date, two lines of the message and
 // File / Voice chips. Shared by the Sent and Received lists.
-export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon }: { b: BroadcastMessage; onClick: () => void; title?: string; extra?: string; icon?: LucideIcon }) => {
+export const ReceivedBroadcastCard = ({ b, onClick, title, extra, icon: Icon, inset }: { b: BroadcastMessage; onClick: () => void; title?: string; extra?: string; icon?: LucideIcon; inset?: boolean }) => {
   const { t } = useTranslation();
   return (
     <button
       onClick={onClick}
-      className="w-full text-start bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-4"
+      // inset: same card on a muted tile, for use inside another card (the Home Broadcast widget).
+      className={inset
+        ? "w-full text-start bg-muted/40 rounded-xl p-3"
+        : "w-full text-start bg-card rounded-2xl border border-border/60 shadow-[var(--card-shadow)] p-4"}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-semibold text-foreground flex items-center gap-2 min-w-0">
