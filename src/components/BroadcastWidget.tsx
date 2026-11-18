@@ -13,8 +13,7 @@ const shortDate = (date: string) => {
   return tm ? `${dayMonth} · ${tm}` : dayMonth;
 };
 
-// Home Broadcast widget: the two latest received messages, an "N new" pill while any are unread,
-// See all, and New Broadcast for users allowed to send.
+// Home Broadcast widget: the two latest received messages, See all, and New Broadcast for users allowed to send.
 const BroadcastWidget = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -29,11 +28,12 @@ const BroadcastWidget = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             {t("home.catBroadcast")}
+            {/* "N new" pill hidden per request — kept for when it comes back.
             {unread > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary">
                 {t("home.broadcastWidget.newCount", { count: unread })}
               </span>
-            )}
+            )} */}
           </h3>
           <button onClick={() => navigate("/broadcast?tab=received")} className="flex items-center gap-1 text-link text-sm font-medium">
             {t("home.broadcastWidget.seeAll")} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
