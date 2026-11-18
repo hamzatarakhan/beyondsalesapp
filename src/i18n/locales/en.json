@@ -6300,6 +6300,15 @@
     "voice": "Voice",
     "notFound": "This broadcast is no longer available.",
     "unreadBroadcast": "Unread Broadcast",
-    "noUnread": "No unread messages."
+    "noUnread": "No unread messages.",
+    "searchMember": "Search by member name or ID",
+    "searchSender": "Search by sender name",
+    "noMatch": "No broadcasts match your search or filter.",
+    "date": "Date",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "time": "Time",
+    "timeFrom": "From time",
+    "timeTo": "To time"
   }
 }

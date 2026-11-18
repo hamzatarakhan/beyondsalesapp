@@ -71,4 +71,16 @@ export function addSentBroadcast(b: Omit<BroadcastMessage, "id" | "date">) {
   sent.unshift({ ...b, id: `BC-${1043 + sent.length}`, date: `${d} - ${tm}` });
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "17 Nov 2026 - 9:00 AM" → a Date, for the Broadcast date and time filter. */
+export function broadcastDateTime(date: string): Date | null {
+  const m = date.match(/^(\d{1,2}) (\w{3}) (\d{4}) - (\d{1,2}):(\d{2}) (AM|PM)$/);
+  if (!m) return null;
+  const month = MONTHS.indexOf(m[2]);
+  let hour = Number(m[4]) % 12;
+  if (m[6] === "PM") hour += 12;
+  return new Date(Number(m[3]), month, Number(m[1]), hour, Number(m[5]));
+}
+
 export const formatVoice = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
