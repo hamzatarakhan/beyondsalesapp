@@ -2816,7 +2816,7 @@ const NewActivation = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { setTerms(true); setTermsChain(false); }} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
+              <Button onClick={() => { setTerms(true); setTermsChain(false); setPrivacyOpen(false); }} className="w-full h-12 rounded-full">{t("activation.termsSheet.accept")}</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

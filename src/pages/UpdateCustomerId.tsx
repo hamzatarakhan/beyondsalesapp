@@ -645,7 +645,7 @@ const UpdateCustomerId = () => {
           </div>
           <DrawerFooter className="flex-col gap-3">
             <DrawerClose asChild>
-              <Button onClick={() => { setTermsAccepted(true); setTermsChain(false); }} className="w-full h-12 rounded-full">
+              <Button onClick={() => { setTermsAccepted(true); setTermsChain(false); setPrivacyOpen(false); }} className="w-full h-12 rounded-full">
                 {t("updateCustomerId.accept")}
               </Button>
             </DrawerClose>
