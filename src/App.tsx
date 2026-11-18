@@ -108,6 +108,7 @@ import Tickets from "./pages/Tickets";
 import NewTicket from "./pages/NewTicket";
 import Broadcast from "./pages/Broadcast";
 import BroadcastNew from "./pages/BroadcastNew";
+import { BroadcastReceivedList, BroadcastReceivedDetail } from "./pages/BroadcastReceived";
 import TicketDetails from "./pages/TicketDetails";
 import TicketComments from "./pages/TicketComments";
 import NotFound from "./pages/NotFound";
@@ -267,6 +268,8 @@ const App = () => {
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/broadcast/new" element={<BroadcastNew />} />
+          <Route path="/broadcast/received" element={<BroadcastReceivedList />} />
+          <Route path="/broadcast/received/:id" element={<BroadcastReceivedDetail />} />
           <Route path="/tickets/new" element={<NewTicket />} />
           <Route path="/tickets/:id" element={<TicketDetails />} />
           <Route path="/tickets/:id/comments" element={<TicketComments />} />

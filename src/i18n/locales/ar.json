@@ -6178,6 +6178,9 @@
     "filesCount_few": "{{count}} ملفات",
     "filesCount_other": "{{count}} ملف",
     "sentBroadcast": "بث مرسل",
-    "receivedBroadcast": "بث مستلم"
+    "receivedBroadcast": "بث مستلم",
+    "file": "ملف",
+    "voice": "صوت",
+    "notFound": "رسالة البث هذه لم تعد متاحة."
   }
 }

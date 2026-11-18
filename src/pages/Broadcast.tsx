@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
+import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
 import { Calendar, Eye, FileText, Image as ImageIcon, Mic, Paperclip, Plus, Users, User, X } from "lucide-react";
 import { BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
@@ -53,7 +54,9 @@ const Broadcast = () => {
       </div>
 
       <div className="px-4 mt-4 space-y-3">
-        {list.map((b) => (
+        {list.map((b) => tab === "received" ? (
+          <ReceivedBroadcastCard key={b.id} b={b} onClick={() => navigate(`/broadcast/received/${b.id}`)} />
+        ) : (
           <button
             key={b.id}
             onClick={() => openItem(b)}

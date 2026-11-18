@@ -47,9 +47,9 @@ const sent: BroadcastMessage[] = [
 ];
 
 const received: BroadcastMessage[] = [
-  { id: "BC-2210", message: "Baqah 45 and Baqah 100 are now available in SIM Activation and Change Prepaid Bundle.", date: "17 Nov 2026 - 9:00 AM", from: "Regional Manager", unread: true, voiceSeconds: 8 },
-  { id: "BC-2195", message: "October commission has been credited to your dealer wallet.", date: "10 Nov 2026 - 1:20 PM", from: "Sales Operations", unread: true, documents: [{ id: "d2", name: "Commission_Oct.pdf", kind: "file" }] },
-  { id: "BC-2170", message: "The app will be unavailable on Friday from 2:00 AM to 4:00 AM.", date: "3 Nov 2026 - 6:05 PM", from: "Sales Operations" },
+  { id: "BC-2210", message: "Baqah 45 and Baqah 100 are now available in SIM Activation and Change Prepaid Bundle.", date: "17 Nov 2026 - 9:00 AM", from: "Ahmed Al-Zahrani", unread: true, documents: [{ id: "d3", name: "Baqah_Plans.pdf", kind: "file" }, { id: "d4", name: "Baqah_Poster.jpg", kind: "image" }], voiceSeconds: 8 },
+  { id: "BC-2195", message: "October commission has been credited to your dealer wallet.", date: "10 Nov 2026 - 1:20 PM", from: "Huda Al-Mutairi", unread: true, documents: [{ id: "d2", name: "Commission_Oct.pdf", kind: "file" }] },
+  { id: "BC-2170", message: "The app will be unavailable on Friday from 2:00 AM to 4:00 AM.", date: "3 Nov 2026 - 6:05 PM", from: "Huda Al-Mutairi", voiceSeconds: 5 },
 ];
 
 export const getSentBroadcasts = () => sent;

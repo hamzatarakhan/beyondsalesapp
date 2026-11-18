@@ -509,7 +509,7 @@ const Home = () => {
   const broadcastOptions: Tile[] = [
     { id: "broadcast-new", icon: Megaphone, label: t("home.broadcastNew"), path: "/broadcast/new" },
     { id: "broadcast-sent", icon: MailCheck, label: t("home.broadcastSent"), path: "/broadcast?tab=sent" },
-    { id: "broadcast-received", icon: Inbox, label: t("home.broadcastReceived"), path: "/broadcast?tab=received" },
+    { id: "broadcast-received", icon: Inbox, label: t("home.broadcastReceived"), path: "/broadcast/received" },
   ];
   const tileById: Record<string, Tile> = Object.fromEntries(
     [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...broadcastOptions].map((x) => [x.id, x as Tile]),

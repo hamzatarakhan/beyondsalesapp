@@ -6207,6 +6207,9 @@
     "filesCount_one": "{{count}} file",
     "filesCount_other": "{{count}} files",
     "sentBroadcast": "Sent Broadcast",
-    "receivedBroadcast": "Received Broadcast"
+    "receivedBroadcast": "Received Broadcast",
+    "file": "File",
+    "voice": "Voice",
+    "notFound": "This broadcast is no longer available."
   }
 }
