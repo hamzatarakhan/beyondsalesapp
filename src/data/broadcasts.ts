@@ -1,35 +1,59 @@
 // Broadcast demo data. Sent broadcasts live in memory so a broadcast sent from the
 // compose screen shows up at the top of the Sent list for the rest of the session.
 
+export interface BroadcastMember {
+  name: string;
+  code: string;
+  region: string;
+  wilaya: string;
+  location: string;
+}
+
+export interface BroadcastDoc {
+  id: string;
+  name: string;
+  kind: "file" | "image";
+}
+
 export interface BroadcastMessage {
   id: string;
-  title: string;
   message: string;
   date: string;
-  /** Sent: who it went to. Received: who sent it. */
-  party: string;
-  /** Sent: number of recipients. */
-  recipients?: number;
+  /** Sent: the channel members it went to. */
+  members?: BroadcastMember[];
+  /** Received: who sent it. */
+  from?: string;
+  documents?: BroadcastDoc[];
+  /** Voice note length in seconds, when one was recorded. */
+  voiceSeconds?: number;
   /** Received: not opened yet. */
   unread?: boolean;
 }
 
-export const BROADCAST_MEMBERS = ["Sara Ahmad", "Faisal Al-Otaibi", "Noura Al-Harbi"];
+// Placeholder channel members for the "Channel Member" picker and its Region / Wilaya / Location filter.
+export const BROADCAST_MEMBERS: BroadcastMember[] = [
+  { name: "Sara Ahmad", code: "DST001", region: "Central", wilaya: "Riyadh", location: "Riyadh Main Branch" },
+  { name: "Faisal Al-Otaibi", code: "DST002", region: "Central", wilaya: "Riyadh", location: "Olaya Branch" },
+  { name: "Noura Al-Harbi", code: "DST003", region: "Western", wilaya: "Jeddah", location: "Jeddah Branch" },
+  { name: "Khalid Al-Dosari", code: "DST004", region: "Eastern", wilaya: "Dammam", location: "Dammam Branch" },
+  { name: "Mona Al-Qahtani", code: "DST005", region: "Western", wilaya: "Mecca", location: "Mecca Branch" },
+  { name: "Omar Al-Shehri", code: "DST006", region: "Eastern", wilaya: "Khobar", location: "Khobar Branch" },
+  { name: "Reem Al-Ghamdi", code: "DST007", region: "Western", wilaya: "Jeddah", location: "Tahlia Branch" },
+];
 
 const sent: BroadcastMessage[] = [
-  { id: "BC-1042", title: "Weekend activation push", message: "Please focus on Mobile Prepaid activations this weekend. Stock is available at all locations.", date: "16 Nov 2026 - 10:15 AM", party: "All Members", recipients: 3 },
-  { id: "BC-1037", title: "Stock count reminder", message: "Submit your monthly stock count before the end of the day on 30 Nov.", date: "12 Nov 2026 - 4:40 PM", party: "Sara Ahmad", recipients: 1 },
+  { id: "BC-1042", message: "Please focus on Mobile Prepaid activations this weekend. Stock is available at all locations.", date: "16 Nov 2026 - 10:15 AM", members: BROADCAST_MEMBERS.slice(0, 4), documents: [{ id: "d1", name: "Weekend_Targets.pdf", kind: "file" }] },
+  { id: "BC-1037", message: "Submit your monthly stock count before the end of the day on 30 Nov.", date: "12 Nov 2026 - 4:40 PM", members: [BROADCAST_MEMBERS[0]], voiceSeconds: 12 },
 ];
 
 const received: BroadcastMessage[] = [
-  { id: "BC-2210", title: "New Baqah plans launched", message: "Baqah 45 and Baqah 100 are now available in SIM Activation and Change Prepaid Bundle.", date: "17 Nov 2026 - 9:00 AM", party: "Regional Manager", unread: true },
-  { id: "BC-2195", title: "Commission payout", message: "October commission has been credited to your dealer wallet.", date: "10 Nov 2026 - 1:20 PM", party: "Sales Operations", unread: true },
-  { id: "BC-2170", title: "System maintenance", message: "The app will be unavailable on Friday from 2:00 AM to 4:00 AM.", date: "3 Nov 2026 - 6:05 PM", party: "Sales Operations" },
+  { id: "BC-2210", message: "Baqah 45 and Baqah 100 are now available in SIM Activation and Change Prepaid Bundle.", date: "17 Nov 2026 - 9:00 AM", from: "Regional Manager", unread: true, voiceSeconds: 8 },
+  { id: "BC-2195", message: "October commission has been credited to your dealer wallet.", date: "10 Nov 2026 - 1:20 PM", from: "Sales Operations", unread: true, documents: [{ id: "d2", name: "Commission_Oct.pdf", kind: "file" }] },
+  { id: "BC-2170", message: "The app will be unavailable on Friday from 2:00 AM to 4:00 AM.", date: "3 Nov 2026 - 6:05 PM", from: "Sales Operations" },
 ];
 
 export const getSentBroadcasts = () => sent;
 export const getReceivedBroadcasts = () => received;
-export const unreadBroadcastCount = () => received.filter((b) => b.unread).length;
 export const markBroadcastRead = (id: string) => {
   const b = received.find((x) => x.id === id);
   if (b) b.unread = false;
@@ -41,3 +65,5 @@ export function addSentBroadcast(b: Omit<BroadcastMessage, "id" | "date">) {
   const tm = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   sent.unshift({ ...b, id: `BC-${1043 + sent.length}`, date: `${d} - ${tm}` });
 }
+
+export const formatVoice = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
