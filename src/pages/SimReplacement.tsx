@@ -767,6 +767,9 @@ const SimReplacement = () => {
                 {t("activation.termsSheet.accept")}
               </Button>
             </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("activation.termsSheet.cancel")}</button>
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

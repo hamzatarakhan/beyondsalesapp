@@ -3101,6 +3101,9 @@ const NewActivation4 = () => {
             <DrawerClose asChild>
               <Button onClick={() => { setTerms(true); setTermsChain(false); }} className="w-full h-12 rounded-full">{t("activation4.termsSheet.accept")}</Button>
             </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("activation4.termsSheet.cancel")}</button>
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

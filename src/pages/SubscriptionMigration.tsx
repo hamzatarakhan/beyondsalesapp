@@ -1133,6 +1133,9 @@ const SubscriptionMigration = () => {
                 {t("subscriptionMigration.accept")}
               </Button>
             </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("subscriptionMigration.cancel")}</button>
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

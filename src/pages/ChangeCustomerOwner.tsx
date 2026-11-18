@@ -655,6 +655,9 @@ const ChangeCustomerOwner = () => {
                 {t("changeCustomerOwner.accept")}
               </Button>
             </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("changeCustomerOwner.cancel")}</button>
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

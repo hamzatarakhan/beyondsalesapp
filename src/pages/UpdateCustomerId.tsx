@@ -652,6 +652,9 @@ const UpdateCustomerId = () => {
                 {t("updateCustomerId.accept")}
               </Button>
             </DrawerClose>
+            <DrawerClose asChild>
+              <button type="button" onClick={() => setTermsChain(false)} className="text-sm font-semibold text-primary">{t("updateCustomerId.cancel")}</button>
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
