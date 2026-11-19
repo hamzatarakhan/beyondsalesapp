@@ -3,8 +3,9 @@ import { useLocation, useNavigate, useParams, useSearchParams } from "react-rout
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
-import { Calendar, FileText, IdCard, Image as ImageIcon, LucideIcon, Mic, Users } from "lucide-react";
-import { BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
+import BroadcastDocPreview from "@/components/BroadcastDocPreview";
+import { Calendar, Eye, FileText, IdCard, Image as ImageIcon, LucideIcon, Mic, Users } from "lucide-react";
+import { BroadcastDoc, BroadcastMessage, getReceivedBroadcasts, getSentBroadcasts, markBroadcastRead } from "@/data/broadcasts";
 
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
@@ -85,6 +86,7 @@ export const BroadcastReceivedDetail = () => {
   const navigate = useNavigate();
   const fromList = !!(useLocation().state as { fromList?: boolean } | null)?.fromList;
   const { id } = useParams();
+  const [preview, setPreview] = useState<BroadcastDoc | null>(null);
   const b = getReceivedBroadcasts().find((x) => x.id === id);
 
   useEffect(() => {
@@ -124,6 +126,9 @@ export const BroadcastReceivedDetail = () => {
                   <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
                     {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
                     <span className="flex-1 text-sm text-foreground truncate" dir="ltr">{doc.name}</span>
+                    <button onClick={() => setPreview(doc)} className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label={t("broadcast.previewFile")}>
+                      <Eye className="w-4 h-4 text-sky-500" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -140,6 +145,7 @@ export const BroadcastReceivedDetail = () => {
           )}
         </div>
       )}
+      <BroadcastDocPreview doc={preview} onClose={() => setPreview(null)} />
     </div>
   );
 };
@@ -153,6 +159,7 @@ export const BroadcastSentDetail = () => {
   const navigate = useNavigate();
   const fromList = !!(useLocation().state as { fromList?: boolean } | null)?.fromList;
   const { id } = useParams();
+  const [preview, setPreview] = useState<BroadcastDoc | null>(null);
   const b = getSentBroadcasts().find((x) => x.id === id);
   const [showAll, setShowAll] = useState(false);
   const members = b?.members ?? [];
@@ -213,6 +220,9 @@ export const BroadcastSentDetail = () => {
                   <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
                     {doc.kind === "image" ? <ImageIcon className="w-4 h-4 text-muted-foreground" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
                     <span className="flex-1 text-sm text-foreground truncate" dir="ltr">{doc.name}</span>
+                    <button onClick={() => setPreview(doc)} className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center" aria-label={t("broadcast.previewFile")}>
+                      <Eye className="w-4 h-4 text-sky-500" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -229,6 +239,7 @@ export const BroadcastSentDetail = () => {
           )}
         </div>
       )}
+      <BroadcastDocPreview doc={preview} onClose={() => setPreview(null)} />
     </div>
   );
 };
