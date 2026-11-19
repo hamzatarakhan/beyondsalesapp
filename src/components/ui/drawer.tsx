@@ -25,17 +25,22 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { overlayClassName?: string }
->(({ className, overlayClassName, children, ...props }, ref) => {
-  // Every OTP / PIN sheet (one-digit numeric boxes) puts the cursor in the first empty box once it
-  // has slid up, so the user can type straight away without tapping.
+>(({ className, overlayClassName, children, onOpenAutoFocus, ...props }, ref) => {
+  // Every OTP / PIN sheet (one-digit numeric boxes) puts the cursor in the first empty box as soon
+  // as it opens. Done inside the open itself (not on a later timer) so it still counts as part of the
+  // user's tap, which is what makes the phone keyboard come up too. A short retry covers sheets that
+  // render their boxes a moment later.
+  const nodeRef = React.useRef<HTMLElement | null>(null);
+  const firstBox = () => nodeRef.current?.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]') ?? null;
   const setRef = React.useCallback(
     (node: React.ElementRef<typeof DrawerPrimitive.Content> | null) => {
+      nodeRef.current = node;
       if (typeof ref === "function") ref(node);
       else if (ref) (ref as React.MutableRefObject<typeof node>).current = node;
       if (!node) return;
       window.setTimeout(() => {
         const first = node.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]');
-        if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus();
+        if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus({ preventScroll: true });
       }, 350);
     },
     [ref],
@@ -45,6 +50,14 @@ const DrawerContent = React.forwardRef<
     <DrawerOverlay className={overlayClassName} />
     <DrawerPrimitive.Content
       ref={setRef}
+      onOpenAutoFocus={(e) => {
+        const first = firstBox();
+        if (first && !first.value) {
+          e.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+        onOpenAutoFocus?.(e);
+      }}
       className={cn(
         "app-drawer-content fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background max-h-[90vh] overflow-y-auto overscroll-contain",
         className,

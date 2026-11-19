@@ -81,6 +81,7 @@ const PinCodeSheet = ({ open, onOpenChange, onVerified, idPrefix, title, descrip
                 inputMode="numeric"
                 autoComplete="off"
                 maxLength={1}
+                autoFocus={i === 0}
                 value={digits[i]}
                 onChange={(e) => setDigitAt(i, e.target.value)}
                 className={cn(
