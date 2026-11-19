@@ -32,6 +32,9 @@ import CreditTransfer from "./pages/CreditTransfer";
 import WalletRecharge from "./pages/WalletRecharge";
 import CustomerRecharge, { EReloadWallet, ChargeVoucher } from "./pages/CustomerRecharge";
 import CustomerOffers from "./pages/CustomerOffers";
+import CustomerOffers2 from "./pages/CustomerOffers2";
+import CustomerOffers3 from "./pages/CustomerOffers3";
+import CustomerOffers4 from "./pages/CustomerOffers4";
 import WalletTopUp from "./pages/WalletTopUp";
 import WalletAnalytics from "./pages/WalletAnalytics";
 import EVoucher, { EVoucherSms, EVoucherPrint } from "./pages/EVoucher";
@@ -191,6 +194,9 @@ const App = () => {
           <Route path="/customer-complaint" element={<CustomerComplaint />} />
           <Route path="/customer-search" element={<CustomerSearch />} />
           <Route path="/customer-offers" element={<CustomerOffers />} />
+          <Route path="/customer-offers-2" element={<CustomerOffers2 />} />
+          <Route path="/customer-offers-3" element={<CustomerOffers3 />} />
+          <Route path="/customer-offers-4" element={<CustomerOffers4 />} />
           <Route path="/sim-status-check" element={<SimStatusCheck />} />
           <Route path="/search-subscription" element={<SearchSubscription />} />
           <Route path="/search-customer" element={<SearchCustomer />} />

@@ -10,7 +10,7 @@ import RiyalSymbol from "@/components/RiyalSymbol";
 import PinCodeSheet from "@/components/PinCodeSheet";
 import { ChevronRight, Ticket, Wallet } from "lucide-react";
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
-import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
+import { cvmExit, cvmRechargeBounds, useCvmOffer } from "@/lib/cvmOffers";
 
 // Customer Recharge: the dealer tops up a customer's line either from the dealer's
 // E-Reload wallet (amount + PIN) or by redeeming a charge voucher code.
@@ -74,7 +74,7 @@ export const EReloadWallet = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const offer = useCvmOffer();
-  const minAmount = offer?.kind === "recharge" ? offer.minAmount : 0;
+  const { min: minAmount, max: maxAmount } = cvmRechargeBounds(offer);
   const [msisdn, setMsisdn] = useState(offer?.msisdn ?? "");
   const [amountText, setAmountText] = useState(minAmount ? String(minAmount) : "");
   const [pinOpen, setPinOpen] = useState(false);
@@ -82,7 +82,7 @@ export const EReloadWallet = () => {
 
   const amount = amountText === "" ? 0 : Number(amountText);
   const overBalance = amount > E_RELOAD_BALANCE;
-  const belowOffer = minAmount > 0 && amount < minAmount;
+  const belowOffer = (minAmount > 0 && amount < minAmount) || (maxAmount != null && amount > maxAmount);
   const canRecharge = isValidMsisdn(msisdn) && amount > 0 && !overBalance && !belowOffer;
 
   return (
@@ -115,7 +115,7 @@ export const EReloadWallet = () => {
             <span className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"><RiyalSymbol /></span>
           </div>
           {overBalance && <p className="text-[11px] text-destructive">{t("customerRecharge.overBalance")}</p>}
-          {belowOffer && <p className="text-[11px] text-destructive">{t("customerOffers.minRecharge", { amount: minAmount })}</p>}
+          {belowOffer && offer?.kind === "recharge" && <p className="text-[11px] text-destructive">{offer.rule === "exact" ? t("customerOffers.rechargeExactHint", { amount: offer.minAmount }) : t("customerOffers.rechargeRangeHint", { min: offer.minAmount, max: offer.maxAmount })}</p>}
         </Field>
       </div>
 

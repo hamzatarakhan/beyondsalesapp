@@ -10,7 +10,7 @@ export const useCvmOfferText = () => {
     const k = "customerOffers";
     const title = (() => {
       switch (o.kind) {
-        case "recharge": return t(`${k}.title.recharge`, { amount: o.minAmount });
+        case "recharge": return t(`${k}.title.recharge${o.rule === "exact" ? "Exact" : o.rule === "range" ? "Range" : "Any"}`, { amount: o.minAmount, min: o.minAmount, max: o.maxAmount });
         case "btl": return o.planTitle;
         case "changePlan": return t(o.renew ? `${k}.title.renew` : `${k}.title.upgrade`, { plan: o.planTitle });
         case "postpaidPlan": return t(`${k}.title.upgrade`, { plan: o.planTitle });

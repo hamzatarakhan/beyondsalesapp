@@ -15,6 +15,8 @@ interface ActivityIconProps {
   color?: ActivityColor;
   badge?: string;
   badgeTone?: BadgeTone;
+  /** Show this badge even while the rollout-status tags are hidden (used for the Option 1 / Option 2 tags). */
+  alwaysBadge?: boolean;
 }
 
 /** Rollout-status tags (Confirmed, Needs Confirm…) are hidden on every service; flip to true to show them again. */
@@ -54,7 +56,7 @@ const colorMap = {
   sky: { bg: "bg-[#F8FAFC] dark:bg-muted", icon: "text-sky-600 dark:text-sky-300", hover: "group-hover:bg-slate-100 dark:group-hover:bg-muted/70" },
 };
 
-const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badgeTone = "progress" }: ActivityIconProps) => {
+const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badgeTone = "progress", alwaysBadge }: ActivityIconProps) => {
   const c = colorMap[color];
   return (
     <button
@@ -65,7 +67,7 @@ const ActivityIcon = ({ icon: Icon, label, onClick, color = "teal", badge, badge
         <div className={`w-14 h-14 rounded-2xl ${c.bg} flex items-center justify-center transition-all ${c.hover} group-active:scale-95`}>
           <Icon className={`w-6 h-6 ${c.icon}`} strokeWidth={1.75} />
         </div>
-        {SHOW_STATUS_TAGS && badge && (
+        {(SHOW_STATUS_TAGS || alwaysBadge) && badge && (
           <span className={`absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-semibold leading-none whitespace-nowrap border shadow-sm ${badgeToneMap[badgeTone]}`}>
             {badge}
           </span>

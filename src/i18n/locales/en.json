@@ -785,7 +785,6 @@
     "offerApplied": "Customer Offer",
     "btlPrice": "SAR {{price}}",
     "ctaTopUp": "Top up",
-    "ctaSubscribe": "Subscribe",
     "ctaChangePlan": "Change plan",
     "ctaOptIn": "Opt in",
     "ctaPayBill": "Pay bill",
@@ -798,7 +797,6 @@
       "all": "All",
       "recharge": "Recharge offers",
       "plans": "Plan offers",
-      "btl": "Special plans",
       "direct": "Free gifts",
       "bill": "Bill payment offers",
       "migration": "Migration offers"
@@ -837,16 +835,17 @@
     "openingOffers": "Opening the offers…",
     "pageTitle": "Customer Offers",
     "title": {
-      "recharge": "Recharge SAR {{amount}} or more",
       "upgrade": "Upgrade to {{plan}}",
       "renew": "Renew {{plan}}",
       "direct": "Free gift",
       "billFull": "Pay the full bill, get {{pct}}% off the plan for {{months}} months",
       "billWaiver": "Pay {{pct}}% of the bill, the rest is waived",
       "billWaiverDiscount": "Pay {{pct}}% of the bill, the rest is waived + {{discount}}% off for {{months}} months",
-      "migration": "Move to postpaid, get {{pct}}% off for {{months}} months"
+      "migration": "Move to postpaid, get {{pct}}% off for {{months}} months",
+      "rechargeExact": "Recharge SAR {{amount}}",
+      "rechargeRange": "Recharge SAR {{min}} to {{max}}",
+      "rechargeAny": "Recharge any amount"
     },
-    "minRecharge": "This offer needs a recharge of SAR {{amount}} or more.",
     "stepNumber": "Number",
     "stepOffers": "Offers",
     "currentPlan": "Current Plan",
@@ -896,7 +895,6 @@
       "kickerGift": "Free gift",
       "kickerBill": "Bill offer",
       "kickerMigration": "Migration offer",
-      "minTopUp": "minimum top-up",
       "free": "Free",
       "offFor": "off for {{months}} months",
       "ofTheBill": "of the bill",
@@ -915,9 +913,50 @@
         "idd": "extra international minutes",
         "cashback": "cashback",
         "discount": "off"
-      }
+      },
+      "exactTopUp": "exact top-up",
+      "rangeTopUp": "top-up range",
+      "topUpCaption": "top-up",
+      "anyAmount": "Any amount"
     },
-    "validUntil": "Valid until {{date}}"
+    "validUntil": "Valid until {{date}}",
+    "rechargeExactHint": "This offer needs a recharge of exactly SAR {{amount}}.",
+    "rechargeRangeHint": "This offer needs a recharge between SAR {{min}} and SAR {{max}}.",
+    "review": {
+      "number": "MSISDN",
+      "currentPlan": "Current plan",
+      "amount": "Recharge amount",
+      "youGet": "You get",
+      "newPlan": "New plan",
+      "price": "Price",
+      "billDue": "Bill due",
+      "youPay": "Customer pays now",
+      "waived": "Waived",
+      "nextBills": "Next bills",
+      "migrationType": "Migration",
+      "preToPost": "Prepaid to Postpaid",
+      "discount": "Discount",
+      "discountFor": "{{pct}}% off for {{months}} months",
+      "validUntil": "Valid until",
+      "successTitle": "Offer applied",
+      "successMessage": "The offer was applied to {{msisdn}}.",
+      "hintRange": "Enter an amount from SAR {{min}} to SAR {{max}}.",
+      "hintAny": "Any amount earns this bonus.",
+      "choosePlan": "Choose the postpaid plan",
+      "choosePlanHint": "The customer moves to this plan and gets the discount.",
+      "section": {
+        "topUp": "Top-up details",
+        "plan": "Plan change",
+        "bill": "Bill details",
+        "migration": "Migration details",
+        "gift": "Gift details"
+      },
+      "selectPlan": "Select plan",
+      "chooseCta": "Choose a plan"
+    },
+    "stepReview": "Review",
+    "stepPlan": "Plan",
+    "stepAmount": "Amount"
   },
   "customerComplaint": {
     "title": "Raise Customer Complaint",
@@ -3094,7 +3133,9 @@
       "sent": "Sent",
       "received": "Received",
       "unread": "Unread"
-    }
+    },
+    "badgeOption3": "Option 3",
+    "badgeOption4": "Option 4"
   },
   "nav": {
     "home": "Home",

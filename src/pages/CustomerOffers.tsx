@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -30,17 +30,17 @@ import { AlertCircle, Check, ClipboardList, Gift, Phone, RotateCcw, Search, X, X
 // chips, confirm drawer, SuccessBottomSheet and the red-hexagon lookup error.
 
 const SECTIONS: { key: string; kinds: CvmOfferKind[] }[] = [
-  { key: "recharge", kinds: ["recharge"] },
-  { key: "plans", kinds: ["changePlan", "postpaidPlan"] },
-  { key: "btl", kinds: ["btl"] },
+  // Free gifts first (instant, no payment), then recharge, plans (plan offers + special plans).
   { key: "direct", kinds: ["direct"] },
+  { key: "recharge", kinds: ["recharge"] },
+  { key: "plans", kinds: ["changePlan", "postpaidPlan", "btl"] },
   { key: "bill", kinds: ["billFull", "billWaiver", "billWaiverDiscount"] },
   { key: "migration", kinds: ["migration"] },
 ];
 
 const CTA_KEY: Record<CvmOfferKind, string> = {
   recharge: "ctaTopUp",
-  btl: "ctaSubscribe",
+  btl: "ctaChangePlan",
   changePlan: "ctaChangePlan",
   postpaidPlan: "ctaChangePlan",
   direct: "ctaOptIn",
@@ -50,12 +50,13 @@ const CTA_KEY: Record<CvmOfferKind, string> = {
   migration: "ctaMigrate",
 };
 
+// Used offers stay hidden while navigating, but a page refresh starts clean (this runs once per page load).
+try { Object.keys(sessionStorage).filter((k) => k.startsWith("cvmClaimed:")).forEach((k) => sessionStorage.removeItem(k)); } catch { /* storage unavailable */ }
+
 const MAX_OTP_ATTEMPTS = 3;
 const SHOW_CURRENT_PLAN = false;
 // Offer count above which the text search shows (below it the type chips are enough).
 const SEARCH_MIN_OFFERS = 6;
-// Sections whose offers add a bonus after the transaction — the note shows once under the title.
-const BONUS_NOTE_SECTIONS = ["recharge", "plans", "direct"];
 
 const planOf = (title: string) => [...PREPAID_PLANS, ...POSTPAID_PLANS, ...FRIENDI_PLANS].find((x) => x.title === title);
 const layoutOf = (cats: string[]): "flex" | "postpaid" | "baqa" | "aman" | "combo" =>
@@ -111,6 +112,9 @@ const CustomerOffers = () => {
   // Result popup after the 4th digit. Wrong code (1111 in the prototype) up to 3 times → blocked.
   const [otpResult, setOtpResult] = useState<null | "verified" | "wrong" | "blocked">(null);
   const [otpAttempts, setOtpAttempts] = useState(0);
+  // Keep showing the last result while the popup fades out, otherwise a closing "verified" briefly flips to the error layout.
+  const lastOtpResult = useRef<"verified" | "wrong" | "blocked">("verified");
+  if (otpResult) lastOtpResult.current = otpResult;
   // Closing "verified" always moves on to the offers; closing an error just dismisses it.
   const closeOtpResult = () => {
     if (otpResult === "verified") setStep(1);
@@ -151,19 +155,18 @@ const CustomerOffers = () => {
   // Offer expired / already used by the time the dealer accepts it.
   const [goneOffer, setGoneOffer] = useState<CvmOffer | null>(null);
   // Loading offers from Pelatro: loading → ready, or error with Try again.
-  const [load, setLoad] = useState<"loading" | "error" | "ready">("loading");
+  const [load, setLoad] = useState<"error" | "ready">("ready");
   const [loadFailedFor, setLoadFailedFor] = useState<string[]>([]);
+  // No loading step between stages (same as SIM Activation): offers show instantly. Only the
+  // prototype's "Pelatro down" number lands on the error card, before the first paint.
   const loadOffers = () => {
     if (!customer) return;
-    setLoad("loading");
-    setTimeout(() => {
-      if (customer.offersFailFirst && !loadFailedFor.includes(customer.msisdn)) {
-        setLoadFailedFor((l) => [...l, customer.msisdn]);
-        setLoad("error");
-      } else setLoad("ready");
-    }, 900);
+    if (customer.offersFailFirst && !loadFailedFor.includes(customer.msisdn)) {
+      setLoadFailedFor((l) => [...l, customer.msisdn]);
+      setLoad("error");
+    } else setLoad("ready");
   };
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (step === 1) loadOffers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, customer?.msisdn]);
@@ -328,18 +331,7 @@ const CustomerOffers = () => {
               );
             })()}
 
-            {load === "loading" ? (
-              <div className="space-y-3" aria-busy="true" aria-label={t("customerOffers.loadingOffers")}>
-                <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-                {[0, 1].map((i) => (
-                  <div key={i} className="bg-card rounded-2xl p-4 shadow-sm space-y-3">
-                    <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
-                    <div className="h-3 w-full rounded bg-muted animate-pulse" />
-                    <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
-                  </div>
-                ))}
-              </div>
-            ) : load === "error" ? (
+            {load === "error" ? (
               <div className="bg-card rounded-2xl p-6 shadow-sm text-center">
                 <div className="mx-auto mb-3 relative w-14 h-14 flex items-center justify-center">
                   <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-destructive" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round">
@@ -402,7 +394,6 @@ const CustomerOffers = () => {
                   <div key={s.key} className="space-y-3">
                     <div className="px-1">
                       <h3 className="text-sm font-semibold text-foreground">{t(`customerOffers.section.${s.key}`)}</h3>
-                      {BONUS_NOTE_SECTIONS.includes(s.key) && <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{t("customerOffers.note.bonus")}</p>}
                     </div>
                     {s.offers.map((o) => {
                       const { benefits } = offerText(o);
@@ -677,12 +668,13 @@ const CustomerOffers = () => {
             <X className="w-4 h-4 text-foreground" />
           </button>
           {(() => {
-            const ok = otpResult === "verified";
+            const shown = otpResult ?? lastOtpResult.current;
+            const ok = shown === "verified";
             const tone = ok ? "text-emerald-600" : "text-destructive";
-            const title = ok ? t("customerOffers.otpVerifiedTitle") : otpResult === "blocked" ? t("customerOffers.otpBlockedTitle") : t("customerOffers.otpWrongTitle");
+            const title = ok ? t("customerOffers.otpVerifiedTitle") : shown === "blocked" ? t("customerOffers.otpBlockedTitle") : t("customerOffers.otpWrongTitle");
             const desc = ok
               ? t("customerOffers.otpVerifiedDesc", { msisdn })
-              : otpResult === "blocked"
+              : shown === "blocked"
               ? t("customerOffers.otpBlockedDesc")
               : t("customerOffers.otpWrongDesc", { count: MAX_OTP_ATTEMPTS - otpAttempts });
             return (
@@ -698,7 +690,7 @@ const CustomerOffers = () => {
                 {ok ? (
                   // No button: the offers open on their own a moment later (or on X / tap outside).
                   <p className="text-xs text-muted-foreground -mt-2">{t("customerOffers.openingOffers")}</p>
-                ) : otpResult === "wrong" ? (
+                ) : shown === "wrong" ? (
                   <div className="flex flex-col gap-2">
                     <button onClick={() => { setOtpResult(null); setOtpOpen(true); }} className="w-full py-3 rounded-full bg-destructive text-white font-semibold text-sm">
                       {t("customerOffers.tryAgain")}

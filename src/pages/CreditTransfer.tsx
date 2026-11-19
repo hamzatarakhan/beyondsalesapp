@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
-import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
+import { cvmExit, cvmRechargeBounds, useCvmOffer } from "@/lib/cvmOffers";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,9 @@ const CreditTransfer = () => {
   // Opened from a Customer Offers recharge offer: that customer is looked up straight away and
   // the transfer must reach the offer's minimum to earn the bonus.
   const offer = useCvmOffer();
-  const minTransfer = Math.max(MIN_TRANSFER_AMOUNT, offer?.kind === "recharge" ? offer.minAmount : 0);
+  const offerBounds = cvmRechargeBounds(offer);
+  const minTransfer = Math.max(MIN_TRANSFER_AMOUNT, offerBounds.min);
+  const maxOffer = offerBounds.max;
 
   // ---------- Flow state (single page — no step navigation) ----------
   const [msisdn, setMsisdn] = useState(offer?.msisdn ?? "0501111133");
@@ -137,16 +139,17 @@ const CreditTransfer = () => {
   useEffect(() => {
     if (!offer) return;
     handleSearch();
-    setTimeout(() => setAmount(minTransfer), 850);
+    if (!(offer.kind === "recharge" && offer.rule === "any")) setTimeout(() => setAmount(minTransfer), 850);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const eligible = !!customer && !lookupError;
   const insufficientBalance = amount != null && amount > DEALER_WALLET_BALANCE;
   const belowMin = amount != null && amount > 0 && amount < minTransfer;
+  const aboveOffer = amount != null && maxOffer != null && amount > maxOffer;
 
   // ---------- Gates ----------
-  const canTransfer = eligible && amount != null && amount >= minTransfer && !insufficientBalance;
+  const canTransfer = eligible && amount != null && amount >= minTransfer && !aboveOffer && !insufficientBalance;
 
   const pin = pinDigits.join("");
 
@@ -253,8 +256,12 @@ const CreditTransfer = () => {
                     <RiyalSymbol />
                   </span>
                 </div>
-                <p className={cn("text-[11px]", belowMin || insufficientBalance ? "text-destructive" : "text-muted-foreground")}>
-                  {t("creditTransfer.amountRangeHint", { min: minTransfer.toFixed(2), max: DEALER_WALLET_BALANCE.toFixed(2) })}
+                <p className={cn("text-[11px]", belowMin || aboveOffer || insufficientBalance ? "text-destructive" : "text-muted-foreground")}>
+                  {offer?.kind === "recharge" && offer.rule !== "any"
+                    ? offer.rule === "exact"
+                      ? t("customerOffers.rechargeExactHint", { amount: offer.minAmount })
+                      : t("customerOffers.rechargeRangeHint", { min: offer.minAmount, max: offer.maxAmount })
+                    : t("creditTransfer.amountRangeHint", { min: minTransfer.toFixed(2), max: DEALER_WALLET_BALANCE.toFixed(2) })}
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {AMOUNT_PRESETS.map((amt) => (

@@ -16,7 +16,9 @@ export type CvmOffer = {
   /** Prototype: Pelatro says the offer expired / was already used when the dealer accepts it. */
   goneOnAccept?: "expired" | "used";
 } & (
-  | { kind: "recharge"; minAmount: number; benefits: CvmBenefit[] }
+  // rule: "exact" = recharge exactly minAmount; "range" = recharge from minAmount to maxAmount;
+  // "any" = any amount earns the bonus (minAmount 0).
+  | { kind: "recharge"; rule: "exact" | "range" | "any"; minAmount: number; maxAmount?: number; benefits: CvmBenefit[] }
   | { kind: "btl"; planTitle: string; price: number }
   | { kind: "changePlan"; planTitle: string; renew?: boolean; benefits: CvmBenefit[] }
   | { kind: "direct"; benefits: CvmBenefit[] }
@@ -50,8 +52,10 @@ export const CVM_CUSTOMERS: CvmCustomer[] = [
     status: "active",
     planName: "Baqah 100",
     offers: [
-      { id: "R-1", kind: "recharge", minAmount: 50, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "5 GB" }, { kind: "idd", amount: "100" }] },
-      { id: "R-2", kind: "recharge", goneOnAccept: "expired", minAmount: 100, validUntil: "15 Dec 2026", benefits: [{ kind: "cashback", amount: "15" }] },
+      { id: "R-1", kind: "recharge", rule: "exact", minAmount: 50, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "5 GB" }, { kind: "idd", amount: "100" }] },
+      { id: "R-2", kind: "recharge", rule: "range", minAmount: 100, maxAmount: 199, validUntil: "15 Dec 2026", benefits: [{ kind: "cashback", amount: "15" }] },
+      { id: "R-3", kind: "recharge", rule: "any", minAmount: 0, validUntil: "20 Dec 2026", benefits: [{ kind: "minutes", amount: "30" }] },
+      { id: "R-4", kind: "recharge", rule: "exact", goneOnAccept: "expired", minAmount: 200, validUntil: "10 Dec 2026", benefits: [{ kind: "data", amount: "10 GB" }] },
       { id: "B-1", kind: "btl", planTitle: "Baqah 70", price: 70, validUntil: "31 Dec 2026" },
       { id: "B-2", kind: "btl", planTitle: "Baqah Flex 60", price: 60, validUntil: "31 Dec 2026" },
       { id: "C-1", kind: "changePlan", planTitle: "Baqah 150", validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "20 GB" }, { kind: "discount", amount: "10" }] },
@@ -84,7 +88,7 @@ export const CVM_CUSTOMERS: CvmCustomer[] = [
     status: "active",
     planName: "Bundleha 45GB",
     offers: [
-      { id: "FR-1", kind: "recharge", minAmount: 30, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "10 GB" }] },
+      { id: "FR-1", kind: "recharge", rule: "range", minAmount: 30, maxAmount: 99, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "10 GB" }] },
       { id: "FC-1", kind: "changePlan", planTitle: "Bundleha 55GB", validUntil: "15 Dec 2026", benefits: [{ kind: "data", amount: "5 GB" }, { kind: "discount", amount: "10" }] },
       { id: "FD-1", kind: "direct", validUntil: "25 Nov 2026", benefits: [{ kind: "social", amount: "1 GB" }] },
     ],
@@ -98,7 +102,7 @@ export const CVM_CUSTOMERS: CvmCustomer[] = [
     planName: "Virgin Mobile Aman 60",
     offersFailFirst: true,
     offers: [
-      { id: "T-1", kind: "recharge", minAmount: 30, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "3 GB" }] },
+      { id: "T-1", kind: "recharge", rule: "exact", minAmount: 30, validUntil: "30 Nov 2026", benefits: [{ kind: "data", amount: "3 GB" }] },
       { id: "T-2", kind: "direct", validUntil: "25 Nov 2026", benefits: [{ kind: "minutes", amount: "50" }] },
     ],
   },
@@ -139,6 +143,13 @@ export const useCvmOffer = () => {
     () => (location.state as { cvmOffer?: CarriedCvmOffer } | null)?.cvmOffer ?? null,
   );
   return offer;
+};
+
+/** Allowed top-up for a recharge offer: exact amount, a from-to range, or any amount (max undefined). */
+export const cvmRechargeBounds = (o: { kind: string } | null | undefined): { min: number; max?: number } => {
+  const r = o as Extract<CvmOffer, { kind: "recharge" }> | null | undefined;
+  if (!r || r.kind !== "recharge" || r.rule === "any") return { min: 0 };
+  return { min: r.minAmount, max: r.rule === "exact" ? r.minAmount : r.maxAmount };
 };
 
 /** Amount the customer must pay on a bill offer: the full due, or X% of it on a waiver offer. */

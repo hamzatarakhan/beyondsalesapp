@@ -788,7 +788,6 @@
     "offerApplied": "عرض العميل",
     "btlPrice": "{{price}} ريال",
     "ctaTopUp": "شحن",
-    "ctaSubscribe": "اشتراك",
     "ctaChangePlan": "تغيير الباقة",
     "ctaOptIn": "تفعيل",
     "ctaPayBill": "دفع الفاتورة",
@@ -801,7 +800,6 @@
       "all": "الكل",
       "recharge": "عروض الشحن",
       "plans": "عروض الباقات",
-      "btl": "باقات خاصة",
       "direct": "هدايا مجانية",
       "bill": "عروض دفع الفواتير",
       "migration": "عروض التحويل"
@@ -841,16 +839,17 @@
     "openingOffers": "جارٍ فتح العروض…",
     "pageTitle": "عروض العملاء",
     "title": {
-      "recharge": "اشحن {{amount}} ريال أو أكثر",
       "upgrade": "الترقية إلى {{plan}}",
       "renew": "تجديد {{plan}}",
       "direct": "هدية مجانية",
       "billFull": "ادفع الفاتورة كاملة واحصل على خصم {{pct}}% على الباقة لمدة {{months}} أشهر",
       "billWaiver": "ادفع {{pct}}% من الفاتورة ويُعفى الباقي",
       "billWaiverDiscount": "ادفع {{pct}}% من الفاتورة ويُعفى الباقي + خصم {{discount}}% لمدة {{months}} أشهر",
-      "migration": "انتقل إلى الآجل واحصل على خصم {{pct}}% لمدة {{months}} أشهر"
+      "migration": "انتقل إلى الآجل واحصل على خصم {{pct}}% لمدة {{months}} أشهر",
+      "rechargeExact": "اشحن {{amount}} ريال",
+      "rechargeRange": "اشحن من {{min}} إلى {{max}} ريال",
+      "rechargeAny": "اشحن بأي مبلغ"
     },
-    "minRecharge": "يتطلب هذا العرض شحن {{amount}} ريال أو أكثر.",
     "stepNumber": "الرقم",
     "stepOffers": "العروض",
     "currentPlan": "الباقة الحالية",
@@ -900,7 +899,6 @@
       "kickerGift": "هدية مجانية",
       "kickerBill": "عرض فاتورة",
       "kickerMigration": "عرض تحويل",
-      "minTopUp": "الحد الأدنى للشحن",
       "free": "مجانًا",
       "offFor": "خصم لمدة {{months}} أشهر",
       "ofTheBill": "من الفاتورة",
@@ -919,9 +917,50 @@
         "idd": "دقائق دولية إضافية",
         "cashback": "استرداد نقدي",
         "discount": "خصم"
-      }
+      },
+      "exactTopUp": "شحن بمبلغ محدد",
+      "rangeTopUp": "نطاق الشحن",
+      "topUpCaption": "شحن",
+      "anyAmount": "أي مبلغ"
     },
-    "validUntil": "صالح حتى {{date}}"
+    "validUntil": "صالح حتى {{date}}",
+    "rechargeExactHint": "يتطلب هذا العرض شحن {{amount}} ريال بالضبط.",
+    "rechargeRangeHint": "يتطلب هذا العرض شحنًا بين {{min}} و{{max}} ريال.",
+    "review": {
+      "number": "رقم MSISDN",
+      "currentPlan": "الباقة الحالية",
+      "amount": "مبلغ الشحن",
+      "youGet": "ما يحصل عليه العميل",
+      "newPlan": "الباقة الجديدة",
+      "price": "السعر",
+      "billDue": "الفاتورة المستحقة",
+      "youPay": "المبلغ المدفوع الآن",
+      "waived": "المبلغ المُعفى",
+      "nextBills": "الفواتير القادمة",
+      "migrationType": "التحويل",
+      "preToPost": "من مسبق الدفع إلى فوترة",
+      "discount": "الخصم",
+      "discountFor": "خصم {{pct}}% لمدة {{months}} أشهر",
+      "validUntil": "صالح حتى",
+      "successTitle": "تم تطبيق العرض",
+      "successMessage": "تم تطبيق العرض على الرقم {{msisdn}}.",
+      "hintRange": "أدخل مبلغًا من {{min}} إلى {{max}} ريال.",
+      "hintAny": "أي مبلغ يمنح هذا العرض.",
+      "choosePlan": "اختر باقة الفوترة",
+      "choosePlanHint": "ينتقل العميل إلى هذه الباقة ويحصل على الخصم.",
+      "section": {
+        "topUp": "تفاصيل الشحن",
+        "plan": "تغيير الباقة",
+        "bill": "تفاصيل الفاتورة",
+        "migration": "تفاصيل التحويل",
+        "gift": "تفاصيل الهدية"
+      },
+      "selectPlan": "اختيار الباقة",
+      "chooseCta": "اختر الباقة"
+    },
+    "stepReview": "المراجعة",
+    "stepPlan": "الباقة",
+    "stepAmount": "المبلغ"
   },
   "customerComplaint": {
     "title": "تقديم شكوى عميل",
@@ -3032,7 +3071,9 @@
       "sent": "المرسلة",
       "received": "المستلمة",
       "unread": "غير المقروءة"
-    }
+    },
+    "badgeOption3": "الخيار 3",
+    "badgeOption4": "الخيار 4"
   },
   "nav": {
     "home": "الرئيسية",

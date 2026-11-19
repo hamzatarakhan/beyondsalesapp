@@ -325,7 +325,13 @@ const Home = () => {
     // Client requirements — applicable to both VM and FM, so no operator filter.
     { id: "customer-search", icon: IdCard, label: t("home.customerSearch"), path: "/customer-search", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
     // CVM offers from Pelatro (client requirement, VM and FM). Shown to dealers with the permission.
-    { id: "customer-offers", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
+    // Option 1: every offer opens its own flow. Option 2: one feature with stages (Number > Offers > [Plan] > Review).
+    { id: "customer-offers", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers", badge: t("home.badgeOption1"), badgeTone: "option" as const, alwaysBadge: true },
+    { id: "customer-offers-2", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-2", badge: t("home.badgeOption2"), badgeTone: "option" as const, alwaysBadge: true },
+    // Option 3: the stages follow the offer (3 stages, or 4 when the dealer has to enter an amount or pick a plan).
+    { id: "customer-offers-3", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-3", badge: t("home.badgeOption3"), badgeTone: "option" as const, alwaysBadge: true },
+    // Option 4: always three stages; the amount / plan decision lives on one adaptive Review page.
+    { id: "customer-offers-4", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-4", badge: t("home.badgeOption4"), badgeTone: "option" as const, alwaysBadge: true },
     // Physical-SIM prepaid/basic-postpaid vanity-number activation via a pre-booked KIT —
     // client ticket, both VM and FM. Hidden from Home for now (route and page kept intact);
     // uncomment to bring it back.
@@ -505,7 +511,7 @@ const Home = () => {
   // Home widgets follow the Services Categories proposal (7 groups, in that order). Tiles are
   // looked up by id from the arrays above, so postpaid-only tiles (Friendi) and hidden options
   // drop out on their own. Customer Recharge and Wallet Top-Up are hidden (see eWalletOptions).
-  type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone };
+  type Tile = { id: string; icon: LucideIcon; label: string; path: string; badge?: string; badgeTone?: BadgeTone; alwaysBadge?: boolean };
   // Broadcast widget: compose a broadcast, and the Sent / Received lists.
   const broadcastOptions: Tile[] = [
     { id: "broadcast-new", icon: Megaphone, label: t("home.broadcastNew"), path: "/broadcast/new" },
@@ -517,9 +523,9 @@ const Home = () => {
   );
   const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean; color: ActivityColor }[] = [
     { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
-    { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre"] },
+    { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre", "customer-offers", "customer-offers-2", "customer-offers-3", "customer-offers-4"] },
     { id: "billing-credit", color: "emerald", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
-    { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-offers", "customer-complaint"] },
+    { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },
     { id: "wallet-topup", color: "teal", title: t("home.catWalletTopup"), ids: ["wallet-recharge", "e-voucher", "ewallet-transactions", "e-wallet-analytics"], walletBalance: true },
     { id: "reports-earnings", color: "indigo", title: t("home.catReportsEarnings"), ids: ["commission-report", "order-history"] },
     { id: "stock-inventory", color: "sky", title: t("home.catStockInventory"), ids: ["inventory-dashboard", "request-stock-opt2", "push-stock-opt2", "stock-return"] },
@@ -573,6 +579,7 @@ const Home = () => {
                 color={c.color}
                 badge={item.badge}
                 badgeTone={item.badgeTone}
+                alwaysBadge={item.alwaysBadge}
                 onClick={() => handleActivityClick(item.path)}
               />
             ))}

@@ -92,6 +92,10 @@ const Menu = () => {
               { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre" },
             ]
           : []),
+        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption1")})`, path: "/customer-offers" },
+        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption2")})`, path: "/customer-offers-2" },
+        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption3")})`, path: "/customer-offers-3" },
+        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption4")})`, path: "/customer-offers-4" },
       ],
     },
     {
@@ -112,7 +116,6 @@ const Menu = () => {
         { icon: Users, label: t("home.changeOwner"), path: "/change-owner" },
         { icon: UserCog, label: t("home.updateId"), path: "/update-id" },
         { icon: IdCard, label: t("home.customerSearch"), path: "/customer-search" },
-        { icon: Gift, label: t("home.customerOffers"), path: "/customer-offers" },
         { icon: MessageSquareWarning, label: t("home.customerComplaint"), path: "/customer-complaint" },
       ],
     },

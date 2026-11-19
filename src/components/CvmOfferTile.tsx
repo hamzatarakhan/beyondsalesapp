@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import { ChevronRight, ArrowLeftRight, BadgeCheck, CalendarClock, Globe, Percent, Phone, PhoneOutgoing, Plug, Receipt, Signal, Wallet } from "lucide-react";
 import RiyalSymbol from "@/components/RiyalSymbol";
 import type { CvmBenefitKind, CvmOffer } from "@/lib/cvmOffers";
@@ -38,7 +39,7 @@ export const OfferAction = ({ label, onClick }: { label: string; onClick: () => 
   </div>
 );
 
-const CvmOfferTile = ({ offer: o, action }: { offer: CvmOffer; action: React.ReactNode }) => {
+const CvmOfferTile = ({ offer: o, action, selected, onSelect }: { offer: CvmOffer; action?: React.ReactNode; selected?: boolean; onSelect?: () => void }) => {
   const { t } = useTranslation();
   const { nextBill } = useCvmOfferText()(o);
   const k = "customerOffers.tile";
@@ -53,7 +54,10 @@ const CvmOfferTile = ({ offer: o, action }: { offer: CvmOffer; action: React.Rea
   // Headline (big, primary) + small caption beside it, like a plan's data amount and price.
   const [headline, caption] = (() => {
     switch (o.kind) {
-      case "recharge": return [<><span className="text-base font-normal text-muted-foreground"><RiyalSymbol /></span> {o.minAmount}+</>, t(`${k}.minTopUp`)];
+      case "recharge":
+        return o.rule === "any"
+          ? [t(`${k}.anyAmount`), t(`${k}.topUpCaption`)]
+          : [<><span className="text-base font-normal text-muted-foreground"><RiyalSymbol /></span> {o.rule === "range" ? `${o.minAmount}–${o.maxAmount}` : o.minAmount}</>, t(o.rule === "range" ? `${k}.rangeTopUp` : `${k}.exactTopUp`)];
       case "direct": return [t(`${k}.free`), null];
       case "billFull": return [`${o.discountPct}%`, t(`${k}.offFor`, { months: o.months })];
       case "billWaiver":
@@ -103,7 +107,16 @@ const CvmOfferTile = ({ offer: o, action }: { offer: CvmOffer; action: React.Rea
   })();
 
   return (
-    <div className="relative rounded-2xl flex flex-col w-full border bg-card border-border/60">
+    <div
+      onClick={onSelect}
+      role={onSelect ? "button" : undefined}
+      aria-pressed={onSelect ? !!selected : undefined}
+      className={cn(
+        "relative rounded-2xl flex flex-col w-full transition-colors",
+        selected ? "border-[0.5px] bg-primary/10 border-primary/20" : "border bg-card border-border/60",
+        onSelect && "cursor-pointer",
+      )}
+    >
       <div className="p-4">
         <div className="flex items-center justify-between gap-2 mb-1">
           <p className="text-[12px] text-muted-foreground">
@@ -111,6 +124,12 @@ const CvmOfferTile = ({ offer: o, action }: { offer: CvmOffer; action: React.Rea
             <span className="mx-1.5">•</span>
             {t("customerOffers.validUntil", { date: o.validUntil })}
           </p>
+          {/* Same radio as the SIM Activation plan cards. */}
+          {onSelect && (
+            <span className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0", selected ? "border-primary bg-primary" : "border-muted-foreground/30")}>
+              {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </span>
+          )}
         </div>
         <div className="flex items-end gap-2 mb-4">
           <p className="text-3xl font-bold leading-none text-primary">{headline}</p>
