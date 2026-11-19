@@ -157,6 +157,8 @@ const CustomerOffers4 = () => {
   const [migPlan, setMigPlan] = useState<string | null>(null);
   // Migration: the postpaid plan is picked in a bottom sheet from the checkout, so it never stacks under the summary.
   const [planSheet, setPlanSheet] = useState(false);
+  // Current plan details, opened from the customer row on the offers list.
+  const [planInfoOpen, setPlanInfoOpen] = useState(false);
   const [sheetPick, setSheetPick] = useState<string | null>(null);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const { balance: walletBalance, justToppedUp } = useWalletBalance();
@@ -230,7 +232,9 @@ const CustomerOffers4 = () => {
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1)), 1000);
-    return () => clearInterval(interval);
+    // Cursor starts in the first box once the sheet has slid up, so the dealer can type straight away.
+    const focusTimer = setTimeout(() => (document.getElementById("cvm-otp-0") as HTMLInputElement | null)?.focus(), 350);
+    return () => { clearInterval(interval); clearTimeout(focusTimer); };
   }, [otpOpen]);
 
   const setOtpDigitAt = (i: number, v: string) => {
@@ -381,18 +385,24 @@ const CustomerOffers4 = () => {
         {/* ── Step 1: Offers ── */}
         {step === 1 && customer && (
           <>
-            {/* Who the dealer is serving, so the offers below read as "for this customer". */}
-            <div className="flex items-center gap-3 bg-card rounded-2xl p-3 shadow-sm">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Phone className="w-4 h-4 text-primary" />
+            {/* The customer's current plan, as a light tappable row; tap for the plan's details. */}
+            <button
+              type="button"
+              onClick={() => setPlanInfoOpen(true)}
+              className="w-full flex items-center gap-3 bg-card rounded-xl shadow-sm px-3 py-2 text-start active:opacity-80"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-4 h-4 text-primary" />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground">{customer.msisdn}</p>
-                <p className="text-[11px] text-muted-foreground truncate">
-                  {customer.planName} · {t(customer.type === "prepaid" ? "customerOffers.prepaid" : "customerOffers.postpaid")}
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-muted-foreground truncate">{t("customerOffers.currentPlan")} · {customer.msisdn}</p>
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {customer.planName}
+                  <span className="font-normal text-muted-foreground"> · {t(customer.type === "prepaid" ? "customerOffers.prepaid" : "customerOffers.postpaid")}</span>
                 </p>
               </div>
-            </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
+            </button>
 
             {/* Current Plan — same header pill + PlanCard as Subscription Migration's. Hidden for
                 now so the offers start right under the stepper; flip SHOW_CURRENT_PLAN to bring it back. */}
@@ -698,6 +708,33 @@ const CustomerOffers4 = () => {
           </div>
         </div>
       )}
+
+      {/* Current plan details */}
+      <Drawer open={planInfoOpen} onOpenChange={setPlanInfoOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+          <DrawerHeader className="text-start px-0 pb-3">
+            <DrawerTitle>{t("customerOffers.currentPlan")}</DrawerTitle>
+            <DrawerDescription>
+              {customer?.msisdn} · {customer && t(customer.type === "prepaid" ? "customerOffers.prepaid" : "customerOffers.postpaid")}
+            </DrawerDescription>
+          </DrawerHeader>
+          {(() => {
+            const cur = customer ? planOf(customer.planName) : undefined;
+            if (!cur) return <p className="text-sm text-foreground pb-2">{customer?.planName}</p>;
+            return (
+              <PlanCard
+                plan={{ ...cur, badge: undefined }}
+                selected
+                active
+                hideRadio
+                onSelect={() => {}}
+                layout={layoutOf(cur.categories ?? [])}
+                minsLabel={(cur.categories ?? []).includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
+              />
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
 
       {/* Migration plan picker */}
       <Drawer open={planSheet} onOpenChange={setPlanSheet}>

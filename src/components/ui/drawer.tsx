@@ -25,11 +25,26 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { overlayClassName?: string }
->(({ className, overlayClassName, children, ...props }, ref) => (
+>(({ className, overlayClassName, children, ...props }, ref) => {
+  // Every OTP / PIN sheet (one-digit numeric boxes) puts the cursor in the first empty box once it
+  // has slid up, so the user can type straight away without tapping.
+  const setRef = React.useCallback(
+    (node: React.ElementRef<typeof DrawerPrimitive.Content> | null) => {
+      if (typeof ref === "function") ref(node);
+      else if (ref) (ref as React.MutableRefObject<typeof node>).current = node;
+      if (!node) return;
+      window.setTimeout(() => {
+        const first = node.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]');
+        if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus();
+      }, 350);
+    },
+    [ref],
+  );
+  return (
   <DrawerPortal>
     <DrawerOverlay className={overlayClassName} />
     <DrawerPrimitive.Content
-      ref={ref}
+      ref={setRef}
       className={cn(
         "app-drawer-content fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background max-h-[90vh] overflow-y-auto overscroll-contain",
         className,
@@ -40,7 +55,8 @@ const DrawerContent = React.forwardRef<
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
-));
+  );
+});
 DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

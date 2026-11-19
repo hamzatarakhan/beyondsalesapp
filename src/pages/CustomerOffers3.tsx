@@ -227,7 +227,9 @@ const CustomerOffers3 = () => {
     setOtpError(false);
     setOtpSecondsLeft(30);
     const interval = setInterval(() => setOtpSecondsLeft((s) => (s <= 1 ? 0 : s - 1)), 1000);
-    return () => clearInterval(interval);
+    // Cursor starts in the first box once the sheet has slid up, so the dealer can type straight away.
+    const focusTimer = setTimeout(() => (document.getElementById("cvm-otp-0") as HTMLInputElement | null)?.focus(), 350);
+    return () => { clearInterval(interval); clearTimeout(focusTimer); };
   }, [otpOpen]);
 
   const setOtpDigitAt = (i: number, v: string) => {
