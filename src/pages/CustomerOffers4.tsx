@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { primeKeyboard, releaseKeyboard } from "@/lib/keyboard";
 import { CVM_CUSTOMERS, cvmRechargeBounds, cvmBillRequired, type CvmCustomer, type CvmOffer, type CvmOfferKind } from "@/lib/cvmOffers";
 import { AlertCircle, ArrowLeftRight, Check, ChevronRight, ClipboardList, CreditCard, Gift, Phone, Receipt, ReceiptText, Repeat, RotateCcw, Search, Send, Wallet, X, XCircle } from "lucide-react";
 
@@ -213,13 +214,14 @@ const CustomerOffers4 = () => {
   }, [msisdn]);
 
   const verifyNumber = () => {
+    primeKeyboard();
     setChecking(true);
     setTimeout(() => {
       setChecking(false);
       const found = CVM_CUSTOMERS.find((c) => c.msisdn === msisdn);
-      if (!found) return setLookupError(t("customerOffers.errorNotFound"));
-      if (found.status === "terminated") return setLookupError(t("customerOffers.errorTerminated"));
-      if (found.brand !== brand) return setBrandMismatch(found);
+      if (!found) { releaseKeyboard(); return setLookupError(t("customerOffers.errorNotFound")); }
+      if (found.status === "terminated") { releaseKeyboard(); return setLookupError(t("customerOffers.errorTerminated")); }
+      if (found.brand !== brand) { releaseKeyboard(); return setBrandMismatch(found); }
       setCustomer(found);
       setOtpOpen(true);
     }, 800);

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "@/lib/utils";
+import { releaseKeyboard } from "@/lib/keyboard";
 
 const Drawer = ({ shouldScaleBackground = true, ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
@@ -41,6 +42,7 @@ const DrawerContent = React.forwardRef<
       window.setTimeout(() => {
         const first = node.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]');
         if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus({ preventScroll: true });
+        releaseKeyboard();
       }, 350);
     },
     [ref],
@@ -55,6 +57,7 @@ const DrawerContent = React.forwardRef<
         if (first && !first.value) {
           e.preventDefault();
           first.focus({ preventScroll: true });
+          releaseKeyboard();
         }
         onOpenAutoFocus?.(e);
       }}
