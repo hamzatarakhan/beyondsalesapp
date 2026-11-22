@@ -91,7 +91,7 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const OfferRail = ({ rail, children }: { rail: boolean; children: React.ReactNode }) => {
   const drag = useDragScroll<HTMLDivElement>();
   return rail ? (
-    <div {...drag} className={cn("flex gap-3 overflow-x-auto snap-x snap-proximity scroll-px-4 -mx-4 px-4 pb-1 items-stretch [&::-webkit-scrollbar]:hidden [scrollbar-width:none]", drag.className)}>
+    <div {...drag} className={cn("flex gap-3 overflow-x-auto snap-x snap-proximity [@media(pointer:fine)]:snap-none scroll-px-4 -mx-4 px-4 pb-1 items-stretch [&::-webkit-scrollbar]:hidden [scrollbar-width:none]", drag.className)}>
       {children}
     </div>
   ) : (
@@ -155,6 +155,8 @@ const CustomerOffers3 = () => {
   const [customer, setCustomer] = useState<CvmCustomer | null>(resume?.customer ?? null);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
+  // A different customer starts with a clean list: no leftover search text, chip or See all page.
+  useEffect(() => { setSearch(""); setFilter("all"); setSeeAll(null); }, [customer?.msisdn]);
 
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
