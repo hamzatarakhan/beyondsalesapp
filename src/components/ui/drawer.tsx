@@ -30,9 +30,17 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 const attachKeyboardLift = (node: HTMLElement) => {
   const vv = window.visualViewport;
   if (!vv) return () => {};
+  // Only the keyboard's real open / close moves the sheet. Small viewport wobbles while typing (the
+  // toolbar above the keys changing as focus hops between boxes, iOS scrolling the page) are ignored,
+  // so the sheet stays put instead of jiggling on every digit.
+  let current = 0;
   const apply = () => {
-    const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    if (inset > 80) {
+    const inset = Math.max(0, window.innerHeight - vv.height);
+    const open = inset > 80;
+    if (open && current > 0 && Math.abs(inset - current) < 60) return;
+    if (!open && current === 0) return;
+    current = open ? inset : 0;
+    if (open) {
       node.style.bottom = `${inset}px`;
       node.style.maxHeight = `${Math.max(200, vv.height - 24)}px`;
     } else {
@@ -43,7 +51,7 @@ const attachKeyboardLift = (node: HTMLElement) => {
   apply();
   // Keyboard already up as the sheet opens (primed on the tap): a short fade-up instead of the long
   // slide from the screen bottom, which would otherwise pass behind the keyboard and its toolbar.
-  if (Math.max(0, window.innerHeight - vv.height - vv.offsetTop) > 80) node.classList.add("kb-open");
+  if (Math.max(0, window.innerHeight - vv.height) > 80) node.classList.add("kb-open");
   vv.addEventListener("resize", apply);
   vv.addEventListener("scroll", apply);
   return () => {

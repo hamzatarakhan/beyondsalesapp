@@ -31,6 +31,16 @@ document.addEventListener(
   true,
 );
 
+// Moving between OTP / PIN boxes must not scroll the page: on iOS that scroll shifts the sheet and the
+// keyboard toolbar on every digit. One-digit numeric boxes always focus with preventScroll.
+const nativeFocus = HTMLElement.prototype.focus;
+HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
+  if (this instanceof HTMLInputElement && this.maxLength === 1 && this.inputMode === "numeric") {
+    return nativeFocus.call(this, { ...options, preventScroll: true });
+  }
+  return nativeFocus.call(this, options);
+};
+
 document.addEventListener("click", () => {
   try { flushSync(() => {}); } catch { /* already rendering */ }
 });
