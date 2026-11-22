@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
+import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import SimCard from "@/components/activation/SimCard";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -142,7 +143,8 @@ const CreditLimitAdjustment = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
+  const [linkOpen, setLinkOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -655,6 +657,7 @@ const CreditLimitAdjustment = () => {
                     )}
                   </PayOption>
                   <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                  <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
                 </div>
               </CardSection>
             )}
@@ -686,8 +689,10 @@ const CreditLimitAdjustment = () => {
             </>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {direction === "increase" ? <>{t("creditLimitAdjustment.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("creditLimitAdjustment.confirmAdjustment")}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
+              {payMethod === "link" ? t("paymentLink.send") : (
+                <>{direction === "increase" ? <>{t("creditLimitAdjustment.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("creditLimitAdjustment.confirmAdjustment")}</>
+              )}
             </Button>
           )}
         </div>
@@ -802,6 +807,8 @@ const CreditLimitAdjustment = () => {
       </Drawer>
 
       {/* Success */}
+      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={total} onPaid={resolvePayment} />
+
       <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">

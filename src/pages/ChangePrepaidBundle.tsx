@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
+import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { PREPAID_PLANS, FRIENDI_PLANS, VerifiedBanner } from "@/pages/NewActivation";
 import { useWalletBalance } from "@/contexts/WalletBalanceContext";
@@ -151,7 +152,8 @@ const ChangePrepaidBundle = () => {
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
+  const [linkOpen, setLinkOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -548,6 +550,7 @@ const ChangePrepaidBundle = () => {
                   selected={payMethod === "pos"}
                   onClick={() => setPayMethod("pos")}
                 />
+                <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
               </div>
             </CardSection>
           </>
@@ -576,8 +579,10 @@ const ChangePrepaidBundle = () => {
               </Button>
             </>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {t("changePrepaidBundle.pay")} <RiyalSymbol /> {total.toFixed(2)}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
+              {payMethod === "link" ? t("paymentLink.send") : (
+                <>{t("changePrepaidBundle.pay")} <RiyalSymbol /> {total.toFixed(2)}</>
+              )}
             </Button>
           )}
         </div>
@@ -690,6 +695,8 @@ const ChangePrepaidBundle = () => {
       </Drawer>
 
       {/* Success */}
+      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={total} onPaid={resolvePayment} />
+
       <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">

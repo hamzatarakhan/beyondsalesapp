@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import SimCard from "@/components/activation/SimCard";
 import PayOption from "@/components/activation/PayOption";
+import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -163,7 +164,8 @@ const SimReplacement = () => {
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsChain, setTermsChain] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
+  const [linkOpen, setLinkOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [failureOpen, setFailureOpen] = useState(false);
@@ -619,6 +621,7 @@ const SimReplacement = () => {
                         )}
                       </PayOption>
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
+                      <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
                     </div>
                   </CardSection>
                 )}
@@ -686,8 +689,10 @@ const SimReplacement = () => {
             </Button>
           )}
           {(option === 3 ? step === 2 : step === 1) && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
-              {isChargeable ? <>{t("simReplacement.pay")} <RiyalSymbol /> {fee.toFixed(2)}</> : t("simReplacement.confirmReplacement")}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
+              {payMethod === "link" ? t("paymentLink.send") : (
+                <>{isChargeable ? <>{t("simReplacement.pay")} <RiyalSymbol /> {fee.toFixed(2)}</> : t("simReplacement.confirmReplacement")}</>
+              )}
             </Button>
           )}
         </div>
@@ -911,6 +916,8 @@ const SimReplacement = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={fee} onPaid={resolveReplacement} />
 
       {/* Success — same sheet SIM Activation uses for its eSIM success, so the QR/share
           experience is consistent across both flows. */}

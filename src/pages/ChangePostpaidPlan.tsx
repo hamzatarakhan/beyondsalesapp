@@ -8,6 +8,7 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
+import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { POSTPAID_PLANS, VerifiedBanner, ID_TYPE_ORDER, ID_TYPE_RULES } from "@/pages/NewActivation";
@@ -160,7 +161,8 @@ const ChangePostpaidPlan = () => {
   const [otpError, setOtpError] = useState(false);
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(30);
 
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
+  const [linkOpen, setLinkOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   // Shown on Continue when the chosen downgrade would replace one that hasn't taken effect yet.
   const [pendingDowngradeOpen, setPendingDowngradeOpen] = useState(false);
@@ -563,6 +565,7 @@ const ChangePostpaidPlan = () => {
                     selected={payMethod === "pos"}
                     onClick={() => setPayMethod("pos")}
                   />
+                  <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
                 </div>
               </CardSection>
             )}
@@ -601,8 +604,10 @@ const ChangePostpaidPlan = () => {
               </Button>
             </>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {total > 0 ? <>{t("changePostpaidPlan.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("changePostpaidPlan.submit")}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
+              {payMethod === "link" ? t("paymentLink.send") : (
+                <>{total > 0 ? <>{t("changePostpaidPlan.pay")} <RiyalSymbol /> {total.toFixed(2)}</> : t("changePostpaidPlan.submit")}</>
+              )}
             </Button>
           )}
         </div>
@@ -738,6 +743,8 @@ const ChangePostpaidPlan = () => {
       </Drawer>
 
       {/* Success */}
+      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={total} onPaid={resolvePayment} />
+
       <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">

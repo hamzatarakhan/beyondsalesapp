@@ -180,13 +180,15 @@ const Home = () => {
     } catch {}
   }, []);
 
-  // The header fades away while the page is scrolling and returns when scrolling stops.
+  // Like Facebook: the header hides while scrolling down and only comes back on scrolling up (or at the top).
   const [headerHidden, setHeaderHidden] = useState(false);
-  const headerTimer = useRef<number>();
+  const headerLastTop = useRef(0);
   const handleHomeScroll = () => {
-    if ((scrollRef.current?.scrollTop ?? 0) > 8) setHeaderHidden(true);
-    window.clearTimeout(headerTimer.current);
-    headerTimer.current = window.setTimeout(() => setHeaderHidden(false), 250);
+    const y = scrollRef.current?.scrollTop ?? 0;
+    const dy = y - headerLastTop.current;
+    headerLastTop.current = y;
+    if (y <= 8 || dy < -4) setHeaderHidden(false);
+    else if (dy > 4) setHeaderHidden(true);
     if (scrollSaveScheduled.current) return;
     scrollSaveScheduled.current = true;
     requestAnimationFrame(() => {

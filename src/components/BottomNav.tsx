@@ -25,8 +25,6 @@ const BottomNav = () => {
       lastTop.set(el, y);
       if (y <= 8 || dy < -4) setHidden(false);
       else if (dy > 4) setHidden(true);
-      window.clearTimeout(idle);
-      idle = window.setTimeout(() => setHidden(false), 700);
     };
     document.addEventListener("scroll", onScroll, { capture: true, passive: true });
     return () => {
