@@ -547,18 +547,18 @@ const CustomerOffers3 = () => {
           return (
             <>
               <CvmOfferTile offer={o} />
+              {/* Same top-up section as Credit Transfer: field with the riyal sign, hint, then a 3-column grid of amounts. */}
               <CardSection title={t(`${k}.section.topUp`)} icon={Send}>
-                <div className="space-y-2.5">
-                  <label className="text-[11px] text-muted-foreground">{t(`${k}.amount`)}</label>
+                <div className="space-y-3">
                   <div className="relative">
                     <Input
                       value={amountText}
-                      onChange={(e) => setAmountText(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                      onChange={(e) => setAmountText(e.target.value.replace(/[^d.]/g, "").replace(/(..*)./g, "$1"))}
                       placeholder="0.00"
                       inputMode="decimal"
-                      className="h-14 bg-card rounded-xl pe-10 text-xl font-semibold"
+                      className="h-12 bg-card rounded-xl ps-10"
                     />
-                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground"><RiyalSymbol /></span>
+                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"><RiyalSymbol /></span>
                   </div>
                   {/* Range: from-to hint (red once outside it). Any: just says any amount works. */}
                   <p className={cn("text-[11px]", !amountOk && amountText !== "" ? "text-destructive" : "text-muted-foreground")}>
@@ -566,18 +566,18 @@ const CustomerOffers3 = () => {
                       ? t(!amountOk && amountText !== "" ? "customerOffers.rechargeRangeHint" : `${k}.hintRange`, { min: o.minAmount, max: o.maxAmount })
                       : t(`${k}.hintAny`)}
                   </p>
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="grid grid-cols-3 gap-2">
                     {presets.map((v) => (
                       <button
                         key={v}
                         type="button"
                         onClick={() => setAmountText(String(v))}
                         className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                          amountText === String(v) ? "border-[0.5px] bg-primary/10 border-primary/20 text-primary" : "border bg-card border-border/60 text-foreground",
+                          "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                          Number(amountText) === v && amountText !== "" ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground",
                         )}
                       >
-                        {v}
+                        <RiyalSymbol /> {v.toFixed(2)}
                       </button>
                     ))}
                   </div>

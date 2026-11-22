@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Home, LayoutGrid, Settings, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -7,6 +8,30 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Like Facebook: the bar slides away while the page scrolls down (more screen to read) and glides
+  // back on scrolling up, at the top, or shortly after scrolling stops. #root is the app's scroller.
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById("root");
+    if (!el) return;
+    let last = el.scrollTop;
+    let idle: number | undefined;
+    const onScroll = () => {
+      const y = el.scrollTop;
+      const dy = y - last;
+      last = y;
+      if (y <= 8 || dy < -4) setHidden(false);
+      else if (dy > 4) setHidden(true);
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => setHidden(false), 700);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.clearTimeout(idle);
+    };
+  }, []);
+
   const navItems = [
     { icon: Home, label: t("nav.home"), path: "/" },
     { icon: LayoutGrid, label: t("nav.menu"), path: "/menu" },
@@ -15,7 +40,11 @@ const BottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+    <div
+      className={`fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-300 ease-out ${
+        hidden ? "translate-y-[160%] opacity-0" : "translate-y-0 opacity-100"
+      }`}
+    >
       <nav className="pointer-events-auto flex items-center gap-3 px-4 py-2 rounded-full bg-background/70 dark:bg-white/10 backdrop-blur-xl border border-border/40 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
