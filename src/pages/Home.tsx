@@ -180,7 +180,13 @@ const Home = () => {
     } catch {}
   }, []);
 
+  // The header fades away while the page is scrolling and returns when scrolling stops.
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const headerTimer = useRef<number>();
   const handleHomeScroll = () => {
+    if ((scrollRef.current?.scrollTop ?? 0) > 8) setHeaderHidden(true);
+    window.clearTimeout(headerTimer.current);
+    headerTimer.current = window.setTimeout(() => setHeaderHidden(false), 250);
     if (scrollSaveScheduled.current) return;
     scrollSaveScheduled.current = true;
     requestAnimationFrame(() => {
@@ -804,7 +810,7 @@ const Home = () => {
   return (
     <div ref={scrollRef} onScroll={handleHomeScroll} className="mobile-container pb-24 bg-background h-[100dvh] overflow-y-auto scrollbar-hide">
       {/* Header */}
-      <header className="px-4 pt-4 pb-3 flex items-center justify-between">
+      <header className={cn("sticky top-0 z-30 bg-background px-4 pt-4 pb-3 flex items-center justify-between transition-[opacity,transform] duration-200", headerHidden ? "opacity-0 -translate-y-2 pointer-events-none" : "opacity-100 translate-y-0")}>
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-1.5 min-w-0">
