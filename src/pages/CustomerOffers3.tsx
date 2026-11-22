@@ -87,6 +87,18 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
+// A type's offers: a swipeable row (hand cursor, drag with the mouse) or a plain vertical list.
+const OfferRail = ({ rail, children }: { rail: boolean; children: React.ReactNode }) => {
+  const drag = useDragScroll<HTMLDivElement>();
+  return rail ? (
+    <div {...drag} className={cn("flex gap-3 overflow-x-auto snap-x snap-proximity scroll-px-4 -mx-4 px-4 pb-1 items-stretch [&::-webkit-scrollbar]:hidden [scrollbar-width:none]", drag.className)}>
+      {children}
+    </div>
+  ) : (
+    <div className="space-y-3">{children}</div>
+  );
+};
+
 // Same card + title as the other flows' CardSection (icon chip + title, then rows).
 const CardSection = ({ title, icon: Icon, children }: { title: string; icon: typeof ClipboardList; children: React.ReactNode }) => (
   <section className="bg-card rounded-2xl p-4 shadow-sm">
@@ -532,7 +544,7 @@ const CustomerOffers3 = () => {
                         )}
                       </div>
                     )}
-                    <div className={rail ? "flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-4 -mx-4 px-4 pb-1 items-stretch [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" : "space-y-3"}>
+                    <OfferRail rail={rail}>
                     {s.offers.map((o) => {
                       const { benefits } = offerText(o);
                       const plan = PLAN_KINDS.includes(o.kind) && "planTitle" in o ? planOf(o.planTitle) : undefined;
@@ -560,7 +572,7 @@ const CustomerOffers3 = () => {
                         <CvmOfferTile key={o.id} offer={o} selected={pick === o.id} onSelect={() => setPick(o.id)} />
                       );
                     }).map((card, i) => rail ? <div key={s.offers[i].id} className="snap-start shrink-0 w-[82%] [&>*]:h-full">{card}</div> : card)}
-                    </div>
+                    </OfferRail>
                   </div>
                   );
                 })}
