@@ -124,6 +124,8 @@ const CustomerOffers3 = () => {
   // Migration: the plan is chosen on its own screen opened from the Review page (search + All plans), then back to Review.
   const [planPickerOpen, setPlanPickerOpen] = useState(false);
   const [allPlansOpen, setAllPlansOpen] = useState(false);
+  // "See all" on an offer type opens that type as its own page (like All plans in SIM Activation).
+  const [seeAll, setSeeAll] = useState<string | null>(null);
   const [planSearch, setPlanSearch] = useState("");
   const [allSearch, setAllSearch] = useState("");
   // Each stage opens at its top (the pages scroll in different containers, so reset them all).
@@ -131,7 +133,7 @@ const CustomerOffers3 = () => {
     window.scrollTo(0, 0);
     document.getElementById("root")?.scrollTo(0, 0);
     document.querySelectorAll<HTMLElement>(".mobile-container").forEach((el) => el.scrollTo(0, 0));
-  }, [step, planPickerOpen, allPlansOpen]);
+  }, [step, planPickerOpen, allPlansOpen, seeAll]);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
@@ -343,7 +345,7 @@ const CustomerOffers3 = () => {
     return `${title} ${benefits ?? ""}`.toLowerCase().includes(q);
   };
   const visible = sections
-    .filter((s) => filter === "all" || s.key === filter)
+    .filter((s) => (seeAll ? s.key === seeAll : filter === "all" || s.key === filter))
     .map((s) => ({ ...s, offers: s.offers.filter(matches) }))
     .filter((s) => s.offers.length);
 
@@ -359,9 +361,10 @@ const CustomerOffers3 = () => {
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
-        title={allPlansOpen ? t("changePostpaidPlan.allPlansTitle") : planPickerOpen ? t("customerOffers.review.choosePlan") : t("customerOffers.pageTitle")}
+        title={seeAll && step === 1 ? t(`customerOffers.section.${seeAll}`) : allPlansOpen ? t("changePostpaidPlan.allPlansTitle") : planPickerOpen ? t("customerOffers.review.choosePlan") : t("customerOffers.pageTitle")}
         showBack={step > 0 || !everProgressed}
         onBackClick={() => {
+          if (seeAll && step === 1) { setSeeAll(null); return; }
           if (allPlansOpen) { setAllPlansOpen(false); return; }
           if (planPickerOpen) { setPlanPickerOpen(false); return; }
           if (step === 0) navigate("/");
@@ -376,7 +379,7 @@ const CustomerOffers3 = () => {
           ) : undefined
         }
       />
-      {!allPlansOpen && !planPickerOpen && <FlowStepper current={stepperCurrent} steps={steps} />}
+      {!allPlansOpen && !planPickerOpen && !(seeAll && step === 1) && <FlowStepper current={stepperCurrent} steps={steps} />}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Number ── */}
@@ -407,7 +410,7 @@ const CustomerOffers3 = () => {
         {step === 1 && customer && (
           <>
             {/* The customer's current plan, as a light tappable row; tap for the plan's details. */}
-            <button
+            {!seeAll && <button
               type="button"
               onClick={() => setPlanInfoOpen(true)}
               className="w-full flex items-center gap-3 bg-card rounded-xl shadow-sm px-3 py-2 text-start active:opacity-80"
@@ -423,7 +426,7 @@ const CustomerOffers3 = () => {
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
-            </button>
+            </button>}
 
             {/* Current Plan — same header pill + PlanCard as Subscription Migration's. Hidden for
                 now so the offers start right under the stepper; flip SHOW_CURRENT_PLAN to bring it back. */}
@@ -473,7 +476,7 @@ const CustomerOffers3 = () => {
             ) : (
               <>
                 {/* Text search only earns its place on a long list. */}
-                {offers.length > SEARCH_MIN_OFFERS && (
+                {!seeAll && offers.length > SEARCH_MIN_OFFERS && (
                   <div className="relative">
                     <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -486,7 +489,7 @@ const CustomerOffers3 = () => {
                 )}
 
                 {/* Offer-type chips, visible by default — same pattern as Change Prepaid Plan's plan-type chips. */}
-                {sections.length > 1 && (
+                {!seeAll && sections.length > 1 && (
                   <div
                     {...chipsDragScroll}
                     className={cn("flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]", chipsDragScroll.className)}
@@ -513,11 +516,23 @@ const CustomerOffers3 = () => {
                   </div>
                 )}
 
-                {visible.map((s) => (
+                {visible.map((s) => {
+                  // On "All" each type is one swipeable row with See all; a chip, a search or See all shows the vertical list.
+                  const rail = !seeAll && filter === "all" && !q && s.offers.length > 1;
+                  return (
                   <div key={s.key} className="space-y-3">
-                    <div className="px-1">
-                      <h3 className="text-sm font-semibold text-foreground">{t(`customerOffers.section.${s.key}`)}</h3>
-                    </div>
+                    {!seeAll && (
+                      <div className="px-1 flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-foreground">{t(`customerOffers.section.${s.key}`)}</h3>
+                        {rail && (
+                          <button type="button" onClick={() => setSeeAll(s.key)} className="text-xs font-semibold text-primary flex items-center gap-0.5">
+                            {t("customerOffers.seeAll")} ({s.offers.length})
+                            <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <div className={rail ? "flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-4 -mx-4 px-4 pb-1 items-stretch [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" : "space-y-3"}>
                     {s.offers.map((o) => {
                       const { benefits } = offerText(o);
                       const plan = PLAN_KINDS.includes(o.kind) && "planTitle" in o ? planOf(o.planTitle) : undefined;
@@ -544,9 +559,11 @@ const CustomerOffers3 = () => {
                       return (
                         <CvmOfferTile key={o.id} offer={o} selected={pick === o.id} onSelect={() => setPick(o.id)} />
                       );
-                    })}
+                    }).map((card, i) => rail ? <div key={s.offers[i].id} className="snap-start shrink-0 w-[82%] [&>*]:h-full">{card}</div> : card)}
+                    </div>
                   </div>
-                ))}
+                  );
+                })}
               </>
             )}
           </>

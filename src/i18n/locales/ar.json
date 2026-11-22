@@ -966,7 +966,8 @@
     },
     "stepReview": "المراجعة",
     "stepPlan": "الباقة",
-    "stepAmount": "المبلغ"
+    "stepAmount": "المبلغ",
+    "seeAll": "عرض الكل"
   },
   "customerComplaint": {
     "title": "تقديم شكوى عميل",

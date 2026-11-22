@@ -962,7 +962,8 @@
     },
     "stepReview": "Review",
     "stepPlan": "Plan",
-    "stepAmount": "Amount"
+    "stepAmount": "Amount",
+    "seeAll": "See all"
   },
   "customerComplaint": {
     "title": "Raise Customer Complaint",
