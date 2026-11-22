@@ -339,11 +339,14 @@ const CustomerOffers3 = () => {
 
   // Migration is the only offer where the dealer also picks a plan, so it gets its own "Plan" stage
   // (plan cards on their own step, then the checkout) like every other plan-changing flow.
-  const needsDetail = !!selected && (selected.kind === "migration" || (selected.kind === "recharge" && selected.rule !== "exact"));
+  // The stepper follows the offer as soon as its card is ticked (not only after Continue), so the dealer
+  // always sees the real number of stages before committing: 3, or 4 when an amount / a plan must be chosen.
+  const flowOffer = step === 1 ? pickedOffer : selected;
+  const needsDetail = !!flowOffer && (flowOffer.kind === "migration" || (flowOffer.kind === "recharge" && flowOffer.rule !== "exact"));
   const steps = [
     { label: t("customerOffers.stepNumber"), Icon: Phone },
     { label: t("customerOffers.stepOffers"), Icon: Gift },
-    ...(needsDetail ? [selected?.kind === "migration" ? { label: t("customerOffers.stepPlan"), Icon: Repeat } : { label: t("customerOffers.stepAmount"), Icon: Send }] : []),
+    ...(needsDetail ? [flowOffer?.kind === "migration" ? { label: t("customerOffers.stepPlan"), Icon: Repeat } : { label: t("customerOffers.stepAmount"), Icon: Send }] : []),
     { label: t("customerOffers.stepReview"), Icon: ClipboardList },
   ];
   const stepperCurrent = step === 3 && !needsDetail ? 2 : step;
