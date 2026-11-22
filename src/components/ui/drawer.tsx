@@ -23,6 +23,13 @@ const DrawerOverlay = React.forwardRef<
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
+// When the keyboard was already up before the sheet opened (primed on the tap that started a check),
+// the browser sends no further viewport change, so vaul never lifts the sheet above the keyboard and
+// it stays hidden behind it. Re-announcing the viewport once the real box has focus makes vaul lift it.
+const liftAboveKeyboard = () => {
+  [80, 400].forEach((ms) => window.setTimeout(() => window.visualViewport?.dispatchEvent(new Event("resize")), ms));
+};
+
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { overlayClassName?: string }
@@ -43,6 +50,7 @@ const DrawerContent = React.forwardRef<
         const first = node.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]');
         if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus({ preventScroll: true });
         releaseKeyboard();
+        liftAboveKeyboard();
       }, 350);
     },
     [ref],
@@ -58,6 +66,7 @@ const DrawerContent = React.forwardRef<
           e.preventDefault();
           first.focus({ preventScroll: true });
           releaseKeyboard();
+          liftAboveKeyboard();
         }
         onOpenAutoFocus?.(e);
       }}
