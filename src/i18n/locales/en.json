@@ -954,7 +954,11 @@
       "selectPlan": "Select plan",
       "chooseCta": "Choose a plan",
       "change": "Change",
-      "enterAmount": "Enter an amount"
+      "enterAmount": "Enter an amount",
+      "billNumber": "Bill number",
+      "billCycle": "Billing cycle",
+      "afterPayment": "After payment",
+      "reconnected": "Line is reconnected"
     },
     "stepReview": "Review",
     "stepPlan": "Plan",

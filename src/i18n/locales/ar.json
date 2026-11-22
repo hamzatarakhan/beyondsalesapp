@@ -958,7 +958,11 @@
       "selectPlan": "اختيار الباقة",
       "chooseCta": "اختر الباقة",
       "change": "تغيير",
-      "enterAmount": "أدخل المبلغ"
+      "enterAmount": "أدخل المبلغ",
+      "billNumber": "رقم الفاتورة",
+      "billCycle": "فترة الفوترة",
+      "afterPayment": "بعد الدفع",
+      "reconnected": "يُعاد تفعيل الخط"
     },
     "stepReview": "المراجعة",
     "stepPlan": "الباقة",

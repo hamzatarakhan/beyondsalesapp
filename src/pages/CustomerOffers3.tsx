@@ -65,6 +65,8 @@ const SWITCH_POSTPAID = POSTPAID_PLANS.filter((p) => p.categories.includes("swit
 const MAX_OTP_ATTEMPTS = 3;
 // Prototype: amount due on the postpaid customer's bill when a bill offer is reviewed.
 const CVM_BILL_DUE = 300;
+// Same open bill as Bill Payment's demo for this customer (0502222211), so the numbers match across features.
+const CVM_BILL = { number: "BL-2026-07-4412", cycle: "1st July – 31st July, 2026" };
 const SHOW_CURRENT_PLAN = false;
 // Offer count above which the text search shows (below it the type chips are enough).
 const SEARCH_MIN_OFFERS = 6;
@@ -325,10 +327,13 @@ const CustomerOffers3 = () => {
     const planPrice = o.kind === "btl" ? o.price : o.kind === "migration" ? migPlanObj?.price : plan?.price;
     const isBill = o.kind === "billFull" || o.kind === "billWaiver" || o.kind === "billWaiverDiscount";
     const pay = cvmBillRequired(o, CVM_BILL_DUE);
-    const total = o.kind === "recharge" ? (amountOk ? amount : 0) : o.kind === "direct" ? 0 : isBill ? pay : planPrice ?? 0;
+    // Postpaid upgrade: the customer pays the plan price difference (deposit fee), nothing on a same-price move.
+    const curPrice = customer ? planOf(customer.planName)?.price ?? 0 : 0;
+    const postpaidDiff = o.kind === "postpaidPlan" && plan ? Math.max(0, Math.round((plan.price - curPrice) * 100) / 100) : null;
+    const total = o.kind === "recharge" ? (amountOk ? amount : 0) : o.kind === "direct" ? 0 : isBill ? pay : postpaidDiff ?? planPrice ?? 0;
     const walletShort = total > walletBalance;
     const canConfirm = amountOk && (o.kind !== "migration" || !!migPlanObj) && (total === 0 || payMethod === "pos" || !walletShort);
-    return { amount, amountOk, plan, migPlanObj, planPrice, isBill, pay, total, walletShort, canConfirm };
+    return { amount, amountOk, plan, migPlanObj, planPrice, postpaidDiff, isBill, pay, total, walletShort, canConfirm };
   };
   const sections = SECTIONS.map((s) => ({ ...s, offers: offers.filter((o) => s.kinds.includes(o.kind)) })).filter((s) => s.offers.length);
   const q = search.trim().toLowerCase();
@@ -610,7 +615,7 @@ const CustomerOffers3 = () => {
           const o = selected;
           const k = "customerOffers.review";
           const { title, benefits, nextBill } = offerText(o);
-          const { amountOk, plan, migPlanObj, planPrice, isBill, pay, total, walletShort } = reviewInfo(o);
+          const { amountOk, plan, migPlanObj, planPrice, postpaidDiff, isBill, pay, total, walletShort } = reviewInfo(o);
           const money = (n: number) => <><RiyalSymbol /> {n.toFixed(2)}</>;
           const decisionDone = o.kind === "migration" ? !!migPlanObj : o.kind === "recharge" && o.rule !== "exact" ? amountOk : true;
           const sectionKey = SECTIONS.find((x) => x.kinds.includes(o.kind))?.key ?? "plans";
@@ -711,6 +716,9 @@ const CustomerOffers3 = () => {
               >
                 <OfferRow label={t(`${k}.number`)} value={customer.msisdn} />
                 <OfferRow label={t(`${k}.currentPlan`)} value={customer.planName} />
+                {isBill && <OfferRow label={t(`${k}.billNumber`)} value={CVM_BILL.number} />}
+                {isBill && <OfferRow label={t(`${k}.billCycle`)} value={CVM_BILL.cycle} />}
+                {isBill && <OfferRow label={t(`${k}.afterPayment`)} value={t(`${k}.reconnected`)} />}
                 {o.kind === "migration" && <OfferRow label={t(`${k}.migrationType`)} value={t(`${k}.preToPost`)} />}
                 {o.kind === "migration" && <OfferRow label={t(`${k}.discount`)} value={t(`${k}.discountFor`, { pct: o.discountPct, months: o.months })} />}
                 {(PLAN_KINDS.includes(o.kind) || o.kind === "migration") && newPlanName && <OfferRow label={t(`${k}.newPlan`)} value={newPlanName} />}
@@ -726,11 +734,12 @@ const CustomerOffers3 = () => {
               {o.kind !== "direct" && decisionDone && (
                 <CardSection title={t("changePostpaidPlan.paymentSummary")} icon={Receipt}>
                   {o.kind === "recharge" && <OfferRow label={t(`${k}.amount`)} value={money(total)} />}
-                  {(o.kind === "changePlan" || o.kind === "postpaidPlan" || o.kind === "btl" || o.kind === "migration") && (
+                  {(o.kind === "changePlan" || o.kind === "btl" || o.kind === "migration") && (
                     <OfferRow label={t(`${k}.price`)} value={planPrice != null ? money(planPrice) : t("changePostpaidPlan.dash")} />
                   )}
+                  {o.kind === "postpaidPlan" && <OfferRow label={t("changePostpaidPlan.depositFee")} value={money(postpaidDiff ?? 0)} />}
                   {isBill && <OfferRow label={t(`${k}.billDue`)} value={money(CVM_BILL_DUE)} />}
-                  {isBill && o.kind !== "billFull" && <OfferRow label={t(`${k}.waived`)} value={money(CVM_BILL_DUE - pay)} />}
+                  {isBill && o.kind !== "billFull" && <OfferRow label={t(`${k}.waived`)} value={<span className="text-emerald-600">− {money(CVM_BILL_DUE - pay)}</span>} />}
                   <div className="flex items-center justify-between pt-3">
                     <span className="text-sm font-semibold text-foreground">{t("changePostpaidPlan.total")}</span>
                     <span className="text-base font-bold text-primary">{money(total)}</span>
