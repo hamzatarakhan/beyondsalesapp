@@ -553,7 +553,17 @@
     "raiseTechTicket": "Raise Tech Ticket",
     "techTicketRaised": "Tech Ticket Raised",
     "techTicketDesc": "Our technical team will look into this failed payment and follow up with you.",
-    "ticket": "Ticket:"
+    "ticket": "Ticket:",
+    "payLink": "Payment link / QR",
+    "payLinkDesc": "The customer pays on their own phone",
+    "sendLink": "Send payment link",
+    "linkTitle": "Payment link",
+    "linkDesc": "Ask the customer to scan the QR code or open the link to pay SAR {{amount}}.",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied",
+    "shareLink": "Share",
+    "linkWaiting": "Waiting for the customer to pay…",
+    "linkPayAnotherWay": "Pay another way"
   },
   "customerRecharge": {
     "title": "Customer Recharge",

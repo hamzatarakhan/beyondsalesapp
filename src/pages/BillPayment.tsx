@@ -1,6 +1,7 @@
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
 import { cvmExit, useCvmOffer, cvmBillRequired } from "@/lib/cvmOffers";
 import { useEffect, useMemo, useState } from "react";
+import QRCode from "react-qr-code";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,10 @@ import {
   Receipt,
   ReceiptText,
   Wallet,
+  QrCode,
+  Copy,
+  Share2,
+  Loader2,
   CreditCard,
   AlertCircle,
   CheckCircle2,
@@ -319,7 +324,10 @@ const BillPayment = () => {
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
 
   // Step 2 — Checkout
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
+  // Payment link / QR: the customer pays on their own device while the dealer waits on this sheet.
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(!!offer);
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", ""]);
@@ -457,7 +465,9 @@ const BillPayment = () => {
     payingAccounts.length > 0 && totalToPay > 0 && payingAccounts.every((a) => amountErrorFor(a) === null);
 
   const walletShort = totalToPay > DEALER_WALLET_BALANCE;
-  const canPay = otpVerified && !(payMethod === "wallet" && walletShort);
+  const payLink = `https://pay.example.com/bill/${primary?.msisdn ?? "0500000000"}?amount=${totalToPay}`;
+  // The customer authorises a link payment by paying it themselves, so no dealer-side OTP there.
+  const canPay = payMethod === "link" || (otpVerified && !(payMethod === "wallet" && walletShort));
 
   /** Where the OTP lands: Vnet uses its associated contact, Civil ID uses the registered number. */
   const otpTarget =
@@ -518,6 +528,20 @@ const BillPayment = () => {
     } else {
       setFailureOpen(true);
     }
+  };
+
+  // Prototype: the customer "pays" a few seconds after the link is shown.
+  useEffect(() => {
+    if (!linkOpen) return;
+    const id = setTimeout(() => { setLinkOpen(false); resolvePayment(); }, 6000);
+    return () => clearTimeout(id);
+  }, [linkOpen]);
+
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(payLink); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1500); } catch { /* clipboard unavailable */ }
+  };
+  const shareLink = async () => {
+    try { if (navigator.share) await navigator.share({ url: payLink }); else await copyLink(); } catch { /* share cancelled */ }
   };
 
   const resetAll = () => {
@@ -970,9 +994,17 @@ const BillPayment = () => {
                   selected={payMethod === "pos"}
                   onClick={() => setPayMethod("pos")}
                 />
+                <PayOption
+                  icon={QrCode}
+                  label={t("billPayment.payLink")}
+                  description={t("billPayment.payLinkDesc")}
+                  selected={payMethod === "link"}
+                  onClick={() => setPayMethod("link")}
+                />
               </div>
             </CardSection>
 
+            {payMethod !== "link" && (
             <CardSection title={t("billPayment.otpVerification")} icon={ShieldCheck}>
               {otpVerified ? (
                 <VerifiedBanner label={t("billPayment.otpVerified")} />
@@ -983,6 +1015,7 @@ const BillPayment = () => {
                 </>
               )}
             </CardSection>
+            )}
           </>
         )}
       </div>
@@ -1003,8 +1036,8 @@ const BillPayment = () => {
             </>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
-              {t("billPayment.pay")} <RiyalSymbol /> {money(totalToPay)}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
+              {payMethod === "link" ? t("billPayment.sendLink") : <>{t("billPayment.pay")} <RiyalSymbol /> {money(totalToPay)}</>}
             </Button>
           )}
         </div>
@@ -1103,6 +1136,32 @@ const BillPayment = () => {
           <div className="flex flex-col gap-2 mt-6">
             <Button disabled={!cancelReason || (cancelReason === "other" && !cancelOtherText.trim())} onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); navigate("/"); }} className="w-full h-11 rounded-full">{t("billPayment.cancelSheet.confirm")}</Button>
             <Button variant="outline" onClick={() => { setCancelOpen(false); setCancelReason(""); setCancelOtherText(""); }} className="w-full h-11 rounded-full border-primary text-primary">{t("billPayment.cancelSheet.keepEditing")}</Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Payment link / QR: shown to the customer; closes into the normal success / failure sheet. */}
+      <Drawer open={linkOpen} onOpenChange={setLinkOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+          <DrawerHeader className="text-center px-0 pb-3">
+            <DrawerTitle>{t("billPayment.linkTitle")}</DrawerTitle>
+            <DrawerDescription>{t("billPayment.linkDesc", { amount: money(totalToPay) })}</DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col items-center gap-4">
+            <div className="bg-white p-3 rounded-2xl border border-border/60"><QRCode value={payLink} size={180} /></div>
+            <div className="w-full flex items-center gap-2 rounded-xl bg-muted px-3 py-2.5">
+              <p className="flex-1 min-w-0 text-xs text-foreground truncate" dir="ltr">{payLink}</p>
+            </div>
+            <div className="w-full grid grid-cols-2 gap-3">
+              <Button variant="outline" className="h-11 rounded-full border-primary text-primary" onClick={copyLink}>
+                {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {linkCopied ? t("billPayment.linkCopied") : t("billPayment.copyLink")}
+              </Button>
+              <Button variant="outline" className="h-11 rounded-full border-primary text-primary" onClick={shareLink}>
+                <Share2 className="w-4 h-4" /> {t("billPayment.shareLink")}
+              </Button>
+            </div>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /> {t("billPayment.linkWaiting")}</p>
+            <button type="button" className="w-full h-11 text-primary font-semibold text-sm" onClick={() => setLinkOpen(false)}>{t("billPayment.linkPayAnotherWay")}</button>
           </div>
         </DrawerContent>
       </Drawer>

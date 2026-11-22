@@ -556,7 +556,17 @@
     "raiseTechTicket": "فتح تذكرة فنية",
     "techTicketRaised": "تم فتح التذكرة الفنية",
     "techTicketDesc": "سيقوم فريقنا الفني بمراجعة هذه العملية غير الناجحة والتواصل معك.",
-    "ticket": "التذكرة:"
+    "ticket": "التذكرة:",
+    "payLink": "رابط الدفع / QR",
+    "payLinkDesc": "العميل يدفع من جواله",
+    "sendLink": "إرسال رابط الدفع",
+    "linkTitle": "رابط الدفع",
+    "linkDesc": "اطلب من العميل مسح رمز QR أو فتح الرابط لدفع {{amount}} ريال.",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم النسخ",
+    "shareLink": "مشاركة",
+    "linkWaiting": "بانتظار دفع العميل…",
+    "linkPayAnotherWay": "الدفع بطريقة أخرى"
   },
   "customerRecharge": {
     "title": "شحن رصيد العميل",
