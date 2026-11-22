@@ -325,7 +325,7 @@ const CustomerOffers3 = () => {
     setPick(null);
     setDoneRef("");
     setSelected(null);
-    setStep(1);
+    navigate("/"); // done: back to Home
   };
 
   const offers = (customer?.offers ?? []).filter((o) => !claimed.includes(o.id));
