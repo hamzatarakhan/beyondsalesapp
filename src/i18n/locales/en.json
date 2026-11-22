@@ -952,7 +952,9 @@
         "gift": "Gift details"
       },
       "selectPlan": "Select plan",
-      "chooseCta": "Choose a plan"
+      "chooseCta": "Choose a plan",
+      "change": "Change",
+      "enterAmount": "Enter an amount"
     },
     "stepReview": "Review",
     "stepPlan": "Plan",

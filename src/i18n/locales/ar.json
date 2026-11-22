@@ -956,7 +956,9 @@
         "gift": "تفاصيل الهدية"
       },
       "selectPlan": "اختيار الباقة",
-      "chooseCta": "اختر الباقة"
+      "chooseCta": "اختر الباقة",
+      "change": "تغيير",
+      "enterAmount": "أدخل المبلغ"
     },
     "stepReview": "المراجعة",
     "stepPlan": "الباقة",

@@ -286,7 +286,7 @@ const CustomerOffers3 = () => {
     setSelected(o);
     setMigPlan(null);
     setPayMethod("wallet");
-    setAmountText(o.kind === "recharge" && o.rule !== "any" ? String(o.minAmount) : "");
+    setAmountText(o.kind === "recharge" && o.rule === "exact" ? String(o.minAmount) : "");
     setStep(2);
   };
   const newRef = () => `CVM-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -612,6 +612,7 @@ const CustomerOffers3 = () => {
           const { title, benefits, nextBill } = offerText(o);
           const { amountOk, plan, migPlanObj, planPrice, isBill, pay, total, walletShort } = reviewInfo(o);
           const money = (n: number) => <><RiyalSymbol /> {n.toFixed(2)}</>;
+          const decisionDone = o.kind === "migration" ? !!migPlanObj : o.kind === "recharge" && o.rule !== "exact" ? amountOk : true;
           const sectionKey = SECTIONS.find((x) => x.kinds.includes(o.kind))?.key ?? "plans";
           const newPlanName = o.kind === "migration" ? migPlanObj?.title : "planTitle" in o ? o.planTitle : undefined;
           const presets = o.kind === "recharge" && o.rule === "range" && o.maxAmount != null
@@ -634,13 +635,42 @@ const CustomerOffers3 = () => {
                 </div>
               </div>
 
-              <CardSection
-                title={t(`${k}.section.${o.kind === "recharge" ? "topUp" : o.kind === "migration" ? "migration" : o.kind === "direct" ? "gift" : isBill ? "bill" : "plan"}`)}
-                icon={o.kind === "recharge" ? Send : o.kind === "migration" ? ArrowLeftRight : o.kind === "direct" ? Gift : isBill ? ReceiptText : Repeat}
-              >
-                {/* The one decision, first: how much to top up. Same look as Credit Transfer's top-up section. */}
-                {o.kind === "recharge" && o.rule !== "exact" && (
-                  <div className="space-y-3 pb-3 mb-1 border-b border-border/40">
+              {/* The one decision comes first, right under the offer. Payment details show once it is made. */}
+              {o.kind === "migration" && (
+                <CardSection title={t(`${k}.choosePlan`)} icon={Repeat}>
+                  {migPlanObj ? (
+                    <div className="flex items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">{migPlanObj.title}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{migPlanObj.internet} · <RiyalSymbol /> {migPlanObj.price.toFixed(2)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setPlanSearch(""); setPlanPickerOpen(true); }}
+                        className="h-9 px-4 rounded-full border-[0.5px] border-primary/10 bg-primary/10 text-primary text-xs font-semibold shrink-0 active:opacity-70"
+                      >
+                        {t(`${k}.change`)}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { setPlanSearch(""); setPlanPickerOpen(true); }}
+                        className="w-full h-12 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-primary text-sm font-semibold flex items-center justify-center gap-1 active:opacity-70"
+                      >
+                        {t(`${k}.chooseCta`)}
+                        <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+                      </button>
+                      <p className="text-[11px] text-muted-foreground mt-2">{t(`${k}.choosePlanHint`)}</p>
+                    </>
+                  )}
+                </CardSection>
+              )}
+
+              {o.kind === "recharge" && o.rule !== "exact" && (
+                <CardSection title={t(`${k}.amount`)} icon={Send}>
+                  <div className="space-y-3">
                     <div className="relative">
                       <Input
                         value={amountText}
@@ -672,26 +702,18 @@ const CustomerOffers3 = () => {
                       ))}
                     </div>
                   </div>
-                )}
+                </CardSection>
+              )}
+
+              <CardSection
+                title={t(`${k}.section.${o.kind === "recharge" ? "topUp" : o.kind === "migration" ? "migration" : o.kind === "direct" ? "gift" : isBill ? "bill" : "plan"}`)}
+                icon={o.kind === "recharge" ? Send : o.kind === "migration" ? ArrowLeftRight : o.kind === "direct" ? Gift : isBill ? ReceiptText : Repeat}
+              >
                 <OfferRow label={t(`${k}.number`)} value={customer.msisdn} />
                 <OfferRow label={t(`${k}.currentPlan`)} value={customer.planName} />
                 {o.kind === "migration" && <OfferRow label={t(`${k}.migrationType`)} value={t(`${k}.preToPost`)} />}
-                {/* Migration: pick the postpaid plan from a sheet, right on this row. */}
-                {o.kind === "migration" && (
-                  <button
-                    type="button"
-                    onClick={() => { setPlanSearch(""); setPlanPickerOpen(true); }}
-                    className="w-full flex items-center justify-between gap-3 py-2 border-b border-border/40 text-start"
-                  >
-                    <span className="text-[11px] text-muted-foreground">{t(`${k}.newPlan`)}</span>
-                    <span className={cn("flex items-center gap-1 text-xs font-semibold", migPlanObj ? "text-foreground" : "text-primary")}>
-                      {migPlanObj ? migPlanObj.title : t(`${k}.chooseCta`)}
-                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                    </span>
-                  </button>
-                )}
                 {o.kind === "migration" && <OfferRow label={t(`${k}.discount`)} value={t(`${k}.discountFor`, { pct: o.discountPct, months: o.months })} />}
-                {PLAN_KINDS.includes(o.kind) && newPlanName && <OfferRow label={t(`${k}.newPlan`)} value={newPlanName} />}
+                {(PLAN_KINDS.includes(o.kind) || o.kind === "migration") && newPlanName && <OfferRow label={t(`${k}.newPlan`)} value={newPlanName} />}
                 {PLAN_KINDS.includes(o.kind) && (
                   <OfferRow
                     label={t("changePostpaidPlan.changeType")}
@@ -701,7 +723,7 @@ const CustomerOffers3 = () => {
                 {PLAN_KINDS.includes(o.kind) && plan?.validityLabel && <OfferRow label={t("subscriptionMigration.planValidity")} value={plan.validityLabel} />}
               </CardSection>
 
-              {o.kind !== "direct" && (
+              {o.kind !== "direct" && decisionDone && (
                 <CardSection title={t("changePostpaidPlan.paymentSummary")} icon={Receipt}>
                   {o.kind === "recharge" && <OfferRow label={t(`${k}.amount`)} value={money(total)} />}
                   {(o.kind === "changePlan" || o.kind === "postpaidPlan" || o.kind === "btl" || o.kind === "migration") && (
@@ -716,7 +738,7 @@ const CustomerOffers3 = () => {
                 </CardSection>
               )}
 
-              {total > 0 && (
+              {decisionDone && total > 0 && (
                 <CardSection title={t("changePostpaidPlan.paymentMethod")} icon={CreditCard}>
                   <div className="space-y-2">
                     <PayOption
@@ -786,7 +808,12 @@ const CustomerOffers3 = () => {
           <div className="sm:max-w-[390px] mx-auto">
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!reviewInfo(selected).canConfirm} onClick={() => confirmOffer(selected)}>
               {/* Same as the other checkouts: "Pay SAR X" when money moves, "Submit" when nothing is charged. */}
-              {reviewInfo(selected).total > 0 ? <>{t("changePostpaidPlan.pay")} <RiyalSymbol /> {reviewInfo(selected).total.toFixed(2)}</> : t("changePostpaidPlan.submit")}
+              {(() => {
+                const ri = reviewInfo(selected);
+                if (selected.kind === "migration" && !ri.migPlanObj) return t("customerOffers.review.chooseCta");
+                if (selected.kind === "recharge" && selected.rule !== "exact" && !ri.amountOk) return t("customerOffers.review.enterAmount");
+                return ri.total > 0 ? <>{t("changePostpaidPlan.pay")} <RiyalSymbol /> {ri.total.toFixed(2)}</> : t("changePostpaidPlan.submit");
+              })()}
             </Button>
           </div>
         </div>
