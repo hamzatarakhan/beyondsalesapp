@@ -394,6 +394,11 @@ body {
   overscroll-behavior: contain;
 }
 
+/* Keeps vaul's slide animation and smooths the lift above the keyboard. */
+.app-drawer-content[data-vaul-drawer] {
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), bottom 0.2s ease, max-height 0.2s ease;
+}
+
 .app-drawer-content {
   max-height: calc(var(--app-frame-height) - 16px);
   border-bottom-right-radius: var(--app-frame-radius);

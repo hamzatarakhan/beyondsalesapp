@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { releaseKeyboard } from "@/lib/keyboard";
 
 const Drawer = ({ shouldScaleBackground = true, ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} repositionInputs={false} {...props} />
 );
 Drawer.displayName = "Drawer";
 
@@ -23,11 +23,30 @@ const DrawerOverlay = React.forwardRef<
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
-// When the keyboard was already up before the sheet opened (primed on the tap that started a check),
-// the browser sends no further viewport change, so vaul never lifts the sheet above the keyboard and
-// it stays hidden behind it. Re-announcing the viewport once the real box has focus makes vaul lift it.
-const liftAboveKeyboard = () => {
-  [80, 400].forEach((ms) => window.setTimeout(() => window.visualViewport?.dispatchEvent(new Event("resize")), ms));
+// Keeps a sheet above the phone keyboard. vaul's own handling stretches the sheet down to the keyboard
+// (leaving a blank gap under the content) and misses a keyboard that was already open when the sheet
+// appeared, so it is switched off (repositionInputs) and the sheet is simply raised by the keyboard's
+// height, and shortened only if it would not fit. Set before the first paint, so it slides up in place.
+const attachKeyboardLift = (node: HTMLElement) => {
+  const vv = window.visualViewport;
+  if (!vv) return () => {};
+  const apply = () => {
+    const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    if (inset > 80) {
+      node.style.bottom = `${inset}px`;
+      node.style.maxHeight = `${Math.max(200, vv.height - 24)}px`;
+    } else {
+      node.style.bottom = "";
+      node.style.maxHeight = "";
+    }
+  };
+  apply();
+  vv.addEventListener("resize", apply);
+  vv.addEventListener("scroll", apply);
+  return () => {
+    vv.removeEventListener("resize", apply);
+    vv.removeEventListener("scroll", apply);
+  };
 };
 
 const DrawerContent = React.forwardRef<
@@ -39,18 +58,20 @@ const DrawerContent = React.forwardRef<
   // user's tap, which is what makes the phone keyboard come up too. A short retry covers sheets that
   // render their boxes a moment later.
   const nodeRef = React.useRef<HTMLElement | null>(null);
+  const liftCleanup = React.useRef<(() => void) | null>(null);
   const firstBox = () => nodeRef.current?.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]') ?? null;
   const setRef = React.useCallback(
     (node: React.ElementRef<typeof DrawerPrimitive.Content> | null) => {
       nodeRef.current = node;
       if (typeof ref === "function") ref(node);
       else if (ref) (ref as React.MutableRefObject<typeof node>).current = node;
+      liftCleanup.current?.();
+      liftCleanup.current = node ? attachKeyboardLift(node) : null;
       if (!node) return;
       window.setTimeout(() => {
         const first = node.querySelector<HTMLInputElement>('input[inputmode="numeric"][maxlength="1"]');
         if (first && !first.value && !(document.activeElement instanceof HTMLInputElement && node.contains(document.activeElement))) first.focus({ preventScroll: true });
         releaseKeyboard();
-        liftAboveKeyboard();
       }, 350);
     },
     [ref],
@@ -66,7 +87,6 @@ const DrawerContent = React.forwardRef<
           e.preventDefault();
           first.focus({ preventScroll: true });
           releaseKeyboard();
-          liftAboveKeyboard();
         }
         onOpenAutoFocus?.(e);
       }}
