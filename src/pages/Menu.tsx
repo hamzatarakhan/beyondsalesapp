@@ -92,10 +92,10 @@ const Menu = () => {
               { icon: ArrowLeftRight, label: t("home.subscriptionMigrationOptions.postToPre"), path: "/subscription-migration?direction=post-to-pre" },
             ]
           : []),
-        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption1")})`, path: "/customer-offers" },
-        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption2")})`, path: "/customer-offers-2" },
+        // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption1")})`, path: "/customer-offers" },
+        // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption2")})`, path: "/customer-offers-2" },
         { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption3")})`, path: "/customer-offers-3" },
-        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption4")})`, path: "/customer-offers-4" },
+        // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption4")})`, path: "/customer-offers-4" },
       ],
     },
     {
