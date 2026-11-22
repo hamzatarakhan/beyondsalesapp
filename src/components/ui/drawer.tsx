@@ -41,6 +41,9 @@ const attachKeyboardLift = (node: HTMLElement) => {
     }
   };
   apply();
+  // Keyboard already up as the sheet opens (primed on the tap): a short fade-up instead of the long
+  // slide from the screen bottom, which would otherwise pass behind the keyboard and its toolbar.
+  if (Math.max(0, window.innerHeight - vv.height - vv.offsetTop) > 80) node.classList.add("kb-open");
   vv.addEventListener("resize", apply);
   vv.addEventListener("scroll", apply);
   return () => {
