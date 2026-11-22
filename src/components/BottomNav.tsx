@@ -9,25 +9,28 @@ const BottomNav = () => {
   const { t } = useTranslation();
 
   // Like Facebook: the bar slides away while the page scrolls down (more screen to read) and glides
-  // back on scrolling up, at the top, or shortly after scrolling stops. #root is the app's scroller.
+  // back on scrolling up, at the top, or shortly after scrolling stops. Pages scroll in different
+  // containers (Home scrolls its own container, others the app canvas), so every scroll is caught
+  // in the capture phase and judged by how far that element moved.
   const [hidden, setHidden] = useState(false);
   useEffect(() => {
-    const el = document.getElementById("root");
-    if (!el) return;
-    let last = el.scrollTop;
+    const lastTop = new WeakMap<object, number>();
     let idle: number | undefined;
-    const onScroll = () => {
+    const onScroll = (e: Event) => {
+      const t = e.target;
+      const el = t instanceof Element ? t : document.scrollingElement;
+      if (!el) return;
       const y = el.scrollTop;
-      const dy = y - last;
-      last = y;
+      const dy = y - (lastTop.get(el) ?? y);
+      lastTop.set(el, y);
       if (y <= 8 || dy < -4) setHidden(false);
       else if (dy > 4) setHidden(true);
       window.clearTimeout(idle);
       idle = window.setTimeout(() => setHidden(false), 700);
     };
-    el.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
     return () => {
-      el.removeEventListener("scroll", onScroll);
+      document.removeEventListener("scroll", onScroll, true);
       window.clearTimeout(idle);
     };
   }, []);
