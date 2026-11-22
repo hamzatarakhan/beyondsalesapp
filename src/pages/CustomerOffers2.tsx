@@ -116,6 +116,12 @@ const CustomerOffers2 = () => {
   // cancel-reason prompt), same as every other customer flow.
   const [everProgressed, setEverProgressed] = useState(false);
   useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
+  // Each stage opens at its top (the pages scroll in different containers, so reset them all).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.getElementById("root")?.scrollTo(0, 0);
+    document.querySelectorAll<HTMLElement>(".mobile-container").forEach((el) => el.scrollTo(0, 0));
+  }, [step]);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");

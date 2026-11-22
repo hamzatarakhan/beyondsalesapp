@@ -10,6 +10,7 @@ import { SuccessBottomSheet } from "@/components/SuccessBottomSheet";
 import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS } from "@/pages/NewActivation";
 import { useBrand } from "@/contexts/BrandContext";
 import PlanCard from "@/components/PlanCard";
+import PlanSelector from "@/components/activation/PlanSelector";
 import { useCvmOfferText, OfferRow, CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
 import PayOption from "@/components/activation/PayOption";
 import WalletShortNotice from "@/components/WalletShortNotice";
@@ -28,7 +29,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { primeKeyboard, releaseKeyboard } from "@/lib/keyboard";
 import { CVM_CUSTOMERS, cvmRechargeBounds, cvmBillRequired, type CvmCustomer, type CvmOffer, type CvmOfferKind } from "@/lib/cvmOffers";
-import { AlertCircle, ArrowLeftRight, Check, ClipboardList, CreditCard, Gift, Phone, Receipt, ReceiptText, Repeat, RotateCcw, Search, Send, Wallet, X, XCircle } from "lucide-react";
+import { AlertCircle, ArrowLeftRight, Check, ChevronRight, ClipboardList, CreditCard, Gift, Phone, Receipt, ReceiptText, Repeat, RotateCcw, Search, Send, Wallet, X, XCircle } from "lucide-react";
 
 // Customer Offers (CVM, from Pelatro): MSISDN → OTP → every offer Pelatro has for the customer.
 // Built only from the same pieces as the other customer flows (Change Prepaid Plan etc.):
@@ -59,6 +60,8 @@ const CTA_KEY: Record<CvmOfferKind, string> = {
 // Used offers stay hidden while navigating, but a page refresh starts clean (this runs once per page load).
 try { Object.keys(sessionStorage).filter((k) => k.startsWith("cvmClaimed:")).forEach((k) => sessionStorage.removeItem(k)); } catch { /* storage unavailable */ }
 
+// Pre to Post migration offers the Switch Postpaid plans, same list as Subscription Migration's.
+const SWITCH_POSTPAID = POSTPAID_PLANS.filter((p) => p.categories.includes("switch-postpaid"));
 const MAX_OTP_ATTEMPTS = 3;
 // Prototype: amount due on the postpaid customer's bill when a bill offer is reviewed.
 const CVM_BILL_DUE = 300;
@@ -116,6 +119,13 @@ const CustomerOffers3 = () => {
   // cancel-reason prompt), same as every other customer flow.
   const [everProgressed, setEverProgressed] = useState(false);
   useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
+  // Each stage opens at its top (the pages scroll in different containers, so reset them all).
+  const [allPlansOpen, setAllPlansOpen] = useState(false);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.getElementById("root")?.scrollTo(0, 0);
+    document.querySelectorAll<HTMLElement>(".mobile-container").forEach((el) => el.scrollTo(0, 0));
+  }, [step, allPlansOpen]);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
@@ -156,6 +166,8 @@ const CustomerOffers3 = () => {
   const [amountText, setAmountText] = useState("");
   const [pinOpen, setPinOpen] = useState(false);
   const [migPlan, setMigPlan] = useState<string | null>(null);
+  const [planSearch, setPlanSearch] = useState("");
+  const [allSearch, setAllSearch] = useState("");
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const { balance: walletBalance, justToppedUp } = useWalletBalance();
   const [doneRef, setDoneRef] = useState("");
@@ -339,9 +351,10 @@ const CustomerOffers3 = () => {
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
-        title={t("customerOffers.pageTitle")}
+        title={allPlansOpen ? t("changePostpaidPlan.allPlansTitle") : t("customerOffers.pageTitle")}
         showBack={step > 0 || !everProgressed}
         onBackClick={() => {
+          if (allPlansOpen) { setAllPlansOpen(false); return; }
           if (step === 0) navigate("/");
           else if (step === 3) { if (needsDetail) setStep(2); else { setSelected(null); setStep(1); } }
           else if (step === 2) { setSelected(null); setStep(1); }
@@ -355,7 +368,7 @@ const CustomerOffers3 = () => {
           ) : undefined
         }
       />
-      <FlowStepper current={stepperCurrent} steps={steps} />
+      {!allPlansOpen && <FlowStepper current={stepperCurrent} steps={steps} />}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Number ── */}
@@ -512,26 +525,64 @@ const CustomerOffers3 = () => {
           </>
         )}
 
-        {/* ── Step 2: Plan (migration only) ── */}
-        {step === 2 && customer && selected?.kind === "migration" && (
+        {/* ── Step 2: Plan (migration only) — same plan step as Change Postpaid Plan / Subscription Migration ── */}
+        {step === 2 && customer && selected?.kind === "migration" && !allPlansOpen && (
           <>
             <CvmOfferTile offer={selected} />
-            <div className="space-y-3">
-              <div className="px-1">
-                <h3 className="text-sm font-semibold text-foreground">{t("customerOffers.review.choosePlan")}</h3>
-                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{t("customerOffers.review.choosePlanHint")}</p>
-              </div>
-              {POSTPAID_PLANS.map((pl) => (
-                <PlanCard
-                  key={pl.title}
-                  plan={{ ...pl, badge: undefined }}
-                  selected={migPlan === pl.title}
-                  onSelect={() => setMigPlan(pl.title)}
-                  layout="postpaid"
-                  minsLabel={t("activation.plan.localMins")}
+            <h3 className="text-sm font-semibold text-foreground px-1">{t("changePostpaidPlan.availablePlans")}</h3>
+
+            {/* Search + View all plans, side by side. */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder={t("changePostpaidPlan.searchPlans")}
+                  className="h-11 bg-card rounded-xl ps-9"
                 />
-              ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => { setAllSearch(""); setAllPlansOpen(true); }}
+                className="h-11 px-4 rounded-xl bg-card border border-border/60 shadow-sm text-primary text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+              >
+                {t("changePostpaidPlan.allPlansBtn")}
+                <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+              </button>
             </div>
+
+            <PlanSelector
+              plans={SWITCH_POSTPAID}
+              selectedPlan={(() => { const i = SWITCH_POSTPAID.findIndex((p) => p.title === migPlan); return i >= 0 ? i : null; })()}
+              onSelect={(idx) => setMigPlan(SWITCH_POSTPAID[idx].title)}
+              searchQuery={planSearch}
+            />
+          </>
+        )}
+
+        {/* View all plans: the full vertical list with its own search; picking a plan goes back to the plan step. */}
+        {step === 2 && customer && selected?.kind === "migration" && allPlansOpen && (
+          <>
+            <div className="relative">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder={t("changePostpaidPlan.searchPlans")}
+                className="h-11 bg-card rounded-xl ps-9"
+              />
+            </div>
+            {SWITCH_POSTPAID.filter((p) => !allSearch.trim() || p.title.toLowerCase().includes(allSearch.trim().toLowerCase())).map((pl) => (
+              <PlanCard
+                key={pl.title}
+                plan={{ ...pl, badge: undefined }}
+                selected={migPlan === pl.title}
+                onSelect={() => { setMigPlan(pl.title); setAllPlansOpen(false); }}
+                layout="postpaid"
+                minsLabel={t("activation.plan.localMins")}
+              />
+            ))}
           </>
         )}
 
@@ -703,7 +754,7 @@ const CustomerOffers3 = () => {
         </div>
       )}
 
-      {step === 2 && selected?.kind === "migration" && (
+      {step === 2 && selected?.kind === "migration" && !allPlansOpen && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="sm:max-w-[390px] mx-auto">
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!migPlan} onClick={() => setStep(3)}>
