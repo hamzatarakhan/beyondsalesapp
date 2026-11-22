@@ -529,8 +529,8 @@ const CustomerOffers3 = () => {
                 )}
 
                 {visible.map((s) => {
-                  // On "All" each type is one swipeable row with See all; a chip, a search or See all shows the vertical list.
-                  const rail = !seeAll && filter === "all" && !q && s.offers.length > 1;
+                  // On "All" each type is one swipeable row with See all; a chip or See all shows the vertical list.
+                  const rail = !seeAll && filter === "all" && s.offers.length > 1;
                   return (
                   <div key={s.key} className="space-y-3">
                     {!seeAll && (
