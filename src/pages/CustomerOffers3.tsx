@@ -119,13 +119,17 @@ const CustomerOffers3 = () => {
   // cancel-reason prompt), same as every other customer flow.
   const [everProgressed, setEverProgressed] = useState(false);
   useEffect(() => { if (step > 0) setEverProgressed(true); }, [step]);
-  // Each stage opens at its top (the pages scroll in different containers, so reset them all).
+  // Migration: the plan is chosen on its own screen opened from the Review page (search + All plans), then back to Review.
+  const [planPickerOpen, setPlanPickerOpen] = useState(false);
   const [allPlansOpen, setAllPlansOpen] = useState(false);
+  const [planSearch, setPlanSearch] = useState("");
+  const [allSearch, setAllSearch] = useState("");
+  // Each stage opens at its top (the pages scroll in different containers, so reset them all).
   useEffect(() => {
     window.scrollTo(0, 0);
     document.getElementById("root")?.scrollTo(0, 0);
     document.querySelectorAll<HTMLElement>(".mobile-container").forEach((el) => el.scrollTo(0, 0));
-  }, [step, allPlansOpen]);
+  }, [step, planPickerOpen, allPlansOpen]);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelOtherText, setCancelOtherText] = useState("");
@@ -166,8 +170,9 @@ const CustomerOffers3 = () => {
   const [amountText, setAmountText] = useState("");
   const [pinOpen, setPinOpen] = useState(false);
   const [migPlan, setMigPlan] = useState<string | null>(null);
-  const [planSearch, setPlanSearch] = useState("");
-  const [allSearch, setAllSearch] = useState("");
+  // Current plan details, opened from the customer row on the offers list.
+  const [planInfoOpen, setPlanInfoOpen] = useState(false);
+  const [sheetPick, setSheetPick] = useState<string | null>(null);
   const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const { balance: walletBalance, justToppedUp } = useWalletBalance();
   const [doneRef, setDoneRef] = useState("");
@@ -282,7 +287,7 @@ const CustomerOffers3 = () => {
     setMigPlan(null);
     setPayMethod("wallet");
     setAmountText(o.kind === "recharge" && o.rule !== "any" ? String(o.minAmount) : "");
-    setStep(o.kind === "migration" || (o.kind === "recharge" && o.rule !== "exact") ? 2 : 3);
+    setStep(2);
   };
   const newRef = () => `CVM-${Math.floor(100000 + Math.random() * 900000)}`;
   // Confirm on Review: gifts opt in straight away (no payment), migration continues in its own flow,
@@ -339,28 +344,23 @@ const CustomerOffers3 = () => {
 
   // Migration is the only offer where the dealer also picks a plan, so it gets its own "Plan" stage
   // (plan cards on their own step, then the checkout) like every other plan-changing flow.
-  // The stepper follows the offer as soon as its card is ticked (not only after Continue), so the dealer
-  // always sees the real number of stages before committing: 3, or 4 when an amount / a plan must be chosen.
-  const flowOffer = step === 1 ? pickedOffer : selected;
-  const needsDetail = !!flowOffer && (flowOffer.kind === "migration" || (flowOffer.kind === "recharge" && flowOffer.rule !== "exact"));
   const steps = [
     { label: t("customerOffers.stepNumber"), Icon: Phone },
     { label: t("customerOffers.stepOffers"), Icon: Gift },
-    ...(needsDetail ? [flowOffer?.kind === "migration" ? { label: t("customerOffers.stepPlan"), Icon: Repeat } : { label: t("customerOffers.stepAmount"), Icon: Send }] : []),
     { label: t("customerOffers.stepReview"), Icon: ClipboardList },
   ];
-  const stepperCurrent = step === 3 && !needsDetail ? 2 : step;
+  const stepperCurrent = step;
 
   return (
     <div className="mobile-container min-h-screen bg-background pb-32">
       <AppHeader
-        title={allPlansOpen ? t("changePostpaidPlan.allPlansTitle") : t("customerOffers.pageTitle")}
+        title={allPlansOpen ? t("changePostpaidPlan.allPlansTitle") : planPickerOpen ? t("customerOffers.review.choosePlan") : t("customerOffers.pageTitle")}
         showBack={step > 0 || !everProgressed}
         onBackClick={() => {
           if (allPlansOpen) { setAllPlansOpen(false); return; }
+          if (planPickerOpen) { setPlanPickerOpen(false); return; }
           if (step === 0) navigate("/");
-          else if (step === 3) { if (needsDetail) setStep(2); else { setSelected(null); setStep(1); } }
-          else if (step === 2) { setSelected(null); setStep(1); }
+          else if (step === 2) { setSelected(null); setStep(1); setPlanPickerOpen(false); }
           else setStep(0);
         }}
         rightElement={
@@ -371,7 +371,7 @@ const CustomerOffers3 = () => {
           ) : undefined
         }
       />
-      {!allPlansOpen && <FlowStepper current={stepperCurrent} steps={steps} />}
+      {!allPlansOpen && !planPickerOpen && <FlowStepper current={stepperCurrent} steps={steps} />}
 
       <div className="px-4 space-y-4">
         {/* ── Step 0: Number ── */}
@@ -401,6 +401,25 @@ const CustomerOffers3 = () => {
         {/* ── Step 1: Offers ── */}
         {step === 1 && customer && (
           <>
+            {/* The customer's current plan, as a light tappable row; tap for the plan's details. */}
+            <button
+              type="button"
+              onClick={() => setPlanInfoOpen(true)}
+              className="w-full flex items-center gap-3 bg-card rounded-xl shadow-sm px-3 py-2 text-start active:opacity-80"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-muted-foreground truncate">{t("customerOffers.currentPlan")} · {customer.msisdn}</p>
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {customer.planName}
+                  <span className="font-normal text-muted-foreground"> · {t(customer.type === "prepaid" ? "customerOffers.prepaid" : "customerOffers.postpaid")}</span>
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 rtl:rotate-180" />
+            </button>
+
             {/* Current Plan — same header pill + PlanCard as Subscription Migration's. Hidden for
                 now so the offers start right under the stepper; flip SHOW_CURRENT_PLAN to bring it back. */}
             {SHOW_CURRENT_PLAN && (() => {
@@ -528,13 +547,11 @@ const CustomerOffers3 = () => {
           </>
         )}
 
-        {/* ── Step 2: Plan (migration only) — same plan step as Change Postpaid Plan / Subscription Migration ── */}
-        {step === 2 && customer && selected?.kind === "migration" && !allPlansOpen && (
+        {/* Choose plan (migration): search + All plans, same as Change Postpaid Plan / Subscription Migration. */}
+        {step === 2 && customer && selected?.kind === "migration" && planPickerOpen && !allPlansOpen && (
           <>
-            <CvmOfferTile offer={selected} />
+            <p className="text-[11px] text-muted-foreground px-1">{t("customerOffers.review.choosePlanHint")}</p>
             <h3 className="text-sm font-semibold text-foreground px-1">{t("changePostpaidPlan.availablePlans")}</h3>
-
-            {/* Search + View all plans, side by side. */}
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -554,7 +571,6 @@ const CustomerOffers3 = () => {
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>
-
             <PlanSelector
               plans={SWITCH_POSTPAID}
               selectedPlan={(() => { const i = SWITCH_POSTPAID.findIndex((p) => p.title === migPlan); return i >= 0 ? i : null; })()}
@@ -564,7 +580,7 @@ const CustomerOffers3 = () => {
           </>
         )}
 
-        {/* View all plans: the full vertical list with its own search; picking a plan goes back to the plan step. */}
+        {/* View all plans: the full vertical list with its own search; picking a plan returns to the plan screen. */}
         {step === 2 && customer && selected?.kind === "migration" && allPlansOpen && (
           <>
             <div className="relative">
@@ -589,106 +605,105 @@ const CustomerOffers3 = () => {
           </>
         )}
 
-        {/* ── Step 2: Amount (recharge with a range or any amount) ── */}
-        {step === 2 && customer && selected?.kind === "recharge" && (() => {
+        {/* ── Step 2: Review — one adaptive page: the offer, the one decision it needs, the money, then pay ── */}
+        {step === 2 && customer && selected && !planPickerOpen && !allPlansOpen && (() => {
           const o = selected;
           const k = "customerOffers.review";
-          const { amountOk } = reviewInfo(o);
-          const { benefits } = offerText(o);
-          const presets = o.rule === "range" && o.maxAmount != null
+          const { title, benefits, nextBill } = offerText(o);
+          const { amountOk, plan, migPlanObj, planPrice, isBill, pay, total, walletShort } = reviewInfo(o);
+          const money = (n: number) => <><RiyalSymbol /> {n.toFixed(2)}</>;
+          const sectionKey = SECTIONS.find((x) => x.kinds.includes(o.kind))?.key ?? "plans";
+          const newPlanName = o.kind === "migration" ? migPlanObj?.title : "planTitle" in o ? o.planTitle : undefined;
+          const presets = o.kind === "recharge" && o.rule === "range" && o.maxAmount != null
             ? Array.from(new Set([o.minAmount, Math.round((o.minAmount + o.maxAmount) / 2), o.maxAmount]))
             : [30, 50, 100, 200];
           return (
             <>
-              <CvmOfferTile offer={o} />
-              {/* Same top-up section as Credit Transfer: field with the riyal sign, hint, then a 3-column grid of amounts. */}
-              <CardSection title={t(`${k}.section.topUp`)} icon={Send}>
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Input
-                      value={amountText}
-                      onChange={(e) => setAmountText(e.target.value.replace(/[^d.]/g, "").replace(/(..*)./g, "$1"))}
-                      placeholder="0.00"
-                      inputMode="decimal"
-                      className="h-12 bg-card rounded-xl ps-10"
-                    />
-                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"><RiyalSymbol /></span>
-                  </div>
-                  {/* Range: from-to hint (red once outside it). Any: just says any amount works. */}
-                  <p className={cn("text-[11px]", !amountOk && amountText !== "" ? "text-destructive" : "text-muted-foreground")}>
-                    {o.rule === "range"
-                      ? t(!amountOk && amountText !== "" ? "customerOffers.rechargeRangeHint" : `${k}.hintRange`, { min: o.minAmount, max: o.maxAmount })
-                      : t(`${k}.hintAny`)}
+              {/* The offer being applied — same card for every type, so nothing here depends on the kind. */}
+              <div className="rounded-2xl border-[0.5px] bg-primary/10 border-primary/20 p-4 flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Gift className="w-4 h-4 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] text-muted-foreground">
+                    {t(`customerOffers.section.${sectionKey}`)} <span className="mx-1">•</span> {t("customerOffers.validUntil", { date: o.validUntil })}
                   </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {presets.map((v) => (
-                      <button
-                        key={v}
-                        type="button"
-                        onClick={() => setAmountText(String(v))}
-                        className={cn(
-                          "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
-                          Number(amountText) === v && amountText !== "" ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground",
-                        )}
-                      >
-                        <RiyalSymbol /> {v.toFixed(2)}
-                      </button>
-                    ))}
-                  </div>
+                  <p className="text-base font-bold text-foreground leading-snug mt-0.5">{title}</p>
+                  {benefits && o.kind !== "btl" && <p className="text-sm font-semibold text-primary mt-1">{benefits}</p>}
+                  {nextBill && <p className="text-[11px] text-muted-foreground mt-1">{t(`customerOffers.tile.nextBills`)} {nextBill}</p>}
                 </div>
-              </CardSection>
-              {/* What this amount earns, shown only once the amount is valid. */}
-              {amountOk && benefits && (
-                <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 flex items-start gap-2">
-                  <Gift className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <p className="text-[13px] text-foreground leading-snug"><span className="font-semibold">{t(`${k}.youGet`)}:</span> {benefits}</p>
-                </div>
-              )}
-            </>
-          );
-        })()}
+              </div>
 
-        {/* ── Step 3: Review — same checkout layout as the other flows: summary, payment summary, payment method ── */}
-        {step === 3 && customer && selected && (() => {
-          const o = selected;
-          const k = "customerOffers.review";
-          const { benefits } = offerText(o);
-          const { amountOk, plan, migPlanObj, planPrice, isBill, pay, total, walletShort } = reviewInfo(o);
-          const money = (n: number) => <><RiyalSymbol /> {n.toFixed(2)}</>;
-          const newPlanName = o.kind === "migration" ? migPlanObj?.title : "planTitle" in o ? o.planTitle : undefined;
-          return (
-            <>
-              {/* Like the other flows' checkout, plans show as summary rows (plan cards belong to the picking step). The offer card covers the offer itself, except for plan offers, whose bonus goes in the rows below. */}
-              {!PLAN_KINDS.includes(o.kind) && <CvmOfferTile offer={o} />}
-
-
-              {/* The offer card above already shows the benefits, validity and next-bill example, so this card is only the transaction itself, titled by what it is. */}
               <CardSection
                 title={t(`${k}.section.${o.kind === "recharge" ? "topUp" : o.kind === "migration" ? "migration" : o.kind === "direct" ? "gift" : isBill ? "bill" : "plan"}`)}
                 icon={o.kind === "recharge" ? Send : o.kind === "migration" ? ArrowLeftRight : o.kind === "direct" ? Gift : isBill ? ReceiptText : Repeat}
               >
+                {/* The one decision, first: how much to top up. Same look as Credit Transfer's top-up section. */}
+                {o.kind === "recharge" && o.rule !== "exact" && (
+                  <div className="space-y-3 pb-3 mb-1 border-b border-border/40">
+                    <div className="relative">
+                      <Input
+                        value={amountText}
+                        onChange={(e) => setAmountText(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+                        placeholder="0.00"
+                        inputMode="decimal"
+                        className="h-12 bg-card rounded-xl ps-10"
+                      />
+                      <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"><RiyalSymbol /></span>
+                    </div>
+                    <p className={cn("text-[11px]", !amountOk && amountText !== "" ? "text-destructive" : "text-muted-foreground")}>
+                      {o.rule === "range"
+                        ? t(!amountOk && amountText !== "" ? "customerOffers.rechargeRangeHint" : `${k}.hintRange`, { min: o.minAmount, max: o.maxAmount })
+                        : t(`${k}.hintAny`)}
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {presets.map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => setAmountText(String(v))}
+                          className={cn(
+                            "py-2.5 rounded-full text-[12px] font-medium border transition-colors flex items-center justify-center gap-0.5",
+                            Number(amountText) === v && amountText !== "" ? "border-primary bg-primary text-white" : "border-border bg-muted text-foreground",
+                          )}
+                        >
+                          <RiyalSymbol /> {v.toFixed(2)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <OfferRow label={t(`${k}.number`)} value={customer.msisdn} />
                 <OfferRow label={t(`${k}.currentPlan`)} value={customer.planName} />
-                {newPlanName && <OfferRow label={t(`${k}.newPlan`)} value={newPlanName} />}
-                {PLAN_KINDS.includes(o.kind) && (
-                  <>
-                    <OfferRow
-                      label={t("changePostpaidPlan.changeType")}
-                      value={o.kind === "btl" ? t("customerOffers.btlRibbon") : o.kind === "changePlan" && o.renew ? t("customerOffers.renewRibbon") : t("changePostpaidPlan.changeTypeUpgrade")}
-                    />
-                    {plan?.validityLabel && <OfferRow label={t("subscriptionMigration.planValidity")} value={plan.validityLabel} />}
-                    {o.kind !== "btl" && benefits && <OfferRow label={t(`${k}.youGet`)} value={benefits} />}
-                    <OfferRow label={t(`${k}.validUntil`)} value={o.validUntil} />
-                  </>
-                )}
                 {o.kind === "migration" && <OfferRow label={t(`${k}.migrationType`)} value={t(`${k}.preToPost`)} />}
+                {/* Migration: pick the postpaid plan from a sheet, right on this row. */}
+                {o.kind === "migration" && (
+                  <button
+                    type="button"
+                    onClick={() => { setPlanSearch(""); setPlanPickerOpen(true); }}
+                    className="w-full flex items-center justify-between gap-3 py-2 border-b border-border/40 text-start"
+                  >
+                    <span className="text-[11px] text-muted-foreground">{t(`${k}.newPlan`)}</span>
+                    <span className={cn("flex items-center gap-1 text-xs font-semibold", migPlanObj ? "text-foreground" : "text-primary")}>
+                      {migPlanObj ? migPlanObj.title : t(`${k}.chooseCta`)}
+                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                    </span>
+                  </button>
+                )}
                 {o.kind === "migration" && <OfferRow label={t(`${k}.discount`)} value={t(`${k}.discountFor`, { pct: o.discountPct, months: o.months })} />}
-                {o.kind === "recharge" && <OfferRow label={t(`${k}.amount`)} value={money(o.rule === "exact" ? o.minAmount : Number(amountText))} />}
+                {PLAN_KINDS.includes(o.kind) && newPlanName && <OfferRow label={t(`${k}.newPlan`)} value={newPlanName} />}
+                {PLAN_KINDS.includes(o.kind) && (
+                  <OfferRow
+                    label={t("changePostpaidPlan.changeType")}
+                    value={o.kind === "btl" ? t("customerOffers.btlRibbon") : o.kind === "changePlan" && o.renew ? t("customerOffers.renewRibbon") : t("changePostpaidPlan.changeTypeUpgrade")}
+                  />
+                )}
+                {PLAN_KINDS.includes(o.kind) && plan?.validityLabel && <OfferRow label={t("subscriptionMigration.planValidity")} value={plan.validityLabel} />}
               </CardSection>
 
               {o.kind !== "direct" && (
                 <CardSection title={t("changePostpaidPlan.paymentSummary")} icon={Receipt}>
-                  {o.kind === "recharge" && <OfferRow label={t(`${k}.amount`)} value={money(amountOk ? Number(amountText) : 0)} />}
+                  {o.kind === "recharge" && <OfferRow label={t(`${k}.amount`)} value={money(total)} />}
                   {(o.kind === "changePlan" || o.kind === "postpaidPlan" || o.kind === "btl" || o.kind === "migration") && (
                     <OfferRow label={t(`${k}.price`)} value={planPrice != null ? money(planPrice) : t("changePostpaidPlan.dash")} />
                   )}
@@ -730,7 +745,6 @@ const CustomerOffers3 = () => {
                   </div>
                 </CardSection>
               )}
-
             </>
           );
         })()}
@@ -757,27 +771,17 @@ const CustomerOffers3 = () => {
         </div>
       )}
 
-      {step === 2 && selected?.kind === "migration" && !allPlansOpen && (
+      {step === 2 && selected?.kind === "migration" && planPickerOpen && !allPlansOpen && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="sm:max-w-[390px] mx-auto">
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!migPlan} onClick={() => setStep(3)}>
-              {t("customerOffers.continue")}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!migPlan} onClick={() => setPlanPickerOpen(false)}>
+              {t("customerOffers.review.selectPlan")}
             </Button>
           </div>
         </div>
       )}
 
-      {step === 2 && selected?.kind === "recharge" && (
-        <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
-          <div className="sm:max-w-[390px] mx-auto">
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!reviewInfo(selected).amountOk || amountText === ""} onClick={() => setStep(3)}>
-              {t("customerOffers.continue")}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && selected && (
+      {step === 2 && selected && !planPickerOpen && !allPlansOpen && (
         <div className="fixed bottom-0 start-0 end-0 bg-background border-t border-border px-4 py-3">
           <div className="sm:max-w-[390px] mx-auto">
             <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!reviewInfo(selected).canConfirm} onClick={() => confirmOffer(selected)}>
@@ -787,6 +791,33 @@ const CustomerOffers3 = () => {
           </div>
         </div>
       )}
+
+      {/* Current plan details */}
+      <Drawer open={planInfoOpen} onOpenChange={setPlanInfoOpen}>
+        <DrawerContent className="bg-card rounded-t-3xl border-0 px-5 pb-6 pt-2">
+          <DrawerHeader className="text-start px-0 pb-3">
+            <DrawerTitle>{t("customerOffers.currentPlan")}</DrawerTitle>
+            <DrawerDescription>
+              {customer?.msisdn} · {customer && t(customer.type === "prepaid" ? "customerOffers.prepaid" : "customerOffers.postpaid")}
+            </DrawerDescription>
+          </DrawerHeader>
+          {(() => {
+            const cur = customer ? planOf(customer.planName) : undefined;
+            if (!cur) return <p className="text-sm text-foreground pb-2">{customer?.planName}</p>;
+            return (
+              <PlanCard
+                plan={{ ...cur, badge: undefined }}
+                selected
+                active
+                hideRadio
+                onSelect={() => {}}
+                layout={layoutOf(cur.categories ?? [])}
+                minsLabel={(cur.categories ?? []).includes("switch-postpaid") ? t("activation.plan.localMins") : t("activation.plan.flexMins")}
+              />
+            );
+          })()}
+        </DrawerContent>
+      </Drawer>
 
       <PinCodeSheet open={pinOpen} onOpenChange={setPinOpen} onVerified={() => setDoneRef(newRef())} idPrefix="cvm-review" />
       <SuccessBottomSheet
