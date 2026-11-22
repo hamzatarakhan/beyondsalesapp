@@ -330,7 +330,7 @@ const Home = () => {
     // { id: "customer-offers", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers", badge: t("home.badgeOption1"), badgeTone: "option" as const, alwaysBadge: true },
     // { id: "customer-offers-2", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-2", badge: t("home.badgeOption2"), badgeTone: "option" as const, alwaysBadge: true },
     // Option 3: the stages follow the offer (3 stages, or 4 when the dealer has to enter an amount or pick a plan).
-    { id: "customer-offers-3", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-3", badge: t("home.badgeOption3"), badgeTone: "option" as const, alwaysBadge: true },
+    { id: "customer-offers-3", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-3" },
     // Option 4: always three stages; the amount / plan decision lives on one adaptive Review page.
     // { id: "customer-offers-4", icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-4", badge: t("home.badgeOption4"), badgeTone: "option" as const, alwaysBadge: true },
     // Physical-SIM prepaid/basic-postpaid vanity-number activation via a pre-booked KIT —

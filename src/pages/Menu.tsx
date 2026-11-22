@@ -94,7 +94,7 @@ const Menu = () => {
           : []),
         // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption1")})`, path: "/customer-offers" },
         // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption2")})`, path: "/customer-offers-2" },
-        { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption3")})`, path: "/customer-offers-3" },
+        { icon: Gift, label: t("home.customerOffers"), path: "/customer-offers-3" },
         // { icon: Gift, label: `${t("home.customerOffers")} (${t("home.badgeOption4")})`, path: "/customer-offers-4" },
       ],
     },
