@@ -531,6 +531,7 @@ const CustomerOffers = () => {
       </Drawer>
 
       <SuccessBottomSheet
+        hideAction
         open={!!reference}
         onClose={() => { setReference(""); navigate("/"); }}
         orderId={reference}

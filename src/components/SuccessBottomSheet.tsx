@@ -19,6 +19,8 @@ export interface SuccessBottomSheetProps {
   /** Hides the "Order ID:" line — off by default, some flows (e.g. SIM Replacement) don't want it shown. */
   showOrderId?: boolean;
   children?: ReactNode;
+  /** Hides the bottom "Go to Home" button (the sheet still closes with the X). */
+  hideAction?: boolean;
 }
 
 export function SuccessBottomSheet({
@@ -32,6 +34,7 @@ export function SuccessBottomSheet({
   phoneNumberLabel,
   showOrderId = true,
   children,
+  hideAction = false,
 }: SuccessBottomSheetProps) {
   const { t } = useTranslation();
   return (
@@ -78,12 +81,14 @@ export function SuccessBottomSheet({
           {children}
         </div>
 
-        <button
-          onClick={onClose}
-          className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-        >
-          {t("activation.success.goHome")}
-        </button>
+        {!hideAction && (
+          <button
+            onClick={onClose}
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
+          >
+            {t("activation.success.goHome")}
+          </button>
+        )}
       </DrawerContent>
     </Drawer>
   );

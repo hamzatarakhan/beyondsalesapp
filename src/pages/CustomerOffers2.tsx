@@ -698,6 +698,7 @@ const CustomerOffers2 = () => {
 
       <PinCodeSheet open={pinOpen} onOpenChange={setPinOpen} onVerified={() => setDoneRef(newRef())} idPrefix="cvm-review" />
       <SuccessBottomSheet
+        hideAction
         open={!!doneRef}
         onClose={finishOffer}
         orderId={doneRef}
