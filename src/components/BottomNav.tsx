@@ -44,8 +44,8 @@ const BottomNav = () => {
 
   return (
     <div
-      className={`fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-300 ease-out ${
-        hidden ? "translate-y-[160%] opacity-0" : "translate-y-0 opacity-100"
+      className={`fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none transition-[transform,opacity,visibility] duration-300 ease-out ${
+        hidden ? "translate-y-2 opacity-0 invisible" : "translate-y-0 opacity-100 visible"
       }`}
     >
       <nav className="pointer-events-auto flex items-center gap-3 px-4 py-2 rounded-full bg-background/70 dark:bg-white/10 backdrop-blur-xl border border-border/40 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
