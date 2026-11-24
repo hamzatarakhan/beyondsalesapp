@@ -12,22 +12,28 @@ export const DeliveryActions = ({
   onConfirm,
   onReportIssue,
   onReject,
+  withSignature = true,
+  withTerms = true,
 }: {
   onConfirm: () => void;
   onReportIssue: () => void;
   onReject: () => void;
+  /** false hides the signature box (and drops it from Confirm Receipt), e.g. for the Team Leader. */
+  withSignature?: boolean;
+  /** false hides the terms checkbox (and drops it from Confirm Receipt). */
+  withTerms?: boolean;
 }) => {
   const { t } = useTranslation();
   const [signature, setSignature] = useState<string | null>(null);
   const [padOpen, setPadOpen] = useState(false);
   const [terms, setTerms] = useState(false);
-  const canConfirm = !!signature && terms;
+  const canConfirm = (!withSignature || !!signature) && (!withTerms || terms);
 
   return (
     <>
-      <SignatureBox title={t("salesOrders.delivery.dealerSignature")} value={signature} onEdit={() => setPadOpen(true)} onClear={() => setSignature(null)} />
+      {withSignature && <SignatureBox title={t("salesOrders.delivery.dealerSignature")} value={signature} onEdit={() => setPadOpen(true)} onClear={() => setSignature(null)} />}
 
-      <section className="bg-card rounded-2xl p-4 shadow-sm">
+      {withTerms && <section className="bg-card rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3 select-none">
           <div
             role="checkbox"
@@ -44,7 +50,7 @@ export const DeliveryActions = ({
             {t("salesOrders.delivery.andAcknowledge")} <span className="text-primary font-semibold">{t("salesOrders.delivery.privacyPolicy")}</span>.
           </p>
         </div>
-      </section>
+      </section>}
 
       {/* Pinned to the bottom of the screen so the actions stay reachable while the signature and terms scroll. */}
       <div className="fixed bottom-0 start-0 end-0 z-10 bg-background border-t border-border px-4 pt-3 pb-4 space-y-2.5">

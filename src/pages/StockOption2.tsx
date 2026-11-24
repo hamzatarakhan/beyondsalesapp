@@ -613,6 +613,9 @@ const View = ({ role, id, onChanged }: { role: ChainRole; id: string; onChanged:
           onConfirm={() => { updateChainOrder(id, { status: "received" }); onChanged(); }}
           onReportIssue={() => navigate("/tickets/new", { state: { orderId: id } })}
           onReject={() => setAction("reject")}
+          // Team Leader: signature and terms hidden per request
+          withSignature={role !== "tl"}
+          withTerms={role !== "tl"}
         />
       )}
       {s === "issueReported" && o.issue && <IssueDetails issue={o.issue} />}
