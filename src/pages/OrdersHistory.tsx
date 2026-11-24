@@ -1249,7 +1249,7 @@ const OrdersHistory = () => {
                 ) : selectedOrder.type === "customerSearch" ? (
                   <>
                     <SummaryRow label={t("ordersHistory.idNumber")} value={<span dir="ltr">{selectedOrder.idNumber ?? idNumberFor(selectedOrder)}</span>} />
-                    <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
+                    {/* MSISDN hidden per request: <SummaryRow label={t("ordersHistory.msisdn")} value={<span dir="ltr">{selectedOrder.phone}</span>} /> */}
                   </>
                 ) : selectedOrder.type === "billPayment" ? (
                   <SummaryRow label={t("ordersHistory.detail.number")} value={<span dir="ltr">{selectedOrder.phone}</span>} />
