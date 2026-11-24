@@ -45,7 +45,7 @@ const BADGE: Record<string, string> = {
 const FILTERS: Record<ChainRole, string[]> = {
   dealer: ["orderSubmitted", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"],
   tlPush: ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected"],
-  tl: ["pendingApproval", "approved", "rejected", "cancelled"],
+  tl: ["pendingApproval", /* "approved", */ "received", "rejected", "cancelled"],
   rm: ["pendingApproval", "orderPending", "orderPlaced", "delivered", "rejected"],
   ss: ["orderPending", "orderPlaced", "completed", "rejected"],
 };
