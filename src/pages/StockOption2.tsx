@@ -29,7 +29,8 @@ import { cn } from "@/lib/utils";
 const AMBER = "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300";
 const GREEN = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
 const SKY = "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
-const BLUE = "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300";
+// Team Leader Awaiting Approval: brand teal #00BFB3 (was blue).
+const BLUE = "bg-[#00BFB3]/15 text-[#00BFB3]";
 const TEAL = "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300";
 const BADGE: Record<string, string> = {
   orderSubmitted: AMBER, awaitingApproval: AMBER, pendingApproval: AMBER, orderPending: AMBER,
