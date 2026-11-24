@@ -4,7 +4,8 @@
 //   dealer flow: Dealer → Team Leader (approve, scan) → Dealer (confirm receipt / report issue / reject)
 //   push order:  a Team Leader creates an order for a Dealer; it skips approval and starts at Awaiting Scanning
 //   chain flow:  Team Leader → Regional Manager (proof, approve) → Sales Support (confirm)
-//                → Regional Manager (tracking ID) → delivered, shown as Approved to the Team Leader
+//                → Regional Manager (tracking ID) → back to the Team Leader as Awaiting Approval (blue)
+//                → Team Leader (confirm receipt / report issue / reject) → Received
 //
 // A plain mutable module store (same convention as purchaseOrdersStore), mirrored to localStorage
 // so a reload or a dev-server refresh between roles doesn't wipe the demo orders.
@@ -50,17 +51,18 @@ export const statusLabelKey = (role: ChainRole, o: Pick<ChainOrder, "status" | "
   const s = o.status;
   if (o.flow === "dealer") return s === "awaitingApproval" && role === "dealer" ? "orderSubmitted" : s;
   if (s === "rejected" || s === "cancelled" || s === "pendingApproval") return s;
-  // Team Leader: an approved order reads as Received (pink). Was "approved".
-  if (role === "tl") return "received";
+  // Team Leader: once the Regional Manager delivers, the order comes back for the TL to approve
+  // (Awaiting Approval, blue); after the TL confirms receipt it reads Received (pink). Was "approved".
+  if (role === "tl") return s === "delivered" ? "tlAwaitingApproval" : "received";
   if (role === "rm") return s;
-  return s === "delivered" ? "completed" : s;
+  return s === "delivered" || s === "received" ? "completed" : s;
 };
 
 export const visibleTo = (role: ChainRole, o: ChainOrder) => {
   if (o.flow !== ROLE_FLOW[role]) return false;
   if (role === "tlPush") return o.status !== "cancelled";
   if (role === "rm") return o.status !== "cancelled";
-  if (role === "ss") return o.status === "orderPending" || o.status === "orderPlaced" || o.status === "delivered" || (o.status === "rejected" && o.rejectedBy === "ss");
+  if (role === "ss") return o.status === "orderPending" || o.status === "orderPlaced" || o.status === "delivered" || o.status === "received" || (o.status === "rejected" && o.rejectedBy === "ss");
   return true;
 };
 

@@ -2750,7 +2750,8 @@
       "delivered": "تم التسليم",
       "completed": "مكتمل",
       "rejected": "مرفوض",
-      "cancelled": "ملغي"
+      "cancelled": "ملغي",
+      "tlAwaitingApproval": "بانتظار الموافقة"
     },
     "productTypes_zero": "{{count}} أنواع",
     "productTypes_one": "نوع واحد",

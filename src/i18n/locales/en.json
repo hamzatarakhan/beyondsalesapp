@@ -2823,7 +2823,8 @@
       "delivered": "Delivered",
       "completed": "Completed",
       "rejected": "Rejected",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "tlAwaitingApproval": "Awaiting Approval"
     },
     "productTypes_one": "{{count}} product type",
     "productTypes_other": "{{count}} product types",

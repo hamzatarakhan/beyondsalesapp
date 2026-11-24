@@ -29,12 +29,14 @@ import { cn } from "@/lib/utils";
 const AMBER = "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300";
 const GREEN = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
 const SKY = "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
+const BLUE = "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300";
 const TEAL = "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300";
 const BADGE: Record<string, string> = {
   orderSubmitted: AMBER, awaitingApproval: AMBER, pendingApproval: AMBER, orderPending: AMBER,
   awaitingScanning: SKY, delivered: SKY, completed: SKY,
   awaitingDelivery: TEAL,
   approved: GREEN,
+  tlAwaitingApproval: BLUE,
   orderPlaced: "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/15 dark:text-yellow-300",
   received: "bg-pink-100 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300",
   issueReported: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",
@@ -45,7 +47,7 @@ const BADGE: Record<string, string> = {
 const FILTERS: Record<ChainRole, string[]> = {
   dealer: ["orderSubmitted", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected", "cancelled"],
   tlPush: ["awaitingApproval", "awaitingScanning", "awaitingDelivery", "received", "issueReported", "rejected"],
-  tl: ["pendingApproval", /* "approved", */ "received", "rejected", "cancelled"],
+  tl: ["pendingApproval", /* "approved", */ "tlAwaitingApproval", "received", "rejected", "cancelled"],
   rm: ["pendingApproval", "orderPending", "orderPlaced", "delivered", "rejected"],
   ss: ["orderPending", "orderPlaced", "completed", "rejected"],
 };
@@ -482,7 +484,9 @@ const View = ({ role, id, onChanged }: { role: ChainRole; id: string; onChanged:
   const scanning = role === "tlPush" && s === "awaitingScanning";
   const allScanned = o.lines.every((l) => l.serials.length >= l.qty);
   const needsReason = action === "reject" || action === "cancel";
-  const delivery = role === "dealer" && s === "awaitingDelivery";
+  // Confirm Receipt / Report Issue / Reject: the Dealer on a delivery, and the Team Leader once the
+  // Regional Manager has delivered a chain order back to them.
+  const delivery = (role === "dealer" && s === "awaitingDelivery") || (role === "tl" && s === "delivered");
 
   const run = () => {
     const reason = needsReason ? t(`purchaseOrders.reason.${reasonKey || "other"}`) + (remark ? ` — ${remark}` : "") : undefined;
