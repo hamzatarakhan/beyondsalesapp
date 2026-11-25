@@ -1282,8 +1282,8 @@ const NewActivation3 = () => {
   const pickedVanityCat = VANITY_CATEGORIES.find((c) => c.key === TIER_TO_VANITY[pickedTier]);
   // A picked category only qualifies for the free-with-commitment offer if the selected plan is eligible for it.
   const pickedCategoryEligibleFree = !!pickedVanityCat && eligibleVanityCategories.some((c) => c.key === pickedVanityCat.key);
-  // The Change action is offered whenever the picked number supports both free-with-commitment and paid.
-  const canChangeVanityOption = isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree;
+  // Option 2 only: the Change action is offered when the picked number supports both free-with-commitment and paid.
+  const canChangeVanityOption = isOption2 && isPostpaidMobile && !!pickedVanityCat && pickedVanityCat.months > 0 && pickedCategoryEligibleFree;
   const bookedTopupAmount = bookedTopupManual ? Number(bookedTopupManual) : 0;
   const topupAmount = subType === "booked" ? bookedTopupAmount : (topupManual ? Number(topupManual) : topupDenom ?? 0);
   // Plan and top-up can be combined (prepaid): sum both when top-up is active.
