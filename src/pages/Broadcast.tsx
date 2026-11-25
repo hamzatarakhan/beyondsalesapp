@@ -179,7 +179,8 @@ const Broadcast = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.time")}</p>
-              {/* From time / To time: tap a row, then set it on the wheel below */}
+              {/* From time / To time rows hidden per request: the wheel now sets one time, and the list
+                  shows broadcasts sent at or after it on the picked day.
               <div className="rounded-xl bg-muted/40 border border-border/60 px-3 divide-y divide-border/60 text-sm mb-2">
                 {(["fromMin", "toMin"] as const).map((k) => {
                   const on = editingTime === k;
@@ -194,6 +195,7 @@ const Broadcast = () => {
                   );
                 })}
               </div>
+              */}
               <TimeWheel
                 value={draft[editingTime] ?? (editingTime === "fromMin" ? 0 : 23 * 60 + 59)}
                 onChange={(v) => setDraft((d) => ({ ...d, [editingTime]: v }))}
