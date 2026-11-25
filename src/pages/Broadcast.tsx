@@ -145,9 +145,10 @@ const Broadcast = () => {
           <div className="px-4 pb-4 space-y-4 flex-1 min-h-0 overflow-y-auto">
             <div>
               <Calendar
-                mode="range"
-                selected={draft.range}
-                onSelect={(range) => setDraft((d) => ({ ...d, range }))}
+                // One day only (was a From/To range): stored as a one-day range so the filter logic is unchanged.
+                mode="single"
+                selected={draft.range?.from}
+                onSelect={(day) => setDraft((d) => ({ ...d, range: day ? { from: day, to: day } : undefined }))}
                 numberOfMonths={1}
                 defaultMonth={new Date(2026, 10, 1)}
                 className="w-full p-0"
@@ -162,7 +163,7 @@ const Broadcast = () => {
                   day: "h-10 w-10 mx-auto p-0 font-normal rounded-full aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
                 }}
               />
-              {/* Date From / Date To in one box, one row each */}
+              {/* Date From / Date To hidden: a single date is picked now.
               <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 px-3 divide-y divide-border/60 text-sm">
                 {([
                   { label: t("broadcast.dateFrom"), value: draft.range?.from },
@@ -174,6 +175,7 @@ const Broadcast = () => {
                   </div>
                 ))}
               </div>
+              */}
             </div>
             <div>
               <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.time")}</p>
