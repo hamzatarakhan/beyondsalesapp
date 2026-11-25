@@ -6354,13 +6354,18 @@
     "searchSender": "Search by sender name",
     "noMatch": "No broadcasts match your search or filter.",
     "date": "Date",
-    "dateFrom": "From",
-    "dateTo": "To",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
     "time": "Time",
     "timeFrom": "From time",
     "timeTo": "To time",
     "sentToMembers_one": "Sent to {{count}} member",
-    "sentToMembers_other": "Sent to {{count}} members"
+    "sentToMembers_other": "Sent to {{count}} members",
+    "pickDate": "Pick a date",
+    "pickDateSub": "Please select a date",
+    "hour": "Hour",
+    "minute": "Minute",
+    "period": "AM or PM"
   },
   "paymentLink": {
     "option": "Payment link / QR",

@@ -6329,8 +6329,8 @@
     "searchSender": "ابحث باسم المرسل",
     "noMatch": "لا توجد رسائل بث مطابقة للبحث أو التصفية.",
     "date": "التاريخ",
-    "dateFrom": "من",
-    "dateTo": "إلى",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ",
     "time": "الوقت",
     "timeFrom": "من الساعة",
     "timeTo": "إلى الساعة",
@@ -6339,7 +6339,12 @@
     "sentToMembers_two": "أُرسلت إلى عضوين",
     "sentToMembers_few": "أُرسلت إلى {{count}} أعضاء",
     "sentToMembers_many": "أُرسلت إلى {{count}} عضوًا",
-    "sentToMembers_other": "أُرسلت إلى {{count}} عضو"
+    "sentToMembers_other": "أُرسلت إلى {{count}} عضو",
+    "pickDate": "اختر التاريخ",
+    "pickDateSub": "يرجى اختيار التاريخ",
+    "hour": "الساعة",
+    "minute": "الدقيقة",
+    "period": "صباحًا أو مساءً"
   },
   "paymentLink": {
     "option": "رابط الدفع / QR",

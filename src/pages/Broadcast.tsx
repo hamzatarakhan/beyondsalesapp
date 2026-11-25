@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import TimeWheel, { minutesLabel } from "@/components/TimeWheel";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
@@ -9,16 +9,15 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { ReceivedBroadcastCard } from "@/pages/BroadcastReceived";
-import { Plus, Search, SlidersHorizontal, Users, X } from "lucide-react";
+import { CalendarDays, Clock, Plus, Search, SlidersHorizontal, Users, X } from "lucide-react";
 import { BroadcastMessage, CAN_SEND_BROADCAST, broadcastDateTime, getReceivedBroadcasts, getSentBroadcasts } from "@/data/broadcasts";
 
 type Tab = "sent" | "received";
 
-// Date and time filter: a date range plus an optional time-of-day window (whole hours).
-type Filter = { range?: DateRange; fromHour: string; toHour: string };
-const NO_FILTER: Filter = { range: undefined, fromHour: "", toHour: "" };
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
-const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12}:00 ${h < 12 ? "AM" : "PM"}`;
+// Date and time filter: a date range plus an optional time-of-day window (minutes since midnight).
+type Filter = { range?: DateRange; fromMin: number | null; toMin: number | null };
+type TimeKey = "fromMin" | "toMin";
+const NO_FILTER: Filter = { range: undefined, fromMin: null, toMin: null };
 const fmtDay = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
@@ -31,10 +30,9 @@ function matchesFilter(b: BroadcastMessage, f: Filter) {
     const to = startOfDay(f.range.to ?? f.range.from).getTime();
     if (day < from || day > to) return false;
   }
-  const hour = when.getHours() + when.getMinutes() / 60;
-  if (f.fromHour !== "" && hour < Number(f.fromHour)) return false;
-  // "To" is inclusive of that whole hour, so 9:00 AM–9:00 AM still finds 9:30 AM.
-  if (f.toHour !== "" && hour >= Number(f.toHour) + 1) return false;
+  const mins = when.getHours() * 60 + when.getMinutes();
+  if (f.fromMin !== null && mins < f.fromMin) return false;
+  if (f.toMin !== null && mins > f.toMin) return false;
   return true;
 }
 
@@ -48,7 +46,8 @@ const Broadcast = () => {
   const [filter, setFilter] = useState<Filter>(NO_FILTER);
   const [draft, setDraft] = useState<Filter>(NO_FILTER);
   const [filterOpen, setFilterOpen] = useState(false);
-  const filterActive = !!filter.range?.from || filter.fromHour !== "" || filter.toHour !== "";
+  const [editingTime, setEditingTime] = useState<TimeKey>("fromMin");
+  const filterActive = !!filter.range?.from || filter.fromMin !== null || filter.toMin !== null;
 
   // Search by member: Sent matches any recipient's name or ID code, Received matches the sender.
   const list = useMemo(() => {
@@ -92,7 +91,7 @@ const Broadcast = () => {
           <Search className="w-5 h-5 text-muted-foreground absolute end-4 top-1/2 -translate-y-1/2" />
         </div>
         <button
-          onClick={() => { setDraft(filter); setFilterOpen(true); }}
+          onClick={() => { setDraft(filter); setEditingTime("fromMin"); setFilterOpen(true); }}
           className="relative w-12 h-12 rounded-xl bg-card border border-border/60 flex items-center justify-center"
           aria-label={t("broadcast.filter")}
         >
@@ -133,8 +132,8 @@ const Broadcast = () => {
       <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
         <DrawerContent className="max-h-[90vh] overflow-hidden">
           <div className="relative pt-2 pb-2 px-4 text-center">
-            <h2 className="text-lg font-semibold text-foreground">{t("broadcast.filter")}</h2>
-            <p className="text-sm text-muted-foreground">{t("broadcast.filterSub")}</p>
+            <h2 className="text-lg font-semibold text-foreground">{t("broadcast.pickDate")}</h2>
+            <p className="text-sm text-muted-foreground">{t("broadcast.pickDateSub")}</p>
             <button
               onClick={() => setFilterOpen(false)}
               className="absolute end-4 top-2 w-9 h-9 rounded-full bg-muted flex items-center justify-center"
@@ -145,7 +144,6 @@ const Broadcast = () => {
           </div>
           <div className="px-4 pb-4 space-y-4 flex-1 min-h-0 overflow-y-auto">
             <div>
-              <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.date")}</p>
               <Calendar
                 mode="range"
                 selected={draft.range}
@@ -164,34 +162,41 @@ const Broadcast = () => {
                   day: "h-10 w-10 mx-auto p-0 font-normal rounded-full aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
                 }}
               />
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-xl bg-muted/40 px-3 py-2">
-                  <p className="text-muted-foreground">{t("broadcast.dateFrom")}</p>
-                  <p className="font-semibold text-foreground" dir="ltr">{draft.range?.from ? fmtDay(draft.range.from) : "—"}</p>
-                </div>
-                <div className="rounded-xl bg-muted/40 px-3 py-2">
-                  <p className="text-muted-foreground">{t("broadcast.dateTo")}</p>
-                  <p className="font-semibold text-foreground" dir="ltr">{draft.range?.to ? fmtDay(draft.range.to) : draft.range?.from ? fmtDay(draft.range.from) : "—"}</p>
-                </div>
+              {/* Date From / Date To in one box, one row each */}
+              <div className="mt-3 rounded-xl bg-muted/40 border border-border/60 px-3 divide-y divide-border/60 text-sm">
+                {([
+                  { label: t("broadcast.dateFrom"), value: draft.range?.from },
+                  { label: t("broadcast.dateTo"), value: draft.range?.to ?? draft.range?.from },
+                ]).map((r) => (
+                  <div key={r.label} className="flex items-center justify-between py-2.5">
+                    <span className="flex items-center gap-2 text-muted-foreground"><CalendarDays className="w-4 h-4" />{r.label}</span>
+                    <span className="font-semibold text-foreground" dir="ltr">{r.value ? fmtDay(r.value) : "—"}</span>
+                  </div>
+                ))}
               </div>
             </div>
             <div>
               <p className="text-sm font-medium text-foreground mb-2">{t("broadcast.time")}</p>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { key: "fromHour", ph: t("broadcast.timeFrom") },
-                  { key: "toHour", ph: t("broadcast.timeTo") },
-                ] as const).map((f) => (
-                  <Select key={f.key} value={draft[f.key]} onValueChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))}>
-                    <SelectTrigger className="h-12 rounded-xl bg-card border-border/60 text-base">
-                      <SelectValue placeholder={f.ph} />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {HOURS.map((h) => <SelectItem key={h} value={String(h)}>{hourLabel(h)}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                ))}
+              {/* From time / To time: tap a row, then set it on the wheel below */}
+              <div className="rounded-xl bg-muted/40 border border-border/60 px-3 divide-y divide-border/60 text-sm mb-2">
+                {(["fromMin", "toMin"] as const).map((k) => {
+                  const on = editingTime === k;
+                  const v = draft[k];
+                  return (
+                    <button key={k} type="button" onClick={() => setEditingTime(k)} className="w-full flex items-center justify-between py-2.5">
+                      <span className={cn("flex items-center gap-2", on ? "text-primary font-medium" : "text-muted-foreground")}>
+                        <Clock className="w-4 h-4" />{k === "fromMin" ? t("broadcast.timeFrom") : t("broadcast.timeTo")}
+                      </span>
+                      <span className={cn("font-semibold", on ? "text-primary" : "text-foreground")} dir="ltr">{v === null ? "—" : minutesLabel(v)}</span>
+                    </button>
+                  );
+                })}
               </div>
+              <TimeWheel
+                value={draft[editingTime] ?? (editingTime === "fromMin" ? 0 : 23 * 60 + 59)}
+                onChange={(v) => setDraft((d) => ({ ...d, [editingTime]: v }))}
+                labels={{ hour: t("broadcast.hour"), minute: t("broadcast.minute"), period: t("broadcast.period") }}
+              />
             </div>
           </div>
           <div className="shrink-0 px-4 pt-3 pb-6 space-y-3 border-t border-border/60">
