@@ -6,13 +6,15 @@ import BroadcastVoiceNote from "@/components/BroadcastVoiceNote";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Eye, FileText, IdCard, Image as ImageIcon, Mic, Plus, Search, SlidersHorizontal, Square, Trash2, User, X } from "lucide-react";
-import { BROADCAST_MEMBERS, BroadcastDoc, BroadcastMember, addSentBroadcast, formatVoice } from "@/data/broadcasts";
+import { CheckCircle2, ChevronDown, Eye, FileText, IdCard, Image as ImageIcon, Mic, Plus, Search, SlidersHorizontal, Square, Trash2, User, X } from "lucide-react";
+import { BROADCAST_MEMBERS, BroadcastDoc, BroadcastMember, HIERARCHY_TYPES, HierarchyType, addSentBroadcast, formatVoice } from "@/data/broadcasts";
 
-type Filter = { region: string; wilaya: string; location: string };
-const NO_FILTER: Filter = { region: "", wilaya: "", location: "" };
+// Hierarchy Type is multi-select (empty = all); Region / Wilaya / Location pick one each.
+type Filter = { hierarchy: HierarchyType[]; region: string; wilaya: string; location: string };
+const NO_FILTER: Filter = { hierarchy: [], region: "", wilaya: "", location: "" };
 const uniq = (xs: string[]) => [...new Set(xs)];
 const PREVIEW_COUNT = 3;
 
@@ -64,6 +66,7 @@ const BroadcastNew = () => {
     const q = query.trim().toLowerCase();
     return BROADCAST_MEMBERS.filter((m) =>
       (!q || m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q)) &&
+      (filter.hierarchy.length === 0 || filter.hierarchy.includes(m.hierarchy)) &&
       (!filter.region || m.region === filter.region) &&
       (!filter.wilaya || m.wilaya === filter.wilaya) &&
       (!filter.location || m.location === filter.location),
@@ -125,7 +128,7 @@ const BroadcastNew = () => {
             aria-label={t("broadcast.filter")}
           >
             <SlidersHorizontal className="w-5 h-5 text-primary" />
-            {(filter.region || filter.wilaya || filter.location) && <span className="absolute top-2 end-2 w-2 h-2 rounded-full bg-primary" />}
+            {(filter.hierarchy.length > 0 || filter.region || filter.wilaya || filter.location) && <span className="absolute top-2 end-2 w-2 h-2 rounded-full bg-primary" />}
           </button>
         </div>
 
@@ -177,6 +180,33 @@ const BroadcastNew = () => {
               </button>
             </div>
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">{t("broadcast.hierarchyType")}</label>
+                <Popover>
+                  <PopoverTrigger className="w-full h-12 rounded-xl bg-card border border-border/60 px-3 flex items-center justify-between gap-2 text-base text-start">
+                    <span className={cn("truncate", draftFilter.hierarchy.length === 0 && "text-muted-foreground")}>
+                      {draftFilter.hierarchy.length === 0
+                        ? t("broadcast.selectHierarchyType")
+                        : HIERARCHY_TYPES.filter((h) => draftFilter.hierarchy.includes(h)).map((h) => t(`profile.hierarchy.roles.${h}`)).join(", ")}
+                    </span>
+                    <ChevronDown className="w-4 h-4 shrink-0 opacity-50" />
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] p-1 rounded-xl">
+                    {HIERARCHY_TYPES.map((h) => {
+                      const on = draftFilter.hierarchy.includes(h);
+                      return (
+                        <label key={h} className={cn("flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm cursor-pointer", on ? "bg-primary/5 text-foreground" : "text-foreground hover:bg-muted/60")}>
+                          <Checkbox
+                            checked={on}
+                            onCheckedChange={() => setDraftFilter((d) => ({ ...d, hierarchy: on ? d.hierarchy.filter((x) => x !== h) : [...d.hierarchy, h] }))}
+                          />
+                          {t(`profile.hierarchy.roles.${h}`)}
+                        </label>
+                      );
+                    })}
+                  </PopoverContent>
+                </Popover>
+              </div>
               {([
                 { key: "region", label: t("broadcast.region"), ph: t("broadcast.selectRegion"), opts: regionOpts, reset: { wilaya: "", location: "" } },
                 { key: "wilaya", label: t("broadcast.wilaya"), ph: t("broadcast.selectWilaya"), opts: wilayaOpts, reset: { location: "" } },

@@ -7,7 +7,12 @@ export interface BroadcastMember {
   region: string;
   wilaya: string;
   location: string;
+  /** Hierarchy type, a key of profile.hierarchy.roles (e.g. "teamLeader"). */
+  hierarchy: HierarchyType;
 }
+
+export const HIERARCHY_TYPES = ["regionalManager", "teamLeader", "accountManager", "salesPartner", "salesPromoter"] as const;
+export type HierarchyType = (typeof HIERARCHY_TYPES)[number];
 
 export interface BroadcastDoc {
   id: string;
@@ -30,15 +35,15 @@ export interface BroadcastMessage {
   unread?: boolean;
 }
 
-// Placeholder channel members for the "Channel Member" picker and its Region / Wilaya / Location filter.
+// Placeholder channel members for the "Channel Member" picker and its Hierarchy Type / Region / Wilaya / Location filter.
 export const BROADCAST_MEMBERS: BroadcastMember[] = [
-  { name: "Sara Ahmad", code: "DST001", region: "Central", wilaya: "Riyadh", location: "Riyadh Main Branch" },
-  { name: "Faisal Al-Otaibi", code: "DST002", region: "Central", wilaya: "Riyadh", location: "Olaya Branch" },
-  { name: "Noura Al-Harbi", code: "DST003", region: "Western", wilaya: "Jeddah", location: "Jeddah Branch" },
-  { name: "Khalid Al-Dosari", code: "DST004", region: "Eastern", wilaya: "Dammam", location: "Dammam Branch" },
-  { name: "Mona Al-Qahtani", code: "DST005", region: "Western", wilaya: "Mecca", location: "Mecca Branch" },
-  { name: "Omar Al-Shehri", code: "DST006", region: "Eastern", wilaya: "Khobar", location: "Khobar Branch" },
-  { name: "Reem Al-Ghamdi", code: "DST007", region: "Western", wilaya: "Jeddah", location: "Tahlia Branch" },
+  { name: "Sara Ahmad", code: "DST001", hierarchy: "teamLeader", region: "Central", wilaya: "Riyadh", location: "Riyadh Main Branch" },
+  { name: "Faisal Al-Otaibi", code: "DST002", hierarchy: "accountManager", region: "Central", wilaya: "Riyadh", location: "Olaya Branch" },
+  { name: "Noura Al-Harbi", code: "DST003", hierarchy: "salesPartner", region: "Western", wilaya: "Jeddah", location: "Jeddah Branch" },
+  { name: "Khalid Al-Dosari", code: "DST004", hierarchy: "regionalManager", region: "Eastern", wilaya: "Dammam", location: "Dammam Branch" },
+  { name: "Mona Al-Qahtani", code: "DST005", hierarchy: "salesPromoter", region: "Western", wilaya: "Mecca", location: "Mecca Branch" },
+  { name: "Omar Al-Shehri", code: "DST006", hierarchy: "salesPartner", region: "Eastern", wilaya: "Khobar", location: "Khobar Branch" },
+  { name: "Reem Al-Ghamdi", code: "DST007", hierarchy: "accountManager", region: "Western", wilaya: "Jeddah", location: "Tahlia Branch" },
 ];
 
 const sent: BroadcastMessage[] = [

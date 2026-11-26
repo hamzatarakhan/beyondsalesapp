@@ -6447,7 +6447,9 @@
     "pickDateSub": "Please select a date",
     "hour": "Hour",
     "minute": "Minute",
-    "period": "AM or PM"
+    "period": "AM or PM",
+    "hierarchyType": "Hierarchy Type",
+    "selectHierarchyType": "Select the hierarchy type"
   },
   "paymentLink": {
     "option": "Payment link / QR",

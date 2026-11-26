@@ -6426,7 +6426,9 @@
     "pickDateSub": "يرجى اختيار التاريخ",
     "hour": "الساعة",
     "minute": "الدقيقة",
-    "period": "صباحًا أو مساءً"
+    "period": "صباحًا أو مساءً",
+    "hierarchyType": "نوع التسلسل الإداري",
+    "selectHierarchyType": "اختر نوع التسلسل الإداري"
   },
   "paymentLink": {
     "option": "رابط الدفع / QR",
