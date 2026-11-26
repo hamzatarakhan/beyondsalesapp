@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
 import { cvmExit, useCvmOffer, cvmBillRequired } from "@/lib/cvmOffers";
 import { useEffect, useMemo, useState } from "react";
@@ -1147,7 +1148,7 @@ const BillPayment = () => {
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("billPayment.paymentFailedTitle")}</h3>
             <p className="text-sm text-muted-foreground text-center">
-              {t("billPayment.paymentFailedDesc")}
+              {withErrorCode(t("billPayment.paymentFailedDesc"), t)}
             </p>
           </div>
           <div className="flex flex-col gap-3">

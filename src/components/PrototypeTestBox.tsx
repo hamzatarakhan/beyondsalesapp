@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
-import { Info, ArrowUpRight, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Info, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface PrototypeTestItem {
   /** The value used to fill the field — keep this just the raw test value (email, MSISDN, etc). */
@@ -28,6 +29,7 @@ interface PrototypeTestBoxProps {
  * current and future prototype feature gets the same box instead of a hand-rolled copy.
  */
 const PrototypeTestBox = ({ heading, description, items, onSelect, extra }: PrototypeTestBoxProps) => {
+  const { t } = useTranslation();
   const [filledValue, setFilledValue] = useState<string | null>(null);
 
   const normalized = items.map((item) => (typeof item === "string" ? { value: item } : item));
@@ -58,20 +60,21 @@ const PrototypeTestBox = ({ heading, description, items, onSelect, extra }: Prot
   };
 
   const renderItem = ({ value, note }: PrototypeTestItem) => (
-    <div key={value} className="flex items-center justify-between gap-2">
-      <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">
-        <span className="font-mono">{value}</span>
+    // The whole row is the button, with a visible "Use" label so testers know it's tappable.
+    <button
+      key={value}
+      type="button"
+      onClick={() => handleSelect(value)}
+      className="w-full flex items-center justify-between gap-2 py-1 text-start transition-colors hover:bg-amber-100/60 active:bg-amber-100 dark:hover:bg-amber-900/20"
+    >
+      <span className="min-w-0 text-[10px] leading-tight text-amber-600/90 dark:text-amber-400/80">
+        <span className="font-mono font-semibold text-amber-700 dark:text-amber-400">{value}</span>
         {note && <span> — {note}</span>}
-      </p>
-      <button
-        type="button"
-        onClick={() => handleSelect(value)}
-        className="text-amber-500 shrink-0"
-        aria-label={`Use ${value}`}
-      >
-        {filledValue === value ? <CheckCircle2 className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-      </button>
-    </div>
+      </span>
+      <span className="shrink-0 flex items-center gap-0.5 rounded-full bg-amber-500 px-2 py-px text-[9px] font-semibold text-white">
+        {filledValue === value ? <><CheckCircle2 className="w-2.5 h-2.5" />{t("common.filled")}</> : t("common.use")}
+      </span>
+    </button>
   );
 
   return (
@@ -100,7 +103,7 @@ const PrototypeTestBox = ({ heading, description, items, onSelect, extra }: Prot
                   )}
                 </button>
                 {!isCollapsed && (
-                  <div className="space-y-1 mt-1">
+                  <div className="mt-0.5 divide-y divide-amber-200/70 dark:divide-amber-800/60">
                     {normalized.filter((item) => (item.group ?? "Other") === group).map(renderItem)}
                   </div>
                 )}
@@ -109,7 +112,7 @@ const PrototypeTestBox = ({ heading, description, items, onSelect, extra }: Prot
           })}
         </div>
       ) : (
-        <div className="space-y-1">
+        <div className="divide-y divide-amber-200/70 dark:divide-amber-800/60">
           {normalized.map(renderItem)}
         </div>
       )}

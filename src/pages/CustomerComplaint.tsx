@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { useEffect, useState } from "react";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { useNavigate } from "react-router-dom";
@@ -443,7 +444,7 @@ const CustomerComplaint = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("customerComplaint.submitFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("customerComplaint.submitFailedDesc")}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(t("customerComplaint.submitFailedDesc"), t)}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); resolveSubmit(); }}>

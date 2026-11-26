@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
 import { cvmExit, useCvmOffer } from "@/lib/cvmOffers";
 import { useEffect, useState } from "react";
@@ -8,7 +9,6 @@ import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PlanSelector, { Plan } from "@/components/activation/PlanSelector";
 import PayOption from "@/components/activation/PayOption";
-import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import PlanCard from "@/components/PlanCard";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import { PREPAID_PLANS, POSTPAID_PLANS, FRIENDI_PLANS, ID_TYPE_ORDER, ID_TYPE_RULES, ID_TYPE_VERIFICATION_METHODS, VerifiedBanner, type IdTypeRule } from "@/pages/NewActivation";
@@ -276,8 +276,7 @@ const SubscriptionMigration = () => {
   const [customerVerified, setCustomerVerified] = useState(false);
 
   // Checkout — payment
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
-  const [linkOpen, setLinkOpen] = useState(false);
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   // Post-to-pre only — the old line's outstanding bill card shows only the essentials
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -951,7 +950,6 @@ const SubscriptionMigration = () => {
                     )}
                   </PayOption>
                   <PayOption icon={CreditCard} label={t("subscriptionMigration.posTerminal")} description={t("subscriptionMigration.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-                  <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
                 </div>
               </CardSection>
             )}
@@ -1032,10 +1030,8 @@ const SubscriptionMigration = () => {
               </Button>
             </>
           ) : (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
-              {payMethod === "link" ? t("paymentLink.send") : (
-                <>{direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : <>{t("subscriptionMigration.pay")} <RiyalSymbol /> {total.toFixed(2)}</>}</>
-              )}
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canPay} onClick={() => setConfirmOpen(true)}>
+              {direction === "pre-to-post" && isWhitelisted ? t("subscriptionMigration.submit") : <>{t("subscriptionMigration.pay")} <RiyalSymbol /> {total.toFixed(2)}</>}
             </Button>
           )}
         </div>
@@ -1327,8 +1323,6 @@ const SubscriptionMigration = () => {
       </Drawer>
 
       {/* Success */}
-      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={total} onPaid={resolvePayment} />
-
       <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate(...cvmExit(offer)))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
@@ -1366,7 +1360,7 @@ const SubscriptionMigration = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("subscriptionMigration.migrationFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("subscriptionMigration.migrationFailedDesc")}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(t("subscriptionMigration.migrationFailedDesc"), t)}</p>
             <p className="text-xs text-muted-foreground mt-1">
               {t("subscriptionMigration.reference")} <span className="font-semibold text-foreground">{`SM-${Math.floor(100000 + Math.random() * 900000)}`}</span>
             </p>

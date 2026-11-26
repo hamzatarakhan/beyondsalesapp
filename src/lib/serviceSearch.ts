@@ -21,6 +21,7 @@ const SEARCH_KEYWORDS: Record<string, string> = {
   "/sim-status-check": "status check state حالة فحص",
   "/sim-replacement?option=2": "replace replacement lost damaged استبدال بدل فاقد",
   "/sim-termination?option=3": "terminate termination close cancel line إنهاء إلغاء خط",
+  "/line-suspension": "suspend suspension unsuspend restore pause line hold إيقاف مؤقت تعليق خط إعادة تشغيل",
   "/cancel-port-in": "port in port-in mnp cancel إلغاء نقل",
   "/change-prepaid-bundle": "bundle plan prepaid package باقة تغيير",
   "/change-postpaid-plan": "plan postpaid upgrade downgrade خطة",

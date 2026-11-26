@@ -17,6 +17,7 @@ import {
   Microchip,
   Receipt,
   PhoneOff,
+  PauseCircle,
   ChevronRight,
   Send,
   Zap,
@@ -283,6 +284,8 @@ const Home = () => {
     { id: "sim-termination-3", icon: PhoneOff, label: t("home.simTermination"), path: "/sim-termination?option=3", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const },
   ];
 
+  const lineSuspensionOption = { id: "line-suspension", icon: PauseCircle, label: t("home.lineSuspension"), path: "/line-suspension", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const };
+
   const simStatusCheckOption = { id: "sim-status-check", icon: BadgeCheck, label: t("home.simStatusCheck"), path: "/sim-status-check", badge: t("home.badgeConfirmed"), badgeTone: "approved" as const };
 
   // Four separate entry points into the same flow, not a toggle — each tile is fixed to
@@ -528,10 +531,10 @@ const Home = () => {
     { id: "broadcast-received", icon: Inbox, label: t("home.broadcastReceived"), path: "/broadcast/received" },
   ];
   const tileById: Record<string, Tile> = Object.fromEntries(
-    [...activities, ...simReplacementOptions, ...simTerminationOptions, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...broadcastOptions].map((x) => [x.id, x as Tile]),
+    [...activities, ...simReplacementOptions, ...simTerminationOptions, lineSuspensionOption, simStatusCheckOption, ...eWalletOptions, ...otherServicesOptions, ...otherWidgetsOptions, ...broadcastOptions].map((x) => [x.id, x as Tile]),
   );
   const categories: { id: string; title: string; ids: string[]; walletBalance?: boolean; color: ActivityColor }[] = [
-    { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "cancel-port-in"] },
+    { id: "sim-numbers", color: "primary", title: t("home.catSimNumbers"), ids:["sim-3", "sim-3-option-2", "fulfilment", "sim-status-check", "sim-replacement-2", "sim-termination-3", "line-suspension", "cancel-port-in"] },
     { id: "plans-subscription", color: "violet", title: t("home.catPlansSubscription"), ids: ["change-prepaid-bundle", "change-postpaid-plan", "migration-pre-to-post", "migration-post-to-pre", "customer-offers-3"] },
     { id: "billing-credit", color: "emerald", title: t("home.catBillingCredit"), ids: ["credit-transfer", "bill-payment-2", "credit-limit-5"] },
     { id: "customer-care", color: "rose", title: t("home.catCustomerCare"), ids: ["change-owner", "update-id", "customer-search", "customer-complaint"] },

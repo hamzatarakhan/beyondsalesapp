@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { useEffect, useState } from "react";
 import { CANCEL_REASONS } from "@/lib/cancelReasons";
 import { useNavigate } from "react-router-dom";
@@ -896,7 +897,7 @@ const ActivateVanityNumber = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("activateVanityNumber.failedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{failureReason}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(failureReason, t)}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>

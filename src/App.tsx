@@ -46,6 +46,7 @@ import SearchCustomer from "./pages/SearchCustomer";
 import SearchCustomerForOwnership from "./pages/SearchCustomerForOwnership";
 import SearchCustomerForCredit from "./pages/SearchCustomerForCredit";
 import SimTermination from "./pages/SimTermination";
+import LineSuspension from "./pages/LineSuspension";
 import CustomerTermination from "./pages/CustomerTermination";
 import NewOwnerDetails from "./pages/NewOwnerDetails";
 import ChangeOfOwnership from "./pages/ChangeOfOwnership";
@@ -203,6 +204,7 @@ const App = () => {
           <Route path="/search-customer-ownership" element={<SearchCustomerForOwnership />} />
           <Route path="/search-customer-credit" element={<SearchCustomerForCredit />} />
           <Route path="/sim-termination" element={<SimTermination />} />
+          <Route path="/line-suspension" element={<LineSuspension />} />
           <Route path="/customer-termination" element={<CustomerTermination />} />
           <Route path="/new-owner-details" element={<NewOwnerDetails />} />
           <Route path="/change-of-ownership" element={<ChangeOfOwnership />} />

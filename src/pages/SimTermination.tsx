@@ -1,10 +1,10 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppHeader from "@/components/AppHeader";
 import FlowStepper from "@/components/FlowStepper";
 import PayOption from "@/components/activation/PayOption";
-import { PaymentLinkOption, PaymentLinkSheet } from "@/components/PaymentLink";
 import PrototypeTestBox from "@/components/PrototypeTestBox";
 import SematiVerification from "@/components/SematiVerification";
 import BrandLoadingOverlay from "@/components/BrandLoadingOverlay";
@@ -226,8 +226,7 @@ const SimTermination = () => {
   const [amountToPay, setAmountToPay] = useState("");
   // Explicit "Skip Payment" choice — clearing the input mid-edit must not hide it.
   const [skipPayment, setSkipPayment] = useState(false);
-  const [payMethod, setPayMethod] = useState<"wallet" | "pos" | "link">("wallet");
-  const [linkOpen, setLinkOpen] = useState(false);
+  const [payMethod, setPayMethod] = useState<"wallet" | "pos">("wallet");
   const [terms, setTerms] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsChain, setTermsChain] = useState(false);
@@ -753,7 +752,6 @@ const SimTermination = () => {
                         )}
                       </PayOption>
                       <PayOption icon={HandCoins} label={t("activation.checkout.posTerminal")} description={t("activation.checkout.posTerminalDesc")} selected={payMethod === "pos"} onClick={() => setPayMethod("pos")} />
-                      <PaymentLinkOption selected={payMethod === "link"} onClick={() => setPayMethod("link")} />
                     </div>
                   </CardSection>
                 )}
@@ -831,12 +829,10 @@ const SimTermination = () => {
             </Button>
           )}
           {step === 1 && (
-            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => (payMethod === "link" ? setLinkOpen(true) : setConfirmOpen(true))}>
-              {payMethod === "link" ? t("paymentLink.send") : (
-                <>{needsPayment && (resolvedPayChoice === "pay" || (resolvedPayChoice === "partial" && amountToPayValid))
+            <Button className="w-full h-12 text-sm font-semibold rounded-full" disabled={!canConfirm} onClick={() => setConfirmOpen(true)}>
+              {needsPayment && (resolvedPayChoice === "pay" || (resolvedPayChoice === "partial" && amountToPayValid))
                 ? t("simTermination.payAndTerminate", { amount: money(resolvedPaidAmount) })
-                : t("simTermination.confirmTermination")}</>
-              )}
+                : t("simTermination.confirmTermination")}
             </Button>
           )}
         </div>
@@ -1054,8 +1050,6 @@ const SimTermination = () => {
       </Drawer>
 
       {/* Success */}
-      <PaymentLinkSheet open={linkOpen} onOpenChange={setLinkOpen} amount={resolvedPaidAmount} onPaid={resolveTermination} />
-
       <Drawer open={successOpen} onOpenChange={(o) => !o && (setSuccessOpen(false), resetAll(), navigate("/"))}>
         <DrawerContent className="bg-card rounded-t-[28px] border-0 px-5 pb-6 pt-2">
           <div className="flex flex-col items-center mb-4">
@@ -1089,7 +1083,7 @@ const SimTermination = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("simTermination.terminationFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("simTermination.terminationFailedDesc")}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(t("simTermination.terminationFailedDesc"), t)}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>

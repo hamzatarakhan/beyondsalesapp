@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CvmOfferSuccessNote } from "@/components/CvmOfferBanner";
@@ -374,7 +375,7 @@ const CreditTransfer = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("creditTransfer.transferFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{t("creditTransfer.transferFailedDesc")}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(t("creditTransfer.transferFailedDesc"), t)}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); changePinSheet(true); }}>

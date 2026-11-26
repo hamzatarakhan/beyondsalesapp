@@ -34,7 +34,10 @@
     "wrongCode": "The verification code is incorrect. Please try again."
   },
   "common": {
-    "toppedUp": "Topped up"
+    "toppedUp": "Topped up",
+    "use": "Use",
+    "filled": "Filled",
+    "errorCode": "<Error Code: {{code}}>"
   },
   "myShifts": {
     "pageTitle": "My Shifts",
@@ -266,6 +269,84 @@
       "rentalAgreementCopy": "Rental Agreement Copy",
       "civilIdAttachment": "Civil ID Attachment"
     }
+  },
+  "lineSuspension": {
+    "testTooSoon": "Prepaid mobile, suspended 15 days ago — too soon",
+    "tooSoonTitle": "Can't suspend yet",
+    "tooSoon": "The last suspension started on {{start}}. A new suspension can be requested from {{date}}.",
+    "rule5": "A new suspension can be requested only {{days}} days after the last suspension started.",
+    "title": "Line Suspension",
+    "mode": {
+      "suspend": "Suspend",
+      "restore": "Restore"
+    },
+    "msisdn": "MSISDN",
+    "search": "Search",
+    "prepaidOnly": "Prepaid mobile or prepaid data lines only.",
+    "testHeading": "test numbers",
+    "testDescription": "Use these to try every case. This box won't appear in the real implementation.",
+    "testActiveMobile": "Prepaid mobile, active",
+    "testActiveData": "Prepaid data, active",
+    "testSuspended": "Prepaid mobile, already suspended",
+    "testPostpaid": "Postpaid, not eligible",
+    "testNotFound": "Number not found",
+    "notFoundTitle": "Number not found",
+    "notFound": "Number not found. Please check the MSISDN and try again.",
+    "notEligibleTitle": "Not eligible",
+    "notEligible": "Only prepaid mobile and prepaid data lines can be suspended.",
+    "alreadySuspendedTitle": "Line already suspended",
+    "alreadySuspended": "This line is already suspended. It will be restored automatically on {{date}}.",
+    "notSuspendedTitle": "Line is not suspended",
+    "notSuspended": "This line is not suspended, so there is nothing to restore.",
+    "gotIt": "Got it",
+    "lineDetails": "Line details",
+    "lineType": "Line type",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusSuspended": "Suspended",
+    "suspendedOn": "Suspended on",
+    "validUntil": "Restores automatically on",
+    "kind": {
+      "mobile": "Prepaid mobile",
+      "data": "Prepaid data",
+      "postpaid": "Postpaid"
+    },
+    "howItWorks": "How suspension works",
+    "rule1": "The line can't make or receive calls or SMS and can't use data while suspended.",
+    "rule2": "The number and the remaining balance are kept.",
+    "rule3": "The suspension lasts {{days}} days. The line is restored automatically when it ends.",
+    "rule4": "The customer can restore it earlier at any time, through a dealer (Nafath and OTP) or the Self Care app (OTP).",
+    "customerVerification": "Customer verification",
+    "verifyCustomer": "Verify customer",
+    "customerVerified": "Customer verified",
+    "otp": "OTP",
+    "sendOtp": "Send OTP",
+    "otpVerified": "OTP verified",
+    "codeSentTo": "A code will be sent to {{number}}.",
+    "completeVerificationFirst": "Verify the customer first.",
+    "otpSentTo": "We sent a code to {{number}}.",
+    "understood": "The customer understands how suspension works: no calls, SMS or data until the line is restored, either automatically after {{days}} days or earlier through a dealer or Self Care.",
+    "confirm": {
+      "suspend": "Confirm suspension",
+      "restore": "Confirm restore"
+    },
+    "cancel": "Cancel",
+    "successTitle": {
+      "suspend": "Line suspended",
+      "restore": "Line restored"
+    },
+    "successMsg": {
+      "suspend": "{{number}} is suspended. It will be restored automatically after {{days}} days.",
+      "restore": "Service on {{number}} is restored."
+    },
+    "reference": "Reference",
+    "done": "Done",
+    "failedTitle": {
+      "suspend": "Suspension failed",
+      "restore": "Restore failed"
+    },
+    "failedDesc": "We couldn't complete your request. Please try again.",
+    "tryAgain": "Try again"
   },
   "simTermination": {
     "title": "SIM Termination",
@@ -2982,6 +3063,7 @@
     "onboardingRequests": "Onboarding Requests",
     "simReplacement": "SIM Replacement",
     "simTermination": "SIM Termination",
+    "lineSuspension": "Line Suspension",
     "subscriptionMigration": "Subscription Migration",
     "subscriptionMigrationOptions": {
       "preToPost": "Prepaid to Postpaid",

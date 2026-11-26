@@ -1,3 +1,4 @@
+import { withErrorCode } from "@/lib/errorCode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -740,7 +741,7 @@ const UpdateCustomerId = () => {
               </div>
             </div>
             <h3 className="font-semibold text-foreground text-base mb-1">{t("updateCustomerId.updateFailedTitle")}</h3>
-            <p className="text-sm text-muted-foreground text-center">{failureReason}</p>
+            <p className="text-sm text-muted-foreground text-center">{withErrorCode(failureReason, t)}</p>
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12 rounded-full font-semibold" onClick={() => { setFailureOpen(false); setConfirmOpen(true); }}>
